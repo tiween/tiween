@@ -1,5 +1,4 @@
-
-name: Verify build
+name: CI
 
 on:
   workflow_dispatch:
@@ -45,12 +44,12 @@ jobs:
           cache: yarn
 
       - name: Install dependencies (immutable)
-        run: yarn install --frozen-lockfile
+        run: yarn install --frozen-lockfile --ignore-engines
 
       - name: Prepare Environment Variables
         run: |
           cp apps/strapi/.env.example apps/strapi/.env
-          cp apps/ui/.env.local.example apps/ui/.env.local
+          cp apps/client/.env.local.example apps/client/.env.local
 
       - name: Format check
         run: yarn format:check
@@ -83,15 +82,46 @@ jobs:
           cache: yarn
 
       - name: Install dependencies (immutable)
-        run: yarn install --frozen-lockfile
+        run: yarn install --frozen-lockfile --ignore-engines
 
       - name: Prepare Environment Variables
         run: |
           cp apps/strapi/.env.example apps/strapi/.env
-          cp apps/ui/.env.local.example apps/ui/.env.local
+          cp apps/client/.env.local.example apps/client/.env.local
 
-      - name: Build UI
-        run: yarn build:ui
+      - name: Build Client
+        run: yarn build:client
 
       - name: Build Strapi
         run: yarn build:strapi
+
+  release:
+    name: Release
+    needs: [lint, build]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: yarn
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile --ignore-engines
+
+      - name: Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: yarn release
