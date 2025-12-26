@@ -1,0 +1,43 @@
+{
+  "kind": "collectionType",
+  "collectionName": "mediums",
+  "info": {
+    "singularName": "medium",
+    "pluralName": "mediums",
+    "displayName": "Medium",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "description": {
+      "type": "richtext"
+    },
+    "type": {
+      "type": "enumeration",
+      "enum": [
+        "VENUE",
+        "CHANNEL",
+        "TV_SHOW",
+        "ONLINE"
+      ],
+      "default": "VENUE",
+      "required": true
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "name"
+    },
+    "links": {
+      "type": "component",
+      "repeatable": true,
+      "component": "common.link"
+    }
+  }
+}

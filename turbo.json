@@ -1,0 +1,35 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "globalDependencies": ["**/.env", "**/.env.*local"],
+  "globalEnv": [
+    "NEXT_OUTPUT",
+    "APP_PUBLIC_URL",
+    "STRAPI_URL",
+    "STRAPI_REST_READONLY_API_KEY",
+    "SENTRY_SUPPRESS_GLOBAL_ERROR_HANDLER_FILE_WARNING",
+    "WEBPACK_CACHE_TYPE"
+  ],
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": [".next/**", "!.next/cache/**", "dist/**", "public/**"]
+    },
+    "lint": {
+      "dependsOn": ["^lint"]
+    },
+    "test": {
+      "dependsOn": ["build"]
+    },
+    "dev": {
+      "dependsOn": ["@tiween/shared-types#build", "@tiween/design-system#build"],
+      "cache": false,
+      "persistent": true
+    },
+    "start": {
+      "dependsOn": ["^build"],
+      "cache": false,
+      "persistent": true
+    }
+  },
+  "ui": "tui"
+}

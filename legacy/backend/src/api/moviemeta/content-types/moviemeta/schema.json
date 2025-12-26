@@ -1,0 +1,43 @@
+{
+  "kind": "collectionType",
+  "collectionName": "moviemetas",
+  "info": {
+    "singularName": "moviemeta",
+    "pluralName": "moviemetas",
+    "displayName": "Moviemeta"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string"
+    },
+    "originalTitle": {
+      "type": "string"
+    },
+    "backgroundcolor": {
+      "type": "string"
+    },
+    "runtime": {
+      "type": "integer"
+    },
+    "tmdbid": {
+      "type": "string"
+    },
+    "remote": {
+      "type": "json"
+    },
+    "colors": {
+      "type": "json"
+    },
+    "overridden_poster": {
+      "allowedTypes": [
+        "images"
+      ],
+      "type": "media",
+      "multiple": false
+    }
+  }
+}

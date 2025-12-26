@@ -1,0 +1,37 @@
+{
+  "name": "Public",
+  "description": "Default role given to unauthenticated user.",
+  "type": "public",
+  "permissions": [
+    {
+      "action": "api::creative-work.creative-work.find"
+    },
+    {
+      "action": "api::creative-work.creative-work.findOne"
+    },
+    {
+      "action": "api::event-group.event-group.find"
+    },
+    {
+      "action": "api::event-group.event-group.findOne"
+    },
+    {
+      "action": "api::moviemeta.moviemeta.find"
+    },
+    {
+      "action": "api::moviemeta.moviemeta.findByTMDBID"
+    },
+    {
+      "action": "plugin::users-permissions.auth.callback"
+    },
+    {
+      "action": "plugin::users-permissions.auth.connect"
+    },
+    {
+      "action": "plugin::users-permissions.auth.register"
+    },
+    {
+      "action": "plugin::users-permissions.user.me"
+    }
+  ]
+}

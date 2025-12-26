@@ -1,0 +1,1210 @@
+{
+  "name": "Super Admin",
+  "code": "strapi-super-admin",
+  "description": "Super Admins can access and manage all features and settings.",
+  "permissions": [
+    {
+      "action": "plugin::content-manager.explorer.create",
+      "subject": "api::country.country",
+      "properties": {
+        "fields": [
+          "name",
+          "iso_3166_code"
+        ],
+        "locales": [
+          "en",
+          "ar-TN",
+          "fr"
+        ]
+      },
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.delete",
+      "subject": "api::country.country",
+      "properties": {
+        "locales": [
+          "en",
+          "ar-TN",
+          "fr"
+        ]
+      },
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.read",
+      "subject": "api::country.country",
+      "properties": {
+        "fields": [
+          "name",
+          "iso_3166_code"
+        ],
+        "locales": [
+          "en",
+          "ar-TN",
+          "fr"
+        ]
+      },
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.update",
+      "subject": "api::country.country",
+      "properties": {
+        "fields": [
+          "name",
+          "iso_3166_code"
+        ],
+        "locales": [
+          "en",
+          "ar-TN",
+          "fr"
+        ]
+      },
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.create",
+      "subject": "api::creative-work.creative-work",
+      "properties": {
+        "fields": [
+          "title",
+          "originalTitle",
+          "releaseYear",
+          "overview",
+          "poster",
+          "photos",
+          "cast.person",
+          "cast.character",
+          "crew.person",
+          "crew.job",
+          "type",
+          "runtime",
+          "slug",
+          "facts.name",
+          "facts.year",
+          "facts.country",
+          "videos.url",
+          "videos.type",
+          "production_countries",
+          "production_companies",
+          "links.url",
+          "links.type"
+        ],
+        "locales": [
+          "en",
+          "ar-TN",
+          "fr"
+        ]
+      },
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.delete",
+      "subject": "api::creative-work.creative-work",
+      "properties": {
+        "locales": [
+          "en",
+          "ar-TN",
+          "fr"
+        ]
+      },
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.publish",
+      "subject": "api::creative-work.creative-work",
+      "properties": {
+        "locales": [
+          "en",
+          "ar-TN",
+          "fr"
+        ]
+      },
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.read",
+      "subject": "api::creative-work.creative-work",
+      "properties": {
+        "fields": [
+          "title",
+          "originalTitle",
+          "releaseYear",
+          "overview",
+          "poster",
+          "photos",
+          "cast.person",
+          "cast.character",
+          "crew.person",
+          "crew.job",
+          "type",
+          "runtime",
+          "slug",
+          "facts.name",
+          "facts.year",
+          "facts.country",
+          "videos.url",
+          "videos.type",
+          "production_countries",
+          "production_companies",
+          "links.url",
+          "links.type"
+        ],
+        "locales": [
+          "en",
+          "ar-TN",
+          "fr"
+        ]
+      },
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.update",
+      "subject": "api::creative-work.creative-work",
+      "properties": {
+        "fields": [
+          "title",
+          "originalTitle",
+          "releaseYear",
+          "overview",
+          "poster",
+          "photos",
+          "cast.person",
+          "cast.character",
+          "crew.person",
+          "crew.job",
+          "type",
+          "runtime",
+          "slug",
+          "facts.name",
+          "facts.year",
+          "facts.country",
+          "videos.url",
+          "videos.type",
+          "production_countries",
+          "production_companies",
+          "links.url",
+          "links.type"
+        ],
+        "locales": [
+          "en",
+          "ar-TN",
+          "fr"
+        ]
+      },
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.create",
+      "subject": "api::event-group.event-group",
+      "properties": {
+        "fields": [
+          "title",
+          "description",
+          "subtitle",
+          "shortTitle",
+          "slug",
+          "startDate",
+          "endDate",
+          "poster",
+          "hero.media",
+          "hero.title",
+          "hero.body",
+          "hero.subtitle",
+          "hero.displayOnHomePage",
+          "events"
+        ]
+      },
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.delete",
+      "subject": "api::event-group.event-group",
+      "properties": {},
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.publish",
+      "subject": "api::event-group.event-group",
+      "properties": {},
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.read",
+      "subject": "api::event-group.event-group",
+      "properties": {
+        "fields": [
+          "title",
+          "description",
+          "subtitle",
+          "shortTitle",
+          "slug",
+          "startDate",
+          "endDate",
+          "poster",
+          "hero.media",
+          "hero.title",
+          "hero.body",
+          "hero.subtitle",
+          "hero.displayOnHomePage",
+          "events"
+        ]
+      },
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.update",
+      "subject": "api::event-group.event-group",
+      "properties": {
+        "fields": [
+          "title",
+          "description",
+          "subtitle",
+          "shortTitle",
+          "slug",
+          "startDate",
+          "endDate",
+          "poster",
+          "hero.media",
+          "hero.title",
+          "hero.body",
+          "hero.subtitle",
+          "hero.displayOnHomePage",
+          "events"
+        ]
+      },
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.create",
+      "subject": "api::event.event",
+      "properties": {
+        "fields": [
+          "title",
+          "subtitle",
+          "slug",
+          "startDate",
+          "startTime",
+          "endDate",
+          "endTime",
+          "runtime",
+          "description",
+          "poster",
+          "links.url",
+          "links.type",
+          "medium",
+          "fullStartDate",
+          "fullEndDate",
+          "colors",
+          "recurring",
+          "recurringRule",
+          "occurenceOf",
+          "showtimes",
+          "event_group"
+        ]
+      },
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.delete",
+      "subject": "api::event.event",
+      "properties": {},
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.read",
+      "subject": "api::event.event",
+      "properties": {
+        "fields": [
+          "title",
+          "subtitle",
+          "slug",
+          "startDate",
+          "startTime",
+          "endDate",
+          "endTime",
+          "runtime",
+          "description",
+          "poster",
+          "links.url",
+          "links.type",
+          "medium",
+          "fullStartDate",
+          "fullEndDate",
+          "colors",
+          "recurring",
+          "recurringRule",
+          "occurenceOf",
+          "showtimes",
+          "event_group"
+        ]
+      },
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.update",
+      "subject": "api::event.event",
+      "properties": {
+        "fields": [
+          "title",
+          "subtitle",
+          "slug",
+          "startDate",
+          "startTime",
+          "endDate",
+          "endTime",
+          "runtime",
+          "description",
+          "poster",
+          "links.url",
+          "links.type",
+          "medium",
+          "fullStartDate",
+          "fullEndDate",
+          "colors",
+          "recurring",
+          "recurringRule",
+          "occurenceOf",
+          "showtimes",
+          "event_group"
+        ]
+      },
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.create",
+      "subject": "api::job.job",
+      "properties": {
+        "fields": [
+          "name",
+          "feminine",
+          "root"
+        ],
+        "locales": [
+          "en",
+          "ar-TN",
+          "fr"
+        ]
+      },
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.delete",
+      "subject": "api::job.job",
+      "properties": {
+        "locales": [
+          "en",
+          "ar-TN",
+          "fr"
+        ]
+      },
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.read",
+      "subject": "api::job.job",
+      "properties": {
+        "fields": [
+          "name",
+          "feminine",
+          "root"
+        ],
+        "locales": [
+          "en",
+          "ar-TN",
+          "fr"
+        ]
+      },
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.update",
+      "subject": "api::job.job",
+      "properties": {
+        "fields": [
+          "name",
+          "feminine",
+          "root"
+        ],
+        "locales": [
+          "en",
+          "ar-TN",
+          "fr"
+        ]
+      },
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.create",
+      "subject": "api::medium.medium",
+      "properties": {
+        "fields": [
+          "name",
+          "description",
+          "type",
+          "slug",
+          "links.url",
+          "links.type"
+        ]
+      },
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.delete",
+      "subject": "api::medium.medium",
+      "properties": {},
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.read",
+      "subject": "api::medium.medium",
+      "properties": {
+        "fields": [
+          "name",
+          "description",
+          "type",
+          "slug",
+          "links.url",
+          "links.type"
+        ]
+      },
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.update",
+      "subject": "api::medium.medium",
+      "properties": {
+        "fields": [
+          "name",
+          "description",
+          "type",
+          "slug",
+          "links.url",
+          "links.type"
+        ]
+      },
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.create",
+      "subject": "api::moviemeta.moviemeta",
+      "properties": {
+        "fields": [
+          "title",
+          "originalTitle",
+          "backgroundcolor",
+          "runtime",
+          "tmdbid",
+          "remote",
+          "colors",
+          "overridden_poster"
+        ]
+      },
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.delete",
+      "subject": "api::moviemeta.moviemeta",
+      "properties": {},
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.read",
+      "subject": "api::moviemeta.moviemeta",
+      "properties": {
+        "fields": [
+          "title",
+          "originalTitle",
+          "backgroundcolor",
+          "runtime",
+          "tmdbid",
+          "remote",
+          "colors",
+          "overridden_poster"
+        ]
+      },
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.update",
+      "subject": "api::moviemeta.moviemeta",
+      "properties": {
+        "fields": [
+          "title",
+          "originalTitle",
+          "backgroundcolor",
+          "runtime",
+          "tmdbid",
+          "remote",
+          "colors",
+          "overridden_poster"
+        ]
+      },
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.create",
+      "subject": "api::person.person",
+      "properties": {
+        "fields": [
+          "fullName",
+          "birthdate",
+          "photo"
+        ],
+        "locales": [
+          "en",
+          "ar-TN",
+          "fr"
+        ]
+      },
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.delete",
+      "subject": "api::person.person",
+      "properties": {
+        "locales": [
+          "en",
+          "ar-TN",
+          "fr"
+        ]
+      },
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.publish",
+      "subject": "api::person.person",
+      "properties": {
+        "locales": [
+          "en",
+          "ar-TN",
+          "fr"
+        ]
+      },
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.read",
+      "subject": "api::person.person",
+      "properties": {
+        "fields": [
+          "fullName",
+          "birthdate",
+          "photo"
+        ],
+        "locales": [
+          "en",
+          "ar-TN",
+          "fr"
+        ]
+      },
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.update",
+      "subject": "api::person.person",
+      "properties": {
+        "fields": [
+          "fullName",
+          "birthdate",
+          "photo"
+        ],
+        "locales": [
+          "en",
+          "ar-TN",
+          "fr"
+        ]
+      },
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.create",
+      "subject": "api::production-company.production-company",
+      "properties": {
+        "fields": [
+          "name",
+          "logo",
+          "links.url",
+          "links.type"
+        ]
+      },
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.delete",
+      "subject": "api::production-company.production-company",
+      "properties": {},
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.read",
+      "subject": "api::production-company.production-company",
+      "properties": {
+        "fields": [
+          "name",
+          "logo",
+          "links.url",
+          "links.type"
+        ]
+      },
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.update",
+      "subject": "api::production-company.production-company",
+      "properties": {
+        "fields": [
+          "name",
+          "logo",
+          "links.url",
+          "links.type"
+        ]
+      },
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.create",
+      "subject": "api::region.region",
+      "properties": {
+        "fields": [
+          "name",
+          "slug"
+        ]
+      },
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.delete",
+      "subject": "api::region.region",
+      "properties": {},
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.read",
+      "subject": "api::region.region",
+      "properties": {
+        "fields": [
+          "name",
+          "slug"
+        ]
+      },
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.update",
+      "subject": "api::region.region",
+      "properties": {
+        "fields": [
+          "name",
+          "slug"
+        ]
+      },
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.create",
+      "subject": "api::showtime.showtime",
+      "properties": {
+        "fields": [
+          "date",
+          "premiere",
+          "language",
+          "video_format",
+          "tmdbid",
+          "day",
+          "moviemeta",
+          "runtime",
+          "medium",
+          "event"
+        ]
+      },
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.delete",
+      "subject": "api::showtime.showtime",
+      "properties": {},
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.read",
+      "subject": "api::showtime.showtime",
+      "properties": {
+        "fields": [
+          "date",
+          "premiere",
+          "language",
+          "video_format",
+          "tmdbid",
+          "day",
+          "moviemeta",
+          "runtime",
+          "medium",
+          "event"
+        ]
+      },
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.update",
+      "subject": "api::showtime.showtime",
+      "properties": {
+        "fields": [
+          "date",
+          "premiere",
+          "language",
+          "video_format",
+          "tmdbid",
+          "day",
+          "moviemeta",
+          "runtime",
+          "medium",
+          "event"
+        ]
+      },
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.create",
+      "subject": "api::term.term",
+      "properties": {
+        "fields": [
+          "name"
+        ],
+        "locales": [
+          "en",
+          "ar-TN",
+          "fr"
+        ]
+      },
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.delete",
+      "subject": "api::term.term",
+      "properties": {
+        "locales": [
+          "en",
+          "ar-TN",
+          "fr"
+        ]
+      },
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.read",
+      "subject": "api::term.term",
+      "properties": {
+        "fields": [
+          "name"
+        ],
+        "locales": [
+          "en",
+          "ar-TN",
+          "fr"
+        ]
+      },
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.update",
+      "subject": "api::term.term",
+      "properties": {
+        "fields": [
+          "name"
+        ],
+        "locales": [
+          "en",
+          "ar-TN",
+          "fr"
+        ]
+      },
+      "conditions": []
+    },
+    {
+      "action": "admin::api-tokens.access",
+      "subject": null,
+      "properties": {},
+      "conditions": []
+    },
+    {
+      "action": "admin::api-tokens.create",
+      "subject": null,
+      "properties": {},
+      "conditions": []
+    },
+    {
+      "action": "admin::api-tokens.delete",
+      "subject": null,
+      "properties": {},
+      "conditions": []
+    },
+    {
+      "action": "admin::api-tokens.read",
+      "subject": null,
+      "properties": {},
+      "conditions": []
+    },
+    {
+      "action": "admin::api-tokens.regenerate",
+      "subject": null,
+      "properties": {},
+      "conditions": []
+    },
+    {
+      "action": "admin::api-tokens.update",
+      "subject": null,
+      "properties": {},
+      "conditions": []
+    },
+    {
+      "action": "admin::marketplace.plugins.install",
+      "subject": null,
+      "properties": {},
+      "conditions": []
+    },
+    {
+      "action": "admin::marketplace.plugins.uninstall",
+      "subject": null,
+      "properties": {},
+      "conditions": []
+    },
+    {
+      "action": "admin::marketplace.read",
+      "subject": null,
+      "properties": {},
+      "conditions": []
+    },
+    {
+      "action": "admin::project-settings.read",
+      "subject": null,
+      "properties": {},
+      "conditions": []
+    },
+    {
+      "action": "admin::project-settings.update",
+      "subject": null,
+      "properties": {},
+      "conditions": []
+    },
+    {
+      "action": "admin::roles.create",
+      "subject": null,
+      "properties": {},
+      "conditions": []
+    },
+    {
+      "action": "admin::roles.delete",
+      "subject": null,
+      "properties": {},
+      "conditions": []
+    },
+    {
+      "action": "admin::roles.read",
+      "subject": null,
+      "properties": {},
+      "conditions": []
+    },
+    {
+      "action": "admin::roles.update",
+      "subject": null,
+      "properties": {},
+      "conditions": []
+    },
+    {
+      "action": "admin::users.create",
+      "subject": null,
+      "properties": {},
+      "conditions": []
+    },
+    {
+      "action": "admin::users.delete",
+      "subject": null,
+      "properties": {},
+      "conditions": []
+    },
+    {
+      "action": "admin::users.read",
+      "subject": null,
+      "properties": {},
+      "conditions": []
+    },
+    {
+      "action": "admin::users.update",
+      "subject": null,
+      "properties": {},
+      "conditions": []
+    },
+    {
+      "action": "admin::webhooks.create",
+      "subject": null,
+      "properties": {},
+      "conditions": []
+    },
+    {
+      "action": "admin::webhooks.delete",
+      "subject": null,
+      "properties": {},
+      "conditions": []
+    },
+    {
+      "action": "admin::webhooks.read",
+      "subject": null,
+      "properties": {},
+      "conditions": []
+    },
+    {
+      "action": "admin::webhooks.update",
+      "subject": null,
+      "properties": {},
+      "conditions": []
+    },
+    {
+      "action": "plugin::config-sync.menu-link",
+      "subject": null,
+      "properties": {},
+      "conditions": []
+    },
+    {
+      "action": "plugin::config-sync.settings.read",
+      "subject": null,
+      "properties": {},
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.collection-types.configure-view",
+      "subject": null,
+      "properties": {},
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.components.configure-layout",
+      "subject": null,
+      "properties": {},
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.create",
+      "subject": "plugin::users-permissions.user",
+      "properties": {
+        "fields": [
+          "username",
+          "email",
+          "provider",
+          "password",
+          "resetPasswordToken",
+          "confirmationToken",
+          "confirmed",
+          "blocked",
+          "role"
+        ]
+      },
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.delete",
+      "subject": "plugin::users-permissions.user",
+      "properties": {},
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.read",
+      "subject": "plugin::users-permissions.user",
+      "properties": {
+        "fields": [
+          "username",
+          "email",
+          "provider",
+          "password",
+          "resetPasswordToken",
+          "confirmationToken",
+          "confirmed",
+          "blocked",
+          "role"
+        ]
+      },
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.update",
+      "subject": "plugin::users-permissions.user",
+      "properties": {
+        "fields": [
+          "username",
+          "email",
+          "provider",
+          "password",
+          "resetPasswordToken",
+          "confirmationToken",
+          "confirmed",
+          "blocked",
+          "role"
+        ]
+      },
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.single-types.configure-view",
+      "subject": null,
+      "properties": {},
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-type-builder.read",
+      "subject": null,
+      "properties": {},
+      "conditions": []
+    },
+    {
+      "action": "plugin::documentation.read",
+      "subject": null,
+      "properties": {},
+      "conditions": []
+    },
+    {
+      "action": "plugin::documentation.settings.read",
+      "subject": null,
+      "properties": {},
+      "conditions": []
+    },
+    {
+      "action": "plugin::documentation.settings.regenerate",
+      "subject": null,
+      "properties": {},
+      "conditions": []
+    },
+    {
+      "action": "plugin::documentation.settings.update",
+      "subject": null,
+      "properties": {},
+      "conditions": []
+    },
+    {
+      "action": "plugin::email.settings.read",
+      "subject": null,
+      "properties": {},
+      "conditions": []
+    },
+    {
+      "action": "plugin::i18n.locale.create",
+      "subject": null,
+      "properties": {},
+      "conditions": []
+    },
+    {
+      "action": "plugin::i18n.locale.delete",
+      "subject": null,
+      "properties": {},
+      "conditions": []
+    },
+    {
+      "action": "plugin::i18n.locale.read",
+      "subject": null,
+      "properties": {},
+      "conditions": []
+    },
+    {
+      "action": "plugin::i18n.locale.update",
+      "subject": null,
+      "properties": {},
+      "conditions": []
+    },
+    {
+      "action": "plugin::upload.assets.copy-link",
+      "subject": null,
+      "properties": {},
+      "conditions": []
+    },
+    {
+      "action": "plugin::upload.assets.create",
+      "subject": null,
+      "properties": {},
+      "conditions": []
+    },
+    {
+      "action": "plugin::upload.assets.download",
+      "subject": null,
+      "properties": {},
+      "conditions": []
+    },
+    {
+      "action": "plugin::upload.assets.update",
+      "subject": null,
+      "properties": {},
+      "conditions": []
+    },
+    {
+      "action": "plugin::upload.read",
+      "subject": null,
+      "properties": {},
+      "conditions": []
+    },
+    {
+      "action": "plugin::upload.settings.read",
+      "subject": null,
+      "properties": {},
+      "conditions": []
+    },
+    {
+      "action": "plugin::users-permissions.advanced-settings.read",
+      "subject": null,
+      "properties": {},
+      "conditions": []
+    },
+    {
+      "action": "plugin::users-permissions.advanced-settings.update",
+      "subject": null,
+      "properties": {},
+      "conditions": []
+    },
+    {
+      "action": "plugin::users-permissions.email-templates.read",
+      "subject": null,
+      "properties": {},
+      "conditions": []
+    },
+    {
+      "action": "plugin::users-permissions.email-templates.update",
+      "subject": null,
+      "properties": {},
+      "conditions": []
+    },
+    {
+      "action": "plugin::users-permissions.providers.read",
+      "subject": null,
+      "properties": {},
+      "conditions": []
+    },
+    {
+      "action": "plugin::users-permissions.providers.update",
+      "subject": null,
+      "properties": {},
+      "conditions": []
+    },
+    {
+      "action": "plugin::users-permissions.roles.create",
+      "subject": null,
+      "properties": {},
+      "conditions": []
+    },
+    {
+      "action": "plugin::users-permissions.roles.delete",
+      "subject": null,
+      "properties": {},
+      "conditions": []
+    },
+    {
+      "action": "plugin::users-permissions.roles.read",
+      "subject": null,
+      "properties": {},
+      "conditions": []
+    },
+    {
+      "action": "plugin::users-permissions.roles.update",
+      "subject": null,
+      "properties": {},
+      "conditions": []
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "collectionName": "components_common_remarkable_facts",
+  "info": {
+    "displayName": "RemarkableFact",
+    "icon": "star",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "year": {
+      "type": "integer"
+    },
+    "country": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::country.country"
+    }
+  }
+}

@@ -1,0 +1,223 @@
+{
+  "key": "plugin_content_manager_configuration_content_types::api::moviemeta.moviemeta",
+  "value": {
+    "uid": "api::moviemeta.moviemeta",
+    "settings": {
+      "bulkable": true,
+      "filterable": true,
+      "searchable": true,
+      "pageSize": 10,
+      "mainField": "title",
+      "defaultSortBy": "title",
+      "defaultSortOrder": "ASC"
+    },
+    "metadatas": {
+      "id": {
+        "edit": {},
+        "list": {
+          "label": "id",
+          "searchable": true,
+          "sortable": true
+        }
+      },
+      "title": {
+        "edit": {
+          "label": "title",
+          "description": "",
+          "placeholder": "",
+          "visible": true,
+          "editable": true
+        },
+        "list": {
+          "label": "title",
+          "searchable": true,
+          "sortable": true
+        }
+      },
+      "originalTitle": {
+        "edit": {
+          "label": "originalTitle",
+          "description": "",
+          "placeholder": "",
+          "visible": true,
+          "editable": true
+        },
+        "list": {
+          "label": "originalTitle",
+          "searchable": true,
+          "sortable": true
+        }
+      },
+      "backgroundcolor": {
+        "edit": {
+          "label": "backgroundcolor",
+          "description": "",
+          "placeholder": "",
+          "visible": true,
+          "editable": true
+        },
+        "list": {
+          "label": "backgroundcolor",
+          "searchable": true,
+          "sortable": true
+        }
+      },
+      "runtime": {
+        "edit": {
+          "label": "runtime",
+          "description": "",
+          "placeholder": "",
+          "visible": true,
+          "editable": true
+        },
+        "list": {
+          "label": "runtime",
+          "searchable": true,
+          "sortable": true
+        }
+      },
+      "tmdbid": {
+        "edit": {
+          "label": "tmdbid",
+          "description": "",
+          "placeholder": "",
+          "visible": true,
+          "editable": true
+        },
+        "list": {
+          "label": "tmdbid",
+          "searchable": true,
+          "sortable": true
+        }
+      },
+      "remote": {
+        "edit": {
+          "label": "remote",
+          "description": "",
+          "placeholder": "",
+          "visible": true,
+          "editable": true
+        },
+        "list": {
+          "label": "remote",
+          "searchable": false,
+          "sortable": false
+        }
+      },
+      "colors": {
+        "edit": {
+          "label": "colors",
+          "description": "",
+          "placeholder": "",
+          "visible": true,
+          "editable": true
+        },
+        "list": {
+          "label": "colors",
+          "searchable": false,
+          "sortable": false
+        }
+      },
+      "overridden_poster": {
+        "edit": {
+          "label": "overridden_poster",
+          "description": "",
+          "placeholder": "",
+          "visible": true,
+          "editable": true
+        },
+        "list": {
+          "label": "overridden_poster",
+          "searchable": false,
+          "sortable": false
+        }
+      },
+      "createdAt": {
+        "edit": {
+          "label": "createdAt",
+          "description": "",
+          "placeholder": "",
+          "visible": false,
+          "editable": true
+        },
+        "list": {
+          "label": "createdAt",
+          "searchable": true,
+          "sortable": true
+        }
+      },
+      "updatedAt": {
+        "edit": {
+          "label": "updatedAt",
+          "description": "",
+          "placeholder": "",
+          "visible": false,
+          "editable": true
+        },
+        "list": {
+          "label": "updatedAt",
+          "searchable": true,
+          "sortable": true
+        }
+      }
+    },
+    "layouts": {
+      "list": [
+        "id",
+        "title",
+        "originalTitle",
+        "backgroundcolor"
+      ],
+      "editRelations": [],
+      "edit": [
+        [
+          {
+            "name": "title",
+            "size": 6
+          },
+          {
+            "name": "originalTitle",
+            "size": 6
+          }
+        ],
+        [
+          {
+            "name": "backgroundcolor",
+            "size": 6
+          },
+          {
+            "name": "runtime",
+            "size": 4
+          }
+        ],
+        [
+          {
+            "name": "tmdbid",
+            "size": 6
+          }
+        ],
+        [
+          {
+            "name": "remote",
+            "size": 12
+          }
+        ],
+        [
+          {
+            "name": "colors",
+            "size": 12
+          }
+        ],
+        [
+          {
+            "name": "overridden_poster",
+            "size": 6
+          }
+        ]
+      ]
+    }
+  },
+  "type": "object",
+  "environment": null,
+  "tag": null
+}

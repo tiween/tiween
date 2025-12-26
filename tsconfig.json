@@ -1,0 +1,3 @@
+{
+  "extends": "@tiween/typescript-config/base.json"
+}

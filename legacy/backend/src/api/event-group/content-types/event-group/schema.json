@@ -1,0 +1,62 @@
+{
+  "kind": "collectionType",
+  "collectionName": "event_groups",
+  "info": {
+    "singularName": "event-group",
+    "pluralName": "event-groups",
+    "displayName": "EventGroup",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "description": {
+      "type": "richtext"
+    },
+    "subtitle": {
+      "type": "string"
+    },
+    "shortTitle": {
+      "type": "string"
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "title"
+    },
+    "startDate": {
+      "type": "date"
+    },
+    "endDate": {
+      "type": "date"
+    },
+    "poster": {
+      "type": "media",
+      "multiple": true,
+      "required": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "hero": {
+      "displayName": "HeroDisplay",
+      "type": "component",
+      "repeatable": false,
+      "component": "common.hero-display"
+    },
+    "events": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::event.event",
+      "mappedBy": "event_group"
+    }
+  }
+}

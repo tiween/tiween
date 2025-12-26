@@ -1,0 +1,84 @@
+@tailwind utilities;
+
+body {
+  @apply font-lato;
+}
+@layer utilities {
+  .scroll-snap-none {
+    scroll-snap-type: none;
+  }
+  .scroll-snap-x {
+    scroll-snap-type: x;
+  }
+  .scroll-snap-y {
+    scroll-snap-type: y;
+  }
+}
+
+@layer components {
+  .theater-play-section-title {
+    @apply font-fira text-2xl font-semibold;
+  }
+}
+
+@layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+div.premiere {
+  @apply bg-wild-strawberry text-black mt-px font-lato uppercase font-semibold text-center rounded-sm whitespace-nowrap absolute z-10 top-full left-1/2;
+  font-size: 0.6rem;
+  padding: 3px 4px;
+  width: auto;
+  transform: translateX(-50%) !important;
+}
+div.premiere:after {
+  @apply left-1/2 bottom-full border-solid absolute;
+  content: '';
+  transform: translateX(-50%) !important;
+  border-width: 3px;
+  border-color: transparent transparent #ff489f transparent;
+}
+
+h4 {
+  @apply font-bold text-lg my-2;
+}
+
+section h2 {
+  background: linear-gradient(to right, #ff489f, #ffd600) left bottom no-repeat;
+  background-size: 100% 5px;
+}
+div.left-navigation a:hover,
+a.active
+{
+  background: linear-gradient(to right, #ff489f, #ffd600) left bottom no-repeat;
+  background-size: 100% 5px;
+}
+
+.modal-overlay {
+  filter: grayscale(100%);
+}
+
+input.mobile-search-field::-webkit-search-cancel-button {
+  @apply relative right-5  h-5 w-5 rounded-xl text-selago;
+}
+
+div.movie-poster-placeholder > .broken-image {
+  /* background-image: url("https://res.cloudinary.com/tiween/image/upload/v1573680548/film-poster-placeholder.png"); */
+}
+
+div.movie-poster-placeholder img[alt] {
+  @apply hidden bg-transparent;
+}
+.aa-Panel {
+  scroll-snap-type: mandatory y;
+}
+
+.medium-name-link {
+  text-decoration: underline dotted #ff489f;
+  -webkit-text-underline-position: under;
+  -ms-text-underline-position: below;
+  text-underline-position: under;
+}

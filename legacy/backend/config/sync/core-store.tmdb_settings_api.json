@@ -1,0 +1,12 @@
+{
+  "key": "tmdb_settings_api",
+  "value": {
+    "apiKey": "a6242674db72d5414a8893bd2c61c6dd",
+    "apiBaseUrl": "https://api.themoviedb.org/3",
+    "imageBaseUrl": "https://image.tmdb.org/t/p/original",
+    "disabled": false
+  },
+  "type": "object",
+  "environment": null,
+  "tag": null
+}

@@ -1,0 +1,17 @@
+{
+    "collectionName": "components_common_awards",
+    "info": {
+        "displayName": "award",
+        "icon": "birthday-cake",
+        "description": ""
+    },
+    "options": {},
+    "attributes": {
+        "name": {
+            "type": "string"
+        },
+        "year": {
+            "type": "integer"
+        }
+    }
+}

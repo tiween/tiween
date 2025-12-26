@@ -1,0 +1,68 @@
+{
+  "kind": "collectionType",
+  "collectionName": "showtimes",
+  "info": {
+    "singularName": "showtime",
+    "pluralName": "showtimes",
+    "displayName": "Showtime"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "date": {
+      "type": "datetime"
+    },
+    "premiere": {
+      "type": "boolean",
+      "default": false
+    },
+    "language": {
+      "type": "enumeration",
+      "enum": [
+        "vostfr",
+        "vo",
+        "vf",
+        "vosttn",
+        "vostang"
+      ],
+      "required": true,
+      "default": "vostfr"
+    },
+    "video_format": {
+      "type": "enumeration",
+      "enum": [
+        "TWO_D",
+        "THREE_D"
+      ],
+      "default": "TWO_D"
+    },
+    "tmdbid": {
+      "type": "integer",
+      "default": 0
+    },
+    "day": {
+      "type": "string"
+    },
+    "moviemeta": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::moviemeta.moviemeta"
+    },
+    "runtime": {
+      "type": "integer"
+    },
+    "medium": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::medium.medium"
+    },
+    "event": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::event.event",
+      "inversedBy": "showtimes"
+    }
+  }
+}

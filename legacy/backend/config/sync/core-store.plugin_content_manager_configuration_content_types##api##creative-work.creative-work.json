@@ -1,0 +1,369 @@
+{
+  "key": "plugin_content_manager_configuration_content_types::api::creative-work.creative-work",
+  "value": {
+    "uid": "api::creative-work.creative-work",
+    "settings": {
+      "bulkable": true,
+      "filterable": true,
+      "searchable": true,
+      "pageSize": 10,
+      "mainField": "title",
+      "defaultSortBy": "title",
+      "defaultSortOrder": "ASC"
+    },
+    "metadatas": {
+      "id": {
+        "edit": {},
+        "list": {
+          "label": "id",
+          "searchable": true,
+          "sortable": true
+        }
+      },
+      "title": {
+        "edit": {
+          "label": "title",
+          "description": "",
+          "placeholder": "",
+          "visible": true,
+          "editable": true
+        },
+        "list": {
+          "label": "title",
+          "searchable": true,
+          "sortable": true
+        }
+      },
+      "originalTitle": {
+        "edit": {
+          "label": "originalTitle",
+          "description": "",
+          "placeholder": "",
+          "visible": true,
+          "editable": true
+        },
+        "list": {
+          "label": "originalTitle",
+          "searchable": true,
+          "sortable": true
+        }
+      },
+      "releaseYear": {
+        "edit": {
+          "label": "releaseYear",
+          "description": "",
+          "placeholder": "",
+          "visible": true,
+          "editable": true
+        },
+        "list": {
+          "label": "releaseYear",
+          "searchable": true,
+          "sortable": true
+        }
+      },
+      "overview": {
+        "edit": {
+          "label": "overview",
+          "description": "",
+          "placeholder": "",
+          "visible": true,
+          "editable": true
+        },
+        "list": {
+          "label": "overview",
+          "searchable": false,
+          "sortable": false
+        }
+      },
+      "poster": {
+        "edit": {
+          "label": "poster",
+          "description": "",
+          "placeholder": "",
+          "visible": true,
+          "editable": true
+        },
+        "list": {
+          "label": "poster",
+          "searchable": false,
+          "sortable": false
+        }
+      },
+      "photos": {
+        "edit": {
+          "label": "photos",
+          "description": "",
+          "placeholder": "",
+          "visible": true,
+          "editable": true
+        },
+        "list": {
+          "label": "photos",
+          "searchable": false,
+          "sortable": false
+        }
+      },
+      "cast": {
+        "edit": {
+          "label": "cast",
+          "description": "",
+          "placeholder": "",
+          "visible": true,
+          "editable": true
+        },
+        "list": {
+          "label": "cast",
+          "searchable": false,
+          "sortable": false
+        }
+      },
+      "crew": {
+        "edit": {
+          "label": "crew",
+          "description": "",
+          "placeholder": "",
+          "visible": true,
+          "editable": true
+        },
+        "list": {
+          "label": "crew",
+          "searchable": false,
+          "sortable": false
+        }
+      },
+      "type": {
+        "edit": {
+          "label": "type",
+          "description": "",
+          "placeholder": "",
+          "visible": true,
+          "editable": true
+        },
+        "list": {
+          "label": "type",
+          "searchable": true,
+          "sortable": true
+        }
+      },
+      "runtime": {
+        "edit": {
+          "label": "runtime",
+          "description": "",
+          "placeholder": "",
+          "visible": true,
+          "editable": true
+        },
+        "list": {
+          "label": "runtime",
+          "searchable": true,
+          "sortable": true
+        }
+      },
+      "slug": {
+        "edit": {
+          "label": "slug",
+          "description": "",
+          "placeholder": "",
+          "visible": true,
+          "editable": true
+        },
+        "list": {
+          "label": "slug",
+          "searchable": true,
+          "sortable": true
+        }
+      },
+      "facts": {
+        "edit": {
+          "label": "facts",
+          "description": "",
+          "placeholder": "",
+          "visible": true,
+          "editable": true
+        },
+        "list": {
+          "label": "facts",
+          "searchable": false,
+          "sortable": false
+        }
+      },
+      "videos": {
+        "edit": {
+          "label": "videos",
+          "description": "",
+          "placeholder": "",
+          "visible": true,
+          "editable": true
+        },
+        "list": {
+          "label": "videos",
+          "searchable": false,
+          "sortable": false
+        }
+      },
+      "production_countries": {
+        "edit": {
+          "label": "production_countries",
+          "description": "",
+          "placeholder": "",
+          "visible": true,
+          "editable": true,
+          "mainField": "name"
+        },
+        "list": {
+          "label": "production_countries",
+          "searchable": false,
+          "sortable": false
+        }
+      },
+      "production_companies": {
+        "edit": {
+          "label": "production_companies",
+          "description": "",
+          "placeholder": "",
+          "visible": true,
+          "editable": true,
+          "mainField": "name"
+        },
+        "list": {
+          "label": "production_companies",
+          "searchable": false,
+          "sortable": false
+        }
+      },
+      "links": {
+        "edit": {
+          "label": "links",
+          "description": "",
+          "placeholder": "",
+          "visible": true,
+          "editable": true
+        },
+        "list": {
+          "label": "links",
+          "searchable": false,
+          "sortable": false
+        }
+      },
+      "createdAt": {
+        "edit": {
+          "label": "createdAt",
+          "description": "",
+          "placeholder": "",
+          "visible": false,
+          "editable": true
+        },
+        "list": {
+          "label": "createdAt",
+          "searchable": true,
+          "sortable": true
+        }
+      },
+      "updatedAt": {
+        "edit": {
+          "label": "updatedAt",
+          "description": "",
+          "placeholder": "",
+          "visible": false,
+          "editable": true
+        },
+        "list": {
+          "label": "updatedAt",
+          "searchable": true,
+          "sortable": true
+        }
+      }
+    },
+    "layouts": {
+      "list": [
+        "id",
+        "title",
+        "originalTitle",
+        "releaseYear"
+      ],
+      "edit": [
+        [
+          {
+            "name": "title",
+            "size": 6
+          },
+          {
+            "name": "originalTitle",
+            "size": 6
+          }
+        ],
+        [
+          {
+            "name": "type",
+            "size": 6
+          },
+          {
+            "name": "releaseYear",
+            "size": 4
+          }
+        ],
+        [
+          {
+            "name": "runtime",
+            "size": 4
+          },
+          {
+            "name": "slug",
+            "size": 6
+          }
+        ],
+        [
+          {
+            "name": "overview",
+            "size": 12
+          }
+        ],
+        [
+          {
+            "name": "poster",
+            "size": 6
+          },
+          {
+            "name": "photos",
+            "size": 6
+          }
+        ],
+        [
+          {
+            "name": "cast",
+            "size": 12
+          }
+        ],
+        [
+          {
+            "name": "crew",
+            "size": 12
+          }
+        ],
+        [
+          {
+            "name": "videos",
+            "size": 12
+          }
+        ],
+        [
+          {
+            "name": "links",
+            "size": 12
+          }
+        ],
+        [
+          {
+            "name": "facts",
+            "size": 12
+          }
+        ]
+      ],
+      "editRelations": []
+    }
+  },
+  "type": "object",
+  "environment": null,
+  "tag": null
+}

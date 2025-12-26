@@ -1,0 +1,19 @@
+{
+  "collectionName": "components_creative_works_casts",
+  "info": {
+    "displayName": "Cast",
+    "icon": "user-circle",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "person": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::person.person"
+    },
+    "character": {
+      "type": "string"
+    }
+  }
+}

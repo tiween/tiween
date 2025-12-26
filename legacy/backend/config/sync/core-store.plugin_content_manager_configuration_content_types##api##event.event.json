@@ -1,0 +1,445 @@
+{
+  "key": "plugin_content_manager_configuration_content_types::api::event.event",
+  "value": {
+    "uid": "api::event.event",
+    "settings": {
+      "bulkable": true,
+      "filterable": true,
+      "searchable": true,
+      "pageSize": 10,
+      "mainField": "title",
+      "defaultSortBy": "title",
+      "defaultSortOrder": "ASC"
+    },
+    "metadatas": {
+      "id": {
+        "edit": {},
+        "list": {
+          "label": "id",
+          "searchable": true,
+          "sortable": true
+        }
+      },
+      "title": {
+        "edit": {
+          "label": "title",
+          "description": "",
+          "placeholder": "",
+          "visible": true,
+          "editable": true
+        },
+        "list": {
+          "label": "title",
+          "searchable": true,
+          "sortable": true
+        }
+      },
+      "subtitle": {
+        "edit": {
+          "label": "subtitle",
+          "description": "",
+          "placeholder": "",
+          "visible": true,
+          "editable": true
+        },
+        "list": {
+          "label": "subtitle",
+          "searchable": true,
+          "sortable": true
+        }
+      },
+      "slug": {
+        "edit": {
+          "label": "slug",
+          "description": "",
+          "placeholder": "",
+          "visible": true,
+          "editable": true
+        },
+        "list": {
+          "label": "slug",
+          "searchable": true,
+          "sortable": true
+        }
+      },
+      "startDate": {
+        "edit": {
+          "label": "startDate",
+          "description": "",
+          "placeholder": "",
+          "visible": true,
+          "editable": true
+        },
+        "list": {
+          "label": "startDate",
+          "searchable": true,
+          "sortable": true
+        }
+      },
+      "startTime": {
+        "edit": {
+          "label": "startTime",
+          "description": "",
+          "placeholder": "",
+          "visible": true,
+          "editable": true
+        },
+        "list": {
+          "label": "startTime",
+          "searchable": true,
+          "sortable": true
+        }
+      },
+      "endDate": {
+        "edit": {
+          "label": "endDate",
+          "description": "",
+          "placeholder": "",
+          "visible": true,
+          "editable": true
+        },
+        "list": {
+          "label": "endDate",
+          "searchable": true,
+          "sortable": true
+        }
+      },
+      "endTime": {
+        "edit": {
+          "label": "endTime",
+          "description": "",
+          "placeholder": "",
+          "visible": true,
+          "editable": true
+        },
+        "list": {
+          "label": "endTime",
+          "searchable": true,
+          "sortable": true
+        }
+      },
+      "runtime": {
+        "edit": {
+          "label": "runtime",
+          "description": "",
+          "placeholder": "",
+          "visible": true,
+          "editable": true
+        },
+        "list": {
+          "label": "runtime",
+          "searchable": true,
+          "sortable": true
+        }
+      },
+      "description": {
+        "edit": {
+          "label": "description",
+          "description": "",
+          "placeholder": "",
+          "visible": true,
+          "editable": true
+        },
+        "list": {
+          "label": "description",
+          "searchable": false,
+          "sortable": false
+        }
+      },
+      "poster": {
+        "edit": {
+          "label": "poster",
+          "description": "",
+          "placeholder": "",
+          "visible": true,
+          "editable": true
+        },
+        "list": {
+          "label": "poster",
+          "searchable": false,
+          "sortable": false
+        }
+      },
+      "links": {
+        "edit": {
+          "label": "links",
+          "description": "",
+          "placeholder": "",
+          "visible": true,
+          "editable": true
+        },
+        "list": {
+          "label": "links",
+          "searchable": false,
+          "sortable": false
+        }
+      },
+      "medium": {
+        "edit": {
+          "label": "medium",
+          "description": "",
+          "placeholder": "",
+          "visible": true,
+          "editable": true,
+          "mainField": "name"
+        },
+        "list": {
+          "label": "medium",
+          "searchable": true,
+          "sortable": true
+        }
+      },
+      "fullStartDate": {
+        "edit": {
+          "label": "fullStartDate",
+          "description": "",
+          "placeholder": "",
+          "visible": true,
+          "editable": true
+        },
+        "list": {
+          "label": "fullStartDate",
+          "searchable": true,
+          "sortable": true
+        }
+      },
+      "fullEndDate": {
+        "edit": {
+          "label": "fullEndDate",
+          "description": "",
+          "placeholder": "",
+          "visible": true,
+          "editable": true
+        },
+        "list": {
+          "label": "fullEndDate",
+          "searchable": true,
+          "sortable": true
+        }
+      },
+      "colors": {
+        "edit": {
+          "label": "colors",
+          "description": "",
+          "placeholder": "",
+          "visible": true,
+          "editable": true
+        },
+        "list": {
+          "label": "colors",
+          "searchable": false,
+          "sortable": false
+        }
+      },
+      "recurring": {
+        "edit": {
+          "label": "recurring",
+          "description": "",
+          "placeholder": "",
+          "visible": true,
+          "editable": true
+        },
+        "list": {
+          "label": "recurring",
+          "searchable": true,
+          "sortable": true
+        }
+      },
+      "recurringRule": {
+        "edit": {
+          "label": "recurringRule",
+          "description": "",
+          "placeholder": "",
+          "visible": true,
+          "editable": true
+        },
+        "list": {
+          "label": "recurringRule",
+          "searchable": true,
+          "sortable": true
+        }
+      },
+      "occurenceOf": {
+        "edit": {
+          "label": "occurenceOf",
+          "description": "",
+          "placeholder": "",
+          "visible": true,
+          "editable": true
+        },
+        "list": {
+          "label": "occurenceOf",
+          "searchable": true,
+          "sortable": true
+        }
+      },
+      "showtimes": {
+        "edit": {
+          "label": "showtimes",
+          "description": "",
+          "placeholder": "",
+          "visible": true,
+          "editable": true,
+          "mainField": "day"
+        },
+        "list": {
+          "label": "showtimes",
+          "searchable": false,
+          "sortable": false
+        }
+      },
+      "event_group": {
+        "edit": {
+          "label": "event_group",
+          "description": "",
+          "placeholder": "",
+          "visible": true,
+          "editable": true,
+          "mainField": "title"
+        },
+        "list": {
+          "label": "event_group",
+          "searchable": true,
+          "sortable": true
+        }
+      },
+      "createdAt": {
+        "edit": {
+          "label": "createdAt",
+          "description": "",
+          "placeholder": "",
+          "visible": false,
+          "editable": true
+        },
+        "list": {
+          "label": "createdAt",
+          "searchable": true,
+          "sortable": true
+        }
+      },
+      "updatedAt": {
+        "edit": {
+          "label": "updatedAt",
+          "description": "",
+          "placeholder": "",
+          "visible": false,
+          "editable": true
+        },
+        "list": {
+          "label": "updatedAt",
+          "searchable": true,
+          "sortable": true
+        }
+      }
+    },
+    "layouts": {
+      "edit": [
+        [
+          {
+            "name": "title",
+            "size": 6
+          },
+          {
+            "name": "subtitle",
+            "size": 6
+          }
+        ],
+        [
+          {
+            "name": "slug",
+            "size": 6
+          },
+          {
+            "name": "startDate",
+            "size": 4
+          }
+        ],
+        [
+          {
+            "name": "startTime",
+            "size": 4
+          },
+          {
+            "name": "endDate",
+            "size": 4
+          },
+          {
+            "name": "endTime",
+            "size": 4
+          }
+        ],
+        [
+          {
+            "name": "runtime",
+            "size": 4
+          }
+        ],
+        [
+          {
+            "name": "description",
+            "size": 12
+          }
+        ],
+        [
+          {
+            "name": "poster",
+            "size": 6
+          }
+        ],
+        [
+          {
+            "name": "links",
+            "size": 12
+          }
+        ],
+        [
+          {
+            "name": "fullStartDate",
+            "size": 6
+          },
+          {
+            "name": "fullEndDate",
+            "size": 6
+          }
+        ],
+        [
+          {
+            "name": "colors",
+            "size": 12
+          }
+        ],
+        [
+          {
+            "name": "recurring",
+            "size": 4
+          },
+          {
+            "name": "recurringRule",
+            "size": 6
+          }
+        ],
+        [
+          {
+            "name": "occurenceOf",
+            "size": 6
+          }
+        ]
+      ],
+      "editRelations": [
+        "medium",
+        "showtimes",
+        "event_group"
+      ],
+      "list": [
+        "id",
+        "title",
+        "subtitle",
+        "slug",
+        "fullStartDate"
+      ]
+    }
+  },
+  "type": "object",
+  "environment": null,
+  "tag": null
+}

@@ -1,0 +1,191 @@
+# generated: 2025-12-26
+# project: tiween-bmad-version
+# project_key: tiween
+# tracking_system: file-system
+# story_location: /Users/ayoub/projects/tiween-bmad-version/_bmad-output/implementation-artifacts
+
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic not yet started
+#   - in-progress: Epic actively being worked on
+#   - done: All stories in epic completed
+#
+# Epic Status Transitions:
+#   - backlog -> in-progress: Automatically when first story is created (via create-story)
+#   - in-progress -> done: Manually when all stories reach 'done' status
+#
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - ready-for-dev: Story file created in stories folder
+#   - in-progress: Developer actively working on implementation
+#   - review: Ready for code review (via Dev's code-review workflow)
+#   - done: Story completed
+#
+# Retrospective Status:
+#   - optional: Can be completed but not required
+#   - done: Retrospective has been completed
+#
+# WORKFLOW NOTES:
+# ===============
+# - Epic transitions to 'in-progress' automatically when first story is created
+# - Stories can be worked in parallel if team capacity allows
+# - SM typically creates next story after previous one is 'done' to incorporate learnings
+# - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
+
+generated: 2025-12-26
+project: tiween-bmad-version
+project_key: tiween
+tracking_system: file-system
+story_location: /Users/ayoub/projects/tiween-bmad-version/_bmad-output/implementation-artifacts
+
+development_status:
+  # Epic 1: Project Foundation & Infrastructure
+  epic-1: in-progress
+  1-1-initialize-monorepo-from-starter-template: in-progress
+  1-2-upgrade-to-nextjs-16-1-with-turbopack: backlog
+  1-3-configure-tiween-design-tokens-and-tailwind-theme: backlog
+  1-4-setup-shadcn-ui-with-brand-customization: backlog
+  1-5-configure-storybook-with-vite-builder: backlog
+  1-6-configure-i18n-with-rtl-support: backlog
+  1-7-setup-serwist-pwa-configuration: backlog
+  1-8-configure-docker-and-dokploy-deployment: backlog
+  1-9-setup-ci-cd-pipeline-with-github-actions: backlog
+  epic-1-retrospective: optional
+
+  # Epic 2A: Component Library & Design System (PARALLEL TRACK A)
+  epic-2a: backlog
+  2a-1-layout-components-bottomnav: backlog
+  2a-2-layout-components-header-and-pagecontainer: backlog
+  2a-3-layout-components-stickyfilters: backlog
+  2a-4-discovery-components-eventcard: backlog
+  2a-5-discovery-components-filmhero: backlog
+  2a-6-discovery-components-categorytabs-and-dateselector: backlog
+  2a-7-discovery-components-venuecard-and-searchbar: backlog
+  2a-8-discovery-components-searchresults: backlog
+  2a-9-ticketing-components-showtimebutton: backlog
+  2a-10-ticketing-components-quantityselector-and-ordersummary: backlog
+  2a-11-ticketing-components-ticketqr: backlog
+  2a-12-ticketing-components-seatselector: backlog
+  2a-13-ticketing-components-paymentform: backlog
+  2a-14-user-components-loginform-and-registerform: backlog
+  2a-15-user-components-profileform-and-sociallogin: backlog
+  2a-16-user-components-watchlistbutton: backlog
+  2a-17-common-components-emptystate-and-errorboundary: backlog
+  2a-18-common-components-loadingspinner-skeleton-toast: backlog
+  2a-19-common-components-badge-variants: backlog
+  2a-20-scanner-components-ticketscanner-and-validationresult: backlog
+  2a-21-scanner-components-attendancecounter: backlog
+  epic-2a-retrospective: optional
+
+  # Epic 2B: Strapi v5 Migration & Backend Foundation (PARALLEL TRACK B)
+  epic-2b: backlog
+  2b-1-strapi-v5-upgrade-and-project-setup: backlog
+  2b-2-core-content-types-event-and-creativework: backlog
+  2b-3-core-content-types-venue-and-showtime: backlog
+  2b-4-core-content-types-person-and-genre: backlog
+  2b-5-ticketing-content-types-ticketorder-and-ticket: backlog
+  2b-6-user-content-types-userwatchlist-and-userpreferences: backlog
+  2b-7-reference-content-types-region-city-category: backlog
+  2b-8-events-manager-plugin-recreation-for-v5: backlog
+  2b-9-user-roles-and-permissions-configuration: backlog
+  2b-10-redis-integration-for-sessions-and-caching: backlog
+  2b-11-imagekit-provider-configuration: backlog
+  2b-12-email-configuration-with-resend: backlog
+  2b-13-api-documentation-with-openapi: backlog
+  2b-14-data-migration-scripts-from-legacy-strapi-v4: backlog
+  2b-15-database-seeding-for-development: backlog
+  epic-2b-retrospective: optional
+
+  # Epic 3: Event Discovery & Browsing
+  epic-3: backlog
+  3-1-homepage-with-curated-event-listings: backlog
+  3-2-category-filtering: backlog
+  3-3-date-range-filtering: backlog
+  3-4-region-and-city-filtering: backlog
+  3-5-venue-filtering: backlog
+  3-6-keyword-search-with-algolia: backlog
+  3-7-event-detail-page: backlog
+  3-8-venue-location-on-map: backlog
+  3-9-geolocation-near-me-filtering: backlog
+  3-10-share-event-details: backlog
+  epic-3-retrospective: optional
+
+  # Epic 4: User Authentication & Profiles
+  epic-4: backlog
+  4-1-email-and-password-registration: backlog
+  4-2-social-login-with-google-and-facebook: backlog
+  4-3-password-reset-flow: backlog
+  4-4-profile-management: backlog
+  4-5-language-and-region-preferences: backlog
+  4-6-guest-checkout-capability: backlog
+  epic-4-retrospective: optional
+
+  # Epic 5: Watchlist & Personalization
+  epic-5: backlog
+  5-1-add-event-to-watchlist: backlog
+  5-2-remove-event-from-watchlist: backlog
+  5-3-view-watchlist-page: backlog
+  5-4-offline-watchlist-access: backlog
+  5-5-watchlist-sync-across-devices: backlog
+  5-6-schedule-change-notifications: backlog
+  epic-5-retrospective: optional
+
+  # Epic 6: B2C Ticketing & Purchases
+  epic-6: backlog
+  6-1-view-ticket-types-and-prices: backlog
+  6-2-select-ticket-quantity: backlog
+  6-3-konnect-payment-gateway-integration: backlog
+  6-4-qr-code-ticket-generation: backlog
+  6-5-email-ticket-delivery: backlog
+  6-6-in-app-ticket-viewing: backlog
+  6-7-offline-qr-code-access: backlog
+  6-8-purchase-confirmation-with-celebration: backlog
+  6-9-purchase-history: backlog
+  6-10-real-time-ticket-availability: backlog
+  epic-6-retrospective: optional
+
+  # Epic 7: B2B Venue Management
+  epic-7: backlog
+  7-1-venue-registration-flow: backlog
+  7-2-venue-profile-management: backlog
+  7-3-event-creation: backlog
+  7-4-event-editing-and-cancellation: backlog
+  7-5-ticketing-configuration: backlog
+  7-6-multiple-ticket-types-configuration: backlog
+  7-7-ticket-sales-reports: backlog
+  7-8-event-analytics: backlog
+  7-9-real-time-sales-updates: backlog
+  epic-7-retrospective: optional
+
+  # Epic 8: B2B Ticket Validation (Scanner)
+  epic-8: backlog
+  8-1-qr-code-scanning-interface: backlog
+  8-2-validation-result-display: backlog
+  8-3-ticket-details-display: backlog
+  8-4-duplicate-scan-prevention: backlog
+  8-5-real-time-attendance-counts: backlog
+  8-6-offline-scanning-capability: backlog
+  epic-8-retrospective: optional
+
+  # Epic 9: Platform Administration
+  epic-9: backlog
+  9-1-venue-approval-workflow: backlog
+  9-2-manual-event-creation-and-editing: backlog
+  9-3-event-flagging-for-quality-issues: backlog
+  9-4-platform-analytics-dashboard: backlog
+  9-5-user-account-management: backlog
+  9-6-categories-and-regions-management: backlog
+  epic-9-retrospective: optional
+
+  # Epic 10: PWA & Offline Experience
+  epic-10: backlog
+  10-1-pwa-installation: backlog
+  10-2-event-listing-caching: backlog
+  10-3-offline-browsing: backlog
+  10-4-offline-watchlist-access: backlog
+  10-5-offline-ticket-display: backlog
+  10-6-background-sync: backlog
+  10-7-install-prompts: backlog
+  10-8-offline-status-indicators: backlog
+  epic-10-retrospective: optional

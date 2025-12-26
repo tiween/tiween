@@ -1,0 +1,94 @@
+{
+  "kind": "collectionType",
+  "collectionName": "events",
+  "info": {
+    "singularName": "event",
+    "pluralName": "events",
+    "displayName": "Event",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string"
+    },
+    "subtitle": {
+      "type": "string"
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "title"
+    },
+    "startDate": {
+      "type": "date"
+    },
+    "startTime": {
+      "type": "time"
+    },
+    "endDate": {
+      "type": "date"
+    },
+    "endTime": {
+      "type": "time"
+    },
+    "runtime": {
+      "type": "integer",
+      "default": 0
+    },
+    "description": {
+      "type": "richtext"
+    },
+    "poster": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": [
+        "images"
+      ]
+    },
+    "links": {
+      "type": "component",
+      "repeatable": true,
+      "component": "common.link"
+    },
+    "medium": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::medium.medium"
+    },
+    "fullStartDate": {
+      "type": "datetime"
+    },
+    "fullEndDate": {
+      "type": "datetime"
+    },
+    "colors": {
+      "type": "json"
+    },
+    "recurring": {
+      "type": "boolean",
+      "default": false
+    },
+    "recurringRule": {
+      "type": "string"
+    },
+    "occurenceOf": {
+      "type": "string"
+    },
+    "showtimes": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::showtime.showtime",
+      "mappedBy": "event"
+    },
+    "event_group": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::event-group.event-group",
+      "inversedBy": "events"
+    }
+  }
+}

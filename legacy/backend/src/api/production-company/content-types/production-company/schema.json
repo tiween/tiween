@@ -1,0 +1,32 @@
+{
+  "kind": "collectionType",
+  "collectionName": "production_companies",
+  "info": {
+    "singularName": "production-company",
+    "pluralName": "production-companies",
+    "displayName": "ProductionCompany",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "type": "string"
+    },
+    "logo": {
+      "type": "media",
+      "multiple": true,
+      "required": false,
+      "allowedTypes": [
+        "images"
+      ]
+    },
+    "links": {
+      "type": "component",
+      "repeatable": true,
+      "component": "common.link"
+    }
+  }
+}

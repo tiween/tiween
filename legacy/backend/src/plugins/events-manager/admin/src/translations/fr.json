@@ -1,0 +1,12 @@
+{
+  "plugin.name": "Gestionnaire de Séances",
+  "events.settings.save": "Enregistrer la séance!",
+  "events.calendar.error.no.medium": "Merci de Choisir une salle ou une chaine!",
+  "events.calendar.error.no.medium.message": "Pour ajouter une séance il faut choisir une salle ou chaine",
+  "events.calendar.error.multiple.medium": "Salle et Chaine selectionnée!",
+  "events.calendar.error.multiple.medium.message": "Pour ajouter une séance merci de selectionner une salle OU une chaine",
+  "events.calendar.delete.showtime": "Êtes-vous sûr de supprimer cette séance?",
+  "events.calendar.delete.showtime.message": "Vous pouvez toujours créer un autre séance",
+  "events.calendar.delete.showtime.confirm": "Supprimer",
+  "events.calendar.delete.showtime.cancel": "Annuler"
+}

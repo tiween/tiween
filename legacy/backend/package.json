@@ -1,0 +1,78 @@
+{
+  "name": "tiween-backend",
+  "private": true,
+  "version": "0.1.0",
+  "description": "A Strapi application",
+  "scripts": {
+    "predevelop": "docker-compose -f ./.docker/docker-compose.yml  --env-file ./.env.development up -d ",
+    "develop": "ENV_PATH=./.env.development  strapi develop",
+    "develop:production": "ENV_PATH=./.env.production strapi develop",
+    "start": "strapi start",
+    "build": "strapi build",
+    "strapi": "strapi",
+    "strapi-v": "strapi -v"
+  },
+  "workspaces": [
+    "src/plugins/@tiween/*"
+  ],
+  "devDependencies": {
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/git": "^10.0.1",
+    "@semantic-release/github": "^9.2.6",
+    "cz-conventional-changelog": "3.3.0",
+    "semantic-release": "^23.0.0"
+  },
+  "dependencies": {
+    "@fortawesome/free-solid-svg-icons": "^6.7.2",
+    "@fullcalendar/core": "6.1.15",
+    "@fullcalendar/interaction": "6.1.15",
+    "@fullcalendar/moment-timezone": "5.11.5",
+    "@fullcalendar/react": "6.1.15",
+    "@fullcalendar/timegrid": "5.11.5",
+    "@strapi/plugin-documentation": "4.25.19",
+    "@strapi/plugin-i18n": "4.25.19",
+    "@strapi/plugin-sentry": "4.25.19",
+    "@strapi/plugin-users-permissions": "4.25.19",
+    "@strapi/strapi": "4.25.19",
+    "@strapi/admin": "4.25.19",
+    "axios": "1.7.9",
+    "formik": "2.4.5",
+    "lodash": "4.17.21",
+    "luxon": "3.5.0",
+    "moment-timezone": "0.5.43",
+    "node-gyp": "^11.0.0",
+    "node-vibrant": "3.2.1-alpha.1",
+    "pg": "8.13.1",
+    "pg-connection-string": "2.7.0",
+    "qs": "6.14.0",
+    "react": "^18.2.0",
+    "react-datetime": "3.3.1",
+    "react-dom": "^18.2.0",
+    "react-icons": "4.11.0",
+    "react-router-dom": "^5.3.4",
+    "react-select": "^5.4.0",
+    "rrule": "2.8.1",
+    "strapi-plugin-config-sync": "1.2.6",
+    "strapi-provider-email-resend": "^1.0.4",
+    "strapi-provider-upload-imagekit": "4.25.0",
+    "styled-components": "5.3.3",
+    "yup": "1.6.1"
+  },
+  "author": {
+    "name": "Ayoub Hidri<ayoub.hidri@gmail.com>"
+  },
+  "strapi": {
+    "uuid": "b536e5db-24b2-4d5b-b53e-ab821f397b84",
+    "telemetryDisabled": true
+  },
+  "license": "MIT",
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  },
+  "volta": {
+    "node": "20.11.0",
+    "npm": "10.6.0"
+  }
+}

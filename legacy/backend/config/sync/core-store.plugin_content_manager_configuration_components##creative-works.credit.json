@@ -1,0 +1,79 @@
+{
+  "key": "plugin_content_manager_configuration_components::creative-works.credit",
+  "value": {
+    "uid": "creative-works.credit",
+    "settings": {
+      "bulkable": true,
+      "filterable": true,
+      "searchable": true,
+      "pageSize": 10,
+      "mainField": "id",
+      "defaultSortBy": "id",
+      "defaultSortOrder": "ASC"
+    },
+    "metadatas": {
+      "id": {
+        "edit": {},
+        "list": {
+          "label": "id",
+          "searchable": false,
+          "sortable": false
+        }
+      },
+      "person": {
+        "edit": {
+          "label": "person",
+          "description": "",
+          "placeholder": "",
+          "visible": true,
+          "editable": true,
+          "mainField": "fullName"
+        },
+        "list": {
+          "label": "person",
+          "searchable": true,
+          "sortable": true
+        }
+      },
+      "job": {
+        "edit": {
+          "label": "job",
+          "description": "",
+          "placeholder": "",
+          "visible": true,
+          "editable": true,
+          "mainField": "name"
+        },
+        "list": {
+          "label": "job",
+          "searchable": true,
+          "sortable": true
+        }
+      }
+    },
+    "layouts": {
+      "list": [
+        "id",
+        "person",
+        "job"
+      ],
+      "edit": [
+        [
+          {
+            "name": "person",
+            "size": 6
+          },
+          {
+            "name": "job",
+            "size": 6
+          }
+        ]
+      ],
+      "editRelations": []
+    },
+    "isComponent": true
+  },
+  "type": "object",
+  "environment": null,
+  "tag": null
+}

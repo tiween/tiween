@@ -1,0 +1,26 @@
+{
+  "collectionName": "components_common_home_page_displays",
+  "info": {
+    "displayName": "HomePageDisplay",
+    "icon": "home"
+  },
+  "options": {},
+  "attributes": {
+    "image": {
+      "allowedTypes": [
+        "images"
+      ],
+      "type": "media",
+      "multiple": false
+    },
+    "text": {
+      "type": "richtext"
+    },
+    "title": {
+      "type": "string"
+    },
+    "subtitle": {
+      "type": "string"
+    }
+  }
+}

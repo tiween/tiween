@@ -1,0 +1,11 @@
+  {
+    "plugin.name": "Events Manager",
+    "showtimes.settings.save": "Save",
+    "showtimes.calendar.error.no.medium": "Please Select a Medium",
+    "showtimes.calendar.error.no.medium.message": "To add an event you must select a medium",
+    "showtimes.calendar.delete.showtime": "Are you sure you want to delete this event",
+    "showtimes.calendar.delete.showtime.message": "You still can create another one",
+    "showtimes.calendar.delete.showtime.confirm": "Delete",
+    "showtimes.calendar.delete.showtime.cancel": "Cancel",
+    "showtimes.calendar.error.no.medium.confirm": "OK"
+  }

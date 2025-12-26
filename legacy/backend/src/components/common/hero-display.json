@@ -1,0 +1,35 @@
+{
+  "collectionName": "components_common_hero_displays",
+  "info": {
+    "displayName": "HeroDisplay",
+    "icon": "star",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "media": {
+      "type": "media",
+      "multiple": false,
+      "required": true,
+      "allowedTypes": [
+        "images",
+        "videos"
+      ]
+    },
+    "title": {
+      "type": "string",
+      "required": false
+    },
+    "body": {
+      "type": "text"
+    },
+    "subtitle": {
+      "type": "string"
+    },
+    "displayOnHomePage": {
+      "type": "boolean",
+      "default": false,
+      "required": true
+    }
+  }
+}
