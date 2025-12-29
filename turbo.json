@@ -12,10 +12,13 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": [".next/**", "!.next/cache/**", "dist/**", "public/**"]
+      "outputs": [".next/**", "!.next/cache/**", "dist/**", ".build/**", "public/**"]
     },
     "lint": {
       "dependsOn": ["^lint"]
+    },
+    "type-check": {
+      "dependsOn": ["^build"]
     },
     "test": {
       "dependsOn": ["build"]

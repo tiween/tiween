@@ -1,0 +1,106 @@
+name: Deploy to Staging
+
+on:
+  push:
+    branches:
+      - develop
+
+concurrency:
+  group: deploy-staging
+  cancel-in-progress: true
+
+env:
+  CI: true
+  NPM_CONFIG_IGNORE_SCRIPTS: "true"
+  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+  TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+
+jobs:
+  build:
+    name: Build
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Cache turbo build setup
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: '${{ runner.os }}-turbo-${{ github.sha }}'
+          restore-keys: |
+            ${{ runner.os }}-turbo-
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: yarn
+
+      - name: Install dependencies (immutable)
+        run: yarn install --frozen-lockfile --ignore-engines
+
+      - name: Prepare Environment Variables
+        run: |
+          cp apps/strapi/.env.example apps/strapi/.env
+          cp apps/client/.env.local.example apps/client/.env.local
+
+      - name: Build
+        run: yarn build
+        env:
+          STRAPI_URL: ${{ secrets.STAGING_STRAPI_URL }}
+          STRAPI_REST_READONLY_API_KEY: ${{ secrets.STAGING_STRAPI_REST_READONLY_API_KEY }}
+
+  deploy:
+    name: Deploy to Staging
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+    needs: [build]
+    environment:
+      name: staging
+      url: ${{ vars.STAGING_URL }}
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      # =============================================================================
+      # DOKPLOY DEPLOYMENT PLACEHOLDER
+      # =============================================================================
+      # Configure Dokploy CLI deployment here when ready.
+      # Required secrets:
+      #   - DOKPLOY_API_KEY: API key for Dokploy authentication
+      #   - STAGING_STRAPI_URL: Strapi URL for staging environment
+      #   - STAGING_STRAPI_REST_READONLY_API_KEY: Strapi API key for staging
+      #
+      # Required variables:
+      #   - STAGING_URL: URL of the staging environment (for environment URL)
+      #
+      # Example Dokploy deployment:
+      # - name: Deploy to Dokploy
+      #   run: |
+      #     curl -X POST "${{ secrets.DOKPLOY_WEBHOOK_URL }}" \
+      #       -H "Authorization: Bearer ${{ secrets.DOKPLOY_API_KEY }}" \
+      #       -H "Content-Type: application/json" \
+      #       -d '{"ref": "${{ github.sha }}"}'
+      # =============================================================================
+
+      - name: Placeholder - Deploy
+        run: |
+          echo "🚀 Staging deployment placeholder"
+          echo ""
+          echo "Configure Dokploy deployment in this step"
+          echo ""
+          echo "Required secrets to configure in GitHub:"
+          echo "  - DOKPLOY_API_KEY"
+          echo "  - DOKPLOY_WEBHOOK_URL (or use Dokploy CLI)"
+          echo "  - STAGING_STRAPI_URL"
+          echo "  - STAGING_STRAPI_REST_READONLY_API_KEY"
+          echo ""
+          echo "Required variables to configure in GitHub:"
+          echo "  - STAGING_URL"
+          echo ""
+          echo "Commit: ${{ github.sha }}"
+          echo "Branch: ${{ github.ref_name }}"
