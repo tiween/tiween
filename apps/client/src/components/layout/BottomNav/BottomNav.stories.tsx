@@ -1,9 +1,19 @@
 import type { Meta, StoryObj } from "@storybook/react"
 import { useState } from "react"
 
-import type { TabType } from "./BottomNav"
+import type { BottomNavLabels, TabType } from "./BottomNav"
 
 import { BottomNav } from "./BottomNav"
+
+// Arabic labels for RTL stories
+const arabicLabels: BottomNavLabels = {
+  home: "الرئيسية",
+  search: "البحث",
+  tickets: "التذاكر",
+  account: "الحساب",
+  navigation: "التنقل الرئيسي",
+  unscannedTickets: (count) => `${count} تذاكر غير ممسوحة`,
+}
 
 const meta: Meta<typeof BottomNav> = {
   title: "Layout/BottomNav",
@@ -11,7 +21,13 @@ const meta: Meta<typeof BottomNav> = {
   parameters: {
     layout: "fullscreen",
     viewport: {
-      defaultViewport: "mobile1",
+      defaultViewport: "mobile",
+    },
+    docs: {
+      description: {
+        component:
+          "Mobile bottom navigation bar. Hidden on desktop (lg+) viewports. Use mobile viewport to preview.",
+      },
     },
   },
   tags: ["autodocs"],
@@ -131,15 +147,16 @@ export const Interactive: Story = {
   },
 }
 
-// RTL mode example
+// RTL mode example with Arabic labels
 export const RTLMode: Story = {
   args: {
     activeTab: "home",
     ticketCount: 5,
+    labels: arabicLabels,
   },
   decorators: [
     (Story) => (
-      <div dir="rtl" className="relative min-h-[200px] bg-background">
+      <div dir="rtl" className="relative min-h-[200px] bg-background font-arabic">
         <Story />
       </div>
     ),
@@ -148,7 +165,7 @@ export const RTLMode: Story = {
     docs: {
       description: {
         story:
-          "BottomNav in RTL mode. The badge position is flipped to the left side.",
+          "BottomNav in RTL mode with Arabic labels. The badge position is flipped to the left side.",
       },
     },
   },
@@ -215,7 +232,7 @@ export const AllStates: Story = {
   parameters: {
     layout: "padded",
     viewport: {
-      defaultViewport: "responsive",
+      defaultViewport: "mobile",
     },
   },
 }

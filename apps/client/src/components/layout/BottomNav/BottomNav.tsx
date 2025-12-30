@@ -7,19 +7,34 @@ import { cn } from "@/lib/utils"
 
 export type TabType = "home" | "search" | "tickets" | "account"
 
-interface BottomNavTab {
-  id: TabType
-  label: string
+interface TabIcon {
   icon: React.ComponentType<{ className?: string }>
-  ariaLabel: string
 }
 
-const tabs: BottomNavTab[] = [
-  { id: "home", label: "Accueil", icon: Home, ariaLabel: "Accueil" },
-  { id: "search", label: "Recherche", icon: Search, ariaLabel: "Rechercher" },
-  { id: "tickets", label: "Billets", icon: Ticket, ariaLabel: "Mes billets" },
-  { id: "account", label: "Compte", icon: User, ariaLabel: "Mon compte" },
-]
+const tabIcons: Record<TabType, TabIcon> = {
+  home: { icon: Home },
+  search: { icon: Search },
+  tickets: { icon: Ticket },
+  account: { icon: User },
+}
+
+export interface BottomNavLabels {
+  home: string
+  search: string
+  tickets: string
+  account: string
+  navigation: string
+  unscannedTickets: (count: number) => string
+}
+
+const defaultLabels: BottomNavLabels = {
+  home: "Accueil",
+  search: "Recherche",
+  tickets: "Billets",
+  account: "Compte",
+  navigation: "Navigation principale",
+  unscannedTickets: (count) => `${count} billets non scannés`,
+}
 
 export interface BottomNavProps {
   /** Currently active tab */
@@ -30,6 +45,8 @@ export interface BottomNavProps {
   onNavigate: (tab: TabType) => void
   /** Additional class names */
   className?: string
+  /** Localized labels */
+  labels?: BottomNavLabels
 }
 
 export function BottomNav({
@@ -37,11 +54,14 @@ export function BottomNav({
   ticketCount = 0,
   onNavigate,
   className,
+  labels = defaultLabels,
 }: BottomNavProps) {
+  const tabOrder: TabType[] = ["home", "search", "tickets", "account"]
+
   return (
     <nav
       role="navigation"
-      aria-label="Navigation principale"
+      aria-label={labels.navigation}
       className={cn(
         // Fixed positioning at bottom
         "fixed inset-x-0 bottom-0 z-50",
@@ -57,18 +77,20 @@ export function BottomNav({
       )}
     >
       <div className="flex h-full items-center justify-around">
-        {tabs.map((tab) => {
-          const isActive = activeTab === tab.id
-          const showBadge = tab.id === "tickets" && ticketCount > 0
+        {tabOrder.map((tabId) => {
+          const { icon: Icon } = tabIcons[tabId]
+          const label = labels[tabId]
+          const isActive = activeTab === tabId
+          const showBadge = tabId === "tickets" && ticketCount > 0
 
           return (
             <button
-              key={tab.id}
+              key={tabId}
               type="button"
               role="link"
               aria-current={isActive ? "page" : undefined}
-              aria-label={tab.ariaLabel}
-              onClick={() => onNavigate(tab.id)}
+              aria-label={label}
+              onClick={() => onNavigate(tabId)}
               className={cn(
                 // Size and centering - minimum 48x48px touch target
                 "relative flex min-h-12 min-w-12 flex-col items-center justify-center",
@@ -83,7 +105,7 @@ export function BottomNav({
               )}
             >
               {/* Icon */}
-              <tab.icon
+              <Icon
                 className={cn(
                   "h-6 w-6 transition-colors duration-150",
                   isActive ? "text-primary" : "text-muted-foreground"
@@ -97,7 +119,7 @@ export function BottomNav({
                   isActive ? "text-primary" : "text-muted-foreground"
                 )}
               >
-                {tab.label}
+                {label}
               </span>
 
               {/* Badge for ticket count */}
@@ -109,7 +131,7 @@ export function BottomNav({
                     "rounded-full bg-destructive px-1.5",
                     "text-xs font-bold text-destructive-foreground"
                   )}
-                  aria-label={`${ticketCount} billets non scannés`}
+                  aria-label={labels.unscannedTickets(ticketCount)}
                 >
                   {ticketCount > 99 ? "99+" : ticketCount}
                 </span>
