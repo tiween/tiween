@@ -47,8 +47,8 @@ Tailwind v4 builds its config directly from CSS, not JS/TS. Strapi's CSS injecti
 
 ## Exports
 
-| Export Path                                   | Description                                  |
-| --------------------------------------------- | -------------------------------------------- |
+| Export Path                                     | Description                                  |
+| ----------------------------------------------- | -------------------------------------------- |
 | `@tiween/design-system/theme.css`               | Raw Tailwind theme (with directives)         |
 | `@tiween/design-system/styles.css`              | Compiled CSS (for both Next.js and Strapi)   |
 | `@tiween/design-system/styles-strapi.json`      | JSON with all CSS variables for Strapi       |
