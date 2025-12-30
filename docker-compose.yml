@@ -1,0 +1,125 @@
+# Tiween Development Docker Compose
+# This file provides a unified development environment for the full stack.
+# Usage: docker-compose up -d
+#
+# For local development without Docker containers, you can run:
+# - Client: yarn dev --filter=@tiween/client
+# - Strapi: cd apps/strapi && yarn dev (requires postgres/redis from this compose)
+
+name: tiween
+
+services:
+  # Next.js Client Application
+  client:
+    build:
+      context: .
+      dockerfile: apps/client/Dockerfile
+      target: installer
+    volumes:
+      - ./apps/client:/app/apps/client:delegated
+      - ./packages:/app/packages:delegated
+      - client_node_modules:/app/apps/client/node_modules
+      - client_next:/app/apps/client/.next
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - STRAPI_URL=http://strapi:1337
+      - NEXTAUTH_URL=http://localhost:3000
+      - NEXTAUTH_SECRET=dev_secret_change_in_production
+    depends_on:
+      - strapi
+    command: sh -c "cd /app && yarn dev --filter=@tiween/client"
+    networks:
+      - tiween-network
+
+  # Strapi CMS Backend
+  strapi:
+    build:
+      context: .
+      dockerfile: apps/strapi/Dockerfile
+      target: installer
+    volumes:
+      - ./apps/strapi:/app/apps/strapi:delegated
+      - ./packages:/app/packages:delegated
+      - strapi_node_modules:/app/apps/strapi/node_modules
+    ports:
+      - "1337:1337"
+    environment:
+      - NODE_ENV=development
+      - HOST=0.0.0.0
+      - PORT=1337
+      - DATABASE_CLIENT=postgres
+      - DATABASE_HOST=postgres
+      - DATABASE_PORT=5432
+      - DATABASE_NAME=tiween
+      - DATABASE_USERNAME=tiween
+      - DATABASE_PASSWORD=tiween_dev_password
+      - DATABASE_SSL=false
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_DB=0
+      - CACHE_ENABLED=true
+      - APP_KEYS=devkey1,devkey2,devkey3,devkey4
+      - API_TOKEN_SALT=dev_api_token_salt
+      - ADMIN_JWT_SECRET=dev_admin_jwt_secret
+      - JWT_SECRET=dev_jwt_secret
+      - TRANSFER_TOKEN_SALT=dev_transfer_token_salt
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: sh -c "cd /app/apps/strapi && yarn develop"
+    networks:
+      - tiween-network
+
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    platform: linux/amd64
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=tiween
+      - POSTGRES_USER=tiween
+      - POSTGRES_PASSWORD=tiween_dev_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tiween -d tiween"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - tiween-network
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - tiween-network
+
+volumes:
+  postgres_data:
+  redis_data:
+  client_node_modules:
+  client_next:
+  strapi_node_modules:
+
+networks:
+  tiween-network:
+    driver: bridge

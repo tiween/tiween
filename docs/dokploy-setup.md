@@ -24,13 +24,14 @@ GitHub PR             → Preview Deployment (automatic via Dokploy)
 
 Dokploy supports three levels of environment variables:
 
-| Level | Scope | Use Case |
-|-------|-------|----------|
-| **Project** | All services in project | Shared secrets (DB credentials, API keys) |
-| **Environment** | Staging OR Production | Environment-specific URLs, feature flags |
-| **Service** | Single service only | Service-specific overrides |
+| Level           | Scope                   | Use Case                                  |
+| --------------- | ----------------------- | ----------------------------------------- |
+| **Project**     | All services in project | Shared secrets (DB credentials, API keys) |
+| **Environment** | Staging OR Production   | Environment-specific URLs, feature flags  |
+| **Service**     | Single service only     | Service-specific overrides                |
 
 Reference syntax:
+
 - Project: `${{project.VARIABLE_NAME}}`
 - Environment: `${{environment.VARIABLE_NAME}}`
 - Service: Direct reference or `${{VARIABLE_NAME}}`
@@ -47,14 +48,15 @@ Reference syntax:
 
 Create **4 applications** in the project (2 per environment):
 
-| Application Name | Environment | Image |
-|-----------------|-------------|-------|
-| `client-staging` | Staging | `ghcr.io/{owner}/tiween-bmad-version/client:staging` |
-| `client-production` | Production | `ghcr.io/{owner}/tiween-bmad-version/client:production` |
-| `strapi-staging` | Staging | `ghcr.io/{owner}/tiween-bmad-version/strapi:staging` |
-| `strapi-production` | Production | `ghcr.io/{owner}/tiween-bmad-version/strapi:production` |
+| Application Name    | Environment | Image                                                   |
+| ------------------- | ----------- | ------------------------------------------------------- |
+| `client-staging`    | Staging     | `ghcr.io/{owner}/tiween-bmad-version/client:staging`    |
+| `client-production` | Production  | `ghcr.io/{owner}/tiween-bmad-version/client:production` |
+| `strapi-staging`    | Staging     | `ghcr.io/{owner}/tiween-bmad-version/strapi:staging`    |
+| `strapi-production` | Production  | `ghcr.io/{owner}/tiween-bmad-version/strapi:production` |
 
 For each application:
+
 1. Click **Create Application**
 2. Set **Source Type**: Docker
 3. Enter the Docker image path (replace `{owner}` with your GitHub username/org)
@@ -78,6 +80,7 @@ DATABASE_PORT=5432
 #### Staging Environment Variables
 
 For `client-staging`:
+
 ```bash
 NODE_ENV=production
 STRAPI_URL=https://api-staging.yourdomain.com
@@ -90,6 +93,7 @@ STRAPI_PREVIEW_SECRET=<staging-preview-secret>
 ```
 
 For `strapi-staging`:
+
 ```bash
 NODE_ENV=production
 HOST=0.0.0.0
@@ -115,6 +119,7 @@ STRAPI_PREVIEW_SECRET=<staging-preview-secret>
 #### Production Environment Variables
 
 For `client-production`:
+
 ```bash
 NODE_ENV=production
 STRAPI_URL=https://api.yourdomain.com
@@ -127,6 +132,7 @@ STRAPI_PREVIEW_SECRET=<production-preview-secret>
 ```
 
 For `strapi-production`:
+
 ```bash
 NODE_ENV=production
 HOST=0.0.0.0
@@ -152,15 +158,17 @@ STRAPI_PREVIEW_SECRET=<production-preview-secret>
 ### Step 5: Configure Domains
 
 #### Staging Domains
-| Application | Domain | Port |
-|-------------|--------|------|
-| `client-staging` | `staging.yourdomain.com` | 3000 |
+
+| Application      | Domain                       | Port |
+| ---------------- | ---------------------------- | ---- |
+| `client-staging` | `staging.yourdomain.com`     | 3000 |
 | `strapi-staging` | `api-staging.yourdomain.com` | 1337 |
 
 #### Production Domains
-| Application | Domain | Port |
-|-------------|--------|------|
-| `client-production` | `yourdomain.com` | 3000 |
+
+| Application         | Domain               | Port |
+| ------------------- | -------------------- | ---- |
+| `client-production` | `yourdomain.com`     | 3000 |
 | `strapi-production` | `api.yourdomain.com` | 1337 |
 
 Enable HTTPS (Let's Encrypt) for all domains.
@@ -170,6 +178,7 @@ Enable HTTPS (Let's Encrypt) for all domains.
 In each application's **Advanced → Cluster Settings → Swarm Settings**:
 
 #### Client Health Check:
+
 ```json
 {
   "Test": ["CMD", "wget", "-q", "--spider", "http://localhost:3000/api/health"],
@@ -181,6 +190,7 @@ In each application's **Advanced → Cluster Settings → Swarm Settings**:
 ```
 
 #### Strapi Health Check:
+
 ```json
 {
   "Test": ["CMD", "wget", "-q", "--spider", "http://localhost:1337/_health"],
@@ -205,6 +215,7 @@ In **Advanced → Cluster Settings → Update Config**:
 ```
 
 This ensures:
+
 - Zero-downtime deployments (`start-first`)
 - Automatic rollback on failure
 - 10-second delay between updates
@@ -243,18 +254,20 @@ Preview URLs will be: `preview-client-staging-{uniqueId}.staging.yourdomain.com`
 Add these secrets to each environment:
 
 #### Staging Environment Secrets
-| Secret | Description |
-|--------|-------------|
-| `DOKPLOY_URL` | Your Dokploy server URL |
-| `DOKPLOY_API_KEY` | API key from Dokploy |
+
+| Secret                  | Description                         |
+| ----------------------- | ----------------------------------- |
+| `DOKPLOY_URL`           | Your Dokploy server URL             |
+| `DOKPLOY_API_KEY`       | API key from Dokploy                |
 | `DOKPLOY_CLIENT_APP_ID` | Application ID for `client-staging` |
 | `DOKPLOY_STRAPI_APP_ID` | Application ID for `strapi-staging` |
 
 #### Production Environment Secrets
-| Secret | Description |
-|--------|-------------|
-| `DOKPLOY_URL` | Your Dokploy server URL |
-| `DOKPLOY_API_KEY` | API key from Dokploy |
+
+| Secret                  | Description                            |
+| ----------------------- | -------------------------------------- |
+| `DOKPLOY_URL`           | Your Dokploy server URL                |
+| `DOKPLOY_API_KEY`       | API key from Dokploy                   |
 | `DOKPLOY_CLIENT_APP_ID` | Application ID for `client-production` |
 | `DOKPLOY_STRAPI_APP_ID` | Application ID for `strapi-production` |
 
@@ -274,11 +287,11 @@ Add these secrets to each environment:
 
 ### Automatic Deployments
 
-| Trigger | Environment |
-|---------|-------------|
-| Push to `main` | Production |
-| Push to `develop` | Staging |
-| Pull Request | Preview (if enabled) |
+| Trigger           | Environment          |
+| ----------------- | -------------------- |
+| Push to `main`    | Production           |
+| Push to `develop` | Staging              |
+| Pull Request      | Preview (if enabled) |
 
 ### Manual Deployments
 
@@ -291,18 +304,19 @@ Add these secrets to each environment:
 
 The workflow creates these Docker image tags:
 
-| Tag Pattern | Example | Use |
-|-------------|---------|-----|
-| `{env}` | `staging`, `production` | Latest for environment |
-| `{env}-{run}` | `staging-42` | Specific build number |
-| `{env}-{sha}` | `production-abc1234` | Git commit reference |
-| `latest` | `latest` | Latest production build |
+| Tag Pattern   | Example                 | Use                     |
+| ------------- | ----------------------- | ----------------------- |
+| `{env}`       | `staging`, `production` | Latest for environment  |
+| `{env}-{run}` | `staging-42`            | Specific build number   |
+| `{env}-{sha}` | `production-abc1234`    | Git commit reference    |
+| `latest`      | `latest`                | Latest production build |
 
 ## Database Setup
 
 ### Option A: Managed Database (Recommended)
 
 Use a managed PostgreSQL service:
+
 - **Supabase** (free tier available)
 - **Neon** (free tier available)
 - **Railway**
@@ -321,6 +335,7 @@ Create separate databases for staging and production.
 ## Redis Setup
 
 ### Option A: Managed Redis
+
 - **Upstash** (free tier, serverless)
 - **Redis Cloud**
 
@@ -332,11 +347,13 @@ Create separate databases for staging and production.
 ## Monitoring
 
 ### Dokploy Dashboard
+
 - Real-time container logs
 - Resource usage metrics
 - Deployment history
 
 ### Health Check Monitoring
+
 - Automatic container restarts on health check failure
 - Rollback on deployment failure
 
@@ -369,11 +386,13 @@ Create separate databases for staging and production.
 ## Security Best Practices
 
 1. **Secrets Management**
+
    - Use unique secrets for each environment
    - Rotate secrets periodically
    - Never commit secrets to version control
 
 2. **Network Security**
+
    - Use internal networking for database/Redis
    - Enable HTTPS for all public endpoints
    - Configure firewall rules
