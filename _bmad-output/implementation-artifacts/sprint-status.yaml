@@ -56,7 +56,7 @@ development_status:
   # Epic 2A: Component Library & Design System (PARALLEL TRACK A)
   epic-2a: in-progress
   2a-1-layout-components-bottomnav: review
-  2a-2-layout-components-header-and-pagecontainer: backlog
+  2a-2-layout-components-header-and-pagecontainer: review
   2a-3-layout-components-stickyfilters: backlog
   2a-4-discovery-components-eventcard: backlog
   2a-5-discovery-components-filmhero: backlog
