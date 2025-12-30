@@ -1,0 +1,12 @@
+{
+  "name": "events-manager",
+  "version": "0.0.0",
+  "description": "Event management plugin for Tiween - streamlined event scheduling and ticket management",
+  "license": "MIT",
+  "strapi": {
+    "displayName": "Events Manager",
+    "name": "events-manager",
+    "description": "Streamlined event management for venue managers",
+    "kind": "plugin"
+  }
+}

@@ -1,0 +1,70 @@
+{
+  "kind": "collectionType",
+  "collectionName": "ticket_orders",
+  "info": {
+    "singularName": "ticket-order",
+    "pluralName": "ticket-orders",
+    "displayName": "Ticket Order",
+    "description": "Orders for ticket purchases, supports both registered users and guest checkout"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "orderNumber": {
+      "type": "string",
+      "unique": true,
+      "required": true
+    },
+    "user": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "guestEmail": {
+      "type": "email"
+    },
+    "guestName": {
+      "type": "string"
+    },
+    "event": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::event.event"
+    },
+    "showtime": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::showtime.showtime"
+    },
+    "tickets": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::ticket.ticket",
+      "mappedBy": "order"
+    },
+    "totalAmount": {
+      "type": "decimal",
+      "required": true
+    },
+    "currency": {
+      "type": "string",
+      "default": "TND"
+    },
+    "paymentStatus": {
+      "type": "enumeration",
+      "enum": ["pending", "paid", "failed", "refunded"],
+      "default": "pending",
+      "required": true
+    },
+    "paymentMethod": {
+      "type": "string"
+    },
+    "paymentReference": {
+      "type": "string"
+    },
+    "purchasedAt": {
+      "type": "datetime"
+    }
+  }
+}

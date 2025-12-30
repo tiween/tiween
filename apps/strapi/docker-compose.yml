@@ -1,7 +1,7 @@
-# This docker-compose file contains only Postgres database for local run. 
+# This docker-compose file contains Postgres database and Redis for local run.
 # Strapi should be run either in a separate container (Dockerfile) or in the host machine (yarn dev).
 
-name: dev-templates
+name: tiween
 services:
   db:
     platform: linux/amd64 #for platform error on Apple M1 chips
@@ -16,12 +16,29 @@ services:
       - data:/var/lib/postgresql/data/ #using a volume
       #- ./data:/var/lib/postgresql/data/ # if you want to use a bind folder
     ports:
-      - "5432:5432"
+      - "5437:5432"
     networks:
       - db_network
 
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    networks:
+      - db_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
 volumes:
   data:
+  redis_data:
 
 networks:
   db_network:

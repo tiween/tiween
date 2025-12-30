@@ -1,0 +1,19 @@
+{
+  "collectionName": "components_creative_works_credits",
+  "info": {
+    "displayName": "Credit",
+    "icon": "user-tie",
+    "description": "Crew member and job role mapping for creative works"
+  },
+  "options": {},
+  "attributes": {
+    "person": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::person.person"
+    },
+    "job": {
+      "type": "string"
+    }
+  }
+}

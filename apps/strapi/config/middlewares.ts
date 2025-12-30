@@ -20,6 +20,7 @@ export default [
             "'self'",
             "blob:",
             "data:",
+            "ik.imagekit.io", // ImageKit CDN
             "https://maps.gstatic.com",
             "https://maps.googleapis.com",
             "khmdb0.google.com",
@@ -44,11 +45,24 @@ export default [
             "market-assets.strapi.io",
             "*.amazonaws.com",
           ],
+          "frame-src": [
+            "'self'",
+            "eml.imagekit.io", // ImageKit embed/preview
+          ],
         },
       },
     },
   },
-  "strapi::cors",
+  {
+    name: "strapi::cors",
+    config: {
+      enabled: true,
+      origin: ["http://localhost:3000", "http://localhost:6006"], // Next.js + Storybook
+      methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"],
+      headers: ["Content-Type", "Authorization", "Origin", "Accept"],
+      keepHeaderOnError: true,
+    },
+  },
   "strapi::poweredBy",
   "strapi::logger",
   "strapi::query",

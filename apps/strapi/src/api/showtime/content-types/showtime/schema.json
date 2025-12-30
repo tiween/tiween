@@ -1,0 +1,77 @@
+{
+  "kind": "collectionType",
+  "collectionName": "showtimes",
+  "info": {
+    "singularName": "showtime",
+    "pluralName": "showtimes",
+    "displayName": "Showtime",
+    "description": "Individual screening times linking events to venues"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "event": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::event.event",
+      "inversedBy": "showtimes"
+    },
+    "venue": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::venue.venue"
+    },
+    "datetime": {
+      "type": "datetime",
+      "required": true
+    },
+    "format": {
+      "type": "enumeration",
+      "enum": [
+        "VOST",
+        "VF",
+        "VO",
+        "THREE_D",
+        "IMAX"
+      ],
+      "default": "VOST"
+    },
+    "language": {
+      "type": "enumeration",
+      "enum": [
+        "ar",
+        "fr",
+        "en",
+        "other"
+      ],
+      "default": "fr"
+    },
+    "subtitles": {
+      "type": "enumeration",
+      "enum": [
+        "ar",
+        "fr",
+        "en",
+        "none"
+      ],
+      "default": "none"
+    },
+    "price": {
+      "type": "decimal"
+    },
+    "ticketsAvailable": {
+      "type": "integer",
+      "default": 0
+    },
+    "ticketsSold": {
+      "type": "integer",
+      "default": 0
+    },
+    "premiere": {
+      "type": "boolean",
+      "default": false
+    }
+  }
+}

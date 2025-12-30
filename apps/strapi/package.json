@@ -31,9 +31,8 @@
     ]
   },
   "dependencies": {
-    "@_sh/strapi-plugin-ckeditor": "^6.0.2",
-    "@tiween/design-system": "*",
-    "@tiween/shared-types": "*",
+    "@strapi-community/plugin-rest-cache": "^5.0.1",
+    "@strapi-community/provider-rest-cache-redis": "^5.0.0",
     "@strapi/plugin-color-picker": "^5.29.0",
     "@strapi/plugin-sentry": "^5.29.0",
     "@strapi/plugin-seo": "2.0.8",
@@ -41,6 +40,9 @@
     "@strapi/provider-email-mailgun": "^5.29.0",
     "@strapi/provider-upload-aws-s3": "^5.29.0",
     "@strapi/strapi": "^5.29.0",
+    "@tiween/design-system": "*",
+    "@tiween/shared-types": "*",
+    "ioredis": "^5.8.2",
     "lodash": "^4.17.21",
     "pg": "^8.13.1",
     "qs": "^6.13.0",
@@ -48,6 +50,8 @@
     "react-dom": "^18.0.0",
     "react-router-dom": "^6.0.0",
     "strapi-plugin-config-sync": "2.1.0",
+    "strapi-plugin-imagekit": "^1.0.2",
+    "strapi-provider-upload-imagekit": "^5.11.11",
     "styled-components": "^6.0.0"
   },
   "devDependencies": {

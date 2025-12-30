@@ -1,0 +1,21 @@
+{
+  "collectionName": "components_common_remarkable_facts",
+  "info": {
+    "displayName": "Remarkable Fact",
+    "icon": "star",
+    "description": "Awards, festivals, and notable achievements"
+  },
+  "options": {},
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "year": {
+      "type": "integer"
+    },
+    "country": {
+      "type": "string"
+    }
+  }
+}

@@ -1,5 +1,83 @@
 import type { Schema, Struct } from "@strapi/strapi"
 
+export interface CommonRemarkableFact extends Struct.ComponentSchema {
+  collectionName: "components_common_remarkable_facts"
+  info: {
+    description: "Awards, festivals, and notable achievements"
+    displayName: "Remarkable Fact"
+    icon: "star"
+  }
+  attributes: {
+    country: Schema.Attribute.String
+    name: Schema.Attribute.String & Schema.Attribute.Required
+    year: Schema.Attribute.Integer
+  }
+}
+
+export interface CommonSocialLink extends Struct.ComponentSchema {
+  collectionName: "components_common_social_links"
+  info: {
+    description: "Social media and external links"
+    displayName: "Social Link"
+    icon: "link"
+  }
+  attributes: {
+    type: Schema.Attribute.Enumeration<
+      [
+        "facebook",
+        "instagram",
+        "youtube",
+        "twitter",
+        "website",
+        "phone",
+        "tiktok",
+      ]
+    > &
+      Schema.Attribute.Required
+    url: Schema.Attribute.String & Schema.Attribute.Required
+  }
+}
+
+export interface CommonVideo extends Struct.ComponentSchema {
+  collectionName: "components_common_videos"
+  info: {
+    description: "Video link with type classification"
+    displayName: "Video"
+    icon: "file-video"
+  }
+  attributes: {
+    type: Schema.Attribute.Enumeration<["FULL_LENGTH", "TEASER", "CLIP"]> &
+      Schema.Attribute.DefaultTo<"TEASER">
+    url: Schema.Attribute.String & Schema.Attribute.Required
+  }
+}
+
+export interface CreativeWorksCast extends Struct.ComponentSchema {
+  collectionName: "components_creative_works_casts"
+  info: {
+    description: "Actor and character mapping for creative works"
+    displayName: "Cast"
+    icon: "user-circle"
+  }
+  attributes: {
+    character: Schema.Attribute.String
+    person: Schema.Attribute.Relation<"oneToOne", "api::person.person">
+  }
+}
+
+export interface CreativeWorksCredit extends Struct.ComponentSchema {
+  collectionName: "components_creative_works_credits"
+  info: {
+    description: "Crew member and job role mapping for creative works"
+    displayName: "Credit"
+    icon: "user-tie"
+  }
+  attributes: {
+    job: Schema.Attribute.String
+    person: Schema.Attribute.Relation<"oneToOne", "api::person.person">
+  }
+}
+
 export interface ElementsFooterItem extends Struct.ComponentSchema {
   collectionName: "components_elements_footer_items"
   info: {
@@ -283,13 +361,7 @@ export interface UtilitiesCkEditorContent extends Struct.ComponentSchema {
     displayName: "CkEditorContent"
   }
   attributes: {
-    content: Schema.Attribute.RichText &
-      Schema.Attribute.CustomField<
-        "plugin::ckeditor5.CKEditor",
-        {
-          preset: "defaultCkEditor"
-        }
-      >
+    content: Schema.Attribute.RichText
   }
 }
 
@@ -341,6 +413,11 @@ export interface UtilitiesText extends Struct.ComponentSchema {
 declare module "@strapi/strapi" {
   export module Public {
     export interface ComponentSchemas {
+      "common.remarkable-fact": CommonRemarkableFact
+      "common.social-link": CommonSocialLink
+      "common.video": CommonVideo
+      "creative-works.cast": CreativeWorksCast
+      "creative-works.credit": CreativeWorksCredit
       "elements.footer-item": ElementsFooterItem
       "forms.contact-form": FormsContactForm
       "forms.newsletter-form": FormsNewsletterForm

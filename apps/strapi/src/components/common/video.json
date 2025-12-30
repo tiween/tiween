@@ -1,0 +1,25 @@
+{
+  "collectionName": "components_common_videos",
+  "info": {
+    "displayName": "Video",
+    "icon": "file-video",
+    "description": "Video link with type classification"
+  },
+  "options": {},
+  "attributes": {
+    "url": {
+      "type": "string",
+      "required": true
+    },
+    "type": {
+      "type": "enumeration",
+      "enum": [
+        "FULL_LENGTH",
+        "TEASER",
+        "CLIP"
+      ],
+      "default": "TEASER",
+      "required": false
+    }
+  }
+}

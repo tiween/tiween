@@ -1,0 +1,19 @@
+{
+  "collectionName": "components_creative_works_casts",
+  "info": {
+    "displayName": "Cast",
+    "icon": "user-circle",
+    "description": "Actor and character mapping for creative works"
+  },
+  "options": {},
+  "attributes": {
+    "person": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::person.person"
+    },
+    "character": {
+      "type": "string"
+    }
+  }
+}
