@@ -87,11 +87,12 @@ So that I have a backup copy outside the app.
 **When** confirmation is processed
 **Then** I receive an email within 2 minutes (NFR-IN3)
 **And** email includes:
+
 - Order confirmation details
 - Event information (title, date, time, venue)
 - QR code tickets (one per ticket purchased)
 - Add to calendar link
-**And** email is sent to my account email or guest email
+  **And** email is sent to my account email or guest email
 
 ---
 

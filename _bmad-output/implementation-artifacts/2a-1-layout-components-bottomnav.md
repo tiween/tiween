@@ -45,6 +45,7 @@ So that users can navigate between main sections of the app on mobile devices.
 ## Tasks / Subtasks
 
 - [x] **Task 1: Create BottomNav Component** (AC: #1-10)
+
   - [x] 1.1 Create directory structure `src/components/layout/BottomNav/`
   - [x] 1.2 Create BottomNav.tsx with TypeScript props interface
   - [x] 1.3 Implement 4 tabs: Home, Search, Tickets, Account
@@ -58,6 +59,7 @@ So that users can navigate between main sections of the app on mobile devices.
   - [x] 1.11 Create index.ts for exports
 
 - [x] **Task 2: Create Storybook Stories** (AC: #11)
+
   - [x] 2.1 Create BottomNav.stories.tsx
   - [x] 2.2 Add Default story
   - [x] 2.3 Add HomeActive, SearchActive, TicketsActive, AccountActive stories
@@ -67,6 +69,7 @@ So that users can navigate between main sections of the app on mobile devices.
   - [x] 2.7 Verify Storybook builds successfully
 
 - [x] **Task 3: RTL Support** (AC: #12)
+
   - [x] 3.1 Use `ltr:` and `rtl:` Tailwind modifiers for badge positioning
   - [x] 3.2 Add RTLMode story to demonstrate RTL behavior
   - [x] 3.3 Verify badge flips to left side in RTL mode

@@ -6,6 +6,7 @@
 **Project Context:** Brownfield - modernizing existing tiween.com platform (Next.js latest, Strapi v4 → v5)
 
 **Key Technical Considerations:**
+
 - Browser support matrix for PWA features and offline capabilities
 - Offline-first architecture for cached event listings, watchlists, and tickets
 - Payment gateway integration with local Tunisian providers

@@ -72,10 +72,11 @@ So that I can keep information accurate.
 **And** I can add/remove showtimes
 **And** I can change the status to cancelled
 **And** cancelling an event:
+
 - Marks all showtimes as cancelled
 - Triggers notification to users with watchlisted events
 - Triggers refund process for purchased tickets
-**And** edit history is logged
+  **And** edit history is logged
 
 ---
 

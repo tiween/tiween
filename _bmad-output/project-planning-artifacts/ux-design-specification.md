@@ -8,13 +8,13 @@ inputDocuments:
   - reponses_brief_crea.pdf (creative brief)
   - legacy/frontend/components (existing React components)
   - input/TIWEEN_*.png (new interface mockups - 28 screens)
-workflowType: 'ux-design'
+workflowType: "ux-design"
 lastStep: 14
 status: complete
-completedAt: '2025-12-25'
-project_name: 'tiween-bmad-version'
-user_name: 'Ayoub'
-date: '2025-12-25'
+completedAt: "2025-12-25"
+project_name: "tiween-bmad-version"
+user_name: "Ayoub"
+date: "2025-12-25"
 ---
 
 # UX Design Specification Tiween
@@ -35,11 +35,13 @@ The UX vision centers on **discovery-first design**: users find events by what t
 ### Target Users
 
 **Primary (B2C Consumers):**
+
 - **Urban Explorers (Yasmine):** 18-34 year-olds in Greater Tunis, digitally native, seeking unified cultural discovery across categories
 - **Regional Enthusiasts (Karim):** Users outside Tunis wanting connection to national cultural scene despite limited local options
 - **Anonymous Browsers (Ahmed):** First-time visitors needing frictionless discovery without account creation
 
 **Secondary (B2B Professionals):**
+
 - **Small Venue Managers (Mounir):** Independent theaters needing simple tools to publish schedules and track audiences
 - **Institutional Directors (Salma):** Large cultural centers requiring professional analytics and reporting capabilities
 - **Venue Staff (Rami):** Door personnel operating ticket scanners in high-throughput environments
@@ -79,15 +81,16 @@ This discovery moment is the heartbeat of Tiween. If users can consistently find
 
 **Multi-Discipline Coverage:**
 
-| Discipline | Content Scope | Discovery Focus | Archival Value |
-|------------|---------------|-----------------|----------------|
-| **Cinema** | Feature films, documentaries, screenings | Showtimes by venue, date, genre | Tunisian film database |
-| **Theater** | Plays, performances, one-man shows, opera | Run dates, venues, companies | Tunisian theatrical heritage |
+| Discipline      | Content Scope                                       | Discovery Focus                   | Archival Value                |
+| --------------- | --------------------------------------------------- | --------------------------------- | ----------------------------- |
+| **Cinema**      | Feature films, documentaries, screenings            | Showtimes by venue, date, genre   | Tunisian film database        |
+| **Theater**     | Plays, performances, one-man shows, opera           | Run dates, venues, companies      | Tunisian theatrical heritage  |
 | **Short Films** | Courts-métrages, student films, festival selections | Collections, festivals, directors | Emerging talent documentation |
-| **Exhibitions** | Museums, galleries, cultural centers | Current + upcoming shows | Visual arts programming |
-| **Concerts** | Live music, festivals | Event dates, artists, venues | Music event history |
+| **Exhibitions** | Museums, galleries, cultural centers                | Current + upcoming shows          | Visual arts programming       |
+| **Concerts**    | Live music, festivals                               | Event dates, artists, venues      | Music event history           |
 
 **Core Experience Loop:**
+
 1. **Open** → Instantly see curated "what's on" across disciplines (no loading, no empty states)
 2. **Filter** → Narrow by tonight/weekend, near me, category (cinema/theater/shorts) in one tap
 3. **Discover** → Browse visually-rich event cards with key info visible
@@ -98,13 +101,14 @@ This discovery moment is the heartbeat of Tiween. If users can consistently find
 
 ### Platform Strategy
 
-| Platform | Priority | Implementation |
-|----------|----------|----------------|
-| **Mobile Web (PWA)** | Primary | Touch-optimized, installable, offline-capable |
-| **Desktop Web** | Secondary | Enhanced comparison views, venue dashboard, archival browsing |
-| **Native Apps** | Phase 3 | iOS/Android when PWA limits become constraints |
+| Platform             | Priority  | Implementation                                                |
+| -------------------- | --------- | ------------------------------------------------------------- |
+| **Mobile Web (PWA)** | Primary   | Touch-optimized, installable, offline-capable                 |
+| **Desktop Web**      | Secondary | Enhanced comparison views, venue dashboard, archival browsing |
+| **Native Apps**      | Phase 3   | iOS/Android when PWA limits become constraints                |
 
 **Platform Principles:**
+
 - **Mobile-first design:** All features work flawlessly on Chrome Android before desktop enhancement
 - **Touch-native interactions:** 44px minimum tap targets, swipe gestures, thumb-zone navigation
 - **Progressive enhancement:** Core features work everywhere, enhanced features for modern browsers
@@ -114,53 +118,58 @@ This discovery moment is the heartbeat of Tiween. If users can consistently find
 
 These interactions must feel completely natural and require zero cognitive load:
 
-| Interaction | Design Approach |
-|-------------|-----------------|
-| **Tonight's events** | "Aujourd'hui" filter pre-selected on first visit based on time of day |
-| **Category switching** | Horizontal category tabs (Tout / Cinéma / Théâtre / Courts-métrages / Musique) |
-| **Location filtering** | Geolocation prompt on first use, remembered preference thereafter |
-| **Showtime comparison** | All venues for one film/play visible on single scrollable screen |
-| **Watchlist save** | One-tap heart/bookmark visible on every event card |
-| **Ticket purchase** | Maximum 3 taps from event detail to payment confirmation |
-| **Ticket access** | Persistent bottom tab, offline QR display, no login required to view |
-| **Language switch** | Header toggle, instant RTL/LTR flip, no page reload |
+| Interaction             | Design Approach                                                                 |
+| ----------------------- | ------------------------------------------------------------------------------- |
+| **Tonight's events**    | "Aujourd'hui" filter pre-selected on first visit based on time of day           |
+| **Category switching**  | Horizontal category tabs (Tout / Cinéma / Théâtre / Courts-métrages / Musique)  |
+| **Location filtering**  | Geolocation prompt on first use, remembered preference thereafter               |
+| **Showtime comparison** | All venues for one film/play visible on single scrollable screen                |
+| **Watchlist save**      | One-tap heart/bookmark visible on every event card                              |
+| **Ticket purchase**     | Maximum 3 taps from event detail to payment confirmation                        |
+| **Ticket access**       | Persistent bottom tab, offline QR display, no login required to view            |
+| **Language switch**     | Header toggle, instant RTL/LTR flip, no page reload                             |
 | **Archive exploration** | Browse past works, filter by year/genre/director, discover Tunisian productions |
 
 ### Critical Success Moments
 
-| Moment | User Thought | Design Response |
-|--------|--------------|-----------------|
-| **First Visit (0-30s)** | "Show me something interesting" | Pre-filtered, visually rich homepage with multi-discipline content |
-| **Discovery Win** | "I found a play I didn't know existed!" | Category diversity, featured events, theatrical listings alongside cinema |
-| **Showtime Selection** | "Which venue/date works for me?" | Cross-venue comparison with time, location, format badges |
-| **Purchase Completion** | "That was easy" | Streamlined checkout, saved payment, instant confirmation |
-| **Event Night** | "My ticket just works" | Offline QR access, high-contrast display, quick scan |
-| **Archive Exploration** | "I can see every Tunisian short film ever made" | Comprehensive database, rich metadata, filmmaker profiles |
-| **Return Visit** | "What's new since I checked?" | Watchlist reminders, new releases across all disciplines |
+| Moment                  | User Thought                                    | Design Response                                                           |
+| ----------------------- | ----------------------------------------------- | ------------------------------------------------------------------------- |
+| **First Visit (0-30s)** | "Show me something interesting"                 | Pre-filtered, visually rich homepage with multi-discipline content        |
+| **Discovery Win**       | "I found a play I didn't know existed!"         | Category diversity, featured events, theatrical listings alongside cinema |
+| **Showtime Selection**  | "Which venue/date works for me?"                | Cross-venue comparison with time, location, format badges                 |
+| **Purchase Completion** | "That was easy"                                 | Streamlined checkout, saved payment, instant confirmation                 |
+| **Event Night**         | "My ticket just works"                          | Offline QR access, high-contrast display, quick scan                      |
+| **Archive Exploration** | "I can see every Tunisian short film ever made" | Comprehensive database, rich metadata, filmmaker profiles                 |
+| **Return Visit**        | "What's new since I checked?"                   | Watchlist reminders, new releases across all disciplines                  |
 
 ### Experience Principles
 
 1. **Discovery First, Always**
+
    - Every screen surfaces relevant content immediately across all disciplines
    - No blank slates, no "search to start" patterns
    - The app anticipates what users want before they ask
 
 2. **30-Second Value**
+
    - First-time users find something interesting within 30 seconds
    - Returning users see tonight's options in under 10 seconds
    - Time-to-value is the primary UX metric
 
 3. **One-Tap Power**
+
    - Core actions (filter by category, save, share, book) require exactly one tap
    - Secondary actions maximum two taps
    - Common paths are always the shortest paths
 
 4. **Offline Confidence**
+
    - Users never wonder "will this work without internet?"
    - Cached listings, offline watchlist, stored tickets just work
    - Graceful degradation with clear sync status
 
 5. **Bilingual Seamlessness**
+
    - AR/FR/EN switching is instant and complete
    - RTL/LTR layouts flip without jarring transitions
    - Mixed-language content (Arabic titles, French descriptions) displays naturally
@@ -176,29 +185,30 @@ These interactions must feel completely natural and require zero cognitive load:
 
 The signature emotional experience for Tiween is **"Cultural Excitement + Effortless Confidence"** - users should feel they've discovered a secret weapon for cultural life in Tunisia.
 
-| User Segment | Primary Emotion | What They Say |
-|--------------|-----------------|---------------|
-| **Urban Explorer (Yasmine)** | Excited Discovery | "I found something I would have missed!" |
-| **Regional Enthusiast (Karim)** | Cultural Inclusion | "I can see what's happening across Tunisia" |
-| **Venue Manager (Mounir)** | Professional Empowerment | "My theater finally has real reach" |
-| **Anonymous Browser (Ahmed)** | Welcomed Freedom | "I can explore without barriers" |
+| User Segment                    | Primary Emotion          | What They Say                               |
+| ------------------------------- | ------------------------ | ------------------------------------------- |
+| **Urban Explorer (Yasmine)**    | Excited Discovery        | "I found something I would have missed!"    |
+| **Regional Enthusiast (Karim)** | Cultural Inclusion       | "I can see what's happening across Tunisia" |
+| **Venue Manager (Mounir)**      | Professional Empowerment | "My theater finally has real reach"         |
+| **Anonymous Browser (Ahmed)**   | Welcomed Freedom         | "I can explore without barriers"            |
 
 ### Emotional Journey Mapping
 
-| Journey Stage | Target Emotion | Design Response |
-|---------------|----------------|-----------------|
-| **First Open** | Curious → Impressed | Instant value display, no onboarding gate, tonight's events visible |
-| **Discovery** | Engaged → Excited | Visual richness, category diversity, continuous scroll, surprise content |
-| **Decision** | Confident → Decisive | Clear details, venue comparison, one-tap save |
-| **Purchase** | Trusting → Relieved | Progress indicators, familiar payment, clear pricing in DT |
-| **Post-Purchase** | Prepared → Anticipated | Instant confirmation, offline ticket, calendar integration |
-| **At Event** | Proud → Satisfied | Quick scan, no fumbling, ticket works offline |
-| **Return Visit** | Anticipation → Rewarded | Personalized content, watchlist updates, fresh discoveries |
-| **Error State** | Concerned → Reassured | Clear messaging, recovery paths, offline fallbacks |
+| Journey Stage     | Target Emotion          | Design Response                                                          |
+| ----------------- | ----------------------- | ------------------------------------------------------------------------ |
+| **First Open**    | Curious → Impressed     | Instant value display, no onboarding gate, tonight's events visible      |
+| **Discovery**     | Engaged → Excited       | Visual richness, category diversity, continuous scroll, surprise content |
+| **Decision**      | Confident → Decisive    | Clear details, venue comparison, one-tap save                            |
+| **Purchase**      | Trusting → Relieved     | Progress indicators, familiar payment, clear pricing in DT               |
+| **Post-Purchase** | Prepared → Anticipated  | Instant confirmation, offline ticket, calendar integration               |
+| **At Event**      | Proud → Satisfied       | Quick scan, no fumbling, ticket works offline                            |
+| **Return Visit**  | Anticipation → Rewarded | Personalized content, watchlist updates, fresh discoveries               |
+| **Error State**   | Concerned → Reassured   | Clear messaging, recovery paths, offline fallbacks                       |
 
 ### Micro-Emotions
 
 **Emotions to Cultivate:**
+
 - **Confidence** over confusion - Clear hierarchy, obvious actions, no dead ends
 - **Trust** over skepticism - Professional design, local pricing, venue partnerships
 - **Excitement** over anxiety - Vibrant imagery, cultural celebration, discovery moments
@@ -206,6 +216,7 @@ The signature emotional experience for Tiween is **"Cultural Excitement + Effort
 - **Belonging** over isolation - Multi-discipline content, regional inclusion, Tunisian pride
 
 **Emotions to Prevent:**
+
 - **FOMO anxiety** - Curate thoughtfully, don't overwhelm with "you're missing out"
 - **Decision paralysis** - Smart defaults, curated picks, clear recommendations
 - **Buyer's remorse** - Transparent pricing, no hidden fees, clear cancellation policy
@@ -213,28 +224,31 @@ The signature emotional experience for Tiween is **"Cultural Excitement + Effort
 
 ### Design Implications
 
-| Desired Emotion | UX Implementation |
-|-----------------|-------------------|
-| **Excitement of Discovery** | Hero imagery, editorial "picks", surprise sections ("Les podcasts les mieux notés") |
-| **Effortless Confidence** | One-tap actions, 44px+ touch targets, instant visual feedback |
-| **Cultural Pride** | Tunisian works highlighted, Arabic/French parity, local terminology |
-| **Trust & Security** | Professional UI (dark teal + yellow brand), clear DT pricing, familiar payment UX |
-| **Belonging** | Multi-discipline content, regional filtering, community ratings visible |
-| **Accomplishment** | Success animations (yellow checkmark), "Paiement validé!" celebration, "you're all set" copy |
+| Desired Emotion             | UX Implementation                                                                            |
+| --------------------------- | -------------------------------------------------------------------------------------------- |
+| **Excitement of Discovery** | Hero imagery, editorial "picks", surprise sections ("Les podcasts les mieux notés")          |
+| **Effortless Confidence**   | One-tap actions, 44px+ touch targets, instant visual feedback                                |
+| **Cultural Pride**          | Tunisian works highlighted, Arabic/French parity, local terminology                          |
+| **Trust & Security**        | Professional UI (dark teal + yellow brand), clear DT pricing, familiar payment UX            |
+| **Belonging**               | Multi-discipline content, regional filtering, community ratings visible                      |
+| **Accomplishment**          | Success animations (yellow checkmark), "Paiement validé!" celebration, "you're all set" copy |
 
 ### Emotional Design Principles
 
 1. **Delight Before Doubt**
+
    - Every interaction should reinforce trust, not question it
    - Errors are opportunities to reassure, not frustrate
    - Success states are celebrated, not dismissed
 
 2. **Discovery as Entertainment**
+
    - Browsing should feel like an enjoyable activity, not a chore
    - Visual richness and variety maintain engagement
    - Unexpected content creates positive surprise
 
 3. **Tunisian Cultural Pride**
+
    - Celebrate local productions, don't hide them
    - Use Arabic naturally, not as an afterthought
    - Regional content is valued equally to Tunis content
@@ -249,24 +263,28 @@ The signature emotional experience for Tiween is **"Cultural Excitement + Effort
 ### Inspiring Products Analysis
 
 #### Allociné (French cinema platform)
+
 - **Discovery:** Pre-filtered homepage with "Films à l'affiche", date-based filtering, location awareness
 - **Film Pages:** Rich metadata, trailer integration, cross-venue showtime comparison
 - **Showtime UX:** Venue-grouped times with format badges (VF/VOST, 3D)
 - **Key Lesson:** Density of useful information without clutter - every element serves discovery
 
 #### TMDB (The Movie Database)
+
 - **Visual Design:** Dark theme, poster-forward layout, excellent image quality
 - **Archival Depth:** Comprehensive metadata, cast/crew profiles, release history
 - **Watchlist:** Simple "add to list" interaction across platform
 - **Key Lesson:** Cultural database can feel engaging, not clinical - archival and discovery coexist
 
 #### Letterboxd (Film social platform)
+
 - **Discovery:** Beautiful poster grids, curated lists, personal journals
 - **Mobile Experience:** Touch-optimized, swipe gestures, fast performance
 - **Empty States:** Encouraging prompts, never blank
 - **Key Lesson:** Browsing itself is entertainment - discovery should be enjoyable
 
 #### EventBrite/Dice (Event ticketing)
+
 - **Ticketing Flow:** Minimal steps, progress indicators, instant confirmation
 - **Event Cards:** Key info visible (date, venue, price) without clicking
 - **Offline Tickets:** QR codes work without connection
@@ -300,32 +318,35 @@ The signature emotional experience for Tiween is **"Cultural Excitement + Effort
 
 ### Anti-Patterns to Avoid
 
-| Anti-Pattern | Alternative |
-|--------------|-------------|
-| Forced registration | Browse freely, register only for purchase |
-| Empty states | Always show alternatives, popular content |
-| Hidden filters | Sticky, visible above content |
-| Multi-page checkout | Single-page with expandable sections |
-| Small touch targets | 44px minimum, 48px preferred |
-| No offline feedback | Clear "offline mode" indicator |
-| Language as afterthought | Arabic-first design, adapt to LTR |
-| Venue-first discovery | Content-first: show works, then venues |
+| Anti-Pattern             | Alternative                               |
+| ------------------------ | ----------------------------------------- |
+| Forced registration      | Browse freely, register only for purchase |
+| Empty states             | Always show alternatives, popular content |
+| Hidden filters           | Sticky, visible above content             |
+| Multi-page checkout      | Single-page with expandable sections      |
+| Small touch targets      | 44px minimum, 48px preferred              |
+| No offline feedback      | Clear "offline mode" indicator            |
+| Language as afterthought | Arabic-first design, adapt to LTR         |
+| Venue-first discovery    | Content-first: show works, then venues    |
 
 ### Design Inspiration Strategy
 
 **Adopt Directly:**
+
 - Allociné's showtime comparison layout (proven, mockups already implement)
 - TMDB's poster-forward visual hierarchy (supports discovery-first)
 - Letterboxd's watchlist simplicity (one-tap, no friction)
 - EventBrite's offline QR ticket display (event-night confidence)
 
 **Adapt for Tunisia:**
+
 - Trilingual AR/FR/EN with RTL support (vs French-only)
 - Focus on Tunisian works and local context (vs global database)
 - Support local payment methods: e-Dinar, Flouci (vs Western cards only)
 - Start with simple ratings, grow community over time (vs heavy social features)
 
 **Avoid:**
+
 - Netflix's algorithm-heavy home (need editorial curation + time relevance)
 - Facebook Events' social-first approach (discovery must work for anonymous users)
 - Ticketmaster's complex seat selection (Tunisian venues mostly general admission)
@@ -355,6 +376,7 @@ Tiween will use **shadcn/ui** as the component foundation with Tailwind CSS styl
 ### Implementation Approach
 
 **Design Token System (components.json + tailwind.config.js):**
+
 ```json
 {
   "style": "default",
@@ -373,8 +395,8 @@ Tiween will use **shadcn/ui** as the component foundation with Tailwind CSS styl
 ```css
 /* CSS Variables for Tiween brand */
 :root {
-  --tiween-green: 169 79% 8%;        /* #032523 in HSL */
-  --tiween-yellow: 56 97% 50%;       /* #F8EB06 in HSL */
+  --tiween-green: 169 79% 8%; /* #032523 in HSL */
+  --tiween-yellow: 56 97% 50%; /* #F8EB06 in HSL */
   --background: 169 79% 8%;
   --foreground: 56 97% 50%;
   --primary: 56 97% 50%;
@@ -396,6 +418,7 @@ Tiween will use **shadcn/ui** as the component foundation with Tailwind CSS styl
 ### shadcn/ui Components to Install
 
 **Priority 1 (Core UI):**
+
 - `button` - CTAs, actions
 - `card` - Event cards, venue cards
 - `badge` - VOST/VF tags, genre chips
@@ -406,6 +429,7 @@ Tiween will use **shadcn/ui** as the component foundation with Tailwind CSS styl
 - `select` - Dropdowns
 
 **Priority 2 (Forms & Feedback):**
+
 - `form` - Checkout, registration
 - `label` - Form accessibility
 - `checkbox` - Preferences, filters
@@ -414,6 +438,7 @@ Tiween will use **shadcn/ui** as the component foundation with Tailwind CSS styl
 - `progress` - Checkout progress
 
 **Priority 3 (Enhanced):**
+
 - `calendar` - Date picker
 - `popover` - Tooltips, dropdowns
 - `separator` - Visual dividers
@@ -422,21 +447,25 @@ Tiween will use **shadcn/ui** as the component foundation with Tailwind CSS styl
 ### Customization Strategy
 
 **Brand Theming:**
+
 - Override CSS variables in globals.css for Tiween colors
 - Custom color palette: tiween-green, tiween-yellow, surface variants
 - Typography: Lalezar for display, Inter for body
 
 **RTL Strategy:**
+
 - Configure Tailwind `rtl:` variant in config
 - Use logical properties (`ps-`, `pe-`, `ms-`, `me-`) in custom components
 - Test all shadcn components in RTL mode (most work out of box)
 
 **Component Customization:**
+
 - Modify copied shadcn components to match mockup designs
 - Add Tiween-specific variants (e.g., Button with yellow primary)
 - Build domain components using shadcn primitives as foundation
 
 **Accessibility:**
+
 - Leverage Radix UI's built-in accessibility
 - WCAG 2.1 AA compliance (shadcn defaults meet this)
 - Custom focus styles matching Tiween brand (yellow focus rings)
@@ -447,35 +476,37 @@ Tiween will use **shadcn/ui** as the component foundation with Tailwind CSS styl
 
 **Brand Color Palette:**
 
-| Color | Hex | HSL | Usage |
-|-------|-----|-----|-------|
-| **Tiween Green (Primary)** | #032523 | 169 79% 8% | Backgrounds, primary surfaces |
-| **Tiween Yellow (Accent)** | #F8EB06 | 56 97% 50% | CTAs, highlights, focus states |
-| **White** | #FFFFFF | 0 0% 100% | Text on dark backgrounds |
-| **Surface Light** | #0A3533 | 169 60% 12% | Elevated cards, modals |
-| **Surface Lighter** | #0F4542 | 169 55% 16% | Hover states, subtle elevation |
+| Color                      | Hex     | HSL         | Usage                          |
+| -------------------------- | ------- | ----------- | ------------------------------ |
+| **Tiween Green (Primary)** | #032523 | 169 79% 8%  | Backgrounds, primary surfaces  |
+| **Tiween Yellow (Accent)** | #F8EB06 | 56 97% 50%  | CTAs, highlights, focus states |
+| **White**                  | #FFFFFF | 0 0% 100%   | Text on dark backgrounds       |
+| **Surface Light**          | #0A3533 | 169 60% 12% | Elevated cards, modals         |
+| **Surface Lighter**        | #0F4542 | 169 55% 16% | Hover states, subtle elevation |
 
 **Semantic Color Mapping:**
 
-| Token | Light Mode | Dark Mode | Usage |
-|-------|------------|-----------|-------|
-| `--background` | #032523 | #032523 | Page background |
-| `--foreground` | #FFFFFF | #FFFFFF | Primary text |
-| `--primary` | #F8EB06 | #F8EB06 | CTAs, active states |
-| `--primary-foreground` | #032523 | #032523 | Text on yellow |
-| `--muted` | #0A3533 | #0A3533 | Secondary surfaces |
-| `--muted-foreground` | #A0A0A0 | #A0A0A0 | Secondary text |
-| `--destructive` | #EF4444 | #EF4444 | Error states, delete actions |
-| `--success` | #22C55E | #22C55E | Confirmation, success |
-| `--warning` | #F59E0B | #F59E0B | Alerts, cautions |
+| Token                  | Light Mode | Dark Mode | Usage                        |
+| ---------------------- | ---------- | --------- | ---------------------------- |
+| `--background`         | #032523    | #032523   | Page background              |
+| `--foreground`         | #FFFFFF    | #FFFFFF   | Primary text                 |
+| `--primary`            | #F8EB06    | #F8EB06   | CTAs, active states          |
+| `--primary-foreground` | #032523    | #032523   | Text on yellow               |
+| `--muted`              | #0A3533    | #0A3533   | Secondary surfaces           |
+| `--muted-foreground`   | #A0A0A0    | #A0A0A0   | Secondary text               |
+| `--destructive`        | #EF4444    | #EF4444   | Error states, delete actions |
+| `--success`            | #22C55E    | #22C55E   | Confirmation, success        |
+| `--warning`            | #F59E0B    | #F59E0B   | Alerts, cautions             |
 
 **Accessibility Compliance:**
+
 - Yellow (#F8EB06) on Dark Teal (#032523): **12.5:1 contrast ratio** (exceeds AAA)
 - White (#FFFFFF) on Dark Teal (#032523): **15.8:1 contrast ratio** (exceeds AAA)
 - Focus rings: 3px yellow border with offset for visibility
 
 **Dark-First Design:**
 Tiween uses a single dark theme (no light mode toggle) - this aligns with:
+
 - Entertainment app conventions (cinema, Netflix, Spotify)
 - Poster/image-forward content (colors pop on dark backgrounds)
 - Reduced eye strain for evening browsing
@@ -485,27 +516,28 @@ Tiween uses a single dark theme (no light mode toggle) - this aligns with:
 
 **Font Stack:**
 
-| Role | Font | Weight | Usage |
-|------|------|--------|-------|
-| **Display (Arabic + Latin)** | Lalezar | 400 | Headlines, brand moments, hero text |
-| **Body (Latin)** | Inter | 400, 500, 600, 700 | Body text, UI elements, forms |
-| **Body (Arabic)** | Noto Sans Arabic | 400, 500, 600, 700 | Arabic body text, UI in AR |
-| **Monospace** | JetBrains Mono | 400 | Code, ticket IDs, technical |
+| Role                         | Font             | Weight             | Usage                               |
+| ---------------------------- | ---------------- | ------------------ | ----------------------------------- |
+| **Display (Arabic + Latin)** | Lalezar          | 400                | Headlines, brand moments, hero text |
+| **Body (Latin)**             | Inter            | 400, 500, 600, 700 | Body text, UI elements, forms       |
+| **Body (Arabic)**            | Noto Sans Arabic | 400, 500, 600, 700 | Arabic body text, UI in AR          |
+| **Monospace**                | JetBrains Mono   | 400                | Code, ticket IDs, technical         |
 
 **Type Scale (Mobile-First):**
 
-| Token | Size | Line Height | Usage |
-|-------|------|-------------|-------|
-| `--text-xs` | 12px | 16px | Badges, captions, timestamps |
-| `--text-sm` | 14px | 20px | Secondary text, metadata |
-| `--text-base` | 16px | 24px | Body text, form inputs |
-| `--text-lg` | 18px | 28px | Subheadings, card titles |
-| `--text-xl` | 20px | 28px | Section headers |
-| `--text-2xl` | 24px | 32px | Page titles |
-| `--text-3xl` | 30px | 36px | Hero headlines |
-| `--text-4xl` | 36px | 40px | Splash screens, major moments |
+| Token         | Size | Line Height | Usage                         |
+| ------------- | ---- | ----------- | ----------------------------- |
+| `--text-xs`   | 12px | 16px        | Badges, captions, timestamps  |
+| `--text-sm`   | 14px | 20px        | Secondary text, metadata      |
+| `--text-base` | 16px | 24px        | Body text, form inputs        |
+| `--text-lg`   | 18px | 28px        | Subheadings, card titles      |
+| `--text-xl`   | 20px | 28px        | Section headers               |
+| `--text-2xl`  | 24px | 32px        | Page titles                   |
+| `--text-3xl`  | 30px | 36px        | Hero headlines                |
+| `--text-4xl`  | 36px | 40px        | Splash screens, major moments |
 
 **Typography Principles:**
+
 1. **Lalezar for Impact:** Use exclusively for headlines and brand moments - its distinctive Arabic-Latin design creates visual identity
 2. **Inter for Clarity:** All body text and UI - excellent Latin readability and Arabic fallback
 3. **Minimum 16px Base:** Body text never smaller than 16px for mobile readability
@@ -515,34 +547,36 @@ Tiween uses a single dark theme (no light mode toggle) - this aligns with:
 
 **Spacing Scale (4px base):**
 
-| Token | Value | Usage |
-|-------|-------|-------|
-| `--space-0` | 0px | Reset |
-| `--space-1` | 4px | Tight groupings, badge padding |
-| `--space-2` | 8px | Icon gaps, small margins |
-| `--space-3` | 12px | Component internal padding |
-| `--space-4` | 16px | Standard gaps, card padding |
-| `--space-5` | 20px | Section separators |
-| `--space-6` | 24px | Section margins |
-| `--space-8` | 32px | Major section spacing |
-| `--space-10` | 40px | Page margins, hero spacing |
-| `--space-12` | 48px | Header/footer heights |
-| `--space-16` | 64px | Bottom navigation clearance |
+| Token        | Value | Usage                          |
+| ------------ | ----- | ------------------------------ |
+| `--space-0`  | 0px   | Reset                          |
+| `--space-1`  | 4px   | Tight groupings, badge padding |
+| `--space-2`  | 8px   | Icon gaps, small margins       |
+| `--space-3`  | 12px  | Component internal padding     |
+| `--space-4`  | 16px  | Standard gaps, card padding    |
+| `--space-5`  | 20px  | Section separators             |
+| `--space-6`  | 24px  | Section margins                |
+| `--space-8`  | 32px  | Major section spacing          |
+| `--space-10` | 40px  | Page margins, hero spacing     |
+| `--space-12` | 48px  | Header/footer heights          |
+| `--space-16` | 64px  | Bottom navigation clearance    |
 
 **Layout Grid:**
 
-| Breakpoint | Columns | Gutter | Margin |
-|------------|---------|--------|--------|
-| **Mobile** (<640px) | 4 | 16px | 16px |
-| **Tablet** (640-1024px) | 8 | 24px | 24px |
-| **Desktop** (>1024px) | 12 | 24px | max 1280px |
+| Breakpoint              | Columns | Gutter | Margin     |
+| ----------------------- | ------- | ------ | ---------- |
+| **Mobile** (<640px)     | 4       | 16px   | 16px       |
+| **Tablet** (640-1024px) | 8       | 24px   | 24px       |
+| **Desktop** (>1024px)   | 12      | 24px   | max 1280px |
 
 **Touch Target Guidelines:**
+
 - Minimum: **44x44px** (Apple HIG standard)
 - Preferred: **48x48px** for primary actions
 - Spacing between targets: **8px minimum**
 
 **Layout Principles:**
+
 1. **Thumb-Zone Navigation:** Primary actions in bottom 60% of mobile screen
 2. **Content Density Balance:** Rich information without feeling cramped
 3. **Consistent Rhythm:** 16px base spacing creates visual harmony
@@ -552,22 +586,24 @@ Tiween uses a single dark theme (no light mode toggle) - this aligns with:
 
 **WCAG 2.1 AA Compliance:**
 
-| Requirement | Implementation |
-|-------------|----------------|
-| **Color Contrast** | All text meets 4.5:1 minimum; primary CTA exceeds 7:1 |
-| **Focus Indicators** | 3px yellow outline with 2px offset on all interactive elements |
-| **Touch Targets** | 44px minimum for all tap targets |
-| **Text Scaling** | Support 200% zoom without horizontal scroll |
-| **Motion Sensitivity** | Respect `prefers-reduced-motion` for animations |
-| **Screen Readers** | Semantic HTML, ARIA labels on custom components |
+| Requirement            | Implementation                                                 |
+| ---------------------- | -------------------------------------------------------------- |
+| **Color Contrast**     | All text meets 4.5:1 minimum; primary CTA exceeds 7:1          |
+| **Focus Indicators**   | 3px yellow outline with 2px offset on all interactive elements |
+| **Touch Targets**      | 44px minimum for all tap targets                               |
+| **Text Scaling**       | Support 200% zoom without horizontal scroll                    |
+| **Motion Sensitivity** | Respect `prefers-reduced-motion` for animations                |
+| **Screen Readers**     | Semantic HTML, ARIA labels on custom components                |
 
 **RTL Accessibility:**
+
 - Logical CSS properties (`margin-inline-start` vs `margin-left`)
 - Mirrored icons for directional meaning (arrows, navigation)
 - Testing with Arabic screen readers (TalkBack, VoiceOver)
 - Consistent reading order in mixed AR/FR content
 
 **Offline Accessibility:**
+
 - Cached content available without connection
 - Ticket QR codes stored locally
 - Clear offline status indicator
@@ -581,13 +617,13 @@ Rather than generating abstract variations, we analyzed the 28 detailed mockups 
 
 **Mockup Categories Analyzed:**
 
-| Category | Screens | Key Patterns |
-|----------|---------|--------------|
-| **Discovery** | Homepage, Category pages | Poster-forward cards, horizontal tabs, continuous scroll |
-| **Content Detail** | Film, Theater, Room views | Hero image, metadata grid, showtime listings |
-| **Ticketing** | 4-step flow | Progressive disclosure, seat selection, payment confirmation |
-| **User Account** | My Events, Profile | Tab-based content, ticket cards, past/upcoming toggle |
-| **System** | Splash, Loading states | Brand-focused moments, skeleton loading |
+| Category           | Screens                   | Key Patterns                                                 |
+| ------------------ | ------------------------- | ------------------------------------------------------------ |
+| **Discovery**      | Homepage, Category pages  | Poster-forward cards, horizontal tabs, continuous scroll     |
+| **Content Detail** | Film, Theater, Room views | Hero image, metadata grid, showtime listings                 |
+| **Ticketing**      | 4-step flow               | Progressive disclosure, seat selection, payment confirmation |
+| **User Account**   | My Events, Profile        | Tab-based content, ticket cards, past/upcoming toggle        |
+| **System**         | Splash, Loading states    | Brand-focused moments, skeleton loading                      |
 
 ### 4.2 Chosen Direction
 
@@ -596,6 +632,7 @@ Rather than generating abstract variations, we analyzed the 28 detailed mockups 
 The mockups establish a unified visual language that we're adopting wholesale:
 
 **Core Characteristics:**
+
 - **Dark-first design** with `#032523` as primary background
 - **Yellow accent** `#F8EB06` for all interactive states and primary CTAs
 - **Poster-forward** content cards where imagery leads, text supports
@@ -604,6 +641,7 @@ The mockups establish a unified visual language that we're adopting wholesale:
 - **Horizontal category tabs** for content type filtering
 
 **Visual Hierarchy:**
+
 1. **Level 1:** Full-bleed imagery and hero sections
 2. **Level 2:** Section headers in Lalezar display font
 3. **Level 3:** Card titles and metadata in Inter
@@ -614,16 +652,19 @@ The mockups establish a unified visual language that we're adopting wholesale:
 **Why This Direction Works for Tiween:**
 
 1. **Entertainment Context Alignment**
+
    - Dark interfaces are standard for entertainment apps (Netflix, Spotify, cinema booking)
    - Reduces eye strain during evening browsing (peak usage time)
    - Makes poster imagery pop with higher perceived contrast
 
 2. **Brand Identity Reinforcement**
+
    - Dark teal + yellow is distinctive and ownable in Tunisian market
    - Lalezar font creates instant Arabic-Latin brand recognition
    - Consistent application builds trust and professionalism
 
 3. **Discovery-First Support**
+
    - Poster-forward cards enable visual browsing
    - Horizontal tabs provide instant category switching
    - Card-based layout supports infinite scroll discovery
@@ -637,27 +678,28 @@ The mockups establish a unified visual language that we're adopting wholesale:
 
 **Component Mapping from Mockups:**
 
-| Mockup Element | Component | Source |
-|----------------|-----------|--------|
-| Event cards | `EventCard` | Custom (uses shadcn Card) |
-| Film detail hero | `FilmHero` | Custom |
-| Showtime buttons | `ShowtimeButton` | Custom (uses shadcn Button) |
-| Category tabs | `CategoryTabs` | shadcn Tabs |
-| Bottom navigation | `BottomNav` | Custom |
-| Ticket card | `TicketCard` | Custom (uses shadcn Card) |
-| Seat selector | `SeatSelector` | Custom |
-| Payment form | `CheckoutForm` | shadcn Form components |
+| Mockup Element    | Component        | Source                      |
+| ----------------- | ---------------- | --------------------------- |
+| Event cards       | `EventCard`      | Custom (uses shadcn Card)   |
+| Film detail hero  | `FilmHero`       | Custom                      |
+| Showtime buttons  | `ShowtimeButton` | Custom (uses shadcn Button) |
+| Category tabs     | `CategoryTabs`   | shadcn Tabs                 |
+| Bottom navigation | `BottomNav`      | Custom                      |
+| Ticket card       | `TicketCard`     | Custom (uses shadcn Card)   |
+| Seat selector     | `SeatSelector`   | Custom                      |
+| Payment form      | `CheckoutForm`   | shadcn Form components      |
 
 **Screen-by-Screen Implementation Priority:**
 
-| Priority | Screens | Rationale |
-|----------|---------|-----------|
-| **P1** | Homepage, Film Detail, Ticketing Flow | Core discovery and purchase path |
-| **P2** | Category pages, Search | Extended discovery |
-| **P3** | My Events, Account | User management |
-| **P4** | Venue pages, Room views | Supporting content |
+| Priority | Screens                               | Rationale                        |
+| -------- | ------------------------------------- | -------------------------------- |
+| **P1**   | Homepage, Film Detail, Ticketing Flow | Core discovery and purchase path |
+| **P2**   | Category pages, Search                | Extended discovery               |
+| **P3**   | My Events, Account                    | User management                  |
+| **P4**   | Venue pages, Room views               | Supporting content               |
 
 **Responsive Strategy:**
+
 - Mobile mockups as primary reference (mobile-first)
 - Desktop mockup (Film Desktop) shows 12-column adaptation
 - Tablet interpolated between mobile and desktop patterns
@@ -669,6 +711,7 @@ The mockups establish a unified visual language that we're adopting wholesale:
 **User Goal:** Find something interesting tonight, save it, and purchase tickets when ready.
 
 **Entry Points:**
+
 - Direct app open (returning user)
 - Search engine discovery ("cinema Tunis")
 - Social share link
@@ -863,50 +906,54 @@ flowchart TD
 
 **Navigation Patterns (Consistent Across Journeys):**
 
-| Pattern | Implementation | Journeys Used |
-|---------|----------------|---------------|
-| Bottom Tab Navigation | 4 tabs: Home, Search, Tickets, Account | All B2C |
-| Sticky Filters | Date + Category persist while scrolling | Discovery |
-| Back Navigation | System back + in-app back arrow | All |
-| Deep Linking | Direct event URLs from shares | Discovery, Ticketing |
+| Pattern               | Implementation                          | Journeys Used        |
+| --------------------- | --------------------------------------- | -------------------- |
+| Bottom Tab Navigation | 4 tabs: Home, Search, Tickets, Account  | All B2C              |
+| Sticky Filters        | Date + Category persist while scrolling | Discovery            |
+| Back Navigation       | System back + in-app back arrow         | All                  |
+| Deep Linking          | Direct event URLs from shares           | Discovery, Ticketing |
 
 **Decision Patterns:**
 
-| Pattern | Implementation | Journeys Used |
-|---------|----------------|---------------|
-| Progressive Disclosure | Show essentials first, details on demand | Event Detail |
-| Smart Defaults | "Tonight" pre-selected in evening | Discovery |
-| Confirmation Dialogs | Only for destructive/payment actions | Ticketing, Account |
-| Inline Validation | Real-time form feedback | Registration, Checkout |
+| Pattern                | Implementation                           | Journeys Used          |
+| ---------------------- | ---------------------------------------- | ---------------------- |
+| Progressive Disclosure | Show essentials first, details on demand | Event Detail           |
+| Smart Defaults         | "Tonight" pre-selected in evening        | Discovery              |
+| Confirmation Dialogs   | Only for destructive/payment actions     | Ticketing, Account     |
+| Inline Validation      | Real-time form feedback                  | Registration, Checkout |
 
 **Feedback Patterns:**
 
-| Pattern | Implementation | Journeys Used |
-|---------|----------------|---------------|
-| Optimistic UI | Watchlist saves immediately, syncs later | Discovery |
-| Progress Indicators | Step counter in checkout | Ticketing |
-| Success Celebrations | Confetti/checkmark on purchase | Ticketing |
-| Error Recovery | Clear message + action button | All |
-| Loading States | Skeleton screens, never blank | All |
+| Pattern              | Implementation                           | Journeys Used |
+| -------------------- | ---------------------------------------- | ------------- |
+| Optimistic UI        | Watchlist saves immediately, syncs later | Discovery     |
+| Progress Indicators  | Step counter in checkout                 | Ticketing     |
+| Success Celebrations | Confetti/checkmark on purchase           | Ticketing     |
+| Error Recovery       | Clear message + action button            | All           |
+| Loading States       | Skeleton screens, never blank            | All           |
 
 ### 5.6 Flow Optimization Principles
 
 1. **Minimize Steps to Value**
+
    - First event visible in <3 seconds from app open
    - Checkout in 3 taps from event detail
    - Guest checkout available (no forced registration)
 
 2. **Reduce Cognitive Load**
+
    - One primary action per screen
    - Smart defaults (location, date)
    - Recognition over recall (visual categories)
 
 3. **Provide Clear Progress**
+
    - Step indicators in multi-step flows
    - Real-time validation feedback
    - Clear success/error states
 
 4. **Handle Errors Gracefully**
+
    - Never lose user data on error
    - Suggest recovery actions
    - Offline fallbacks for core features
@@ -922,37 +969,37 @@ flowchart TD
 
 **Available from shadcn/ui (Direct Use):**
 
-| Component | Tiween Usage | Customization Needed |
-|-----------|--------------|---------------------|
-| `Button` | CTAs, actions | Yellow primary variant |
-| `Card` | Base for event cards | Extended with image hero |
-| `Badge` | VOST/VF tags, genres | Custom colors |
-| `Tabs` | Category navigation | Styled for horizontal scroll |
-| `Dialog` | Confirmations, login | Brand colors |
-| `Sheet` | Mobile filters, menus | Bottom sheet behavior |
-| `Input` | Search, forms | Dark theme styling |
-| `Select` | Dropdowns | Location, language |
-| `Form` | Checkout, registration | Validation patterns |
-| `Skeleton` | Loading states | Card-shaped skeletons |
-| `Toast` | Notifications | Success/error theming |
-| `Progress` | Checkout steps | Step indicator styling |
-| `Calendar` | Date picker | Showtime selection |
-| `ScrollArea` | Horizontal carousels | Touch-optimized |
+| Component    | Tiween Usage           | Customization Needed         |
+| ------------ | ---------------------- | ---------------------------- |
+| `Button`     | CTAs, actions          | Yellow primary variant       |
+| `Card`       | Base for event cards   | Extended with image hero     |
+| `Badge`      | VOST/VF tags, genres   | Custom colors                |
+| `Tabs`       | Category navigation    | Styled for horizontal scroll |
+| `Dialog`     | Confirmations, login   | Brand colors                 |
+| `Sheet`      | Mobile filters, menus  | Bottom sheet behavior        |
+| `Input`      | Search, forms          | Dark theme styling           |
+| `Select`     | Dropdowns              | Location, language           |
+| `Form`       | Checkout, registration | Validation patterns          |
+| `Skeleton`   | Loading states         | Card-shaped skeletons        |
+| `Toast`      | Notifications          | Success/error theming        |
+| `Progress`   | Checkout steps         | Step indicator styling       |
+| `Calendar`   | Date picker            | Showtime selection           |
+| `ScrollArea` | Horizontal carousels   | Touch-optimized              |
 
 **Gap Analysis - Custom Components Needed:**
 
-| Component Need | Why Not Available | Priority |
-|----------------|-------------------|----------|
-| `EventCard` | Domain-specific layout | P1 |
-| `FilmHero` | Full-bleed image hero | P1 |
-| `ShowtimeButton` | Time + venue + format | P1 |
-| `TicketQR` | QR display + offline | P1 |
-| `BottomNav` | 4-tab navigation | P1 |
-| `VenueCard` | Venue preview card | P2 |
-| `SeatSelector` | Visual seat picking | P2 |
-| `DateSelector` | Horizontal date scroll | P2 |
-| `CategoryTabs` | Horizontal scroll tabs | P2 |
-| `WatchlistButton` | Heart with animation | P2 |
+| Component Need    | Why Not Available      | Priority |
+| ----------------- | ---------------------- | -------- |
+| `EventCard`       | Domain-specific layout | P1       |
+| `FilmHero`        | Full-bleed image hero  | P1       |
+| `ShowtimeButton`  | Time + venue + format  | P1       |
+| `TicketQR`        | QR display + offline   | P1       |
+| `BottomNav`       | 4-tab navigation       | P1       |
+| `VenueCard`       | Venue preview card     | P2       |
+| `SeatSelector`    | Visual seat picking    | P2       |
+| `DateSelector`    | Horizontal date scroll | P2       |
+| `CategoryTabs`    | Horizontal scroll tabs | P2       |
+| `WatchlistButton` | Heart with animation   | P2       |
 
 ### 6.2 Custom Component Specifications
 
@@ -961,6 +1008,7 @@ flowchart TD
 **Purpose:** Display event preview in discovery feeds and search results.
 
 **Anatomy:**
+
 ```
 ┌─────────────────────────────┐
 │  [Poster Image - 16:9]      │
@@ -982,12 +1030,14 @@ flowchart TD
 | `isWatchlisted` | boolean | Current watchlist state |
 
 **States:**
+
 - Default: Standard display
 - Hover: Subtle elevation, overlay gradient
 - Loading: Skeleton placeholder
 - Watchlisted: Filled heart icon
 
 **Accessibility:**
+
 - `role="article"` with `aria-label` for event title
 - Heart button with `aria-pressed` state
 - Focus visible ring (yellow)
@@ -999,6 +1049,7 @@ flowchart TD
 **Purpose:** Display selectable showtime with venue and format info.
 
 **Anatomy:**
+
 ```
 ┌─────────────────────────────┐
 │  20:30                      │
@@ -1018,6 +1069,7 @@ flowchart TD
 | `onSelect` | () => void | Selection handler |
 
 **States:**
+
 - Default: Dark surface background
 - Hover: Lighter surface
 - Selected: Yellow border, filled background
@@ -1025,6 +1077,7 @@ flowchart TD
 - Sold Out: "Complet" badge, disabled
 
 **Accessibility:**
+
 - `role="radio"` in group context
 - `aria-disabled` when unavailable
 - Keyboard navigation with arrow keys
@@ -1036,6 +1089,7 @@ flowchart TD
 **Purpose:** Display QR code for event entry, works offline.
 
 **Anatomy:**
+
 ```
 ┌─────────────────────────────┐
 │      [QR Code - Large]      │
@@ -1057,12 +1111,14 @@ flowchart TD
 | `showActions` | boolean | Show wallet/share buttons |
 
 **States:**
+
 - Valid: Normal display, green border accent
 - Scanned: Checkmark overlay, "Scanned at 19:47"
 - Expired: Dimmed, "Event passed"
 - Offline: Cached display, "Offline - still valid"
 
 **Accessibility:**
+
 - High contrast QR (black on white)
 - Screen reader: "Ticket for [Event] on [Date]"
 - Brightness boost option for scanning
@@ -1074,6 +1130,7 @@ flowchart TD
 **Purpose:** Primary mobile navigation with 4 tabs.
 
 **Anatomy:**
+
 ```
 ┌─────┬─────┬─────┬─────┐
 │ 🏠  │ 🔍  │ 🎟️  │ 👤  │
@@ -1089,11 +1146,13 @@ flowchart TD
 | `onNavigate` | (tab) => void | Navigation handler |
 
 **States:**
+
 - Active: Yellow icon, yellow text
 - Inactive: Muted icon, muted text
 - Badge: Red notification dot (new tickets)
 
 **Accessibility:**
+
 - `role="navigation"` with `aria-label="Main"`
 - Each tab is `role="link"` with `aria-current="page"` when active
 - 48px minimum tap targets
@@ -1105,6 +1164,7 @@ flowchart TD
 **Purpose:** Visual seat selection for reserved seating venues.
 
 **Anatomy:**
+
 ```
 ┌─────────────────────────────┐
 │         [SCREEN]            │
@@ -1128,12 +1188,14 @@ flowchart TD
 | `onSelect` | (seats) => void | Selection change handler |
 
 **States:**
+
 - Available: Outline, tappable
 - Selected: Filled yellow
 - Taken: Filled gray, not tappable
 - Wheelchair: Diamond shape, accessible spot
 
 **Accessibility:**
+
 - Grid navigation with arrow keys
 - `aria-label` for each seat: "Row A, Seat 3, available"
 - Screen reader announces selection count
@@ -1142,26 +1204,29 @@ flowchart TD
 
 **Build Order (Aligned with User Journeys):**
 
-| Phase | Components | Enables Journey |
-|-------|------------|-----------------|
+| Phase                  | Components                                       | Enables Journey                 |
+| ---------------------- | ------------------------------------------------ | ------------------------------- |
 | **Phase 1: Discovery** | EventCard, CategoryTabs, DateSelector, BottomNav | Yasmine can browse and discover |
-| **Phase 2: Detail** | FilmHero, ShowtimeButton, WatchlistButton | Yasmine can view and save |
-| **Phase 3: Purchase** | SeatSelector, TicketQR | Yasmine can buy and use tickets |
-| **Phase 4: B2B** | VenueCard, AnalyticsCard, EventForm | Mounir can manage venue |
+| **Phase 2: Detail**    | FilmHero, ShowtimeButton, WatchlistButton        | Yasmine can view and save       |
+| **Phase 3: Purchase**  | SeatSelector, TicketQR                           | Yasmine can buy and use tickets |
+| **Phase 4: B2B**       | VenueCard, AnalyticsCard, EventForm              | Mounir can manage venue         |
 
 **Development Guidelines:**
 
 1. **Use shadcn/ui as Foundation**
+
    - Import `Card` as base for `EventCard`
    - Import `Button` as base for `ShowtimeButton`
    - Inherit all accessibility features from Radix primitives
 
 2. **Follow Design Tokens**
+
    - All colors from CSS variables (`--primary`, `--muted`, etc.)
    - All spacing from spacing scale (`--space-4`, `--space-8`, etc.)
    - All typography from type scale (`--text-lg`, `--text-sm`, etc.)
 
 3. **RTL-First Development**
+
    - Use logical properties (`ps-`, `pe-`, `ms-`, `me-`)
    - Test all components in Arabic mode
    - Mirror directional icons (arrows, navigation)
@@ -1174,24 +1239,28 @@ flowchart TD
 ### 6.4 Implementation Roadmap
 
 **Sprint 1: Core Discovery**
+
 - [ ] `BottomNav` - Navigation foundation
 - [ ] `EventCard` - Primary content display
 - [ ] `CategoryTabs` - Category filtering
 - [ ] `DateSelector` - Date filtering
 
 **Sprint 2: Event Detail**
+
 - [ ] `FilmHero` - Event detail header
 - [ ] `ShowtimeButton` - Showtime selection
 - [ ] `WatchlistButton` - Save functionality
 - [ ] `VenueCard` - Venue information
 
 **Sprint 3: Ticketing**
+
 - [ ] `SeatSelector` - Seat selection (if applicable)
 - [ ] `TicketQR` - Ticket display
 - [ ] `PaymentForm` - Checkout (shadcn Form + custom)
 - [ ] `OrderSummary` - Purchase confirmation
 
 **Sprint 4: B2B Dashboard**
+
 - [ ] `EventForm` - Event creation/editing
 - [ ] `AnalyticsCard` - Stats display
 - [ ] `TicketScanner` - QR scanning interface
@@ -1242,67 +1311,69 @@ flowchart TD
 
 **Toast Notifications:**
 
-| Type | Icon | Color | Duration | Usage |
-|------|------|-------|----------|-------|
-| Success | ✓ | Green accent | 3 seconds | Action completed |
-| Error | ✕ | Red accent | 5 seconds | Action failed |
-| Warning | ⚠ | Yellow accent | 4 seconds | Attention needed |
-| Info | ℹ | Blue accent | 3 seconds | Neutral information |
+| Type    | Icon | Color         | Duration  | Usage               |
+| ------- | ---- | ------------- | --------- | ------------------- |
+| Success | ✓    | Green accent  | 3 seconds | Action completed    |
+| Error   | ✕    | Red accent    | 5 seconds | Action failed       |
+| Warning | ⚠   | Yellow accent | 4 seconds | Attention needed    |
+| Info    | ℹ   | Blue accent   | 3 seconds | Neutral information |
 
 **Toast Positioning:**
+
 - Mobile: Bottom center, above bottom nav (80px from bottom)
 - Desktop: Top right corner
 - Stack: Maximum 3 visible, oldest dismissed first
 
 **Inline Feedback:**
 
-| Context | Pattern | Example |
-|---------|---------|---------|
-| Form validation | Inline error below field | "Email invalide" |
-| Success action | Inline confirmation | "Ajouté à la watchlist ✓" |
-| Loading | Skeleton or spinner | Card-shaped placeholders |
-| Empty state | Illustration + CTA | "Aucun résultat. Essayez une autre recherche" |
+| Context         | Pattern                  | Example                                       |
+| --------------- | ------------------------ | --------------------------------------------- |
+| Form validation | Inline error below field | "Email invalide"                              |
+| Success action  | Inline confirmation      | "Ajouté à la watchlist ✓"                     |
+| Loading         | Skeleton or spinner      | Card-shaped placeholders                      |
+| Empty state     | Illustration + CTA       | "Aucun résultat. Essayez une autre recherche" |
 
 **Celebration Moments:**
 
-| Moment | Animation | Duration |
-|--------|-----------|----------|
-| Ticket purchased | Confetti burst + checkmark | 2 seconds |
-| First watchlist save | Heart pulse animation | 0.5 seconds |
-| Account created | Welcome message + confetti | 2 seconds |
+| Moment               | Animation                  | Duration    |
+| -------------------- | -------------------------- | ----------- |
+| Ticket purchased     | Confetti burst + checkmark | 2 seconds   |
+| First watchlist save | Heart pulse animation      | 0.5 seconds |
+| Account created      | Welcome message + confetti | 2 seconds   |
 
 ### 7.3 Form Patterns
 
 **Input Fields:**
 
-| State | Visual Treatment |
-|-------|-----------------|
-| Default | Dark surface bg, muted border |
-| Focus | Yellow border, subtle glow |
-| Filled | White text, maintains border |
-| Error | Red border, error icon, message below |
-| Disabled | 50% opacity, no interaction |
+| State    | Visual Treatment                      |
+| -------- | ------------------------------------- |
+| Default  | Dark surface bg, muted border         |
+| Focus    | Yellow border, subtle glow            |
+| Filled   | White text, maintains border          |
+| Error    | Red border, error icon, message below |
+| Disabled | 50% opacity, no interaction           |
 
 **Validation Timing:**
 
-| Validation Type | When to Validate |
-|-----------------|------------------|
-| Required fields | On blur (leave field) |
-| Format (email, phone) | On blur + 500ms debounce |
-| Real-time (password strength) | On change |
-| Cross-field (confirm password) | On blur of second field |
-| Form submission | All fields on submit |
+| Validation Type                | When to Validate         |
+| ------------------------------ | ------------------------ |
+| Required fields                | On blur (leave field)    |
+| Format (email, phone)          | On blur + 500ms debounce |
+| Real-time (password strength)  | On change                |
+| Cross-field (confirm password) | On blur of second field  |
+| Form submission                | All fields on submit     |
 
 **Error Message Patterns:**
 
-| Error Type | Message Style | Example |
-|------------|---------------|---------|
-| Required | "Ce champ est requis" | Simple, direct |
-| Format | "Format invalide" + hint | "Email: exemple@domaine.com" |
-| Server | "Erreur serveur" + retry | "Réessayer" button |
-| Conflict | Explain issue + resolution | "Cet email est déjà utilisé. Se connecter?" |
+| Error Type | Message Style              | Example                                     |
+| ---------- | -------------------------- | ------------------------------------------- |
+| Required   | "Ce champ est requis"      | Simple, direct                              |
+| Format     | "Format invalide" + hint   | "Email: exemple@domaine.com"                |
+| Server     | "Erreur serveur" + retry   | "Réessayer" button                          |
+| Conflict   | Explain issue + resolution | "Cet email est déjà utilisé. Se connecter?" |
 
 **Form Layout:**
+
 - Single column on mobile (always)
 - Labels above fields (not placeholder text)
 - 16px spacing between fields
@@ -1313,14 +1384,15 @@ flowchart TD
 
 **Bottom Navigation (Mobile):**
 
-| Tab | Icon | Label | Badge |
-|-----|------|-------|-------|
-| Home | 🏠 | Accueil | - |
-| Search | 🔍 | Recherche | - |
-| Tickets | 🎟️ | Billets | Count of upcoming |
-| Account | 👤 | Compte | Notification dot |
+| Tab     | Icon | Label     | Badge             |
+| ------- | ---- | --------- | ----------------- |
+| Home    | 🏠   | Accueil   | -                 |
+| Search  | 🔍   | Recherche | -                 |
+| Tickets | 🎟️   | Billets   | Count of upcoming |
+| Account | 👤   | Compte    | Notification dot  |
 
 **Behavior:**
+
 - Persistent on all main screens
 - Hidden during checkout flow
 - Hidden when keyboard is open
@@ -1328,45 +1400,46 @@ flowchart TD
 
 **Header Navigation (Desktop):**
 
-| Element | Position | Behavior |
-|---------|----------|----------|
-| Logo | Left | Link to home |
-| Category tabs | Center | Horizontal scroll |
-| Search | Center-right | Expandable |
-| Language | Right | AR/FR/EN toggle |
-| Account | Right | Avatar or "Se connecter" |
+| Element       | Position     | Behavior                 |
+| ------------- | ------------ | ------------------------ |
+| Logo          | Left         | Link to home             |
+| Category tabs | Center       | Horizontal scroll        |
+| Search        | Center-right | Expandable               |
+| Language      | Right        | AR/FR/EN toggle          |
+| Account       | Right        | Avatar or "Se connecter" |
 
 **Back Navigation:**
 
-| Context | Pattern |
-|---------|---------|
-| Within flow | Arrow + "Retour" (dismisses current screen) |
-| Modal/Sheet | X button top-right |
-| Detail page | Arrow (returns to list, preserves scroll) |
+| Context        | Pattern                                      |
+| -------------- | -------------------------------------------- |
+| Within flow    | Arrow + "Retour" (dismisses current screen)  |
+| Modal/Sheet    | X button top-right                           |
+| Detail page    | Arrow (returns to list, preserves scroll)    |
 | After purchase | "Retour à l'accueil" (clears checkout state) |
 
 **Deep Linking:**
 
-| Link Type | Behavior |
-|-----------|----------|
-| Event link | Open event detail directly |
-| Venue link | Open venue page |
-| Ticket link | Open ticket in My Tickets |
+| Link Type   | Behavior                   |
+| ----------- | -------------------------- |
+| Event link  | Open event detail directly |
+| Venue link  | Open venue page            |
+| Ticket link | Open ticket in My Tickets  |
 | Search link | Pre-fill search with query |
 
 ### 7.5 Loading & Empty States
 
 **Loading Patterns:**
 
-| Context | Pattern | Duration Threshold |
-|---------|---------|-------------------|
-| Initial page | Full skeleton | Immediate |
-| Content refresh | Pull-to-refresh spinner | N/A |
-| Button action | Button spinner | 200ms delay |
-| Image load | Blur placeholder → sharp | Progressive |
-| Infinite scroll | Bottom spinner | When 3 items from end |
+| Context         | Pattern                  | Duration Threshold    |
+| --------------- | ------------------------ | --------------------- |
+| Initial page    | Full skeleton            | Immediate             |
+| Content refresh | Pull-to-refresh spinner  | N/A                   |
+| Button action   | Button spinner           | 200ms delay           |
+| Image load      | Blur placeholder → sharp | Progressive           |
+| Infinite scroll | Bottom spinner           | When 3 items from end |
 
 **Skeleton Guidelines:**
+
 - Match exact shape of content being loaded
 - Subtle pulse animation (not distracting)
 - Show immediately (no loading spinner first)
@@ -1374,15 +1447,16 @@ flowchart TD
 
 **Empty States:**
 
-| Context | Message | CTA |
-|---------|---------|-----|
-| Search no results | "Aucun résultat pour '[query]'" | "Effacer la recherche" |
-| Watchlist empty | "Votre watchlist est vide" | "Découvrir des événements" |
-| No tickets | "Pas de billets à venir" | "Explorer les événements" |
+| Context              | Message                                | CTA                          |
+| -------------------- | -------------------------------------- | ---------------------------- |
+| Search no results    | "Aucun résultat pour '[query]'"        | "Effacer la recherche"       |
+| Watchlist empty      | "Votre watchlist est vide"             | "Découvrir des événements"   |
+| No tickets           | "Pas de billets à venir"               | "Explorer les événements"    |
 | No events (category) | "Aucun événement dans cette catégorie" | "Voir toutes les catégories" |
-| Offline | "Vous êtes hors ligne" | "Réessayer" (if applicable) |
+| Offline              | "Vous êtes hors ligne"                 | "Réessayer" (if applicable)  |
 
 **Empty State Design:**
+
 - Centered illustration (optional, brand-aligned)
 - Clear message explaining situation
 - Single primary CTA
@@ -1392,14 +1466,15 @@ flowchart TD
 
 **Modal Types:**
 
-| Type | Usage | Dismissal |
-|------|-------|-----------|
-| Dialog | Confirmations, alerts | X button, outside click, Escape |
-| Sheet (bottom) | Filters, selection | Swipe down, X button |
-| Full-screen | Complex forms, checkout | Back button only |
-| Lightbox | Image/video viewing | X button, outside click |
+| Type           | Usage                   | Dismissal                       |
+| -------------- | ----------------------- | ------------------------------- |
+| Dialog         | Confirmations, alerts   | X button, outside click, Escape |
+| Sheet (bottom) | Filters, selection      | Swipe down, X button            |
+| Full-screen    | Complex forms, checkout | Back button only                |
+| Lightbox       | Image/video viewing     | X button, outside click         |
 
 **Modal Behavior:**
+
 - Focus trap (keyboard can't leave modal)
 - Background scroll locked
 - Animation: slide up (mobile), fade in (desktop)
@@ -1407,36 +1482,37 @@ flowchart TD
 
 **Confirmation Dialogs:**
 
-| Action Severity | Confirmation Pattern |
-|-----------------|---------------------|
-| Low (save, edit) | No confirmation needed |
-| Medium (unsaved changes) | "Quitter sans enregistrer?" |
-| High (delete, cancel) | "Êtes-vous sûr?" + consequences |
-| Critical (delete account) | Type confirmation text |
+| Action Severity           | Confirmation Pattern            |
+| ------------------------- | ------------------------------- |
+| Low (save, edit)          | No confirmation needed          |
+| Medium (unsaved changes)  | "Quitter sans enregistrer?"     |
+| High (delete, cancel)     | "Êtes-vous sûr?" + consequences |
+| Critical (delete account) | Type confirmation text          |
 
 ### 7.7 Search & Filter Patterns
 
 **Search Behavior:**
 
-| Feature | Implementation |
-|---------|----------------|
-| Instant search | 300ms debounce after typing |
+| Feature         | Implementation                        |
+| --------------- | ------------------------------------- |
+| Instant search  | 300ms debounce after typing           |
 | Recent searches | Show last 5 on focus (stored locally) |
-| Suggestions | Show while typing (from API) |
-| No results | Clear message + suggestions |
-| Clear | X button when has content |
+| Suggestions     | Show while typing (from API)          |
+| No results      | Clear message + suggestions           |
+| Clear           | X button when has content             |
 
 **Filter Patterns:**
 
-| Filter Type | UI Pattern |
-|-------------|------------|
-| Category | Horizontal tabs (always visible) |
-| Date | Sticky date selector |
-| Location | Sheet with location picker |
-| Genre | Sheet with checkboxes |
-| Price range | Sheet with range slider |
+| Filter Type | UI Pattern                       |
+| ----------- | -------------------------------- |
+| Category    | Horizontal tabs (always visible) |
+| Date        | Sticky date selector             |
+| Location    | Sheet with location picker       |
+| Genre       | Sheet with checkboxes            |
+| Price range | Sheet with range slider          |
 
 **Active Filters:**
+
 - Show count badge on filter button
 - Show active filters as dismissible chips
 - "Effacer tout" to reset all filters
@@ -1446,25 +1522,26 @@ flowchart TD
 
 **Offline Indicators:**
 
-| Context | Indicator |
-|---------|-----------|
-| Global | Toast: "Vous êtes hors ligne" (once per session) |
-| Stale data | Subtle banner: "Dernière mise à jour: il y a 2h" |
-| Action blocked | Inline message + queue for later |
-| Ticket display | Green badge: "Fonctionne hors ligne" |
+| Context        | Indicator                                        |
+| -------------- | ------------------------------------------------ |
+| Global         | Toast: "Vous êtes hors ligne" (once per session) |
+| Stale data     | Subtle banner: "Dernière mise à jour: il y a 2h" |
+| Action blocked | Inline message + queue for later                 |
+| Ticket display | Green badge: "Fonctionne hors ligne"             |
 
 **Offline Capabilities:**
 
-| Feature | Offline Behavior |
-|---------|------------------|
-| Browse events | Show cached listings |
-| View ticket | Display QR from cache |
-| Watchlist | View saved items |
-| Search | Search cached data only |
-| Purchase | Queue action, complete when online |
-| Account changes | Queue action, sync when online |
+| Feature         | Offline Behavior                   |
+| --------------- | ---------------------------------- |
+| Browse events   | Show cached listings               |
+| View ticket     | Display QR from cache              |
+| Watchlist       | View saved items                   |
+| Search          | Search cached data only            |
+| Purchase        | Queue action, complete when online |
+| Account changes | Queue action, sync when online     |
 
 **Sync Patterns:**
+
 - Automatic sync when connection restored
 - Conflict resolution: server wins (with user notification)
 - Queue visibility: show pending actions count
@@ -1480,13 +1557,14 @@ Tiween is designed mobile-first, with 65% of users on Chrome Android with variab
 
 **Device-Specific Adaptations:**
 
-| Device | Layout Strategy | Key Adaptations |
-|--------|-----------------|-----------------|
-| **Mobile** (<640px) | Single column, bottom nav | Touch-optimized, thumb-zone navigation |
+| Device                  | Layout Strategy           | Key Adaptations                               |
+| ----------------------- | ------------------------- | --------------------------------------------- |
+| **Mobile** (<640px)     | Single column, bottom nav | Touch-optimized, thumb-zone navigation        |
 | **Tablet** (640-1024px) | 2-column where beneficial | Side-by-side comparison, larger touch targets |
-| **Desktop** (>1024px) | Multi-column, sidebar | Extended filters, richer detail views |
+| **Desktop** (>1024px)   | Multi-column, sidebar     | Extended filters, richer detail views         |
 
 **Mobile Strategy (Primary):**
+
 - Bottom tab navigation (4 tabs)
 - Full-width cards in single column
 - Sticky date/category filters
@@ -1495,6 +1573,7 @@ Tiween is designed mobile-first, with 65% of users on Chrome Android with variab
 - 64px bottom nav height + iOS safe area
 
 **Tablet Strategy:**
+
 - Bottom navigation persists (user familiarity)
 - 2-column event grid where space allows
 - Side-by-side showtime comparison
@@ -1502,6 +1581,7 @@ Tiween is designed mobile-first, with 65% of users on Chrome Android with variab
 - Optional split-view for detail/list
 
 **Desktop Strategy:**
+
 - Top header navigation replaces bottom nav
 - 12-column grid with sidebar filters
 - Multi-column event grids (3-4 cards per row)
@@ -1513,33 +1593,33 @@ Tiween is designed mobile-first, with 65% of users on Chrome Android with variab
 
 **Tailwind CSS Breakpoints (Default):**
 
-| Breakpoint | Min-Width | Usage |
-|------------|-----------|-------|
-| `sm` | 640px | Small tablets, large phones |
-| `md` | 768px | Tablets |
-| `lg` | 1024px | Laptops, small desktops |
-| `xl` | 1280px | Desktops |
-| `2xl` | 1536px | Large desktops |
+| Breakpoint | Min-Width | Usage                       |
+| ---------- | --------- | --------------------------- |
+| `sm`       | 640px     | Small tablets, large phones |
+| `md`       | 768px     | Tablets                     |
+| `lg`       | 1024px    | Laptops, small desktops     |
+| `xl`       | 1280px    | Desktops                    |
+| `2xl`      | 1536px    | Large desktops              |
 
 **Component-Specific Breakpoints:**
 
-| Component | Mobile | Tablet | Desktop |
-|-----------|--------|--------|---------|
-| `EventCard` | Full-width | 2-column grid | 3-4 column grid |
-| `BottomNav` | Visible | Visible | Hidden (header nav) |
-| `CategoryTabs` | Horizontal scroll | Full visible | Full visible + icons |
-| `FilmHero` | Full-bleed | Full-bleed | 60% width + sidebar |
-| `SeatSelector` | Full-screen | Inline | Inline with legend |
-| `Filters` | Bottom sheet | Bottom sheet | Sidebar |
+| Component      | Mobile            | Tablet        | Desktop              |
+| -------------- | ----------------- | ------------- | -------------------- |
+| `EventCard`    | Full-width        | 2-column grid | 3-4 column grid      |
+| `BottomNav`    | Visible           | Visible       | Hidden (header nav)  |
+| `CategoryTabs` | Horizontal scroll | Full visible  | Full visible + icons |
+| `FilmHero`     | Full-bleed        | Full-bleed    | 60% width + sidebar  |
+| `SeatSelector` | Full-screen       | Inline        | Inline with legend   |
+| `Filters`      | Bottom sheet      | Bottom sheet  | Sidebar              |
 
 **Container Widths:**
 
 | Breakpoint | Max-Width | Padding |
-|------------|-----------|---------|
-| Mobile | 100% | 16px |
-| Tablet | 100% | 24px |
-| Desktop | 1280px | 24px |
-| Wide | 1536px | 32px |
+| ---------- | --------- | ------- |
+| Mobile     | 100%      | 16px    |
+| Tablet     | 100%      | 24px    |
+| Desktop    | 1280px    | 24px    |
+| Wide       | 1536px    | 32px    |
 
 ### 8.3 Accessibility Strategy
 
@@ -1549,90 +1629,91 @@ Tiween targets WCAG 2.1 Level AA compliance - the industry standard for good acc
 
 **Color & Contrast:**
 
-| Requirement | Implementation |
-|-------------|----------------|
-| Text contrast | 4.5:1 minimum for body text |
-| Large text contrast | 3:1 minimum for 18px+ text |
-| UI component contrast | 3:1 for interactive elements |
-| Focus indicators | 3px yellow outline, visible on all backgrounds |
-| Non-color indicators | Icons + text for status, not color alone |
+| Requirement           | Implementation                                 |
+| --------------------- | ---------------------------------------------- |
+| Text contrast         | 4.5:1 minimum for body text                    |
+| Large text contrast   | 3:1 minimum for 18px+ text                     |
+| UI component contrast | 3:1 for interactive elements                   |
+| Focus indicators      | 3px yellow outline, visible on all backgrounds |
+| Non-color indicators  | Icons + text for status, not color alone       |
 
 **Tiween Palette Compliance:**
+
 - Yellow (#F8EB06) on Dark Teal (#032523): **12.5:1** ✓ AAA
 - White (#FFFFFF) on Dark Teal (#032523): **15.8:1** ✓ AAA
 - Muted text (#A0A0A0) on Dark Teal: **5.2:1** ✓ AA
 
 **Keyboard Navigation:**
 
-| Requirement | Implementation |
-|-------------|----------------|
-| Tab order | Logical DOM order, skip links at top |
-| Focus visible | 3px yellow ring on all interactive elements |
-| Focus trap | Modals trap focus until dismissed |
-| Shortcuts | Escape closes modals, Enter activates buttons |
-| Skip links | "Skip to content", "Skip to navigation" |
+| Requirement   | Implementation                                |
+| ------------- | --------------------------------------------- |
+| Tab order     | Logical DOM order, skip links at top          |
+| Focus visible | 3px yellow ring on all interactive elements   |
+| Focus trap    | Modals trap focus until dismissed             |
+| Shortcuts     | Escape closes modals, Enter activates buttons |
+| Skip links    | "Skip to content", "Skip to navigation"       |
 
 **Screen Reader Support:**
 
-| Requirement | Implementation |
-|-------------|----------------|
-| Semantic HTML | Proper heading hierarchy (h1-h6) |
-| ARIA labels | All icons, buttons, form fields labeled |
-| Live regions | Toast notifications as aria-live |
-| Form errors | Associated with inputs via aria-describedby |
+| Requirement    | Implementation                                |
+| -------------- | --------------------------------------------- |
+| Semantic HTML  | Proper heading hierarchy (h1-h6)              |
+| ARIA labels    | All icons, buttons, form fields labeled       |
+| Live regions   | Toast notifications as aria-live              |
+| Form errors    | Associated with inputs via aria-describedby   |
 | Image alt text | Descriptive for content, empty for decorative |
 
 **Touch & Motor:**
 
-| Requirement | Implementation |
-|-------------|----------------|
-| Touch targets | 44px minimum, 48px preferred |
-| Target spacing | 8px minimum between targets |
+| Requirement          | Implementation                             |
+| -------------------- | ------------------------------------------ |
+| Touch targets        | 44px minimum, 48px preferred               |
+| Target spacing       | 8px minimum between targets                |
 | Gesture alternatives | All swipe actions have button alternatives |
-| Timeout extensions | No forced timeouts on user actions |
+| Timeout extensions   | No forced timeouts on user actions         |
 
 **RTL & Multilingual:**
 
-| Requirement | Implementation |
-|-------------|----------------|
-| RTL layout | `dir="rtl"` on html element when Arabic |
+| Requirement        | Implementation                                       |
+| ------------------ | ---------------------------------------------------- |
+| RTL layout         | `dir="rtl"` on html element when Arabic              |
 | Logical properties | `ps-`, `pe-`, `ms-`, `me-` instead of `left`/`right` |
-| Mirrored icons | Directional icons flip in RTL |
-| Mixed content | Correct rendering of AR/FR mixed text |
-| Font fallbacks | Arabic fonts load for Arabic content |
+| Mirrored icons     | Directional icons flip in RTL                        |
+| Mixed content      | Correct rendering of AR/FR mixed text                |
+| Font fallbacks     | Arabic fonts load for Arabic content                 |
 
 ### 8.4 Testing Strategy
 
 **Device Testing Matrix:**
 
-| Device Type | Priority | Specific Devices |
-|-------------|----------|------------------|
-| Android Phone | P1 | Samsung Galaxy (mid-range), Redmi |
-| iPhone | P2 | iPhone 12+, iPhone SE (small screen) |
-| Android Tablet | P3 | Samsung Tab, generic Android |
-| iPad | P3 | iPad, iPad Mini |
-| Desktop | P2 | Windows Chrome, Mac Safari |
+| Device Type    | Priority | Specific Devices                     |
+| -------------- | -------- | ------------------------------------ |
+| Android Phone  | P1       | Samsung Galaxy (mid-range), Redmi    |
+| iPhone         | P2       | iPhone 12+, iPhone SE (small screen) |
+| Android Tablet | P3       | Samsung Tab, generic Android         |
+| iPad           | P3       | iPad, iPad Mini                      |
+| Desktop        | P2       | Windows Chrome, Mac Safari           |
 
 **Browser Testing:**
 
-| Browser | Priority | Notes |
-|---------|----------|-------|
-| Chrome Android | P1 | 65% of users |
-| Safari iOS | P2 | iOS market share |
-| Chrome Desktop | P2 | Desktop primary |
-| Safari Desktop | P3 | Mac users |
-| Firefox | P3 | Accessibility testing |
+| Browser        | Priority | Notes                 |
+| -------------- | -------- | --------------------- |
+| Chrome Android | P1       | 65% of users          |
+| Safari iOS     | P2       | iOS market share      |
+| Chrome Desktop | P2       | Desktop primary       |
+| Safari Desktop | P3       | Mac users             |
+| Firefox        | P3       | Accessibility testing |
 
 **Accessibility Testing Tools:**
 
-| Tool | Usage |
-|------|-------|
-| **axe DevTools** | Automated accessibility scanning |
-| **Lighthouse** | Performance + accessibility audits |
-| **VoiceOver (iOS/Mac)** | Screen reader testing |
-| **TalkBack (Android)** | Screen reader testing |
-| **NVDA (Windows)** | Screen reader testing |
-| **Color Oracle** | Color blindness simulation |
+| Tool                    | Usage                              |
+| ----------------------- | ---------------------------------- |
+| **axe DevTools**        | Automated accessibility scanning   |
+| **Lighthouse**          | Performance + accessibility audits |
+| **VoiceOver (iOS/Mac)** | Screen reader testing              |
+| **TalkBack (Android)**  | Screen reader testing              |
+| **NVDA (Windows)**      | Screen reader testing              |
+| **Color Oracle**        | Color blindness simulation         |
 
 **Testing Checklist:**
 
@@ -1681,7 +1762,7 @@ Tiween targets WCAG 2.1 Level AA compliance - the industry standard for good acc
 <main role="main" aria-label="Event listings">
   <h1>Ce soir à Tunis</h1>
   <nav aria-label="Category filters">
-    <button aria-pressed={active === 'cinema'}>Cinéma</button>
+    <button aria-pressed={active === "cinema"}>Cinéma</button>
   </nav>
   <section aria-label="Events">
     <article aria-labelledby="event-1-title">

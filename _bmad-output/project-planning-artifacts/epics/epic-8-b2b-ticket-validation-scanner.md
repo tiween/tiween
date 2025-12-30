@@ -32,13 +32,14 @@ So that I know whether to admit the ticket holder.
 **Given** I have scanned a QR code
 **When** validation completes
 **Then** I see a large, clear result:
+
 - ✓ Green: "Valide" - admit entry
 - ✕ Red: "Déjà scanné" - deny entry (shows when it was scanned)
 - ✕ Red: "Non trouvé" - invalid ticket
 - ⚠ Yellow: "Mauvais événement" - ticket is for different event/showtime
-**And** result auto-dismisses after 2 seconds
-**And** audio beep accompanies visual (success/failure tones)
-**And** high contrast colors visible in dark venues
+  **And** result auto-dismisses after 2 seconds
+  **And** audio beep accompanies visual (success/failure tones)
+  **And** high contrast colors visible in dark venues
 
 ---
 

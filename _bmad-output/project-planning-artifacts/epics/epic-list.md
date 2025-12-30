@@ -1,9 +1,11 @@
 # Epic List
 
 ## Epic 1: Project Foundation & Infrastructure
+
 Development teams have a fully configured monorepo with Next.js 16.1, Strapi v5, and all tooling ready for parallel development.
 
 **Scope:**
+
 - Clone and configure starter template (notum-cz/strapi-next-monorepo-starter)
 - Upgrade to Next.js 16.1 with Turbopack
 - Configure Tailwind with Tiween theme (Dark teal #032523, Yellow #F8EB06)
@@ -19,9 +21,11 @@ Development teams have a fully configured monorepo with Next.js 16.1, Strapi v5,
 ---
 
 ## Epic 2A: Component Library & Design System (PARALLEL TRACK A)
+
 Complete UI component library with Storybook stories, ready for integration. Designers and developers can review all components with dummy data.
 
 **Scope:**
+
 - **Layout Components:** BottomNav, Header, PageContainer, StickyFilters
 - **Discovery Components:** EventCard, FilmHero, CategoryTabs, DateSelector, VenueCard, SearchBar, SearchResults
 - **Ticketing Components:** ShowtimeButton, SeatSelector, TicketQR, QuantitySelector, OrderSummary, PaymentForm
@@ -36,9 +40,11 @@ Complete UI component library with Storybook stories, ready for integration. Des
 ---
 
 ## Epic 2B: Strapi v5 Migration & Backend Foundation (PARALLEL TRACK B)
+
 Fully migrated Strapi v5 backend with all content-types, plugins, and data ready for frontend integration.
 
 **Scope:**
+
 - Strapi v4 → v5 upgrade
 - Content-type recreation/migration:
   - Event, Movie, CreativeWork, Person
@@ -59,9 +65,11 @@ Fully migrated Strapi v5 backend with all content-types, plugins, and data ready
 ---
 
 ## Epic 3: Event Discovery & Browsing
+
 Users can browse, filter, and search all cultural events across Tunisia without creating an account.
 
 **Scope:**
+
 - Homepage with curated event listings ("Ce soir", "Cette semaine", featured)
 - Category filtering (Cinéma, Théâtre, Courts-métrages, Musique, Expositions)
 - Date filtering (Aujourd'hui, Demain, Ce weekend, Custom range)
@@ -80,9 +88,11 @@ Users can browse, filter, and search all cultural events across Tunisia without 
 ---
 
 ## Epic 4: User Authentication & Profiles
+
 Users can register, login, manage their profiles, and set preferences for language and region.
 
 **Scope:**
+
 - Email/password registration with validation
 - Social login (Google, Facebook) via NextAuth.js
 - Password reset flow with email
@@ -98,9 +108,11 @@ Users can register, login, manage their profiles, and set preferences for langua
 ---
 
 ## Epic 5: Watchlist & Personalization
+
 Authenticated users can save events to their watchlist, access it offline, and sync across devices.
 
 **Scope:**
+
 - Add to watchlist (one-tap heart animation)
 - Remove from watchlist
 - Watchlist view page with filtering
@@ -114,9 +126,11 @@ Authenticated users can save events to their watchlist, access it offline, and s
 ---
 
 ## Epic 6: B2C Ticketing & Purchases
+
 Users can purchase tickets for events, receive QR codes, and access them offline on event night.
 
 **Scope:**
+
 - Ticket type and price display per showtime
 - Quantity and ticket type selection
 - Konnect payment gateway integration:
@@ -137,9 +151,11 @@ Users can purchase tickets for events, receive QR codes, and access them offline
 ---
 
 ## Epic 7: B2B Venue Management
+
 Venue managers can register, manage their venue profile, create/edit events, configure ticketing, and view analytics via Strapi Admin.
 
 **Scope:**
+
 - Venue registration flow with admin approval
 - Venue profile management (photos, description, location, contact)
 - Event creation with rich details (title, description, dates, times, media)
@@ -157,9 +173,11 @@ Venue managers can register, manage their venue profile, create/edit events, con
 ---
 
 ## Epic 8: B2B Ticket Validation (Scanner)
+
 Venue staff can scan and validate tickets at event entry, track attendance, and operate with intermittent connectivity.
 
 **Scope:**
+
 - QR scanner interface (mobile-optimized, high contrast)
 - Camera access and QR decoding
 - Validation result display (green valid / red invalid / yellow warning)
@@ -177,9 +195,11 @@ Venue staff can scan and validate tickets at event entry, track attendance, and 
 ---
 
 ## Epic 9: Platform Administration
+
 Admins can moderate venues, manage content quality, view platform analytics, and manage users via Strapi Admin.
 
 **Scope:**
+
 - Venue approval/rejection workflow with email notifications
 - Manual event creation and editing
 - Event flagging for quality issues
@@ -196,9 +216,11 @@ Admins can moderate venues, manage content quality, view platform analytics, and
 ---
 
 ## Epic 10: PWA & Offline Experience
+
 Users can install the app, browse cached content offline, access watchlist and tickets without connectivity, and sync when back online.
 
 **Scope:**
+
 - PWA manifest configuration (icons, theme, display)
 - Service worker with Serwist
 - Event listing caching strategy (stale-while-revalidate)

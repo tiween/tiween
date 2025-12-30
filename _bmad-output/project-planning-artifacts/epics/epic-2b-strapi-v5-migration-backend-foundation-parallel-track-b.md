@@ -34,6 +34,7 @@ So that the platform can store films, plays, and other creative works.
 **Given** Strapi v5 is running
 **When** I create the Event and CreativeWork content-types
 **Then** CreativeWork content-type is created with fields:
+
 - `title` (string, required, i18n)
 - `originalTitle` (string, optional)
 - `slug` (uid, from title)
@@ -49,7 +50,7 @@ So that the platform can store films, plays, and other creative works.
 - `trailer` (string, URL)
 - `rating` (decimal)
 - `ageRating` (enum: TP, 12+, 16+, 18+)
-**And** Event content-type is created with fields:
+  **And** Event content-type is created with fields:
 - `creativeWork` (relation to CreativeWork)
 - `venue` (relation to Venue)
 - `startDate` (datetime)
@@ -57,8 +58,8 @@ So that the platform can store films, plays, and other creative works.
 - `showtimes` (component, repeatable)
 - `status` (enum: scheduled, cancelled, completed)
 - `featured` (boolean)
-**And** content-types are accessible via REST API
-**And** i18n is enabled for translatable fields
+  **And** content-types are accessible via REST API
+  **And** i18n is enabled for translatable fields
 
 ---
 
@@ -73,6 +74,7 @@ So that the platform can manage venue information and screening times.
 **Given** Event and CreativeWork content-types exist
 **When** I create Venue and Showtime content-types
 **Then** Venue content-type is created with fields:
+
 - `name` (string, required, i18n)
 - `slug` (uid, from name)
 - `description` (rich text, i18n)
@@ -90,7 +92,7 @@ So that the platform can manage venue information and screening times.
 - `capacity` (integer)
 - `manager` (relation to User)
 - `status` (enum: pending, approved, suspended)
-**And** Showtime component is created with fields:
+  **And** Showtime component is created with fields:
 - `time` (time)
 - `format` (enum: VOST, VF, VO, 3D, IMAX)
 - `language` (enum: ar, fr, en, other)
@@ -98,7 +100,7 @@ So that the platform can manage venue information and screening times.
 - `price` (decimal)
 - `ticketsAvailable` (integer)
 - `ticketsSold` (integer)
-**And** content-types are accessible via REST API
+  **And** content-types are accessible via REST API
 
 ---
 
@@ -113,6 +115,7 @@ So that the platform can store filmmakers, actors, and categorize content.
 **Given** CreativeWork content-type exists
 **When** I create Person and Genre content-types
 **Then** Person content-type is created with fields:
+
 - `name` (string, required)
 - `slug` (uid, from name)
 - `bio` (text, i18n)
@@ -120,14 +123,14 @@ So that the platform can store filmmakers, actors, and categorize content.
 - `birthDate` (date)
 - `nationality` (string)
 - `roles` (json, array of roles played)
-**And** Genre content-type is created with fields:
+  **And** Genre content-type is created with fields:
 - `name` (string, required, i18n)
 - `slug` (uid, from name)
 - `icon` (string, icon name)
 - `color` (string, hex color)
-**And** seed data includes common genres:
+  **And** seed data includes common genres:
 - Drame, Comédie, Action, Thriller, Horror, Documentary, Animation, Romance
-**And** content-types are accessible via REST API
+  **And** content-types are accessible via REST API
 
 ---
 
@@ -142,6 +145,7 @@ So that the platform can manage ticket purchases.
 **Given** Event and Venue content-types exist
 **When** I create TicketOrder and Ticket content-types
 **Then** TicketOrder content-type is created with fields:
+
 - `orderNumber` (string, unique, auto-generated)
 - `user` (relation to User, optional for guest)
 - `guestEmail` (email, for guest checkout)
@@ -153,7 +157,7 @@ So that the platform can manage ticket purchases.
 - `paymentMethod` (string)
 - `paymentReference` (string)
 - `purchasedAt` (datetime)
-**And** Ticket content-type is created with fields:
+  **And** Ticket content-type is created with fields:
 - `ticketNumber` (string, unique)
 - `order` (relation to TicketOrder)
 - `type` (enum: standard, reduced, vip)
@@ -163,7 +167,7 @@ So that the platform can manage ticket purchases.
 - `scannedAt` (datetime)
 - `scannedBy` (relation to User)
 - `seatInfo` (json, optional seat details)
-**And** content-types have appropriate permissions
+  **And** content-types have appropriate permissions
 
 ---
 
@@ -178,17 +182,18 @@ So that users can save events and configure their experience.
 **Given** Strapi users-permissions plugin is configured
 **When** I create UserWatchlist and extend user preferences
 **Then** UserWatchlist content-type is created with fields:
+
 - `user` (relation to User, required)
 - `creativeWork` (relation to CreativeWork)
 - `addedAt` (datetime)
 - `notifyChanges` (boolean, default: true)
-**And** User model is extended with:
+  **And** User model is extended with:
 - `preferredLanguage` (enum: ar, fr, en)
 - `defaultRegion` (relation to Region)
 - `avatar` (media, single)
 - `role` (extended: authenticated, venue-manager, admin)
-**And** unique constraint on user + creativeWork combination
-**And** appropriate API permissions are set
+  **And** unique constraint on user + creativeWork combination
+  **And** appropriate API permissions are set
 
 ---
 
@@ -203,21 +208,22 @@ So that events can be organized by location and type.
 **Given** Strapi v5 is configured
 **When** I create Region, City, and Category content-types
 **Then** Region content-type is created with fields:
+
 - `name` (string, required, i18n)
 - `slug` (uid)
 - `code` (string, e.g., "TUN", "SFX")
-**And** City content-type is created with fields:
+  **And** City content-type is created with fields:
 - `name` (string, required, i18n)
 - `slug` (uid)
 - `region` (relation to Region)
 - `latitude` (decimal)
 - `longitude` (decimal)
-**And** Category content-type is created with fields:
+  **And** Category content-type is created with fields:
 - `name` (string, required, i18n)
 - `slug` (uid)
 - `icon` (string)
 - `order` (integer, for sorting)
-**And** seed data includes:
+  **And** seed data includes:
 - Regions: Grand Tunis, Sfax, Sousse, etc.
 - Cities: Tunis, La Marsa, Sfax, etc.
 - Categories: Cinéma, Théâtre, Concerts, etc.
@@ -237,13 +243,14 @@ So that venue managers have streamlined event management capabilities.
 **Then** plugin is created at `src/plugins/events-manager/`
 **And** plugin follows Strapi v5 plugin architecture
 **And** plugin provides:
+
 - Custom admin panel for event scheduling
 - Bulk showtime creation
 - Ticket inventory management
 - Quick duplicate event functionality
-**And** plugin integrates with venue manager role permissions
-**And** plugin has proper TypeScript types
-**And** plugin is registered in `config/plugins.ts`
+  **And** plugin integrates with venue manager role permissions
+  **And** plugin has proper TypeScript types
+  **And** plugin is registered in `config/plugins.ts`
 
 ---
 
@@ -258,14 +265,15 @@ So that B2C users, venue managers, and admins have correct access.
 **Given** users-permissions plugin is active
 **When** I configure roles and permissions
 **Then** three roles are configured:
+
 - **Authenticated (B2C)**: Can read events/venues, manage own watchlist, create orders
 - **Venue Manager**: Authenticated permissions + manage own venue, own events, view own sales
 - **Admin**: Full access to all content-types
-**And** Public role can:
+  **And** Public role can:
 - Read published events, venues, creative works
 - Read categories, regions, cities, genres
-**And** venue manager can only access their own venue data (content-type filter)
-**And** permissions are documented in README
+  **And** venue manager can only access their own venue data (content-type filter)
+  **And** permissions are documented in README
 
 ---
 
@@ -322,13 +330,14 @@ So that transactional emails are delivered reliably.
 **Then** Resend provider plugin is installed and configured
 **And** API key is configured via environment variable
 **And** email templates are created for:
+
 - Order confirmation
 - Ticket delivery
 - Password reset
 - Venue approval/rejection
-**And** test email can be sent from admin panel
-**And** email sending is logged for debugging
-**And** fallback/development mode uses console output
+  **And** test email can be sent from admin panel
+  **And** email sending is logged for debugging
+  **And** fallback/development mode uses console output
 
 ---
 
@@ -346,10 +355,11 @@ So that frontend developers have clear API reference.
 **And** OpenAPI spec is generated at `/documentation`
 **And** Swagger UI is accessible for API exploration
 **And** all endpoints are documented with:
+
 - Request/response schemas
 - Authentication requirements
 - Example payloads
-**And** documentation updates automatically with schema changes
+  **And** documentation updates automatically with schema changes
 
 ---
 
@@ -365,18 +375,19 @@ So that existing content is preserved in the new platform.
 **When** I create migration scripts
 **Then** migration scripts are created at `scripts/migrations/`
 **And** scripts handle:
+
 - CreativeWork (films, plays) from legacy `Movie` / `Play` tables
 - Venues from legacy `Medium` table
 - Events and showtimes
 - User accounts (password hashes preserved)
 - Historical ticket orders
-**And** scripts are idempotent (can run multiple times safely)
-**And** scripts generate migration report with:
+  **And** scripts are idempotent (can run multiple times safely)
+  **And** scripts generate migration report with:
 - Records migrated per type
 - Skipped records with reasons
 - Errors encountered
-**And** rollback scripts exist for each migration
-**And** data integrity validation runs post-migration
+  **And** rollback scripts exist for each migration
+  **And** data integrity validation runs post-migration
 
 ---
 
@@ -392,14 +403,15 @@ So that developers have realistic data to work with.
 **When** I create database seeds
 **Then** seed scripts are created at `scripts/seeds/`
 **And** seeds create:
+
 - 5 sample venues (different types and cities)
 - 20 sample creative works (mix of films, plays, shorts)
 - 50 sample events with showtimes
 - 3 test users (regular, venue-manager, admin)
 - Sample orders and tickets
-**And** seeds include realistic Tunisian data (French/Arabic titles, local venues)
-**And** seed command is added: `yarn seed`
-**And** seeds are idempotent
-**And** test fixtures use subset of seed data
+  **And** seeds include realistic Tunisian data (French/Arabic titles, local venues)
+  **And** seed command is added: `yarn seed`
+  **And** seeds are idempotent
+  **And** test fixtures use subset of seed data
 
 ---

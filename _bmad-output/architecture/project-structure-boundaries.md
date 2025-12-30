@@ -293,56 +293,56 @@ tiween/
 
 **API Boundaries:**
 
-| Boundary | Location | Purpose |
-|----------|----------|---------|
-| **Strapi REST API** | `apps/strapi/src/api/` | Content management, CRUD operations |
-| **Next.js API Routes** | `apps/client/src/app/api/` | Auth, webhooks, revalidation |
-| **Konnect Webhooks** | `apps/client/src/app/api/webhooks/konnect/` | Payment confirmations |
-| **WebSocket Server** | `apps/strapi` (plugin) | Real-time ticket availability |
+| Boundary               | Location                                    | Purpose                             |
+| ---------------------- | ------------------------------------------- | ----------------------------------- |
+| **Strapi REST API**    | `apps/strapi/src/api/`                      | Content management, CRUD operations |
+| **Next.js API Routes** | `apps/client/src/app/api/`                  | Auth, webhooks, revalidation        |
+| **Konnect Webhooks**   | `apps/client/src/app/api/webhooks/konnect/` | Payment confirmations               |
+| **WebSocket Server**   | `apps/strapi` (plugin)                      | Real-time ticket availability       |
 
 **Component Boundaries:**
 
-| Layer | Boundary | Communication |
-|-------|----------|---------------|
-| **UI Components** | `components/ui/` | Props only, no business logic |
-| **Feature Components** | `features/*/components/` | Use hooks for data, Zustand for state |
-| **Stores** | `stores/` | Single source of truth for client state |
-| **API Layer** | `lib/api/` | All external API calls |
+| Layer                  | Boundary                 | Communication                           |
+| ---------------------- | ------------------------ | --------------------------------------- |
+| **UI Components**      | `components/ui/`         | Props only, no business logic           |
+| **Feature Components** | `features/*/components/` | Use hooks for data, Zustand for state   |
+| **Stores**             | `stores/`                | Single source of truth for client state |
+| **API Layer**          | `lib/api/`               | All external API calls                  |
 
 **Data Boundaries:**
 
-| Data Type | Source | Cache | Offline |
-|-----------|--------|-------|---------|
-| Events/Movies | Strapi → SWR | 1 min | IndexedDB |
-| User Data | NextAuth + Strapi | Session | - |
-| Cart | Zustand (persist) | LocalStorage | ✓ |
-| Tickets | Strapi | Redis | IndexedDB |
-| Search | Algolia | Client-side | - |
+| Data Type     | Source            | Cache        | Offline   |
+| ------------- | ----------------- | ------------ | --------- |
+| Events/Movies | Strapi → SWR      | 1 min        | IndexedDB |
+| User Data     | NextAuth + Strapi | Session      | -         |
+| Cart          | Zustand (persist) | LocalStorage | ✓         |
+| Tickets       | Strapi            | Redis        | IndexedDB |
+| Search        | Algolia           | Client-side  | -         |
 
 ## Requirements to Structure Mapping
 
 **Feature Mapping:**
 
-| PRD Domain | Frontend Location | Backend Location |
-|------------|-------------------|------------------|
-| Event Discovery (FR1-10) | `features/events/`, `features/search/` | `api/event/`, `api/showtime/` |
-| User Accounts (FR11-18) | `features/auth/`, `app/(auth)/` | `extensions/users-permissions/` |
-| Watchlist (FR19-23) | `features/watchlist/` | `api/user-watchlist/` |
-| B2C Ticketing (FR24-31) | `features/tickets/`, `app/(auth)/checkout/` | `api/ticket-order/`, `api/ticket/` |
-| B2B Venue (FR32-40) | **Strapi Admin Panel** (roles: Venue Manager) | `api/venue-subscription/`, `plugins/events-manager/` |
-| Ticket Validation (FR41-46) | `features/scanner/`, `app/(venue)/scanner/` | `api/ticket/` (validation endpoint) |
-| PWA/Offline (FR59-63) | `lib/offline/`, `serwist.config.ts` | - |
-| Real-Time (FR64-66) | WebSocket hooks | `plugins/events-manager/` (Socket.io) |
+| PRD Domain                  | Frontend Location                             | Backend Location                                     |
+| --------------------------- | --------------------------------------------- | ---------------------------------------------------- |
+| Event Discovery (FR1-10)    | `features/events/`, `features/search/`        | `api/event/`, `api/showtime/`                        |
+| User Accounts (FR11-18)     | `features/auth/`, `app/(auth)/`               | `extensions/users-permissions/`                      |
+| Watchlist (FR19-23)         | `features/watchlist/`                         | `api/user-watchlist/`                                |
+| B2C Ticketing (FR24-31)     | `features/tickets/`, `app/(auth)/checkout/`   | `api/ticket-order/`, `api/ticket/`                   |
+| B2B Venue (FR32-40)         | **Strapi Admin Panel** (roles: Venue Manager) | `api/venue-subscription/`, `plugins/events-manager/` |
+| Ticket Validation (FR41-46) | `features/scanner/`, `app/(venue)/scanner/`   | `api/ticket/` (validation endpoint)                  |
+| PWA/Offline (FR59-63)       | `lib/offline/`, `serwist.config.ts`           | -                                                    |
+| Real-Time (FR64-66)         | WebSocket hooks                               | `plugins/events-manager/` (Socket.io)                |
 
 **Cross-Cutting Concerns:**
 
-| Concern | Locations |
-|---------|-----------|
-| **Authentication** | `lib/auth/`, `hooks/useAuth.ts`, `app/api/auth/` |
-| **i18n** | `messages/`, `app/[locale]/` routing |
+| Concern            | Locations                                                         |
+| ------------------ | ----------------------------------------------------------------- |
+| **Authentication** | `lib/auth/`, `hooks/useAuth.ts`, `app/api/auth/`                  |
+| **i18n**           | `messages/`, `app/[locale]/` routing                              |
 | **Error Handling** | `components/common/ErrorBoundary/`, `lib/constants/errorCodes.ts` |
-| **Offline** | `lib/offline/`, `stores/offlineStore.ts`, `serwist.config.ts` |
-| **Analytics** | `lib/utils/analytics.ts` (Sentry) |
+| **Offline**        | `lib/offline/`, `stores/offlineStore.ts`, `serwist.config.ts`     |
+| **Analytics**      | `lib/utils/analytics.ts` (Sentry)                                 |
 
 ## Integration Points
 
@@ -362,28 +362,29 @@ tiween/
 
 **External Integrations:**
 
-| Service | Integration Point | Data Flow |
-|---------|-------------------|-----------|
-| **Konnect** | `lib/api/konnect.ts` → Webhook | Payment initiation → Confirmation |
-| **Algolia** | `lib/api/algolia.ts` | Index sync (Strapi) → Search (Client) |
-| **ImageKit** | Strapi upload provider | Media upload → CDN delivery |
-| **Resend** | Strapi email plugin | Transactional emails |
-| **Sentry** | Both apps | Error reporting |
+| Service      | Integration Point              | Data Flow                             |
+| ------------ | ------------------------------ | ------------------------------------- |
+| **Konnect**  | `lib/api/konnect.ts` → Webhook | Payment initiation → Confirmation     |
+| **Algolia**  | `lib/api/algolia.ts`           | Index sync (Strapi) → Search (Client) |
+| **ImageKit** | Strapi upload provider         | Media upload → CDN delivery           |
+| **Resend**   | Strapi email plugin            | Transactional emails                  |
+| **Sentry**   | Both apps                      | Error reporting                       |
 
 ## File Organization Patterns
 
 **Configuration Files:**
 
-| File | Location | Purpose |
-|------|----------|---------|
-| `turbo.json` | Root | Turborepo pipeline |
-| `docker-compose.yml` | Root | Local dev environment |
-| `.env.example` | Root + each app | Environment template |
-| `next.config.ts` | `apps/client/` | Next.js configuration |
-| `serwist.config.ts` | `apps/client/` | PWA/Service worker |
-| `components.json` | `apps/client/` | shadcn/ui config |
+| File                 | Location        | Purpose               |
+| -------------------- | --------------- | --------------------- |
+| `turbo.json`         | Root            | Turborepo pipeline    |
+| `docker-compose.yml` | Root            | Local dev environment |
+| `.env.example`       | Root + each app | Environment template  |
+| `next.config.ts`     | `apps/client/`  | Next.js configuration |
+| `serwist.config.ts`  | `apps/client/`  | PWA/Service worker    |
+| `components.json`    | `apps/client/`  | shadcn/ui config      |
 
 **Source Organization:**
+
 - **Shared code** → `packages/` (shared-types, configs)
 - **App-specific** → `apps/{app}/src/`
 - **Feature code** → `src/features/{feature}/`
@@ -391,6 +392,7 @@ tiween/
 - **Business logic** → `src/lib/`
 
 **Test Organization:**
+
 - Co-located with source files
 - `{Component}.test.tsx` for unit tests
 - `{Component}.stories.tsx` for Storybook

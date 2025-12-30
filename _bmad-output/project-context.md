@@ -1,9 +1,9 @@
 ---
-project_name: 'tiween'
-user_name: 'Ayoub'
-date: '2025-12-26'
-sections_completed: ['all']
-status: 'complete'
+project_name: "tiween"
+user_name: "Ayoub"
+date: "2025-12-26"
+sections_completed: ["all"]
+status: "complete"
 ---
 
 # Project Context for AI Agents
@@ -14,23 +14,23 @@ _This file contains critical rules and patterns that AI agents must follow when 
 
 ## Technology Stack & Versions
 
-| Category | Technology | Version | Notes |
-|----------|------------|---------|-------|
-| **Frontend** | Next.js (App Router) | 15.x | Use RSC by default |
-| **Backend** | Strapi | v5.x | Document Service API (not Entity Service) |
-| **Language** | TypeScript | strict mode | No `any` types |
-| **Styling** | Tailwind CSS | v4 | Use `@theme` directive |
-| **Components** | shadcn/ui | latest | Copy model, not npm package |
-| **State (client)** | Zustand | latest | With devtools + persist |
-| **State (server)** | SWR | latest | For Strapi data fetching |
-| **Auth** | NextAuth.js | latest | JWT strategy |
-| **i18n** | next-intl | latest | AR/FR/EN locales |
-| **PWA** | Serwist | latest | next-pwa successor |
-| **Testing** | Vitest + Playwright | latest | Co-located tests |
-| **Database** | PostgreSQL | 16.x | Via Strapi |
-| **Cache** | Redis | 7.x | Sessions, rate limiting |
-| **Monorepo** | Turborepo | latest | Yarn workspaces |
-| **Node** | Node.js | 22.x | Required by starter |
+| Category           | Technology           | Version     | Notes                                     |
+| ------------------ | -------------------- | ----------- | ----------------------------------------- |
+| **Frontend**       | Next.js (App Router) | 15.x        | Use RSC by default                        |
+| **Backend**        | Strapi               | v5.x        | Document Service API (not Entity Service) |
+| **Language**       | TypeScript           | strict mode | No `any` types                            |
+| **Styling**        | Tailwind CSS         | v4          | Use `@theme` directive                    |
+| **Components**     | shadcn/ui            | latest      | Copy model, not npm package               |
+| **State (client)** | Zustand              | latest      | With devtools + persist                   |
+| **State (server)** | SWR                  | latest      | For Strapi data fetching                  |
+| **Auth**           | NextAuth.js          | latest      | JWT strategy                              |
+| **i18n**           | next-intl            | latest      | AR/FR/EN locales                          |
+| **PWA**            | Serwist              | latest      | next-pwa successor                        |
+| **Testing**        | Vitest + Playwright  | latest      | Co-located tests                          |
+| **Database**       | PostgreSQL           | 16.x        | Via Strapi                                |
+| **Cache**          | Redis                | 7.x         | Sessions, rate limiting                   |
+| **Monorepo**       | Turborepo            | latest      | Yarn workspaces                           |
+| **Node**           | Node.js              | 22.x        | Required by starter                       |
 
 ---
 
@@ -71,22 +71,26 @@ _This file contains critical rules and patterns that AI agents must follow when 
 ### State Management Rules
 
 **Zustand Stores:**
+
 ```typescript
 // ALWAYS use this pattern
 export const useXxxStore = create<XxxStore>()(
   devtools(
     persist(
-      (set) => ({ /* state and actions */ }),
-      { name: 'xxx-storage' }
+      (set) => ({
+        /* state and actions */
+      }),
+      { name: "xxx-storage" }
     )
   )
-);
+)
 ```
 
 **SWR Hooks:**
+
 ```typescript
 // ALWAYS use array keys for cache invalidation
-const { data } = useSWR(['events', filters], fetcher);
+const { data } = useSWR(["events", filters], fetcher)
 ```
 
 ### Error Handling Rules
@@ -109,12 +113,13 @@ const { data } = useSWR(['events', filters], fetcher);
 
 - **Use `lib/api/strapi.ts` client** - Centralized API calls
 - **Handle Strapi response format directly:**
+
 ```typescript
 // CORRECT
-const title = response.data.attributes.title;
+const title = response.data.attributes.title
 
 // WRONG - never transform
-const title = response.title;
+const title = response.title
 ```
 
 ### Testing Rules
@@ -141,14 +146,14 @@ apps/client/src/
 
 ### Naming Conventions
 
-| Element | Convention | Example |
-|---------|------------|---------|
-| Components | PascalCase | `EventCard.tsx` |
-| Hooks | camelCase + use | `useEvents.ts` |
-| Stores | camelCase + Store | `cartStore.ts` |
-| Utils | camelCase | `formatDate.ts` |
-| Constants | SCREAMING_SNAKE | `MAX_TICKETS` |
-| Features | kebab-case folders | `venue-dashboard/` |
+| Element    | Convention         | Example            |
+| ---------- | ------------------ | ------------------ |
+| Components | PascalCase         | `EventCard.tsx`    |
+| Hooks      | camelCase + use    | `useEvents.ts`     |
+| Stores     | camelCase + Store  | `cartStore.ts`     |
+| Utils      | camelCase          | `formatDate.ts`    |
+| Constants  | SCREAMING_SNAKE    | `MAX_TICKETS`      |
+| Features   | kebab-case folders | `venue-dashboard/` |
 
 ---
 
@@ -179,27 +184,27 @@ apps/client/src/
 
 ## B2B vs B2C Boundary
 
-| Feature | Interface | Notes |
-|---------|-----------|-------|
-| Event discovery | Next.js client | Public pages |
-| User dashboard | Next.js client | Authenticated |
-| Ticket purchase | Next.js client | + Konnect payment |
-| QR Scanner | Next.js client | Mobile-friendly page |
-| Venue management | **Strapi Admin** | Venue Manager role |
-| Content management | **Strapi Admin** | Editor/Admin roles |
-| Analytics | **Strapi Admin** | Via events-manager plugin |
+| Feature            | Interface        | Notes                     |
+| ------------------ | ---------------- | ------------------------- |
+| Event discovery    | Next.js client   | Public pages              |
+| User dashboard     | Next.js client   | Authenticated             |
+| Ticket purchase    | Next.js client   | + Konnect payment         |
+| QR Scanner         | Next.js client   | Mobile-friendly page      |
+| Venue management   | **Strapi Admin** | Venue Manager role        |
+| Content management | **Strapi Admin** | Editor/Admin roles        |
+| Analytics          | **Strapi Admin** | Via events-manager plugin |
 
 ---
 
 ## External Service Integration
 
-| Service | Usage | Integration Point |
-|---------|-------|-------------------|
-| **Konnect** | Payments | `lib/api/konnect.ts` + webhook |
-| **Algolia** | Search | `lib/api/algolia.ts` |
-| **ImageKit** | Media CDN | Strapi upload provider |
-| **Resend** | Email | Strapi email plugin |
-| **Sentry** | Errors | Both apps configured |
+| Service      | Usage     | Integration Point              |
+| ------------ | --------- | ------------------------------ |
+| **Konnect**  | Payments  | `lib/api/konnect.ts` + webhook |
+| **Algolia**  | Search    | `lib/api/algolia.ts`           |
+| **ImageKit** | Media CDN | Strapi upload provider         |
+| **Resend**   | Email     | Strapi email plugin            |
+| **Sentry**   | Errors    | Both apps configured           |
 
 ---
 

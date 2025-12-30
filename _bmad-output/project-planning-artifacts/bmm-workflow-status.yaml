@@ -35,10 +35,10 @@ workflow_status:
   create-ux-design: conditional
 
   # Phase 2: Solutioning
-  create-architecture: recommended
-  create-epics-and-stories: required
-  test-design: recommended
-  implementation-readiness: required
+  create-architecture: "_bmad-output/architecture"
+  create-epics-and-stories: "_bmad-output/project-planning-artifacts/epics"
+  test-design: "_bmad-output/test-design-system.md"
+  implementation-readiness: "_bmad-output/project-planning-artifacts/implementation-readiness-report-2025-12-26.md"
 
   # Phase 3: Implementation
-  sprint-planning: required
+  sprint-planning: "_bmad-output/implementation-artifacts/sprint-status.yaml"

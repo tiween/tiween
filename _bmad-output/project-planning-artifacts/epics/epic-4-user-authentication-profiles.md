@@ -13,13 +13,14 @@ So that I can save watchlist items and purchase tickets.
 **Given** I am on the registration page
 **When** I enter my name, email, and password
 **Then** form validation checks:
+
 - Email format is valid
 - Password meets strength requirements (8+ chars, mixed case, number)
 - Confirm password matches
-**And** on submit, my account is created in Strapi
-**And** I receive a welcome email
-**And** I am automatically logged in
-**And** I am redirected to my intended destination or homepage
+  **And** on submit, my account is created in Strapi
+  **And** I receive a welcome email
+  **And** I am automatically logged in
+  **And** I am redirected to my intended destination or homepage
 
 ---
 

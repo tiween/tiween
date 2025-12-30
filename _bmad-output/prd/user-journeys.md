@@ -11,6 +11,7 @@ She spots the film her friend mentioned, taps it, sees it's playing at Cinéma L
 Friday night, she shows her phone at the door, the QR scans green, and she's in. Walking out after the film, she thinks: "I'll never go back to checking Facebook pages." She tells three friends about Tiween that weekend.
 
 **This journey reveals requirements for:**
+
 - Event discovery with multi-venue view
 - Search and filtering (by date, location, genre)
 - Watchlist functionality (save for later)
@@ -30,6 +31,7 @@ But what excites him most is the ability to browse Tunis listings and build a wa
 He starts checking Tiween every Sunday to plan his week, even when most events are in Tunis. The watchlist becomes his "someday" list, and the Sfax listings become his "this week" list.
 
 **This journey reveals requirements for:**
+
 - Regional filtering (show events by city/region)
 - Offline access (cached listings, watchlist)
 - Cross-region browsing (see Tunis from Sfax)
@@ -51,6 +53,7 @@ His first online ticket sale comes the following weekend - a woman who found him
 When he realizes his commission rate (7%) is half what Eazytick charges, and he's getting analytics he never had, Mounir becomes Tiween's biggest advocate among his venue manager friends.
 
 **This journey reveals requirements for:**
+
 - Venue self-registration and profile setup
 - Schedule management (add/edit events)
 - Analytics dashboard (views, demographics, conversions)
@@ -72,6 +75,7 @@ The results surprise her. Within a month, she has a dashboard showing exactly wh
 Six months later, Cité de la Culture runs all ticketing through Tiween. Salma's team spends 60% less time on administration and the data has helped her program events that actually fill seats.
 
 **This journey reveals requirements for:**
+
 - Multi-space/multi-event management
 - Bulk event creation and scheduling
 - Advanced analytics and reporting
@@ -90,6 +94,7 @@ He finds a stand-up comedy show starting in 2 hours. When he taps "Buy Tickets,"
 Three weeks later, Ahmed returns to Tiween. This time, the prompt says "Welcome back - create an account to save your watchlist?" He's attended 2 events by now and decides it's worth it. His purchase history is automatically linked to his new account.
 
 **This journey reveals requirements for:**
+
 - Anonymous browsing (no login required to discover)
 - Guest checkout (buy without account)
 - Account creation upsell (at natural moments)
@@ -112,6 +117,7 @@ The support tickets are from a venue manager who can't figure out how to add a s
 By noon, she shifts to proactive data enrichment - checking Facebook pages of non-partner venues and entering their schedules manually to ensure Tiween has comprehensive listings even before formal partnerships.
 
 **This journey reveals requirements for:**
+
 - Admin dashboard (separate from venue dashboard)
 - Venue approval workflow
 - Event flagging and quality checks
@@ -133,6 +139,7 @@ A couple approaches with their phones out. Rami scans the first QR code - green 
 Throughout the evening, Rami scans about 200 tickets. The app tracks everything automatically. When his manager asks how the 8pm show did, Rami can tell him instantly: 187 of 200 tickets scanned, 13 no-shows.
 
 **This journey reveals requirements for:**
+
 - Dedicated scanner app/mode
 - Real-time validation against ticket database
 - Duplicate/reuse detection
@@ -145,14 +152,14 @@ Throughout the evening, Rami scans about 200 tickets. The app tracks everything 
 
 ## Journey Requirements Summary
 
-| Journey | User Type | Key Capabilities Required |
-|---------|-----------|---------------------------|
-| Yasmine | B2C Consumer | Discovery, watchlist, ticketing, PWA |
-| Karim | B2C Regional | Regional filtering, offline mode, cross-region browsing |
-| Mounir | B2B Venue Manager | Venue dashboard, schedule management, analytics, ticketing |
-| Salma | B2B Institution | Multi-space management, bulk operations, advanced reporting |
-| Anonymous | B2C Guest | Guest browsing, guest checkout, account upsell |
-| Nadia | Platform Admin | Admin dashboard, moderation, data quality, support |
-| Rami | Venue Staff | Scanner app, validation, attendance tracking |
+| Journey   | User Type         | Key Capabilities Required                                   |
+| --------- | ----------------- | ----------------------------------------------------------- |
+| Yasmine   | B2C Consumer      | Discovery, watchlist, ticketing, PWA                        |
+| Karim     | B2C Regional      | Regional filtering, offline mode, cross-region browsing     |
+| Mounir    | B2B Venue Manager | Venue dashboard, schedule management, analytics, ticketing  |
+| Salma     | B2B Institution   | Multi-space management, bulk operations, advanced reporting |
+| Anonymous | B2C Guest         | Guest browsing, guest checkout, account upsell              |
+| Nadia     | Platform Admin    | Admin dashboard, moderation, data quality, support          |
+| Rami      | Venue Staff       | Scanner app, validation, attendance tracking                |
 
 ---

@@ -51,6 +51,7 @@ So that users see consistent navigation and content layout across all pages.
 ## Tasks / Subtasks
 
 - [x] **Task 1: Create Header Component** (AC: #1-7)
+
   - [x] 1.1 Create directory structure `src/components/layout/Header/`
   - [x] 1.2 Create Header.tsx with TypeScript props interface
   - [x] 1.3 Display Tiween logo on the left
@@ -65,6 +66,7 @@ So that users see consistent navigation and content layout across all pages.
   - [x] 1.12 Create index.ts for exports
 
 - [x] **Task 2: Create PageContainer Component** (AC: #8-12)
+
   - [x] 2.1 Create directory structure `src/components/layout/PageContainer/`
   - [x] 2.2 Create PageContainer.tsx with TypeScript props interface
   - [x] 2.3 Implement responsive padding (px-4 md:px-6)
@@ -77,6 +79,7 @@ So that users see consistent navigation and content layout across all pages.
   - [x] 2.10 Create index.ts for exports
 
 - [x] **Task 3: Create Storybook Stories** (AC: #13)
+
   - [x] 3.1 Create Header.stories.tsx
   - [x] 3.2 Add Default, WithTitle, WithBackButton, NoLanguageSwitcher, Minimal stories
   - [x] 3.3 Add AllVariants showcase story
@@ -86,6 +89,7 @@ So that users see consistent navigation and content layout across all pages.
   - [x] 3.7 Verify Storybook builds successfully
 
 - [x] **Task 4: RTL Support** (AC: #14)
+
   - [x] 4.1 Use `useLocale()` from next-intl for RTL detection
   - [x] 4.2 Flip back arrow direction (ArrowLeft in LTR, ArrowRight in RTL)
   - [x] 4.3 Add RTLMode story for both components
@@ -134,11 +138,13 @@ export interface PageContainerProps {
 ### Responsive Behavior
 
 Header:
+
 - Fixed height of 48px (h-12)
 - Sticky positioning with z-40
 - Padding: px-4 (16px)
 
 PageContainer:
+
 - Horizontal padding: 16px mobile, 24px tablet+ (px-4 md:px-6)
 - Max width: 1280px default (max-w-screen-xl)
 - Bottom clearance for BottomNav: 64px + safe area inset

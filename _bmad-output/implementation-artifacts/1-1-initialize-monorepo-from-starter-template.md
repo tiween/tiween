@@ -17,6 +17,7 @@ So that I have a solid foundation with Turborepo, TypeScript, and project struct
 1. **Given** the starter template repository is available
    **When** I clone the template and run the initialization commands
    **Then** the monorepo is created with the following structure:
+
    - `apps/client` (renamed from `apps/ui`) - Next.js frontend
    - `apps/strapi` - Strapi v5 backend
    - `packages/shared-types` - Shared TypeScript types
@@ -38,12 +39,14 @@ So that I have a solid foundation with Turborepo, TypeScript, and project struct
 ## Tasks / Subtasks
 
 - [ ] **Task 1: Clone and Initialize Starter Template** (AC: #1)
+
   - [ ] 1.1 Clone `notum-cz/strapi-next-monorepo-starter` to local directory named `tiween`
   - [ ] 1.2 Remove `.git` directory to start fresh
   - [ ] 1.3 Initialize new git repository with `git init`
   - [ ] 1.4 Verify Node.js 22 is active (check `.nvmrc` or create one)
 
 - [ ] **Task 2: Rename and Configure Project Identity** (AC: #6)
+
   - [ ] 2.1 Update root `package.json` with name: "tiween"
   - [ ] 2.2 Rename `apps/ui` directory to `apps/client`
   - [ ] 2.3 Update `apps/client/package.json` name to "@tiween/client"
@@ -52,17 +55,20 @@ So that I have a solid foundation with Turborepo, TypeScript, and project struct
   - [ ] 2.6 Update workspace references in root `package.json`
 
 - [ ] **Task 3: Verify and Configure Turborepo** (AC: #2)
+
   - [ ] 3.1 Verify `turbo.json` exists at root
   - [ ] 3.2 Ensure build pipeline includes: `build`, `dev`, `lint`, `test`
   - [ ] 3.3 Configure outputs for caching (`.next/**`, `dist/**`)
   - [ ] 3.4 Verify dependency graph with `turbo run build --dry-run`
 
 - [ ] **Task 4: Configure Yarn Workspaces** (AC: #3)
+
   - [ ] 4.1 Verify `workspaces` field in root `package.json` includes `apps/*` and `packages/*`
   - [ ] 4.2 Check for `.yarnrc.yml` if using Yarn 2+
   - [ ] 4.3 Run `yarn install` and verify no errors
 
 - [ ] **Task 5: Verify Node.js Configuration** (AC: #4)
+
   - [ ] 5.1 Create or update `.nvmrc` with content: `22`
   - [ ] 5.2 Verify engines field in root `package.json`: `"node": ">=22"`
   - [ ] 5.3 Test with `nvm use` command
@@ -81,16 +87,19 @@ So that I have a solid foundation with Turborepo, TypeScript, and project struct
 ### Critical Implementation Requirements
 
 **STARTER TEMPLATE SOURCE:**
+
 - Repository: `https://github.com/notum-cz/strapi-next-monorepo-starter`
 - Clone command: `git clone https://github.com/notum-cz/strapi-next-monorepo-starter tiween`
 - The template includes pre-configured Strapi v5 + Next.js with Turborepo
 
 **MANDATORY FOLDER RENAME:**
+
 - The starter uses `apps/ui` for the Next.js app
 - MUST rename to `apps/client` per architecture decision
 - Update ALL references in `turbo.json`, `package.json` files, and any imports
 
 **PACKAGE NAMING CONVENTION:**
+
 ```
 Root package: tiween
 apps/client: @tiween/client
@@ -124,6 +133,7 @@ tiween/
 ```
 
 **From [Source: _bmad-output/architecture/starter-template-evaluation.md]:**
+
 - Pre-integrated Strapi v5 + Next.js with Turborepo saves significant setup time
 - Includes shadcn/ui, Tailwind v4, and auth (NextAuth) matching UX spec requirements
 - Docker support compatible with Dokploy deployment target
@@ -131,14 +141,17 @@ tiween/
 ### Technical Requirements
 
 **Node.js Version:**
+
 - MUST use Node.js 22 (specified in `.nvmrc`)
 - Verify with: `node --version` should output `v22.x.x`
 
 **Package Manager:**
+
 - MUST use Yarn (workspaces)
 - The starter template is configured for Yarn
 
 **TypeScript Configuration:**
+
 - Strict mode is mandatory (from project-context.md)
 - No `any` types allowed
 - Shared config in `packages/typescript-config/`
@@ -146,6 +159,7 @@ tiween/
 ### turbo.json Configuration
 
 **Expected structure (from Context7 Turborepo docs):**
+
 ```json
 {
   "$schema": "https://turborepo.com/schema.json",
@@ -170,18 +184,19 @@ tiween/
 
 ### Library/Framework Requirements
 
-| Dependency | Version | Notes |
-|------------|---------|-------|
-| Node.js | 22.x | Required by starter, specified in `.nvmrc` |
-| Yarn | 1.x or 4.x | Workspaces enabled |
-| Turborepo | latest | Monorepo orchestration |
-| Next.js | 15.x+ | Will be upgraded to 16.1 in Story 1.2 |
-| Strapi | v5.x | Document Service API, not Entity Service |
-| TypeScript | strict mode | Shared config in packages/ |
+| Dependency | Version     | Notes                                      |
+| ---------- | ----------- | ------------------------------------------ |
+| Node.js    | 22.x        | Required by starter, specified in `.nvmrc` |
+| Yarn       | 1.x or 4.x  | Workspaces enabled                         |
+| Turborepo  | latest      | Monorepo orchestration                     |
+| Next.js    | 15.x+       | Will be upgraded to 16.1 in Story 1.2      |
+| Strapi     | v5.x        | Document Service API, not Entity Service   |
+| TypeScript | strict mode | Shared config in packages/                 |
 
 ### File Structure Requirements
 
 **Files that MUST exist after completion:**
+
 ```
 tiween/
 ├── package.json          # With workspaces: ["apps/*", "packages/*"]
@@ -205,6 +220,7 @@ tiween/
 ### Testing Requirements
 
 **Verification Commands (must all pass):**
+
 ```bash
 # Install dependencies
 yarn install
@@ -252,4 +268,3 @@ yarn lint
 ### Completion Notes List
 
 ### File List
-
