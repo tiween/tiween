@@ -2,7 +2,6 @@
 
 // Error boundaries must be Client Components - https://nextjs.org/docs/14/app/building-your-application/routing/error-handling
 import { useEffect } from "react"
-import * as Sentry from "@sentry/nextjs"
 import { useTranslations } from "next-intl"
 
 import { isDevelopment } from "@/lib/general-helpers"
@@ -17,7 +16,9 @@ export default function Error({ error, reset }: Props) {
   const t = useTranslations("errors.global")
 
   useEffect(() => {
-    Sentry.captureException(error)
+    // TODO: Re-enable Sentry when Next.js 16 is supported
+    // Sentry.captureException(error)
+    console.error("Page error:", error)
   }, [error])
 
   const handleTryAgain = () => {

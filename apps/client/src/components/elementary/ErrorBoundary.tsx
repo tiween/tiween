@@ -2,7 +2,6 @@
 
 import { useState } from "react"
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons"
-import * as Sentry from "@sentry/nextjs"
 import { XIcon } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { ErrorBoundary as ErrorBoundaryComp } from "react-error-boundary"
@@ -106,7 +105,9 @@ export function ErrorBoundary({
       onError(error, info)
     }
 
-    Sentry.captureException(error)
+    // TODO: Re-enable Sentry when Next.js 16 is supported
+    // Sentry.captureException(error)
+    console.error("Error caught by ErrorBoundary:", error)
   }
 
   return (
