@@ -1,7 +1,7 @@
 # Edit Module - Module Editor Instructions
 
-<critical>The workflow execution engine is governed by: {project-root}/_bmad/core/tasks/workflow.xml</critical>
-<critical>You MUST have already loaded and processed: {project-root}/_bmad/bmb/workflows/edit-module/workflow.yaml</critical>
+<critical>The workflow execution engine is governed by: {project-root}/\_bmad/core/tasks/workflow.xml</critical>
+<critical>You MUST have already loaded and processed: {project-root}/\_bmad/bmb/workflows/edit-module/workflow.yaml</critical>
 <critical>This workflow uses ADAPTIVE FACILITATION - adjust your communication based on context and user needs</critical>
 <critical>The goal is COLLABORATIVE IMPROVEMENT - work WITH the user, not FOR them</critical>
 <critical>Communicate all responses in {communication_language}</critical>
@@ -115,11 +115,13 @@ Let the conversation flow naturally. Build a shared vision of what "better" look
 <action>For each improvement area, facilitate collaboratively:
 
 1. **Explain the current state and why it matters**
+
    - Show relevant sections of the module
    - Explain how it works now and implications
    - Connect to user's goals from step 2
 
 2. **Propose improvements with rationale**
+
    - Suggest specific changes that align with best practices
    - Explain WHY each change helps
    - Provide examples from reference modules: {bmm_module_dir}, {bmb_module_dir}, {cis_module_dir}
@@ -128,6 +130,7 @@ Let the conversation flow naturally. Build a shared vision of what "better" look
    - Reference the structure guide's patterns naturally
 
 3. **Collaborate on the approach**
+
    - Ask if the proposed change addresses their need
    - Invite modifications or alternative approaches
    - Explain tradeoffs when relevant
@@ -186,7 +189,7 @@ Let the conversation flow naturally. Build a shared vision of what "better" look
 **If setting up cross-module integration:**
 
 - Identify which workflows from other modules are needed
-- Show how to reference workflows properly: {project-root}/_bmad/{{module}}/workflows/{{workflow}}/workflow.yaml
+- Show how to reference workflows properly: {project-root}/\_bmad/{{module}}/workflows/{{workflow}}/workflow.yaml
 - Document the integration in README
 - Ensure dependencies are clear
 - Consider adding example usage

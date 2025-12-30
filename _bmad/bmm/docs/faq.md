@@ -331,11 +331,13 @@ Use them together for best results.
 **Recommended Tools:**
 
 - **Claude Code** ⭐ **Best choice**
+
   - Sonnet 4.5 (excellent workflow following, coding, reasoning)
   - Opus (maximum context, complex planning)
   - Native agent mode designed for BMM workflows
 
 - **Cursor**
+
   - Supports Anthropic (Claude) and OpenAI models
   - Agent mode with composer
   - Good for developers who prefer Cursor's UX

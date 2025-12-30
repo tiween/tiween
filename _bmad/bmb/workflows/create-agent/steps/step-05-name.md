@@ -1,23 +1,23 @@
 ---
-name: 'step-05-name'
-description: 'Name the agent based on discovered characteristics'
+name: "step-05-name"
+description: "Name the agent based on discovered characteristics"
 
 # Path Definitions
-workflow_path: '{project-root}/bmb/workflows/create-agent/create-agent'
+workflow_path: "{project-root}/bmb/workflows/create-agent/create-agent"
 
 # File References
-thisStepFile: '{workflow_path}/steps/step-05-name.md'
-nextStepFile: '{workflow_path}/steps/step-06-build.md'
-workflowFile: '{workflow_path}/workflow.md'
+thisStepFile: "{workflow_path}/steps/step-05-name.md"
+nextStepFile: "{workflow_path}/steps/step-06-build.md"
+workflowFile: "{workflow_path}/workflow.md"
 
-agentPlan: '{bmb_creations_output_folder}/agent-plan-{agent_name}.md'
+agentPlan: "{bmb_creations_output_folder}/agent-plan-{agent_name}.md"
 
 # Template References
-identityTemplate: '{workflow_path}/templates/agent-identity.md'
+identityTemplate: "{workflow_path}/templates/agent-identity.md"
 
 # Task References
-advancedElicitationTask: '{project-root}/_bmad/core/tasks/advanced-elicitation.xml'
-partyModeWorkflow: '{project-root}/_bmad/core/workflows/party-mode/workflow.md'
+advancedElicitationTask: "{project-root}/_bmad/core/tasks/advanced-elicitation.xml"
+partyModeWorkflow: "{project-root}/_bmad/core/workflows/party-mode/workflow.md"
 ---
 
 # Step 5: Agent Naming and Identity

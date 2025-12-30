@@ -31,18 +31,21 @@ Generates failing acceptance tests BEFORE implementation following TDD's red-gre
 ### Actions
 
 1. **Read Story Markdown**
+
    - Load story file from `{story_file}` variable
    - Extract acceptance criteria (all testable requirements)
    - Identify affected systems and components
    - Note any technical constraints or dependencies
 
 2. **Load Framework Configuration**
+
    - Read framework config (playwright.config.ts or cypress.config.ts)
    - Identify test directory structure
    - Check existing fixture patterns
    - Note test runner capabilities
 
 3. **Load Existing Test Patterns**
+
    - Search `{test_dir}` for similar tests
    - Identify reusable fixtures and helpers
    - Check data factory patterns
@@ -57,6 +60,7 @@ Generates failing acceptance tests BEFORE implementation following TDD's red-gre
    **Critical:** Consult `{project-root}/_bmad/bmm/testarch/tea-index.csv` to load:
 
    **Core Patterns (Always load):**
+
    - `data-factories.md` - Factory patterns using faker (override patterns, nested factories, API seeding, 498 lines, 5 examples)
    - `component-tdd.md` - Component test strategies (red-green-refactor, provider isolation, accessibility, visual regression, 480 lines, 4 examples)
    - `test-quality.md` - Test design principles (deterministic tests, isolated with cleanup, explicit assertions, length limits, execution time optimization, 658 lines, 5 examples)
@@ -65,6 +69,7 @@ Generates failing acceptance tests BEFORE implementation following TDD's red-gre
    - `timing-debugging.md` - Race condition prevention and async debugging (network-first, deterministic waiting, anti-patterns, 370 lines, 3 examples)
 
    **If `config.tea_use_playwright_utils: true` (All Utilities):**
+
    - `overview.md` - Playwright utils for ATDD patterns
    - `api-request.md` - API test examples with schema validation
    - `network-recorder.md` - HAR record/playback for UI acceptance tests
@@ -77,6 +82,7 @@ Generates failing acceptance tests BEFORE implementation following TDD's red-gre
    - `fixtures-composition.md` - Composing utilities for ATDD
 
    **If `config.tea_use_playwright_utils: false`:**
+
    - `fixture-architecture.md` - Test fixture patterns with auto-cleanup (pure function → fixture → mergeTests composition, 406 lines, 5 examples)
    - `network-first.md` - Route interception patterns (intercept before navigate, HAR capture, deterministic waiting, 489 lines, 5 examples)
 
@@ -93,12 +99,14 @@ Generates failing acceptance tests BEFORE implementation following TDD's red-gre
    Determine mode based on scenario complexity:
 
    **AI Generation Mode (DEFAULT)**:
+
    - Clear acceptance criteria with standard patterns
    - Uses: AI-generated tests from requirements
    - Appropriate for: CRUD, auth, navigation, API tests
    - Fastest approach
 
    **Recording Mode (OPTIONAL - Complex UI)**:
+
    - Complex UI interactions (drag-drop, wizards, multi-page flows)
    - Uses: Interactive test recording with Playwright MCP
    - Appropriate for: Visual workflows, unclear requirements
@@ -107,6 +115,7 @@ Generates failing acceptance tests BEFORE implementation following TDD's red-gre
 2. **AI Generation Mode (DEFAULT - Continue to Step 2)**
 
    For standard scenarios:
+
    - Continue with existing workflow (Step 2: Select Test Levels and Strategy)
    - AI generates tests based on acceptance criteria from Step 1
    - Use knowledge base patterns for test structure
@@ -118,9 +127,11 @@ Generates failing acceptance tests BEFORE implementation following TDD's red-gre
    **A. Check MCP Availability**
 
    If Playwright MCP tools are available in your IDE:
+
    - Use MCP recording mode (Step 3.B)
 
    If MCP unavailable:
+
    - Fallback to AI generation mode (silent, automatic)
    - Continue to Step 2
 
@@ -170,6 +181,7 @@ Generates failing acceptance tests BEFORE implementation following TDD's red-gre
    ```
 
    **When to Use Recording Mode:**
+
    - ✅ Complex UI interactions (drag-drop, multi-step forms, wizards)
    - ✅ Visual workflows (modals, dialogs, animations)
    - ✅ Unclear requirements (exploratory, discovering expected behavior)
@@ -178,6 +190,7 @@ Generates failing acceptance tests BEFORE implementation following TDD's red-gre
    - ❌ NOT for API-only tests (no UI to record)
 
    **When to Use AI Generation (Default):**
+
    - ✅ Clear acceptance criteria available
    - ✅ Standard patterns (login, CRUD, navigation)
    - ✅ Need many tests quickly
@@ -186,6 +199,7 @@ Generates failing acceptance tests BEFORE implementation following TDD's red-gre
 4. **Proceed to Test Level Selection**
 
    After mode selection:
+
    - AI Generation: Continue to Step 2 (Select Test Levels and Strategy)
    - Recording: Skip to Step 4 (Build Data Infrastructure) - tests already generated
 
@@ -198,6 +212,7 @@ Generates failing acceptance tests BEFORE implementation following TDD's red-gre
 1. **Analyze Acceptance Criteria**
 
    For each acceptance criterion, determine:
+
    - Does it require full user journey? → E2E test
    - Does it test business logic/API contract? → API test
    - Does it validate UI component behavior? → Component test
@@ -208,24 +223,28 @@ Generates failing acceptance tests BEFORE implementation following TDD's red-gre
    **Knowledge Base Reference**: `test-levels-framework.md`
 
    **E2E (End-to-End)**:
+
    - Critical user journeys (login, checkout, core workflow)
    - Multi-system integration
    - User-facing acceptance criteria
    - **Characteristics**: High confidence, slow execution, brittle
 
    **API (Integration)**:
+
    - Business logic validation
    - Service contracts
    - Data transformations
    - **Characteristics**: Fast feedback, good balance, stable
 
    **Component**:
+
    - UI component behavior (buttons, forms, modals)
    - Interaction testing
    - Visual regression
    - **Characteristics**: Fast, isolated, granular
 
    **Unit**:
+
    - Pure business logic
    - Edge cases
    - Error handling
@@ -234,6 +253,7 @@ Generates failing acceptance tests BEFORE implementation following TDD's red-gre
 3. **Avoid Duplicate Coverage**
 
    Don't test same behavior at multiple levels unless necessary:
+
    - Use E2E for critical happy path only
    - Use API tests for complex business logic variations
    - Use component tests for UI interaction edge cases
@@ -242,6 +262,7 @@ Generates failing acceptance tests BEFORE implementation following TDD's red-gre
 4. **Prioritize Tests**
 
    If test-design document exists, align with priority levels:
+
    - P0 scenarios → Must cover in failing tests
    - P1 scenarios → Should cover if time permits
    - P2/P3 scenarios → Optional for this iteration
@@ -275,25 +296,28 @@ Generates failing acceptance tests BEFORE implementation following TDD's red-gre
    **Use Given-When-Then format:**
 
    ```typescript
-   import { test, expect } from '@playwright/test';
+   import { expect, test } from "@playwright/test"
 
-   test.describe('User Login', () => {
-     test('should display error for invalid credentials', async ({ page }) => {
+   test.describe("User Login", () => {
+     test("should display error for invalid credentials", async ({ page }) => {
        // GIVEN: User is on login page
-       await page.goto('/login');
+       await page.goto("/login")
 
        // WHEN: User submits invalid credentials
-       await page.fill('[data-testid="email-input"]', 'invalid@example.com');
-       await page.fill('[data-testid="password-input"]', 'wrongpassword');
-       await page.click('[data-testid="login-button"]');
+       await page.fill('[data-testid="email-input"]', "invalid@example.com")
+       await page.fill('[data-testid="password-input"]', "wrongpassword")
+       await page.click('[data-testid="login-button"]')
 
        // THEN: Error message is displayed
-       await expect(page.locator('[data-testid="error-message"]')).toHaveText('Invalid email or password');
-     });
-   });
+       await expect(page.locator('[data-testid="error-message"]')).toHaveText(
+         "Invalid email or password"
+       )
+     })
+   })
    ```
 
    **Critical patterns:**
+
    - One assertion per test (atomic tests)
    - Explicit waits (no hard waits/sleeps)
    - Network-first approach (route interception before navigation)
@@ -305,50 +329,52 @@ Generates failing acceptance tests BEFORE implementation following TDD's red-gre
    **Knowledge Base Reference**: `network-first.md`
 
    ```typescript
-   test('should load user dashboard after login', async ({ page }) => {
+   test("should load user dashboard after login", async ({ page }) => {
      // CRITICAL: Intercept routes BEFORE navigation
-     await page.route('**/api/user', (route) =>
+     await page.route("**/api/user", (route) =>
        route.fulfill({
          status: 200,
-         body: JSON.stringify({ id: 1, name: 'Test User' }),
-       }),
-     );
+         body: JSON.stringify({ id: 1, name: "Test User" }),
+       })
+     )
 
      // NOW navigate
-     await page.goto('/dashboard');
+     await page.goto("/dashboard")
 
-     await expect(page.locator('[data-testid="user-name"]')).toHaveText('Test User');
-   });
+     await expect(page.locator('[data-testid="user-name"]')).toHaveText(
+       "Test User"
+     )
+   })
    ```
 
 4. **Write Failing API Tests (If Applicable)**
 
    ```typescript
-   import { test, expect } from '@playwright/test';
+   import { expect, test } from "@playwright/test"
 
-   test.describe('User API', () => {
-     test('POST /api/users - should create new user', async ({ request }) => {
+   test.describe("User API", () => {
+     test("POST /api/users - should create new user", async ({ request }) => {
        // GIVEN: Valid user data
        const userData = {
-         email: 'newuser@example.com',
-         name: 'New User',
-       };
+         email: "newuser@example.com",
+         name: "New User",
+       }
 
        // WHEN: Creating user via API
-       const response = await request.post('/api/users', {
+       const response = await request.post("/api/users", {
          data: userData,
-       });
+       })
 
        // THEN: User is created successfully
-       expect(response.status()).toBe(201);
-       const body = await response.json();
+       expect(response.status()).toBe(201)
+       const body = await response.json()
        expect(body).toMatchObject({
          email: userData.email,
          name: userData.name,
          id: expect.any(Number),
-       });
-     });
-   });
+       })
+     })
+   })
    ```
 
 5. **Write Failing Component Tests (If Applicable)**
@@ -376,6 +402,7 @@ Generates failing acceptance tests BEFORE implementation following TDD's red-gre
 6. **Verify Tests Fail Initially**
 
    **Critical verification:**
+
    - Run tests locally to confirm they fail
    - Failure should be due to missing implementation, not test errors
    - Failure messages should be clear and actionable
@@ -395,7 +422,7 @@ Generates failing acceptance tests BEFORE implementation following TDD's red-gre
 
    ```typescript
    // tests/support/factories/user.factory.ts
-   import { faker } from '@faker-js/faker';
+   import { faker } from "@faker-js/faker"
 
    export const createUser = (overrides = {}) => ({
      id: faker.number.int(),
@@ -403,12 +430,14 @@ Generates failing acceptance tests BEFORE implementation following TDD's red-gre
      name: faker.person.fullName(),
      createdAt: faker.date.recent().toISOString(),
      ...overrides,
-   });
+   })
 
-   export const createUsers = (count: number) => Array.from({ length: count }, () => createUser());
+   export const createUsers = (count: number) =>
+     Array.from({ length: count }, () => createUser())
    ```
 
    **Factory principles:**
+
    - Use faker for random data (no hardcoded values)
    - Support overrides for specific scenarios
    - Generate complete valid objects
@@ -420,28 +449,29 @@ Generates failing acceptance tests BEFORE implementation following TDD's red-gre
 
    ```typescript
    // tests/support/fixtures/auth.fixture.ts
-   import { test as base } from '@playwright/test';
+   import { test as base } from "@playwright/test"
 
    export const test = base.extend({
      authenticatedUser: async ({ page }, use) => {
        // Setup: Create and authenticate user
-       const user = await createUser();
-       await page.goto('/login');
-       await page.fill('[data-testid="email"]', user.email);
-       await page.fill('[data-testid="password"]', 'password123');
-       await page.click('[data-testid="login-button"]');
-       await page.waitForURL('/dashboard');
+       const user = await createUser()
+       await page.goto("/login")
+       await page.fill('[data-testid="email"]', user.email)
+       await page.fill('[data-testid="password"]', "password123")
+       await page.click('[data-testid="login-button"]')
+       await page.waitForURL("/dashboard")
 
        // Provide to test
-       await use(user);
+       await use(user)
 
        // Cleanup: Delete user
-       await deleteUser(user.id);
+       await deleteUser(user.id)
      },
-   });
+   })
    ```
 
    **Fixture principles:**
+
    - Auto-cleanup (always delete created data)
    - Composable (fixtures can use other fixtures)
    - Isolated (each test gets fresh data)
@@ -580,6 +610,7 @@ Generates failing acceptance tests BEFORE implementation following TDD's red-gre
 1. **Create ATDD Checklist Document**
 
    Use template structure at `{installed_path}/atdd-checklist-template.md`:
+
    - Story summary
    - Acceptance criteria breakdown
    - Test files created (with paths)
@@ -594,6 +625,7 @@ Generates failing acceptance tests BEFORE implementation following TDD's red-gre
 2. **Verify All Tests Fail**
 
    Before finalizing:
+
    - Run full test suite locally
    - Confirm all tests in RED phase
    - Document expected failure messages
@@ -651,12 +683,12 @@ Generates failing acceptance tests BEFORE implementation following TDD's red-gre
 
 ```typescript
 // ✅ CORRECT: Intercept BEFORE navigation
-await page.route('**/api/data', handler);
-await page.goto('/page');
+await page.route("**/api/data", handler)
+await page.goto("/page")
 
 // ❌ WRONG: Navigate then intercept (race condition)
-await page.goto('/page');
-await page.route('**/api/data', handler); // Too late!
+await page.goto("/page")
+await page.route("**/api/data", handler) // Too late!
 ```
 
 ### Data Factory Best Practices
@@ -665,10 +697,10 @@ await page.route('**/api/data', handler); // Too late!
 
 ```typescript
 // ✅ CORRECT: Random data
-email: faker.internet.email();
+email: faker.internet.email()
 
 // ❌ WRONG: Hardcoded data (collisions, maintenance burden)
-email: 'test@example.com';
+email: "test@example.com"
 ```
 
 **Auto-cleanup principle:**
@@ -683,15 +715,17 @@ email: 'test@example.com';
 
 ```typescript
 // ✅ CORRECT: One assertion
-test('should display user name', async ({ page }) => {
-  await expect(page.locator('[data-testid="user-name"]')).toHaveText('John');
-});
+test("should display user name", async ({ page }) => {
+  await expect(page.locator('[data-testid="user-name"]')).toHaveText("John")
+})
 
 // ❌ WRONG: Multiple assertions (not atomic)
-test('should display user info', async ({ page }) => {
-  await expect(page.locator('[data-testid="user-name"]')).toHaveText('John');
-  await expect(page.locator('[data-testid="user-email"]')).toHaveText('john@example.com');
-});
+test("should display user info", async ({ page }) => {
+  await expect(page.locator('[data-testid="user-name"]')).toHaveText("John")
+  await expect(page.locator('[data-testid="user-email"]')).toHaveText(
+    "john@example.com"
+  )
+})
 ```
 
 **Why?** If second assertion fails, you don't know if first is still valid.

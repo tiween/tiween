@@ -1,11 +1,11 @@
 ---
-installed_path: '{project-root}/_bmad/bmb/workflows/create-module'
-nextStepFile: '{installed_path}/steps/step-07-workflows.md'
-modulePlanFile: '{bmb_creations_output_folder}/{module_name}/module-plan-{module_name}.md'
-agentTemplate: '{installed_path}/templates/agent.template.md'
-agent_examples_path: '{project-root}/bmb/reference/agents/module-examples'
-advancedElicitationTask: '{project-root}/_bmad/core/tasks/advanced-elicitation.xml'
-partyModeWorkflow: '{project-root}/_bmad/core/workflows/party-mode/workflow.md'
+installed_path: "{project-root}/_bmad/bmb/workflows/create-module"
+nextStepFile: "{installed_path}/steps/step-07-workflows.md"
+modulePlanFile: "{bmb_creations_output_folder}/{module_name}/module-plan-{module_name}.md"
+agentTemplate: "{installed_path}/templates/agent.template.md"
+agent_examples_path: "{project-root}/bmb/reference/agents/module-examples"
+advancedElicitationTask: "{project-root}/_bmad/core/tasks/advanced-elicitation.xml"
+partyModeWorkflow: "{project-root}/_bmad/core/workflows/party-mode/workflow.md"
 ---
 
 # Step 6: Create Module Agents
@@ -147,29 +147,29 @@ Create hybrid agent file with only needed sections:
 ```yaml
 agent:
   metadata:
-    name: '[Agent Name]'
-    title: '[Agent Title]'
-    icon: '[Icon]'
-    module: '{module_code}'
+    name: "[Agent Name]"
+    title: "[Agent Title]"
+    icon: "[Icon]"
+    module: "{module_code}"
   persona:
-    role: '[Agent Role]'
+    role: "[Agent Role]"
     identity: |
       [Multi-line identity description]
     communication_style: |
       [Multi-line communication style]
     principles:
-      - '[Principle 1]'
-      - '[Principle 2]'
-      - '[Principle 3]'
+      - "[Principle 1]"
+      - "[Principle 2]"
+      - "[Principle 3]"
 
   # Only include if agent needs memory/persistence
   critical_actions:
-    - 'Load COMPLETE file ./[agent-name]-sidecar/memories.md and integrate all past interactions'
-    - 'ONLY read/write files in ./[agent-name]-sidecar/ - this is our private workspace'
+    - "Load COMPLETE file ./[agent-name]-sidecar/memories.md and integrate all past interactions"
+    - "ONLY read/write files in ./[agent-name]-sidecar/ - this is our private workspace"
 
   # Only include if agent has embedded prompts
   prompts:
-    - id: '[prompt-name]'
+    - id: "[prompt-name]"
       content: |
         <instructions>
         [How to use this prompt]
@@ -179,11 +179,11 @@ agent:
 
   menu:
     # Always include
-    - multi: '[CH] Chat with agent or [SPM] Start Party Mode'
+    - multi: "[CH] Chat with agent or [SPM] Start Party Mode"
       triggers:
         - party-mode:
           input: SPM
-          route: '{project-root}/_bmad/core/workflows/edit-agent/workflow.md'
+          route: "{project-root}/_bmad/core/workflows/edit-agent/workflow.md"
           type: exec
         - expert-chat:
           input: CH
@@ -191,26 +191,26 @@ agent:
           type: action
 
     # Group related functions
-    - multi: '[PF] Primary Function [QF] Quick Task'
+    - multi: "[PF] Primary Function [QF] Quick Task"
       triggers:
         - primary-function:
           input: PF
-          action: '#[prompt-id]'
+          action: "#[prompt-id]"
           type: action
         - quick-task:
           input: QF
-          route: '#[prompt-id]'
+          route: "#[prompt-id]"
           type: exec
 
     # Workflow only for complex processes
-    - trigger: 'complex-process'
-      route: '{project-root}/_bmad/{custom_module}/workflows/[workflow]/workflow.md'
-      description: 'Complex process [icon]'
+    - trigger: "complex-process"
+      route: "{project-root}/_bmad/{custom_module}/workflows/[workflow]/workflow.md"
+      description: "Complex process [icon]"
 
     # Quick inline actions
-    - trigger: 'save-item'
-      action: 'Save to ./[agent-name]-sidecar/file.md'
-      description: 'Save item 💾'
+    - trigger: "save-item"
+      action: "Save to ./[agent-name]-sidecar/file.md"
+      description: "Save item 💾"
 ```
 
 #### 3.4 Create Supporting Structure

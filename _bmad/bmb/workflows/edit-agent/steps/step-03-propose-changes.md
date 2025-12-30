@@ -1,22 +1,22 @@
 ---
-name: 'step-03-propose-changes'
-description: 'Propose specific changes and get approval'
+name: "step-03-propose-changes"
+description: "Propose specific changes and get approval"
 
 # Path Definitions
-workflow_path: '{project-root}/bmb/workflows/create-agent/edit-agent'
+workflow_path: "{project-root}/bmb/workflows/create-agent/edit-agent"
 
 # File References
-thisStepFile: '{workflow_path}/steps/step-03-propose-changes.md'
-nextStepFile: '{workflow_path}/steps/step-04-apply-changes.md'
-agentFile: '{{agent_path}}'
+thisStepFile: "{workflow_path}/steps/step-03-propose-changes.md"
+nextStepFile: "{workflow_path}/steps/step-04-apply-changes.md"
+agentFile: "{{agent_path}}"
 
 # Task References
-advancedElicitationTask: '{project-root}/_bmad/core/tasks/advanced-elicitation.xml'
-partyModeWorkflow: '{project-root}/_bmad/core/workflows/party-mode/workflow.md'
+advancedElicitationTask: "{project-root}/_bmad/core/tasks/advanced-elicitation.xml"
+partyModeWorkflow: "{project-root}/_bmad/core/workflows/party-mode/workflow.md"
 
 # Documentation References (load JIT if needed)
-communication_presets: '{project-root}/_bmad/bmb/workflows/create-agent/data/communication-presets.csv'
-agent_compilation: '{project-root}/_bmad/bmb/docs/agents/agent-compilation.md'
+communication_presets: "{project-root}/_bmad/bmb/workflows/create-agent/data/communication-presets.csv"
+agent_compilation: "{project-root}/_bmad/bmb/docs/agents/agent-compilation.md"
 ---
 
 # Step 3: Propose Changes

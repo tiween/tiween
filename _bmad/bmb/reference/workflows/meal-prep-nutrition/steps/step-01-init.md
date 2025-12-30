@@ -1,17 +1,17 @@
 ---
-name: 'step-01-init'
-description: 'Initialize the nutrition plan workflow by detecting continuation state and creating output document'
+name: "step-01-init"
+description: "Initialize the nutrition plan workflow by detecting continuation state and creating output document"
 
 # Path Definitions
-workflow_path: '{project-root}/_bmad/bmb/reference/workflows/meal-prep-nutrition'
+workflow_path: "{project-root}/_bmad/bmb/reference/workflows/meal-prep-nutrition"
 
 # File References
-thisStepFile: '{workflow_path}/steps/step-01-init.md'
-nextStepFile: '{workflow_path}/steps/step-02-profile.md'
-workflowFile: '{workflow_path}/workflow.md'
-outputFile: '{output_folder}/nutrition-plan-{project_name}.md'
-templateFile: '{workflow_path}/templates/nutrition-plan.md'
-continueFile: '{workflow_path}/steps/step-01b-continue.md'
+thisStepFile: "{workflow_path}/steps/step-01-init.md"
+nextStepFile: "{workflow_path}/steps/step-02-profile.md"
+workflowFile: "{workflow_path}/workflow.md"
+outputFile: "{output_folder}/nutrition-plan-{project_name}.md"
+templateFile: "{workflow_path}/templates/nutrition-plan.md"
+continueFile: "{workflow_path}/steps/step-01b-continue.md"
 # Template References
 # This step doesn't use content templates, only the main template
 ---
@@ -109,7 +109,7 @@ Initialize frontmatter with:
 ```yaml
 ---
 stepsCompleted: [1]
-lastStep: 'init'
+lastStep: "init"
 inputDocuments: []
 date: [current date]
 user_name: { user_name }

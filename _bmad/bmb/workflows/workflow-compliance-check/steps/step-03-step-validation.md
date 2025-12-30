@@ -1,23 +1,23 @@
 ---
-name: 'step-03-step-validation'
-description: 'Validate each step file against step-template.md standards'
+name: "step-03-step-validation"
+description: "Validate each step file against step-template.md standards"
 
 # Path Definitions
-workflow_path: '{project-root}/_bmad/bmb/workflows/workflow-compliance-check'
+workflow_path: "{project-root}/_bmad/bmb/workflows/workflow-compliance-check"
 
 # File References
-thisStepFile: '{workflow_path}/steps/step-03-step-validation.md'
-nextStepFile: '{workflow_path}/steps/step-04-file-validation.md'
-workflowFile: '{workflow_path}/workflow.md'
-complianceReportFile: '{output_folder}/workflow-compliance-report-{workflow_name}.md'
-targetWorkflowStepsPath: '{target_workflow_steps_path}'
+thisStepFile: "{workflow_path}/steps/step-03-step-validation.md"
+nextStepFile: "{workflow_path}/steps/step-04-file-validation.md"
+workflowFile: "{workflow_path}/workflow.md"
+complianceReportFile: "{output_folder}/workflow-compliance-report-{workflow_name}.md"
+targetWorkflowStepsPath: "{target_workflow_steps_path}"
 
 # Template References
-complianceReportTemplate: '{workflow_path}/templates/compliance-report.md'
+complianceReportTemplate: "{workflow_path}/templates/compliance-report.md"
 
 # Documentation References
-stepTemplate: '{project-root}/_bmad/bmb/docs/workflows/templates/step-template.md'
-workflowTemplate: '{project-root}/_bmad/bmb/docs/workflows/templates/workflow-template.md'
+stepTemplate: "{project-root}/_bmad/bmb/docs/workflows/templates/step-template.md"
+workflowTemplate: "{project-root}/_bmad/bmb/docs/workflows/templates/workflow-template.md"
 ---
 
 # Step 3: Step-by-Step Validation
@@ -87,9 +87,9 @@ Check each required field:
 
 ```yaml
 ---
-name: 'step-[number]-[name]' # Single quotes, proper format
-description: '[description]' # Single quotes
-workflowFile: '{workflow_path}/workflow.md' # REQUIRED - often missing
+name: "step-[number]-[name]" # Single quotes, proper format
+description: "[description]" # Single quotes
+workflowFile: "{workflow_path}/workflow.md" # REQUIRED - often missing
 outputFile: [if appropriate for workflow type]
 # All other path references and variables
 # Template References section (even if empty)
@@ -138,8 +138,8 @@ Check for proper references:
 
 ```yaml
 # Task References
-advancedElicitationTask: '{project-root}/_bmad/core/tasks/advanced-elicitation.xml'
-partyModeWorkflow: '{project-root}/_bmad/core/workflows/party-mode/workflow.md'
+advancedElicitationTask: "{project-root}/_bmad/core/tasks/advanced-elicitation.xml"
+partyModeWorkflow: "{project-root}/_bmad/core/workflows/party-mode/workflow.md"
 ```
 
 **Violations to document:**

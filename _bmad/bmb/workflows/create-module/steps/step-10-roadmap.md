@@ -1,10 +1,10 @@
 ---
-installed_path: '{project-root}/_bmad/bmb/workflows/create-module'
-nextStepFile: '{installed_path}/steps/step-11-validate.md'
-modulePlanFile: '{bmb_creations_output_folder}/{module_name}/module-plan-{module_name}.md'
-moduleTodoFile: '{bmb_creations_output_folder}/{module_name}/TODO.md'
-advancedElicitationTask: '{project-root}/_bmad/core/tasks/advanced-elicitation.xml'
-partyModeWorkflow: '{project-root}/_bmad/core/workflows/party-mode/workflow.md'
+installed_path: "{project-root}/_bmad/bmb/workflows/create-module"
+nextStepFile: "{installed_path}/steps/step-11-validate.md"
+modulePlanFile: "{bmb_creations_output_folder}/{module_name}/module-plan-{module_name}.md"
+moduleTodoFile: "{bmb_creations_output_folder}/{module_name}/TODO.md"
+advancedElicitationTask: "{project-root}/_bmad/core/tasks/advanced-elicitation.xml"
+partyModeWorkflow: "{project-root}/_bmad/core/workflows/party-mode/workflow.md"
 ---
 
 # Step 10: Generate Development Roadmap
@@ -85,6 +85,7 @@ Create file: {bmb_creations_output_folder}/{module_name}/TODO.md
 ### Agents
 
 - [ ] Implement [Agent 1 Name]
+
   - Use: `workflow create-agent`
   - Reference: module-plan.md for requirements
   - Priority: High
@@ -97,6 +98,7 @@ Create file: {bmb_creations_output_folder}/{module_name}/TODO.md
 ### Workflows
 
 - [ ] Implement [Workflow 1 Name]
+
   - Use: `workflow create-workflow`
   - Input: workflows/[workflow-1]/workflow-plan.md
   - Priority: High
@@ -117,6 +119,7 @@ Create file: {bmb_creations_output_folder}/{module_name}/TODO.md
 ### Additional Components
 
 - [ ] [Additional Agent 1]
+
   - Priority: Medium
 
 - [ ] [Additional Workflow 1]

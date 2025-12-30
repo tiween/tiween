@@ -50,11 +50,13 @@ This workflow performs comprehensive test quality reviews using TEA's knowledge 
 **Actions:**
 
 1. Check playwright-utils flag:
+
    - Read `{config_source}` and check `config.tea_use_playwright_utils`
 
 2. Load relevant knowledge fragments from `{project-root}/_bmad/bmm/testarch/tea-index.csv`:
 
    **Core Patterns (Always load):**
+
    - `test-quality.md` - Definition of Done (deterministic tests, isolated with cleanup, explicit assertions, <300 lines, <1.5 min, 658 lines, 5 examples)
    - `data-factories.md` - Factory functions with faker: overrides, nested factories, API-first setup (498 lines, 5 examples)
    - `test-levels-framework.md` - E2E vs API vs Component vs Unit appropriateness with decision matrix (467 lines, 4 examples)
@@ -64,6 +66,7 @@ This workflow performs comprehensive test quality reviews using TEA's knowledge 
    - `timing-debugging.md` - Race condition prevention and async debugging techniques (370 lines, 3 examples)
 
    **If `config.tea_use_playwright_utils: true` (All Utilities):**
+
    - `overview.md` - Playwright utils best practices
    - `api-request.md` - Validate apiRequest usage patterns
    - `network-recorder.md` - Review HAR record/playback implementation
@@ -77,6 +80,7 @@ This workflow performs comprehensive test quality reviews using TEA's knowledge 
    - `fixtures-composition.md` - Validate mergeTests usage
 
    **If `config.tea_use_playwright_utils: false`:**
+
    - `fixture-architecture.md` - Pure function → Fixture → mergeTests composition with auto-cleanup (406 lines, 5 examples)
    - `network-first.md` - Route intercept before navigate to prevent race conditions (489 lines, 5 examples)
    - `playwright-config.md` - Environment-based configuration with fail-fast validation (722 lines, 5 examples)
@@ -84,11 +88,13 @@ This workflow performs comprehensive test quality reviews using TEA's knowledge 
    - `ci-burn-in.md` - Flaky test detection with 10-iteration burn-in loop (678 lines, 4 examples)
 
 3. Determine review scope:
+
    - **single**: Review one test file (`test_file_path` provided)
    - **directory**: Review all tests in directory (`test_dir` provided)
    - **suite**: Review entire test suite (discover all test files)
 
 4. Auto-discover related artifacts (if `auto_discover_story: true`):
+
    - Extract test ID from filename (e.g., `1.3-E2E-001.spec.ts` → story 1.3)
    - Search for story file (`story-1.3.md`)
    - Search for test design (`test-design-story-1.3.md` or `test-design-epic-1.md`)
@@ -107,11 +113,13 @@ This workflow performs comprehensive test quality reviews using TEA's knowledge 
 **Actions:**
 
 1. **Discover test files** based on scope:
+
    - **single**: Use `test_file_path` variable
    - **directory**: Use `glob` to find all test files in `test_dir` (e.g., `*.spec.ts`, `*.test.js`)
    - **suite**: Use `glob` to find all test files recursively from project root
 
 2. **Parse test file metadata**:
+
    - File path and name
    - File size (warn if >15 KB or >300 lines)
    - Test framework detected (Playwright, Jest, Cypress, Vitest, etc.)
@@ -119,6 +127,7 @@ This workflow performs comprehensive test quality reviews using TEA's knowledge 
    - Test structure (describe/context/it blocks)
 
 3. **Extract test structure**:
+
    - Count of describe blocks (test suites)
    - Count of it/test blocks (individual tests)
    - Test IDs (if present, e.g., `test.describe('1.3-E2E-001')`)
@@ -335,6 +344,7 @@ For each test file, validate against quality criteria (configurable via workflow
 **Actions:**
 
 1. **Count violations** by severity:
+
    - **Critical (P0)**: Hard waits without justification, no assertions, race conditions, shared state
    - **High (P1)**: Missing test IDs, no BDD structure, hardcoded data, missing fixtures
    - **Medium (P2)**: Long test files (>300 lines), missing priorities, some conditionals
@@ -379,23 +389,27 @@ Quality Score: max(0, min(100, Starting Score - Violations + Bonus))
 1. **Create review report** using `test-review-template.md`:
 
    **Header Section:**
+
    - Test file(s) reviewed
    - Review date
    - Review scope (single/directory/suite)
    - Quality score and grade
 
    **Executive Summary:**
+
    - Overall assessment (Excellent/Good/Needs Improvement/Critical)
    - Key strengths
    - Key weaknesses
    - Recommendation (Approve/Approve with comments/Request changes)
 
    **Quality Criteria Assessment:**
+
    - Table with all criteria evaluated
    - Status for each (PASS/WARN/FAIL)
    - Violation count per criterion
 
    **Critical Issues (Must Fix):**
+
    - Priority P0/P1 violations
    - Code location (file:line)
    - Explanation of issue
@@ -403,6 +417,7 @@ Quality Score: max(0, min(100, Starting Score - Violations + Bonus))
    - Knowledge base reference
 
    **Recommendations (Should Fix):**
+
    - Priority P2/P3 violations
    - Code location (file:line)
    - Explanation of issue
@@ -410,20 +425,24 @@ Quality Score: max(0, min(100, Starting Score - Violations + Bonus))
    - Knowledge base reference
 
    **Best Practices Examples:**
+
    - Highlight good patterns found in tests
    - Reference knowledge base fragments
    - Provide examples for others to follow
 
    **Knowledge Base References:**
+
    - List all fragments consulted
    - Provide links to detailed guidance
 
 2. **Generate inline comments** (if `generate_inline_comments: true`):
+
    - Add TODO comments in test files at violation locations
    - Format: `// TODO (TEA Review): [Issue description] - See test-review-{filename}.md`
    - Never modify test logic, only add comments
 
 3. **Generate quality badge** (if `generate_quality_badge: true`):
+
    - Create badge with quality score (e.g., "Test Quality: 87/100 (A)")
    - Format for inclusion in README or documentation
 
@@ -511,11 +530,13 @@ Overall, the test demonstrates good structure and coverage of the login flow. Ho
 
 ```typescript
 // ❌ Bad (current)
-await page.waitForTimeout(2000);
-await expect(page.locator('[data-testid="user-menu"]')).toBeVisible();
+await page.waitForTimeout(2000)
+await expect(page.locator('[data-testid="user-menu"]')).toBeVisible()
 
 // ✅ Good (recommended)
-await expect(page.locator('[data-testid="user-menu"]')).toBeVisible({ timeout: 10000 });
+await expect(page.locator('[data-testid="user-menu"]')).toBeVisible({
+  timeout: 10000,
+})
 ```
 ````
 
@@ -530,10 +551,10 @@ await expect(page.locator('[data-testid="user-menu"]')).toBeVisible({ timeout: 1
 
 ```typescript
 // ✅ Good (recommended)
-import { createTestUser } from './factories/user-factory';
+import { createTestUser } from "./factories/user-factory"
 
-const testUser = createTestUser({ role: 'admin' });
-await loginPage.login(testUser.email, testUser.password);
+const testUser = createTestUser({ role: "admin" })
+await loginPage.login(testUser.email, testUser.password)
 ```
 
 ### 2. Extract Login Setup to Fixture (Lines 18-28)
@@ -547,15 +568,15 @@ await loginPage.login(testUser.email, testUser.password);
 // ✅ Good (recommended)
 const test = base.extend({
   authenticatedPage: async ({ page }, use) => {
-    const user = createTestUser();
-    await loginPage.login(user.email, user.password);
-    await use(page);
+    const user = createTestUser()
+    await loginPage.login(user.email, user.password)
+    await use(page)
   },
-});
+})
 
-test('user can access dashboard', async ({ authenticatedPage }) => {
+test("user can access dashboard", async ({ authenticatedPage }) => {
   // Test starts already logged in
-});
+})
 ```
 
 ## Quality Score Breakdown

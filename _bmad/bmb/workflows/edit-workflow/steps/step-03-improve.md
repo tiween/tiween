@@ -1,22 +1,22 @@
 ---
-name: 'step-03-improve'
-description: 'Facilitate collaborative improvements to the workflow'
+name: "step-03-improve"
+description: "Facilitate collaborative improvements to the workflow"
 
 # Path Definitions
-workflow_path: '{project-root}/_bmad/bmb/workflows/edit-workflow'
+workflow_path: "{project-root}/_bmad/bmb/workflows/edit-workflow"
 
 # File References
-thisStepFile: '{workflow_path}/steps/step-03-improve.md'
-nextStepFile: '{workflow_path}/steps/step-04-validate.md'
-workflowFile: '{workflow_path}/workflow.md'
-outputFile: '{output_folder}/workflow-edit-{target_workflow_name}.md'
+thisStepFile: "{workflow_path}/steps/step-03-improve.md"
+nextStepFile: "{workflow_path}/steps/step-04-validate.md"
+workflowFile: "{workflow_path}/workflow.md"
+outputFile: "{output_folder}/workflow-edit-{target_workflow_name}.md"
 
 # Task References
-advancedElicitationTask: '{project-root}/_bmad/core/tasks/advanced-elicitation.xml'
-partyModeWorkflow: '{project-root}/_bmad/core/workflows/party-mode/workflow.md'
+advancedElicitationTask: "{project-root}/_bmad/core/tasks/advanced-elicitation.xml"
+partyModeWorkflow: "{project-root}/_bmad/core/workflows/party-mode/workflow.md"
 
 # Template References
-improvementLogTemplate: '{workflow_path}/templates/improvement-log.md'
+improvementLogTemplate: "{workflow_path}/templates/improvement-log.md"
 ---
 
 # Step 3: Collaborative Improvement

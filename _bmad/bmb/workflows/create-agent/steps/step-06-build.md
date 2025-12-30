@@ -1,24 +1,24 @@
 ---
-name: 'step-06-build'
-description: 'Generate complete YAML incorporating all discovered elements'
+name: "step-06-build"
+description: "Generate complete YAML incorporating all discovered elements"
 
 # Path Definitions
-workflow_path: '{project-root}/bmb/workflows/create-agent/create-agent'
+workflow_path: "{project-root}/bmb/workflows/create-agent/create-agent"
 
 # File References
-thisStepFile: '{workflow_path}/steps/step-06-build.md'
-nextStepFile: '{workflow_path}/steps/step-07-validate.md'
-workflowFile: '{workflow_path}/workflow.md'
-agentPlan: '{bmb_creations_output_folder}/agent-plan-{agent_name}.md'
-agentBuildOutput: '{bmb_creations_output_folder}/{agent-name}'
+thisStepFile: "{workflow_path}/steps/step-06-build.md"
+nextStepFile: "{workflow_path}/steps/step-07-validate.md"
+workflowFile: "{workflow_path}/workflow.md"
+agentPlan: "{bmb_creations_output_folder}/agent-plan-{agent_name}.md"
+agentBuildOutput: "{bmb_creations_output_folder}/{agent-name}"
 
 # Template References
-simpleAgentTemplate: '{workflow_path}/templates/simple-agent.template.md'
-expertAgentTemplate: '{workflow_path}/templates/expert-agent.template.md'
+simpleAgentTemplate: "{workflow_path}/templates/simple-agent.template.md"
+expertAgentTemplate: "{workflow_path}/templates/expert-agent.template.md"
 
 # Task References
-advancedElicitationTask: '{project-root}/_bmad/core/tasks/advanced-elicitation.xml'
-partyModeWorkflow: '{project-root}/_bmad/core/workflows/party-mode/workflow.md'
+advancedElicitationTask: "{project-root}/_bmad/core/tasks/advanced-elicitation.xml"
+partyModeWorkflow: "{project-root}/_bmad/core/workflows/party-mode/workflow.md"
 ---
 
 # Step 6: Build Complete Agent YAML

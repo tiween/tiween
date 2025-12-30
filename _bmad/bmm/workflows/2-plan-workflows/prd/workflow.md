@@ -1,7 +1,7 @@
 ---
 name: create-prd
 description: Creates a comprehensive PRD through collaborative step-by-step discovery between two product managers working as peers.
-main_config: '{project-root}/_bmad/bmm/config.yaml'
+main_config: "{project-root}/_bmad/bmm/config.yaml"
 web_bundle: true
 ---
 
@@ -52,7 +52,7 @@ This uses **step-file architecture** for disciplined execution:
 
 Load and read full config from {main_config} and resolve:
 
-- `project_name`, `output_folder`, `user_name`
+- `project_name`, `output_folder`, `planning_artifacts`, `user_name`
 - `communication_language`, `document_output_language`, `user_skill_level`
 - `date` as system-generated current datetime
 

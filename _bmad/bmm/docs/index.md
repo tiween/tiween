@@ -25,12 +25,14 @@ Complete guides for the BMad Method Module (BMM) - AI-powered agile development 
 Understanding how BMM adapts to your needs:
 
 - **[Scale Adaptive System](./scale-adaptive-system.md)** - How BMM adapts to project size and complexity
+
   - Three planning tracks (Quick Flow, BMad Method, Enterprise Method)
   - Automatic track recommendation
   - Documentation requirements per track
   - Planning workflow routing
 
 - **[BMAD Quick Flow](./bmad-quick-flow.md)** - Fast-track development workflow
+
   - 3-step process: spec → dev → optional review
   - Perfect for bug fixes and small features
   - Rapid prototyping with production quality
@@ -48,6 +50,7 @@ Understanding how BMM adapts to your needs:
 Complete guide to BMM's AI agent team:
 
 - **[Agents Guide](./agents-guide.md)** - Comprehensive agent reference
+
   - 12 specialized BMM agents + BMad Master
   - Agent roles, workflows, and when to use them
   - Agent customization system
@@ -104,22 +107,26 @@ Essential reference materials:
 Comprehensive documentation for all BMM workflows organized by phase:
 
 - **[Phase 1: Analysis Workflows](./workflows-analysis.md)** - Optional exploration and research workflows (595 lines)
+
   - brainstorm-project, product-brief, research, and more
   - When to use analysis workflows
   - Creative and strategic tools
 
 - **[Phase 2: Planning Workflows](./workflows-planning.md)** - Scale-adaptive planning (967 lines)
+
   - prd, tech-spec, gdd, narrative, ux
   - Track-based planning approach (Quick Flow, BMad Method, Enterprise Method)
   - Which planning workflow to use
 
 - **[Phase 3: Solutioning Workflows](./workflows-solutioning.md)** - Architecture and validation (638 lines)
+
   - architecture, create-epics-and-stories, implementation-readiness
   - V6: Epics created AFTER architecture for better quality
   - Required for BMad Method and Enterprise Method tracks
   - Preventing agent conflicts
 
 - **[Phase 4: Implementation Workflows](./workflows-implementation.md)** - Sprint-based development (1,634 lines)
+
   - sprint-planning, create-story, dev-story, code-review
   - Complete story lifecycle
   - One-story-at-a-time discipline
@@ -136,6 +143,7 @@ Comprehensive documentation for all BMM workflows organized by phase:
 For detailed technical documentation on specific complex workflows:
 
 - **[Document Project Workflow Reference](./workflow-document-project-reference.md)** - Technical deep-dive (445 lines)
+
   - v1.2.0 context-safe architecture
   - Scan levels, resumability, write-as-you-go
   - Multi-part project detection

@@ -118,6 +118,7 @@ Step 12: Final review and update workflow status
 ## Expected Inputs
 
 - **PRD** (Product Requirements Document) with:
+
   - Functional Requirements
   - Non-Functional Requirements
   - Performance and compliance needs

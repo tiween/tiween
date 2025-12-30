@@ -1,26 +1,26 @@
 ---
-name: 'step-03-assessment'
-description: 'Analyze nutritional requirements, identify restrictions, and calculate target macros'
+name: "step-03-assessment"
+description: "Analyze nutritional requirements, identify restrictions, and calculate target macros"
 
 # Path Definitions
-workflow_path: '{project-root}/_bmad/bmb/reference/workflows/meal-prep-nutrition'
+workflow_path: "{project-root}/_bmad/bmb/reference/workflows/meal-prep-nutrition"
 
 # File References
-thisStepFile: '{workflow_path}/steps/step-03-assessment.md'
-nextStepFile: '{workflow_path}/steps/step-04-strategy.md'
-workflowFile: '{workflow_path}/workflow.md'
-outputFile: '{output_folder}/nutrition-plan-{project_name}.md'
+thisStepFile: "{workflow_path}/steps/step-03-assessment.md"
+nextStepFile: "{workflow_path}/steps/step-04-strategy.md"
+workflowFile: "{workflow_path}/workflow.md"
+outputFile: "{output_folder}/nutrition-plan-{project_name}.md"
 
 # Task References
-advancedElicitationTask: '{project-root}/_bmad/core/tasks/advanced-elicitation.xml'
-partyModeWorkflow: '{project-root}/_bmad/core/workflows/party-mode/workflow.md'
+advancedElicitationTask: "{project-root}/_bmad/core/tasks/advanced-elicitation.xml"
+partyModeWorkflow: "{project-root}/_bmad/core/workflows/party-mode/workflow.md"
 
 # Data References
-dietaryRestrictionsDB: '{workflow_path}/data/dietary-restrictions.csv'
-macroCalculatorDB: '{workflow_path}/data/macro-calculator.csv'
+dietaryRestrictionsDB: "{workflow_path}/data/dietary-restrictions.csv"
+macroCalculatorDB: "{workflow_path}/data/macro-calculator.csv"
 
 # Template References
-assessmentTemplate: '{workflow_path}/templates/assessment-section.md'
+assessmentTemplate: "{workflow_path}/templates/assessment-section.md"
 ---
 
 # Step 3: Dietary Needs & Restrictions Assessment

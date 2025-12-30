@@ -1,22 +1,22 @@
 ---
-name: 'step-02-discover'
-description: 'Discover improvement goals collaboratively'
+name: "step-02-discover"
+description: "Discover improvement goals collaboratively"
 
 # Path Definitions
-workflow_path: '{project-root}/_bmad/bmb/workflows/edit-workflow'
+workflow_path: "{project-root}/_bmad/bmb/workflows/edit-workflow"
 
 # File References
-thisStepFile: '{workflow_path}/steps/step-02-discover.md'
-nextStepFile: '{workflow_path}/steps/step-03-improve.md'
-workflowFile: '{workflow_path}/workflow.md'
-outputFile: '{output_folder}/workflow-edit-{target_workflow_name}.md'
+thisStepFile: "{workflow_path}/steps/step-02-discover.md"
+nextStepFile: "{workflow_path}/steps/step-03-improve.md"
+workflowFile: "{workflow_path}/workflow.md"
+outputFile: "{output_folder}/workflow-edit-{target_workflow_name}.md"
 
 # Task References
-advancedElicitationTask: '{project-root}/_bmad/core/tasks/advanced-elicitation.xml'
-partyModeWorkflow: '{project-root}/_bmad/core/workflows/party-mode/workflow.md'
+advancedElicitationTask: "{project-root}/_bmad/core/tasks/advanced-elicitation.xml"
+partyModeWorkflow: "{project-root}/_bmad/core/workflows/party-mode/workflow.md"
 
 # Template References
-goalsTemplate: '{workflow_path}/templates/improvement-goals.md'
+goalsTemplate: "{workflow_path}/templates/improvement-goals.md"
 ---
 
 # Step 2: Discover Improvement Goals

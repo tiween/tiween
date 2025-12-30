@@ -67,6 +67,7 @@ This phase focuses on mapping requirements to tests, analyzing coverage, and ide
 **Actions:**
 
 1. Load relevant knowledge fragments from `{project-root}/_bmad/bmm/testarch/tea-index.csv`:
+
    - `test-priorities-matrix.md` - P0/P1/P2/P3 risk framework with automated priority calculation, risk-based mapping, tagging strategy (389 lines, 2 examples)
    - `risk-governance.md` - Risk-based testing approach: 6 categories (TECH, SEC, PERF, DATA, BUS, OPS), automated scoring, gate decision engine, coverage traceability (625 lines, 4 examples)
    - `probability-impact.md` - Risk scoring methodology: probability × impact matrix, automated classification, dynamic re-assessment, gate integration (604 lines, 4 examples)
@@ -74,6 +75,7 @@ This phase focuses on mapping requirements to tests, analyzing coverage, and ide
    - `selective-testing.md` - Duplicate coverage patterns: tag-based, spec filters, diff-based selection, promotion rules (727 lines, 4 examples)
 
 2. Read story file (if provided):
+
    - Extract acceptance criteria
    - Identify story ID (e.g., 1.3)
    - Note any existing test design or priority information
@@ -92,12 +94,14 @@ This phase focuses on mapping requirements to tests, analyzing coverage, and ide
 **Actions:**
 
 1. Auto-discover test files related to the story:
+
    - Search for test IDs (e.g., `1.3-E2E-001`, `1.3-UNIT-005`)
    - Search for describe blocks mentioning feature name
    - Search for file paths matching feature directory
    - Use `glob` to find test files in `{test_dir}`
 
 2. Categorize tests by level:
+
    - **E2E Tests**: Full user journeys through UI
    - **API Tests**: HTTP contract and integration tests
    - **Component Tests**: UI component behavior in isolation
@@ -120,6 +124,7 @@ This phase focuses on mapping requirements to tests, analyzing coverage, and ide
 **Actions:**
 
 1. For each acceptance criterion:
+
    - Search for explicit references (test IDs, describe blocks mentioning criterion)
    - Map to specific test files and it blocks
    - Use Given-When-Then narrative to verify alignment
@@ -134,6 +139,7 @@ This phase focuses on mapping requirements to tests, analyzing coverage, and ide
    ```
 
 3. Classify coverage status for each criterion:
+
    - **FULL**: All scenarios validated at appropriate level(s)
    - **PARTIAL**: Some coverage but missing edge cases or levels
    - **NONE**: No test coverage at any level
@@ -154,6 +160,7 @@ This phase focuses on mapping requirements to tests, analyzing coverage, and ide
 **Actions:**
 
 1. Identify coverage gaps:
+
    - List criteria with NONE, PARTIAL, UNIT-ONLY, or INTEGRATION-ONLY status
    - Assign severity based on test-priorities framework:
      - **CRITICAL**: P0 criteria without FULL coverage (blocks release)
@@ -162,12 +169,14 @@ This phase focuses on mapping requirements to tests, analyzing coverage, and ide
      - **LOW**: P3 criteria without FULL coverage (acceptable gap)
 
 2. Recommend specific tests to add:
+
    - Suggest test level (E2E, API, Component, Unit)
    - Provide test description (Given-When-Then)
    - Recommend test ID (e.g., `1.3-E2E-004`)
    - Explain why this test is needed
 
 3. Calculate coverage metrics:
+
    - Overall coverage percentage (criteria with FULL coverage / total criteria)
    - P0 coverage percentage (critical paths)
    - P1 coverage percentage (high priority)
@@ -187,6 +196,7 @@ This phase focuses on mapping requirements to tests, analyzing coverage, and ide
 **Actions:**
 
 1. For each mapped test, verify:
+
    - Explicit assertions are present (not hidden in helpers)
    - Test follows Given-When-Then structure
    - No hard waits or sleeps
@@ -195,6 +205,7 @@ This phase focuses on mapping requirements to tests, analyzing coverage, and ide
    - Test duration < 90 seconds
 
 2. Flag quality issues:
+
    - **BLOCKER**: Missing assertions, hard waits, flaky patterns
    - **WARNING**: Large files, slow tests, unclear structure
    - **INFO**: Style inconsistencies, missing documentation
@@ -214,6 +225,7 @@ This phase focuses on mapping requirements to tests, analyzing coverage, and ide
 **Actions:**
 
 1. Create traceability matrix markdown file:
+
    - Use template from `trace-template.md`
    - Include full mapping table
    - Add coverage status section
@@ -226,7 +238,7 @@ This phase focuses on mapping requirements to tests, analyzing coverage, and ide
 
    ```yaml
    traceability:
-     story_id: '1.3'
+     story_id: "1.3"
      coverage:
        overall: 85%
        p0: 100%
@@ -236,10 +248,11 @@ This phase focuses on mapping requirements to tests, analyzing coverage, and ide
        critical: 0
        high: 1
        medium: 2
-     status: 'PASS' # or "FAIL" if P0 < 100%
+     status: "PASS" # or "FAIL" if P0 < 100%
    ```
 
 3. Create coverage badge/metric (if enabled):
+
    - Generate badge markdown: `![Coverage](https://img.shields.io/badge/coverage-85%25-green)`
    - Export metrics to JSON for CI/CD integration
 
@@ -270,12 +283,14 @@ This phase uses traceability results to make a quality gate decision (PASS/CONCE
 **Actions:**
 
 1. **Load Phase 1 traceability results** (inherited context):
+
    - Coverage metrics (P0/P1/overall percentages)
    - Gap analysis (missing/partial tests)
    - Quality concerns (test quality flags)
    - Traceability matrix
 
 2. **Load test execution results** (if `test_results` provided):
+
    - Read CI/CD test reports (JUnit XML, TAP, JSON)
    - Extract pass/fail counts by priority
    - Calculate pass rates:
@@ -285,16 +300,19 @@ This phase uses traceability results to make a quality gate decision (PASS/CONCE
    - Identify failing tests and map to criteria
 
 3. **Load NFR assessment** (if `nfr_file` provided):
+
    - Read `nfr-assessment.md` or similar
    - Check critical NFR status (performance, security, scalability)
    - Flag any critical NFR failures
 
 4. **Load supporting artifacts**:
+
    - `test-design.md` → Risk priorities, DoD checklist
    - `story-*.md` or `Epics.md` → Requirements context
    - `bmm-workflow-status.md` → Workflow completion status (if `check_all_workflows_complete: true`)
 
 5. **Validate evidence freshness** (if `validate_evidence_freshness: true`):
+
    - Check timestamps of test-design, traceability, NFR assessments
    - Warn if artifacts are >7 days old
 
@@ -314,6 +332,7 @@ This phase uses traceability results to make a quality gate decision (PASS/CONCE
 **Decision rules** (based on `workflow.yaml` thresholds):
 
 1. **PASS** if ALL of the following are true:
+
    - P0 coverage ≥ `min_p0_coverage` (default: 100%)
    - P1 coverage ≥ `min_p1_coverage` (default: 90%)
    - Overall coverage ≥ `min_overall_coverage` (default: 80%)
@@ -325,6 +344,7 @@ This phase uses traceability results to make a quality gate decision (PASS/CONCE
    - No test quality red flags (hard waits, no assertions)
 
 2. **CONCERNS** if ANY of the following are true:
+
    - P1 coverage 80-89% (below threshold but not critical)
    - P1 test pass rate 90-94% (below threshold but not critical)
    - Overall pass rate 85-89%
@@ -334,6 +354,7 @@ This phase uses traceability results to make a quality gate decision (PASS/CONCE
    - **Note**: CONCERNS does NOT block deployment but requires acknowledgment
 
 3. **FAIL** if ANY of the following are true:
+
    - P0 coverage <100% (missing critical tests)
    - P0 test pass rate <100% (failing critical tests)
    - P1 coverage <80% (significant gap)
@@ -375,6 +396,7 @@ This phase uses traceability results to make a quality gate decision (PASS/CONCE
 **Actions:**
 
 1. **Create gate decision document**:
+
    - Save to `gate_output_file` (default: `{output_folder}/gate-decision-{gate_type}-{story_id}.md`)
    - Use structure below
 
@@ -485,6 +507,7 @@ This phase uses traceability results to make a quality gate decision (PASS/CONCE
 ```
 
 3. **Include evidence links** (if `require_evidence: true`):
+
    - Link to traceability matrix
    - Link to test execution reports (CI artifacts)
    - Link to NFR assessment
@@ -507,6 +530,7 @@ This phase uses traceability results to make a quality gate decision (PASS/CONCE
 **Actions:**
 
 1. **Update workflow status** (if `append_to_history: true`):
+
    - Append gate decision to `bmm-workflow-status.md` under "Gate History" section
    - Format:
 
@@ -522,6 +546,7 @@ This phase uses traceability results to make a quality gate decision (PASS/CONCE
      ```
 
 2. **Generate stakeholder notification** (if `notify_stakeholders: true`):
+
    - Create concise summary message for team communication
    - Include: Decision, key metrics, action items
    - Format for Slack/email/chat:
@@ -918,7 +943,7 @@ Use selective testing principles from `selective-testing.md`:
 
 ```yaml
 traceability:
-  story_id: '1.3'
+  story_id: "1.3"
   coverage:
     overall: 79%
     p0: 100%
@@ -930,11 +955,11 @@ traceability:
     high: 1
     medium: 1
     low: 1
-  status: 'WARN' # P1 coverage below 90% threshold
+  status: "WARN" # P1 coverage below 90% threshold
   recommendations:
-    - 'Add 1.3-API-001 for email service integration'
-    - 'Add 1.3-E2E-004 for password reset error paths'
-    - 'Optimize 1.3-E2E-001 performance (145s → <90s)'
+    - "Add 1.3-API-001 for email service integration"
+    - "Add 1.3-E2E-004 for password reset error paths"
+    - "Optimize 1.3-E2E-001 performance (145s → <90s)"
 ```
 ````
 

@@ -1,20 +1,20 @@
 ---
-name: 'step-02-gather'
-description: 'Gather comprehensive requirements for the workflow being created'
+name: "step-02-gather"
+description: "Gather comprehensive requirements for the workflow being created"
 
 # Path Definitions
-workflow_path: '{project-root}/_bmad/bmb/workflows/create-workflow'
+workflow_path: "{project-root}/_bmad/bmb/workflows/create-workflow"
 
 # File References
-thisStepFile: '{workflow_path}/steps/step-02-gather.md'
-nextStepFile: '{workflow_path}/steps/step-03-tools-configuration.md'
+thisStepFile: "{workflow_path}/steps/step-02-gather.md"
+nextStepFile: "{workflow_path}/steps/step-03-tools-configuration.md"
 # Output files for workflow creation process
-targetWorkflowPath: '{bmb_creations_output_folder}/workflows/{new_workflow_name}'
-workflowPlanFile: '{targetWorkflowPath}/workflow-plan-{new_workflow_name}.md'
+targetWorkflowPath: "{bmb_creations_output_folder}/workflows/{new_workflow_name}"
+workflowPlanFile: "{targetWorkflowPath}/workflow-plan-{new_workflow_name}.md"
 
 # Task References
-advancedElicitationTask: '{project-root}/_bmad/core/tasks/advanced-elicitation.xml'
-partyModeWorkflow: '{project-root}/_bmad/core/workflows/party-mode/workflow.md'
+advancedElicitationTask: "{project-root}/_bmad/core/tasks/advanced-elicitation.xml"
+partyModeWorkflow: "{project-root}/_bmad/core/workflows/party-mode/workflow.md"
 # Template References
 # No template needed - will append requirements directly to workflow plan
 ---

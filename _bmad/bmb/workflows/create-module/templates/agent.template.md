@@ -9,30 +9,30 @@ the template to use has comments to help guide generation are are not meant to b
 ```yaml
 agent:
   metadata:
-    name: '{person-name}'
-    title: '{agent-title}'
-    icon: '{agent-icon}'
-    module: '{module}'
+    name: "{person-name}"
+    title: "{agent-title}"
+    icon: "{agent-icon}"
+    module: "{module}"
   persona:
-    role: '{agent-role}'
+    role: "{agent-role}"
     identity: |
       {agent-identity - multi-line description}
     communication_style: |
       {communication-style - 1-2 short sentences to describe chat style}
     principles:
-      - '{agent-principle-1}'
-      - '{agent-principle-2}'
-      - '{agent-principle-3}'
-      - '{agent-principle-N}'
+      - "{agent-principle-1}"
+      - "{agent-principle-2}"
+      - "{agent-principle-3}"
+      - "{agent-principle-N}"
 
   # Optional: Only include if agent needs memory/persistence
   critical_actions:
-    - 'Load COMPLETE file [project-root]/_bmad/_memory/[agent-name]-sidecar/memories.md and integrate all past interactions'
-    - 'Load COMPLETE file [project-root]/_bmad/_memory/[agent-name]-sidecar/instructions.md and follow ALL protocols'
+    - "Load COMPLETE file [project-root]/_bmad/_memory/[agent-name]-sidecar/memories.md and integrate all past interactions"
+    - "Load COMPLETE file [project-root]/_bmad/_memory/[agent-name]-sidecar/instructions.md and follow ALL protocols"
 
   # Optional: Embedded prompts for common interactions
   prompts:
-    - id: 'core-function'
+    - id: "core-function"
       content: |
         <instructions>
         Main interaction pattern for this agent
@@ -40,7 +40,7 @@ agent:
 
         {Detailed prompt content}
 
-    - id: 'quick-task'
+    - id: "quick-task"
       content: |
         <instructions>
         Quick, common task the agent performs
@@ -50,11 +50,11 @@ agent:
 
   menu:
     # Always include chat/party mode
-    - multi: '[CH] Chat with the agent or [SPM] Start Party Mode'
+    - multi: "[CH] Chat with the agent or [SPM] Start Party Mode"
       triggers:
         - party-mode:
           input: SPM or fuzzy match start party mode
-          route: '{project-root}/_bmad/core/workflows/edit-agent/workflow.md'
+          route: "{project-root}/_bmad/core/workflows/edit-agent/workflow.md"
           data: what is being discussed or suggested with the command
           type: exec
         - expert-chat:
@@ -63,32 +63,32 @@ agent:
           type: action
 
     # Group related functions
-    - multi: '[CF] Core Function [QT] Quick Task'
+    - multi: "[CF] Core Function [QT] Quick Task"
       triggers:
         - core-function:
           input: CF or fuzzy match core function
-          action: '#core-function'
+          action: "#core-function"
           type: action
         - quick-task:
           input: QT or fuzzy match quick task
-          action: '#quick-task'
+          action: "#quick-task"
           type: action
 
     # Individual prompts
-    - trigger: 'analyze'
-      action: 'Perform deep analysis based on my expertise'
-      description: 'Analyze situation 🧠'
+    - trigger: "analyze"
+      action: "Perform deep analysis based on my expertise"
+      description: "Analyze situation 🧠"
       type: action
 
     # Workflow for complex processes
-    - trigger: 'generate-report'
-      route: '{project-root}/_bmad/{custom_module}/workflows/report-gen/workflow.md'
-      description: 'Generate detailed report 📊'
+    - trigger: "generate-report"
+      route: "{project-root}/_bmad/{custom_module}/workflows/report-gen/workflow.md"
+      description: "Generate detailed report 📊"
 
     # Exec with internal prompt reference
-    - trigger: 'brainstorm'
-      route: '#brainstorm-session'
-      description: 'Brainstorm ideas 💡'
+    - trigger: "brainstorm"
+      route: "#brainstorm-session"
+      description: "Brainstorm ideas 💡"
       type: exec
 ```
 
@@ -132,9 +132,9 @@ Expert agents support three types of menu actions:
 ### 1. **Inline Actions** (Direct commands)
 
 ```yaml
-- trigger: 'save-insight'
-  action: 'Document this insight in ./[agent-name]-sidecar/insights.md with timestamp'
-  description: 'Save this insight 💡'
+- trigger: "save-insight"
+  action: "Document this insight in ./[agent-name]-sidecar/insights.md with timestamp"
+  description: "Save this insight 💡"
 ```
 
 - Commands executed directly
@@ -143,9 +143,9 @@ Expert agents support three types of menu actions:
 ### 2. **Prompt References** (#prompt-id)
 
 ```yaml
-- trigger: 'analyze-thoughts'
-  action: '#thought-exploration' # References prompts section
-  description: 'Explore thought patterns 💭'
+- trigger: "analyze-thoughts"
+  action: "#thought-exploration" # References prompts section
+  description: "Explore thought patterns 💭"
 ```
 
 - References a prompt from the `prompts` section by id
@@ -154,9 +154,9 @@ Expert agents support three types of menu actions:
 ### 3. **Workflow Routes** (for complex processes)
 
 ```yaml
-- trigger: 'generate-report'
-  route: '{project-root}/_bmad/{custom_module}/workflows/report-gen/workflow.md'
-  description: 'Generate report 📊'
+- trigger: "generate-report"
+  route: "{project-root}/_bmad/{custom_module}/workflows/report-gen/workflow.md"
+  description: "Generate report 📊"
 ```
 
 - Routes to a separate workflow file
@@ -165,13 +165,16 @@ Expert agents support three types of menu actions:
 ## Notes for Module Creation:
 
 1. **File Paths**:
+
    - Agent files go in: `[bmb_creations_output_folder]/[module_name]/agents/[agent-name]/[agent-name].yaml`
    - Sidecar files go in folder: `[bmb_creations_output_folder]/[module_name]/agents/[agent-name]/[agent-name]-sidecar/`
 
 2. **Variable Usage**:
+
    - `module` is your module code/name
 
 3. **Creating Sidecar Structure**:
+
    - When agent is created, also create the sidecar folder
    - Initialize with empty files: memories.md, instructions.md and any other files the agent will need to have special knowledge or files to record information to
    - Create sessions/ subfolder if interactions will result in new sessions
@@ -264,7 +267,7 @@ Analyze the visual design with my signature dramatic flair
 menu: # Core interactions - multi: "[CH] Chat with Caravaggio or [SPM] Start Party Mode"
 triggers: - party-mode:
 input: SPM or fuzzy match start party mode
-route: "{project-root}/_bmad/core/workflows/edit-agent/workflow.md"
+route: "{project-root}/\_bmad/core/workflows/edit-agent/workflow.md"
 data: what's being discussed, plus custom party agents if specified
 type: exec - expert-chat:
 input: CH or fuzzy match validate agent

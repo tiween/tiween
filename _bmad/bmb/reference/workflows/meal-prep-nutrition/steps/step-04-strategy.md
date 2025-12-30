@@ -1,26 +1,26 @@
 ---
-name: 'step-04-strategy'
-description: 'Design a personalized meal strategy that meets nutritional needs and fits lifestyle'
+name: "step-04-strategy"
+description: "Design a personalized meal strategy that meets nutritional needs and fits lifestyle"
 
 # Path Definitions
-workflow_path: '{project-root}/_bmad/bmb/reference/workflows/meal-prep-nutrition'
+workflow_path: "{project-root}/_bmad/bmb/reference/workflows/meal-prep-nutrition"
 
 # File References
-thisStepFile: '{workflow_path}/steps/step-04-strategy.md'
-nextStepFile: '{workflow_path}/steps/step-05-shopping.md'
-alternateNextStepFile: '{workflow_path}/steps/step-06-prep-schedule.md'
-workflowFile: '{workflow_path}/workflow.md'
-outputFile: '{output_folder}/nutrition-plan-{project_name}.md'
+thisStepFile: "{workflow_path}/steps/step-04-strategy.md"
+nextStepFile: "{workflow_path}/steps/step-05-shopping.md"
+alternateNextStepFile: "{workflow_path}/steps/step-06-prep-schedule.md"
+workflowFile: "{workflow_path}/workflow.md"
+outputFile: "{output_folder}/nutrition-plan-{project_name}.md"
 
 # Task References
-advancedElicitationTask: '{project-root}/_bmad/core/tasks/advanced-elicitation.xml'
-partyModeWorkflow: '{project-root}/_bmad/core/workflows/party-mode/workflow.md'
+advancedElicitationTask: "{project-root}/_bmad/core/tasks/advanced-elicitation.xml"
+partyModeWorkflow: "{project-root}/_bmad/core/workflows/party-mode/workflow.md"
 
 # Data References
-recipeDatabase: '{workflow_path}/data/recipe-database.csv'
+recipeDatabase: "{workflow_path}/data/recipe-database.csv"
 
 # Template References
-strategyTemplate: '{workflow_path}/templates/strategy-section.md'
+strategyTemplate: "{workflow_path}/templates/strategy-section.md"
 ---
 
 # Step 4: Meal Strategy Creation

@@ -359,18 +359,21 @@ These cheat sheets map TEA workflows to the **BMad Method and Enterprise tracks*
 MCP provides additional capabilities on top of TEA's default AI-based approach:
 
 1. `*test-design`:
+
    - Default: Analysis + documentation
    - **+ MCP**: Interactive UI discovery with `browser_navigate`, `browser_click`, `browser_snapshot`, behavior observation
 
    Benefit: Discover actual functionality, edge cases, undocumented features
 
 2. `*atdd`, `*automate`:
+
    - Default: Infers selectors and interactions from requirements and knowledge fragments
    - **+ MCP**: Generates tests **then** verifies with `generator_setup_page`, `browser_*` tools, validates against live app
 
    Benefit: Accurate selectors from real DOM, verified behavior, refined test code
 
 3. `*automate`:
+
    - Default: Pattern-based fixes from error messages + knowledge fragments
    - **+ MCP**: Pattern fixes **enhanced with** `browser_snapshot`, `browser_console_messages`, `browser_network_requests`, `browser_generate_locator`
 
@@ -410,24 +413,28 @@ MCP provides additional capabilities on top of TEA's default AI-based approach:
 Provides fixture-based utilities that integrate into TEA's test generation and review workflows:
 
 1. `*framework`:
+
    - Default: Basic Playwright scaffold
    - **+ playwright-utils**: Scaffold with api-request, network-recorder, auth-session, burn-in, network-error-monitor fixtures pre-configured
 
    Benefit: Production-ready patterns from day one
 
 2. `*automate`, `*atdd`:
+
    - Default: Standard test patterns
    - **+ playwright-utils**: Tests using api-request (schema validation), intercept-network-call (mocking), recurse (polling), log (structured logging), file-utils (CSV/PDF)
 
    Benefit: Advanced patterns without boilerplate
 
 3. `*test-review`:
+
    - Default: Reviews against core knowledge base (21 fragments)
    - **+ playwright-utils**: Reviews against expanded knowledge base (32 fragments: 21 core + 11 playwright-utils)
 
    Benefit: Reviews include fixture composition, auth patterns, network recording best practices
 
 4. `*ci`:
+
    - Default: Standard CI workflow
    - **+ playwright-utils**: CI workflow with burn-in script (smart test selection) and network-error-monitor integration
 

@@ -54,8 +54,8 @@ prompts:
 
 menu:
   - trigger: conventional
-    action: '#conventional-commit' # References the prompt above
-    description: 'Craft a structured conventional commit'
+    action: "#conventional-commit" # References the prompt above
+    description: "Craft a structured conventional commit"
 ```
 
 **Benefits:**

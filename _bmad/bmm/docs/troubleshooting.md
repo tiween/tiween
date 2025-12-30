@@ -390,8 +390,8 @@ For most brownfield projects, **Deep scan is sufficient**.
 Check `bmad/bmm/config.yaml` for configured paths:
 
 ```yaml
-output_folder: '{project-root}/docs'
-dev_story_location: '{project-root}/docs/stories'
+output_folder: "{project-root}/docs"
+dev_story_location: "{project-root}/docs/stories"
 ```
 
 Default locations:
@@ -588,6 +588,7 @@ To change locations, edit config.yaml then re-run workflows.
 If your issue isn't covered here:
 
 1. **Check other documentation**:
+
    - [FAQ](./faq.md) - Common questions
    - [Glossary](./glossary.md) - Terminology
    - [Quick Start](./quick-start.md) - Basic usage
@@ -595,11 +596,13 @@ If your issue isn't covered here:
    - [Scale Adaptive System](./scale-adaptive-system.md) - Understanding levels
 
 2. **Community support**:
+
    - [Discord](https://discord.gg/gk8jAdXWmj) - #general-dev, #bugs-issues
    - Active community, fast responses
    - Share your specific situation
 
 3. **Report bugs**:
+
    - [GitHub Issues](https://github.com/bmad-code-org/BMAD-METHOD/issues)
    - Include version, steps to reproduce, expected vs actual behavior
 

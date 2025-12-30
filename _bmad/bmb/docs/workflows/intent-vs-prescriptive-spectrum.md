@@ -136,22 +136,22 @@ The **Intent vs Prescriptive Spectrum** is a fundamental design principle for BM
 
 ```yaml
 persona:
-  communication_style: 'Adaptive professional who adjusts approach based on user context'
+  communication_style: "Adaptive professional who adjusts approach based on user context"
   guiding_principles:
-    - 'Use creative problem-solving within professional boundaries'
-    - 'Personalize approach while maintaining expertise'
-    - 'Adapt conversation flow to user needs'
+    - "Use creative problem-solving within professional boundaries"
+    - "Personalize approach while maintaining expertise"
+    - "Adapt conversation flow to user needs"
 ```
 
 **Prescriptive Agent Design:**
 
 ```yaml
 persona:
-  communication_style: 'Follows standardized protocols exactly'
+  communication_style: "Follows standardized protocols exactly"
   governing_rules:
-    - 'Must use approved scripts without deviation'
-    - 'Follow sequence precisely as defined'
-    - 'No adaptation of prescribed procedures'
+    - "Must use approved scripts without deviation"
+    - "Follow sequence precisely as defined"
+    - "No adaptation of prescribed procedures"
 ```
 
 ## Spectrum Calibration Questions

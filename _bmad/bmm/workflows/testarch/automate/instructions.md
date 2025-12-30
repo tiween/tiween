@@ -49,6 +49,7 @@ Expands test automation coverage by generating comprehensive test suites at appr
 1. **Detect Execution Mode**
 
    Check if BMad artifacts are available:
+
    - If `{story_file}` variable is set → BMad-Integrated Mode
    - If `{target_feature}` or `{target_files}` set → Standalone Mode
    - If neither set → Auto-discover mode (scan codebase for features needing tests)
@@ -56,6 +57,7 @@ Expands test automation coverage by generating comprehensive test suites at appr
 2. **Load BMad Artifacts (If Available)**
 
    **BMad-Integrated Mode:**
+
    - Read story markdown from `{story_file}`
    - Extract acceptance criteria and technical requirements
    - Load tech-spec.md if `{use_tech_spec}` is true
@@ -64,10 +66,12 @@ Expands test automation coverage by generating comprehensive test suites at appr
    - Note: These are **optional enhancements**, not hard requirements
 
    **Standalone Mode:**
+
    - Skip BMad artifact loading
    - Proceed directly to source code analysis
 
 3. **Load Framework Configuration**
+
    - Read test framework config (playwright.config.ts or cypress.config.ts)
    - Identify test directory structure from `{test_dir}`
    - Check existing test patterns in `{test_dir}`
@@ -76,6 +80,7 @@ Expands test automation coverage by generating comprehensive test suites at appr
 4. **Analyze Existing Test Coverage**
 
    If `{analyze_coverage}` is true:
+
    - Search `{test_dir}` for existing test files
    - Identify tested features vs untested features
    - Map tests to source files (coverage gaps)
@@ -90,6 +95,7 @@ Expands test automation coverage by generating comprehensive test suites at appr
    **Critical:** Consult `{project-root}/_bmad/bmm/testarch/tea-index.csv` to load:
 
    **Core Testing Patterns (Always load):**
+
    - `test-levels-framework.md` - Test level selection (E2E vs API vs Component vs Unit with decision matrix, 467 lines, 4 examples)
    - `test-priorities-matrix.md` - Priority classification (P0-P3 with automated scoring, risk mapping, 389 lines, 2 examples)
    - `data-factories.md` - Factory patterns with faker (overrides, nested factories, API seeding, 498 lines, 5 examples)
@@ -98,6 +104,7 @@ Expands test automation coverage by generating comprehensive test suites at appr
    - `test-quality.md` - Test design principles (deterministic, isolated, explicit assertions, length/time limits, 658 lines, 5 examples)
 
    **If `config.tea_use_playwright_utils: true` (Playwright Utils Integration - All Utilities):**
+
    - `overview.md` - Playwright utils installation, design principles, fixture patterns
    - `api-request.md` - Typed HTTP client with schema validation
    - `network-recorder.md` - HAR record/playback for offline testing
@@ -111,10 +118,12 @@ Expands test automation coverage by generating comprehensive test suites at appr
    - `fixtures-composition.md` - mergeTests composition patterns
 
    **If `config.tea_use_playwright_utils: false` (Traditional Patterns):**
+
    - `fixture-architecture.md` - Test fixture patterns (pure function → fixture → mergeTests, auto-cleanup, 406 lines, 5 examples)
    - `network-first.md` - Route interception patterns (intercept before navigate, HAR capture, deterministic waiting, 489 lines, 5 examples)
 
    **Healing Knowledge (If `{auto_heal_failures}` is true):**
+
    - `test-healing-patterns.md` - Common failure patterns and automated fixes (stale selectors, race conditions, dynamic data, network errors, hard waits, 648 lines, 5 examples)
    - `selector-resilience.md` - Selector debugging and refactoring guide (data-testid > ARIA > text > CSS hierarchy, anti-patterns, 541 lines, 4 examples)
    - `timing-debugging.md` - Race condition identification and fixes (network-first, deterministic waiting, async debugging, 370 lines, 3 examples)
@@ -128,12 +137,14 @@ Expands test automation coverage by generating comprehensive test suites at appr
 1. **Determine What Needs Testing**
 
    **BMad-Integrated Mode (story available):**
+
    - Map acceptance criteria from story to test scenarios
    - Identify features implemented in this story
    - Check if story has existing ATDD tests (from `*atdd` workflow)
    - Expand beyond ATDD with edge cases and negative paths
 
    **Standalone Mode (no story):**
+
    - If `{target_feature}` specified: Analyze that specific feature
    - If `{target_files}` specified: Analyze those specific files
    - If `{auto_discover_features}` is true: Scan `{source_dir}` for features
@@ -150,24 +161,28 @@ Expands test automation coverage by generating comprehensive test suites at appr
    For each feature or acceptance criterion, determine appropriate test level:
 
    **E2E (End-to-End)**:
+
    - Critical user journeys (login, checkout, core workflows)
    - Multi-system integration
    - Full user-facing scenarios
    - Characteristics: High confidence, slow, brittle
 
    **API (Integration)**:
+
    - Business logic validation
    - Service contracts and data transformations
    - Backend integration without UI
    - Characteristics: Fast feedback, stable, good balance
 
    **Component**:
+
    - UI component behavior (buttons, forms, modals)
    - Interaction testing (click, hover, keyboard)
    - State management within component
    - Characteristics: Fast, isolated, granular
 
    **Unit**:
+
    - Pure business logic and algorithms
    - Edge cases and error handling
    - Minimal dependencies
@@ -176,12 +191,14 @@ Expands test automation coverage by generating comprehensive test suites at appr
 3. **Avoid Duplicate Coverage**
 
    **Critical principle:** Don't test same behavior at multiple levels unless necessary
+
    - Use E2E for critical happy path only
    - Use API tests for business logic variations
    - Use component tests for UI interaction edge cases
    - Use unit tests for pure logic edge cases
 
    **Example:**
+
    - E2E: User can log in with valid credentials → Dashboard loads
    - API: POST /auth/login returns 401 for invalid credentials
    - API: POST /auth/login returns 200 and JWT token for valid credentials
@@ -193,30 +210,35 @@ Expands test automation coverage by generating comprehensive test suites at appr
    **Knowledge Base Reference**: `test-priorities-matrix.md`
 
    **P0 (Critical - Every commit)**:
+
    - Critical user paths that must always work
    - Security-critical functionality (auth, permissions)
    - Data integrity scenarios
    - Run in pre-commit hooks or PR checks
 
    **P1 (High - PR to main)**:
+
    - Important features with high user impact
    - Integration points between systems
    - Error handling for common failures
    - Run before merging to main branch
 
    **P2 (Medium - Nightly)**:
+
    - Edge cases with moderate impact
    - Less-critical feature variations
    - Performance/load testing
    - Run in nightly CI builds
 
    **P3 (Low - On-demand)**:
+
    - Nice-to-have validations
    - Rarely-used features
    - Exploratory testing scenarios
    - Run manually or weekly
 
    **Priority Variables:**
+
    - `{include_p0}` - Always include (default: true)
    - `{include_p1}` - High priority (default: true)
    - `{include_p2}` - Medium priority (default: true)
@@ -262,11 +284,13 @@ Expands test automation coverage by generating comprehensive test suites at appr
    **Knowledge Base Reference**: `fixture-architecture.md`
 
    Check existing fixtures in `tests/support/fixtures/`:
+
    - If missing or incomplete, create fixture architecture
    - Use Playwright's `test.extend()` pattern
    - Ensure all fixtures have auto-cleanup in teardown
 
    **Common fixtures to create/enhance:**
+
    - **authenticatedUser**: User with valid session (auto-deletes user after test)
    - **apiRequest**: Authenticated API client with base URL and headers
    - **mockNetwork**: Network mocking for external services
@@ -276,26 +300,27 @@ Expands test automation coverage by generating comprehensive test suites at appr
 
    ```typescript
    // tests/support/fixtures/auth.fixture.ts
-   import { test as base } from '@playwright/test';
-   import { createUser, deleteUser } from '../factories/user.factory';
+   import { test as base } from "@playwright/test"
+
+   import { createUser, deleteUser } from "../factories/user.factory"
 
    export const test = base.extend({
      authenticatedUser: async ({ page }, use) => {
        // Setup: Create and authenticate user
-       const user = await createUser();
-       await page.goto('/login');
-       await page.fill('[data-testid="email"]', user.email);
-       await page.fill('[data-testid="password"]', user.password);
-       await page.click('[data-testid="login-button"]');
-       await page.waitForURL('/dashboard');
+       const user = await createUser()
+       await page.goto("/login")
+       await page.fill('[data-testid="email"]', user.email)
+       await page.fill('[data-testid="password"]', user.password)
+       await page.click('[data-testid="login-button"]')
+       await page.waitForURL("/dashboard")
 
        // Provide to test
-       await use(user);
+       await use(user)
 
        // Cleanup: Delete user automatically
-       await deleteUser(user.id);
+       await deleteUser(user.id)
      },
-   });
+   })
    ```
 
 2. **Enhance Data Factories**
@@ -303,11 +328,13 @@ Expands test automation coverage by generating comprehensive test suites at appr
    **Knowledge Base Reference**: `data-factories.md`
 
    Check existing factories in `tests/support/factories/`:
+
    - If missing or incomplete, create factory architecture
    - Use `@faker-js/faker` for all random data (no hardcoded values)
    - Support overrides for specific test scenarios
 
    **Common factories to create/enhance:**
+
    - User factory (email, password, name, role)
    - Product factory (name, price, description, SKU)
    - Order factory (items, total, status, customer)
@@ -316,24 +343,25 @@ Expands test automation coverage by generating comprehensive test suites at appr
 
    ```typescript
    // tests/support/factories/user.factory.ts
-   import { faker } from '@faker-js/faker';
+   import { faker } from "@faker-js/faker"
 
    export const createUser = (overrides = {}) => ({
      id: faker.number.int(),
      email: faker.internet.email(),
      password: faker.internet.password(),
      name: faker.person.fullName(),
-     role: 'user',
+     role: "user",
      createdAt: faker.date.recent().toISOString(),
      ...overrides,
-   });
+   })
 
-   export const createUsers = (count: number) => Array.from({ length: count }, () => createUser());
+   export const createUsers = (count: number) =>
+     Array.from({ length: count }, () => createUser())
 
    // API helper for cleanup
    export const deleteUser = async (userId: number) => {
-     await fetch(`/api/users/${userId}`, { method: 'DELETE' });
-   };
+     await fetch(`/api/users/${userId}`, { method: "DELETE" })
+   }
    ```
 
 3. **Create/Enhance Helper Utilities**
@@ -341,6 +369,7 @@ Expands test automation coverage by generating comprehensive test suites at appr
    If `{update_helpers}` is true:
 
    Check `tests/support/helpers/` for common utilities:
+
    - **waitFor**: Polling helper for complex conditions
    - **retry**: Retry helper for flaky operations
    - **testData**: Test data generation helpers
@@ -350,14 +379,18 @@ Expands test automation coverage by generating comprehensive test suites at appr
 
    ```typescript
    // tests/support/helpers/wait-for.ts
-   export const waitFor = async (condition: () => Promise<boolean>, timeout = 5000, interval = 100): Promise<void> => {
-     const startTime = Date.now();
+   export const waitFor = async (
+     condition: () => Promise<boolean>,
+     timeout = 5000,
+     interval = 100
+   ): Promise<void> => {
+     const startTime = Date.now()
      while (Date.now() - startTime < timeout) {
-       if (await condition()) return;
-       await new Promise((resolve) => setTimeout(resolve, interval));
+       if (await condition()) return
+       await new Promise((resolve) => setTimeout(resolve, interval))
      }
-     throw new Error(`Condition not met within ${timeout}ms`);
-   };
+     throw new Error(`Condition not met within ${timeout}ms`)
+   }
    ```
 
 ---
@@ -389,39 +422,46 @@ Expands test automation coverage by generating comprehensive test suites at appr
    **Follow Given-When-Then format:**
 
    ```typescript
-   import { test, expect } from '@playwright/test';
+   import { expect, test } from "@playwright/test"
 
-   test.describe('User Authentication', () => {
-     test('[P0] should login with valid credentials and load dashboard', async ({ page }) => {
+   test.describe("User Authentication", () => {
+     test("[P0] should login with valid credentials and load dashboard", async ({
+       page,
+     }) => {
        // GIVEN: User is on login page
-       await page.goto('/login');
+       await page.goto("/login")
 
        // WHEN: User submits valid credentials
-       await page.fill('[data-testid="email-input"]', 'user@example.com');
-       await page.fill('[data-testid="password-input"]', 'Password123!');
-       await page.click('[data-testid="login-button"]');
+       await page.fill('[data-testid="email-input"]', "user@example.com")
+       await page.fill('[data-testid="password-input"]', "Password123!")
+       await page.click('[data-testid="login-button"]')
 
        // THEN: User is redirected to dashboard
-       await expect(page).toHaveURL('/dashboard');
-       await expect(page.locator('[data-testid="user-name"]')).toBeVisible();
-     });
+       await expect(page).toHaveURL("/dashboard")
+       await expect(page.locator('[data-testid="user-name"]')).toBeVisible()
+     })
 
-     test('[P1] should display error for invalid credentials', async ({ page }) => {
+     test("[P1] should display error for invalid credentials", async ({
+       page,
+     }) => {
        // GIVEN: User is on login page
-       await page.goto('/login');
+       await page.goto("/login")
 
        // WHEN: User submits invalid credentials
-       await page.fill('[data-testid="email-input"]', 'invalid@example.com');
-       await page.fill('[data-testid="password-input"]', 'wrongpassword');
-       await page.click('[data-testid="login-button"]');
+       await page.fill('[data-testid="email-input"]', "invalid@example.com")
+       await page.fill('[data-testid="password-input"]', "wrongpassword")
+       await page.click('[data-testid="login-button"]')
 
        // THEN: Error message is displayed
-       await expect(page.locator('[data-testid="error-message"]')).toHaveText('Invalid email or password');
-     });
-   });
+       await expect(page.locator('[data-testid="error-message"]')).toHaveText(
+         "Invalid email or password"
+       )
+     })
+   })
    ```
 
    **Critical patterns:**
+
    - Tag tests with priority: `[P0]`, `[P1]`, `[P2]`, `[P3]` in test name
    - One assertion per test (atomic tests)
    - Explicit waits (no hard waits/sleeps)
@@ -432,48 +472,54 @@ Expands test automation coverage by generating comprehensive test suites at appr
 3. **Write API Tests (If Applicable)**
 
    ```typescript
-   import { test, expect } from '@playwright/test';
+   import { expect, test } from "@playwright/test"
 
-   test.describe('User Authentication API', () => {
-     test('[P1] POST /api/auth/login - should return token for valid credentials', async ({ request }) => {
+   test.describe("User Authentication API", () => {
+     test("[P1] POST /api/auth/login - should return token for valid credentials", async ({
+       request,
+     }) => {
        // GIVEN: Valid user credentials
        const credentials = {
-         email: 'user@example.com',
-         password: 'Password123!',
-       };
+         email: "user@example.com",
+         password: "Password123!",
+       }
 
        // WHEN: Logging in via API
-       const response = await request.post('/api/auth/login', {
+       const response = await request.post("/api/auth/login", {
          data: credentials,
-       });
+       })
 
        // THEN: Returns 200 and JWT token
-       expect(response.status()).toBe(200);
-       const body = await response.json();
-       expect(body).toHaveProperty('token');
-       expect(body.token).toMatch(/^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/); // JWT format
-     });
+       expect(response.status()).toBe(200)
+       const body = await response.json()
+       expect(body).toHaveProperty("token")
+       expect(body.token).toMatch(
+         /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/
+       ) // JWT format
+     })
 
-     test('[P1] POST /api/auth/login - should return 401 for invalid credentials', async ({ request }) => {
+     test("[P1] POST /api/auth/login - should return 401 for invalid credentials", async ({
+       request,
+     }) => {
        // GIVEN: Invalid credentials
        const credentials = {
-         email: 'invalid@example.com',
-         password: 'wrongpassword',
-       };
+         email: "invalid@example.com",
+         password: "wrongpassword",
+       }
 
        // WHEN: Attempting login
-       const response = await request.post('/api/auth/login', {
+       const response = await request.post("/api/auth/login", {
          data: credentials,
-       });
+       })
 
        // THEN: Returns 401 with error
-       expect(response.status()).toBe(401);
-       const body = await response.json();
+       expect(response.status()).toBe(401)
+       const body = await response.json()
        expect(body).toMatchObject({
-         error: 'Invalid credentials',
-       });
-     });
-   });
+         error: "Invalid credentials",
+       })
+     })
+   })
    ```
 
 4. **Write Component Tests (If Applicable)**
@@ -514,30 +560,35 @@ Expands test automation coverage by generating comprehensive test suites at appr
 5. **Write Unit Tests (If Applicable)**
 
    ```typescript
-   import { validateEmail } from './validation';
+   import { validateEmail } from "./validation"
 
-   describe('Email Validation', () => {
-     test('[P2] should return true for valid email', () => {
+   describe("Email Validation", () => {
+     test("[P2] should return true for valid email", () => {
        // GIVEN: Valid email address
-       const email = 'user@example.com';
+       const email = "user@example.com"
 
        // WHEN: Validating email
-       const result = validateEmail(email);
+       const result = validateEmail(email)
 
        // THEN: Returns true
-       expect(result).toBe(true);
-     });
+       expect(result).toBe(true)
+     })
 
-     test('[P2] should return false for malformed email', () => {
+     test("[P2] should return false for malformed email", () => {
        // GIVEN: Malformed email addresses
-       const invalidEmails = ['notanemail', '@example.com', 'user@', 'user @example.com'];
+       const invalidEmails = [
+         "notanemail",
+         "@example.com",
+         "user@",
+         "user @example.com",
+       ]
 
        // WHEN/THEN: Each should fail validation
        invalidEmails.forEach((email) => {
-         expect(validateEmail(email)).toBe(false);
-       });
-     });
-   });
+         expect(validateEmail(email)).toBe(false)
+       })
+     })
+   })
    ```
 
 6. **Apply Network-First Pattern (E2E tests)**
@@ -547,25 +598,28 @@ Expands test automation coverage by generating comprehensive test suites at appr
    **Critical pattern to prevent race conditions:**
 
    ```typescript
-   test('should load user dashboard after login', async ({ page }) => {
+   test("should load user dashboard after login", async ({ page }) => {
      // CRITICAL: Intercept routes BEFORE navigation
-     await page.route('**/api/user', (route) =>
+     await page.route("**/api/user", (route) =>
        route.fulfill({
          status: 200,
-         body: JSON.stringify({ id: 1, name: 'Test User' }),
-       }),
-     );
+         body: JSON.stringify({ id: 1, name: "Test User" }),
+       })
+     )
 
      // NOW navigate
-     await page.goto('/dashboard');
+     await page.goto("/dashboard")
 
-     await expect(page.locator('[data-testid="user-name"]')).toHaveText('Test User');
-   });
+     await expect(page.locator('[data-testid="user-name"]')).toHaveText(
+       "Test User"
+     )
+   })
    ```
 
 7. **Enforce Quality Standards**
 
    **For every test:**
+
    - ✅ Uses Given-When-Then format
    - ✅ Has clear, descriptive name with priority tag
    - ✅ One assertion per test (atomic)
@@ -576,6 +630,7 @@ Expands test automation coverage by generating comprehensive test suites at appr
    - ✅ Lean (test file under {max_file_lines} lines)
 
    **Forbidden patterns:**
+
    - ❌ Hard waits: `await page.waitForTimeout(2000)`
    - ❌ Conditional flow: `if (await element.isVisible()) { ... }`
    - ❌ Try-catch for test logic (use for cleanup only)
@@ -594,6 +649,7 @@ Expands test automation coverage by generating comprehensive test suites at appr
 1. **Validate Generated Tests**
 
    Always validate (auto_validate is always true):
+
    - Run generated tests to verify they work
    - Continue with healing if config.tea_use_mcp_enhancements is true
 
@@ -606,6 +662,7 @@ Expands test automation coverage by generating comprehensive test suites at appr
    ```
 
    Capture results:
+
    - Total tests run
    - Passing tests count
    - Failing tests count
@@ -614,10 +671,12 @@ Expands test automation coverage by generating comprehensive test suites at appr
 3. **Evaluate Results**
 
    **If ALL tests pass:**
+
    - ✅ Generate report with success summary
    - Proceed to Step 6 (Documentation and Scripts)
 
    **If tests FAIL:**
+
    - Check config.tea_use_mcp_enhancements setting
    - If true: Enter healing loop (Step 5.4)
    - If false: Document failures for manual review, proceed to Step 6
@@ -631,6 +690,7 @@ Expands test automation coverage by generating comprehensive test suites at appr
    **A. Load Healing Knowledge Fragments**
 
    Consult `tea-index.csv` to load healing patterns:
+
    - `test-healing-patterns.md` - Common failure patterns and fixes
    - `selector-resilience.md` - Selector debugging and refactoring
    - `timing-debugging.md` - Race condition identification and fixes
@@ -640,6 +700,7 @@ Expands test automation coverage by generating comprehensive test suites at appr
    Analyze error message and stack trace to classify failure type:
 
    **Stale Selector Failure:**
+
    - Error contains: "locator resolved to 0 elements", "element not found", "unable to find element"
    - Extract selector from error message
    - Apply selector healing (knowledge from `selector-resilience.md`):
@@ -649,6 +710,7 @@ Expands test automation coverage by generating comprehensive test suites at appr
      - If complex XPath → Replace with ARIA role
 
    **Race Condition Failure:**
+
    - Error contains: "timeout waiting for", "element not visible", "timed out retrying"
    - Detect missing network waits or hard waits in test code
    - Apply timing healing (knowledge from `timing-debugging.md`):
@@ -657,6 +719,7 @@ Expands test automation coverage by generating comprehensive test suites at appr
      - Add explicit element state waits (`waitFor({ state: 'visible' })`)
 
    **Dynamic Data Failure:**
+
    - Error contains: "Expected 'User 123' but received 'User 456'", timestamp mismatches
    - Identify hardcoded assertions
    - Apply data healing (knowledge from `test-healing-patterns.md`):
@@ -665,6 +728,7 @@ Expands test automation coverage by generating comprehensive test suites at appr
      - Capture dynamic values and use in assertions
 
    **Network Error Failure:**
+
    - Error contains: "API call failed", "500 error", "network error"
    - Detect missing route interception
    - Apply network healing (knowledge from `test-healing-patterns.md`):
@@ -672,6 +736,7 @@ Expands test automation coverage by generating comprehensive test suites at appr
      - Mock error scenarios (500, 429, timeout)
 
    **Hard Wait Detection:**
+
    - Scan test code for `page.waitForTimeout()`, `cy.wait(number)`, `sleep()`
    - Apply hard wait healing (knowledge from `timing-debugging.md`):
      - Replace with event-based waits
@@ -683,6 +748,7 @@ Expands test automation coverage by generating comprehensive test suites at appr
    If Playwright MCP tools are available in your IDE:
 
    Use MCP tools for interactive healing:
+
    - `playwright_test_debug_test`: Pause on failure for visual inspection
    - `browser_snapshot`: Capture visual context at failure point
    - `browser_console_messages`: Retrieve console logs for JS errors
@@ -694,6 +760,7 @@ Expands test automation coverage by generating comprehensive test suites at appr
    **D. Pattern-Based Healing Mode (Fallback)**
 
    If MCP unavailable, use pattern-based analysis:
+
    - Parse error message and stack trace
    - Match against failure patterns from knowledge base
    - Apply fixes programmatically:
@@ -702,6 +769,7 @@ Expands test automation coverage by generating comprehensive test suites at appr
      - Data fixes: Use patterns from `test-healing-patterns.md`
 
    **E. Apply Healing Fix**
+
    - Modify test file with healed code
    - Re-run test to validate fix
    - If test passes: Mark as healed, move to next failure
@@ -712,6 +780,7 @@ Expands test automation coverage by generating comprehensive test suites at appr
    After 3 failed healing attempts:
 
    Always mark unfixable tests:
+
    - Mark test with `test.fixme()` instead of `test()`
    - Add detailed comment explaining:
      - What failure occurred
@@ -720,7 +789,7 @@ Expands test automation coverage by generating comprehensive test suites at appr
      - Manual investigation needed
 
    ```typescript
-   test.fixme('[P1] should handle complex interaction', async ({ page }) => {
+   test.fixme("[P1] should handle complex interaction", async ({ page }) => {
      // FIXME: Test healing failed after 3 attempts
      // Failure: "Locator 'button[data-action="submit"]' resolved to 0 elements"
      // Attempted fixes:
@@ -730,7 +799,7 @@ Expands test automation coverage by generating comprehensive test suites at appr
      // Manual investigation needed: Selector may require application code changes
      // TODO: Review with team, may need data-testid added to button component
      // Original test code...
-   });
+   })
    ```
 
    **Note**: Workflow continues even with unfixable tests (marked as test.fixme() for manual review)
@@ -795,6 +864,7 @@ Expands test automation coverage by generating comprehensive test suites at appr
    If `{update_readme}` is true:
 
    Create or update `tests/README.md` with:
+
    - Overview of test suite structure
    - How to run tests (all, specific files, by priority)
    - Fixture and factory usage examples
@@ -827,6 +897,7 @@ Expands test automation coverage by generating comprehensive test suites at appr
    ````
 
    ## Priority Tags
+
    - **[P0]**: Critical paths, run every commit
    - **[P1]**: High priority, run on PR to main
    - **[P2]**: Medium priority, run nightly
@@ -858,6 +929,7 @@ Expands test automation coverage by generating comprehensive test suites at appr
 3. **Run Test Suite**
 
    If `{run_tests_after_generation}` is true:
+
    - Run full test suite locally
    - Capture results (passing/failing counts)
    - Verify no flaky patterns (tests should be deterministic)
@@ -932,16 +1004,19 @@ Expands test automation coverage by generating comprehensive test suites at appr
    ## Coverage Analysis
 
    **Total Tests:** 7
+
    - P0: 1 test (critical path)
    - P1: 5 tests (high priority)
    - P2: 1 test (medium priority)
 
    **Test Levels:**
+
    - E2E: 2 tests (user journeys)
    - API: 3 tests (business logic)
    - Component: 2 tests (UI behavior)
 
    **Coverage Status:**
+
    - ✅ All acceptance criteria covered
    - ✅ Happy path covered (E2E + API)
    - ✅ Error cases covered (API)
@@ -949,6 +1024,7 @@ Expands test automation coverage by generating comprehensive test suites at appr
    - ⚠️ Edge case: Password reset flow not yet covered (future story)
 
    ## Definition of Done
+
    - [x] All tests follow Given-When-Then format
    - [x] All tests use data-testid selectors
    - [x] All tests have priority tags
@@ -960,6 +1036,7 @@ Expands test automation coverage by generating comprehensive test suites at appr
    - [x] package.json scripts updated
 
    ## Next Steps
+
    1. Review generated tests with team
    2. Run tests in CI pipeline: `npm run test:e2e`
    3. Integrate with quality gate: `bmad tea *gate`
@@ -1126,30 +1203,30 @@ Use fixtures for setup/teardown, not page objects for actions.
 
 ```typescript
 // ❌ WRONG: Hard wait
-await page.waitForTimeout(2000);
+await page.waitForTimeout(2000)
 
 // ✅ CORRECT: Explicit wait
-await page.waitForSelector('[data-testid="user-name"]');
-await expect(page.locator('[data-testid="user-name"]')).toBeVisible();
+await page.waitForSelector('[data-testid="user-name"]')
+await expect(page.locator('[data-testid="user-name"]')).toBeVisible()
 
 // ❌ WRONG: Conditional flow
 if (await element.isVisible()) {
-  await element.click();
+  await element.click()
 }
 
 // ✅ CORRECT: Deterministic assertion
-await expect(element).toBeVisible();
-await element.click();
+await expect(element).toBeVisible()
+await element.click()
 
 // ❌ WRONG: Try-catch for test logic
 try {
-  await element.click();
+  await element.click()
 } catch (e) {
   // Test shouldn't catch errors
 }
 
 // ✅ CORRECT: Let test fail if element not found
-await element.click();
+await element.click()
 ```
 
 ### Self-Cleaning Tests
@@ -1160,18 +1237,18 @@ await element.click();
 // ✅ CORRECT: Fixture with auto-cleanup
 export const test = base.extend({
   testUser: async ({ page }, use) => {
-    const user = await createUser();
-    await use(user);
-    await deleteUser(user.id); // Auto-cleanup
+    const user = await createUser()
+    await use(user)
+    await deleteUser(user.id) // Auto-cleanup
   },
-});
+})
 
 // ❌ WRONG: Manual cleanup (can be forgotten)
-test('should login', async ({ page }) => {
-  const user = await createUser();
+test("should login", async ({ page }) => {
+  const user = await createUser()
   // ... test logic ...
   // Forgot to delete user!
-});
+})
 ```
 
 ### File Size Limits

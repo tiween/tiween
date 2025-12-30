@@ -1,22 +1,22 @@
 ---
-name: 'step-05-shopping'
-description: 'Create a comprehensive shopping list that supports the meal strategy'
+name: "step-05-shopping"
+description: "Create a comprehensive shopping list that supports the meal strategy"
 
 # Path Definitions
-workflow_path: '{project-root}/_bmad/bmb/reference/workflows/meal-prep-nutrition'
+workflow_path: "{project-root}/_bmad/bmb/reference/workflows/meal-prep-nutrition"
 
 # File References
-thisStepFile: '{workflow_path}/steps/step-05-shopping.md'
-nextStepFile: '{workflow_path}/steps/step-06-prep-schedule.md'
-workflowFile: '{workflow_path}/workflow.md'
-outputFile: '{output_folder}/nutrition-plan-{project_name}.md'
+thisStepFile: "{workflow_path}/steps/step-05-shopping.md"
+nextStepFile: "{workflow_path}/steps/step-06-prep-schedule.md"
+workflowFile: "{workflow_path}/workflow.md"
+outputFile: "{output_folder}/nutrition-plan-{project_name}.md"
 
 # Task References
-advancedElicitationTask: '{project-root}/_bmad/core/tasks/advanced-elicitation.xml'
-partyModeWorkflow: '{project-root}/_bmad/core/workflows/party-mode/workflow.md'
+advancedElicitationTask: "{project-root}/_bmad/core/tasks/advanced-elicitation.xml"
+partyModeWorkflow: "{project-root}/_bmad/core/workflows/party-mode/workflow.md"
 
 # Template References
-shoppingTemplate: '{workflow_path}/templates/shopping-section.md'
+shoppingTemplate: "{workflow_path}/templates/shopping-section.md"
 ---
 
 # Step 5: Shopping List Generation

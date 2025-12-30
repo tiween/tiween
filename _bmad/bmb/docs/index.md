@@ -140,6 +140,7 @@ BMB creates three agent architectures:
    /bmad:bmb:agents:bmad-builder
    ```
 2. **Choose creation type:**
+
    - `[CA]` Create Agent - Build new agents
    - `[CW]` Create Workflow - Design workflows
    - `[EA]` Edit Agent - Modify existing agents

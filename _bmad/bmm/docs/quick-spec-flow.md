@@ -75,6 +75,7 @@ flowchart TD
 ### What You Get
 
 1. **tech-spec.md** - Comprehensive technical specification with:
+
    - Problem statement and solution
    - Detected framework versions and dependencies
    - Brownfield code patterns (if applicable)

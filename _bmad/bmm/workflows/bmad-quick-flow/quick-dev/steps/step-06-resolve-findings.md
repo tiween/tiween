@@ -1,9 +1,9 @@
 ---
-name: 'step-06-resolve-findings'
-description: 'Handle review findings interactively, apply fixes, update tech-spec with final status'
+name: "step-06-resolve-findings"
+description: "Handle review findings interactively, apply fixes, update tech-spec with final status"
 
-workflow_path: '{project-root}/_bmad/bmm/workflows/bmad-quick-flow/quick-dev'
-thisStepFile: '{workflow_path}/steps/step-06-resolve-findings.md'
+workflow_path: "{project-root}/_bmad/bmm/workflows/bmad-quick-flow/quick-dev"
+thisStepFile: "{workflow_path}/steps/step-06-resolve-findings.md"
 ---
 
 # Step 6: Resolve Findings

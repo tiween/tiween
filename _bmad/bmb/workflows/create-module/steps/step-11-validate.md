@@ -1,9 +1,9 @@
 ---
-workflowFile: '{installed_path}/workflow.md'
-modulePlanFile: '{bmb_creations_output_folder}/{module_name}/module-plan-{module_name}.md'
-validationChecklist: '{installed_path}/validation.md'
-advancedElicitationTask: '{project-root}/_bmad/core/tasks/advanced-elicitation.xml'
-partyModeWorkflow: '{project-root}/_bmad/core/workflows/party-mode/workflow.md'
+workflowFile: "{installed_path}/workflow.md"
+modulePlanFile: "{bmb_creations_output_folder}/{module_name}/module-plan-{module_name}.md"
+validationChecklist: "{installed_path}/validation.md"
+advancedElicitationTask: "{project-root}/_bmad/core/tasks/advanced-elicitation.xml"
+partyModeWorkflow: "{project-root}/_bmad/core/workflows/party-mode/workflow.md"
 ---
 
 # Step 11: Validate and Finalize Module
@@ -221,16 +221,19 @@ Fix issues one by one with user confirmation
    ```
 
 2. **Implement Components:**
+
    - Follow TODO.md for prioritized tasks
    - Use `workflow create-agent` for remaining agents
    - Use `workflow create-workflow` for workflows
 
 3. **Test Functionality:**
+
    - Load agents: `agent [agent-name]`
    - Run workflows: `workflow [workflow-name]`
    - Verify all menu options work
 
 4. **Iterate and Improve:**
+
    - Gather feedback from users
    - Add missing features
    - Fix any bugs found

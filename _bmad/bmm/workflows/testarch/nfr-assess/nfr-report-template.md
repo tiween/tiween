@@ -41,6 +41,7 @@ Note: This assessment summarizes existing evidence; it does not run tests or CI 
 ### Resource Usage
 
 - **CPU Usage**
+
   - **Status:** {STATUS} {STATUS_ICON}
   - **Threshold:** {THRESHOLD_VALUE}
   - **Actual:** {ACTUAL_VALUE}
@@ -152,6 +153,7 @@ Note: This assessment summarizes existing evidence; it does not run tests or CI 
 ### Disaster Recovery (if applicable)
 
 - **RTO (Recovery Time Objective)**
+
   - **Status:** {STATUS} {STATUS_ICON}
   - **Threshold:** {THRESHOLD_VALUE}
   - **Actual:** {ACTUAL_VALUE}
@@ -234,6 +236,7 @@ Note: This assessment summarizes existing evidence; it does not run tests or CI 
 {QUICK_WIN_COUNT} quick wins identified for immediate implementation:
 
 1. **{QUICK_WIN_TITLE_1}** ({NFR_CATEGORY}) - {PRIORITY} - {ESTIMATED_EFFORT}
+
    - {QUICK_WIN_DESCRIPTION}
    - No code changes needed / Minimal code changes
 
@@ -247,6 +250,7 @@ Note: This assessment summarizes existing evidence; it does not run tests or CI 
 ### Immediate (Before Release) - CRITICAL/HIGH Priority
 
 1. **{ACTION_TITLE_1}** - {PRIORITY} - {ESTIMATED_EFFORT} - {OWNER}
+
    - {ACTION_DESCRIPTION}
    - {SPECIFIC_STEPS}
    - {VALIDATION_CRITERIA}
@@ -259,6 +263,7 @@ Note: This assessment summarizes existing evidence; it does not run tests or CI 
 ### Short-term (Next Sprint) - MEDIUM Priority
 
 1. **{ACTION_TITLE_3}** - {PRIORITY} - {ESTIMATED_EFFORT} - {OWNER}
+
    - {ACTION_DESCRIPTION}
 
 2. **{ACTION_TITLE_4}** - {PRIORITY} - {ESTIMATED_EFFORT} - {OWNER}
@@ -278,6 +283,7 @@ Note: This assessment summarizes existing evidence; it does not run tests or CI 
 ### Performance Monitoring
 
 - [ ] {MONITORING_TOOL_1} - {MONITORING_DESCRIPTION}
+
   - **Owner:** {OWNER}
   - **Deadline:** {DEADLINE}
 
@@ -340,6 +346,7 @@ Note: This assessment summarizes existing evidence; it does not run tests or CI 
 {EVIDENCE_GAP_COUNT} evidence gaps identified - action required:
 
 - [ ] **{NFR_NAME_1}** ({NFR_CATEGORY})
+
   - **Owner:** {OWNER}
   - **Deadline:** {DEADLINE}
   - **Suggested Evidence:** {SUGGESTED_EVIDENCE_SOURCE}
@@ -369,15 +376,15 @@ Note: This assessment summarizes existing evidence; it does not run tests or CI 
 
 ```yaml
 nfr_assessment:
-  date: '{DATE}'
-  story_id: '{STORY_ID}'
-  feature_name: '{FEATURE_NAME}'
+  date: "{DATE}"
+  story_id: "{STORY_ID}"
+  feature_name: "{FEATURE_NAME}"
   categories:
-    performance: '{PERFORMANCE_STATUS}'
-    security: '{SECURITY_STATUS}'
-    reliability: '{RELIABILITY_STATUS}'
-    maintainability: '{MAINTAINABILITY_STATUS}'
-  overall_status: '{OVERALL_STATUS}'
+    performance: "{PERFORMANCE_STATUS}"
+    security: "{SECURITY_STATUS}"
+    reliability: "{RELIABILITY_STATUS}"
+    maintainability: "{MAINTAINABILITY_STATUS}"
+  overall_status: "{OVERALL_STATUS}"
   critical_issues: { CRITICAL_COUNT }
   high_priority_issues: { HIGH_COUNT }
   medium_priority_issues: { MEDIUM_COUNT }
@@ -386,9 +393,9 @@ nfr_assessment:
   quick_wins: { QUICK_WIN_COUNT }
   evidence_gaps: { EVIDENCE_GAP_COUNT }
   recommendations:
-    - '{RECOMMENDATION_1}'
-    - '{RECOMMENDATION_2}'
-    - '{RECOMMENDATION_3}'
+    - "{RECOMMENDATION_1}"
+    - "{RECOMMENDATION_2}"
+    - "{RECOMMENDATION_3}"
 ```
 
 ---

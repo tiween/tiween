@@ -139,8 +139,8 @@ Menu items reference these:
 ```yaml
 menu:
   - trigger: analyze
-    action: '#analyze-code'
-    description: 'Analyze code patterns'
+    action: "#analyze-code"
+    description: "Analyze code patterns"
 ```
 
 ### Menu Actions
@@ -184,12 +184,13 @@ The `tools/cli/lib/agent/compiler.js` automatically adds:
 
    ```yaml
    ---
-   name: 'agent name'
-   description: 'Agent Title'
+   name: "agent name"
+   description: "Agent Title"
    ---
    ```
 
 2. **Activation Block**
+
    - Load persona step
    - Load core config for {user_name}, {communication_language}
    - Agent-specific critical_actions as numbered steps
@@ -198,6 +199,7 @@ The `tools/cli/lib/agent/compiler.js` automatically adds:
    - Rules section
 
 3. **Auto-Injected Menu Items**
+
    - `*help` always first
    - `*exit` always last
 

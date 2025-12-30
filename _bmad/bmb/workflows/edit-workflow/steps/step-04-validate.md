@@ -1,23 +1,23 @@
 ---
-name: 'step-04-validate'
-description: 'Validate improvements and prepare for completion'
+name: "step-04-validate"
+description: "Validate improvements and prepare for completion"
 
 # Path Definitions
-workflow_path: '{project-root}/_bmad/bmb/workflows/edit-workflow'
+workflow_path: "{project-root}/_bmad/bmb/workflows/edit-workflow"
 
 # File References
-thisStepFile: '{workflow_path}/steps/step-04-validate.md'
-workflowFile: '{workflow_path}/workflow.md'
-outputFile: '{output_folder}/workflow-edit-{target_workflow_name}.md'
-nextStepFile: '{workflow_path}/steps/step-05-compliance-check.md'
+thisStepFile: "{workflow_path}/steps/step-04-validate.md"
+workflowFile: "{workflow_path}/workflow.md"
+outputFile: "{output_folder}/workflow-edit-{target_workflow_name}.md"
+nextStepFile: "{workflow_path}/steps/step-05-compliance-check.md"
 
 # Task References
-advancedElicitationTask: '{project-root}/_bmad/core/tasks/advanced-elicitation.xml'
-partyModeWorkflow: '{project-root}/_bmad/core/workflows/party-mode/workflow.md'
+advancedElicitationTask: "{project-root}/_bmad/core/tasks/advanced-elicitation.xml"
+partyModeWorkflow: "{project-root}/_bmad/core/workflows/party-mode/workflow.md"
 
 # Template References
-validationTemplate: '{workflow_path}/templates/validation-results.md'
-completionTemplate: '{workflow_path}/templates/completion-summary.md'
+validationTemplate: "{workflow_path}/templates/validation-results.md"
+completionTemplate: "{workflow_path}/templates/completion-summary.md"
 ---
 
 # Step 4: Validation and Completion

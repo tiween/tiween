@@ -1,26 +1,26 @@
 ---
-name: 'step-04-commands'
-description: 'Build capabilities through natural progression and refine commands'
+name: "step-04-commands"
+description: "Build capabilities through natural progression and refine commands"
 
 # Path Definitions
-workflow_path: '{project-root}/bmb/workflows/create-agent/create-agent'
+workflow_path: "{project-root}/bmb/workflows/create-agent/create-agent"
 
 # File References
-thisStepFile: '{workflow_path}/steps/step-04-commands.md'
-nextStepFile: '{workflow_path}/steps/step-05-name.md'
-workflowFile: '{workflow_path}/workflow.md'
-agentPlan: '{bmb_creations_output_folder}/agent-plan-{agent_name}.md'
-agentMenuPatterns: '{project-root}/_bmad/bmb/docs/agents/agent-menu-patterns.md'
-simpleArchitecture: '{project-root}/_bmad/bmb/docs/agents/simple-agent-architecture.md'
-expertArchitecture: '{project-root}/_bmad/bmb/docs/agents/expert-agent-architecture.md'
-moduleArchitecture: '{project-root}/_bmad/bmb/docs/agents/module-agent-architecture.md'
+thisStepFile: "{workflow_path}/steps/step-04-commands.md"
+nextStepFile: "{workflow_path}/steps/step-05-name.md"
+workflowFile: "{workflow_path}/workflow.md"
+agentPlan: "{bmb_creations_output_folder}/agent-plan-{agent_name}.md"
+agentMenuPatterns: "{project-root}/_bmad/bmb/docs/agents/agent-menu-patterns.md"
+simpleArchitecture: "{project-root}/_bmad/bmb/docs/agents/simple-agent-architecture.md"
+expertArchitecture: "{project-root}/_bmad/bmb/docs/agents/expert-agent-architecture.md"
+moduleArchitecture: "{project-root}/_bmad/bmb/docs/agents/module-agent-architecture.md"
 
 # Template References
-commandsTemplate: '{workflow_path}/templates/agent-commands.md'
+commandsTemplate: "{workflow_path}/templates/agent-commands.md"
 
 # Task References
-advancedElicitationTask: '{project-root}/_bmad/core/tasks/advanced-elicitation.xml'
-partyModeWorkflow: '{project-root}/_bmad/core/workflows/party-mode/workflow.md'
+advancedElicitationTask: "{project-root}/_bmad/core/tasks/advanced-elicitation.xml"
+partyModeWorkflow: "{project-root}/_bmad/core/workflows/party-mode/workflow.md"
 ---
 
 # Step 4: Build Capabilities and Commands

@@ -1,21 +1,21 @@
 ---
-name: 'step-06-prep-schedule'
+name: "step-06-prep-schedule"
 description: "Create a realistic meal prep schedule that fits the user's lifestyle"
 
 # Path Definitions
-workflow_path: '{project-root}/_bmad/bmb/reference/workflows/meal-prep-nutrition'
+workflow_path: "{project-root}/_bmad/bmb/reference/workflows/meal-prep-nutrition"
 
 # File References
-thisStepFile: '{workflow_path}/steps/step-06-prep-schedule.md'
-workflowFile: '{workflow_path}/workflow.md'
-outputFile: '{output_folder}/nutrition-plan-{project_name}.md'
+thisStepFile: "{workflow_path}/steps/step-06-prep-schedule.md"
+workflowFile: "{workflow_path}/workflow.md"
+outputFile: "{output_folder}/nutrition-plan-{project_name}.md"
 
 # Task References
-advancedElicitationTask: '{project-root}/_bmad/core/tasks/advanced-elicitation.xml'
-partyModeWorkflow: '{project-root}/_bmad/core/workflows/party-mode/workflow.md'
+advancedElicitationTask: "{project-root}/_bmad/core/tasks/advanced-elicitation.xml"
+partyModeWorkflow: "{project-root}/_bmad/core/workflows/party-mode/workflow.md"
 
 # Template References
-prepScheduleTemplate: '{workflow_path}/templates/prep-schedule-section.md'
+prepScheduleTemplate: "{workflow_path}/templates/prep-schedule-section.md"
 ---
 
 # Step 6: Meal Prep Execution Schedule
@@ -145,8 +145,8 @@ Complete {outputFile} by loading and appending content from {prepScheduleTemplat
 ### Update workflow.md frontmatter:
 
 ```yaml
-stepsCompleted: ['init', 'assessment', 'strategy', 'shopping', 'prep-schedule']
-lastStep: 'prep-schedule'
+stepsCompleted: ["init", "assessment", "strategy", "shopping", "prep-schedule"]
+lastStep: "prep-schedule"
 completionDate: [current date]
 userSatisfaction: [to be rated]
 ```

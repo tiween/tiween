@@ -101,7 +101,7 @@ Grade:                   {grade}
 ```typescript
 // ❌ Bad (current implementation)
 {
-  code_snippet_showing_problem;
+  code_snippet_showing_problem
 }
 ```
 
@@ -110,7 +110,7 @@ Grade:                   {grade}
 ```typescript
 // ✅ Good (recommended approach)
 {
-  code_snippet_showing_solution;
+  code_snippet_showing_solution
 }
 ```
 
@@ -143,7 +143,7 @@ Grade:                   {grade}
 ```typescript
 // ⚠️ Could be improved (current implementation)
 {
-  code_snippet_showing_current_approach;
+  code_snippet_showing_current_approach
 }
 ```
 
@@ -152,7 +152,7 @@ Grade:                   {grade}
 ```typescript
 // ✅ Better approach (recommended)
 {
-  code_snippet_showing_improvement;
+  code_snippet_showing_improvement
 }
 ```
 
@@ -184,7 +184,7 @@ Grade:                   {grade}
 ```typescript
 // ✅ Excellent pattern demonstrated in this test
 {
-  code_snippet_showing_best_practice;
+  code_snippet_showing_best_practice
 }
 ```
 
@@ -281,6 +281,7 @@ See [tea-index.csv](../../../testarch/tea-index.csv) for complete knowledge base
 ### Immediate Actions (Before Merge)
 
 1. **{action_1}** - {description}
+
    - Priority: {P0 | P1 | P2}
    - Owner: {team_or_person}
    - Estimated Effort: {time_estimate}
@@ -293,6 +294,7 @@ See [tea-index.csv](../../../testarch/tea-index.csv) for complete knowledge base
 ### Follow-up Actions (Future PRs)
 
 1. **{action_1}** - {description}
+
    - Priority: {P2 | P3}
    - Target: {next_sprint | backlog}
 

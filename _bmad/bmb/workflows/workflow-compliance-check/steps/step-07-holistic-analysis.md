@@ -1,24 +1,24 @@
 ---
-name: 'step-07-holistic-analysis'
-description: 'Analyze workflow flow, goal alignment, and meta-workflow failures'
+name: "step-07-holistic-analysis"
+description: "Analyze workflow flow, goal alignment, and meta-workflow failures"
 
 # Path Definitions
-workflow_path: '{project-root}/_bmad/bmb/workflows/workflow-compliance-check'
+workflow_path: "{project-root}/_bmad/bmb/workflows/workflow-compliance-check"
 
 # File References
-thisStepFile: '{workflow_path}/steps/step-07-holistic-analysis.md'
-nextStepFile: '{workflow_path}/steps/step-08-generate-report.md'
-workflowFile: '{workflow_path}/workflow.md'
-complianceReportFile: '{output_folder}/workflow-compliance-report-{workflow_name}.md'
-targetWorkflowFile: '{target_workflow_path}'
+thisStepFile: "{workflow_path}/steps/step-07-holistic-analysis.md"
+nextStepFile: "{workflow_path}/steps/step-08-generate-report.md"
+workflowFile: "{workflow_path}/workflow.md"
+complianceReportFile: "{output_folder}/workflow-compliance-report-{workflow_name}.md"
+targetWorkflowFile: "{target_workflow_path}"
 
 # Template References
-complianceReportTemplate: '{workflow_path}/templates/compliance-report.md'
+complianceReportTemplate: "{workflow_path}/templates/compliance-report.md"
 
 # Documentation References
-stepTemplate: '{project-root}/_bmad/bmb/docs/workflows/templates/step-template.md'
-workflowTemplate: '{project-root}/_bmad/bmb/docs/workflows/templates/workflow-template.md'
-intentSpectrum: '{project-root}/_bmad/bmb/docs/workflows/intent-vs-prescriptive-spectrum.md'
+stepTemplate: "{project-root}/_bmad/bmb/docs/workflows/templates/step-template.md"
+workflowTemplate: "{project-root}/_bmad/bmb/docs/workflows/templates/workflow-template.md"
+intentSpectrum: "{project-root}/_bmad/bmb/docs/workflows/intent-vs-prescriptive-spectrum.md"
 ---
 
 # Step 7: Holistic Workflow Analysis

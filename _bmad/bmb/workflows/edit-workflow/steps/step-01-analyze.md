@@ -1,18 +1,18 @@
 ---
-name: 'step-01-analyze'
-description: 'Load and deeply understand the target workflow'
+name: "step-01-analyze"
+description: "Load and deeply understand the target workflow"
 
 # Path Definitions
-workflow_path: '{project-root}/_bmad/bmb/workflows/edit-workflow'
+workflow_path: "{project-root}/_bmad/bmb/workflows/edit-workflow"
 
 # File References
-thisStepFile: '{workflow_path}/steps/step-01-analyze.md'
-nextStepFile: '{workflow_path}/steps/step-02-discover.md'
-workflowFile: '{workflow_path}/workflow.md'
-outputFile: '{output_folder}/workflow-edit-{target_workflow_name}.md'
+thisStepFile: "{workflow_path}/steps/step-01-analyze.md"
+nextStepFile: "{workflow_path}/steps/step-02-discover.md"
+workflowFile: "{workflow_path}/workflow.md"
+outputFile: "{output_folder}/workflow-edit-{target_workflow_name}.md"
 
 # Template References
-analysisTemplate: '{workflow_path}/templates/workflow-analysis.md'
+analysisTemplate: "{workflow_path}/templates/workflow-analysis.md"
 ---
 
 # Step 1: Workflow Analysis
@@ -67,6 +67,7 @@ Ask the user:
 "I need two pieces of information to help you edit your workflow effectively:
 
 1. **What is the path to the workflow you want to edit?**
+
    - Path to workflow.md file (new format)
    - Path to workflow.yaml file (legacy format)
    - Path to the workflow directory

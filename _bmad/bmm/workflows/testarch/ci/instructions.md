@@ -32,11 +32,13 @@ Note: This is typically a one-time setup per repo; run it any time after the tes
 ### Actions
 
 1. **Verify Git Repository**
+
    - Check for `.git/` directory
    - Confirm remote repository configured (`git remote -v`)
    - If not initialized, HALT with message: "Git repository required for CI/CD setup"
 
 2. **Validate Test Framework**
+
    - Look for `playwright.config.*` or `cypress.config.*`
    - Read framework configuration to extract:
      - Test directory location
@@ -46,11 +48,13 @@ Note: This is typically a one-time setup per repo; run it any time after the tes
    - If not found, HALT with message: "Run `framework` workflow first to set up test infrastructure"
 
 3. **Run Local Tests**
+
    - Execute `npm run test:e2e` (or equivalent from package.json)
    - Ensure tests pass before CI setup
    - If tests fail, HALT with message: "Fix failing tests before setting up CI/CD"
 
 4. **Detect CI Platform**
+
    - Check for existing CI configuration:
      - `.github/workflows/*.yml` (GitHub Actions)
      - `.gitlab-ci.yml` (GitLab CI)
@@ -80,21 +84,25 @@ Note: This is typically a one-time setup per repo; run it any time after the tes
    Based on detection or user preference, use the appropriate template:
 
    **GitHub Actions** (`.github/workflows/test.yml`):
+
    - Most common platform
    - Excellent caching and matrix support
    - Free for public repos, generous free tier for private
 
    **GitLab CI** (`.gitlab-ci.yml`):
+
    - Integrated with GitLab
    - Built-in registry and runners
    - Powerful pipeline features
 
    **Circle CI** (`.circleci/config.yml`):
+
    - Fast execution with parallelism
    - Docker-first approach
    - Enterprise features
 
    **Jenkins** (`Jenkinsfile`):
+
    - Self-hosted option
    - Maximum customization
    - Requires infrastructure management
@@ -102,6 +110,7 @@ Note: This is typically a one-time setup per repo; run it any time after the tes
 2. **Generate Pipeline Configuration**
 
    Use templates from `{installed_path}/` directory:
+
    - `github-actions-template.yml`
    - `gitlab-ci-template.yml`
 
@@ -146,7 +155,7 @@ Note: This is typically a one-time setup per repo; run it any time after the tes
        - name: Setup Node
          uses: actions/setup-node@v4
          with:
-           node-version-file: '.nvmrc'
+           node-version-file: ".nvmrc"
 
        - name: Install dependencies
          run: npm ci
@@ -170,6 +179,7 @@ Note: This is typically a one-time setup per repo; run it any time after the tes
    **Purpose:** Runs tests multiple times to catch non-deterministic failures before they reach main branch.
 
    **When to run:**
+
    - On pull requests to main/develop
    - Weekly on cron schedule
    - After significant test infrastructure changes
@@ -217,6 +227,7 @@ Note: This is typically a one-time setup per repo; run it any time after the tes
    ```
 
    **Artifacts to collect:**
+
    - Traces (Playwright) - full debugging context
    - Screenshots - visual evidence of failures
    - Videos - interaction playback
@@ -247,7 +258,7 @@ Note: This is typically a one-time setup per repo; run it any time after the tes
      uses: 8398a7/action-slack@v3
      with:
        status: ${{ job.status }}
-       text: 'Test failures detected in PR #${{ github.event.pull_request.number }}'
+       text: "Test failures detected in PR #${{ github.event.pull_request.number }}"
        webhook_url: ${{ secrets.SLACK_WEBHOOK }}
    ```
 
@@ -295,6 +306,7 @@ Note: This is typically a one-time setup per repo; run it any time after the tes
 10. **Generate Documentation**
 
     **CI README** (`docs/ci.md`):
+
     - Pipeline stages and purpose
     - How to run locally
     - Debugging failed CI runs
@@ -303,6 +315,7 @@ Note: This is typically a one-time setup per repo; run it any time after the tes
     - Badge URLs for README
 
     **Secrets checklist** (`docs/ci-secrets-checklist.md`):
+
     - Required secrets list (SLACK_WEBHOOK, etc.)
     - Where to configure in CI platform
     - Security best practices
@@ -314,22 +327,26 @@ Note: This is typically a one-time setup per repo; run it any time after the tes
 ### Primary Artifacts Created
 
 1. **CI Configuration File**
+
    - `.github/workflows/test.yml` (GitHub Actions)
    - `.gitlab-ci.yml` (GitLab CI)
    - `.circleci/config.yml` (Circle CI)
 
 2. **Pipeline Stages**
+
    - **Lint**: Code quality checks (ESLint, Prettier)
    - **Test**: Parallel test execution (4 shards)
    - **Burn-in**: Flaky test detection (10 iterations)
    - **Report**: Result aggregation and publishing
 
 3. **Helper Scripts**
+
    - `scripts/test-changed.sh` - Selective testing
    - `scripts/ci-local.sh` - Local CI mirror
    - `scripts/burn-in.sh` - Standalone burn-in execution
 
 4. **Documentation**
+
    - `docs/ci.md` - CI pipeline guide
    - `docs/ci-secrets-checklist.md` - Required secrets
    - Inline comments in CI configuration

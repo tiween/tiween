@@ -192,9 +192,9 @@ Add domain-specific documentation here.
 
 ```yaml
 critical_actions:
-  - 'Load COMPLETE file ./{sidecar}/memories.md and remember all past insights'
-  - 'Load COMPLETE file ./{sidecar}/instructions.md and follow ALL protocols'
-  - 'ONLY read/write files in ./{sidecar}/ - this is our private space'
+  - "Load COMPLETE file ./{sidecar}/memories.md and remember all past insights"
+  - "Load COMPLETE file ./{sidecar}/instructions.md and follow ALL protocols"
+  - "ONLY read/write files in ./{sidecar}/ - this is our private space"
 ```
 
 **Key patterns:**
@@ -261,7 +261,7 @@ The installer:
 menu:
   - trigger: save
     action: "Update ./sidecar/memories.md with today's session insights"
-    description: 'Save session to memory'
+    description: "Save session to memory"
 ```
 
 ### Reference Memory
@@ -281,8 +281,8 @@ prompts:
 ```yaml
 menu:
   - trigger: insight
-    action: 'Document in ./sidecar/breakthroughs.md with date, context, significance'
-    description: 'Record meaningful insight'
+    action: "Document in ./sidecar/breakthroughs.md with date, context, significance"
+    description: "Record meaningful insight"
 ```
 
 ## Domain Restriction Patterns
@@ -291,29 +291,29 @@ menu:
 
 ```yaml
 critical_actions:
-  - 'ONLY read/write files in ./sidecar/ - NO OTHER FOLDERS'
+  - "ONLY read/write files in ./sidecar/ - NO OTHER FOLDERS"
 ```
 
 ### User Space Access
 
 ```yaml
 critical_actions:
-  - 'ONLY access files in {user-folder}/journals/ - private space'
+  - "ONLY access files in {user-folder}/journals/ - private space"
 ```
 
 ### Read-Only Access
 
 ```yaml
 critical_actions:
-  - 'Load knowledge from ./knowledge/ but NEVER modify'
-  - 'Write ONLY to ./sessions/'
+  - "Load knowledge from ./knowledge/ but NEVER modify"
+  - "Write ONLY to ./sessions/"
 ```
 
 ## Best Practices
 
 1. **Load sidecar files in critical_actions** - Must be explicit and MANDATORY
 2. **Enforce domain restrictions** - Clear boundaries prevent scope creep
-3. **Use _bmad/_memory/[agentname]-sidcar/ paths** - For reference to any sidecar content
+3. **Use \_bmad/\_memory/[agentname]-sidcar/ paths** - For reference to any sidecar content
 4. **Design for memory growth** - Structure sidecar files for accumulation
 5. **Reference past naturally** - Don't dump memory, weave it into conversation
 6. **Separate concerns** - Memories, instructions, knowledge in distinct files
@@ -333,8 +333,8 @@ communication_style: |
 
 ```yaml
 critical_actions:
-  - 'Track mood patterns, recurring themes, and breakthrough moments'
-  - 'Cross-reference current session with historical patterns'
+  - "Track mood patterns, recurring themes, and breakthrough moments"
+  - "Cross-reference current session with historical patterns"
 ```
 
 ### Adaptive Responses
@@ -356,8 +356,8 @@ identity: |
 - [ ] Sidecar folder structure created and populated
 - [ ] memories.md has clear section structure
 - [ ] instructions.md contains core directives
-- [ ] Menu actions reference _bmad/_memory/[agentname]-sidcar/ correctly if needing sidecar content reference
-- [ ] File paths use _bmad/_memory/[agentname]-sidcar/ to reference where the file will be after sidecar content is installed
+- [ ] Menu actions reference \_bmad/\_memory/[agentname]-sidcar/ correctly if needing sidecar content reference
+- [ ] File paths use \_bmad/\_memory/[agentname]-sidcar/ to reference where the file will be after sidecar content is installed
 - [ ] Install config personalizes sidecar references
 - [ ] Agent folder named consistently: `{agent-name}/`
 - [ ] YAML file named: `{agent-name}.agent.yaml`

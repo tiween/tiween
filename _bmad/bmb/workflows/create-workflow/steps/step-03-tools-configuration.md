@@ -1,23 +1,23 @@
 ---
-name: 'step-03-tools-configuration'
-description: 'Configure all required tools (core, memory, external) and installation requirements in one comprehensive step'
+name: "step-03-tools-configuration"
+description: "Configure all required tools (core, memory, external) and installation requirements in one comprehensive step"
 
 # Path Definitions
-workflow_path: '{project-root}/_bmad/bmb/workflows/create-workflow'
+workflow_path: "{project-root}/_bmad/bmb/workflows/create-workflow"
 
 # File References
-thisStepFile: '{workflow_path}/steps/step-03-tools-configuration.md'
-nextStepFile: '{workflow_path}/steps/step-04-plan-review.md'
+thisStepFile: "{workflow_path}/steps/step-03-tools-configuration.md"
+nextStepFile: "{workflow_path}/steps/step-04-plan-review.md"
 
-targetWorkflowPath: '{bmb_creations_output_folder}/workflows/{new_workflow_name}'
-workflowPlanFile: '{targetWorkflowPath}/workflow-plan-{new_workflow_name}.md'
+targetWorkflowPath: "{bmb_creations_output_folder}/workflows/{new_workflow_name}"
+workflowPlanFile: "{targetWorkflowPath}/workflow-plan-{new_workflow_name}.md"
 
 # Documentation References
-commonToolsCsv: '{project-root}/_bmad/bmb/docs/workflows/common-workflow-tools.csv'
+commonToolsCsv: "{project-root}/_bmad/bmb/docs/workflows/common-workflow-tools.csv"
 
 # Task References
-advancedElicitationTask: '{project-root}/_bmad/core/tasks/advanced-elicitation.xml'
-partyModeWorkflow: '{project-root}/_bmad/core/workflows/party-mode/workflow.md'
+advancedElicitationTask: "{project-root}/_bmad/core/tasks/advanced-elicitation.xml"
+partyModeWorkflow: "{project-root}/_bmad/core/workflows/party-mode/workflow.md"
 # Template References
 # No template needed - will append tools configuration directly to workflow plan
 ---
@@ -99,10 +99,12 @@ These tools significantly enhance workflow quality and user experience:"
 For each core tool from CSV (`propose='always'`):
 
 1. **Party-Mode**
+
    - Use case: [description from CSV]
    - Where to integrate: [ask user for decision points, creative phases]
 
 2. **Advanced Elicitation**
+
    - Use case: [description from CSV]
    - Where to integrate: [ask user for quality gates, review points]
 
@@ -119,14 +121,17 @@ These capabilities enhance what your workflow can do:"
 From CSV (`propose='always'` LLM features):
 
 4. **Web-Browsing**
+
    - Capability: [description from CSV]
    - When needed: [ask user about real-time data needs]
 
 5. **File I/O**
+
    - Capability: [description from CSV]
    - Operations: [ask user about file operations needed]
 
 6. **Sub-Agents**
+
    - Capability: [description from CSV]
    - Use cases: [ask user about delegation needs]
 

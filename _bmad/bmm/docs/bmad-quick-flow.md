@@ -61,16 +61,19 @@ The `create-tech-spec` workflow transforms requirements into implementation-read
 **Process Flow:**
 
 1. **Problem Understanding**
+
    - Greet user and gather requirements
    - Ask clarifying questions about scope and constraints
    - Check for existing project context
 
 2. **Code Investigation (Brownfield)**
+
    - Analyze existing codebase patterns
    - Document tech stack and conventions
    - Identify files to modify and dependencies
 
 3. **Specification Generation**
+
    - Create structured tech specification
    - Define clear tasks and acceptance criteria
    - Document technical decisions
@@ -116,12 +119,14 @@ quick-dev "Fix the memory leak in image processing"
 **Development Process:**
 
 1. **Context Loading**
+
    - Load project context if available
    - Understand patterns and conventions
    - Identify relevant files and dependencies
 
 2. **Implementation Loop**
    For each task:
+
    - Load relevant files and context
    - Implement following established patterns
    - Write appropriate tests
@@ -129,6 +134,7 @@ quick-dev "Fix the memory leak in image processing"
    - Mark task complete and continue
 
 3. **Continuous Execution**
+
    - Works through all tasks without stopping
    - Handles failures by requesting guidance
    - Ensures tests pass before continuing
@@ -180,11 +186,13 @@ The `code-review` workflow provides senior developer review of implemented code.
 ### Before Starting Quick Flow
 
 1. **Validate Track Selection**
+
    - Is the feature small enough?
    - Do you have clear requirements?
    - Is the team comfortable with rapid development?
 
 2. **Prepare Context**
+
    - Have project documentation ready
    - Know your codebase patterns
    - Identify affected components upfront
@@ -197,11 +205,13 @@ The `code-review` workflow provides senior developer review of implemented code.
 ### During Development
 
 1. **Maintain Velocity**
+
    - Don't over-engineer solutions
    - Follow existing patterns
    - Keep tests proportional to risk
 
 2. **Stay Focused**
+
    - Resist scope creep
    - Handle edge cases later if possible
    - Document decisions briefly
@@ -214,11 +224,13 @@ The `code-review` workflow provides senior developer review of implemented code.
 ### After Completion
 
 1. **Quality Gates**
+
    - Ensure tests pass
    - Verify acceptance criteria
    - Consider optional code review
 
 2. **Knowledge Transfer**
+
    - Update relevant documentation
    - Share key decisions
    - Note any discovered patterns

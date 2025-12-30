@@ -1,26 +1,26 @@
 ---
-name: 'step-02-discover'
-description: 'Discover the agent purpose and type through natural conversation'
+name: "step-02-discover"
+description: "Discover the agent purpose and type through natural conversation"
 
 # Path Definitions
-workflow_path: '{project-root}/bmb/workflows/create-agent/create-agent'
+workflow_path: "{project-root}/bmb/workflows/create-agent/create-agent"
 
 # File References
-thisStepFile: '{workflow_path}/steps/step-02-discover.md'
-nextStepFile: '{workflow_path}/steps/step-03-persona.md'
-workflowFile: '{workflow_path}/workflow.md'
-agentPlan: '{bmb_creations_output_folder}/agent-plan-{agent_name}.md'
-agentTypesGuide: '{project-root}/_bmad/bmb/docs/agents/understanding-agent-types.md'
-simpleExamples: '{workflow_path}/data/reference/agents/simple-examples/'
-expertExamples: '{workflow_path}/data/reference/agents/expert-examples/'
-moduleExamples: '{workflow_path}/data/reference/agents/module-examples/'
+thisStepFile: "{workflow_path}/steps/step-02-discover.md"
+nextStepFile: "{workflow_path}/steps/step-03-persona.md"
+workflowFile: "{workflow_path}/workflow.md"
+agentPlan: "{bmb_creations_output_folder}/agent-plan-{agent_name}.md"
+agentTypesGuide: "{project-root}/_bmad/bmb/docs/agents/understanding-agent-types.md"
+simpleExamples: "{workflow_path}/data/reference/agents/simple-examples/"
+expertExamples: "{workflow_path}/data/reference/agents/expert-examples/"
+moduleExamples: "{workflow_path}/data/reference/agents/module-examples/"
 
 # Template References
-agentPurposeTemplate: '{workflow_path}/templates/agent-purpose-and-type.md'
+agentPurposeTemplate: "{workflow_path}/templates/agent-purpose-and-type.md"
 
 # Task References
-advancedElicitationTask: '{project-root}/_bmad/core/tasks/advanced-elicitation.xml'
-partyModeWorkflow: '{project-root}/_bmad/core/workflows/party-mode/workflow.md'
+advancedElicitationTask: "{project-root}/_bmad/core/tasks/advanced-elicitation.xml"
+partyModeWorkflow: "{project-root}/_bmad/core/workflows/party-mode/workflow.md"
 ---
 
 # Step 2: Discover Agent Purpose and Type
@@ -104,6 +104,7 @@ As purpose becomes clear, analyze and recommend appropriate agent type.
 **Agent Type Decision Framework:**
 
 - **Simple Agent** - Self-contained (all in YAML), stateless, no persistent memory
+
   - Choose when: Single-purpose utility, each run independent, logic fits in YAML
   - CAN write to output folders, update files, execute commands
   - Example: Git commit helper, documentation generator, data validator

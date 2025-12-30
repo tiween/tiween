@@ -1,24 +1,24 @@
 ---
-name: 'step-04-file-validation'
-description: 'Validate file sizes, markdown formatting, and CSV data files'
+name: "step-04-file-validation"
+description: "Validate file sizes, markdown formatting, and CSV data files"
 
 # Path Definitions
-workflow_path: '{project-root}/_bmad/bmb/workflows/workflow-compliance-check'
+workflow_path: "{project-root}/_bmad/bmb/workflows/workflow-compliance-check"
 
 # File References
-thisStepFile: '{workflow_path}/steps/step-04-file-validation.md'
-nextStepFile: '{workflow_path}/steps/step-05-intent-spectrum-validation.md'
-workflowFile: '{workflow_path}/workflow.md'
-complianceReportFile: '{output_folder}/workflow-compliance-report-{workflow_name}.md'
-targetWorkflowPath: '{target_workflow_path}'
+thisStepFile: "{workflow_path}/steps/step-04-file-validation.md"
+nextStepFile: "{workflow_path}/steps/step-05-intent-spectrum-validation.md"
+workflowFile: "{workflow_path}/workflow.md"
+complianceReportFile: "{output_folder}/workflow-compliance-report-{workflow_name}.md"
+targetWorkflowPath: "{target_workflow_path}"
 
 # Template References
-complianceReportTemplate: '{workflow_path}/templates/compliance-report.md'
+complianceReportTemplate: "{workflow_path}/templates/compliance-report.md"
 
 # Documentation References
-stepTemplate: '{project-root}/_bmad/bmb/docs/workflows/templates/step-template.md'
-workflowTemplate: '{project-root}/_bmad/bmb/docs/workflows/templates/workflow-template.md'
-csvStandards: '{project-root}/_bmad/bmb/docs/workflows/csv-data-file-standards.md'
+stepTemplate: "{project-root}/_bmad/bmb/docs/workflows/templates/step-template.md"
+workflowTemplate: "{project-root}/_bmad/bmb/docs/workflows/templates/workflow-template.md"
+csvStandards: "{project-root}/_bmad/bmb/docs/workflows/csv-data-file-standards.md"
 ---
 
 # Step 4: File Size, Formatting, and Data Validation

@@ -1,18 +1,18 @@
 ---
-name: 'step-04-apply-changes'
-description: 'Apply approved changes to the agent'
+name: "step-04-apply-changes"
+description: "Apply approved changes to the agent"
 
 # Path Definitions
-workflow_path: '{project-root}/bmb/workflows/create-agent/edit-agent'
+workflow_path: "{project-root}/bmb/workflows/create-agent/edit-agent"
 
 # File References
-thisStepFile: '{workflow_path}/steps/step-04-apply-changes.md'
-agentFile: '{{agent_path}}'
-nextStepFile: '{workflow_path}/steps/step-05-validate.md'
+thisStepFile: "{workflow_path}/steps/step-04-apply-changes.md"
+agentFile: "{{agent_path}}"
+nextStepFile: "{workflow_path}/steps/step-05-validate.md"
 
 # Task References
-advancedElicitationTask: '{project-root}/_bmad/core/tasks/advanced-elicitation.xml'
-partyModeWorkflow: '{project-root}/_bmad/core/workflows/party-mode/workflow.md'
+advancedElicitationTask: "{project-root}/_bmad/core/tasks/advanced-elicitation.xml"
+partyModeWorkflow: "{project-root}/_bmad/core/workflows/party-mode/workflow.md"
 ---
 
 # Step 4: Apply Changes

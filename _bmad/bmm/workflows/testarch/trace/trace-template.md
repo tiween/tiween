@@ -34,6 +34,7 @@ Note: This workflow does not generate tests. If gaps exist, run `*atdd` or `*aut
 
 - **Coverage:** {COVERAGE_STATUS} {STATUS_ICON}
 - **Tests:**
+
   - `{TEST_ID}` - {TEST_FILE}:{LINE}
     - **Given:** {GIVEN}
     - **When:** {WHEN}
@@ -44,6 +45,7 @@ Note: This workflow does not generate tests. If gaps exist, run `*atdd` or `*aut
     - **Then:** {THEN_2}
 
 - **Gaps:** (if PARTIAL or UNIT-ONLY or INTEGRATION-ONLY)
+
   - Missing: {MISSING_SCENARIO_1}
   - Missing: {MISSING_SCENARIO_2}
 
@@ -70,12 +72,14 @@ Note: This workflow does not generate tests. If gaps exist, run `*atdd` or `*aut
 
 - **Coverage:** PARTIAL ⚠️
 - **Tests:**
+
   - `1.3-E2E-003` - tests/e2e/auth.spec.ts:44
     - **Given:** User requests password reset
     - **When:** User clicks reset link in email
     - **Then:** User can set new password
 
 - **Gaps:**
+
   - Missing: Email delivery validation
   - Missing: Expired token handling (error path)
   - Missing: Invalid token handling (security test)
@@ -466,12 +470,14 @@ Top blockers requiring immediate attention:
 #### For PASS Decision ✅
 
 1. **Proceed to deployment**
+
    - Deploy to staging environment
    - Validate with smoke tests
    - Monitor key metrics for 24-48 hours
    - Deploy to production with standard monitoring
 
 2. **Post-Deployment Monitoring**
+
    - {metric_1_to_monitor}
    - {metric_2_to_monitor}
    - {alert_thresholds}
@@ -485,6 +491,7 @@ Top blockers requiring immediate attention:
 #### For CONCERNS Decision ⚠️
 
 1. **Deploy with Enhanced Monitoring**
+
    - Deploy to staging with extended validation period
    - Enable enhanced logging/monitoring for known risk areas:
      - {risk_area_1}
@@ -493,6 +500,7 @@ Top blockers requiring immediate attention:
    - Deploy to production with caution
 
 2. **Create Remediation Backlog**
+
    - Create story: "{fix_title_1}" (Priority: {priority})
    - Create story: "{fix_title_2}" (Priority: {priority})
    - Target sprint: {next_sprint}
@@ -507,11 +515,13 @@ Top blockers requiring immediate attention:
 #### For FAIL Decision ❌
 
 1. **Block Deployment Immediately**
+
    - Do NOT deploy to any environment
    - Notify stakeholders of blocking issues
    - Escalate to tech lead and PM
 
 2. **Fix Critical Issues**
+
    - Address P0 blockers listed in Critical Issues section
    - Owner assignments confirmed
    - Due dates agreed upon
@@ -527,11 +537,13 @@ Top blockers requiring immediate attention:
 #### For WAIVED Decision 🔓
 
 1. **Deploy with Business Approval**
+
    - Confirm waiver approver has signed off
    - Document waiver in release notes
    - Notify all stakeholders of waived risks
 
 2. **Aggressive Monitoring**
+
    - {enhanced_monitoring_plan}
    - {escalation_procedures}
    - Daily checks on waived risk areas

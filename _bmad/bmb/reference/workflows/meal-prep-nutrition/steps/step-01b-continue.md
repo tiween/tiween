@@ -1,13 +1,13 @@
 ---
-name: 'step-01b-continue'
-description: 'Handle workflow continuation from previous session'
+name: "step-01b-continue"
+description: "Handle workflow continuation from previous session"
 
 # Path Definitions
-workflow_path: '{project-root}/_bmad/bmb/reference/workflows/meal-prep-nutrition'
+workflow_path: "{project-root}/_bmad/bmb/reference/workflows/meal-prep-nutrition"
 
 # File References
-thisStepFile: '{workflow_path}/steps/step-01b-continue.md'
-outputFile: '{output_folder}/nutrition-plan-{project_name}.md'
+thisStepFile: "{workflow_path}/steps/step-01b-continue.md"
+outputFile: "{output_folder}/nutrition-plan-{project_name}.md"
 ---
 
 # Step 1B: Workflow Continuation

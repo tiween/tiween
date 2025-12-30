@@ -25,10 +25,12 @@ The workflow auto-detects which mode to use based on project phase.
 ### Mode Detection
 
 1. **Check for sprint-status.yaml**
+
    - If `{output_folder}/bmm-sprint-status.yaml` exists → **Epic-Level Mode** (Phase 4)
    - If NOT exists → Check workflow status
 
 2. **Check workflow-status.yaml**
+
    - Read `{output_folder}/bmm-workflow-status.yaml`
    - If `implementation-readiness: required` or `implementation-readiness: recommended` → **System-Level Mode** (Phase 3)
    - Otherwise → **Epic-Level Mode** (Phase 4 without sprint status yet)
@@ -36,12 +38,14 @@ The workflow auto-detects which mode to use based on project phase.
 3. **Mode-Specific Requirements**
 
    **System-Level Mode (Phase 3 - Testability Review):**
+
    - ✅ Architecture document exists (architecture.md or tech-spec)
    - ✅ PRD exists with functional and non-functional requirements
    - ✅ Epics documented (epics.md)
    - ⚠️ Output: `{output_folder}/test-design-system.md`
 
    **Epic-Level Mode (Phase 4 - Per-Epic Planning):**
+
    - ✅ Story markdown with acceptance criteria available
    - ✅ PRD or epic documentation exists for context
    - ✅ Architecture documents available (optional but recommended)
@@ -59,6 +63,7 @@ The workflow auto-detects which mode to use based on project phase.
 ### System-Level Mode (Phase 3)
 
 1. **Read Architecture Documentation**
+
    - Load architecture.md or tech-spec (REQUIRED)
    - Load PRD.md for functional and non-functional requirements
    - Load epics.md for feature scope
@@ -75,6 +80,7 @@ The workflow auto-detects which mode to use based on project phase.
 3. **Load Knowledge Base Fragments (System-Level)**
 
    **Critical:** Consult `{project-root}/_bmad/bmm/testarch/tea-index.csv` to load:
+
    - `nfr-criteria.md` - NFR validation approach (security, performance, reliability, maintainability)
    - `test-levels-framework.md` - Test levels strategy guidance
    - `risk-governance.md` - Testability risk identification
@@ -88,12 +94,14 @@ The workflow auto-detects which mode to use based on project phase.
 ### Epic-Level Mode (Phase 4)
 
 1. **Read Requirements Documentation**
+
    - Load PRD.md for high-level product requirements
    - Read epics.md or specific epic for feature scope
    - Read story markdown for detailed acceptance criteria
    - Identify all testable requirements
 
 2. **Load Architecture Context**
+
    - Read architecture.md for system design
    - Read tech-spec for implementation details
    - Read test-design-system.md (if exists from Phase 3)
@@ -101,6 +109,7 @@ The workflow auto-detects which mode to use based on project phase.
    - Note integration points and external systems
 
 3. **Analyze Existing Test Coverage**
+
    - Search for existing test files in `{test_dir}`
    - Identify coverage gaps
    - Note areas with insufficient testing
@@ -109,6 +118,7 @@ The workflow auto-detects which mode to use based on project phase.
 4. **Load Knowledge Base Fragments (Epic-Level)**
 
    **Critical:** Consult `{project-root}/_bmad/bmm/testarch/tea-index.csv` to load:
+
    - `risk-governance.md` - Risk classification framework (6 categories: TECH, SEC, PERF, DATA, BUS, OPS), automated scoring, gate decision engine, owner tracking (625 lines, 4 examples)
    - `probability-impact.md` - Risk scoring methodology (probability × impact matrix, automated classification, dynamic re-assessment, gate integration, 604 lines, 4 examples)
    - `test-levels-framework.md` - Test level selection guidance (E2E vs API vs Component vs Unit with decision matrix, characteristics, when to use each, 467 lines, 4 examples)
@@ -129,16 +139,19 @@ The workflow auto-detects which mode to use based on project phase.
    Evaluate architecture against these criteria:
 
    **Controllability:**
+
    - Can we control system state for testing? (API seeding, factories, database reset)
    - Are external dependencies mockable? (interfaces, dependency injection)
    - Can we trigger error conditions? (chaos engineering, fault injection)
 
    **Observability:**
+
    - Can we inspect system state? (logging, metrics, traces)
    - Are test results deterministic? (no race conditions, clear success/failure)
    - Can we validate NFRs? (performance metrics, security audit logs)
 
    **Reliability:**
+
    - Are tests isolated? (parallel-safe, stateless, cleanup discipline)
    - Can we reproduce failures? (deterministic waits, HAR capture, seed data)
    - Are components loosely coupled? (mockable, testable boundaries)
@@ -146,6 +159,7 @@ The workflow auto-detects which mode to use based on project phase.
 2. **Identify Architecturally Significant Requirements (ASRs)**
 
    From PRD NFRs and architecture decisions, identify quality requirements that:
+
    - Drive architecture decisions (e.g., "Must handle 10K concurrent users" → caching architecture)
    - Pose testability challenges (e.g., "Sub-second response time" → performance test infrastructure)
    - Require special test environments (e.g., "Multi-region deployment" → regional test instances)
@@ -155,6 +169,7 @@ The workflow auto-detects which mode to use based on project phase.
 3. **Define Test Levels Strategy**
 
    Based on architecture (mobile, web, API, microservices, monolith):
+
    - Recommend unit/integration/E2E split (e.g., 70/20/10 for API-heavy, 40/30/30 for UI-heavy)
    - Identify test environment needs (local, staging, ephemeral, production-like)
    - Define testing approach per technology (Playwright for web, Maestro for mobile, k6 for performance)
@@ -162,6 +177,7 @@ The workflow auto-detects which mode to use based on project phase.
 4. **Assess NFR Testing Approach**
 
    For each NFR category:
+
    - **Security**: Auth/authz tests, OWASP validation, secret handling (Playwright E2E + security tools)
    - **Performance**: Load/stress/spike testing with k6, SLO/SLA thresholds
    - **Reliability**: Error handling, retries, circuit breakers, health checks (Playwright + API tests)
@@ -170,6 +186,7 @@ The workflow auto-detects which mode to use based on project phase.
 5. **Flag Testability Concerns**
 
    Identify architecture decisions that harm testability:
+
    - ❌ Tight coupling (no interfaces, hard dependencies)
    - ❌ No dependency injection (can't mock external services)
    - ❌ Hardcoded configurations (can't test different envs)
@@ -234,11 +251,13 @@ The workflow auto-detects which mode to use based on project phase.
    Determine mode based on context:
 
    **Requirements-Based Mode (DEFAULT)**:
+
    - Have clear story/PRD with acceptance criteria
    - Uses: Existing workflow (Steps 2-4)
    - Appropriate for: Documented features, greenfield projects
 
    **Exploratory Mode (OPTIONAL - Brownfield)**:
+
    - Missing/incomplete requirements AND brownfield application exists
    - Uses: UI exploration to discover functionality
    - Appropriate for: Undocumented brownfield apps, legacy systems
@@ -246,6 +265,7 @@ The workflow auto-detects which mode to use based on project phase.
 2. **Requirements-Based Mode (DEFAULT - Skip to Step 2)**
 
    If requirements are clear:
+
    - Continue with existing workflow (Step 2: Assess and Classify Risks)
    - Use loaded requirements from Step 1
    - Proceed with risk assessment based on documented requirements
@@ -257,9 +277,11 @@ The workflow auto-detects which mode to use based on project phase.
    **A. Check MCP Availability**
 
    If config.tea_use_mcp_enhancements is true AND Playwright MCP tools available:
+
    - Use MCP-assisted exploration (Step 3.B)
 
    If MCP unavailable OR config.tea_use_mcp_enhancements is false:
+
    - Use manual exploration fallback (Step 3.C)
 
    **B. MCP-Assisted Exploration (If MCP Tools Available)**
@@ -289,6 +311,7 @@ The workflow auto-detects which mode to use based on project phase.
    ```
 
    **Discovery Documentation:**
+
    - Create list of discovered features (pages, workflows, forms)
    - Identify user journeys (navigation paths)
    - Map API endpoints (from network requests)
@@ -296,6 +319,7 @@ The workflow auto-detects which mode to use based on project phase.
    - Capture screenshots for visual reference
 
    **Convert to Test Scenarios:**
+
    - Transform discoveries into testable requirements
    - Prioritize based on user flow criticality
    - Identify risks from discovered functionality
@@ -315,6 +339,7 @@ The workflow auto-detects which mode to use based on project phase.
    1. Open application at: {exploration_url}
    2. Explore all pages, workflows, and features
    3. Document findings in markdown:
+
       - List of pages/features discovered
       - User journeys identified
       - API endpoints observed (DevTools Network tab)
@@ -327,6 +352,7 @@ The workflow auto-detects which mode to use based on project phase.
    ```
 
    Wait for user to provide exploration findings, then:
+
    - Parse user-provided discovery documentation
    - Convert to testable requirements
    - Continue with Step 2 (risk assessment)
@@ -334,6 +360,7 @@ The workflow auto-detects which mode to use based on project phase.
 4. **Proceed to Risk Assessment**
 
    After mode selection (Requirements-Based OR Exploratory):
+
    - Continue to Step 2: Assess and Classify Risks
    - Use requirements from documentation (Requirements-Based) OR discoveries (Exploratory)
 
@@ -346,6 +373,7 @@ The workflow auto-detects which mode to use based on project phase.
 1. **Identify Genuine Risks**
 
    Filter requirements to isolate actual risks (not just features):
+
    - Unresolved technical gaps
    - Security vulnerabilities
    - Performance bottlenecks
@@ -358,36 +386,42 @@ The workflow auto-detects which mode to use based on project phase.
    Use these standard risk categories:
 
    **TECH** (Technical/Architecture):
+
    - Architecture flaws
    - Integration failures
    - Scalability issues
    - Technical debt
 
    **SEC** (Security):
+
    - Missing access controls
    - Authentication bypass
    - Data exposure
    - Injection vulnerabilities
 
    **PERF** (Performance):
+
    - SLA violations
    - Response time degradation
    - Resource exhaustion
    - Scalability limits
 
    **DATA** (Data Integrity):
+
    - Data loss
    - Data corruption
    - Inconsistent state
    - Migration failures
 
    **BUS** (Business Impact):
+
    - User experience degradation
    - Business logic errors
    - Revenue impact
    - Compliance violations
 
    **OPS** (Operations):
+
    - Deployment failures
    - Configuration errors
    - Monitoring gaps
@@ -396,6 +430,7 @@ The workflow auto-detects which mode to use based on project phase.
 3. **Score Risk Probability**
 
    Rate likelihood (1-3):
+
    - **1 (Unlikely)**: <10% chance, edge case
    - **2 (Possible)**: 10-50% chance, known scenario
    - **3 (Likely)**: >50% chance, common occurrence
@@ -403,6 +438,7 @@ The workflow auto-detects which mode to use based on project phase.
 4. **Score Risk Impact**
 
    Rate severity (1-3):
+
    - **1 (Minor)**: Cosmetic, workaround exists, limited users
    - **2 (Degraded)**: Feature impaired, workaround difficult, affects many users
    - **3 (Critical)**: System failure, data loss, no workaround, blocks usage
@@ -425,6 +461,7 @@ The workflow auto-detects which mode to use based on project phase.
 7. **Request Clarification**
 
    If evidence is missing or assumptions required:
+
    - Document assumptions clearly
    - Request user clarification
    - Do NOT speculate on business impact
@@ -432,6 +469,7 @@ The workflow auto-detects which mode to use based on project phase.
 8. **Plan Mitigations**
 
    For each high-priority risk:
+
    - Define mitigation strategy
    - Assign owner (dev, QA, ops)
    - Set timeline
@@ -446,6 +484,7 @@ The workflow auto-detects which mode to use based on project phase.
 1. **Break Down Acceptance Criteria**
 
    Convert each acceptance criterion into atomic test scenarios:
+
    - One scenario per testable behavior
    - Scenarios are independent
    - Scenarios are repeatable
@@ -458,24 +497,28 @@ The workflow auto-detects which mode to use based on project phase.
    Map requirements to optimal test levels (avoid duplication):
 
    **E2E (End-to-End)**:
+
    - Critical user journeys
    - Multi-system integration
    - Production-like environment
    - Highest confidence, slowest execution
 
    **API (Integration)**:
+
    - Service contracts
    - Business logic validation
    - Fast feedback
    - Good for complex scenarios
 
    **Component**:
+
    - UI component behavior
    - Interaction testing
    - Visual regression
    - Fast, isolated
 
    **Unit**:
+
    - Business logic
    - Edge cases
    - Error handling
@@ -488,6 +531,7 @@ The workflow auto-detects which mode to use based on project phase.
    **Knowledge Base Reference**: `test-priorities-matrix.md`
 
    **P0 (Critical)**:
+
    - Blocks core user journey
    - High-risk areas (score ≥6)
    - Revenue-impacting
@@ -495,18 +539,21 @@ The workflow auto-detects which mode to use based on project phase.
    - **Run on every commit**
 
    **P1 (High)**:
+
    - Important user features
    - Medium-risk areas (score 3-4)
    - Common workflows
    - **Run on PR to main**
 
    **P2 (Medium)**:
+
    - Secondary features
    - Low-risk areas (score 1-2)
    - Edge cases
    - **Run nightly or weekly**
 
    **P3 (Low)**:
+
    - Nice-to-have
    - Exploratory
    - Performance benchmarks
@@ -515,6 +562,7 @@ The workflow auto-detects which mode to use based on project phase.
 4. **Outline Data and Tooling Prerequisites**
 
    For each test scenario, identify:
+
    - Test data requirements (factories, fixtures)
    - External services (mocks, stubs)
    - Environment setup
@@ -523,6 +571,7 @@ The workflow auto-detects which mode to use based on project phase.
 5. **Define Execution Order**
 
    Recommend test execution sequence:
+
    1. **Smoke tests** (P0 subset, <5 min)
    2. **P0 tests** (critical paths, <10 min)
    3. **P1 tests** (important features, <30 min)

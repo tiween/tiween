@@ -141,7 +141,7 @@ Provide deeper insight into each recommended technique:
 
 ### 5. Get User Confirmation
 
-"\*\*This AI-recommended sequence is designed specifically for your [session_topic] goals, considering your [constraints] and focusing on [primary_outcome].
+"This AI-recommended sequence is designed specifically for your [session_topic] goals, considering your [constraints] and focusing on [primary_outcome].
 
 **Does this approach sound perfect for your session?**
 
@@ -178,8 +178,8 @@ If user confirms recommendations:
 
 ```yaml
 ---
-selected_approach: 'ai-recommended'
-techniques_used: ['technique1', 'technique2', 'technique3']
+selected_approach: "ai-recommended"
+techniques_used: ["technique1", "technique2", "technique3"]
 stepsCompleted: [1, 2]
 ---
 ```

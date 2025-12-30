@@ -1,24 +1,24 @@
 ---
-name: 'step-03-persona'
-description: 'Shape the agent personality through collaborative discovery'
+name: "step-03-persona"
+description: "Shape the agent personality through collaborative discovery"
 
 # Path Definitions
-workflow_path: '{project-root}/bmb/workflows/create-agent/create-agent'
+workflow_path: "{project-root}/bmb/workflows/create-agent/create-agent"
 
 # File References
-thisStepFile: '{workflow_path}/steps/step-03-persona.md'
-nextStepFile: '{workflow_path}/steps/step-04-commands.md'
-workflowFile: '{workflow_path}/workflow.md'
-agentPlan: '{bmb_creations_output_folder}/agent-plan-{agent_name}.md'
-communicationPresets: '{workflow_path}/data/communication-presets.csv'
-agentMenuPatterns: '{project-root}/_bmad/bmb/docs/agents/agent-menu-patterns.md'
+thisStepFile: "{workflow_path}/steps/step-03-persona.md"
+nextStepFile: "{workflow_path}/steps/step-04-commands.md"
+workflowFile: "{workflow_path}/workflow.md"
+agentPlan: "{bmb_creations_output_folder}/agent-plan-{agent_name}.md"
+communicationPresets: "{workflow_path}/data/communication-presets.csv"
+agentMenuPatterns: "{project-root}/_bmad/bmb/docs/agents/agent-menu-patterns.md"
 
 # Template References
-personaTemplate: '{workflow_path}/templates/agent-persona.md'
+personaTemplate: "{workflow_path}/templates/agent-persona.md"
 
 # Task References
-advancedElicitationTask: '{project-root}/_bmad/core/tasks/advanced-elicitation.xml'
-partyModeWorkflow: '{project-root}/_bmad/core/workflows/party-mode/workflow.md'
+advancedElicitationTask: "{project-root}/_bmad/core/tasks/advanced-elicitation.xml"
+partyModeWorkflow: "{project-root}/_bmad/core/workflows/party-mode/workflow.md"
 ---
 
 # Step 3: Shape Agent's Personality

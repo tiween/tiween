@@ -45,14 +45,14 @@ Expert Agents can use BOTH:
 ```yaml
 menu:
   # Embedded prompt (like Simple Agent)
-  - trigger: 'write'
-    action: '#guided-entry'
+  - trigger: "write"
+    action: "#guided-entry"
     description: "Write today's journal entry"
 
   # Direct sidecar file action
-  - trigger: 'insight'
-    action: 'Document this breakthrough in ./journal-keeper-sidecar/breakthroughs.md'
-    description: 'Record a meaningful insight'
+  - trigger: "insight"
+    action: "Document this breakthrough in ./journal-keeper-sidecar/breakthroughs.md"
+    description: "Record a meaningful insight"
 ```
 
 This hybrid approach gives you the best of both worlds!
@@ -63,9 +63,9 @@ Expert Agents MUST load sidecar files explicitly:
 
 ```yaml
 critical_actions:
-  - 'Load COMPLETE file ./journal-keeper-sidecar/memories.md'
-  - 'Load COMPLETE file ./journal-keeper-sidecar/instructions.md'
-  - 'ONLY read/write files in ./journal-keeper-sidecar/'
+  - "Load COMPLETE file ./journal-keeper-sidecar/memories.md"
+  - "Load COMPLETE file ./journal-keeper-sidecar/instructions.md"
+  - "ONLY read/write files in ./journal-keeper-sidecar/"
 ```
 
 **Key points:**

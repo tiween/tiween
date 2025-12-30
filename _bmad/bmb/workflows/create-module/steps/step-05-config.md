@@ -1,9 +1,9 @@
 ---
-installed_path: '{project-root}/_bmad/bmb/workflows/create-module'
-nextStepFile: '{installed_path}/steps/step-06-agents.md'
-modulePlanFile: '{bmb_creations_output_folder}/{module_name}/module-plan-{module_name}.md'
-advancedElicitationTask: '{project-root}/_bmad/core/tasks/advanced-elicitation.xml'
-partyModeWorkflow: '{project-root}/_bmad/core/workflows/party-mode/workflow.md'
+installed_path: "{project-root}/_bmad/bmb/workflows/create-module"
+nextStepFile: "{installed_path}/steps/step-06-agents.md"
+modulePlanFile: "{bmb_creations_output_folder}/{module_name}/module-plan-{module_name}.md"
+advancedElicitationTask: "{project-root}/_bmad/core/tasks/advanced-elicitation.xml"
+partyModeWorkflow: "{project-root}/_bmad/core/workflows/party-mode/workflow.md"
 ---
 
 # Step 5: Plan Module Configuration
@@ -114,25 +114,25 @@ Does your {module_display_name} module need any user-configurable settings durin
 
 ```yaml
 output_path:
-  prompt: 'Where should {module_name} save outputs?'
-  default: 'output/{module_name}'
-  result: '{project-root}/{value}'
+  prompt: "Where should {module_name} save outputs?"
+  default: "output/{module_name}"
+  result: "{project-root}/{value}"
 ```
 
 **INTERACTIVE Single-Select:**
 
 ```yaml
 detail_level:
-  prompt: 'How detailed should outputs be?'
-  default: 'standard'
-  result: '{value}'
+  prompt: "How detailed should outputs be?"
+  default: "standard"
+  result: "{value}"
   single-select:
-    - value: 'minimal'
-      label: 'Minimal - Brief summaries only'
-    - value: 'standard'
-      label: 'Standard - Balanced detail'
-    - value: 'detailed'
-      label: 'Detailed - Comprehensive information'
+    - value: "minimal"
+      label: "Minimal - Brief summaries only"
+    - value: "standard"
+      label: "Standard - Balanced detail"
+    - value: "detailed"
+      label: "Detailed - Comprehensive information"
 ```
 
 **STATIC Value:**

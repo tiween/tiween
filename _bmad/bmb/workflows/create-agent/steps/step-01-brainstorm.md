@@ -1,20 +1,20 @@
 ---
-name: 'step-01-brainstorm'
-description: 'Optional brainstorming for agent ideas'
+name: "step-01-brainstorm"
+description: "Optional brainstorming for agent ideas"
 
 # Path Definitions
-workflow_path: '{project-root}/bmb/workflows/create-agent/create-agent'
+workflow_path: "{project-root}/bmb/workflows/create-agent/create-agent"
 
 # File References
-thisStepFile: '{workflow_path}/steps/step-01-brainstorm.md'
-nextStepFile: '{workflow_path}/steps/step-02-discover.md'
-workflowFile: '{workflow_path}/workflow.md'
-brainstormContext: '{workflow_path}/data/brainstorm-context.md'
-brainstormWorkflow: '{project-root}/_bmad/core/workflows/brainstorming/workflow.md'
+thisStepFile: "{workflow_path}/steps/step-01-brainstorm.md"
+nextStepFile: "{workflow_path}/steps/step-02-discover.md"
+workflowFile: "{workflow_path}/workflow.md"
+brainstormContext: "{workflow_path}/data/brainstorm-context.md"
+brainstormWorkflow: "{project-root}/_bmad/core/workflows/brainstorming/workflow.md"
 
 # Task References
-advancedElicitationTask: '{project-root}/_bmad/core/tasks/advanced-elicitation.xml'
-partyModeWorkflow: '{project-root}/_bmad/core/workflows/party-mode/workflow.md'
+advancedElicitationTask: "{project-root}/_bmad/core/tasks/advanced-elicitation.xml"
+partyModeWorkflow: "{project-root}/_bmad/core/workflows/party-mode/workflow.md"
 ---
 
 # Step 1: Optional Brainstorming

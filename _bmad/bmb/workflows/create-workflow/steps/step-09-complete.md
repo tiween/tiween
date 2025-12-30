@@ -1,17 +1,17 @@
 ---
-name: 'step-09-complete'
-description: 'Final completion and wrap-up of workflow creation process'
+name: "step-09-complete"
+description: "Final completion and wrap-up of workflow creation process"
 
 # Path Definitions
-workflow_path: '{project-root}/_bmad/bmb/workflows/create-workflow'
+workflow_path: "{project-root}/_bmad/bmb/workflows/create-workflow"
 
 # File References
-thisStepFile: '{workflow_path}/steps/step-09-complete.md'
-workflowFile: '{workflow_path}/workflow.md'
+thisStepFile: "{workflow_path}/steps/step-09-complete.md"
+workflowFile: "{workflow_path}/workflow.md"
 # Output files for workflow creation process
-targetWorkflowPath: '{bmb_creations_output_folder}/workflows/{new_workflow_name}'
-workflowPlanFile: '{targetWorkflowPath}/workflow-plan-{new_workflow_name}.md'
-completionFile: '{targetWorkflowPath}/completion-summary-{new_workflow_name}.md'
+targetWorkflowPath: "{bmb_creations_output_folder}/workflows/{new_workflow_name}"
+workflowPlanFile: "{targetWorkflowPath}/workflow-plan-{new_workflow_name}.md"
+completionFile: "{targetWorkflowPath}/completion-summary-{new_workflow_name}.md"
 ---
 
 # Step 9: Workflow Creation Complete
@@ -115,10 +115,12 @@ Provide clear instructions on how to use the new workflow:
 **How to Use Your New Workflow:**
 
 1. **Running the Workflow:**
+
    - [Instructions based on workflow type]
    - [Initial setup if needed]
 
 2. **Common Use Cases:**
+
    - [Typical scenarios for using the workflow]
    - [Expected inputs and outputs]
 

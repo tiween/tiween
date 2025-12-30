@@ -1,15 +1,15 @@
 ---
-name: 'step-04-ux-alignment'
-description: 'Check for UX document and validate alignment with PRD and Architecture'
+name: "step-04-ux-alignment"
+description: "Check for UX document and validate alignment with PRD and Architecture"
 
 # Path Definitions
-workflow_path: '{project-root}/_bmad/bmm/workflows/3-solutioning/implementation-readiness'
+workflow_path: "{project-root}/_bmad/bmm/workflows/3-solutioning/implementation-readiness"
 
 # File References
-thisStepFile: '{workflow_path}/steps/step-04-ux-alignment.md'
-nextStepFile: '{workflow_path}/steps/step-05-epic-quality-review.md'
-workflowFile: '{workflow_path}/workflow.md'
-outputFile: '{planning_artifacts}/implementation-readiness-report-{{date}}.md'
+thisStepFile: "{workflow_path}/steps/step-04-ux-alignment.md"
+nextStepFile: "{workflow_path}/steps/step-05-epic-quality-review.md"
+workflowFile: "{workflow_path}/workflow.md"
+outputFile: "{planning_artifacts}/implementation-readiness-report-{{date}}.md"
 ---
 
 # Step 4: UX Alignment
@@ -64,8 +64,8 @@ I will:
 
 Search patterns:
 
-- `{output_folder}/*ux*.md` (whole document)
-- `{output_folder}/*ux*/index.md` (sharded)
+- `{planning_artifacts}/*ux*.md` (whole document)
+- `{planning_artifacts}/*ux*/index.md` (sharded)
 - Look for UI-related terms in other documents
 
 ### 3. If UX Document Exists
