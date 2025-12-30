@@ -58,24 +58,24 @@ development_status:
   2a-1-layout-components-bottomnav: review
   2a-2-layout-components-header-and-pagecontainer: review
   2a-3-layout-components-stickyfilters: review
-  2a-4-discovery-components-eventcard: backlog
-  2a-5-discovery-components-filmhero: backlog
-  2a-6-discovery-components-categorytabs-and-dateselector: backlog
-  2a-7-discovery-components-venuecard-and-searchbar: backlog
-  2a-8-discovery-components-searchresults: backlog
-  2a-9-ticketing-components-showtimebutton: backlog
-  2a-10-ticketing-components-quantityselector-and-ordersummary: backlog
-  2a-11-ticketing-components-ticketqr: backlog
-  2a-12-ticketing-components-seatselector: backlog
-  2a-13-ticketing-components-paymentform: backlog
-  2a-14-user-components-loginform-and-registerform: backlog
-  2a-15-user-components-profileform-and-sociallogin: backlog
-  2a-16-user-components-watchlistbutton: backlog
-  2a-17-common-components-emptystate-and-errorboundary: backlog
-  2a-18-common-components-loadingspinner-skeleton-toast: backlog
-  2a-19-common-components-badge-variants: backlog
-  2a-20-scanner-components-ticketscanner-and-validationresult: backlog
-  2a-21-scanner-components-attendancecounter: backlog
+  2a-4-discovery-components-eventcard: ready-for-dev
+  2a-5-discovery-components-filmhero: ready-for-dev
+  2a-6-discovery-components-categorytabs-and-dateselector: ready-for-dev
+  2a-7-discovery-components-venuecard-and-searchbar: ready-for-dev
+  2a-8-discovery-components-searchresults: ready-for-dev
+  2a-9-ticketing-components-showtimebutton: ready-for-dev
+  2a-10-ticketing-components-quantityselector-and-ordersummary: ready-for-dev
+  2a-11-ticketing-components-ticketqr: ready-for-dev
+  2a-12-ticketing-components-seatselector: ready-for-dev
+  2a-13-ticketing-components-paymentform: ready-for-dev
+  2a-14-user-components-loginform-and-registerform: ready-for-dev
+  2a-15-user-components-profileform-and-sociallogin: ready-for-dev
+  2a-16-user-components-watchlistbutton: ready-for-dev
+  2a-17-common-components-emptystate-and-errorboundary: ready-for-dev
+  2a-18-common-components-loadingspinner-skeleton-toast: ready-for-dev
+  2a-19-common-components-badge-variants: ready-for-dev
+  2a-20-scanner-components-ticketscanner-and-validationresult: ready-for-dev
+  2a-21-scanner-components-attendancecounter: ready-for-dev
   epic-2a-retrospective: optional
 
   # Epic 2B: Strapi v5 Migration & Backend Foundation (PARALLEL TRACK B)
@@ -91,7 +91,7 @@ development_status:
   2b-9-user-roles-and-permissions-configuration: review
   2b-10-redis-integration-for-sessions-and-caching: review
   2b-11-imagekit-provider-configuration: review
-  2b-12-email-configuration-with-resend: backlog
+  2b-12-email-configuration-with-brevo: ready-for-dev
   2b-13-api-documentation-with-openapi: backlog
   2b-14-data-migration-scripts-from-legacy-strapi-v4: backlog
   2b-15-database-seeding-for-development: backlog
