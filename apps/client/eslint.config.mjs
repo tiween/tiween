@@ -7,7 +7,7 @@ export default [
     rules: {
       "no-console": ["warn", { allow: ["warn", "error"] }],
       "@next/next/no-html-link-for-pages": "off",
-      "no-unused-vars": "warn",
+      "no-unused-vars": "error",
       "react/function-component-definition": "off",
       "react/hook-use-state": "off",
       "react/jsx-no-leaked-render": "off",
