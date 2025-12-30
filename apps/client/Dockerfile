@@ -6,7 +6,7 @@
 # - https://dev.to/moofoo/creating-a-development-dockerfile-and-docker-composeyml-for-yarn-122-monorepos-using-turborepo-896
 
 # Customize APP (name of folder in /apps) and WORKSPACE (name from package.json) to match this app
-ARG APP=ui
+ARG APP=client
 ARG WORKSPACE=@tiween/client
 
 FROM node:22-alpine AS base

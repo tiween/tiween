@@ -1,0 +1,265 @@
+{
+  "seo": {
+    "metaTitle": "Tiween - Billetterie en ligne",
+    "metaDescription": "Tiween - Plateforme de billetterie pour les événements culturels en Tunisie",
+    "metaImageUrl": "https://tiween.tn/og-image.jpg",
+    "keywords": "billetterie, événements, culture, Tunisie, concerts, spectacles",
+    "metaRobots": "index, follow",
+    "applicationName": "Tiween",
+    "siteName": "Tiween",
+    "email": "contact@tiween.tn",
+    "twitter": {
+      "card": "summary_large_image",
+      "title": "Tiween - Billetterie en ligne",
+      "description": "Découvrez les événements culturels en Tunisie",
+      "siteId": "",
+      "creator": "@tiween_tn",
+      "creatorId": "",
+      "imageUrl": "https://tiween.tn/og-image.jpg"
+    }
+  },
+
+  "general": {
+    "noOptionsAvailable": "Aucune option disponible",
+    "search": "Rechercher",
+    "loading": "Chargement",
+    "cancel": "Annuler",
+    "close": "Fermer",
+    "submitForm": "Envoyer",
+    "saveChanges": "Enregistrer"
+  },
+
+  "tables": {
+    "previousPage": "Page précédente",
+    "nextPage": "Page suivante",
+    "lastPage": "Dernière page",
+    "firstPage": "Première page",
+    "rowsPerPage": "Lignes par page",
+    "pageXOfY": "Page {x} sur {y}",
+    "ascending": "Croissant",
+    "descending": "Décroissant",
+    "noData": "Aucune donnée"
+  },
+
+  "navbar": {
+    "account": "Compte",
+    "actions": {
+      "profile": "Profil",
+      "signOut": "Déconnexion",
+      "changePassword": "Changer le mot de passe",
+      "signIn": "Connexion"
+    }
+  },
+
+  "common": {
+    "home": "Accueil",
+    "search": "Recherche",
+    "tickets": "Billets",
+    "account": "Compte",
+    "events": "Événements",
+    "categories": "Catégories"
+  },
+
+  "buttons": {
+    "buy": "Acheter",
+    "cancel": "Annuler",
+    "confirm": "Confirmer",
+    "save": "Enregistrer",
+    "viewMore": "Voir plus",
+    "skip": "Passer",
+    "learnMore": "En savoir plus"
+  },
+
+  "comps": {
+    "fileInput": {
+      "label": "Sélectionner un fichier",
+      "dragAndDrop": "Glissez un fichier ou cliquez pour sélectionner",
+      "validFileTypes": "Le fichier doit être au format {validFileTypes}",
+      "wrongFileType": "Ce type de fichier n'est pas pris en charge",
+      "selectedFile": "Fichier sélectionné : {fileName}",
+      "removeFile": "Supprimer le fichier"
+    },
+    "datePicker": {
+      "label": "Sélectionner une date"
+    },
+    "dateRangePicker": {
+      "label": "Sélectionner une plage de dates"
+    },
+    "themeToggle": {
+      "label": "Changer le thème"
+    },
+    "dialog": {
+      "confirmClose": "Voulez-vous fermer cette fenêtre ? Vous perdrez toutes les modifications non enregistrées."
+    }
+  },
+
+  "errors": {
+    "global": {
+      "title": "Une erreur inconnue s'est produite",
+      "tryAgain": "Réessayer",
+      "invalidContent": "Ce contenu ne peut pas être affiché",
+      "somethingWentWrong": "Une erreur s'est produite"
+    },
+
+    "notFound": {
+      "title": "Page non trouvée",
+      "description": "La page que vous recherchez n'existe pas.",
+      "solution": "Veuillez vérifier l'URL ou retourner à la page d'accueil.",
+      "redirect": "Aller à la page d'accueil"
+    },
+
+    "forms": {
+      "errorsInForm": "Le formulaire contient des erreurs",
+      "checkFormForErrors": "Veuillez vérifier les champs manquants"
+    },
+
+    "zodValidation": {
+      "invalid_type": "Type attendu : {expected}, reçu : {received}",
+      "invalid_type_received_undefined": "Ce champ est obligatoire",
+      "invalid_literal": "Valeur invalide, attendue : {expected}",
+
+      "invalid_string": {
+        "regex": "Format invalide"
+      },
+      "too_small": {
+        "string": {
+          "exact": "La chaîne doit contenir exactement {minimum} caractères",
+          "inclusive": "La chaîne doit contenir au moins {minimum} caractères",
+          "not_inclusive": "La chaîne doit contenir plus de {minimum} caractères"
+        },
+        "number": {
+          "exact": "La valeur doit être exactement {minimum}",
+          "inclusive": "La valeur minimale est {minimum}",
+          "not_inclusive": "Le nombre doit être supérieur à {minimum}"
+        }
+      },
+      "too_big": {
+        "string": {
+          "exact": "La chaîne doit contenir exactement {maximum} caractères",
+          "inclusive": "La chaîne doit contenir au maximum {maximum} caractères",
+          "not_inclusive": "La chaîne doit contenir moins de {maximum} caractères"
+        },
+        "number": {
+          "exact": "La valeur doit être exactement {maximum}",
+          "inclusive": "La valeur maximale est {maximum}",
+          "not_inclusive": "Le nombre doit être inférieur à {maximum}"
+        }
+      },
+      "custom": {
+        "password": "Les mots de passe ne correspondent pas",
+        "passwordWithNumber": "Le mot de passe doit contenir au moins 1 chiffre",
+        "phoneNumber": "Ce champ doit contenir 9 chiffres"
+      }
+    }
+  },
+
+  "contactForm": {
+    "name": "Nom complet",
+    "namePlaceholder": "Jean Dupont",
+    "email": "Email",
+    "emailPlaceholder": "jean.dupont@gmail.com",
+    "message": "Message",
+    "gdpr": "J'accepte le traitement de mes données personnelles",
+    "submit": "Envoyer",
+    "success": "Le formulaire a été envoyé avec succès.",
+    "error": "Le formulaire n'a pas pu être envoyé. Veuillez réessayer plus tard.",
+    "gdprLink": "En savoir plus sur le traitement des données"
+  },
+
+  "auth": {
+    "signIn": {
+      "status": {
+        "fail": "Échec de la connexion",
+        "success": "Connexion réussie",
+        "checkCredentials": "Veuillez vérifier vos identifiants"
+      },
+      "errors": {
+        "CredentialsSignin": "Identifiants incorrects."
+      },
+      "header": "Connexion",
+      "description": "Entrez vos identifiants.",
+      "email": "Email",
+      "password": "Mot de passe",
+      "submit": "Se connecter",
+      "forgotPassword": "Mot de passe oublié",
+      "createAccount": "Créer un compte"
+    },
+
+    "register": {
+      "status": {
+        "fail": "Échec de l'inscription",
+        "success": "Inscription réussie",
+        "checkCredentials": "Veuillez vérifier vos informations"
+      },
+      "errors": {
+        "credentials": "Informations incorrectes",
+        "unexpectedError": "L'inscription a échoué. Veuillez réessayer plus tard.",
+        "emailUsernameTaken": "Cet email est déjà utilisé."
+      },
+      "header": "Inscription",
+      "description": "Créez un compte pour accéder au système.",
+      "email": "Adresse email",
+      "password": "Créer un mot de passe",
+      "checkPassword": "Confirmer le mot de passe",
+      "submit": "Créer le compte",
+      "forgotPassword": "Vous avez déjà un compte ? Connectez-vous.",
+      "checkEmail": "Suivez les instructions dans votre email pour confirmer votre adresse.",
+      "signInLinkLinkDescription": "Vous avez déjà un compte ?",
+      "signInLink": "Se connecter"
+    },
+
+    "changePassword": {
+      "errors": {
+        "invalidCurrentPassword": "Le mot de passe actuel est incorrect",
+        "unexpectedError": "Une erreur inattendue s'est produite. Veuillez réessayer plus tard.",
+        "newPasswordSameAsCurrent": "Le nouveau mot de passe doit être différent de l'actuel"
+      },
+      "successfullyChanged": "Mot de passe modifié avec succès",
+      "header": "Changer le mot de passe",
+      "description": "Choisissez un nouveau mot de passe.",
+      "currentPassword": "Mot de passe actuel",
+      "password": "Nouveau mot de passe",
+      "confirmPassword": "Confirmer le nouveau mot de passe",
+      "submit": "Changer le mot de passe"
+    },
+
+    "accountActivation": {
+      "successfullySet": "Compte activé avec succès. Vous pouvez maintenant vous connecter.",
+      "errors": {
+        "Incorrect code provided": "Un lien incorrect a été généré. Contactez le support."
+      },
+      "welcome": "Bienvenue",
+      "activateAccount": "Un nouveau compte a été créé avec l'email {email}.",
+      "invalidLink": "Ce lien n'est pas valide.",
+      "activate": "Activer le compte",
+      "header": "Définir le mot de passe",
+      "description": "Choisissez un mot de passe pour vous connecter.",
+      "submit": "Activer le compte",
+      "password": "Nouveau mot de passe",
+      "confirmPassword": "Confirmer le mot de passe"
+    },
+
+    "resetPassword": {
+      "successfullySet": "Mot de passe modifié avec succès.",
+      "header": "Réinitialiser le mot de passe",
+      "description": "Choisissez un nouveau mot de passe.",
+      "submit": "Définir le mot de passe",
+      "password": "Nouveau mot de passe",
+      "confirmPassword": "Confirmer le mot de passe"
+    },
+
+    "forgotPassword": {
+      "passwordChangeEmailSent": "Un email avec les instructions de réinitialisation vous a été envoyé.",
+      "header": "Mot de passe oublié",
+      "description": "Entrez l'email que vous utilisez pour vous connecter. Nous vous enverrons les instructions de réinitialisation.",
+      "email": "Email",
+      "submit": "Récupérer le compte"
+    }
+  },
+
+  "offline": {
+    "title": "Vous êtes hors ligne",
+    "description": "Il semble que vous ayez perdu votre connexion internet. Veuillez vérifier votre connexion et réessayer.",
+    "retry": "Réessayer"
+  }
+}

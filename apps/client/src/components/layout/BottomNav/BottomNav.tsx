@@ -70,7 +70,7 @@ export function BottomNav({
         // Background with backdrop blur
         "bg-background/95 backdrop-blur-md",
         // Border top
-        "border-t border-border",
+        "border-border border-t",
         // Hide on desktop (lg and above)
         "lg:hidden",
         className
@@ -99,7 +99,7 @@ export function BottomNav({
                 // Transition for smooth color changes
                 "transition-colors duration-150",
                 // Focus styles
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+                "focus-visible:ring-ring focus-visible:ring-offset-background focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none",
                 // Rounded for focus ring
                 "rounded-lg"
               )}
@@ -128,8 +128,8 @@ export function BottomNav({
                   className={cn(
                     "absolute top-1 ltr:right-2 rtl:left-2",
                     "flex h-5 min-w-5 items-center justify-center",
-                    "rounded-full bg-destructive px-1.5",
-                    "text-xs font-bold text-destructive-foreground"
+                    "bg-destructive rounded-full px-1.5",
+                    "text-destructive-foreground text-xs font-bold"
                   )}
                   aria-label={labels.unscannedTickets(ticketCount)}
                 >

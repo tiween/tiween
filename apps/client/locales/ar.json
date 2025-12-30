@@ -1,0 +1,265 @@
+{
+  "seo": {
+    "metaTitle": "تيوين - حجز التذاكر عبر الإنترنت",
+    "metaDescription": "تيوين - منصة حجز تذاكر الفعاليات الثقافية في تونس",
+    "metaImageUrl": "https://tiween.tn/og-image.jpg",
+    "keywords": "تذاكر، فعاليات، ثقافة، تونس، حفلات، عروض",
+    "metaRobots": "index, follow",
+    "applicationName": "تيوين",
+    "siteName": "تيوين",
+    "email": "contact@tiween.tn",
+    "twitter": {
+      "card": "summary_large_image",
+      "title": "تيوين - حجز التذاكر عبر الإنترنت",
+      "description": "اكتشف الفعاليات الثقافية في تونس",
+      "siteId": "",
+      "creator": "@tiween_tn",
+      "creatorId": "",
+      "imageUrl": "https://tiween.tn/og-image.jpg"
+    }
+  },
+
+  "general": {
+    "noOptionsAvailable": "لا توجد خيارات متاحة",
+    "search": "بحث",
+    "loading": "جاري التحميل",
+    "cancel": "إلغاء",
+    "close": "إغلاق",
+    "submitForm": "إرسال",
+    "saveChanges": "حفظ التغييرات"
+  },
+
+  "tables": {
+    "previousPage": "الصفحة السابقة",
+    "nextPage": "الصفحة التالية",
+    "lastPage": "الصفحة الأخيرة",
+    "firstPage": "الصفحة الأولى",
+    "rowsPerPage": "عدد الصفوف في الصفحة",
+    "pageXOfY": "صفحة {x} من {y}",
+    "ascending": "تصاعدي",
+    "descending": "تنازلي",
+    "noData": "لا توجد بيانات"
+  },
+
+  "navbar": {
+    "account": "الحساب",
+    "actions": {
+      "profile": "الملف الشخصي",
+      "signOut": "تسجيل الخروج",
+      "changePassword": "تغيير كلمة المرور",
+      "signIn": "تسجيل الدخول"
+    }
+  },
+
+  "common": {
+    "home": "الرئيسية",
+    "search": "البحث",
+    "tickets": "التذاكر",
+    "account": "الحساب",
+    "events": "الفعاليات",
+    "categories": "التصنيفات"
+  },
+
+  "buttons": {
+    "buy": "شراء",
+    "cancel": "إلغاء",
+    "confirm": "تأكيد",
+    "save": "حفظ",
+    "viewMore": "عرض المزيد",
+    "skip": "تخطي",
+    "learnMore": "اعرف المزيد"
+  },
+
+  "comps": {
+    "fileInput": {
+      "label": "اختر ملفاً",
+      "dragAndDrop": "اسحب ملفاً أو انقر للاختيار",
+      "validFileTypes": "يجب أن يكون الملف بصيغة {validFileTypes}",
+      "wrongFileType": "نوع الملف غير مدعوم",
+      "selectedFile": "الملف المحدد: {fileName}",
+      "removeFile": "حذف الملف"
+    },
+    "datePicker": {
+      "label": "اختر تاريخاً"
+    },
+    "dateRangePicker": {
+      "label": "اختر نطاق التاريخ"
+    },
+    "themeToggle": {
+      "label": "تبديل المظهر"
+    },
+    "dialog": {
+      "confirmClose": "هل تريد إغلاق النافذة؟ ستفقد جميع التغييرات غير المحفوظة."
+    }
+  },
+
+  "errors": {
+    "global": {
+      "title": "حدث خطأ غير معروف",
+      "tryAgain": "حاول مرة أخرى",
+      "invalidContent": "لا يمكن عرض هذا المحتوى",
+      "somethingWentWrong": "حدث خطأ ما"
+    },
+
+    "notFound": {
+      "title": "الصفحة غير موجودة",
+      "description": "الصفحة التي تبحث عنها غير موجودة.",
+      "solution": "يرجى التحقق من الرابط أو العودة إلى الصفحة الرئيسية.",
+      "redirect": "الذهاب إلى الصفحة الرئيسية"
+    },
+
+    "forms": {
+      "errorsInForm": "يحتوي النموذج على أخطاء",
+      "checkFormForErrors": "يرجى التحقق من الحقول المفقودة"
+    },
+
+    "zodValidation": {
+      "invalid_type": "النوع المتوقع: {expected}، المستلم: {received}",
+      "invalid_type_received_undefined": "هذا الحقل مطلوب",
+      "invalid_literal": "قيمة غير صالحة، المتوقع: {expected}",
+
+      "invalid_string": {
+        "regex": "صيغة غير صالحة"
+      },
+      "too_small": {
+        "string": {
+          "exact": "يجب أن يحتوي النص على {minimum} أحرف بالضبط",
+          "inclusive": "يجب أن يحتوي النص على {minimum} أحرف على الأقل",
+          "not_inclusive": "يجب أن يحتوي النص على أكثر من {minimum} أحرف"
+        },
+        "number": {
+          "exact": "يجب أن تكون القيمة {minimum} بالضبط",
+          "inclusive": "الحد الأدنى للقيمة هو {minimum}",
+          "not_inclusive": "يجب أن يكون الرقم أكبر من {minimum}"
+        }
+      },
+      "too_big": {
+        "string": {
+          "exact": "يجب أن يحتوي النص على {maximum} أحرف بالضبط",
+          "inclusive": "يجب أن يحتوي النص على {maximum} أحرف كحد أقصى",
+          "not_inclusive": "يجب أن يحتوي النص على أقل من {maximum} أحرف"
+        },
+        "number": {
+          "exact": "يجب أن تكون القيمة {maximum} بالضبط",
+          "inclusive": "الحد الأقصى للقيمة هو {maximum}",
+          "not_inclusive": "يجب أن يكون الرقم أقل من {maximum}"
+        }
+      },
+      "custom": {
+        "password": "كلمات المرور غير متطابقة",
+        "passwordWithNumber": "يجب أن تحتوي كلمة المرور على رقم واحد على الأقل",
+        "phoneNumber": "يجب أن يحتوي هذا الحقل على 9 أرقام"
+      }
+    }
+  },
+
+  "contactForm": {
+    "name": "الاسم الكامل",
+    "namePlaceholder": "محمد علي",
+    "email": "البريد الإلكتروني",
+    "emailPlaceholder": "mohammed.ali@gmail.com",
+    "message": "الرسالة",
+    "gdpr": "أوافق على معالجة بياناتي الشخصية",
+    "submit": "إرسال",
+    "success": "تم إرسال النموذج بنجاح.",
+    "error": "تعذر إرسال النموذج. يرجى المحاولة لاحقاً.",
+    "gdprLink": "اقرأ المزيد عن معالجة البيانات"
+  },
+
+  "auth": {
+    "signIn": {
+      "status": {
+        "fail": "فشل تسجيل الدخول",
+        "success": "تم تسجيل الدخول بنجاح",
+        "checkCredentials": "يرجى التحقق من بيانات الدخول"
+      },
+      "errors": {
+        "CredentialsSignin": "بيانات الدخول غير صحيحة."
+      },
+      "header": "تسجيل الدخول",
+      "description": "أدخل بيانات الدخول الخاصة بك.",
+      "email": "البريد الإلكتروني",
+      "password": "كلمة المرور",
+      "submit": "تسجيل الدخول",
+      "forgotPassword": "نسيت كلمة المرور",
+      "createAccount": "إنشاء حساب"
+    },
+
+    "register": {
+      "status": {
+        "fail": "فشل التسجيل",
+        "success": "تم التسجيل بنجاح",
+        "checkCredentials": "يرجى التحقق من بياناتك"
+      },
+      "errors": {
+        "credentials": "بيانات غير صحيحة",
+        "unexpectedError": "فشل التسجيل. يرجى المحاولة لاحقاً.",
+        "emailUsernameTaken": "هذا البريد الإلكتروني مستخدم بالفعل."
+      },
+      "header": "التسجيل",
+      "description": "أنشئ حساباً للوصول إلى النظام.",
+      "email": "البريد الإلكتروني",
+      "password": "إنشاء كلمة مرور",
+      "checkPassword": "تأكيد كلمة المرور",
+      "submit": "إنشاء الحساب",
+      "forgotPassword": "لديك حساب بالفعل؟ سجل الدخول.",
+      "checkEmail": "اتبع التعليمات في بريدك الإلكتروني لتأكيد عنوانك.",
+      "signInLinkLinkDescription": "لديك حساب بالفعل؟",
+      "signInLink": "تسجيل الدخول"
+    },
+
+    "changePassword": {
+      "errors": {
+        "invalidCurrentPassword": "كلمة المرور الحالية غير صحيحة",
+        "unexpectedError": "حدث خطأ غير متوقع. يرجى المحاولة لاحقاً.",
+        "newPasswordSameAsCurrent": "يجب أن تكون كلمة المرور الجديدة مختلفة عن الحالية"
+      },
+      "successfullyChanged": "تم تغيير كلمة المرور بنجاح",
+      "header": "تغيير كلمة المرور",
+      "description": "اختر كلمة مرور جديدة.",
+      "currentPassword": "كلمة المرور الحالية",
+      "password": "كلمة المرور الجديدة",
+      "confirmPassword": "تأكيد كلمة المرور الجديدة",
+      "submit": "تغيير كلمة المرور"
+    },
+
+    "accountActivation": {
+      "successfullySet": "تم تفعيل الحساب بنجاح. يمكنك الآن تسجيل الدخول.",
+      "errors": {
+        "Incorrect code provided": "تم إنشاء رابط غير صحيح. تواصل مع الدعم."
+      },
+      "welcome": "مرحباً",
+      "activateAccount": "تم إنشاء حساب جديد بالبريد الإلكتروني {email}.",
+      "invalidLink": "هذا الرابط غير صالح.",
+      "activate": "تفعيل الحساب",
+      "header": "تعيين كلمة المرور",
+      "description": "اختر كلمة مرور لتسجيل الدخول.",
+      "submit": "تفعيل الحساب",
+      "password": "كلمة المرور الجديدة",
+      "confirmPassword": "تأكيد كلمة المرور"
+    },
+
+    "resetPassword": {
+      "successfullySet": "تم تغيير كلمة المرور بنجاح.",
+      "header": "إعادة تعيين كلمة المرور",
+      "description": "اختر كلمة مرور جديدة.",
+      "submit": "تعيين كلمة المرور",
+      "password": "كلمة المرور الجديدة",
+      "confirmPassword": "تأكيد كلمة المرور"
+    },
+
+    "forgotPassword": {
+      "passwordChangeEmailSent": "تم إرسال بريد إلكتروني يحتوي على تعليمات إعادة التعيين.",
+      "header": "نسيت كلمة المرور",
+      "description": "أدخل البريد الإلكتروني الذي تستخدمه لتسجيل الدخول. سنرسل لك تعليمات إعادة التعيين.",
+      "email": "البريد الإلكتروني",
+      "submit": "استرداد الحساب"
+    }
+  },
+
+  "offline": {
+    "title": "أنت غير متصل",
+    "description": "يبدو أنك فقدت الاتصال بالإنترنت. يرجى التحقق من اتصالك والمحاولة مرة أخرى.",
+    "retry": "حاول مرة أخرى"
+  }
+}

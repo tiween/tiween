@@ -1,6 +1,6 @@
-import type { Meta, StoryObj } from "@storybook/react"
 import { useState } from "react"
 
+import type { Meta, StoryObj } from "@storybook/react"
 import type { BottomNavLabels, TabType } from "./BottomNav"
 
 import { BottomNav } from "./BottomNav"
@@ -48,7 +48,7 @@ const meta: Meta<typeof BottomNav> = {
   },
   decorators: [
     (Story) => (
-      <div className="relative min-h-[200px] bg-background">
+      <div className="bg-background relative min-h-[200px]">
         <Story />
       </div>
     ),
@@ -128,12 +128,12 @@ export const Interactive: Story = {
     const [activeTab, setActiveTab] = useState<TabType>("home")
 
     return (
-      <div className="relative min-h-[400px] bg-background p-4">
-        <div className="mb-4 text-foreground">
-          <p className="text-sm text-muted-foreground">
+      <div className="bg-background relative min-h-[400px] p-4">
+        <div className="text-foreground mb-4">
+          <p className="text-muted-foreground text-sm">
             Current tab: <strong className="text-primary">{activeTab}</strong>
           </p>
-          <p className="mt-2 text-sm text-muted-foreground">
+          <p className="text-muted-foreground mt-2 text-sm">
             Tap the navigation tabs below to switch between sections.
           </p>
         </div>
@@ -156,7 +156,10 @@ export const RTLMode: Story = {
   },
   decorators: [
     (Story) => (
-      <div dir="rtl" className="relative min-h-[200px] bg-background font-arabic">
+      <div
+        dir="rtl"
+        className="bg-background font-arabic relative min-h-[200px]"
+      >
         <Story />
       </div>
     ),
@@ -176,10 +179,10 @@ export const AllStates: Story = {
   render: () => (
     <div className="flex flex-col gap-8 p-4">
       <div>
-        <h3 className="mb-2 text-sm font-medium text-muted-foreground">
+        <h3 className="text-muted-foreground mb-2 text-sm font-medium">
           Home Active
         </h3>
-        <div className="relative h-24 rounded-lg border border-border bg-card">
+        <div className="border-border bg-card relative h-24 rounded-lg border">
           <BottomNav
             activeTab="home"
             ticketCount={0}
@@ -189,10 +192,10 @@ export const AllStates: Story = {
         </div>
       </div>
       <div>
-        <h3 className="mb-2 text-sm font-medium text-muted-foreground">
+        <h3 className="text-muted-foreground mb-2 text-sm font-medium">
           Search Active
         </h3>
-        <div className="relative h-24 rounded-lg border border-border bg-card">
+        <div className="border-border bg-card relative h-24 rounded-lg border">
           <BottomNav
             activeTab="search"
             ticketCount={0}
@@ -202,10 +205,10 @@ export const AllStates: Story = {
         </div>
       </div>
       <div>
-        <h3 className="mb-2 text-sm font-medium text-muted-foreground">
+        <h3 className="text-muted-foreground mb-2 text-sm font-medium">
           Tickets Active with Badge
         </h3>
-        <div className="relative h-24 rounded-lg border border-border bg-card">
+        <div className="border-border bg-card relative h-24 rounded-lg border">
           <BottomNav
             activeTab="tickets"
             ticketCount={7}
@@ -215,10 +218,10 @@ export const AllStates: Story = {
         </div>
       </div>
       <div>
-        <h3 className="mb-2 text-sm font-medium text-muted-foreground">
+        <h3 className="text-muted-foreground mb-2 text-sm font-medium">
           Account Active
         </h3>
-        <div className="relative h-24 rounded-lg border border-border bg-card">
+        <div className="border-border bg-card relative h-24 rounded-lg border">
           <BottomNav
             activeTab="account"
             ticketCount={0}

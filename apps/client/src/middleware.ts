@@ -63,8 +63,8 @@ export const config = {
     // Enable a redirect to a matching locale at the root
     "/",
     // Set a cookie to remember the previous locale for
-    // all requests that have a locale prefix
-    `/(cs|en)/:path*`,
+    // all requests that have a locale prefix (ar, fr, en)
+    `/(ar|fr|en)/:path*`,
 
     // Skip all paths that should not be internationalized
     "/((?!_next|_vercel|api|robots.txt|favicon.ico|sitemap|.*\\..*).*)",

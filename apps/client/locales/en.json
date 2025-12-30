@@ -1,21 +1,21 @@
 {
   "seo": {
-    "metaTitle": "DEV-TEMPLATE-SEO",
-    "metaDescription": "DEV-TEMPLATE-SEO",
-    "metaImageUrl": "DEV-TEMPLATE-SEO",
-    "keywords": "DEV-TEMPLATE-SEO",
-    "metaRobots": "DEV-TEMPLATE-SEO",
-    "applicationName": "DEV-TEMPLATE-SEO",
-    "siteName": "DEV-TEMPLATE-SEO",
-    "email": "DEV-TEMPLATE-SEO",
+    "metaTitle": "Tiween - Online Ticketing",
+    "metaDescription": "Tiween - Ticketing platform for cultural events in Tunisia",
+    "metaImageUrl": "https://tiween.tn/og-image.jpg",
+    "keywords": "tickets, events, culture, Tunisia, concerts, shows",
+    "metaRobots": "index, follow",
+    "applicationName": "Tiween",
+    "siteName": "Tiween",
+    "email": "contact@tiween.tn",
     "twitter": {
-      "card": "DEV-TEMPLATE-SEO",
-      "title": "DEV-TEMPLATE-SEO",
-      "description": "DEV-TEMPLATE-SEO",
-      "siteId": "DEV-TEMPLATE-SEO",
-      "creator": "DEV-TEMPLATE-SEO",
-      "creatorId": "DEV-TEMPLATE-SEO",
-      "imageUrl": "DEV-TEMPLATE-SEO"
+      "card": "summary_large_image",
+      "title": "Tiween - Online Ticketing",
+      "description": "Discover cultural events in Tunisia",
+      "siteId": "",
+      "creator": "@tiween_tn",
+      "creatorId": "",
+      "imageUrl": "https://tiween.tn/og-image.jpg"
     }
   },
 
@@ -49,6 +49,25 @@
       "changePassword": "Change password",
       "signIn": "Sign in"
     }
+  },
+
+  "common": {
+    "home": "Home",
+    "search": "Search",
+    "tickets": "Tickets",
+    "account": "Account",
+    "events": "Events",
+    "categories": "Categories"
+  },
+
+  "buttons": {
+    "buy": "Buy",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "save": "Save",
+    "viewMore": "View more",
+    "skip": "Skip",
+    "learnMore": "Learn more"
   },
 
   "comps": {
@@ -236,5 +255,11 @@
       "email": "Email",
       "submit": "Recover account"
     }
+  },
+
+  "offline": {
+    "title": "You're offline",
+    "description": "It looks like you've lost your internet connection. Please check your connection and try again.",
+    "retry": "Try again"
   }
 }

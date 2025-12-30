@@ -1,0 +1,45 @@
+[00:02:09.513] [INFO] storybook v10.1.10
+[00:02:10.964] [DEBUG] Getting package.json info for /Users/ayoub/projects/tiween-bmad-version/apps/client/package.json...
+[00:02:10.966] [WARN] You are currently using Storybook 10.1.10 but you have packages which are incompatible with it:
+
+- @storybook/addon-essentials@8.6.14 which depends on 8.6.14
+ Repo: https://github.com/storybookjs/storybook/tree/next/code/addons/essentials
+- @storybook/addon-interactions@8.6.14 which depends on 8.6.14
+ Repo: https://github.com/storybookjs/storybook/tree/next/code/addons/interactions
+- @storybook/test@8.6.14 which depends on 8.6.14
+ Repo: https://github.com/storybookjs/storybook/tree/next/code/lib/test
+
+Please consider updating your packages or contacting the maintainers for compatibility details.
+
+For more details on compatibility guidance, see:
+https://github.com/storybookjs/storybook/issues/32836
+[00:02:10.998] [ERROR] [38;2;241;97;97mSB_CORE-SERVER_0002 (CriticalPresetLoadError): Storybook failed to load the following preset: @storybook/nextjs-vite/preset.
+
+Please check whether your setup is correct, the Storybook dependencies (and their peer dependencies) are installed correctly and there are no package version clashes.
+
+If you believe this is a bug, please open an issue on Github.
+
+Error [ERR_MODULE_NOT_FOUND]: Cannot find package '@storybook/nextjs-vite' imported from /Users/ayoub/projects/tiween-bmad-version/node_modules/storybook/dist/_node-chunks/chunk-BA3X633S.js
+    at Object.getPackageJSONURL (node:internal/modules/package_json_reader:314:9)
+    at packageResolve (node:internal/modules/esm/resolve:767:81)
+    at moduleResolve (node:internal/modules/esm/resolve:853:18)
+    at defaultResolve (node:internal/modules/esm/resolve:983:11)
+    at nextResolve (node:internal/modules/esm/hooks:748:28)
+    at Hooks.resolve (node:internal/modules/esm/hooks:240:30)
+    at MessagePort.handleMessage (node:internal/modules/esm/worker:199:24)
+    at [nodejs.internal.kHybridDispatch] (node:internal/event_target:845:20)
+    at MessagePort.<anonymous> (node:internal/per_context/messageport:23:28)
+
+More info: 
+[39m
+    at loadPreset (file:///Users/ayoub/projects/tiween-bmad-version/node_modules/storybook/dist/_node-chunks/chunk-LLCTWVOB.js:10101:13)
+    at async Promise.all (index 0)
+    at async loadPresets (file:///Users/ayoub/projects/tiween-bmad-version/node_modules/storybook/dist/_node-chunks/chunk-LLCTWVOB.js:10110:73)
+    at async getPresets (file:///Users/ayoub/projects/tiween-bmad-version/node_modules/storybook/dist/_node-chunks/chunk-LLCTWVOB.js:10141:23)
+    at async buildDevStandalone (file:///Users/ayoub/projects/tiween-bmad-version/node_modules/storybook/dist/core-server/index.js:7163:17)
+    at async withTelemetry (file:///Users/ayoub/projects/tiween-bmad-version/node_modules/storybook/dist/_node-chunks/chunk-PGCRO4IZ.js:209:12)
+    at async dev (file:///Users/ayoub/projects/tiween-bmad-version/node_modules/storybook/dist/bin/core.js:2734:3)
+    at async _Command.<anonymous> (file:///Users/ayoub/projects/tiween-bmad-version/node_modules/storybook/dist/bin/core.js:2801:92)
+[00:02:11.004] [WARN] Broken build, fix the error above.
+You may need to refresh the browser.
+[00:02:11.135] [INFO] Storybook collects completely anonymous usage telemetry. We use it to shape Storybook's roadmap and prioritize features. You can learn more, including how to opt out, at https://storybook.js.org/telemetry

@@ -1,8 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react"
 
-import { Header } from "../Header"
 import { BottomNav } from "../BottomNav"
-
+import { Header } from "../Header"
 import { PageContainer } from "./PageContainer"
 
 const meta: Meta<typeof PageContainer> = {
@@ -35,20 +34,20 @@ type Story = StoryObj<typeof meta>
 // Sample content for stories
 const SampleContent = () => (
   <div className="space-y-4">
-    <div className="rounded-lg bg-card p-4">
-      <h2 className="text-lg font-semibold text-foreground">
+    <div className="bg-card rounded-lg p-4">
+      <h2 className="text-foreground text-lg font-semibold">
         Sample Content Block
       </h2>
-      <p className="mt-2 text-muted-foreground">
+      <p className="text-muted-foreground mt-2">
         This is a sample content block to demonstrate the PageContainer layout.
         The container provides proper padding and max-width constraints.
       </p>
     </div>
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {[1, 2, 3].map((i) => (
-        <div key={i} className="rounded-lg bg-card p-4">
-          <h3 className="font-medium text-foreground">Card {i}</h3>
-          <p className="mt-1 text-sm text-muted-foreground">
+        <div key={i} className="bg-card rounded-lg p-4">
+          <h3 className="text-foreground font-medium">Card {i}</h3>
+          <p className="text-muted-foreground mt-1 text-sm">
             Sample card content
           </p>
         </div>
@@ -92,10 +91,10 @@ export const NoPadding: Story = {
     noPadding: true,
     children: (
       <div className="bg-card p-4">
-        <h2 className="text-lg font-semibold text-foreground">
+        <h2 className="text-foreground text-lg font-semibold">
           Full Bleed Content
         </h2>
-        <p className="mt-2 text-muted-foreground">
+        <p className="text-muted-foreground mt-2">
           This content stretches edge to edge without horizontal padding.
         </p>
       </div>
@@ -106,15 +105,15 @@ export const NoPadding: Story = {
 // Complete page layout with Header and BottomNav
 export const CompleteLayout: Story = {
   render: () => (
-    <div className="relative min-h-screen bg-background">
+    <div className="bg-background relative min-h-screen">
       <Header showLogo showLanguageSwitcher />
       <PageContainer hasBottomNav>
         <SampleContent />
-        <div className="mt-8 rounded-lg bg-card p-4">
-          <h2 className="text-lg font-semibold text-foreground">
+        <div className="bg-card mt-8 rounded-lg p-4">
+          <h2 className="text-foreground text-lg font-semibold">
             More Content
           </h2>
-          <p className="mt-2 text-muted-foreground">
+          <p className="text-muted-foreground mt-2">
             This demonstrates the complete page layout with Header, content in
             PageContainer, and BottomNav. Notice the proper spacing and padding.
           </p>
@@ -136,15 +135,15 @@ export const CompleteLayout: Story = {
 // RTL mode
 export const RTLMode: Story = {
   render: () => (
-    <div dir="rtl" className="relative min-h-screen bg-background">
+    <div dir="rtl" className="bg-background relative min-h-screen">
       <Header showLogo showLanguageSwitcher />
       <PageContainer hasBottomNav>
         <div className="space-y-4">
-          <div className="rounded-lg bg-card p-4">
-            <h2 className="text-lg font-semibold text-foreground">
+          <div className="bg-card rounded-lg p-4">
+            <h2 className="text-foreground text-lg font-semibold">
               محتوى باللغة العربية
             </h2>
-            <p className="mt-2 text-muted-foreground">
+            <p className="text-muted-foreground mt-2">
               هذا مثال على محتوى الصفحة في وضع اليمين إلى اليسار.
             </p>
           </div>

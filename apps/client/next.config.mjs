@@ -1,10 +1,21 @@
 import withPlaiceholder from "@plaiceholder/next"
 import { withSentryConfig } from "@sentry/nextjs"
+import withSerwistInit from "@serwist/next"
 import plugin from "next-intl/plugin"
 
 import { env } from "./src/env.mjs"
 
 const withNextIntl = plugin("./src/lib/i18n.ts")
+
+// Configure Serwist for PWA support
+const withSerwist = withSerwistInit({
+  swSrc: "src/app/sw.ts",
+  swDest: "public/sw.js",
+  cacheOnNavigation: true,
+  reloadOnOnline: true,
+  // Disable in development to avoid service worker issues
+  disable: process.env.NODE_ENV === "development",
+})
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -13,7 +24,18 @@ const nextConfig = {
   devIndicators: {
     position: "bottom-right",
   },
-  experimental: {},
+  // Next.js 16.1: Turbopack is default bundler, config at top-level
+  turbopack: {
+    // Set root to monorepo root to avoid workspace detection warnings (must be absolute)
+    root: process.cwd().replace(/\/apps\/client$/, ""),
+    // Custom resolve extensions if needed
+    // resolveExtensions: ['.ts', '.tsx', '.js', '.jsx'],
+  },
+  experimental: {
+    // Enable Turbopack filesystem caching for faster rebuilds
+    turbopackFileSystemCacheForDev: true,
+    turbopackFileSystemCacheForBuild: true,
+  },
   transpilePackages: ["@tiween/design-system"],
   images: {
     // Be aware that Strapi has optimization on by default
@@ -61,7 +83,8 @@ const nextConfig = {
 }
 
 const withConfig = (() => {
-  let config = withNextIntl(withPlaiceholder(nextConfig))
+  // Chain config: Serwist -> NextIntl -> Plaiceholder -> base config
+  let config = withSerwist(withNextIntl(withPlaiceholder(nextConfig)))
 
   config = withSentryConfig(config, {
     // For all available options, see:

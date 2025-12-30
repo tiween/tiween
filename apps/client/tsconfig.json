@@ -2,6 +2,7 @@
   "extends": "@tiween/typescript-config/nextjs.json",
   "compilerOptions": {
     "plugins": [{ "name": "next" }],
+    "lib": ["es2022", "DOM", "DOM.Iterable", "WebWorker"],
     "paths": {
       "@/*": ["./src/*"]
     }

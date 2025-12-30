@@ -4,21 +4,106 @@
 
 @plugin "tailwindcss-animate";
 
-/*
-  The default border color has changed to `currentColor` in Tailwind CSS v4,
-  so we've added these compatibility styles to make sure everything still
-  looks the same as it did with Tailwind CSS v3.
+/* ============================================
+   TIWEEN SHADCN/UI CSS VARIABLES
+   ============================================
+   Tiween is a dark-theme-only application.
+   Colors use HSL format for shadcn/ui compatibility.
+   ============================================ */
 
-  If we ever want to remove these styles, we need to add an explicit border
-  color utility to any element that depends on these defaults.
-*/
+:root {
+  /* Background & Foreground */
+  --background: 169 79% 8%; /* #032523 - tiween-green */
+  --foreground: 0 0% 100%; /* white */
+
+  /* Primary (Yellow CTA) */
+  --primary: 56 97% 50%; /* #F8EB06 - tiween-yellow */
+  --primary-foreground: 169 79% 8%; /* dark text on yellow */
+
+  /* Secondary */
+  --secondary: 169 60% 12%; /* #0A3533 - surface */
+  --secondary-foreground: 0 0% 100%;
+
+  /* Muted */
+  --muted: 169 60% 12%; /* #0A3533 - surface */
+  --muted-foreground: 0 0% 63%; /* #A0A0A0 */
+
+  /* Card */
+  --card: 169 60% 12%; /* #0A3533 - surface */
+  --card-foreground: 0 0% 100%;
+
+  /* Popover */
+  --popover: 169 60% 12%; /* #0A3533 - surface */
+  --popover-foreground: 0 0% 100%;
+
+  /* Border & Input */
+  --border: 169 40% 20%; /* slightly lighter border */
+  --input: 169 40% 20%;
+  --ring: 56 97% 50%; /* yellow focus ring */
+
+  /* Destructive */
+  --destructive: 0 84% 60%; /* red */
+  --destructive-foreground: 0 0% 100%;
+
+  /* Accent (hover states) */
+  --accent: 169 55% 16%; /* #0F4542 - surface-light */
+  --accent-foreground: 0 0% 100%;
+
+  /* Chart Colors (for analytics) */
+  --chart-1: 56 97% 50%; /* yellow */
+  --chart-2: 169 60% 40%; /* teal */
+  --chart-3: 0 84% 60%; /* red */
+  --chart-4: 200 70% 50%; /* blue */
+  --chart-5: 280 60% 50%; /* purple */
+
+  /* Radius */
+  --radius: 0.5rem;
+
+  /* Sidebar (for shadcn sidebar component) */
+  --sidebar: 169 79% 8%; /* tiween-green */
+  --sidebar-foreground: 0 0% 100%;
+  --sidebar-primary: 56 97% 50%; /* tiween-yellow */
+  --sidebar-primary-foreground: 169 79% 8%;
+  --sidebar-accent: 169 55% 16%; /* surface-light */
+  --sidebar-accent-foreground: 0 0% 100%;
+  --sidebar-border: 169 40% 20%;
+  --sidebar-ring: 56 97% 50%;
+}
+
+/* Dark theme class - same as root since Tiween is dark-only */
+.dark {
+  --background: 169 79% 8%;
+  --foreground: 0 0% 100%;
+  --primary: 56 97% 50%;
+  --primary-foreground: 169 79% 8%;
+  --secondary: 169 60% 12%;
+  --secondary-foreground: 0 0% 100%;
+  --muted: 169 60% 12%;
+  --muted-foreground: 0 0% 63%;
+  --card: 169 60% 12%;
+  --card-foreground: 0 0% 100%;
+  --popover: 169 60% 12%;
+  --popover-foreground: 0 0% 100%;
+  --border: 169 40% 20%;
+  --input: 169 40% 20%;
+  --ring: 56 97% 50%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+  --accent: 169 55% 16%;
+  --accent-foreground: 0 0% 100%;
+}
+
+/* ============================================
+   BASE STYLES
+   ============================================ */
+
 @layer base {
   *,
   ::after,
   ::before,
   ::backdrop,
   ::file-selector-button {
-    border-color: var(--color-gray-200, currentColor);
+    border-color: hsl(var(--border));
   }
 
   ul {
@@ -30,6 +115,35 @@
     list-style-type: decimal;
     list-style-position: inside;
   }
+
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-feature-settings:
+      "rlig" 1,
+      "calt" 1;
+  }
+
+  /* Focus ring styles for accessibility */
+  :focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 2px hsl(var(--ring)),
+      0 0 0 4px hsl(var(--background));
+  }
+}
+
+/* ============================================
+   CUSTOM UTILITIES
+   ============================================ */
+
+/* Font utilities for Tiween typography */
+@utility font-display {
+  font-family: var(--font-lalezar), Lalezar, cursive;
+}
+
+@utility font-arabic {
+  font-family: var(--font-noto-arabic), "Noto Sans Arabic", sans-serif;
 }
 
 @utility no-scrollbar {
@@ -38,8 +152,8 @@
     display: none;
   }
   /* Hide scrollbar for IE, Edge and Firefox */
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 @utility container {
@@ -47,14 +161,9 @@
   padding: 2rem;
 }
 
-@layer base {
-  * {
-    @apply border-gray-300;
-  }
-  body {
-    @apply bg-gray-100 text-blue-900;
-  }
-}
+/* ============================================
+   ANIMATIONS
+   ============================================ */
 
 @keyframes scrollHorizontal {
   to {
@@ -76,18 +185,9 @@
 .bg-gradient-slider {
   background: linear-gradient(
     90deg,
-    rgba(255, 255, 255, 0.8) 0%,
-    rgba(255, 255, 255, 0) 31%,
-    rgba(255, 255, 255, 0) 69.5%,
-    rgba(255, 255, 255, 0.8) 100%
+    hsl(var(--background) / 0.8) 0%,
+    hsl(var(--background) / 0) 31%,
+    hsl(var(--background) / 0) 69.5%,
+    hsl(var(--background) / 0.8) 100%
   ) !important;
-}
-
-@layer base {
-  * {
-    @apply border-gray-300 outline-purple-500/50;
-  }
-  body {
-    @apply bg-gray-100 text-gray-900;
-  }
 }

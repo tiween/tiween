@@ -36,7 +36,7 @@ const meta: Meta<typeof Header> = {
   },
   decorators: [
     (Story) => (
-      <div className="min-h-[200px] bg-background">
+      <div className="bg-background min-h-[200px]">
         <Story />
       </div>
     ),
@@ -98,7 +98,7 @@ export const RTLMode: Story = {
   },
   decorators: [
     (Story) => (
-      <div dir="rtl" className="min-h-[200px] bg-background">
+      <div dir="rtl" className="bg-background min-h-[200px]">
         <Story />
       </div>
     ),
@@ -118,26 +118,26 @@ export const AllVariants: Story = {
   render: () => (
     <div className="flex flex-col gap-4 p-4">
       <div>
-        <h3 className="mb-2 text-sm font-medium text-muted-foreground">
+        <h3 className="text-muted-foreground mb-2 text-sm font-medium">
           Default (Logo + Language Switcher)
         </h3>
-        <div className="rounded-lg border border-border">
+        <div className="border-border rounded-lg border">
           <Header showLogo showLanguageSwitcher />
         </div>
       </div>
       <div>
-        <h3 className="mb-2 text-sm font-medium text-muted-foreground">
+        <h3 className="text-muted-foreground mb-2 text-sm font-medium">
           With Title
         </h3>
-        <div className="rounded-lg border border-border">
+        <div className="border-border rounded-lg border">
           <Header showLogo showLanguageSwitcher title="Mes billets" />
         </div>
       </div>
       <div>
-        <h3 className="mb-2 text-sm font-medium text-muted-foreground">
+        <h3 className="text-muted-foreground mb-2 text-sm font-medium">
           With Back Button
         </h3>
-        <div className="rounded-lg border border-border">
+        <div className="border-border rounded-lg border">
           <Header
             showBackButton
             showLanguageSwitcher
@@ -147,10 +147,10 @@ export const AllVariants: Story = {
         </div>
       </div>
       <div>
-        <h3 className="mb-2 text-sm font-medium text-muted-foreground">
+        <h3 className="text-muted-foreground mb-2 text-sm font-medium">
           Minimal (Back only)
         </h3>
-        <div className="rounded-lg border border-border">
+        <div className="border-border rounded-lg border">
           <Header
             showBackButton
             showLanguageSwitcher={false}

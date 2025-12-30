@@ -6,8 +6,8 @@ import { ArrowLeft, ArrowRight } from "lucide-react"
 import { useLocale } from "next-intl"
 
 import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
 import LocaleSwitcher from "@/components/elementary/LocaleSwitcher"
+import { Button } from "@/components/ui/button"
 
 export interface HeaderProps {
   /** Optional title displayed in center */
@@ -51,7 +51,7 @@ export function Header({
         // Background
         "bg-background",
         // Border bottom
-        "border-b border-border",
+        "border-border border-b",
         // Flex layout
         "flex items-center justify-between",
         // Padding
@@ -86,7 +86,7 @@ export function Header({
 
       {/* Center: Optional title */}
       {title && (
-        <h1 className="absolute inset-x-0 text-center text-base font-semibold text-foreground">
+        <h1 className="text-foreground absolute inset-x-0 text-center text-base font-semibold">
           {title}
         </h1>
       )}

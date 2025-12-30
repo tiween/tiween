@@ -4,10 +4,11 @@ import { defineRouting } from "next-intl/routing"
 
 export const routing = defineRouting({
   // A list of all locales that are supported
-  locales: ["cs", "en"],
+  // Tiween supports Arabic, French, and English
+  locales: ["ar", "fr", "en"],
 
   // Used when no locale matches
-  defaultLocale: "en",
+  defaultLocale: "fr",
 
   localePrefix: "as-needed",
 })
