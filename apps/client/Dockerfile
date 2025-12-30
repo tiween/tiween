@@ -39,9 +39,10 @@ COPY --from=pruned /app/out/yarn.lock ./yarn.lock
 
 RUN yarn global add turbo@^2.0.9
 
+# Install dependencies - removed --ignore-scripts to allow proper postinstall hooks
 RUN \
     --mount=type=cache,target=/usr/local/share/.cache/yarn/v6,sharing=locked \
-    yarn --prefer-offline --frozen-lockfile --ignore-scripts
+    yarn --prefer-offline --frozen-lockfile
 
 # Because of yarn v1 install sharp explicitly with "--ignore-engines". See https://github.com/lovell/sharp/issues/3871
 RUN \
@@ -54,6 +55,7 @@ COPY turbo.json turbo.json
 
 ENV NODE_ENV=production
 
+# Build the client package and its dependencies
 RUN turbo run build --filter=${WORKSPACE}
 
 # -------------------------- stage runner ---------------------------------
