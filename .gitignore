@@ -45,3 +45,6 @@ yarn-error.log*
 
 # backup files
 *.bak
+
+# storybook
+storybook-static/
