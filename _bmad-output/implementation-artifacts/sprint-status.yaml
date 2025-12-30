@@ -92,9 +92,9 @@ development_status:
   2b-10-redis-integration-for-sessions-and-caching: review
   2b-11-imagekit-provider-configuration: review
   2b-12-email-configuration-with-brevo: ready-for-dev
-  2b-13-api-documentation-with-openapi: backlog
-  2b-14-data-migration-scripts-from-legacy-strapi-v4: backlog
-  2b-15-database-seeding-for-development: backlog
+  2b-13-api-documentation-with-openapi: ready-for-dev
+  2b-14-data-migration-scripts-from-legacy-strapi-v4: ready-for-dev
+  2b-15-database-seeding-for-development: ready-for-dev
   epic-2b-retrospective: optional
 
   # Epic 3: Event Discovery & Browsing
