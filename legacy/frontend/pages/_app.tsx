@@ -1,10 +1,10 @@
-import type { AppProps } from 'next/app';
+import type { AppProps } from "next/app"
 
-import 'tailwindcss/tailwind.css';
-import '../styles/global.css';
-import { SessionProvider } from 'next-auth/react';
+import "tailwindcss/tailwind.css"
+import "../styles/global.css"
 
-import NextNProgress from 'nextjs-progressbar';
+import { SessionProvider } from "next-auth/react"
+import NextNProgress from "nextjs-progressbar"
 
 const TiweenApp: React.FC<AppProps> = ({ Component, pageProps }) => {
   return (
@@ -12,7 +12,7 @@ const TiweenApp: React.FC<AppProps> = ({ Component, pageProps }) => {
       <NextNProgress color="#FF007A" height={4} showOnShallow={true} />
       <Component {...pageProps} />;
     </SessionProvider>
-  );
-};
+  )
+}
 
-export default TiweenApp;
+export default TiweenApp

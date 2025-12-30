@@ -1,4 +1,4 @@
 export default {
-  'terms.name': 'Genres',
-  'countries.name': 'Pays',
-};
+  "terms.name": "Genres",
+  "countries.name": "Pays",
+}

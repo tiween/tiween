@@ -1,20 +1,23 @@
-import { Popover, Transition } from '@headlessui/react';
-import React, { Fragment } from 'react';
-import { signIn, useSession } from 'next-auth/react';
+import React, { Fragment } from "react"
+import { Popover, Transition } from "@headlessui/react"
+import CalendarIcon from "@heroicons/react/outline/CalendarIcon"
+import axios from "axios"
+import { signIn, useSession } from "next-auth/react"
 
-import Agenda from '../../shared/models/agenda';
-import AgendaForm from './AgendaForm';
-import CalendarIcon from '@heroicons/react/outline/CalendarIcon';
-import Event from '../../shared/models/event';
-import axios from 'axios';
-import useRequest from '../../shared/hooks/useRequest';
+import useRequest from "../../shared/hooks/useRequest"
+import Agenda from "../../shared/models/agenda"
+import Event from "../../shared/models/event"
+import AgendaForm from "./AgendaForm"
 
 const AddToAgenda: React.FunctionComponent<{ event: Event }> = ({ event }) => {
-  const { status } = useSession();
+  const { status } = useSession()
   const { data: agendas, mutate } = useRequest<Agenda[]>({
-    url: status === 'authenticated' ? `${process.env.NEXT_PUBLIC_BASE_URL}/user/agendas` : null,
-  });
-  if (status === 'authenticated') {
+    url:
+      status === "authenticated"
+        ? `${process.env.NEXT_PUBLIC_BASE_URL}/user/agendas`
+        : null,
+  })
+  if (status === "authenticated") {
     return (
       <div className="w-full max-w-sm px-4">
         <Popover className="relative">
@@ -42,9 +45,9 @@ const AddToAgenda: React.FunctionComponent<{ event: Event }> = ({ event }) => {
                       handleSubmit={async (values) => {
                         await axios.post(
                           `${process.env.NEXT_PUBLIC_BASE_URL}/user/agenda/create`,
-                          values,
-                        );
-                        mutate();
+                          values
+                        )
+                        mutate()
                       }}
                     />
                   </div>
@@ -57,11 +60,14 @@ const AddToAgenda: React.FunctionComponent<{ event: Event }> = ({ event }) => {
                             key={item.id}
                             onClick={() => {
                               axios
-                                .post(`${process.env.NEXT_PUBLIC_BASE_URL}/events/add-to-agenda`, {
-                                  event: event.id,
-                                  agenda: item.id,
-                                })
-                                .then((response) => console.log('OK', response));
+                                .post(
+                                  `${process.env.NEXT_PUBLIC_BASE_URL}/events/add-to-agenda`,
+                                  {
+                                    event: event.id,
+                                    agenda: item.id,
+                                  }
+                                )
+                                .then((response) => console.log("OK", response))
                             }}
                           >
                             <div>{item.name}</div>
@@ -79,8 +85,8 @@ const AddToAgenda: React.FunctionComponent<{ event: Event }> = ({ event }) => {
           )}
         </Popover>
       </div>
-    );
-  } else if (status === 'unauthenticated') {
+    )
+  } else if (status === "unauthenticated") {
     return (
       <button
         key="online-add-to-agenda"
@@ -90,8 +96,8 @@ const AddToAgenda: React.FunctionComponent<{ event: Event }> = ({ event }) => {
         <CalendarIcon className="md:hidden block w-5 h-5" />
         <span className="md:block hidden">Ajouter à mon agenda</span>
       </button>
-    );
+    )
   }
-};
+}
 
-export default AddToAgenda;
+export default AddToAgenda

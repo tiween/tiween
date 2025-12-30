@@ -1,11 +1,9 @@
-import AuthLogo from './extensions/auth-logo.png'
-import MenuLogo from './extensions/menu-logo.png'
+import AuthLogo from "./extensions/auth-logo.png"
+import MenuLogo from "./extensions/menu-logo.png"
 
 export default {
   config: {
-    locales: [
-      'fr',
-    ],
+    locales: ["fr"],
     tutorials: false,
     // theme: lightTheme,
     auth: {
@@ -13,12 +11,12 @@ export default {
     },
     translations: {
       en: {
-        'Auth.form.welcome.title': 'tiween\'s dashboard',
-        'Auth.form.welcome.subtitle': 'login to your tiween account',
+        "Auth.form.welcome.title": "tiween's dashboard",
+        "Auth.form.welcome.subtitle": "login to your tiween account",
       },
     },
     // menu: {
     //   logo: MenuLogo,
     // },
-  }
-};
+  },
+}

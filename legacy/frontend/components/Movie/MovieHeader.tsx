@@ -1,20 +1,21 @@
-import DesktopMovieHeader from './DesktopMovieHeader';
-import MobileMovieHeader from './MobileMovieHeader';
 /* eslint-disable @typescript-eslint/no-empty-function */
-import React from 'react';
-import ReviewModal from '../Reviews/ReviewModal';
-import { useMovie } from '../../shared/context/movie.context';
-import { useReview } from '../../shared/context/UserReviewContext';
+import React from "react"
+
+import { useMovie } from "../../shared/context/movie.context"
+import { useReview } from "../../shared/context/UserReviewContext"
+import ReviewModal from "../Reviews/ReviewModal"
+import DesktopMovieHeader from "./DesktopMovieHeader"
+import MobileMovieHeader from "./MobileMovieHeader"
 
 const MovieHeader: React.FC = () => {
-  const { review, showReviewModal, setShowReviewModal } = useReview();
+  const { review, showReviewModal, setShowReviewModal } = useReview()
 
   const {
     remote: { backdrop_path },
-  } = useMovie();
+  } = useMovie()
   const backgroundImageStyles = {
     backgroundImage: `linear-gradient(0deg, rgba(12,9,17,1) 0%, rgba(136,134,138,0.4) 60%, rgba(255,255,255,0) 100%),url(${process.env.NEXT_PUBLIC_CDN_BASE_URL}/${process.env.NEXT_PUBLIC_TMBD_IMAGE_BASE_URL}w1280${backdrop_path}`,
-  };
+  }
   return (
     <>
       <div
@@ -33,10 +34,10 @@ const MovieHeader: React.FC = () => {
         review={review}
         show={showReviewModal}
         handleClose={() => {
-          setShowReviewModal(false);
+          setShowReviewModal(false)
         }}
       />
     </>
-  );
-};
-export default MovieHeader;
+  )
+}
+export default MovieHeader

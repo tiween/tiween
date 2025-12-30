@@ -1,20 +1,23 @@
-import Image, { ImageLoader } from 'next/image';
-import { posterImageLoader, tmdbPosterImageLoader } from '../../../shared/services/cdn';
+import React from "react"
+import Image, { ImageLoader } from "next/image"
+import Link from "next/link"
+import { useRouter } from "next/router"
+import PlayIcon from "@heroicons/react/solid/PlayIcon"
+import get from "lodash/get"
 
-import Link from 'next/link';
-import MovieTitle from '../MovieTitle';
-import PlayIcon from '@heroicons/react/solid/PlayIcon';
-import React from 'react';
-import { TMDBMovie } from '../../../shared/models/tmdb-movie';
-import get from 'lodash/get';
-import { slugify } from '../../../shared/services/utils';
-import { useRouter } from 'next/router';
+import { TMDBMovie } from "../../../shared/models/tmdb-movie"
+import {
+  posterImageLoader,
+  tmdbPosterImageLoader,
+} from "../../../shared/services/cdn"
+import { slugify } from "../../../shared/services/utils"
+import MovieTitle from "../MovieTitle"
 
 export interface HomePageMovieCardProps {
-  showPlayTrailersButton?: boolean;
-  movie: TMDBMovie;
-  index: number;
-  onPlayButtonClick?: () => void;
+  showPlayTrailersButton?: boolean
+  movie: TMDBMovie
+  index: number
+  onPlayButtonClick?: () => void
 }
 
 const HomePageMovieCard: React.FC<HomePageMovieCardProps> = ({
@@ -22,17 +25,17 @@ const HomePageMovieCard: React.FC<HomePageMovieCardProps> = ({
   showPlayTrailersButton = false,
   onPlayButtonClick,
 }) => {
-  const router = useRouter();
+  const router = useRouter()
   //get overriden movie poster if not empty
-  const moviePoster: { src?: string; loader?: ImageLoader } = {};
+  const moviePoster: { src?: string; loader?: ImageLoader } = {}
 
-  const overridenPoster = get(movie, 'overridden_poster', null);
+  const overridenPoster = get(movie, "overridden_poster", null)
   if (overridenPoster) {
-    moviePoster.src = overridenPoster.hash;
-    moviePoster.loader = posterImageLoader;
+    moviePoster.src = overridenPoster.hash
+    moviePoster.loader = posterImageLoader
   } else {
-    moviePoster.src = `https://image.tmdb.org/t/p/original${movie?.poster_path}`;
-    moviePoster.loader = tmdbPosterImageLoader;
+    moviePoster.src = `https://image.tmdb.org/t/p/original${movie?.poster_path}`
+    moviePoster.loader = tmdbPosterImageLoader
   }
 
   return (
@@ -72,24 +75,27 @@ const HomePageMovieCard: React.FC<HomePageMovieCardProps> = ({
       <div
         className="md:block hidden overlay absolute inset-0 opacity-0 group-hover:opacity-100 w-full h-full bg-transparent transition-opacity duration-300 ease-in-out;"
         onClick={(event) => {
-          event.preventDefault();
-          event.stopPropagation();
-          router.push(`/film/${slugify(movie.title)}/${movie.id}`);
+          event.preventDefault()
+          event.stopPropagation()
+          router.push(`/film/${slugify(movie.title)}/${movie.id}`)
         }}
         role="button"
         tabIndex={0}
       >
         <h3 className="movie-title font-lato text-lg font-bold text-white text-center absolute inset-x-2 top-2 filter drop-shadow-sm">
-          <MovieTitle title={movie.title} originalTitle={movie.original_title} />
+          <MovieTitle
+            title={movie.title}
+            originalTitle={movie.original_title}
+          />
         </h3>
         <>
           {showPlayTrailersButton && (
             <button
               className="cta-trailers absolute top-1/3 inset-x-1/3 text-white group-hover:opacity-100"
               onClick={(event) => {
-                event.preventDefault();
-                event.stopPropagation();
-                onPlayButtonClick();
+                event.preventDefault()
+                event.stopPropagation()
+                onPlayButtonClick()
               }}
             >
               <PlayIcon className="text-5xl w-full stroke-current" />
@@ -107,7 +113,7 @@ const HomePageMovieCard: React.FC<HomePageMovieCardProps> = ({
         </Link>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default React.memo(HomePageMovieCard);
+export default React.memo(HomePageMovieCard)

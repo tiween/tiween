@@ -1,40 +1,46 @@
-import classNames from 'classnames';
-import dynamic from 'next/dynamic';
-import Head from 'next/head';
-import { useRouter } from 'next/router';
-import React, { useReducer } from 'react';
+import React, { useReducer } from "react"
+import dynamic from "next/dynamic"
+import Head from "next/head"
+import { useRouter } from "next/router"
+import classNames from "classnames"
 
-import Footer from './Footer';
-import MainNavigation from './MainNavigation';
-const routesWithoutMobileToolBar = ['/auth/signin', '/auth/signup'];
-const MobileSearchWrapper = dynamic(() => import('../Search/MobileSearchWrapper'));
-const MobileToolBar = dynamic(() => import('./MobileToolBar'));
+import Footer from "./Footer"
+import MainNavigation from "./MainNavigation"
+
+const routesWithoutMobileToolBar = ["/auth/signin", "/auth/signup"]
+const MobileSearchWrapper = dynamic(
+  () => import("../Search/MobileSearchWrapper")
+)
+const MobileToolBar = dynamic(() => import("./MobileToolBar"))
 type State = {
-  home?: boolean;
-  search?: boolean;
-  favorite?: boolean;
-  share?: boolean;
-  subscription?: boolean;
-};
-type Action = { type: 'search' } | { type: 'search.close' } | { type: 'subscription.close' };
+  home?: boolean
+  search?: boolean
+  favorite?: boolean
+  share?: boolean
+  subscription?: boolean
+}
+type Action =
+  | { type: "search" }
+  | { type: "search.close" }
+  | { type: "subscription.close" }
 
 const reducer = (state: State, action: Action): State => {
   switch (action.type) {
-    case 'search':
-      return { search: true };
-    case 'search.close':
-      return { search: false };
-    case 'subscription.close':
-      return { subscription: false };
+    case "search":
+      return { search: true }
+    case "search.close":
+      return { search: false }
+    case "subscription.close":
+      return { subscription: false }
     default:
-      throw new Error();
+      throw new Error()
   }
-};
+}
 
 interface LayoutProps {
-  pageName?: string;
-  className?: string;
-  children: React.ReactNode;
+  pageName?: string
+  className?: string
+  children: React.ReactNode
 }
 
 const Layout: React.FC<LayoutProps> = ({ children, className }) => {
@@ -44,12 +50,12 @@ const Layout: React.FC<LayoutProps> = ({ children, className }) => {
     favorite: false,
     share: false,
     subscription: true,
-  });
+  })
 
   const handleAction = (action: Action): void => {
-    dispatch(action);
-  };
-  const router = useRouter();
+    dispatch(action)
+  }
+  const router = useRouter()
 
   return (
     <>
@@ -59,13 +65,16 @@ const Layout: React.FC<LayoutProps> = ({ children, className }) => {
       <div
         id="layout"
         className={classNames(
-          'flex flex-col justify-between',
-          'bg-cinder',
-          'text-white',
-          className,
+          "flex flex-col justify-between",
+          "bg-cinder",
+          "text-white",
+          className
         )}
       >
-        <div id="page-wrapper" className="relative sm:-mb-20 md:mb-0 sm:pb-20 md:pb-0">
+        <div
+          id="page-wrapper"
+          className="relative sm:-mb-20 md:mb-0 sm:pb-20 md:pb-0"
+        >
           <MainNavigation />
           {search ? (
             <MobileSearchWrapper show={search} handleAction={handleAction} />
@@ -81,7 +90,7 @@ const Layout: React.FC<LayoutProps> = ({ children, className }) => {
         {/* <SubscriptionModal show /> */}
       </div>
     </>
-  );
-};
+  )
+}
 
-export default Layout;
+export default Layout

@@ -1,16 +1,17 @@
-import classNames from 'classnames';
-import groupBy from 'lodash/groupBy';
-import React from 'react';
-import { useCreativeWork } from '../../shared/context/CreativeWorkContext';
+import React from "react"
+import classNames from "classnames"
+import groupBy from "lodash/groupBy"
+
+import { useCreativeWork } from "../../shared/context/CreativeWorkContext"
 
 const PlayCrew: React.FunctionComponent = () => {
-  const { crew } = useCreativeWork();
+  const { crew } = useCreativeWork()
 
   const groupedByJobs = groupBy(crew, (crewMember) => {
-    return crewMember?.job?.root || crewMember?.job?.name;
-  });
+    return crewMember?.job?.root || crewMember?.job?.name
+  })
 
-  const jobs = Object.keys(groupedByJobs);
+  const jobs = Object.keys(groupedByJobs)
   return (
     <div className="block mb-5">
       <h2 className="capitalize font-bold text-lg mb-2">Équipe artistique</h2>
@@ -19,15 +20,18 @@ const PlayCrew: React.FunctionComponent = () => {
           jobs.map((job, index) => (
             <div key={job} className="job flex flex-col justify-start">
               <div
-                className={classNames('font-semibold flex flex-start space-x-3', {
-                  'text-lg font-bold': index === 0,
-                  'text-sm font-bold': index > 0,
-                })}
+                className={classNames(
+                  "font-semibold flex flex-start space-x-3",
+                  {
+                    "text-lg font-bold": index === 0,
+                    "text-sm font-bold": index > 0,
+                  }
+                )}
               >
                 <span
-                  className={classNames(' text-bastille-lighter w-1/2', {
-                    ' font-bold': index === 0,
-                    'font-medium': index > 0,
+                  className={classNames(" text-bastille-lighter w-1/2", {
+                    " font-bold": index === 0,
+                    "font-medium": index > 0,
                   })}
                 >
                   {job}
@@ -43,7 +47,7 @@ const PlayCrew: React.FunctionComponent = () => {
           ))}
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default PlayCrew;
+export default PlayCrew

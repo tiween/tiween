@@ -1,12 +1,13 @@
-import { factories } from "@strapi/strapi";
-import get from "lodash/get";
-import moviemeta from "../../moviemeta/controllers/moviemeta";
-import pick from "lodash/pick";
-import reduce from "lodash/reduce";
-import set from "lodash/set";
-import uniqBy from "lodash/uniqBy";
+import { factories } from "@strapi/strapi"
+import get from "lodash/get"
+import pick from "lodash/pick"
+import reduce from "lodash/reduce"
+import set from "lodash/set"
+import uniqBy from "lodash/uniqBy"
 
-const { DateTime } = require("luxon");
+import moviemeta from "../../moviemeta/controllers/moviemeta"
+
+const { DateTime } = require("luxon")
 
 const remoteMovieFields = [
   "id",
@@ -18,13 +19,13 @@ const remoteMovieFields = [
 
   "videos",
   "vote_average",
-];
+]
 export default factories.createCoreController(
   "api::showtime.showtime",
   ({ strapi }) => ({
     async upcomingMovies(ctx) {
-      const now = DateTime.now().toISO();
-      let movies = [];
+      const now = DateTime.now().toISO()
+      let movies = []
       try {
         const showtimes = await strapi.entityService.findMany(
           "api::showtime.showtime",
@@ -45,7 +46,7 @@ export default factories.createCoreController(
               },
             },
           }
-        );
+        )
 
         if (showtimes.length > 0) {
           movies = uniqBy(
@@ -55,23 +56,23 @@ export default factories.createCoreController(
             const movie = {
               content_type: "MOVIE",
               ...pick(get(item, ["moviemeta", "remote"]), remoteMovieFields),
-            };
-            console.log("movie", movie);
-            return movie;
-          });
+            }
+            console.log("movie", movie)
+            return movie
+          })
         }
 
-        return movies;
+        return movies
       } catch (err) {
-        console.log("error", err);
-        ctx.body = err;
+        console.log("error", err)
+        ctx.body = err
       }
     },
     async movieTimetable(ctx) {
-      const now = DateTime.now().toISO();
+      const now = DateTime.now().toISO()
       const {
         params: { tmdbid },
-      } = ctx;
+      } = ctx
       if (tmdbid) {
         const showtimes = await strapi.entityService.findMany(
           "api::showtime.showtime",
@@ -96,30 +97,30 @@ export default factories.createCoreController(
             },
             sort: { date: "asc" },
           }
-        );
+        )
 
         const groupedShowtimes = showtimes.reduce((result, value) => {
-          const day = value.day;
-          const medium = get(value, ["event", "medium"], null);
+          const day = value.day
+          const medium = get(value, ["event", "medium"], null)
           // Set 'date' value from 'fullStartDate'
-          value.date = value.event.fullStartDate;
+          value.date = value.event.fullStartDate
 
           if (medium) {
-            const currentDayMedium = get(result, [day, medium.slug], null);
+            const currentDayMedium = get(result, [day, medium.slug], null)
             if (currentDayMedium) {
-              currentDayMedium.shows.push(value);
+              currentDayMedium.shows.push(value)
             } else {
               result[day] = {
                 ...result[day],
                 [medium.slug]: { medium, shows: [value] },
-              };
+              }
             }
           }
-          return result;
-        }, {});
+          return result
+        }, {})
 
-        return groupedShowtimes;
+        return groupedShowtimes
       }
     },
   })
-);
+)

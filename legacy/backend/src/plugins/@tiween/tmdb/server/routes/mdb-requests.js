@@ -1,16 +1,16 @@
-'use strict'
+"use strict"
 
 module.exports = {
-  type: 'admin',
+  type: "admin",
   routes: [
     {
-      method: 'GET',
-      path: '/search-movies',
-      handler: 'mdb-requests.searchMovies',
+      method: "GET",
+      path: "/search-movies",
+      handler: "mdb-requests.searchMovies",
       config: {
         policies: [],
         auth: false,
       },
     },
-  ]
-};
+  ],
+}

@@ -1,60 +1,65 @@
-import { GetStaticPaths, GetStaticProps } from 'next';
+import React from "react"
+import { GetStaticPaths, GetStaticProps } from "next"
+import Image from "next/image"
+// import ShareIcon from '@heroicons/react/outline/ShareIcon';
+import classNames from "classnames"
+import get from "lodash/get"
+import isEmpty from "lodash/isEmpty"
+import ReactPlayer from "react-player"
+
+import MediumName from "../../components/Medium/MediumName"
+import MediumAttributes from "../../components/MediumAttributes"
+import MovieTagsList from "../../components/Movie/MovieTagsList"
+import MovieTitle from "../../components/Movie/MovieTitle"
+import AwardIcon from "../../components/shared/AwardIcon"
+import DateTimeBlock from "../../components/shared/DateTimeBlock"
+import Layout from "../../components/shared/Layout"
+import Section from "../../components/shared/Section"
+import ShortMoviesSuggestionList from "../../components/ShortMovie/ShortMoviesSuggestionList"
+import useRequest from "../../shared/hooks/useRequest"
+import CreativeWork from "../../shared/models/creative-work"
+import Event from "../../shared/models/event"
+import StrapiApiResponse from "../../shared/models/strapi-api-response"
 import {
   ar1619ImageLoader,
   getVideoPreviewImage,
   posterImageLoader,
-} from '../../shared/services/cdn';
-import { getCreativeWorkPersonsByJob, runtimeToHuman } from '../../shared/services/utils';
-
-import AwardIcon from '../../components/shared/AwardIcon';
-import CreativeWork from '../../shared/models/creative-work';
-import DateTimeBlock from '../../components/shared/DateTimeBlock';
-import Event from '../../shared/models/event';
-import Image from 'next/image';
-import Layout from '../../components/shared/Layout';
-import MediumAttributes from '../../components/MediumAttributes';
-import MediumName from '../../components/Medium/MediumName';
-import MovieTagsList from '../../components/Movie/MovieTagsList';
-import MovieTitle from '../../components/Movie/MovieTitle';
-import React from 'react';
-import ReactPlayer from 'react-player';
-import Section from '../../components/shared/Section';
-import ShortMoviesSuggestionList from '../../components/ShortMovie/ShortMoviesSuggestionList';
-import StrapiApiResponse from '../../shared/models/strapi-api-response';
-// import ShareIcon from '@heroicons/react/outline/ShareIcon';
-import classNames from 'classnames';
-import get from 'lodash/get';
-import isEmpty from 'lodash/isEmpty';
-import { request } from '../../shared/services/strapi';
-import useRequest from '../../shared/hooks/useRequest';
+} from "../../shared/services/cdn"
+import { request } from "../../shared/services/strapi"
+import {
+  getCreativeWorkPersonsByJob,
+  runtimeToHuman,
+} from "../../shared/services/utils"
 
 export const getStaticPaths: GetStaticPaths = async () => {
   // Call an external API endpoint to get posts
   const {
     data: { data: results },
   } = await request<StrapiApiResponse<CreativeWork>>(
-    '/creative-works?_limit=-1&filters[type][$eq]=SHORT_MOVIE',
-  );
+    "/creative-works?_limit=-1&filters[type][$eq]=SHORT_MOVIE"
+  )
 
   const paths = results.map(({ attributes: item }) => ({
     params: { slug: item.slug },
-  }));
+  }))
   // We'll pre-render only these paths at build time.
   // { fallback: false } means other routes should 404.
-  return { paths, fallback: false };
-};
+  return { paths, fallback: false }
+}
 export const getStaticProps: GetStaticProps = async ({ params }) => {
   const {
     data: { data: results },
   } = await request<StrapiApiResponse<CreativeWork>>(
-    `/creative-works?filters[slug][$eq]=${params.slug}&populate[0]=videos&populate[1]=crew.fullName&populate[2]=photos&populate[3]=production_countries`,
-  );
+    `/creative-works?filters[slug][$eq]=${params.slug}&populate[0]=videos&populate[1]=crew.fullName&populate[2]=photos&populate[3]=production_countries`
+  )
 
-  return { props: { work: { ...results[0].attributes, id: results[0].id } } };
-};
+  return { props: { work: { ...results[0].attributes, id: results[0].id } } }
+}
 
-const ShortMoviesHomePage: React.FunctionComponent<{ work: CreativeWork }> = ({ work }) => {
-  console.log('---->', work);
+const ShortMoviesHomePage: React.FunctionComponent<{ work: CreativeWork }> = ({
+  work,
+}) => {
+  console.log("---->", work)
 
   const {
     id,
@@ -68,23 +73,23 @@ const ShortMoviesHomePage: React.FunctionComponent<{ work: CreativeWork }> = ({ 
     production_companies,
     poster,
     photos,
-  } = work;
+  } = work
 
   const fullVideo = get(
-    videos.filter((v) => v.type === 'FULL_LENGTH'),
-    [0],
-  );
+    videos.filter((v) => v.type === "FULL_LENGTH"),
+    [0]
+  )
   const trailerVideo = get(
-    videos.filter((v) => v.type === 'TEASER'),
-    [0],
-  );
-  const videoToDisplay = !isEmpty(fullVideo) ? fullVideo : trailerVideo;
+    videos.filter((v) => v.type === "TEASER"),
+    [0]
+  )
+  const videoToDisplay = !isEmpty(fullVideo) ? fullVideo : trailerVideo
 
-  const directors = getCreativeWorkPersonsByJob(work, 'Réalisateur');
+  const directors = getCreativeWorkPersonsByJob(work, "Réalisateur")
 
   const { data: events } = useRequest<Event[]>({
     url: `${process.env.NEXT_PUBLIC_BASE_URL}/events/${id}`,
-  });
+  })
   return (
     <Layout>
       <div className="container flex md:flex-row flex:cols pb-16 max-w-6xl">
@@ -102,7 +107,11 @@ const ShortMoviesHomePage: React.FunctionComponent<{ work: CreativeWork }> = ({ 
                 width="100%"
                 height="100%"
                 url={videoToDisplay.url}
-                light={photos.length > 0 ? getVideoPreviewImage(get(photos, [0, 'hash'])) : false}
+                light={
+                  photos.length > 0
+                    ? getVideoPreviewImage(get(photos, [0, "hash"]))
+                    : false
+                }
               />
             </div>
           )}
@@ -144,7 +153,10 @@ const ShortMoviesHomePage: React.FunctionComponent<{ work: CreativeWork }> = ({ 
               <div className="flex flex-col space-y-1">
                 <div className="flex gap-3 items-center">
                   <div className="">{runtimeToHuman(work.runtime)}</div>
-                  <div> {work?.production_countries?.map((c) => c?.name).join(',')}</div>
+                  <div>
+                    {" "}
+                    {work?.production_countries?.map((c) => c?.name).join(",")}
+                  </div>
                 </div>
                 {terms?.length > 0 && (
                   <div>
@@ -154,7 +166,9 @@ const ShortMoviesHomePage: React.FunctionComponent<{ work: CreativeWork }> = ({ 
               </div>
               <div>
                 {production_companies?.length > 0 && (
-                  <div>{production_companies?.map((item) => item?.name).join(', ')}</div>
+                  <div>
+                    {production_companies?.map((item) => item?.name).join(", ")}
+                  </div>
                 )}
               </div>
             </div>
@@ -163,14 +177,16 @@ const ShortMoviesHomePage: React.FunctionComponent<{ work: CreativeWork }> = ({ 
                 {directors?.length > 0 && (
                   <div>
                     <span className="font-normal">de: &nbsp; </span>
-                    {directors?.map((item) => item?.person?.fullName).join(', ')}
+                    {directors
+                      ?.map((item) => item?.person?.fullName)
+                      .join(", ")}
                   </div>
                 )}
 
                 {cast?.length > 0 && (
                   <div>
                     <span className="font-normal">avec: &nbsp; </span>
-                    {cast?.map((item) => item?.person?.fullName).join(', ')}
+                    {cast?.map((item) => item?.person?.fullName).join(", ")}
                   </div>
                 )}
               </div>
@@ -179,7 +195,12 @@ const ShortMoviesHomePage: React.FunctionComponent<{ work: CreativeWork }> = ({ 
                   <div className="">{runtimeToHuman(work.runtime)}</div>
 
                   {work?.production_countries?.length > 0 && (
-                    <div> {work?.production_countries?.map((c) => c?.name).join(',')}</div>
+                    <div>
+                      {" "}
+                      {work?.production_countries
+                        ?.map((c) => c?.name)
+                        .join(",")}
+                    </div>
                   )}
                 </div>
                 {terms?.length > 0 && (
@@ -188,7 +209,9 @@ const ShortMoviesHomePage: React.FunctionComponent<{ work: CreativeWork }> = ({ 
                   </div>
                 )}
                 {production_companies?.length > 0 && (
-                  <div>{production_companies?.map((item) => item?.name).join(', ')}</div>
+                  <div>
+                    {production_companies?.map((item) => item?.name).join(", ")}
+                  </div>
                 )}
               </div>
             </div>
@@ -197,7 +220,9 @@ const ShortMoviesHomePage: React.FunctionComponent<{ work: CreativeWork }> = ({ 
             </div>
             {awards?.length > 0 && (
               <div className="awards flex flex-col space-y-3">
-                <h3 className="font-fira text-xl font-semibold">Prix et Récompenses</h3>
+                <h3 className="font-fira text-xl font-semibold">
+                  Prix et Récompenses
+                </h3>
                 {awards.map((a) => (
                   <div
                     key={a.id}
@@ -222,10 +247,11 @@ const ShortMoviesHomePage: React.FunctionComponent<{ work: CreativeWork }> = ({ 
                     return (
                       <div
                         className={classNames(
-                          'flex relative justify-start space-x-2 bg-bastille rounded p-3',
+                          "flex relative justify-start space-x-2 bg-bastille rounded p-3",
                           {
-                            'border-b border-wild-strawberry-dark': event?.event_group,
-                          },
+                            "border-b border-wild-strawberry-dark":
+                              event?.event_group,
+                          }
                         )}
                         key={event.id}
                       >
@@ -233,14 +259,17 @@ const ShortMoviesHomePage: React.FunctionComponent<{ work: CreativeWork }> = ({ 
                         <DateTimeBlock date={event.fullStartDate} />
                         {/* Date Component */}
                         <div className="flex flex-col justify-between">
-                          <MediumName name={event?.medium?.name} type={event?.medium?.type} />
+                          <MediumName
+                            name={event?.medium?.name}
+                            type={event?.medium?.type}
+                          />
                           <MediumAttributes medium={event?.medium} />
                         </div>
                         {event?.event_group && (
                           <div className="absolute bottom-0  right-3 rounded-t-sm text-sm px-2 font-bold text-selago bg-wild-strawberry-dark">{`${event?.event_group.shortTitle}`}</div>
                         )}
                       </div>
-                    );
+                    )
                   })}
                 </div>
               </>
@@ -256,7 +285,7 @@ const ShortMoviesHomePage: React.FunctionComponent<{ work: CreativeWork }> = ({ 
         </div>
       </div>
     </Layout>
-  );
-};
+  )
+}
 
-export default ShortMoviesHomePage;
+export default ShortMoviesHomePage

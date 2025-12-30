@@ -1,20 +1,21 @@
-import CurrentRefinements from '../components/Search/CurrentRefinements';
-import { InstantSearch } from 'react-instantsearch-dom';
-import Layout from '../components/shared/Layout';
-import PageTitle from '../components/shared/PageTitle';
-import React from 'react';
-import ShortMovieFilters from '../components/ShortMovie/ShortMovieFilters';
-import ShortMoviesHits from '../components/ShortMovie/ShortMoviesHits';
-import algoliasearch from 'algoliasearch';
-import { useRouter } from 'next/router';
+import React from "react"
+import { useRouter } from "next/router"
+import algoliasearch from "algoliasearch"
+import { InstantSearch } from "react-instantsearch-dom"
+
+import CurrentRefinements from "../components/Search/CurrentRefinements"
+import Layout from "../components/shared/Layout"
+import PageTitle from "../components/shared/PageTitle"
+import ShortMovieFilters from "../components/ShortMovie/ShortMovieFilters"
+import ShortMoviesHits from "../components/ShortMovie/ShortMoviesHits"
 
 const searchClient = algoliasearch(
   process.env.NEXT_PUBLIC_ALGOLIA_APP_ID,
-  process.env.NEXT_PUBLIC_ALGOLIA_SEARCH_KEY,
-);
+  process.env.NEXT_PUBLIC_ALGOLIA_SEARCH_KEY
+)
 const ShortMoviesHomePage: React.FunctionComponent = () => {
-  const { locale } = useRouter();
-  const indexName = `${process.env.NODE_ENV}_short-movies-${locale}`;
+  const { locale } = useRouter()
+  const indexName = `${process.env.NODE_ENV}_short-movies-${locale}`
   return (
     <Layout>
       <div className="container">
@@ -38,7 +39,7 @@ const ShortMoviesHomePage: React.FunctionComponent = () => {
         {/* Image */}
       </div>
     </Layout>
-  );
-};
+  )
+}
 
-export default ShortMoviesHomePage;
+export default ShortMoviesHomePage

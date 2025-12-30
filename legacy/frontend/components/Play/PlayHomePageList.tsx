@@ -1,12 +1,15 @@
-import * as React from 'react';
-import CreativeWork from '../../shared/models/creative-work';
-import PlayHomePageCard from './PlayHomePageCard';
+import * as React from "react"
+
+import CreativeWork from "../../shared/models/creative-work"
+import PlayHomePageCard from "./PlayHomePageCard"
 
 interface IPlayHomePageListProps {
-  items: Array<CreativeWork>;
+  items: Array<CreativeWork>
 }
 
-const PlayHomePageList: React.FunctionComponent<IPlayHomePageListProps> = ({ items }) => {
+const PlayHomePageList: React.FunctionComponent<IPlayHomePageListProps> = ({
+  items,
+}) => {
   return (
     <div
       id="theatre"
@@ -18,7 +21,7 @@ const PlayHomePageList: React.FunctionComponent<IPlayHomePageListProps> = ({ ite
         </div>
       ))}
     </div>
-  );
-};
+  )
+}
 
-export default PlayHomePageList;
+export default PlayHomePageList

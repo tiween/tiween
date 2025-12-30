@@ -1,66 +1,67 @@
-import React, { useReducer } from 'react';
-
-import AuthPagesContainer from '../../components/Auth/AuthPagesContainer';
-import Emoji from '../../components/shared/Emoji';
-import { ForgotPasswordSchema } from '../../shared/schemas/auth-schemas';
-import Layout from '../../components/shared/Layout';
-import Link from 'next/link';
+import React, { useReducer } from "react"
+import Link from "next/link"
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import axios from 'axios';
-import { useFormik } from 'formik';
+import axios from "axios"
+import { useFormik } from "formik"
+
+import AuthPagesContainer from "../../components/Auth/AuthPagesContainer"
+import Emoji from "../../components/shared/Emoji"
+import Layout from "../../components/shared/Layout"
+import { ForgotPasswordSchema } from "../../shared/schemas/auth-schemas"
+
 const reducer = (state, action): any => {
   switch (action.type) {
-    case 'success':
+    case "success":
       return {
-        step: 'success',
-      };
-      break;
-    case 'error':
+        step: "success",
+      }
+      break
+    case "error":
       return {
-        step: 'error',
-      };
-      break;
+        step: "error",
+      }
+      break
     default:
       return {
-        step: 'initial',
-      };
+        step: "initial",
+      }
   }
-};
+}
 const ResetPasswordPage: React.FunctionComponent = () => {
-  const [state, dispatch] = useReducer(reducer, { step: 'initial' });
+  const [state, dispatch] = useReducer(reducer, { step: "initial" })
 
   const formik = useFormik({
     initialValues: {
-      password: '',
-      email: '',
+      password: "",
+      email: "",
     },
     validationSchema: ForgotPasswordSchema,
     onSubmit: (values) => {
       return axios
         .post(`${process.env.NEXT_PUBLIC_BASE_URL}/auth/reset-password`, values)
         .then((response) => {
-          console.log('response', response);
-          dispatch({ type: 'success' });
+          console.log("response", response)
+          dispatch({ type: "success" })
         })
         .catch((error) => {
-          dispatch({ type: 'error', payload: error.messages });
-        });
+          dispatch({ type: "error", payload: error.messages })
+        })
     },
-  });
-  const { isSubmitting, values, handleSubmit, getFieldProps } = formik;
+  })
+  const { isSubmitting, values, handleSubmit, getFieldProps } = formik
   return (
     <Layout>
-      {state.step === 'success' ? (
+      {state.step === "success" ? (
         <AuthPagesContainer
           title="Email Envoyé?"
           subtitle={`un email a été envoyé à: ${values.email}`}
         >
           <p className="leading-5 font-lato">
-            Veuillez vous rendre dans votre boite mail et suivre les instructions pour réinitialiser
-            votre mot de passe !
+            Veuillez vous rendre dans votre boite mail et suivre les
+            instructions pour réinitialiser votre mot de passe !
           </p>
         </AuthPagesContainer>
-      ) : state.step === 'error' ? (
+      ) : state.step === "error" ? (
         <AuthPagesContainer
           title="Oops?"
           subtitle={
@@ -78,7 +79,9 @@ const ResetPasswordPage: React.FunctionComponent = () => {
             <span className="font-medium text-selago t ">
               Vous pouvez aussi
               <Link href="/auth/signup" passHref>
-                <a className="underline hover:text-wild-strawberry-dark ml-1">vous inscrire ici</a>
+                <a className="underline hover:text-wild-strawberry-dark ml-1">
+                  vous inscrire ici
+                </a>
               </Link>
             </span>
           </div>
@@ -97,12 +100,15 @@ const ResetPasswordPage: React.FunctionComponent = () => {
               method="post"
             >
               <div className="">
-                <label htmlFor="email" className="block text-sm font-semibold text-selago">
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-semibold text-selago"
+                >
                   Email
                 </label>
                 <div className="mt-1">
                   <input
-                    {...getFieldProps('email')}
+                    {...getFieldProps("email")}
                     type="email"
                     autoComplete="email"
                     required
@@ -118,11 +124,11 @@ const ResetPasswordPage: React.FunctionComponent = () => {
                 >
                   {isSubmitting && (
                     <div
-                      style={{ borderTopColor: 'transparent' }}
+                      style={{ borderTopColor: "transparent" }}
                       className=" w-4 h-4 border-2 border-selago rounded-full animate-spin mr-2"
                     />
                   )}
-                  {isSubmitting ? 'Traitement en cours' : 'Valider'}
+                  {isSubmitting ? "Traitement en cours" : "Valider"}
                 </button>
               </div>
             </form>
@@ -130,7 +136,7 @@ const ResetPasswordPage: React.FunctionComponent = () => {
         </AuthPagesContainer>
       )}
     </Layout>
-  );
-};
+  )
+}
 
-export default ResetPasswordPage;
+export default ResetPasswordPage

@@ -1,22 +1,26 @@
-import { withSentry } from '@sentry/nextjs';
-import { NextApiRequest, NextApiResponse } from 'next';
-import { request } from '../../../shared/services/strapi';
+import { NextApiRequest, NextApiResponse } from "next"
+import { withSentry } from "@sentry/nextjs"
 
-const handler = async (req: NextApiRequest, res: NextApiResponse): Promise<void> => {
+import { request } from "../../../shared/services/strapi"
+
+const handler = async (
+  req: NextApiRequest,
+  res: NextApiResponse
+): Promise<void> => {
   // res.setHeader('Cache-Control', 's-maxage=600, stale-while-revalidate');
 
   const {
     query: { slug },
-  } = req;
+  } = req
 
   try {
-    const response = await request(`/creative-work/${slug}`);
-    const { data: work } = response;
+    const response = await request(`/creative-work/${slug}`)
+    const { data: work } = response
     if (work) {
-      res.status(200).json(work);
+      res.status(200).json(work)
     }
   } catch (error) {
-    console.log('ERROR', error);
+    console.log("ERROR", error)
   }
-};
-export default withSentry(handler);
+}
+export default withSentry(handler)

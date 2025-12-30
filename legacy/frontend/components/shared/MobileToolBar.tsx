@@ -1,16 +1,19 @@
-import HomeIcon from '@heroicons/react/solid/HomeIcon';
-import Link from 'next/link';
-import React from 'react';
+import React from "react"
+import Link from "next/link"
+import HomeIcon from "@heroicons/react/solid/HomeIcon"
 // import ShareIcon from '@heroicons/react/solid/ShareIcon';
 // import HeartIcon from '@heroicons/react/solid/HeartIcon';
-import SearchIcon from '@heroicons/react/solid/SearchIcon';
+import SearchIcon from "@heroicons/react/solid/SearchIcon"
 
-const MobileToolBar: React.FunctionComponent<{ handleAction?: (action) => void }> = ({
-  handleAction,
-}) => {
+const MobileToolBar: React.FunctionComponent<{
+  handleAction?: (action) => void
+}> = ({ handleAction }) => {
   return (
     <div className="w-full h-auto md:hidden block">
-      <section id="mobile-toolbar" className="block fixed bg-gray-600 inset-x-0 bottom-0 px-6 py-3">
+      <section
+        id="mobile-toolbar"
+        className="block fixed bg-gray-600 inset-x-0 bottom-0 px-6 py-3"
+      >
         <div className="flex space-x-10 justify-around items-center text-selago">
           <Link href="/" passHref>
             <a className="flex flex-col items-center">
@@ -20,7 +23,7 @@ const MobileToolBar: React.FunctionComponent<{ handleAction?: (action) => void }
           </Link>
           <button
             onClick={() => {
-              handleAction({ type: 'search' });
+              handleAction({ type: "search" })
             }}
             className="flex flex-col items-center"
           >
@@ -38,7 +41,7 @@ const MobileToolBar: React.FunctionComponent<{ handleAction?: (action) => void }
         </div>
       </section>
     </div>
-  );
-};
+  )
+}
 
-export default React.memo(MobileToolBar);
+export default React.memo(MobileToolBar)

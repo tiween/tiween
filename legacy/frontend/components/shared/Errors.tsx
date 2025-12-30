@@ -1,13 +1,14 @@
-import XCircleIcon from '@heroicons/react/solid/XCircleIcon';
-import * as React from 'react';
-import errorsMap from '../../shared/constants/errors-map';
+import * as React from "react"
+import XCircleIcon from "@heroicons/react/solid/XCircleIcon"
+
+import errorsMap from "../../shared/constants/errors-map"
 
 interface IErrorsProps {
-  errors: Array<{ id: string; message: string }>;
+  errors: Array<{ id: string; message: string }>
 }
 
 const Errors: React.FunctionComponent<IErrorsProps> = ({ errors }) => {
-  console.log('Errors', errors);
+  console.log("Errors", errors)
   return (
     <div className="rounded-md bg-red-50 p-4 mb-3">
       <div className="flex">
@@ -28,7 +29,7 @@ const Errors: React.FunctionComponent<IErrorsProps> = ({ errors }) => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Errors;
+export default Errors

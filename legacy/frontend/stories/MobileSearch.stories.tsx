@@ -1,12 +1,12 @@
-import { INITIAL_VIEWPORTS } from '@storybook/addon-viewport';
-import { Meta, Story } from '@storybook/react/types-6-0';
-import React from 'react';
+import React from "react"
+import { INITIAL_VIEWPORTS } from "@storybook/addon-viewport"
+import { Meta, Story } from "@storybook/react/types-6-0"
 
-import MobileAutocomplete from '../components/Search/Autocomplete';
-import MobileToolBar from '../components/shared/MobileToolBar';
+import MobileAutocomplete from "../components/Search/Autocomplete"
+import MobileToolBar from "../components/shared/MobileToolBar"
 
 export default {
-  title: 'Search/Mobile',
+  title: "Search/Mobile",
   component: MobileAutocomplete,
   decorators: [
     (Story) => (
@@ -16,13 +16,13 @@ export default {
       </>
     ),
   ],
-} as Meta;
+} as Meta
 
-export const Base: Story = () => <MobileAutocomplete />;
+export const Base: Story = () => <MobileAutocomplete />
 
 Base.parameters = {
   viewport: {
     viewports: INITIAL_VIEWPORTS,
-    defaultViewport: 'galaxys9',
+    defaultViewport: "galaxys9",
   },
-};
+}

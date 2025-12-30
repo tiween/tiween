@@ -1,31 +1,34 @@
 /* eslint-disable no-unused-vars */
-import { Editor, EditorState, convertFromRaw } from 'draft-js';
-import { default as Review, default as ReviewModel } from '../../../../shared/models/review';
+import React from "react"
+import { GetServerSideProps } from "next"
+import Head from "next/head"
+import { convertFromRaw, Editor, EditorState } from "draft-js"
+import isEmpty from "lodash/isEmpty"
+import { useSession } from "next-auth/react"
 
-import { GetServerSideProps } from 'next';
-import Head from 'next/head';
-import Layout from '../../../../components/shared/Layout';
-import MovieHeader from '../../../../components/Movie/MovieHeader';
-import { MovieMeta } from '../../../../shared/models/moviemeta';
-import { MovieProvider } from '../../../../shared/context/movie.context';
-import React from 'react';
-import ReviewAuthor from '../../../../components/Reviews/ReviewAuthor';
-import { UserReviewProvider } from '../../../../shared/context/UserReviewContext';
-import isEmpty from 'lodash/isEmpty';
+import MovieHeader from "../../../../components/Movie/MovieHeader"
+import ReviewAuthor from "../../../../components/Reviews/ReviewAuthor"
+import Layout from "../../../../components/shared/Layout"
+import { MovieProvider } from "../../../../shared/context/movie.context"
+import { UserReviewProvider } from "../../../../shared/context/UserReviewContext"
 // import { request } from '../../../../shared/services/strapi';
-import useRequest from '../../../../shared/hooks/useRequest';
-import { useSession } from 'next-auth/react';
-import { watchProviders } from '../../../../shared/services/tmdb';
+import useRequest from "../../../../shared/hooks/useRequest"
+import { MovieMeta } from "../../../../shared/models/moviemeta"
+import {
+  default as Review,
+  default as ReviewModel,
+} from "../../../../shared/models/review"
+import { watchProviders } from "../../../../shared/services/tmdb"
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const {
     params: { tmdbid },
-  } = context;
+  } = context
 
   // const { data: moviemeta } = await request(`/moviemetas/tmdbid/${tmdbid}`);
   // const { data: reviews } = await request(`/comments/moviemeta:${moviemeta.id}`);
 
-  const { data: movieWatchProviders } = await watchProviders(tmdbid as string);
+  const { data: movieWatchProviders } = await watchProviders(tmdbid as string)
 
   return {
     props: {
@@ -33,32 +36,35 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       reviews: [],
       movieWatchProviders,
     },
-  };
-};
+  }
+}
 
 type MovieTeamReviewsProps = {
-  moviemeta: MovieMeta;
-  reviews: ReviewModel[];
-  movieWatchProviders: unknown;
-};
-const MovieTeamReviews: React.FC<MovieTeamReviewsProps> = ({ moviemeta, reviews }) => {
-  const { remote: movie } = moviemeta;
-  const { backdrop_path, poster_path } = movie;
+  moviemeta: MovieMeta
+  reviews: ReviewModel[]
+  movieWatchProviders: unknown
+}
+const MovieTeamReviews: React.FC<MovieTeamReviewsProps> = ({
+  moviemeta,
+  reviews,
+}) => {
+  const { remote: movie } = moviemeta
+  const { backdrop_path, poster_path } = movie
 
   const previewImage = backdrop_path
     ? `${process.env.NEXT_PUBLIC_CLOUDINARY_FETCH_URL}/https://image.tmdb.org/t/p/w1280${backdrop_path}`
-    : `${process.env.NEXT_PUBLIC_CLOUDINARY_FETCH_URL}/https://image.tmdb.org/t/p/w780${poster_path}`;
+    : `${process.env.NEXT_PUBLIC_CLOUDINARY_FETCH_URL}/https://image.tmdb.org/t/p/w780${poster_path}`
 
-  const { status } = useSession();
-  const { id } = moviemeta;
+  const { status } = useSession()
+  const { id } = moviemeta
   const requestConfig =
-    status === 'authenticated'
+    status === "authenticated"
       ? {
           url: `${process.env.NEXT_PUBLIC_BASE_URL}/user/review/${id}`,
         }
-      : null;
+      : null
 
-  const { data: review } = useRequest<Review>(requestConfig);
+  const { data: review } = useRequest<Review>(requestConfig)
   return (
     <MovieProvider moviemeta={moviemeta}>
       <UserReviewProvider review={review}>
@@ -85,7 +91,10 @@ const MovieTeamReviews: React.FC<MovieTeamReviewsProps> = ({ moviemeta, reviews 
 
           {!isEmpty(reviews) ? (
             <div className="md:px-20">
-              <div className="container max-w-6xl px-4 md:pb-0 pb-10 bg-cinder" id="movie-reviews">
+              <div
+                className="container max-w-6xl px-4 md:pb-0 pb-10 bg-cinder"
+                id="movie-reviews"
+              >
                 {reviews.map((review) => (
                   <div
                     className="one-review rounded-md bg-bastille overflow-hidden "
@@ -98,7 +107,7 @@ const MovieTeamReviews: React.FC<MovieTeamReviewsProps> = ({ moviemeta, reviews 
                       <Editor
                         readOnly
                         editorState={EditorState.createWithContent(
-                          convertFromRaw(JSON.parse(review.content)),
+                          convertFromRaw(JSON.parse(review.content))
                         )}
                       />
                     </div>
@@ -112,7 +121,7 @@ const MovieTeamReviews: React.FC<MovieTeamReviewsProps> = ({ moviemeta, reviews 
         </Layout>
       </UserReviewProvider>
     </MovieProvider>
-  );
-};
+  )
+}
 
-export default React.memo(MovieTeamReviews);
+export default React.memo(MovieTeamReviews)

@@ -1,48 +1,51 @@
-import React, { useState } from "react";
+import React, { useState } from "react"
+import { Button } from "@strapi/design-system/Button"
 import {
   useCMEditViewDataManager,
-  useNotification
-} from '@strapi/helper-plugin';
+  useNotification,
+} from "@strapi/helper-plugin"
 
-import { Button } from "@strapi/design-system/Button";
-import moviemetaRequests from "../api/moviemeta";
+import moviemetaRequests from "../api/moviemeta"
 
 function UpdateTMDBDataButton() {
-  const modelUID = 'api::moviemeta.moviemeta'
-  const [loading, setLoading] = useState(false);
-  const { slug, status, initialData } = useCMEditViewDataManager();
-  const toggleNotification = useNotification();
+  const modelUID = "api::moviemeta.moviemeta"
+  const [loading, setLoading] = useState(false)
+  const { slug, status, initialData } = useCMEditViewDataManager()
+  const toggleNotification = useNotification()
 
-  if (slug === modelUID && status === 'resolved') {
-    const { tmdbid, id } = initialData;
+  if (slug === modelUID && status === "resolved") {
+    const { tmdbid, id } = initialData
 
     return (
       <Button
         variant="default"
         loading={loading}
         onClick={() => {
-          setLoading(true);
-          moviemetaRequests.syncWithTMDB(tmdbid, id)
+          setLoading(true)
+          moviemetaRequests
+            .syncWithTMDB(tmdbid, id)
             .then(() => {
-              setLoading(false);
+              setLoading(false)
               toggleNotification({
-                type: 'success',
-                message: 'TMDB Data successfuly updated',
-              });
-            }).catch((error) => {
+                type: "success",
+                message: "TMDB Data successfuly updated",
+              })
+            })
+            .catch((error) => {
               toggleNotification({
-                type: 'error',
+                type: "error",
                 message: error.message,
-              });
+              })
               console.error(error)
             })
         }}
       >
         Update TMDB
-      </Button>)
+      </Button>
+    )
   }
 
-  return null;
+  return null
 }
 
-export default UpdateTMDBDataButton;
+export default UpdateTMDBDataButton

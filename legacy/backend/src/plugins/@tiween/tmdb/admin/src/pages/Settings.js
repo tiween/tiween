@@ -1,12 +1,9 @@
-import { ContentLayout, HeaderLayout } from '@strapi/design-system/Layout';
-import {
-  QueryClient,
-  QueryClientProvider
-} from '@tanstack/react-query';
+import React from "react"
+import { Box } from "@strapi/design-system/Box"
+import { ContentLayout, HeaderLayout } from "@strapi/design-system/Layout"
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 
-import { Box } from '@strapi/design-system/Box';
-import React from 'react';
-import TMDBSettingsForm from '../components/TMDBSettingsForm';
+import TMDBSettingsForm from "../components/TMDBSettingsForm"
 
 const Settings = () => {
   const queryClient = new QueryClient()
@@ -21,7 +18,7 @@ const Settings = () => {
         <TMDBSettingsForm />
       </ContentLayout>
     </QueryClientProvider>
-  );
-};
+  )
+}
 
-export default Settings;
+export default Settings

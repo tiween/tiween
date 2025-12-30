@@ -1,6 +1,6 @@
-import { DateTime } from 'luxon';
-import Link from 'next/link';
-import React from 'react';
+import React from "react"
+import Link from "next/link"
+import { DateTime } from "luxon"
 
 const Footer: React.FC = () => (
   <footer className="hidden bottom-0 sm:fixed inset-x-0 md:w-full bg-gradient-to-b from-cinder to-bastille border-2 border-red h-28">
@@ -15,7 +15,7 @@ const Footer: React.FC = () => (
           <a href="#">Plan du site</a>
           <span>
             &nbsp;&copy;
-            {` ${DateTime.local().toFormat('yyyy')} Tiween`}
+            {` ${DateTime.local().toFormat("yyyy")} Tiween`}
           </span>
         </div>
         <div className="flex justify-end space-x-6">
@@ -51,6 +51,6 @@ const Footer: React.FC = () => (
       </div>
     </div>
   </footer>
-);
+)
 
-export default React.memo(Footer);
+export default React.memo(Footer)

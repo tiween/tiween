@@ -1,32 +1,35 @@
-import { GetServerSideProps } from 'next';
-import Head from 'next/head';
-import Layout from '../../../components/shared/Layout';
-import MovieHeader from '../../../components/Movie/MovieHeader';
-import { MovieMeta } from '../../../shared/models/moviemeta';
-import { MovieProvider } from '../../../shared/context/movie.context';
-import MovieTimetable from '../../../components/Movie/MovieTimeTable';
-import NoShowtimes from '../../../components/Movie/NoShowtimes';
-import React from 'react';
-import Review from '../../../shared/models/review';
-import { UserReviewProvider } from '../../../shared/context/UserReviewContext';
-import WatchProviders from '../../../components/Movie/WatchProviders';
+import React from "react"
+import { GetServerSideProps } from "next"
+import Head from "next/head"
 /* eslint-disable no-unused-vars */
-import get from 'lodash/get';
-import isEmpty from 'lodash/isEmpty';
-import { movieShowtimesStructredData } from '../../../shared/services/structredData';
-import { request } from '../../../shared/services/strapi';
-import useRequest from '../../../shared/hooks/useRequest';
-import { useSession } from 'next-auth/react';
-import { watchProviders } from '../../../shared/services/tmdb';
+import get from "lodash/get"
+import isEmpty from "lodash/isEmpty"
+import { useSession } from "next-auth/react"
+
+import MovieHeader from "../../../components/Movie/MovieHeader"
+import MovieTimetable from "../../../components/Movie/MovieTimeTable"
+import NoShowtimes from "../../../components/Movie/NoShowtimes"
+import WatchProviders from "../../../components/Movie/WatchProviders"
+import Layout from "../../../components/shared/Layout"
+import { MovieProvider } from "../../../shared/context/movie.context"
+import { UserReviewProvider } from "../../../shared/context/UserReviewContext"
+import useRequest from "../../../shared/hooks/useRequest"
+import { MovieMeta } from "../../../shared/models/moviemeta"
+import Review from "../../../shared/models/review"
+import { request } from "../../../shared/services/strapi"
+import { movieShowtimesStructredData } from "../../../shared/services/structredData"
+import { watchProviders } from "../../../shared/services/tmdb"
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const {
     params: { tmdbid },
-  } = context;
+  } = context
 
-  const { data: moviemeta } = await request(`/moviemetas/tmdbid/${tmdbid}`);
-  const { data: movieWatchProviders } = await watchProviders(tmdbid as string);
-  const { data: timetable } = await request(`/showtimes/movie-timetable/${tmdbid}`);
+  const { data: moviemeta } = await request(`/moviemetas/tmdbid/${tmdbid}`)
+  const { data: movieWatchProviders } = await watchProviders(tmdbid as string)
+  const { data: timetable } = await request(
+    `/showtimes/movie-timetable/${tmdbid}`
+  )
 
   return {
     props: {
@@ -34,38 +37,38 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       timetable,
       movieWatchProviders,
     },
-  };
-};
+  }
+}
 
 type MovieShowtimesProps = {
-  moviemeta: MovieMeta;
-  timetable: unknown;
-  movieWatchProviders: unknown;
-};
+  moviemeta: MovieMeta
+  timetable: unknown
+  movieWatchProviders: unknown
+}
 const MovieShowtimes: React.FC<MovieShowtimesProps> = ({
   moviemeta,
   timetable,
   movieWatchProviders,
 }) => {
-  const { remote: movie } = moviemeta;
-  const { backdrop_path, poster_path } = movie;
+  const { remote: movie } = moviemeta
+  const { backdrop_path, poster_path } = movie
 
-  const frenchMovieProviders = get(movieWatchProviders, ['results', 'FR'], {});
+  const frenchMovieProviders = get(movieWatchProviders, ["results", "FR"], {})
 
   const previewImage = backdrop_path
     ? `https://image.tmdb.org/t/p/original${backdrop_path}`
-    : `https://image.tmdb.org/t/p/original${poster_path}`;
+    : `https://image.tmdb.org/t/p/original${poster_path}`
 
-  const { status } = useSession();
-  const { id } = moviemeta;
+  const { status } = useSession()
+  const { id } = moviemeta
   const requestConfig =
-    status === 'authenticated'
+    status === "authenticated"
       ? {
           url: `${process.env.NEXT_PUBLIC_BASE_URL}/user/review/${id}`,
         }
-      : null;
+      : null
 
-  const { data: review } = useRequest<Review>(requestConfig);
+  const { data: review } = useRequest<Review>(requestConfig)
   return (
     <MovieProvider moviemeta={moviemeta}>
       <UserReviewProvider review={review}>
@@ -73,7 +76,9 @@ const MovieShowtimes: React.FC<MovieShowtimesProps> = ({
           <script
             key="movie-structred-data"
             type="application/ld+json"
-            dangerouslySetInnerHTML={{ __html: movieShowtimesStructredData(movie, timetable) }}
+            dangerouslySetInnerHTML={{
+              __html: movieShowtimesStructredData(movie, timetable),
+            }}
           />
           <title key="page-title">{`Cinémas et séances du film ${movie.title} en Tunisie`}</title>
           <meta
@@ -115,7 +120,7 @@ const MovieShowtimes: React.FC<MovieShowtimesProps> = ({
         </Layout>
       </UserReviewProvider>
     </MovieProvider>
-  );
-};
+  )
+}
 
-export default React.memo(MovieShowtimes);
+export default React.memo(MovieShowtimes)

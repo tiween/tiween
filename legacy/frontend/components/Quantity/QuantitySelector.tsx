@@ -1,8 +1,7 @@
-import React from 'react';
-import { useState } from 'react';
+import React, { useState } from "react"
 
 const QuantitySelector: React.FC = () => {
-  const [count, setCount] = useState(0);
+  const [count, setCount] = useState(0)
 
   return (
     <div className="flex">
@@ -24,7 +23,7 @@ const QuantitySelector: React.FC = () => {
       </button>
       <br />
     </div>
-  );
-};
+  )
+}
 
-export default QuantitySelector;
+export default QuantitySelector

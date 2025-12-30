@@ -1,15 +1,19 @@
-import { DateTime } from 'luxon';
-import { withSentry } from '@sentry/nextjs';
-import { gql, GraphQLClient } from 'graphql-request';
-import { NextApiRequest, NextApiResponse } from 'next';
-import uniqBy from 'lodash/uniqBy';
-import get from 'lodash/get';
-const client = new GraphQLClient(process.env.GRAPHQL_ENDPOINT);
-const sortDateTimes = (a, b): number => (a < b ? -1 : a > b ? 1 : 0);
+import { NextApiRequest, NextApiResponse } from "next"
+import { withSentry } from "@sentry/nextjs"
+import { gql, GraphQLClient } from "graphql-request"
+import get from "lodash/get"
+import uniqBy from "lodash/uniqBy"
+import { DateTime } from "luxon"
 
-const handler = async (req: NextApiRequest, res: NextApiResponse): Promise<void> => {
-  res.setHeader('Cache-Control', 's-maxage=7200');
-  const { query } = req;
+const client = new GraphQLClient(process.env.GRAPHQL_ENDPOINT)
+const sortDateTimes = (a, b): number => (a < b ? -1 : a > b ? 1 : 0)
+
+const handler = async (
+  req: NextApiRequest,
+  res: NextApiResponse
+): Promise<void> => {
+  res.setHeader("Cache-Control", "s-maxage=7200")
+  const { query } = req
 
   const eventGroupsQuery = gql`
     query getEventGroup($id: ID!, $date: String!) {
@@ -20,23 +24,25 @@ const handler = async (req: NextApiRequest, res: NextApiResponse): Promise<void>
         }
       }
     }
-  `;
+  `
   const variables = {
-    id: query['event-group'],
+    id: query["event-group"],
     date: DateTime.now().toISO(),
-  };
+  }
 
-  const data = await client.request(eventGroupsQuery, variables);
+  const data = await client.request(eventGroupsQuery, variables)
   if (data) {
-    const events = get(data, ['eventGroup', 'events'], []);
+    const events = get(data, ["eventGroup", "events"], [])
 
     const uniqEvents = uniqBy(events, (item) => {
-      return DateTime.fromISO(item['fullStartDate'], { locale: 'fr' }).toFormat('o');
+      return DateTime.fromISO(item["fullStartDate"], { locale: "fr" }).toFormat(
+        "o"
+      )
     })
-      .map((item) => item['startDate'])
-      .sort(sortDateTimes);
+      .map((item) => item["startDate"])
+      .sort(sortDateTimes)
 
-    return res.status(200).json(uniqEvents);
+    return res.status(200).json(uniqEvents)
   }
-};
-export default withSentry(handler);
+}
+export default withSentry(handler)

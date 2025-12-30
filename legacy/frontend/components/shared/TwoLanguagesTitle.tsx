@@ -1,18 +1,20 @@
-import classNames from 'classnames';
-import React from 'react';
-import isArabic from '../../modules/isArabic';
+import React from "react"
+import classNames from "classnames"
+
+import isArabic from "../../modules/isArabic"
+
 type TwoLanguagesTitleProps = {
-  title: string;
-  originalTitle?: string;
-  shadow?: boolean;
-};
+  title: string
+  originalTitle?: string
+  shadow?: boolean
+}
 const TwoLanguagesTitle: React.FC<TwoLanguagesTitleProps> = ({
-  title = '',
-  originalTitle = '',
+  title = "",
+  originalTitle = "",
   shadow = true,
 }) => {
   return (
-    <div className={classNames({ 'text-shadow-base': shadow })}>
+    <div className={classNames({ "text-shadow-base": shadow })}>
       {originalTitle !== title && isArabic(originalTitle) ? (
         <>
           {title}
@@ -23,7 +25,7 @@ const TwoLanguagesTitle: React.FC<TwoLanguagesTitleProps> = ({
         title
       )}
     </div>
-  );
-};
+  )
+}
 
-export default TwoLanguagesTitle;
+export default TwoLanguagesTitle

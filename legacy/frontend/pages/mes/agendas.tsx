@@ -1,23 +1,23 @@
-import * as React from 'react';
+import * as React from "react"
+import { Disclosure, Popover, Transition } from "@headlessui/react"
+import ChevronRightIcon from "@heroicons/react/solid/ChevronRightIcon"
+import LockClosedIcon from "@heroicons/react/solid/LockClosedIcon"
+import LockOpenIcon from "@heroicons/react/solid/LockOpenIcon"
+import ShareIcon from "@heroicons/react/solid/ShareIcon"
+import classNames from "classnames"
+import { FacebookIcon } from "react-share"
+import FacebookShareButton from "react-share/lib/FacebookShareButton"
 
-import { Disclosure, Popover, Transition } from '@headlessui/react';
+import EventBlock from "../../components/Event/EventBlock"
+import Layout from "../../components/shared/Layout"
+import PageTitle from "../../components/shared/PageTitle"
+import useRequest from "../../shared/hooks/useRequest"
+import Agenda from "../../shared/models/agenda"
 
-import Agenda from '../../shared/models/agenda';
-import ChevronRightIcon from '@heroicons/react/solid/ChevronRightIcon';
-import EventBlock from '../../components/Event/EventBlock';
-import { FacebookIcon } from 'react-share';
-import FacebookShareButton from 'react-share/lib/FacebookShareButton';
-import Layout from '../../components/shared/Layout';
-import LockClosedIcon from '@heroicons/react/solid/LockClosedIcon';
-import LockOpenIcon from '@heroicons/react/solid/LockOpenIcon';
-import PageTitle from '../../components/shared/PageTitle';
-import ShareIcon from '@heroicons/react/solid/ShareIcon';
-import classNames from 'classnames';
-import useRequest from '../../shared/hooks/useRequest';
 const Agendas: React.FunctionComponent = () => {
   const { data: agendas } = useRequest<Agenda[]>({
     url: `${process.env.NEXT_PUBLIC_BASE_URL}/user/agendas-with-relations`,
-  });
+  })
 
   return (
     <Layout>
@@ -29,25 +29,33 @@ const Agendas: React.FunctionComponent = () => {
               agendas.length &&
               agendas.map((item) => {
                 return (
-                  <Disclosure key={item.id} as="div" className="w-full mb-4 bg-gray-900">
+                  <Disclosure
+                    key={item.id}
+                    as="div"
+                    className="w-full mb-4 bg-gray-900"
+                  >
                     {({ open }) => (
                       <>
                         <Disclosure.Button
                           className={classNames(
-                            'md:text-2xl text-lg font-semibold text-left md:px-3 px-2  rounded-t-md  bg-mulled-wine py-4 w-full flex justify-between items-center',
+                            "md:text-2xl text-lg font-semibold text-left md:px-3 px-2  rounded-t-md  bg-mulled-wine py-4 w-full flex justify-between items-center",
                             {
-                              'rounded-b-md': !open,
-                            },
+                              "rounded-b-md": !open,
+                            }
                           )}
                         >
                           <div className="flex justify-start items-center space-x-3">
                             <button
                               className="w-6 h-6"
                               onClick={(event) => {
-                                event.stopPropagation();
+                                event.stopPropagation()
                               }}
                             >
-                              {item.public ? <LockOpenIcon /> : <LockClosedIcon />}
+                              {item.public ? (
+                                <LockOpenIcon />
+                              ) : (
+                                <LockClosedIcon />
+                              )}
                             </button>
                             <div>{item.name}</div>
                           </div>
@@ -61,10 +69,10 @@ const Agendas: React.FunctionComponent = () => {
                                         <>
                                           <Popover.Button
                                             className={classNames(
-                                              'flex justify-between py-1 px-2 items-center space-x-2 border border-blue-600 rounded bg-blue-900 hover text-blue-200 hover:bg-blue-700 hover:border-blue-300 hover:text-blue-100',
+                                              "flex justify-between py-1 px-2 items-center space-x-2 border border-blue-600 rounded bg-blue-900 hover text-blue-200 hover:bg-blue-700 hover:border-blue-300 hover:text-blue-100",
                                               {
-                                                'text-opacity-90': open,
-                                              },
+                                                "text-opacity-90": open,
+                                              }
                                             )}
                                           >
                                             <ShareIcon className="w-4- h-4" />
@@ -98,27 +106,34 @@ const Agendas: React.FunctionComponent = () => {
                             </div>
                           </div>
                           <div className="w-5 h-5">
-                            <ChevronRightIcon className={`${open ? 'transform rotate-90' : ''}`} />
+                            <ChevronRightIcon
+                              className={`${open ? "transform rotate-90" : ""}`}
+                            />
                           </div>
                         </Disclosure.Button>
                         <Disclosure.Panel as="div" className="md:p-6 px-2 py-3">
                           <div className="agenda-events-list w-full flex flex-col space-y-2">
                             {item.events.map((event) => {
                               // return <div key={`${item.id}-${event.id}`}>{event.id}</div>;
-                              return <EventBlock key={`${item.id}-${event.id}`} event={event} />;
+                              return (
+                                <EventBlock
+                                  key={`${item.id}-${event.id}`}
+                                  event={event}
+                                />
+                              )
                             })}
                           </div>
                         </Disclosure.Panel>
                       </>
                     )}
                   </Disclosure>
-                );
+                )
               })}
           </div>
         </div>
       </div>
     </Layout>
-  );
-};
+  )
+}
 
-export default Agendas;
+export default Agendas

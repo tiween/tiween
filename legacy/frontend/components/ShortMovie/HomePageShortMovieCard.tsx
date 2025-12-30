@@ -1,17 +1,18 @@
-import PlayIcon from '@heroicons/react/solid/PlayIcon';
-import isEmpty from 'lodash/isEmpty';
-import Link from 'next/link';
-import { useRouter } from 'next/router';
-import React from 'react';
-import CreativeWork from '../../shared/models/creative-work';
-import MovieTitle from '../Movie/MovieTitle';
-import MoviePoster from '../shared/MoviePoster';
+import React from "react"
+import Link from "next/link"
+import { useRouter } from "next/router"
+import PlayIcon from "@heroicons/react/solid/PlayIcon"
+import isEmpty from "lodash/isEmpty"
+
+import CreativeWork from "../../shared/models/creative-work"
+import MovieTitle from "../Movie/MovieTitle"
+import MoviePoster from "../shared/MoviePoster"
 
 export interface ShortMovieHomePageCardProps {
-  showPlayTrailersButton?: boolean;
-  work: CreativeWork;
-  index: number;
-  onPlayButtonClick?: () => void;
+  showPlayTrailersButton?: boolean
+  work: CreativeWork
+  index: number
+  onPlayButtonClick?: () => void
 }
 
 const ShortMovieHomePageCard: React.FC<ShortMovieHomePageCardProps> = ({
@@ -19,13 +20,13 @@ const ShortMovieHomePageCard: React.FC<ShortMovieHomePageCardProps> = ({
   showPlayTrailersButton = false,
   onPlayButtonClick,
 }) => {
-  const router = useRouter();
-  const { poster, photos } = work;
-  let image;
+  const router = useRouter()
+  const { poster, photos } = work
+  let image
   if (!isEmpty(poster)) {
-    image = poster;
+    image = poster
   } else if (!isEmpty(photos) && photos.length > 0) {
-    image = photos[0];
+    image = photos[0]
   }
   return (
     <div className="group work-card w-full relative m-auto cursor-pointer">
@@ -45,9 +46,9 @@ const ShortMovieHomePageCard: React.FC<ShortMovieHomePageCardProps> = ({
       <div
         className="md:block hidden overlay absolute inset-0 opacity-0 group-hover:opacity-100 w-full h-full bg-transparent transition-opacity duration-300 ease-in-out;"
         onClick={(event) => {
-          event.preventDefault();
-          event.stopPropagation();
-          router.push(`/court-metrage/${work.slug}`);
+          event.preventDefault()
+          event.stopPropagation()
+          router.push(`/court-metrage/${work.slug}`)
         }}
         role="button"
         tabIndex={0}
@@ -60,9 +61,9 @@ const ShortMovieHomePageCard: React.FC<ShortMovieHomePageCardProps> = ({
             <button
               className="cta-trailers absolute top-1/3 inset-x-1/3 text-white group-hover:opacity-100"
               onClick={(event) => {
-                event.preventDefault();
-                event.stopPropagation();
-                onPlayButtonClick();
+                event.preventDefault()
+                event.stopPropagation()
+                onPlayButtonClick()
               }}
             >
               <PlayIcon className="text-5xl w-full stroke-current" />
@@ -77,7 +78,7 @@ const ShortMovieHomePageCard: React.FC<ShortMovieHomePageCardProps> = ({
         </Link>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default React.memo(ShortMovieHomePageCard);
+export default React.memo(ShortMovieHomePageCard)

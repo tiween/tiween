@@ -1,9 +1,10 @@
-import { DateTime } from 'luxon';
-import * as React from 'react';
-import Time from '../Event/Time';
+import * as React from "react"
+import { DateTime } from "luxon"
+
+import Time from "../Event/Time"
 
 interface IDateProps {
-  date: string;
+  date: string
 }
 
 const DateTimeBlock: React.FunctionComponent<IDateProps> = ({ date }) => {
@@ -15,24 +16,24 @@ const DateTimeBlock: React.FunctionComponent<IDateProps> = ({ date }) => {
       <div className="flex justify-between items-stretch day space-x-2">
         <div className=" uppercase ">
           {DateTime.fromISO(date, {
-            zone: 'Africa/Tunis',
-          }).toFormat('cccc', { locale: 'fr' })}
+            zone: "Africa/Tunis",
+          }).toFormat("cccc", { locale: "fr" })}
         </div>
         <div className="">
           {DateTime.fromISO(date, {
-            zone: 'Africa/Tunis',
-          }).toFormat('dd', { locale: 'fr' })}
+            zone: "Africa/Tunis",
+          }).toFormat("dd", { locale: "fr" })}
         </div>
       </div>
       <div className="month uppercase">
         {DateTime.fromISO(date, {
-          zone: 'Africa/Tunis',
-        }).toFormat('LLLL', { locale: 'fr' })}
+          zone: "Africa/Tunis",
+        }).toFormat("LLLL", { locale: "fr" })}
       </div>
 
       <Time date={date} />
     </div>
-  );
-};
+  )
+}
 
-export default DateTimeBlock;
+export default DateTimeBlock

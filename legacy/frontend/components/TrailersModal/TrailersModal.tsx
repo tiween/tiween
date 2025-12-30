@@ -1,30 +1,36 @@
-import { Transition } from '@headlessui/react';
-import React from 'react';
-import CloseIcon from '@heroicons/react/solid/XIcon';
-import ReactPlayer from 'react-player';
-import { Video } from '../../shared/models/video';
+import React from "react"
+import { Transition } from "@headlessui/react"
+import CloseIcon from "@heroicons/react/solid/XIcon"
+import ReactPlayer from "react-player"
+
+import { Video } from "../../shared/models/video"
 
 const buildVideoUrl = (video): string => {
-  let url;
+  let url
   switch (video.site) {
-    case 'YouTube':
-      url = `https://www.youtube.com/watch?v=${video.key}`;
-      break;
+    case "YouTube":
+      url = `https://www.youtube.com/watch?v=${video.key}`
+      break
     default:
-      break;
+      break
   }
 
-  return url;
-};
-
-interface TrailersModalProps {
-  show: boolean;
-  videos: Video[];
-  title: string;
-  handleClose: (show: boolean) => void;
+  return url
 }
 
-const TrailersModal: React.FC<TrailersModalProps> = ({ show, videos, title, handleClose }) => {
+interface TrailersModalProps {
+  show: boolean
+  videos: Video[]
+  title: string
+  handleClose: (show: boolean) => void
+}
+
+const TrailersModal: React.FC<TrailersModalProps> = ({
+  show,
+  videos,
+  title,
+  handleClose,
+}) => {
   return (
     <Transition
       show={show}
@@ -44,7 +50,7 @@ const TrailersModal: React.FC<TrailersModalProps> = ({ show, videos, title, hand
               <CloseIcon
                 className="cursor-pointer h-5 w-5"
                 onClick={() => {
-                  handleClose(false);
+                  handleClose(false)
                 }}
               />
             </div>
@@ -63,7 +69,7 @@ const TrailersModal: React.FC<TrailersModalProps> = ({ show, videos, title, hand
         </div>
       </div>
     </Transition>
-  );
-};
+  )
+}
 
-export default React.memo(TrailersModal);
+export default React.memo(TrailersModal)

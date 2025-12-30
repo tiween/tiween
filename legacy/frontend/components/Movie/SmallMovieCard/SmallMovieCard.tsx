@@ -1,30 +1,37 @@
-import Image from 'next/image';
-import Link from 'next/link';
-import { Medium } from '../../../shared/models/medium';
-import MovieCredits from '../MovieCredits';
-import MovieTagsList from '../MovieTagsList';
-import MovieTitle from '../MovieTitle';
-import React from 'react';
-import { Show } from '../../../shared/models/show';
-import { TMDBMovie } from '../../../shared/models/tmdb-movie';
-import TimeTableList from '../../TimeTableList';
-import classNames from 'classnames';
-import countries from '../../../shared/constants/countries';
-import get from 'lodash/get';
-import { slugify } from '../../../shared/services/utils';
-import { tmdbPosterImageLoader } from '../../../shared/services/cdn';
+import React from "react"
+import Image from "next/image"
+import Link from "next/link"
+import classNames from "classnames"
+import get from "lodash/get"
+
+import countries from "../../../shared/constants/countries"
+import { Medium } from "../../../shared/models/medium"
+import { Show } from "../../../shared/models/show"
+import { TMDBMovie } from "../../../shared/models/tmdb-movie"
+import { tmdbPosterImageLoader } from "../../../shared/services/cdn"
+import { slugify } from "../../../shared/services/utils"
+import TimeTableList from "../../TimeTableList"
+import MovieCredits from "../MovieCredits"
+import MovieTagsList from "../MovieTagsList"
+import MovieTitle from "../MovieTitle"
 
 const SmallMovieCard: React.FC<{
-  movie: TMDBMovie;
-  shows?: Show[];
-  showTimeTable?: boolean;
-  medium?: Medium;
-  withMedium?: boolean;
-}> = ({ movie, shows = [], showTimeTable = true, medium, withMedium = false }) => {
+  movie: TMDBMovie
+  shows?: Show[]
+  showTimeTable?: boolean
+  medium?: Medium
+  withMedium?: boolean
+}> = ({
+  movie,
+  shows = [],
+  showTimeTable = true,
+  medium,
+  withMedium = false,
+}) => {
   return (
     <div className="flex md:flex-row flex-col space-y-2">
       <div
-        className={classNames('md:max-w-lg w-full', {
+        className={classNames("md:max-w-lg w-full", {
           // 'md:w-1/3': showTimeTable,
         })}
       >
@@ -46,7 +53,10 @@ const SmallMovieCard: React.FC<{
 
               <div className="flex flex-col space-y-2">
                 <span className="title text-base">
-                  <MovieTitle title={movie?.title} originalTitle={movie?.original_title} />
+                  <MovieTitle
+                    title={movie?.title}
+                    originalTitle={movie?.original_title}
+                  />
                 </span>
                 {movie?.credits && (
                   <span className="">
@@ -64,7 +74,7 @@ const SmallMovieCard: React.FC<{
                   {movie?.production_countries?.length > 0 &&
                     movie?.production_countries
                       .map((c) => get(countries, [c.iso_3166_1], c.name))
-                      .join(', ')}
+                      .join(", ")}
                 </span>
 
                 {medium && (
@@ -83,7 +93,7 @@ const SmallMovieCard: React.FC<{
         </div>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default SmallMovieCard;
+export default SmallMovieCard

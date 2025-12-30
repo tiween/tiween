@@ -1,7 +1,9 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
-import { connectCurrentRefinements } from 'react-instantsearch-dom';
-import XIcon from '@heroicons/react/solid/XIcon';
-import filterNames from '../../shared/constants/filters';
+import XIcon from "@heroicons/react/solid/XIcon"
+import { connectCurrentRefinements } from "react-instantsearch-dom"
+
+import filterNames from "../../shared/constants/filters"
+
 const CurrentRefinements = ({ items, refine, createURL }) => {
   return (
     <ul className="flex mb-8 space-x-4">
@@ -20,8 +22,8 @@ const CurrentRefinements = ({ items, refine, createURL }) => {
                     type="button"
                     className="flex-shrink-0 ml-0.5 h-4 w-4 rounded-full inline-flex items-center justify-center text-black  hover:bg-wild-strawberry-lightest hover:text-gray-600 focus:outline-none focus:bg-wild-strawberry-dark focus:text-white"
                     onClick={(event) => {
-                      event.preventDefault();
-                      refine(nested.value);
+                      event.preventDefault()
+                      refine(nested.value)
                     }}
                   >
                     <span className="sr-only">remove {nested.label}</span>
@@ -33,7 +35,7 @@ const CurrentRefinements = ({ items, refine, createURL }) => {
         </li>
       ))}
     </ul>
-  );
-};
+  )
+}
 
-export default connectCurrentRefinements(CurrentRefinements);
+export default connectCurrentRefinements(CurrentRefinements)

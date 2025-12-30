@@ -1,11 +1,11 @@
-import { Meta, Story } from '@storybook/react/types-6-0';
+import React from "react"
+import { Meta, Story } from "@storybook/react/types-6-0"
 
-import React from 'react';
-import Footer from '../components/shared/Footer';
+import Footer from "../components/shared/Footer"
 
 export default {
-  title: 'Footer',
+  title: "Footer",
   component: Footer,
-} as Meta;
+} as Meta
 
-export const LoggedOut: Story = () => <Footer />;
+export const LoggedOut: Story = () => <Footer />

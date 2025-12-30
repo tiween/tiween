@@ -1,10 +1,11 @@
-import React from 'react';
-import { Festival } from '../../shared/models/festival';
-import FestivalHomePageCard from './FestivalHomePageCard';
+import React from "react"
+
+import { Festival } from "../../shared/models/festival"
+import FestivalHomePageCard from "./FestivalHomePageCard"
 
 type FestivalsListProps = {
-  festivals: Festival[];
-};
+  festivals: Festival[]
+}
 const FestivalsList: React.FC<FestivalsListProps> = ({ festivals }) => {
   return (
     <div>
@@ -12,7 +13,7 @@ const FestivalsList: React.FC<FestivalsListProps> = ({ festivals }) => {
         <FestivalHomePageCard key={festival.id} festival={festival} />
       ))}
     </div>
-  );
-};
+  )
+}
 
-export default FestivalsList;
+export default FestivalsList

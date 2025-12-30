@@ -1,26 +1,29 @@
-import * as React from 'react';
-
+import * as React from "react"
+import Image from "next/image"
 // import CalendarIcon from '@heroicons/react/outline/CalendarIcon';
-import ClockIcon from '@heroicons/react/solid/ClockIcon';
-import Image from 'next/image';
-import PageTitle from '../shared/PageTitle';
-import TheaterIcon from '../shared/icons/Theater';
-import TwoLanguagesTitle from '../shared/TwoLanguagesTitle';
-import isEmpty from 'lodash/isEmpty';
-import { posterImageLoader } from '../../shared/services/cdn';
-import { runtimeToHuman } from '../../shared/services/utils';
-import { useCreativeWork } from '../../shared/context/CreativeWorkContext';
+import ClockIcon from "@heroicons/react/solid/ClockIcon"
+import isEmpty from "lodash/isEmpty"
+
+import { useCreativeWork } from "../../shared/context/CreativeWorkContext"
+import { posterImageLoader } from "../../shared/services/cdn"
+import { runtimeToHuman } from "../../shared/services/utils"
+import TheaterIcon from "../shared/icons/Theater"
+import PageTitle from "../shared/PageTitle"
+import TwoLanguagesTitle from "../shared/TwoLanguagesTitle"
 
 const PlayHeader: React.FunctionComponent = () => {
-  const play = useCreativeWork();
+  const play = useCreativeWork()
 
-  const { poster, title, runtime } = play;
+  const { poster, title, runtime } = play
 
   return (
     <div className="flex justify-between w-full mb-4">
       <div className="flex flex-col  w-3/4">
         <PageTitle>
-          <TwoLanguagesTitle title={play.title} originalTitle={play.originalTitle} />
+          <TwoLanguagesTitle
+            title={play.title}
+            originalTitle={play.originalTitle}
+          />
         </PageTitle>
         <div className="flex justify-start items-center space-x-2 mb-3">
           <div className="bg-wild-strawberry-dark w-8 h-8 rounded-full pt-1">
@@ -49,7 +52,7 @@ const PlayHeader: React.FunctionComponent = () => {
         </div>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default PlayHeader;
+export default PlayHeader

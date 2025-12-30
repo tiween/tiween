@@ -1,44 +1,44 @@
-import React, { useState } from 'react';
+import React, { useState } from "react"
+import Link from "next/link"
+import { useRouter } from "next/router"
+import { Transition } from "@headlessui/react"
+import ArrowLeftIcon from "@heroicons/react/solid/ArrowLeftIcon"
+import MenuIcon from "@heroicons/react/solid/MenuIcon"
+import XIcon from "@heroicons/react/solid/XIcon"
+import classNames from "classnames"
 
-import ArrowLeftIcon from '@heroicons/react/solid/ArrowLeftIcon';
-import Link from 'next/link';
-import MenuIcon from '@heroicons/react/solid/MenuIcon';
-import { Transition } from '@headlessui/react';
-import UserMenuDesktop from './UserMenuDesktop';
-import UserMenuMobile from './UserMenuMobile';
-import XIcon from '@heroicons/react/solid/XIcon';
-import classNames from 'classnames';
-import { useRouter } from 'next/router';
+import UserMenuDesktop from "./UserMenuDesktop"
+import UserMenuMobile from "./UserMenuMobile"
 
 const commonPages = [
   {
     text: "Films à l'affiche",
-    url: '/',
+    url: "/",
   },
   {
-    text: 'Théâtre',
-    url: '#theatre',
+    text: "Théâtre",
+    url: "#theatre",
   },
-];
+]
 const MainNavigation: React.FunctionComponent = () => {
-  const router = useRouter();
-  const { pathname } = router;
-  const [showMobileMenu, setShowMobileMenu] = useState(false);
-  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const router = useRouter()
+  const { pathname } = router
+  const [showMobileMenu, setShowMobileMenu] = useState(false)
+  const [userMenuOpen, setUserMenuOpen] = useState(false)
 
   return (
     <header className="main-navigation bg-cinder md:container md:max-w-6xl mb-8">
       <nav
-        className={classNames('flex items-center md:px-0 px-2', {
-          'px-6': pathname !== '/',
+        className={classNames("flex items-center md:px-0 px-2", {
+          "px-6": pathname !== "/",
         })}
         aria-label="MainNavigation"
       >
-        {pathname !== '/' ? (
+        {pathname !== "/" ? (
           <button
             type="button"
             onClick={() => {
-              router.back();
+              router.back()
             }}
           >
             <ArrowLeftIcon className="md:hidden block flex-none w-5 h-5" />
@@ -52,7 +52,11 @@ const MainNavigation: React.FunctionComponent = () => {
             <Link href="/" passHref>
               <a className="mx-auto md:mr-28 mr-0" data-testid="header-logo">
                 <span className="sr-only">Tiween</span>
-                <img className="w-24 h-auto" src="/logo-white.png" alt="Tiween" />
+                <img
+                  className="w-24 h-auto"
+                  src="/logo-white.png"
+                  alt="Tiween"
+                />
               </a>
             </Link>
             <div className="left-navigation md:flex hidden justify-between text-lg font-fira font-semibold space-x-8">
@@ -61,7 +65,7 @@ const MainNavigation: React.FunctionComponent = () => {
                   href={item.url}
                   passHref
                   key={`desktop-main-menu-${index}`}
-                  scroll={item.url.startsWith('#')}
+                  scroll={item.url.startsWith("#")}
                 >
                   <a
                     className={classNames({
@@ -81,7 +85,9 @@ const MainNavigation: React.FunctionComponent = () => {
           </div>
         </div>
 
-        <button onClick={() => setShowMobileMenu((showMobileMenu) => !showMobileMenu)}>
+        <button
+          onClick={() => setShowMobileMenu((showMobileMenu) => !showMobileMenu)}
+        >
           <MenuIcon className="w-8 h-8 md:hidden" />
         </button>
       </nav>
@@ -108,12 +114,12 @@ const MainNavigation: React.FunctionComponent = () => {
 
             <UserMenuMobile
               handleOpenMenu={(open) => {
-                setUserMenuOpen(open);
+                setUserMenuOpen(open)
               }}
             />
             {commonPages.map((item, index) => (
               <div
-                className={classNames('pt-4 pl-8', {
+                className={classNames("pt-4 pl-8", {
                   hidden: userMenuOpen,
                 })}
                 key={`mobile-main-menu-${index}`}
@@ -127,7 +133,7 @@ const MainNavigation: React.FunctionComponent = () => {
         </div>
       </Transition>
     </header>
-  );
-};
+  )
+}
 
-export default React.memo(MainNavigation);
+export default React.memo(MainNavigation)

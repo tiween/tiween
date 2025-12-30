@@ -1,2 +1,3 @@
-import TrailersModal from './TrailersModal';
-export default TrailersModal;
+import TrailersModal from "./TrailersModal"
+
+export default TrailersModal

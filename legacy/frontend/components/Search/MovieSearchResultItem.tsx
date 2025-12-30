@@ -1,11 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { DateTime } from 'luxon';
-import React from 'react';
+import React from "react"
+import { DateTime } from "luxon"
+
 interface IMovieSearchResultItemProps {
-  hit: any;
+  hit: any
 }
 
-const MovieSearchResultItem: React.FunctionComponent<IMovieSearchResultItemProps> = ({ hit }) => (
+const MovieSearchResultItem: React.FunctionComponent<
+  IMovieSearchResultItemProps
+> = ({ hit }) => (
   <div className="aa-Item rounded bg-gray-600 py-3 px-2 flex space-x-3">
     <div className="w-14 h-20 aspect-w-3 flex-none">
       <img
@@ -19,7 +22,7 @@ const MovieSearchResultItem: React.FunctionComponent<IMovieSearchResultItemProps
       <div className="font-lg">
         {hit.title}
         {hit.release_date ? (
-          <span>{DateTime.fromISO(hit.release_date).toFormat('yyyy')}</span>
+          <span>{DateTime.fromISO(hit.release_date).toFormat("yyyy")}</span>
         ) : (
           <></>
         )}
@@ -30,12 +33,12 @@ const MovieSearchResultItem: React.FunctionComponent<IMovieSearchResultItemProps
         <></>
       )}
       {hit?.directors?.length > 0 ? (
-        <div className="font-bold text-sm">de {hit.directors.join(', ')}</div>
+        <div className="font-bold text-sm">de {hit.directors.join(", ")}</div>
       ) : (
         <></>
       )}
     </div>
   </div>
-);
+)
 
-export default MovieSearchResultItem;
+export default MovieSearchResultItem

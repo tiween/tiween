@@ -1,11 +1,14 @@
-import DateSpan from './DateSpan';
-import { Festival } from '../../shared/models/festival';
-import Image from 'next/image';
-import Link from 'next/link';
-import React from 'react';
-import { festivalThumbnail } from '../../shared/services/cdn';
+import React from "react"
+import Image from "next/image"
+import Link from "next/link"
 
-const FestivalHomePageCard: React.FC<{ festival: Festival }> = ({ festival }) => {
+import { Festival } from "../../shared/models/festival"
+import { festivalThumbnail } from "../../shared/services/cdn"
+import DateSpan from "./DateSpan"
+
+const FestivalHomePageCard: React.FC<{ festival: Festival }> = ({
+  festival,
+}) => {
   const {
     mainImage: { hash },
     id,
@@ -15,9 +18,9 @@ const FestivalHomePageCard: React.FC<{ festival: Festival }> = ({ festival }) =>
     title,
     subtitle,
     homePageDisplay,
-  } = festival;
+  } = festival
 
-  if (homePageDisplay === 'two_columns') {
+  if (homePageDisplay === "two_columns") {
     return (
       <Link href={`/festival/${id}/${slug}`} passHref>
         <a>
@@ -37,7 +40,9 @@ const FestivalHomePageCard: React.FC<{ festival: Festival }> = ({ festival }) =>
                 <h3 className="block font-black font-fira text-3xl text-selago">
                   {title}
                   {subtitle ? (
-                    <span className="font-light text-base italic">{subtitle}</span>
+                    <span className="font-light text-base italic">
+                      {subtitle}
+                    </span>
                   ) : (
                     <></>
                   )}
@@ -47,10 +52,10 @@ const FestivalHomePageCard: React.FC<{ festival: Festival }> = ({ festival }) =>
           </div>
         </a>
       </Link>
-    );
+    )
   } else {
-    return <>HERO festival</>;
+    return <>HERO festival</>
   }
-};
+}
 
-export default FestivalHomePageCard;
+export default FestivalHomePageCard

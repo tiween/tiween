@@ -1,6 +1,6 @@
-import { MovieMeta } from './moviemeta';
+import { MovieMeta } from "./moviemeta"
 
 export default interface SectionMovie {
-  id?: string;
-  movie: MovieMeta;
+  id?: string
+  movie: MovieMeta
 }

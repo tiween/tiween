@@ -3,6 +3,6 @@ declare namespace Cypress {
     /**
      * Custom command that adds two given numbers
      */
-    mailinator(email: string): Chainable<string>;
+    mailinator(email: string): Chainable<string>
   }
 }

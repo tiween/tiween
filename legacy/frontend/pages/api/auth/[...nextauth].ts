@@ -1,35 +1,40 @@
-import CredentialsProvider from 'next-auth/providers/credentials';
-import FacebookProvider from 'next-auth/providers/facebook';
-import NextAuth from 'next-auth';
-import axios from 'axios';
-import get from 'lodash/get';
-import { request } from './../../../shared/services/strapi';
+import axios from "axios"
+import get from "lodash/get"
+import NextAuth from "next-auth"
+import CredentialsProvider from "next-auth/providers/credentials"
+import FacebookProvider from "next-auth/providers/facebook"
+
+import { request } from "./../../../shared/services/strapi"
+
 const options = {
   secret: process.env.SECRET,
   // Configure one or more authentication providers
   providers: [
     CredentialsProvider({
-      name: 'Credentials',
+      name: "Credentials",
       credentials: {
-        email: { label: 'Email', type: 'text', placeholder: 'test@test.com' },
-        password: { label: 'Password', type: 'password' },
+        email: { label: "Email", type: "text", placeholder: "test@test.com" },
+        password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
         try {
-          const { data } = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/local`, {
-            identifier: credentials.email,
-            password: credentials.password,
-          });
+          const { data } = await axios.post(
+            `${process.env.NEXT_PUBLIC_API_URL}/auth/local`,
+            {
+              identifier: credentials.email,
+              password: credentials.password,
+            }
+          )
 
           if (data) {
-            return data;
+            return data
           } else {
-            return null;
+            return null
           }
         } catch (error) {
-          console.log('ERROR', error);
+          console.log("ERROR", error)
           // const messages = get(error, ['response', 'data', 'message', 0, 'messages'], null);
-          return null;
+          return null
         }
       },
     }),
@@ -41,37 +46,37 @@ const options = {
 
   callbacks: {
     session: async ({ session, token }) => {
-      session.jwt = token.accessToken;
-      session.id = token.userId;
-      return session;
+      session.jwt = token.accessToken
+      session.id = token.userId
+      return session
     },
     jwt: async ({ token, user, account }) => {
-      if (get(user, ['provider'], '') === 'facebook') {
+      if (get(user, ["provider"], "") === "facebook") {
         try {
           //TODO fix typing here
           const response = await request<any>(
-            `/auth/${account.provider}/callback?access_token=${account?.access_token}`,
-          );
-          const { data } = response;
-          token.accessToken = data.jwt;
-          token.userId = data.user.id;
+            `/auth/${account.provider}/callback?access_token=${account?.access_token}`
+          )
+          const { data } = response
+          token.accessToken = data.jwt
+          token.userId = data.user.id
         } catch (error) {
-          console.error('ERR', error);
+          console.error("ERR", error)
         }
       }
-      if (get(user, ['user', 'provider']) === 'local') {
-        token.accessToken = user.jwt;
-        token.userId = user.user.id;
-        token.email = user.user.email;
-        token.name = user.user.username;
-        user = user.user;
+      if (get(user, ["user", "provider"]) === "local") {
+        token.accessToken = user.jwt
+        token.userId = user.user.id
+        token.email = user.user.email
+        token.name = user.user.username
+        user = user.user
       }
 
-      return token;
+      return token
     },
   },
   pages: {
-    signIn: '/auth/signin',
+    signIn: "/auth/signin",
   },
-};
-export default NextAuth(options);
+}
+export default NextAuth(options)

@@ -1,23 +1,24 @@
 /* eslint-disable no-unused-vars */
-import { DateTime } from 'luxon';
-import React, { useState, useMemo } from 'react';
-import DatesList from '../DatesSelector/DatesList';
-import ShowtimesList from '../Showtimes/ShowtimesList';
+import React, { useMemo, useState } from "react"
+import { DateTime } from "luxon"
+
+import DatesList from "../DatesSelector/DatesList"
+import ShowtimesList from "../Showtimes/ShowtimesList"
 
 type MovieTimetableProps = {
-  timetable: unknown;
-};
-const sortDateTimes = (a, b): number => (a < b ? -1 : a > b ? 1 : 0);
+  timetable: unknown
+}
+const sortDateTimes = (a, b): number => (a < b ? -1 : a > b ? 1 : 0)
 
 const MovieTimetable: React.FC<MovieTimetableProps> = ({ timetable }) => {
-  const dates = Object.keys(timetable);
+  const dates = Object.keys(timetable)
   const sortedDatesAsObjects = useMemo(() => {
     return dates
       ?.map((date) => DateTime.fromISO(date))
       .sort(sortDateTimes)
-      .map((date) => date.toFormat('yyyy-MM-dd'));
-  }, [dates]);
-  const [selectedDate, setSelectedDate] = useState(sortedDatesAsObjects[0]);
+      .map((date) => date.toFormat("yyyy-MM-dd"))
+  }, [dates])
+  const [selectedDate, setSelectedDate] = useState(sortedDatesAsObjects[0])
 
   return (
     <div className="mt-8">
@@ -32,7 +33,7 @@ const MovieTimetable: React.FC<MovieTimetableProps> = ({ timetable }) => {
         <ShowtimesList timetable={timetable} selectedDate={selectedDate} />
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default React.memo(MovieTimetable);
+export default React.memo(MovieTimetable)

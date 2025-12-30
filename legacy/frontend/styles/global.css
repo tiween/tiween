@@ -36,7 +36,7 @@ div.premiere {
 }
 div.premiere:after {
   @apply left-1/2 bottom-full border-solid absolute;
-  content: '';
+  content: "";
   transform: translateX(-50%) !important;
   border-width: 3px;
   border-color: transparent transparent #ff489f transparent;
@@ -51,8 +51,7 @@ section h2 {
   background-size: 100% 5px;
 }
 div.left-navigation a:hover,
-a.active
-{
+a.active {
   background: linear-gradient(to right, #ff489f, #ffd600) left bottom no-repeat;
   background-size: 100% 5px;
 }

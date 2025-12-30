@@ -1,12 +1,12 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState } from "react"
 
 interface selectedItem {
-  label: string,
+  label: string
   value: number
-} ;
+}
 
 interface EventCalendarContextProviderProps {
-  medium?: selectedItem | null,
+  medium?: selectedItem | null
   eventGroup?: selectedItem | null
   children?: React.ReactNode
 }
@@ -22,11 +22,10 @@ export const EventCalendarContextProvider = ({
   eventGroup,
 }: EventCalendarContextProviderProps) => {
   return (
-  <EventCalendarContext.Provider value={{ medium, eventGroup }}>
-    {children}
-  </EventCalendarContext.Provider>)
+    <EventCalendarContext.Provider value={{ medium, eventGroup }}>
+      {children}
+    </EventCalendarContext.Provider>
+  )
 }
 
-
-export const useEventContext = () => useContext(EventCalendarContext);
-
+export const useEventContext = () => useContext(EventCalendarContext)

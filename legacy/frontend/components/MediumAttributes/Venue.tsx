@@ -1,9 +1,10 @@
-import React from 'react';
-import get from 'lodash/get';
-import { Medium } from '../../shared/models/medium';
+import React from "react"
+import get from "lodash/get"
+
+import { Medium } from "../../shared/models/medium"
 
 const Venue: React.FC<{ medium: Medium }> = ({ medium }) => {
-  const venueAttributes = get(medium, ['mediumType', 0, 'location'], null);
+  const venueAttributes = get(medium, ["mediumType", 0, "location"], null)
   return (
     <>
       {venueAttributes ? (
@@ -14,8 +15,8 @@ const Venue: React.FC<{ medium: Medium }> = ({ medium }) => {
         <></>
       )}
     </>
-  );
-  return <div></div>;
-};
+  )
+  return <div></div>
+}
 
-export default Venue;
+export default Venue

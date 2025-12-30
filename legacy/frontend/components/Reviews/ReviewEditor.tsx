@@ -1,32 +1,34 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
-import { Editor, EditorState, RichUtils } from 'draft-js';
-import 'draft-js/dist/Draft.css';
-import React from 'react';
+import { Editor, EditorState, RichUtils } from "draft-js"
+
+import "draft-js/dist/Draft.css"
+
+import React from "react"
 
 interface IReviewEditorProps {
-  editorState: EditorState;
-  handleChange: (es: EditorState) => void;
+  editorState: EditorState
+  handleChange: (es: EditorState) => void
 }
 
 const ReviewEditor: React.FunctionComponent<IReviewEditorProps> = ({
   editorState,
   handleChange,
 }) => {
-  const editor = React.useRef(null);
+  const editor = React.useRef(null)
 
   const focusEditor = (): void => {
-    editor.current.focus();
-  };
+    editor.current.focus()
+  }
   const styleMap = {
     SPOILER: {
-      textDecoration: 'line-through',
+      textDecoration: "line-through",
     },
-  };
+  }
 
   const toggleSpoiler = (): void => {
-    handleChange(RichUtils.toggleInlineStyle(editorState, 'SPOILER'));
-  };
+    handleChange(RichUtils.toggleInlineStyle(editorState, "SPOILER"))
+  }
   // const contentState = editorState.getCurrentContent();
 
   return (
@@ -52,7 +54,7 @@ const ReviewEditor: React.FunctionComponent<IReviewEditorProps> = ({
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default ReviewEditor;
+export default ReviewEditor

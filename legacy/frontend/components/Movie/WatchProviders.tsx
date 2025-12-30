@@ -1,18 +1,21 @@
-import * as React from 'react';
-import Image from 'next/image';
+import * as React from "react"
+import Image from "next/image"
+
 interface flatrate {
-  provider_name: string;
-  provider_id: string;
-  logo_path: string;
+  provider_name: string
+  provider_id: string
+  logo_path: string
 }
 interface IWatchProvidersProps {
   providers: {
-    flatrate: flatrate[];
-  };
+    flatrate: flatrate[]
+  }
 }
 
-const WatchProviders: React.FunctionComponent<IWatchProvidersProps> = ({ providers }) => {
-  const { flatrate } = providers;
+const WatchProviders: React.FunctionComponent<IWatchProvidersProps> = ({
+  providers,
+}) => {
+  const { flatrate } = providers
   return (
     <div className=" flex justify-between space-x-2 items-center">
       <div className="font-fira text-sm font-thin flex flex-col items-start justify-center">
@@ -31,11 +34,11 @@ const WatchProviders: React.FunctionComponent<IWatchProvidersProps> = ({ provide
                   alt={provider_name}
                 />
               </div>
-            );
+            )
           })}
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default WatchProviders;
+export default WatchProviders

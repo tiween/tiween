@@ -1,9 +1,9 @@
-'use strict';
+"use strict"
 
 /**
  * region service.
  */
 
-const { createCoreService } = require('@strapi/strapi').factories;
+const { createCoreService } = require("@strapi/strapi").factories
 
-module.exports = createCoreService('api::region.region');
+module.exports = createCoreService("api::region.region")

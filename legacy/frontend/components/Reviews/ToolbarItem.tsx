@@ -1,9 +1,9 @@
-import classNames from 'classnames';
-import * as React from 'react';
+import * as React from "react"
+import classNames from "classnames"
 
 interface IToolbarItemProps {
-  isActive: boolean;
-  children;
+  isActive: boolean
+  children
 }
 
 const ToolbarItem: React.FunctionComponent<IToolbarItemProps> = ({
@@ -13,13 +13,13 @@ const ToolbarItem: React.FunctionComponent<IToolbarItemProps> = ({
   return (
     <div
       className={classNames({
-        'bg-bastille-lighter': isActive,
-        'bg-bastille-lightest': !isActive,
+        "bg-bastille-lighter": isActive,
+        "bg-bastille-lightest": !isActive,
       })}
     >
       {children}
     </div>
-  );
-};
+  )
+}
 
-export default ToolbarItem;
+export default ToolbarItem

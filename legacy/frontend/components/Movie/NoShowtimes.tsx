@@ -1,9 +1,9 @@
-import * as React from 'react';
-import EmojiSadIcon from '@heroicons/react/outline/EmojiSadIcon';
+import * as React from "react"
+import EmojiSadIcon from "@heroicons/react/outline/EmojiSadIcon"
 
 interface NoShowtimesProps {
-  message: string;
-  children?: React.ReactNode;
+  message: string
+  children?: React.ReactNode
 }
 
 const NoShowtimes: React.FC<NoShowtimesProps> = ({ message, children }) => {
@@ -13,7 +13,7 @@ const NoShowtimes: React.FC<NoShowtimesProps> = ({ message, children }) => {
       <p className="text-base text-selago font-bold text-center">{message}</p>
       {children && <div className="mt-4">{children}</div>}
     </div>
-  );
-};
+  )
+}
 
-export default NoShowtimes;
+export default NoShowtimes

@@ -1,27 +1,27 @@
-import { Menu, Transition } from '@headlessui/react';
-import React, { Fragment } from 'react';
-import { signIn, signOut, useSession } from 'next-auth/react';
+import React, { Fragment } from "react"
+import Link from "next/link"
+import { Menu, Transition } from "@headlessui/react"
+import LogoutIcon from "@heroicons/react/outline/LogoutIcon"
+import ChevronDownIcon from "@heroicons/react/solid/ChevronDownIcon"
+import UserCircleIcon from "@heroicons/react/solid/UserCircleIcon"
+import classNames from "classnames"
+import { signIn, signOut, useSession } from "next-auth/react"
 
-import Button from './Button';
-import ChevronDownIcon from '@heroicons/react/solid/ChevronDownIcon';
-import Link from 'next/link';
-import LogoutIcon from '@heroicons/react/outline/LogoutIcon';
-import Spinner from './Spinner';
-import UserCircleIcon from '@heroicons/react/solid/UserCircleIcon';
-import classNames from 'classnames';
-import userNavigationItems from '../../shared/constants/usermenu';
+import userNavigationItems from "../../shared/constants/usermenu"
+import Button from "./Button"
+import Spinner from "./Spinner"
 
 const UserMenu: React.FunctionComponent = () => {
-  const { data: session, status } = useSession();
+  const { data: session, status } = useSession()
 
-  if (status === 'loading') {
+  if (status === "loading") {
     // TODO better loading
     return (
       <div>
         <Spinner />
       </div>
-    );
-  } else if (status === 'authenticated') {
+    )
+  } else if (status === "authenticated") {
     return (
       <Menu as="div" className="relative inline-block">
         <Menu.Button>
@@ -66,10 +66,10 @@ const UserMenu: React.FunctionComponent = () => {
                       <Link href={url} passHref>
                         <a
                           className={classNames(
-                            'flex justify-start items-center px-3 py-2 rounded hover:bg-mulled-wine',
+                            "flex justify-start items-center px-3 py-2 rounded hover:bg-mulled-wine",
                             {
-                              'bg-mulled-wine': active,
-                            },
+                              "bg-mulled-wine": active,
+                            }
                           )}
                         >
                           {icon}
@@ -78,7 +78,7 @@ const UserMenu: React.FunctionComponent = () => {
                       </Link>
                     )}
                   </Menu.Item>
-                );
+                )
               })}
               <Menu.Item as="div" className="mt-5">
                 <Button
@@ -94,7 +94,7 @@ const UserMenu: React.FunctionComponent = () => {
           </div>
         </Transition>
       </Menu>
-    );
+    )
   } else {
     return (
       <button
@@ -105,8 +105,8 @@ const UserMenu: React.FunctionComponent = () => {
         <UserCircleIcon className="w-5 h-5 mr-2" />
         Mon Compte
       </button>
-    );
+    )
   }
-};
+}
 
-export default UserMenu;
+export default UserMenu

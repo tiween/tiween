@@ -1,29 +1,30 @@
-import Link from 'next/link';
-import React from 'react';
-import { Medium } from '../../shared/models/medium';
-import MediumAttributes from '../MediumAttributes';
-import MovieTimeTable from '../TimeTableList';
-import { Show } from '../../shared/models/show';
-import LocationIcon from '@heroicons/react/solid/LocationMarkerIcon';
+import React from "react"
+import Link from "next/link"
+import LocationIcon from "@heroicons/react/solid/LocationMarkerIcon"
+
+import { Medium } from "../../shared/models/medium"
+import { Show } from "../../shared/models/show"
+import MediumAttributes from "../MediumAttributes"
+import MovieTimeTable from "../TimeTableList"
 
 const MediumMovieTimeTable: React.FC<{
-  selectedDate: string;
+  selectedDate: string
   mediumTimeTable: {
-    medium: Medium;
-    shows: Show[];
-  };
+    medium: Medium
+    shows: Show[]
+  }
 }> = ({ mediumTimeTable }) => {
-  const medium = mediumTimeTable.medium;
-  let icon;
+  const medium = mediumTimeTable.medium
+  let icon
   switch (medium.type) {
-    case 'TV_SHOW':
-    case 'CHANNEL':
-      icon = null;
-      break;
-    case 'VENUE':
+    case "TV_SHOW":
+    case "CHANNEL":
+      icon = null
+      break
+    case "VENUE":
     default:
-      icon = <LocationIcon />;
-      break;
+      icon = <LocationIcon />
+      break
   }
   return (
     <div
@@ -32,7 +33,10 @@ const MediumMovieTimeTable: React.FC<{
     >
       <div className="md:w-1/6 sm:w-full">
         <Link href={`/medium/${medium.slug}`}>
-          <a className="flex justify-start md:text-base text-base" data-test="medium-link">
+          <a
+            className="flex justify-start md:text-base text-base"
+            data-test="medium-link"
+          >
             <div className="flex flex-col space-y-1">
               <div className="medium-name-link font-semibold text-lg flex justify-start items-center space-x-1">
                 {icon ? <div className="w-5 h-5">{icon}</div> : <></>}
@@ -46,7 +50,7 @@ const MediumMovieTimeTable: React.FC<{
 
       <MovieTimeTable shows={mediumTimeTable.shows} />
     </div>
-  );
-};
+  )
+}
 
-export default React.memo(MediumMovieTimeTable);
+export default React.memo(MediumMovieTimeTable)

@@ -1,14 +1,20 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
-import { Listbox } from '@headlessui/react';
-import ChevronDownIcon from '@heroicons/react/solid/ChevronDownIcon';
-import CheckIcon from '@heroicons/react/solid/CheckIcon';
-import { connectMenu } from 'react-instantsearch-dom';
-import classNames from 'classnames';
+import { Listbox } from "@headlessui/react"
+import CheckIcon from "@heroicons/react/solid/CheckIcon"
+import ChevronDownIcon from "@heroicons/react/solid/ChevronDownIcon"
+import classNames from "classnames"
+import { connectMenu } from "react-instantsearch-dom"
+
 const MenuSelect = ({ items, currentRefinement, refine }) => {
   return (
-    <Listbox as="div" className="relative" value={currentRefinement || ''} onChange={refine}>
+    <Listbox
+      as="div"
+      className="relative"
+      value={currentRefinement || ""}
+      onChange={refine}
+    >
       <Listbox.Button className="flex space-x-3 justify-around items-center">
-        {currentRefinement?.label || 'Genres'}
+        {currentRefinement?.label || "Genres"}
         <ChevronDownIcon className="w-5 h-5" />
       </Listbox.Button>
       <Listbox.Options className="absolute p-px bg-gradient-to-r from-amaranth via-wild-strawberry to-gold z-50">
@@ -16,7 +22,9 @@ const MenuSelect = ({ items, currentRefinement, refine }) => {
           {items.map((item) => (
             <Listbox.Option
               className={() => {
-                return classNames('capitalize text-sm font-lato font-normal relative');
+                return classNames(
+                  "capitalize text-sm font-lato font-normal relative"
+                )
               }}
               key={item.label}
               value={item.value}
@@ -26,8 +34,8 @@ const MenuSelect = ({ items, currentRefinement, refine }) => {
                   <>
                     <span
                       className={classNames(
-                        selected ? 'font-semibold' : 'font-normal',
-                        'block truncate',
+                        selected ? "font-semibold" : "font-normal",
+                        "block truncate"
                       )}
                     >
                       {item.label}
@@ -35,22 +43,22 @@ const MenuSelect = ({ items, currentRefinement, refine }) => {
                     {selected ? (
                       <span
                         className={classNames(
-                          active ? 'text-white' : 'text-indigo-600',
-                          'absolute inset-y-0 right-0 flex items-center pr-4',
+                          active ? "text-white" : "text-indigo-600",
+                          "absolute inset-y-0 right-0 flex items-center pr-4"
                         )}
                       >
                         <CheckIcon className="h-5 w-5" aria-hidden="true" />
                       </span>
                     ) : null}
                   </>
-                );
+                )
               }}
             </Listbox.Option>
           ))}
         </div>
       </Listbox.Options>
     </Listbox>
-  );
-};
+  )
+}
 
-export default connectMenu(MenuSelect);
+export default connectMenu(MenuSelect)

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-import React from 'react';
+import React from "react"
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
@@ -21,7 +21,7 @@ const AwardIcon = (props) => {
         <path d="M246.915 223.342l40.18-39.166a5 5 0 00-2.771-8.529l-55.523-8.063-24.835-50.313a4.998 4.998 0 00-8.966 0l-24.826 50.313-55.532 8.063a5 5 0 00-2.771 8.529l40.18 39.166-9.48 55.299a4.997 4.997 0 001.989 4.889 4.997 4.997 0 005.265.381l49.66-26.105 49.66 26.105a4.995 4.995 0 005.264-.381 4.994 4.994 0 001.989-4.889l-9.483-55.299z"></path>
       </g>
     </svg>
-  );
-};
+  )
+}
 
-export default AwardIcon;
+export default AwardIcon

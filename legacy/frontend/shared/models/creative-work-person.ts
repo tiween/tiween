@@ -1,16 +1,16 @@
-import Image from './image';
+import Image from "./image"
 
 export default interface CreativeWorkPerson {
-  id: string;
+  id: string
   job: {
-    name: string;
-    root?: string;
-    id: string;
-  };
+    name: string
+    root?: string
+    id: string
+  }
   person: {
-    fullName: string;
-    id: string;
-    photo: Image;
-  };
-  character?: string;
+    fullName: string
+    id: string
+    photo: Image
+  }
+  character?: string
 }

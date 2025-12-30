@@ -1,8 +1,9 @@
-import React from 'react';
+import React from "react"
+
 interface SectionProps {
-  title: string;
-  className?: string;
-  children?: React.ReactNode;
+  title: string
+  className?: string
+  children?: React.ReactNode
 }
 const Section: React.FC<SectionProps> = ({ title, children }) => {
   return (
@@ -14,7 +15,7 @@ const Section: React.FC<SectionProps> = ({ title, children }) => {
       </div>
       {children}
     </section>
-  );
-};
+  )
+}
 
-export default Section;
+export default Section

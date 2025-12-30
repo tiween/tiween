@@ -1,4 +1,4 @@
 export default interface SectionMeta {
-  title?: string;
-  description?: string;
+  title?: string
+  description?: string
 }

@@ -1,5 +1,5 @@
 export default interface Image {
-  id: string;
-  url: string;
-  type: string;
+  id: string
+  url: string
+  type: string
 }

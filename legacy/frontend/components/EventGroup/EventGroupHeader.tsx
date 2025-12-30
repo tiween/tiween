@@ -1,18 +1,18 @@
-import * as React from 'react';
+import * as React from "react"
+import Image from "next/image"
+import ReactMarkdown from "react-markdown"
 
-import DateSpan from '../Festival/DateSpan';
-import Image from 'next/image';
-import PageTitle from '../shared/PageTitle';
-import ReactMarkdown from 'react-markdown';
-import { posterImageLoader } from '../../shared/services/cdn';
+import { posterImageLoader } from "../../shared/services/cdn"
+import DateSpan from "../Festival/DateSpan"
+import PageTitle from "../shared/PageTitle"
 
 interface IEventGroupHeaderProps {
-  title: string;
-  subtitle?: string;
-  startDate: string;
-  endDate: string;
-  description?: string;
-  poster?: any;
+  title: string
+  subtitle?: string
+  startDate: string
+  endDate: string
+  description?: string
+  poster?: any
 }
 
 const EventGroupHeader: React.FunctionComponent<IEventGroupHeaderProps> = ({
@@ -67,7 +67,7 @@ const EventGroupHeader: React.FunctionComponent<IEventGroupHeaderProps> = ({
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default React.memo(EventGroupHeader);
+export default React.memo(EventGroupHeader)

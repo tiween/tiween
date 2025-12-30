@@ -1,9 +1,9 @@
-import SectionMeta from './section-meta';
-import SectionMovie from './section-movie';
+import SectionMeta from "./section-meta"
+import SectionMovie from "./section-movie"
 
 export default interface Section {
-  id: string;
-  __component: 'section.movies';
-  meta: SectionMeta;
-  movies?: SectionMovie[];
+  id: string
+  __component: "section.movies"
+  meta: SectionMeta
+  movies?: SectionMovie[]
 }

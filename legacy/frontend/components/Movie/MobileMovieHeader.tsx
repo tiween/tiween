@@ -1,54 +1,54 @@
-import * as React from 'react';
+import * as React from "react"
+import Image from "next/image"
+import get from "lodash/get"
+import { DateTime } from "luxon"
+import ReactPlayer from "react-player"
 
-import { DateTime } from 'luxon';
-import Image from 'next/image';
-import MovieCredits from './MovieCredits';
-import MovieNavigationBar from './MovieNavigation/MovieNavigationBar';
-import MovieStickyBar from './MovieStickyBar';
-import MovieTitle from './MovieTitle';
-import ReactPlayer from 'react-player';
-import ReviewsCTA from '../Reviews/ReviewsCTA';
-import get from 'lodash/get';
-import { runtimeToHuman } from '../../shared/services/utils';
-import { tmdbPosterImageLoader } from '../../shared/services/cdn';
-import { useMovie } from '../../shared/context/movie.context';
+import { useMovie } from "../../shared/context/movie.context"
+import { tmdbPosterImageLoader } from "../../shared/services/cdn"
+import { runtimeToHuman } from "../../shared/services/utils"
+import ReviewsCTA from "../Reviews/ReviewsCTA"
+import MovieCredits from "./MovieCredits"
+import MovieNavigationBar from "./MovieNavigation/MovieNavigationBar"
+import MovieStickyBar from "./MovieStickyBar"
+import MovieTitle from "./MovieTitle"
 
 interface IMobileMovieHeaderProps {
-  handleShowTrailers?: (show: boolean) => void;
-  withOverview?: boolean;
+  handleShowTrailers?: (show: boolean) => void
+  withOverview?: boolean
 }
 const buildVideoUrl = (video): string => {
-  let url;
+  let url
   switch (video.site) {
-    case 'YouTube':
-      url = `https://www.youtube.com/watch?v=${video.key}`;
-      break;
+    case "YouTube":
+      url = `https://www.youtube.com/watch?v=${video.key}`
+      break
     default:
-      break;
+      break
   }
 
-  return url;
-};
+  return url
+}
 
 const MobileMovieHeader: React.FunctionComponent<IMobileMovieHeaderProps> = ({
   withOverview = true,
 }) => {
-  const { remote: movie } = useMovie();
+  const { remote: movie } = useMovie()
 
-  const videos = get(movie, ['videos', 'results'], []);
+  const videos = get(movie, ["videos", "results"], [])
 
-  let backgroundImageStyles = {};
+  let backgroundImageStyles = {}
   if (movie?.backdrop_path) {
     backgroundImageStyles = {
       backgroundImage: `linear-gradient(45deg, rgba(12,9,17,1) 25%, #48484966 75%, rgba(255,255,255,0) 95%),url(${process.env.NEXT_PUBLIC_CDN_BASE_URL}/t/p/original${movie?.backdrop_path}`,
-    };
+    }
   }
   const mobilePosterStyles = {
-    width: 'calc(((100vw / 2.222222) - 40px) / 1.5)',
-    minWidth: 'calc(((100vw / 2.222222) - 40px) / 1.5)',
-    height: 'calc((100vw / 2.222222) - 40px)',
-    minHeight: 'calc((100vw / 2.222222) - 40px)',
-  };
+    width: "calc(((100vw / 2.222222) - 40px) / 1.5)",
+    minWidth: "calc(((100vw / 2.222222) - 40px) / 1.5)",
+    height: "calc((100vw / 2.222222) - 40px)",
+    minHeight: "calc((100vw / 2.222222) - 40px)",
+  }
 
   return (
     <div className="movie-mobile-header flex flex-col justify-start text-selago ">
@@ -69,20 +69,30 @@ const MobileMovieHeader: React.FunctionComponent<IMobileMovieHeaderProps> = ({
         </div>
         <div className="movie-meta flex flex-col pl-2 text-shadow-base">
           <h1 className="text-xl flex items-baseline font-lato font-bold drop-shadow-sm">
-            <MovieTitle title={movie.title} originalTitle={movie.original_title} />
+            <MovieTitle
+              title={movie.title}
+              originalTitle={movie.original_title}
+            />
           </h1>
           <div className="flex mb-1 text-xs font-lato ">
             {movie.release_date ? (
               <div className="">
-                {`${DateTime.fromISO(movie.release_date).toFormat('dd MMMM yyyy', {
-                  locale: 'fr',
-                })}`}
+                {`${DateTime.fromISO(movie.release_date).toFormat(
+                  "dd MMMM yyyy",
+                  {
+                    locale: "fr",
+                  }
+                )}`}
                 &nbsp;/&nbsp;
               </div>
             ) : (
               <></>
             )}
-            {movie.runtime ? <div className="">{runtimeToHuman(movie.runtime)}</div> : <></>}
+            {movie.runtime ? (
+              <div className="">{runtimeToHuman(movie.runtime)}</div>
+            ) : (
+              <></>
+            )}
           </div>
           <div>
             <MovieCredits credits={movie.credits} />
@@ -125,7 +135,7 @@ const MobileMovieHeader: React.FunctionComponent<IMobileMovieHeaderProps> = ({
         )}
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default MobileMovieHeader;
+export default MobileMovieHeader

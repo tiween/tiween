@@ -1,11 +1,11 @@
-import { Meta, Story } from '@storybook/react/types-6-0';
+import React from "react"
+import { Meta, Story } from "@storybook/react/types-6-0"
 
-import React from 'react';
-import Subscription from '../../components/Newsletter/Subscription';
+import Subscription from "../../components/Newsletter/Subscription"
 
 export default {
-  title: 'Newsletter/Subscription',
+  title: "Newsletter/Subscription",
   component: Subscription,
-} as Meta;
+} as Meta
 
-export const Base: Story = () => <Subscription />;
+export const Base: Story = () => <Subscription />

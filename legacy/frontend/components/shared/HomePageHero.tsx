@@ -1,15 +1,17 @@
-import Link from 'next/link';
-import * as React from 'react';
-import ImageModel from '../../shared/models/image';
-import get from 'lodash/get';
+import * as React from "react"
+import Link from "next/link"
+import get from "lodash/get"
+
+import ImageModel from "../../shared/models/image"
+
 interface IHomePageHeroProps {
-  title: string;
-  subtitle?: string;
-  image: ImageModel;
+  title: string
+  subtitle?: string
+  image: ImageModel
   ctas: Array<{
-    url: string;
-    title: string;
-  }>;
+    url: string
+    title: string
+  }>
 }
 
 const HomePageHero: React.FunctionComponent<IHomePageHeroProps> = ({
@@ -18,7 +20,7 @@ const HomePageHero: React.FunctionComponent<IHomePageHeroProps> = ({
   image,
   ctas,
 }) => {
-  const colors = get(image, ['colors'], null);
+  const colors = get(image, ["colors"], null)
 
   return (
     <div className="home-page-hero">
@@ -35,7 +37,9 @@ const HomePageHero: React.FunctionComponent<IHomePageHeroProps> = ({
 
         <div className="absolute flex flex-col md:justify-center md:items-between inset-0 text-shadow-base font-fira md:p-24 px-6 py-12">
           <div className="md:text-8xl text-xl font-bold">{title}</div>
-          <div className="md:text-3xl text-base font-normal md:pl-2">{subtitle}</div>
+          <div className="md:text-3xl text-base font-normal md:pl-2">
+            {subtitle}
+          </div>
           {colors && (
             <div className="flex justify-between md:mt-12 mt-2 md:pl-12">
               {ctas.map((cta) => (
@@ -53,7 +57,7 @@ const HomePageHero: React.FunctionComponent<IHomePageHeroProps> = ({
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default HomePageHero;
+export default HomePageHero

@@ -1,31 +1,32 @@
-'use strict';
+"use strict"
 
-const getPluginStore = () => strapi.store({
-    environment: '',
-    type: 'tmdb',
-    name: 'settings',
+const getPluginStore = () =>
+  strapi.store({
+    environment: "",
+    type: "tmdb",
+    name: "settings",
   })
 const createDefaultConfig = async () => {
-  const pluginStore = getPluginStore();
+  const pluginStore = getPluginStore()
   const value = {
     disabled: false,
-  };
-  await pluginStore.set({ key: 'api', value });
-  return pluginStore.get({ key: 'api' });
+  }
+  await pluginStore.set({ key: "api", value })
+  return pluginStore.get({ key: "api" })
 }
 module.exports = {
   async getSettings() {
-    const pluginStore = getPluginStore();
-    let config = await pluginStore.get({ key: 'api' });
+    const pluginStore = getPluginStore()
+    let config = await pluginStore.get({ key: "api" })
     if (!config) {
-      config = await createDefaultConfig();
+      config = await createDefaultConfig()
     }
-    return config;
+    return config
   },
   async setSettings(settings) {
-    const value = settings;
-    const pluginStore = getPluginStore();
-    await pluginStore.set({ key: 'api', value });
-    return pluginStore.get({ key: 'api' });
+    const value = settings
+    const pluginStore = getPluginStore()
+    await pluginStore.set({ key: "api", value })
+    return pluginStore.get({ key: "api" })
   },
-};
+}

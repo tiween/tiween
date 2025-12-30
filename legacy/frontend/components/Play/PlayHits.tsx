@@ -1,5 +1,6 @@
-import { connectHits } from 'react-instantsearch-dom';
-import PlayCard from './PlayCard';
+import { connectHits } from "react-instantsearch-dom"
+
+import PlayCard from "./PlayCard"
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 const Hits = ({ hits }) => (
@@ -8,7 +9,7 @@ const Hits = ({ hits }) => (
       <PlayCard hit={hit} key={hit.objectID} />
     ))}
   </div>
-);
+)
 
-const PlayHits = connectHits(Hits);
-export default PlayHits;
+const PlayHits = connectHits(Hits)
+export default PlayHits

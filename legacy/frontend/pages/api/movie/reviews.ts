@@ -1,19 +1,24 @@
-import { withSentry } from '@sentry/nextjs';
-import axios from 'axios';
-import { NextApiRequest, NextApiResponse } from 'next';
-import { getSession } from 'next-auth/react';
-import { request } from '../../../shared/services/strapi';
-import { getBackendApiUrl } from '../../../shared/services/utils';
-const handler = async (req: NextApiRequest, res: NextApiResponse): Promise<void> => {
-  const { method, body } = req;
+import { NextApiRequest, NextApiResponse } from "next"
+import { withSentry } from "@sentry/nextjs"
+import axios from "axios"
+import { getSession } from "next-auth/react"
+
+import { request } from "../../../shared/services/strapi"
+import { getBackendApiUrl } from "../../../shared/services/utils"
+
+const handler = async (
+  req: NextApiRequest,
+  res: NextApiResponse
+): Promise<void> => {
+  const { method, body } = req
 
   try {
-    const backendApiUrl = getBackendApiUrl();
+    const backendApiUrl = getBackendApiUrl()
 
     switch (method) {
-      case 'POST': {
-        const session = await getSession({ req });
-        const { review, moviemetaId } = body;
+      case "POST": {
+        const session = await getSession({ req })
+        const { review, moviemetaId } = body
 
         if (session) {
           const payload = {
@@ -22,11 +27,11 @@ const handler = async (req: NextApiRequest, res: NextApiResponse): Promise<void>
             related: [
               {
                 refId: moviemetaId,
-                ref: 'moviemeta',
-                field: 'comments',
+                ref: "moviemeta",
+                field: "comments",
               },
             ],
-          };
+          }
           const { data } = await axios.post(
             `${backendApiUrl}/comments/moviemeta:${moviemetaId}`,
             { ...payload },
@@ -34,28 +39,28 @@ const handler = async (req: NextApiRequest, res: NextApiResponse): Promise<void>
               headers: {
                 Authorization: `Bearer ${session.jwt}`,
               },
-            },
-          );
+            }
+          )
 
-          res.status(200).json(data);
+          res.status(200).json(data)
         }
-        break;
+        break
       }
-      case 'GET': {
+      case "GET": {
         const {
           query: { moviemetaId },
-        } = req;
-        const reviews = await request(`/comments/moviemeta:${moviemetaId}/flat`);
-        return res.status(200).json(reviews);
-        break;
+        } = req
+        const reviews = await request(`/comments/moviemeta:${moviemetaId}/flat`)
+        return res.status(200).json(reviews)
+        break
       }
       default:
-        res.status(405).end();
+        res.status(405).end()
     }
   } catch (error) {
-    console.error('ERROR', error);
-    res.status(400).json(error.message);
+    console.error("ERROR", error)
+    res.status(400).json(error.message)
   }
-};
+}
 
-export default withSentry(handler);
+export default withSentry(handler)

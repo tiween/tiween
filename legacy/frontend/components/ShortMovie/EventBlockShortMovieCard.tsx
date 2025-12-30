@@ -1,44 +1,51 @@
-import * as React from 'react';
+import * as React from "react"
+import Image from "next/image"
+import Link from "next/link"
+import classNames from "classnames"
+import get from "lodash/get"
+import isEmpty from "lodash/isEmpty"
 
-import { ar1619ImageLoader, posterImageLoader } from '../../shared/services/cdn';
+import countries from "../../shared/constants/countries"
+import CreativeWork from "../../shared/models/creative-work"
+import { Show } from "../../shared/models/show"
+import { ar1619ImageLoader, posterImageLoader } from "../../shared/services/cdn"
+import Title from "../Movie/MovieTitle"
+import Label from "../shared/Label"
+import TimeTableList from "../TimeTableList"
 
-import CreativeWork from '../../shared/models/creative-work';
-import Image from 'next/image';
-import Label from '../shared/Label';
-import Link from 'next/link';
-import { Show } from '../../shared/models/show';
-import TimeTableList from '../TimeTableList';
-import Title from '../Movie/MovieTitle';
-import classNames from 'classnames';
-import countries from '../../shared/constants/countries';
-import get from 'lodash/get';
-import isEmpty from 'lodash/isEmpty';
 interface IEventBlockShortMovieCardProps {
-  work: CreativeWork;
-  shows?: Show[];
-  showTimeTable?: boolean;
+  work: CreativeWork
+  shows?: Show[]
+  showTimeTable?: boolean
 }
 
-const EventBlockShortMovieCard: React.FunctionComponent<IEventBlockShortMovieCardProps> = ({
-  work,
-  shows,
-  showTimeTable = true,
-}) => {
-  const { title, poster, originalTitle, runtime, terms, photos, production_countries, slug, id } =
-    work;
-  let image;
+const EventBlockShortMovieCard: React.FunctionComponent<
+  IEventBlockShortMovieCardProps
+> = ({ work, shows, showTimeTable = true }) => {
+  const {
+    title,
+    poster,
+    originalTitle,
+    runtime,
+    terms,
+    photos,
+    production_countries,
+    slug,
+    id,
+  } = work
+  let image
   if (!isEmpty(poster)) {
     image = {
-      ar: 'aspect-w-2 aspect-h-3',
+      ar: "aspect-w-2 aspect-h-3",
       loader: posterImageLoader,
       ...poster,
-    };
+    }
   } else if (!isEmpty(photos)) {
     image = {
-      ar: 'aspect-w-16 aspect-h-9',
+      ar: "aspect-w-16 aspect-h-9",
       loader: ar1619ImageLoader,
       ...photos[0],
-    };
+    }
   }
 
   return (
@@ -70,14 +77,14 @@ const EventBlockShortMovieCard: React.FunctionComponent<IEventBlockShortMovieCar
               </div>
               {production_countries?.length > 0 && (
                 <div className="flex space-x-4">
-                  {production_countries?.map((c) => get(countries[c.iso_3166_1], c.name)).join()}
+                  {production_countries
+                    ?.map((c) => get(countries[c.iso_3166_1], c.name))
+                    .join()}
                 </div>
               )}
               {terms?.length > 0 && (
                 <div className="flex space-x-4">
-                  {terms?.map((term) => (
-                    <Label term={term} key={term.id} />
-                  ))}
+                  {terms?.map((term) => <Label term={term} key={term.id} />)}
                 </div>
               )}
             </div>
@@ -90,7 +97,7 @@ const EventBlockShortMovieCard: React.FunctionComponent<IEventBlockShortMovieCar
         </div>
       </a>
     </Link>
-  );
-};
+  )
+}
 
-export default EventBlockShortMovieCard;
+export default EventBlockShortMovieCard

@@ -1,10 +1,11 @@
-import { Meta, Story } from '@storybook/react/types-6-0';
-import React from 'react';
-import MainNavigation from '../components/MainNavigation';
+import React from "react"
+import { Meta, Story } from "@storybook/react/types-6-0"
+
+import MainNavigation from "../components/MainNavigation"
 
 export default {
-  title: 'MainNavigation',
+  title: "MainNavigation",
   component: MainNavigation,
-} as Meta;
+} as Meta
 
-export const LoggedOut: Story = () => <MainNavigation />;
+export const LoggedOut: Story = () => <MainNavigation />

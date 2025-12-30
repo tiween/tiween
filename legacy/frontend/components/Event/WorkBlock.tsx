@@ -1,32 +1,39 @@
-import get from 'lodash/get';
-import React, { ReactNode } from 'react';
-import { Show } from '../../shared/models/show';
-import { getShowTimeBlockType } from '../../shared/services/utils';
-import SmallMovieCard from '../Movie/SmallMovieCard';
-import EventBlockShortMovieCard from '../ShortMovie/EventBlockShortMovieCard';
+import React, { ReactNode } from "react"
+import get from "lodash/get"
+
+import { Show } from "../../shared/models/show"
+import { getShowTimeBlockType } from "../../shared/services/utils"
+import SmallMovieCard from "../Movie/SmallMovieCard"
+import EventBlockShortMovieCard from "../ShortMovie/EventBlockShortMovieCard"
 
 const WorkBlock: React.FunctionComponent<{ show: Show }> = ({ show }) => {
   const component = (): ReactNode => {
-    const type = getShowTimeBlockType(show);
-    let blockComponent: React.ReactElement;
+    const type = getShowTimeBlockType(show)
+    let blockComponent: React.ReactElement
     switch (type) {
       default:
-      case 'MOVIE':
+      case "MOVIE":
         blockComponent = (
-          <SmallMovieCard key={show.id} movie={get(show, ['moviemeta', 'remote'])} />
-        );
+          <SmallMovieCard
+            key={show.id}
+            movie={get(show, ["moviemeta", "remote"])}
+          />
+        )
 
-        break;
-      case 'SHORT_MOVIE':
+        break
+      case "SHORT_MOVIE":
         blockComponent = (
-          <EventBlockShortMovieCard key={show.id} work={get(show, ['creative_work'])} />
-        );
-        break;
+          <EventBlockShortMovieCard
+            key={show.id}
+            work={get(show, ["creative_work"])}
+          />
+        )
+        break
     }
-    return blockComponent;
-  };
+    return blockComponent
+  }
 
-  return <div className="w-full">{component()}</div>;
-};
+  return <div className="w-full">{component()}</div>
+}
 
-export default WorkBlock;
+export default WorkBlock

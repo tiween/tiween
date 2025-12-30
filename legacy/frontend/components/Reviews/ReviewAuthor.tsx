@@ -1,18 +1,18 @@
-import * as React from 'react';
-
+import * as React from "react"
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import Image from 'next/image';
-import ReviewAuthorModel from '../../shared/models/review-author';
-import { personPhotoImageLoader } from '../../shared/services/cdn';
+import Image from "next/image"
+
+import ReviewAuthorModel from "../../shared/models/review-author"
+import { personPhotoImageLoader } from "../../shared/services/cdn"
 
 type ReviewAuthorProps = {
-  author: ReviewAuthorModel;
-};
+  author: ReviewAuthorModel
+}
 
 const ReviewAuthor: React.FunctionComponent<ReviewAuthorProps> = ({
   author: { username, profile_picture, short_bio, provider, fullName },
 }) => {
-  let profilePictureToDisplay;
+  let profilePictureToDisplay
   // if (provider === 'facebook') {
   // }
   return (
@@ -22,7 +22,7 @@ const ReviewAuthor: React.FunctionComponent<ReviewAuthorProps> = ({
           <div className="w-16 h-16 ">
             <div className="aspect-w-1 aspect-h-1">
               <Image
-                src={'Photo_Sarra_Grira'}
+                src={"Photo_Sarra_Grira"}
                 loader={personPhotoImageLoader}
                 layout="fill"
                 className="rounded-full"
@@ -37,7 +37,7 @@ const ReviewAuthor: React.FunctionComponent<ReviewAuthorProps> = ({
         </div>
       </div>
     </>
-  );
-};
+  )
+}
 
-export default ReviewAuthor;
+export default ReviewAuthor

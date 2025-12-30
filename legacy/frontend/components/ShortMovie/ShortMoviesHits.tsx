@@ -1,5 +1,6 @@
-import { connectHits } from 'react-instantsearch-dom';
-import ShortMovieCard from './ShortMovieCard';
+import { connectHits } from "react-instantsearch-dom"
+
+import ShortMovieCard from "./ShortMovieCard"
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 const Hits = ({ hits }) => (
@@ -8,7 +9,7 @@ const Hits = ({ hits }) => (
       <ShortMovieCard hit={hit} key={hit.objectID} />
     ))}
   </div>
-);
+)
 
-const ShortMoviesHits = connectHits(Hits);
-export default ShortMoviesHits;
+const ShortMoviesHits = connectHits(Hits)
+export default ShortMoviesHits

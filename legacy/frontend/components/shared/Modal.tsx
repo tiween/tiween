@@ -1,16 +1,23 @@
-import { Transition } from '@headlessui/react';
-import CloseIcon from '@heroicons/react/solid/XIcon';
-import classNames from 'classnames';
-import React from 'react';
+import React from "react"
+import { Transition } from "@headlessui/react"
+import CloseIcon from "@heroicons/react/solid/XIcon"
+import classNames from "classnames"
 
 const Modal: React.FC<{
-  show: boolean;
-  title?: string;
-  contentFullWidth?: boolean;
-  handleClose: (show: boolean) => void;
-  style?: React.CSSProperties;
-  children?;
-}> = ({ show, title, handleClose, children, style = {}, contentFullWidth = false }) => {
+  show: boolean
+  title?: string
+  contentFullWidth?: boolean
+  handleClose: (show: boolean) => void
+  style?: React.CSSProperties
+  children?
+}> = ({
+  show,
+  title,
+  handleClose,
+  children,
+  style = {},
+  contentFullWidth = false,
+}) => {
   return (
     <Transition
       show={show}
@@ -28,10 +35,13 @@ const Modal: React.FC<{
           style={style}
         >
           <div
-            className={classNames('flex  text-selago px-3 py-3 font-lato font-bold', {
-              'justify-between': !!title,
-              'justify-end': !title,
-            })}
+            className={classNames(
+              "flex  text-selago px-3 py-3 font-lato font-bold",
+              {
+                "justify-between": !!title,
+                "justify-end": !title,
+              }
+            )}
           >
             {title && <div className="">{title}</div>}
 
@@ -39,15 +49,15 @@ const Modal: React.FC<{
               <CloseIcon
                 className="cursor-pointer h-5 w-5"
                 onClick={() => {
-                  handleClose(false);
+                  handleClose(false)
                 }}
               />
             </div>
           </div>
 
           <div
-            className={classNames('modal-content pt-4', {
-              'px-10 pb-10': !contentFullWidth,
+            className={classNames("modal-content pt-4", {
+              "px-10 pb-10": !contentFullWidth,
             })}
           >
             {children}
@@ -55,7 +65,7 @@ const Modal: React.FC<{
         </div>
       </div>
     </Transition>
-  );
-};
+  )
+}
 
-export default Modal;
+export default Modal

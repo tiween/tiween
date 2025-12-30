@@ -1,3 +1,3 @@
 export default interface AlgoliaHit {
-  objectID?: number | string;
+  objectID?: number | string
 }

@@ -1,16 +1,17 @@
-import CreativeWork from '../../shared/models/creative-work';
-import Link from 'next/link';
-import React from 'react';
-import ShortMovieSuggestionItem from './ShortMovieSuggestionItem';
-import ShortMovieSuggestionItemSkeleton from './ShortMovieSuggestionItemSkeleton';
-import useRequest from '../../shared/hooks/useRequest';
+import React from "react"
+import Link from "next/link"
 
-const ShortMoviesSuggestionList: React.FunctionComponent<{ shortMovieId: number }> = ({
-  shortMovieId,
-}) => {
+import useRequest from "../../shared/hooks/useRequest"
+import CreativeWork from "../../shared/models/creative-work"
+import ShortMovieSuggestionItem from "./ShortMovieSuggestionItem"
+import ShortMovieSuggestionItemSkeleton from "./ShortMovieSuggestionItemSkeleton"
+
+const ShortMoviesSuggestionList: React.FunctionComponent<{
+  shortMovieId: number
+}> = ({ shortMovieId }) => {
   const { data } = useRequest<CreativeWork[]>({
     url: `${process.env.NEXT_PUBLIC_BASE_URL}/short-movies/${shortMovieId}`,
-  });
+  })
 
   return (
     <>
@@ -30,7 +31,7 @@ const ShortMoviesSuggestionList: React.FunctionComponent<{ shortMovieId: number 
           </Link>
         ))}
     </>
-  );
-};
+  )
+}
 
-export default ShortMoviesSuggestionList;
+export default ShortMoviesSuggestionList

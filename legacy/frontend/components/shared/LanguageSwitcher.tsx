@@ -1,23 +1,27 @@
-import * as React from 'react';
-import { Menu } from '@headlessui/react';
-import { useRouter } from 'next/router';
-import classNames from 'classnames';
-import ChevronDownIcon from '@heroicons/react/solid/ChevronDownIcon';
+import * as React from "react"
+import { useRouter } from "next/router"
+import { Menu } from "@headlessui/react"
+import ChevronDownIcon from "@heroicons/react/solid/ChevronDownIcon"
+import classNames from "classnames"
+
 const localeSettings = {
-  'fr-FR': {
-    label: 'Français',
-    flag: '🇫🇷',
+  "fr-FR": {
+    label: "Français",
+    flag: "🇫🇷",
   },
-  'ar-TN': {
-    label: 'عربية',
-    flag: '🇹🇳',
+  "ar-TN": {
+    label: "عربية",
+    flag: "🇹🇳",
   },
-};
+}
 const LanguageSwitcher: React.FunctionComponent = () => {
-  const { locales, locale, push, asPath } = useRouter();
+  const { locales, locale, push, asPath } = useRouter()
 
   return (
-    <Menu as="div" className="flex flex-col relative items-center  justify-between py-0">
+    <Menu
+      as="div"
+      className="flex flex-col relative items-center  justify-between py-0"
+    >
       <Menu.Button className="flex justify-around items-center h-full space-x-3">
         {localeSettings[locale].label}
         <ChevronDownIcon className="w-5 h-5" />
@@ -27,11 +31,11 @@ const LanguageSwitcher: React.FunctionComponent = () => {
           <Menu.Item key={l}>
             {({ active }) => (
               <button
-                className={classNames('', {
-                  'bg-blue-500': active,
+                className={classNames("", {
+                  "bg-blue-500": active,
                 })}
                 onClick={() => {
-                  push(asPath, asPath, { locale: l });
+                  push(asPath, asPath, { locale: l })
                 }}
               >
                 {localeSettings[l].label}
@@ -42,7 +46,7 @@ const LanguageSwitcher: React.FunctionComponent = () => {
         ))}
       </Menu.Items>
     </Menu>
-  );
-};
+  )
+}
 
-export default LanguageSwitcher;
+export default LanguageSwitcher

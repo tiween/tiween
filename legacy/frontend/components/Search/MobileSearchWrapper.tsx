@@ -1,18 +1,18 @@
-import { Transition } from '@headlessui/react';
-import ArrowLeftIcon from '@heroicons/react/solid/ArrowLeftIcon';
-import XIcon from '@heroicons/react/solid/XIcon';
-import * as React from 'react';
-import Autocomplete from './Autocomplete';
+import * as React from "react"
+import { Transition } from "@headlessui/react"
+import ArrowLeftIcon from "@heroicons/react/solid/ArrowLeftIcon"
+import XIcon from "@heroicons/react/solid/XIcon"
+
+import Autocomplete from "./Autocomplete"
 
 interface IMobileSearchWrapperProps {
-  show: boolean;
-  handleAction: (action) => void;
+  show: boolean
+  handleAction: (action) => void
 }
 
-const MobileSearchWrapper: React.FunctionComponent<IMobileSearchWrapperProps> = ({
-  show = false,
-  handleAction,
-}) => {
+const MobileSearchWrapper: React.FunctionComponent<
+  IMobileSearchWrapperProps
+> = ({ show = false, handleAction }) => {
   return (
     <Transition
       show={show}
@@ -29,7 +29,7 @@ const MobileSearchWrapper: React.FunctionComponent<IMobileSearchWrapperProps> = 
             <button
               className="flex justify-end mb-5"
               onClick={() => {
-                handleAction({ type: 'search.close' });
+                handleAction({ type: "search.close" })
               }}
             >
               <ArrowLeftIcon className="text-selago w-5" />
@@ -37,7 +37,7 @@ const MobileSearchWrapper: React.FunctionComponent<IMobileSearchWrapperProps> = 
             <button
               className="flex justify-end mb-5"
               onClick={() => {
-                handleAction({ type: 'search.close' });
+                handleAction({ type: "search.close" })
               }}
             >
               <XIcon className="text-selago w-5" />
@@ -49,7 +49,7 @@ const MobileSearchWrapper: React.FunctionComponent<IMobileSearchWrapperProps> = 
         </div>
       </div>
     </Transition>
-  );
-};
+  )
+}
 
-export default MobileSearchWrapper;
+export default MobileSearchWrapper

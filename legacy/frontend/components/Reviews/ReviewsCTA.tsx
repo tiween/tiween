@@ -1,13 +1,14 @@
-import ReviewIcon from '@heroicons/react/solid/AnnotationIcon';
-import { signIn, useSession } from 'next-auth/react';
-import React from 'react';
-import { useReview } from '../../shared/context/UserReviewContext';
-import MovieNavigationItem from '../Movie/MovieNavigation/MovieNavigationItem';
-import RatingSelector from '../Rating/SignedInRatingSelector';
+import React from "react"
+import ReviewIcon from "@heroicons/react/solid/AnnotationIcon"
+import { signIn, useSession } from "next-auth/react"
+
+import { useReview } from "../../shared/context/UserReviewContext"
+import MovieNavigationItem from "../Movie/MovieNavigation/MovieNavigationItem"
+import RatingSelector from "../Rating/SignedInRatingSelector"
 
 const ReviewsCTA: React.FunctionComponent = () => {
-  const { status } = useSession();
-  const { setShowReviewModal } = useReview();
+  const { status } = useSession()
+  const { setShowReviewModal } = useReview()
 
   return (
     <>
@@ -32,10 +33,10 @@ const ReviewsCTA: React.FunctionComponent = () => {
               className="w-full justify-center flex space-x-1  uppercase  text-xs font-semibold"
               onClick={() => {
                 // setShowReviewModal(true);
-                if (status === 'unauthenticated') {
-                  signIn();
-                } else if (status === 'authenticated') {
-                  setShowReviewModal(true);
+                if (status === "unauthenticated") {
+                  signIn()
+                } else if (status === "authenticated") {
+                  setShowReviewModal(true)
                 }
               }}
             >
@@ -51,7 +52,7 @@ const ReviewsCTA: React.FunctionComponent = () => {
         </MovieNavigationItem>
       </div>
     </>
-  );
-};
+  )
+}
 
-export default ReviewsCTA;
+export default ReviewsCTA

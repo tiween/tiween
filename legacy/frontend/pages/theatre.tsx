@@ -1,21 +1,22 @@
-import algoliasearch from 'algoliasearch';
+import React from "react"
 // import LanguageSwitcher from '../components/shared/LanguageSwitcher';
-import { useRouter } from 'next/router';
-import React from 'react';
-import { InstantSearch } from 'react-instantsearch-dom';
-import CreativeWorkBaseFilters from '../components/CreativeWork/CreativeWorkBaseFilters';
-import PlayHits from '../components/Play/PlayHits';
-import CurrentRefinements from '../components/Search/CurrentRefinements';
-import Layout from '../components/shared/Layout';
-import PageTitle from '../components/shared/PageTitle';
+import { useRouter } from "next/router"
+import algoliasearch from "algoliasearch"
+import { InstantSearch } from "react-instantsearch-dom"
+
+import CreativeWorkBaseFilters from "../components/CreativeWork/CreativeWorkBaseFilters"
+import PlayHits from "../components/Play/PlayHits"
+import CurrentRefinements from "../components/Search/CurrentRefinements"
+import Layout from "../components/shared/Layout"
+import PageTitle from "../components/shared/PageTitle"
 
 const searchClient = algoliasearch(
   process.env.NEXT_PUBLIC_ALGOLIA_APP_ID,
-  process.env.NEXT_PUBLIC_ALGOLIA_SEARCH_KEY,
-);
+  process.env.NEXT_PUBLIC_ALGOLIA_SEARCH_KEY
+)
 const PlaysHomePage: React.FunctionComponent = () => {
-  const { locale } = useRouter();
-  const indexName = `${process.env.NODE_ENV}_plays-${locale}`;
+  const { locale } = useRouter()
+  const indexName = `${process.env.NODE_ENV}_plays-${locale}`
   return (
     <Layout>
       <div className="container max-w-6xl">
@@ -39,7 +40,7 @@ const PlaysHomePage: React.FunctionComponent = () => {
         {/* Image */}
       </div>
     </Layout>
-  );
-};
+  )
+}
 
-export default PlaysHomePage;
+export default PlaysHomePage

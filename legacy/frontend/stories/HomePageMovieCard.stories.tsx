@@ -1,20 +1,21 @@
-import { INITIAL_VIEWPORTS } from '@storybook/addon-viewport';
-import { Meta, Story } from '@storybook/react/types-6-0';
-import React from 'react';
-import MoviesList from '../components/Movie/MoviesList';
-import { movies } from './data';
-import { action } from '@storybook/addon-actions';
+import React from "react"
+import { action } from "@storybook/addon-actions"
+import { INITIAL_VIEWPORTS } from "@storybook/addon-viewport"
+import { Meta, Story } from "@storybook/react/types-6-0"
 
-export default { title: 'HomePageMovieCards' } as Meta;
+import MoviesList from "../components/Movie/MoviesList"
+import { movies } from "./data"
+
+export default { title: "HomePageMovieCards" } as Meta
 
 export const MobileList: Story = () => {
-  return <></>;
+  return <></>
 
   // <MoviesList items={movies} handleShowTrailer={action('show-trailer')} />;
-};
+}
 MobileList.parameters = {
   viewport: {
     viewports: INITIAL_VIEWPORTS,
-    defaultViewport: 'galaxys9',
+    defaultViewport: "galaxys9",
   },
-};
+}

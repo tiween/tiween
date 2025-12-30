@@ -1,2 +1,3 @@
-import MediumAttributes from './MediumAttributes';
-export default MediumAttributes;
+import MediumAttributes from "./MediumAttributes"
+
+export default MediumAttributes

@@ -1,13 +1,17 @@
-import React from 'react';
+import React from "react"
+import RatingStar from "@heroicons/react/solid/StarIcon"
 
-import RatingStar from '@heroicons/react/solid/StarIcon';
 interface IRatingProps {
-  vote: number;
-  movieId: string | number;
-  credits: boolean;
+  vote: number
+  movieId: string | number
+  credits: boolean
 }
 
-const Rating: React.FunctionComponent<IRatingProps> = ({ vote, movieId, credits }) => {
+const Rating: React.FunctionComponent<IRatingProps> = ({
+  vote,
+  movieId,
+  credits,
+}) => {
   return (
     <div className="flex flex-col mb-5 md:items-start items-center">
       <div className="flex items-center space-x-1">
@@ -20,7 +24,11 @@ const Rating: React.FunctionComponent<IRatingProps> = ({ vote, movieId, credits 
 
       {credits ? (
         <div className="text-xs">
-          <a href={`https://www.themoviedb.org/movie/${movieId}`} target="_blank" rel="noreferrer">
+          <a
+            href={`https://www.themoviedb.org/movie/${movieId}`}
+            target="_blank"
+            rel="noreferrer"
+          >
             note fourni par themoviedb.org
           </a>
         </div>
@@ -28,7 +36,7 @@ const Rating: React.FunctionComponent<IRatingProps> = ({ vote, movieId, credits 
         <></>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default Rating;
+export default Rating

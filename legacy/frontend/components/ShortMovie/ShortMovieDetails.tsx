@@ -1,14 +1,26 @@
-import React from 'react';
-import ShortMovie from '../../shared/models/short-movie';
-import MovieTitle from '../Movie/MovieTitle';
-import ReactPlayer from 'react-player';
-import ShareIcon from '@heroicons/react/solid/ShareIcon';
+import React from "react"
+import ShareIcon from "@heroicons/react/solid/ShareIcon"
+import ReactPlayer from "react-player"
+
+import ShortMovie from "../../shared/models/short-movie"
+import MovieTitle from "../Movie/MovieTitle"
+
 interface IShortMovieMetaProps {
-  movie: ShortMovie;
+  movie: ShortMovie
 }
 
-const ShortMovieMeta: React.FunctionComponent<IShortMovieMetaProps> = ({ movie }) => {
-  const { title, originalTitle, synopsis, duration, languages, countries, fullVideo } = movie;
+const ShortMovieMeta: React.FunctionComponent<IShortMovieMetaProps> = ({
+  movie,
+}) => {
+  const {
+    title,
+    originalTitle,
+    synopsis,
+    duration,
+    languages,
+    countries,
+    fullVideo,
+  } = movie
   return (
     <div className="short-movie-details text-white font-lato">
       {/* image goes here */}
@@ -64,7 +76,7 @@ const ShortMovieMeta: React.FunctionComponent<IShortMovieMetaProps> = ({ movie }
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default ShortMovieMeta;
+export default ShortMovieMeta

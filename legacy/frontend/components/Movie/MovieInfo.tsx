@@ -1,10 +1,11 @@
 /* eslint-disable react/no-array-index-key */
-import React from 'react';
-import { TMDBMovie } from '../../shared/models/tmdb-movie';
+import React from "react"
+
+import { TMDBMovie } from "../../shared/models/tmdb-movie"
 
 type MovieInfoProps = {
-  movie: TMDBMovie;
-};
+  movie: TMDBMovie
+}
 const MovieInfo: React.FC<MovieInfoProps> = ({ movie }) => (
   <div className="text-shadow-base">
     {movie.overview ? (
@@ -16,6 +17,6 @@ const MovieInfo: React.FC<MovieInfoProps> = ({ movie }) => (
       <></>
     )}
   </div>
-);
+)
 
-export default MovieInfo;
+export default MovieInfo

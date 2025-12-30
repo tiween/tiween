@@ -1,5 +1,6 @@
-import React from 'react';
-import PhotographIcon from '@heroicons/react/solid/PhotographIcon';
+import React from "react"
+import PhotographIcon from "@heroicons/react/solid/PhotographIcon"
+
 const ShortMovieSuggestionItemSkeleton: React.FunctionComponent = () => {
   return (
     <div className="flex justify-start items-start">
@@ -14,7 +15,7 @@ const ShortMovieSuggestionItemSkeleton: React.FunctionComponent = () => {
         <div className="w-full bg-gray-500 h-2 rounded-sm " />
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default ShortMovieSuggestionItemSkeleton;
+export default ShortMovieSuggestionItemSkeleton

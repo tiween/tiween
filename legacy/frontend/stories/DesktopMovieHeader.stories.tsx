@@ -1,12 +1,14 @@
-import { Meta, Story } from '@storybook/react/types-6-0';
-import sample from 'lodash/sample';
-import React from 'react';
-import DesktopMovieHeader from '../components/Movie/DesktopMovieHeader';
-import { MovieProvider } from '../shared/context/movie.context';
-import { movies } from './data';
-const movie = sample(movies);
+import React from "react"
+import { Meta, Story } from "@storybook/react/types-6-0"
+import sample from "lodash/sample"
+
+import DesktopMovieHeader from "../components/Movie/DesktopMovieHeader"
+import { MovieProvider } from "../shared/context/movie.context"
+import { movies } from "./data"
+
+const movie = sample(movies)
 export default {
-  title: 'Movie/MovieHeader/Desktop',
+  title: "Movie/MovieHeader/Desktop",
   component: DesktopMovieHeader,
   // decorators: [
   //   (Story) => (
@@ -17,12 +19,12 @@ export default {
   //     // </MovieProvider>
   //   ),
   // ],
-} as Meta;
+} as Meta
 
-export const Desktop: Story = () => <DesktopMovieHeader />;
+export const Desktop: Story = () => <DesktopMovieHeader />
 
 Desktop.parameters = {
   viewport: {
-    defaultViewport: 'desktop',
+    defaultViewport: "desktop",
   },
-};
+}

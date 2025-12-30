@@ -1,22 +1,22 @@
-import * as React from 'react';
+import * as React from "react"
+import Image from "next/image"
+import { DateTime } from "luxon"
 
-import { DateTime } from 'luxon';
-import Image from 'next/image';
-import MovieCredits from './MovieCredits';
-import MovieInfo from './MovieInfo';
-import MovieNavigationBar from './MovieNavigation/MovieNavigationBar';
-import MovieTagsList from './MovieTagsList';
+import { useMovie } from "../../shared/context/movie.context"
+import { tmdbPosterImageLoader } from "../../shared/services/cdn"
+import { runtimeToHuman } from "../../shared/services/utils"
+import MovieCredits from "./MovieCredits"
+import MovieInfo from "./MovieInfo"
+import MovieNavigationBar from "./MovieNavigation/MovieNavigationBar"
+import MovieTagsList from "./MovieTagsList"
 // import MovieTagsList from './MovieTagsList';
-import MovieTitle from './MovieTitle';
-import Rating from './Rating';
-import { runtimeToHuman } from '../../shared/services/utils';
-import { tmdbPosterImageLoader } from '../../shared/services/cdn';
-import { useMovie } from '../../shared/context/movie.context';
+import MovieTitle from "./MovieTitle"
+import Rating from "./Rating"
 
 const DesktopMovieHeader: React.FunctionComponent = () => {
-  const moviemeta = useMovie();
+  const moviemeta = useMovie()
 
-  const { remote: movie } = moviemeta;
+  const { remote: movie } = moviemeta
   return (
     <div className="movie-desktop-header pt-20">
       <div className="flex flex-col">
@@ -26,7 +26,10 @@ const DesktopMovieHeader: React.FunctionComponent = () => {
               className="text-6xl font-lato font-bold mb-5 drop-shadow-sm"
               data-test="desktop-movie-title"
             >
-              <MovieTitle title={movie.title} originalTitle={movie.original_title} />
+              <MovieTitle
+                title={movie.title}
+                originalTitle={movie.original_title}
+              />
             </h1>
 
             <div className="flex flex-col mb-5 text-shadow-base">
@@ -36,14 +39,17 @@ const DesktopMovieHeader: React.FunctionComponent = () => {
                 <></>
               )}
               <div className="flex mb-2 text-sm font-lato space-x-3 text-shadow-base">
-                {movie.runtime ? <div className=" ">{runtimeToHuman(movie.runtime)}</div> : <></>}
+                {movie.runtime ? (
+                  <div className=" ">{runtimeToHuman(movie.runtime)}</div>
+                ) : (
+                  <></>
+                )}
                 {movie.release_date ? (
                   <div>
                     sortie le&nbsp;
-                    <span className="capitalize">{`${DateTime.fromISO(movie.release_date).toFormat(
-                      'dd MMMM yyyy',
-                      { locale: 'fr' },
-                    )}`}</span>
+                    <span className="capitalize">{`${DateTime.fromISO(
+                      movie.release_date
+                    ).toFormat("dd MMMM yyyy", { locale: "fr" })}`}</span>
                   </div>
                 ) : (
                   <></>
@@ -72,7 +78,7 @@ const DesktopMovieHeader: React.FunctionComponent = () => {
         <MovieNavigationBar />
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default DesktopMovieHeader;
+export default DesktopMovieHeader

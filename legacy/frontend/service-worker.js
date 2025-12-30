@@ -1,21 +1,26 @@
-import { clientsClaim, skipWaiting } from 'workbox-core';
-import { ExpirationPlugin } from 'workbox-expiration';
-import { cleanupOutdatedCaches, precacheAndRoute } from 'workbox-precaching';
-import { registerRoute } from 'workbox-routing';
-import { CacheFirst, NetworkFirst, NetworkOnly, StaleWhileRevalidate } from 'workbox-strategies';
+import { clientsClaim, skipWaiting } from "workbox-core"
+import { ExpirationPlugin } from "workbox-expiration"
+import { cleanupOutdatedCaches, precacheAndRoute } from "workbox-precaching"
+import { registerRoute } from "workbox-routing"
+import {
+  CacheFirst,
+  NetworkFirst,
+  NetworkOnly,
+  StaleWhileRevalidate,
+} from "workbox-strategies"
 
-skipWaiting();
-clientsClaim();
+skipWaiting()
+clientsClaim()
 
-const WB_MANIFEST = self.__WB_MANIFEST;
-precacheAndRoute(WB_MANIFEST);
+const WB_MANIFEST = self.__WB_MANIFEST
+precacheAndRoute(WB_MANIFEST)
 
-cleanupOutdatedCaches();
+cleanupOutdatedCaches()
 
 registerRoute(
-  '/',
+  "/",
   new NetworkFirst({
-    cacheName: 'start-url',
+    cacheName: "start-url",
     plugins: [
       new ExpirationPlugin({
         maxEntries: 1,
@@ -24,12 +29,12 @@ registerRoute(
       }),
     ],
   }),
-  'GET'
-);
+  "GET"
+)
 registerRoute(
   /^https:\/\/fonts\.(?:googleapis|gstatic)\.com\/.*/i,
   new CacheFirst({
-    cacheName: 'google-fonts',
+    cacheName: "google-fonts",
     plugins: [
       new ExpirationPlugin({
         maxEntries: 4,
@@ -38,13 +43,13 @@ registerRoute(
       }),
     ],
   }),
-  'GET'
-);
+  "GET"
+)
 // disable image cache, so we could observe the placeholder image when offline
 registerRoute(
   /\.(?:jpg|jpeg|gif|png|svg|ico|webp)$/i,
   new NetworkOnly({
-    cacheName: 'static-image-assets',
+    cacheName: "static-image-assets",
     plugins: [
       new ExpirationPlugin({
         maxEntries: 64,
@@ -53,13 +58,13 @@ registerRoute(
       }),
     ],
   }),
-  'GET'
-);
+  "GET"
+)
 
 registerRoute(
   /\.(?:js)$/i,
   new StaleWhileRevalidate({
-    cacheName: 'static-js-assets',
+    cacheName: "static-js-assets",
     plugins: [
       new ExpirationPlugin({
         maxEntries: 32,
@@ -68,13 +73,13 @@ registerRoute(
       }),
     ],
   }),
-  'GET'
-);
+  "GET"
+)
 
 registerRoute(
   /\.(?:css|less)$/i,
   new StaleWhileRevalidate({
-    cacheName: 'static-style-assets',
+    cacheName: "static-style-assets",
     plugins: [
       new ExpirationPlugin({
         maxEntries: 32,
@@ -83,13 +88,13 @@ registerRoute(
       }),
     ],
   }),
-  'GET'
-);
+  "GET"
+)
 
 registerRoute(
   /\/api\/.*$/i,
   new NetworkFirst({
-    cacheName: 'apis',
+    cacheName: "apis",
     networkTimeoutSeconds: 10,
     plugins: [
       new ExpirationPlugin({
@@ -99,13 +104,13 @@ registerRoute(
       }),
     ],
   }),
-  'GET'
-);
+  "GET"
+)
 
 registerRoute(
   /.*/i,
   new NetworkFirst({
-    cacheName: 'others',
+    cacheName: "others",
     networkTimeoutSeconds: 10,
     plugins: [
       new ExpirationPlugin({
@@ -115,5 +120,5 @@ registerRoute(
       }),
     ],
   }),
-  'GET'
-);
+  "GET"
+)

@@ -1,12 +1,15 @@
-import * as React from 'react';
-import RatingSelectorWrapper from './RatingSelectorWrapper';
+import * as React from "react"
+
+import RatingSelectorWrapper from "./RatingSelectorWrapper"
 
 interface IRatingSelectorProps {
-  base?: number;
+  base?: number
 }
 
-const RatingSelector: React.FunctionComponent<IRatingSelectorProps> = ({ base = 5 }) => {
-  return <RatingSelectorWrapper base={base} />;
-};
+const RatingSelector: React.FunctionComponent<IRatingSelectorProps> = ({
+  base = 5,
+}) => {
+  return <RatingSelectorWrapper base={base} />
+}
 
-export default RatingSelector;
+export default RatingSelector

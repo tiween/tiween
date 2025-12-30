@@ -1,29 +1,34 @@
-import dynamic from 'next/dynamic';
-import * as React from 'react';
-import Event from '../../shared/models/event';
-import MediumMeta from '../Medium/MediumMeta';
-import MediumName from '../Medium/MediumName';
-import Time from './Time';
-import Link from 'next/link';
-const SingleWork = dynamic(() => import('./SingleWork'));
-const MultipleWorks = dynamic(() => import('./MultipleWorks'));
+import * as React from "react"
+import dynamic from "next/dynamic"
+import Link from "next/link"
+
+import Event from "../../shared/models/event"
+import MediumMeta from "../Medium/MediumMeta"
+import MediumName from "../Medium/MediumName"
+import Time from "./Time"
+
+const SingleWork = dynamic(() => import("./SingleWork"))
+const MultipleWorks = dynamic(() => import("./MultipleWorks"))
 interface IEventBlockProps {
-  event: Event;
-  rightBlock?: React.ReactNode;
+  event: Event
+  rightBlock?: React.ReactNode
 }
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 const getEventWrapper = (showtimesLength: number) => {
-  let Wrapper;
+  let Wrapper
   if (showtimesLength === 1) {
-    Wrapper = SingleWork;
+    Wrapper = SingleWork
   } else if (showtimesLength > 1) {
-    Wrapper = MultipleWorks;
+    Wrapper = MultipleWorks
   }
-  return Wrapper;
-};
+  return Wrapper
+}
 
-const EventBlock: React.FunctionComponent<IEventBlockProps> = ({ event, rightBlock }) => {
-  const Wrapper = getEventWrapper(event?.showtimes?.length);
+const EventBlock: React.FunctionComponent<IEventBlockProps> = ({
+  event,
+  rightBlock,
+}) => {
+  const Wrapper = getEventWrapper(event?.showtimes?.length)
 
   return (
     <div className="rounded text-selago">
@@ -36,7 +41,10 @@ const EventBlock: React.FunctionComponent<IEventBlockProps> = ({ event, rightBlo
             <div className="md:text-lg text-base">
               <Link href={`/medium/${event?.medium?.slug}`} passHref>
                 <a>
-                  <MediumName name={event?.medium.name} type={event.medium.type} />
+                  <MediumName
+                    name={event?.medium.name}
+                    type={event.medium.type}
+                  />
                   <MediumMeta medium={event?.medium} />
                 </a>
               </Link>
@@ -45,7 +53,7 @@ const EventBlock: React.FunctionComponent<IEventBlockProps> = ({ event, rightBlo
         </Wrapper>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default EventBlock;
+export default EventBlock

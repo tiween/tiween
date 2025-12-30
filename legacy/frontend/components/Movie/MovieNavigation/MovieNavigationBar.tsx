@@ -1,29 +1,30 @@
-import MovieMobileMenuOpenIcon from '@heroicons/react/solid/DotsHorizontalIcon';
-import HomeIcon from '@heroicons/react/solid/HomeIcon';
-import MovieMobileMenuCloseIcon from '@heroicons/react/solid/XIcon';
-import classNames from 'classnames';
-import Link from 'next/link';
-import { useRouter } from 'next/router';
-import React, { useState } from 'react';
-import { useMovie } from '../../../shared/context/movie.context';
-import { slugify } from '../../../shared/services/utils';
-import MovieNavigationItem from './MovieNavigationItem';
-import ReviewIcon from '@heroicons/react/solid/AnnotationIcon';
-import { signIn, useSession } from 'next-auth/react';
-import ReviewModal from '../../Reviews/ReviewModal';
-import { useReview } from '../../../shared/context/UserReviewContext';
-import RatingSelector from '../../Rating/SignedInRatingSelector';
+import React, { useState } from "react"
+import Link from "next/link"
+import { useRouter } from "next/router"
+import ReviewIcon from "@heroicons/react/solid/AnnotationIcon"
+import MovieMobileMenuOpenIcon from "@heroicons/react/solid/DotsHorizontalIcon"
+import HomeIcon from "@heroicons/react/solid/HomeIcon"
+import MovieMobileMenuCloseIcon from "@heroicons/react/solid/XIcon"
+import classNames from "classnames"
+import { signIn, useSession } from "next-auth/react"
+
+import { useMovie } from "../../../shared/context/movie.context"
+import { useReview } from "../../../shared/context/UserReviewContext"
+import { slugify } from "../../../shared/services/utils"
+import RatingSelector from "../../Rating/SignedInRatingSelector"
+import ReviewModal from "../../Reviews/ReviewModal"
+import MovieNavigationItem from "./MovieNavigationItem"
 
 const MovieNavigationBar: React.FunctionComponent = () => {
-  const [showMobileMovieMenu, setShowMobileMovieMenu] = useState(false);
+  const [showMobileMovieMenu, setShowMobileMovieMenu] = useState(false)
 
   const {
     remote: { title, id },
-  } = useMovie();
-  const router = useRouter();
-  const { status } = useSession();
+  } = useMovie()
+  const router = useRouter()
+  const { status } = useSession()
 
-  const { setShowReviewModal } = useReview();
+  const { setShowReviewModal } = useReview()
 
   return (
     <>
@@ -33,11 +34,11 @@ const MovieNavigationBar: React.FunctionComponent = () => {
             <Link href={`/film/${slugify(title)}/${id}`} passHref>
               <a>
                 <HomeIcon className="w-5 h-5 " />
-                {router.pathname === '/film/[slug]/[tmdbid]' && (
+                {router.pathname === "/film/[slug]/[tmdbid]" && (
                   <span
                     aria-hidden="true"
                     className={classNames(
-                      'bg-wild-strawberry-dark absolute inset-x-0 bottom-0 h-1',
+                      "bg-wild-strawberry-dark absolute inset-x-0 bottom-0 h-1"
                     )}
                   />
                 )}
@@ -49,11 +50,11 @@ const MovieNavigationBar: React.FunctionComponent = () => {
             <Link href={`/film/${slugify(title)}/${id}/la-critiq`} passHref>
               <a>
                 <span>La Critiq&apos;</span>
-                {router.pathname === '/film/[slug]/[tmdbid]/la-critiq' && (
+                {router.pathname === "/film/[slug]/[tmdbid]/la-critiq" && (
                   <span
                     aria-hidden="true"
                     className={classNames(
-                      'bg-wild-strawberry-dark absolute inset-x-0 bottom-0 h-1',
+                      "bg-wild-strawberry-dark absolute inset-x-0 bottom-0 h-1"
                     )}
                   />
                 )}
@@ -61,14 +62,18 @@ const MovieNavigationBar: React.FunctionComponent = () => {
             </Link>
           </MovieNavigationItem>
           <MovieNavigationItem>
-            <Link href={`/film/${slugify(title)}/${id}/avis-spectateurs`} passHref>
+            <Link
+              href={`/film/${slugify(title)}/${id}/avis-spectateurs`}
+              passHref
+            >
               <a>
                 <span>Avis des Spectateurs</span>
-                {router.pathname === '/film/[slug]/[tmdbid]/avis-spectateurs' && (
+                {router.pathname ===
+                  "/film/[slug]/[tmdbid]/avis-spectateurs" && (
                   <span
                     aria-hidden="true"
                     className={classNames(
-                      'bg-wild-strawberry-dark absolute inset-x-0 bottom-0 h-1',
+                      "bg-wild-strawberry-dark absolute inset-x-0 bottom-0 h-1"
                     )}
                   />
                 )}
@@ -77,13 +82,13 @@ const MovieNavigationBar: React.FunctionComponent = () => {
           </MovieNavigationItem>
 
           <MovieNavigationItem
-            className={classNames('flex-none md:hidden block ml-auto', {
-              'bg-bastille-light': showMobileMovieMenu,
+            className={classNames("flex-none md:hidden block ml-auto", {
+              "bg-bastille-light": showMobileMovieMenu,
             })}
           >
             <button
               onClick={() => {
-                setShowMobileMovieMenu(!showMobileMovieMenu);
+                setShowMobileMovieMenu(!showMobileMovieMenu)
               }}
             >
               {!showMobileMovieMenu ? (
@@ -99,21 +104,21 @@ const MovieNavigationBar: React.FunctionComponent = () => {
           </MovieNavigationItem>
           <MovieNavigationItem
             className={classNames(
-              'flex-none hidden md:block  hover:bg-bastille-400 cursor-pointer !px-0 !py-0',
+              "flex-none hidden md:block  hover:bg-bastille-400 cursor-pointer !px-0 !py-0",
               {
-                'bg-bastille-500': showMobileMovieMenu,
-              },
+                "bg-bastille-500": showMobileMovieMenu,
+              }
             )}
           >
             <button
               type="button"
               className="flex items-center space-x-1 font-semibold justify-center focus:outline-none focus:ring-non w-full h-full"
               onClick={(e) => {
-                e.preventDefault();
-                if (status === 'unauthenticated') {
-                  signIn();
-                } else if (status === 'authenticated' && setShowReviewModal) {
-                  setShowReviewModal(true);
+                e.preventDefault()
+                if (status === "unauthenticated") {
+                  signIn()
+                } else if (status === "authenticated" && setShowReviewModal) {
+                  setShowReviewModal(true)
                 }
               }}
             >
@@ -145,11 +150,11 @@ const MovieNavigationBar: React.FunctionComponent = () => {
       </div>
       <ReviewModal
         handleClose={() => {
-          setShowReviewModal(false);
+          setShowReviewModal(false)
         }}
       />
     </>
-  );
-};
+  )
+}
 
-export default MovieNavigationBar;
+export default MovieNavigationBar

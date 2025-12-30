@@ -1,56 +1,65 @@
-import * as React from 'react';
+import * as React from "react"
+import { GetStaticPaths, GetStaticProps } from "next"
+import dynamic from "next/dynamic"
+import Head from "next/head"
+import Image from "next/image"
+import get from "lodash/get"
 
-import { GetStaticPaths, GetStaticProps } from 'next';
-
-import BaseContent from '../../shared/models/BaseContent';
-import DateSpan from '../../components/Festival/DateSpan';
-import EventGroup from '../../shared/models/event-group';
-import EventGroupCalendar from '../../components/Event/EventGroupCalendar';
+import EventGroupCalendar from "../../components/Event/EventGroupCalendar"
+import DateSpan from "../../components/Festival/DateSpan"
+import Layout from "../../components/shared/Layout"
+import PageStickyBar from "../../components/shared/PageStickyBar"
 // import EventGroupHeader from '../../components/EventGroup/EventGroupHeader';
-import { EventGroupProvider } from '../../shared/context/EventGroupContext';
-import Head from 'next/head';
-import Image from 'next/image';
-import Layout from '../../components/shared/Layout';
-import PageStickyBar from '../../components/shared/PageStickyBar';
-import StrapiApiResponse from '../../shared/models/strapi-api-response';
-import dynamic from 'next/dynamic';
-import get from 'lodash/get';
-import { posterImageLoader } from '../../shared/services/cdn';
-import { request } from '../../shared/services/strapi';
+import { EventGroupProvider } from "../../shared/context/EventGroupContext"
+import BaseContent from "../../shared/models/BaseContent"
+import EventGroup from "../../shared/models/event-group"
+import StrapiApiResponse from "../../shared/models/strapi-api-response"
+import { posterImageLoader } from "../../shared/services/cdn"
+import { request } from "../../shared/services/strapi"
 
-const SectionMovies = dynamic(() => import('../../components/shared/SectionMovies'));
+const SectionMovies = dynamic(
+  () => import("../../components/shared/SectionMovies")
+)
 export const getStaticPaths: GetStaticPaths = async () => {
   // Call an external API endpoint to get posts
   const {
     data: { data: results },
-  } = await request<StrapiApiResponse<EventGroup>>('/event-groups?_limit=-1');
+  } = await request<StrapiApiResponse<EventGroup>>("/event-groups?_limit=-1")
 
   const paths = results.map(({ attributes: { slug } }) => ({
     params: {
       slug: slug,
     },
-  }));
-  return { paths, fallback: false };
-};
+  }))
+  return { paths, fallback: false }
+}
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
   const {
     data: { data: results },
   } = await request<StrapiApiResponse<EventGroup>>(
-    `/event-groups?filters[slug][$eq]=${params.slug}&populate[]=poster`,
-  );
-  return { props: { eventGroup: results[0] } };
-};
-const EventGroupPage = ({ eventGroup }: { eventGroup: BaseContent<EventGroup> }) => {
+    `/event-groups?filters[slug][$eq]=${params.slug}&populate[]=poster`
+  )
+  return { props: { eventGroup: results[0] } }
+}
+const EventGroupPage = ({
+  eventGroup,
+}: {
+  eventGroup: BaseContent<EventGroup>
+}) => {
   const {
     attributes: { sections, poster, title, subtitle, startDate, endDate },
-  } = eventGroup;
-  const homePageDisplayImage = get(eventGroup, ['homepage_display', 'image'], null);
-  let openGraphImage = get(poster, ['data', 0, 'attributes', 'url'], null);
+  } = eventGroup
+  const homePageDisplayImage = get(
+    eventGroup,
+    ["homepage_display", "image"],
+    null
+  )
+  let openGraphImage = get(poster, ["data", 0, "attributes", "url"], null)
   if (homePageDisplayImage) {
-    openGraphImage = homePageDisplayImage.url;
+    openGraphImage = homePageDisplayImage.url
   }
-  console.log('---->', poster.data[0].attributes.hash);
+  console.log("---->", poster.data[0].attributes.hash)
 
   return (
     <EventGroupProvider value={eventGroup}>
@@ -62,7 +71,11 @@ const EventGroupPage = ({ eventGroup }: { eventGroup: BaseContent<EventGroup> })
             name="description"
             content={`Toutes les informations pratiques sur ${title} ${subtitle}`}
           />
-          <meta key="og-title" name="og:title" content={`${title}, ${subtitle}`} />
+          <meta
+            key="og-title"
+            name="og:title"
+            content={`${title}, ${subtitle}`}
+          />
           <meta key="og-image" name="og:image" content={`${openGraphImage}`} />
           <meta
             key="og-description"
@@ -104,14 +117,14 @@ const EventGroupPage = ({ eventGroup }: { eventGroup: BaseContent<EventGroup> })
           {sections?.length > 0 &&
             sections.map((section) => {
               switch (section.__component) {
-                case 'section.movies':
-                  return <SectionMovies key={section.id} section={section} />;
+                case "section.movies":
+                  return <SectionMovies key={section.id} section={section} />
               }
             })}
         </div>
       </Layout>
     </EventGroupProvider>
-  );
-};
+  )
+}
 
-export default EventGroupPage;
+export default EventGroupPage

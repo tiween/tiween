@@ -1,36 +1,35 @@
-import React, { useState } from 'react';
+import React, { useState } from "react"
+import { request } from "@strapi/helper-plugin"
+import PropTypes from "prop-types"
+import qs from "qs"
+import AsyncSelect from "react-select/async"
 
-import AsyncSelect from 'react-select/async';
-import PropTypes from 'prop-types';
-import { StyledToolBarSelector } from './styles';
-import qs from 'qs';
-import {
-  request
-} from '@strapi/helper-plugin';
-import { useEventContext } from '../contexts/EventsCalendarContext';
+import { useEventContext } from "../contexts/EventsCalendarContext"
+import { StyledToolBarSelector } from "./styles"
 
 const loadOptions = async (inputValue) => {
-  const query = qs.stringify({
-    filters: {
-      name: {
-        $containsi: inputValue, // $containsi	Contains (case-insensitive)
+  const query = qs.stringify(
+    {
+      filters: {
+        name: {
+          $containsi: inputValue, // $containsi	Contains (case-insensitive)
+        },
       },
     },
-  }, {
-    encodeValuesOnly: true,
-  });
+    {
+      encodeValuesOnly: true,
+    }
+  )
 
-
-  const options = await request(`/events-manager/mediums/autocomplete?${query}`);
-  return options;
-
-};
+  const options = await request(`/events-manager/mediums/autocomplete?${query}`)
+  return options
+}
 const MediumSelector = ({ onSelectMedium }) => {
   const eventContext = useEventContext()
-  const [, setInputValue] = useState(null);
+  const [, setInputValue] = useState(null)
   const handleInputChange = (newValue) => {
-    setInputValue(newValue.replace(/\W/g, ''));
-  };
+    setInputValue(newValue.replace(/\W/g, ""))
+  }
 
   return (
     <StyledToolBarSelector>
@@ -42,18 +41,16 @@ const MediumSelector = ({ onSelectMedium }) => {
         placeholder="Salle, Chaine, Emission..."
         loadOptions={loadOptions}
         onChange={(selectedOption) => {
-          onSelectMedium(selectedOption);
+          onSelectMedium(selectedOption)
         }}
         value={eventContext.medium}
         onInputChange={handleInputChange}
-      >
-      </AsyncSelect>
+      ></AsyncSelect>
     </StyledToolBarSelector>
-
-  );
-};
+  )
+}
 MediumSelector.propTypes = {
-  onSelectMedium: PropTypes.func.isRequired
-};
+  onSelectMedium: PropTypes.func.isRequired,
+}
 
-export default React.memo(MediumSelector);
+export default React.memo(MediumSelector)

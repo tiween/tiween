@@ -1,65 +1,65 @@
-import React, { useReducer } from 'react';
-import { getCsrfToken, getProviders, getSession, signIn } from 'next-auth/react';
-
-import AuthPagesContainer from '../../components/Auth/AuthPagesContainer';
-import Layout from '../../components/shared/Layout';
-import { NextPage } from 'next';
-import SigninSignupForm from '../../components/Auth/SigninSignupForm';
+import React, { useReducer } from "react"
+import { NextPage } from "next"
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import axios from 'axios';
-import get from 'lodash/get';
-import isEmpty from 'lodash/isEmpty';
+import axios from "axios"
+import get from "lodash/get"
+import isEmpty from "lodash/isEmpty"
+import { getCsrfToken, getProviders, getSession, signIn } from "next-auth/react"
+
+import AuthPagesContainer from "../../components/Auth/AuthPagesContainer"
+import SigninSignupForm from "../../components/Auth/SigninSignupForm"
+import Layout from "../../components/shared/Layout"
 
 const reducer = (state, action): any => {
   switch (action.type) {
-    case 'success':
+    case "success":
       return {
-        step: 'success',
+        step: "success",
         payload: action.payload,
-      };
-      break;
-    case 'error':
+      }
+      break
+    case "error":
       return {
-        step: 'error',
+        step: "error",
         payload: action.payload,
-      };
-      break;
+      }
+      break
     default:
       return {
-        step: 'initial',
-      };
+        step: "initial",
+      }
   }
-};
+}
 const SignupPage: NextPage = () => {
-  const [state, dispatch] = useReducer(reducer, { step: 'initial' });
+  const [state, dispatch] = useReducer(reducer, { step: "initial" })
 
   const registerNewUser = (values: any): any => {
     return axios
       .post(`${process.env.NEXT_PUBLIC_BASE_URL}/auth/register`, values)
       .then(() => {
-        dispatch({ type: 'success', payload: values });
+        dispatch({ type: "success", payload: values })
       })
       .catch((error) => {
         dispatch({
-          type: 'error',
-          payload: get(error, ['response', 'data', 'messages'], []),
-        });
+          type: "error",
+          payload: get(error, ["response", "data", "messages"], []),
+        })
       })
       .finally(() => {
-        console.log('finally');
-      });
-  };
+        console.log("finally")
+      })
+  }
 
   return (
     <Layout>
-      {state.step === 'success' ? (
+      {state.step === "success" ? (
         <AuthPagesContainer
           title="Inscription réussie"
           subtitle={`un email a été envoyé à: ${state.payload.email}`}
         >
           <p className="leading-5 font-lato">
-            Veuillez vous rendre dans votre boite mail et suivre les instructions pour confirmer
-            votre inscription{' '}
+            Veuillez vous rendre dans votre boite mail et suivre les
+            instructions pour confirmer votre inscription{" "}
           </p>
         </AuthPagesContainer>
       ) : (
@@ -76,8 +76,8 @@ const SignupPage: NextPage = () => {
                   type="button"
                   className="underline hover:text-wild-strawberry-dark"
                   onClick={(e) => {
-                    e.preventDefault();
-                    signIn();
+                    e.preventDefault()
+                    signIn()
                   }}
                 >
                   Connectez-vous
@@ -88,25 +88,25 @@ const SignupPage: NextPage = () => {
         </AuthPagesContainer>
       )}
     </Layout>
-  );
-};
+  )
+}
 
 SignupPage.getInitialProps = async (context) => {
-  const { res, req } = context;
-  const session = await getSession({ req });
+  const { res, req } = context
+  const session = await getSession({ req })
 
-  const user = get(session, ['user'], null);
+  const user = get(session, ["user"], null)
 
   if (!isEmpty(user)) {
-    res.writeHead(302, { Location: '/' });
-    res.end();
-    return;
+    res.writeHead(302, { Location: "/" })
+    res.end()
+    return
   }
   return {
     session: undefined,
     providers: await getProviders(),
     csrfToken: await getCsrfToken(),
-  };
-};
+  }
+}
 
-export default SignupPage;
+export default SignupPage

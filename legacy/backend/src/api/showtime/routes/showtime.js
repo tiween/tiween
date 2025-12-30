@@ -1,9 +1,9 @@
-'use strict';
+"use strict"
 
 /**
  * showtime router.
  */
 
-const { createCoreRouter } = require('@strapi/strapi').factories;
+const { createCoreRouter } = require("@strapi/strapi").factories
 
-module.exports = createCoreRouter('api::showtime.showtime');
+module.exports = createCoreRouter("api::showtime.showtime")

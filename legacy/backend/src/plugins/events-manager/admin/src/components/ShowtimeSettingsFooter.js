@@ -1,11 +1,13 @@
-import { Button } from '@strapi/design-system/Button';
-import React from 'react';
-import { FormattedMessage } from 'react-intl';
-import PropTypes from 'prop-types';
-import { Box } from '@strapi/design-system/Box';
-import { FormButtons } from './styles';
-import { Typography } from '@strapi/design-system/Typography';
-import pluginId from '../pluginId';
+import React from "react"
+import { Box } from "@strapi/design-system/Box"
+import { Button } from "@strapi/design-system/Button"
+import { Typography } from "@strapi/design-system/Typography"
+import PropTypes from "prop-types"
+import { FormattedMessage } from "react-intl"
+
+import pluginId from "../pluginId"
+import { FormButtons } from "./styles"
+
 const ShowtimeSettingsFooter = ({ onClosed }) => {
   return (
     <FormButtons>
@@ -16,10 +18,10 @@ const ShowtimeSettingsFooter = ({ onClosed }) => {
         Enregistrer
       </Button>
     </FormButtons>
-  );
-};
+  )
+}
 ShowtimeSettingsFooter.propTypes = {
   onClosed: PropTypes.func.isRequired,
-};
+}
 
-export default ShowtimeSettingsFooter;
+export default ShowtimeSettingsFooter

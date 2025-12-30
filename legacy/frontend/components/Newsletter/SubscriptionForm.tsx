@@ -1,27 +1,27 @@
-import ExclamationCircleIcon from '@heroicons/react/solid/ExclamationCircleIcon';
-import { Formik, FormikHelpers } from 'formik';
-import React from 'react';
-import * as Yup from 'yup';
+import React from "react"
+import ExclamationCircleIcon from "@heroicons/react/solid/ExclamationCircleIcon"
+import { Formik, FormikHelpers } from "formik"
+import * as Yup from "yup"
 
 interface Values {
-  email: string;
+  email: string
 }
 const SubscriptionSchema = Yup.object().shape({
   email: Yup.string()
     .email("Nous avons besoin d'une adresse email valide pour vous écrire")
-    .required('Nous avons besoin de votre email pour vous écrire'),
-});
+    .required("Nous avons besoin de votre email pour vous écrire"),
+})
 
 const SubscriptionForm: React.FunctionComponent = () => {
   return (
     <Formik
-      initialValues={{ email: '' }}
+      initialValues={{ email: "" }}
       validationSchema={SubscriptionSchema}
       onSubmit={(values: Values, { setSubmitting }: FormikHelpers<Values>) => {
         setTimeout(() => {
-          alert(JSON.stringify(values, null, 2));
-          setSubmitting(false);
-        }, 400);
+          alert(JSON.stringify(values, null, 2))
+          setSubmitting(false)
+        }, 400)
       }}
     >
       {({
@@ -54,16 +54,19 @@ const SubscriptionForm: React.FunctionComponent = () => {
               </div>
             </div>
           </div>
-          {errors && errors['email'] && (
+          {errors && errors["email"] && (
             <p className="mt-2 text-sm text-red-600 flex" id="email-error">
-              <ExclamationCircleIcon className="h-5 w-5 text-amaranth mr-2" aria-hidden="true" />
-              {errors['email']}
+              <ExclamationCircleIcon
+                className="h-5 w-5 text-amaranth mr-2"
+                aria-hidden="true"
+              />
+              {errors["email"]}
             </p>
           )}
         </form>
       )}
     </Formik>
-  );
-};
+  )
+}
 
-export default SubscriptionForm;
+export default SubscriptionForm

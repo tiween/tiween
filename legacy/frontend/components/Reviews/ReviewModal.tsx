@@ -1,20 +1,21 @@
-import { Dialog, Transition } from '@headlessui/react';
-import { EditorState, convertFromRaw, convertToRaw } from 'draft-js';
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment, useEffect, useState } from "react"
+import { Dialog, Transition } from "@headlessui/react"
+import axios from "axios"
+import { convertFromRaw, convertToRaw, EditorState } from "draft-js"
+import isEmpty from "lodash/isEmpty"
+import { useSWRConfig } from "swr"
 
-import MovieTitle from '../Movie/MovieTitle';
-import RatingSelector from '../Rating/SignedInRatingSelector';
-import ReviewButtonSpinner from './ReviewButtonSpinner';
-import ReviewEditor from './ReviewEditor';
-import ReviewModel from '../../shared/models/review';
-import axios from 'axios';
-import isEmpty from 'lodash/isEmpty';
-import { useMovie } from '../../shared/context/movie.context';
-import { useSWRConfig } from 'swr';
+import { useMovie } from "../../shared/context/movie.context"
+import ReviewModel from "../../shared/models/review"
+import MovieTitle from "../Movie/MovieTitle"
+import RatingSelector from "../Rating/SignedInRatingSelector"
+import ReviewButtonSpinner from "./ReviewButtonSpinner"
+import ReviewEditor from "./ReviewEditor"
+
 interface IReviewModalProps {
-  show?: boolean;
-  handleClose: (show: boolean) => void;
-  review?: ReviewModel;
+  show?: boolean
+  handleClose: (show: boolean) => void
+  review?: ReviewModel
 }
 
 const ReviewModal: React.FunctionComponent<IReviewModalProps> = ({
@@ -22,23 +23,27 @@ const ReviewModal: React.FunctionComponent<IReviewModalProps> = ({
   handleClose,
   review,
 }) => {
-  const { remote: movie, ...moviemeta } = useMovie();
-  const { title, original_title } = movie;
-  const { id } = moviemeta;
-  const { mutate } = useSWRConfig();
-  const [isSendingReview, setIsSendingReview] = useState(false);
-  const [isDeletingReview, setIsDeletingReview] = useState(false);
+  const { remote: movie, ...moviemeta } = useMovie()
+  const { title, original_title } = movie
+  const { id } = moviemeta
+  const { mutate } = useSWRConfig()
+  const [isSendingReview, setIsSendingReview] = useState(false)
+  const [isDeletingReview, setIsDeletingReview] = useState(false)
   useEffect(() => {
     if (!isEmpty(review)) {
-      setEditorState(EditorState.createWithContent(convertFromRaw(JSON.parse(review.content))));
+      setEditorState(
+        EditorState.createWithContent(
+          convertFromRaw(JSON.parse(review.content))
+        )
+      )
     }
 
     return () => {
-      console.log('clean');
-    };
-  }, [review]);
+      console.log("clean")
+    }
+  }, [review])
 
-  const [editorState, setEditorState] = useState(EditorState.createEmpty());
+  const [editorState, setEditorState] = useState(EditorState.createEmpty())
 
   return (
     <Transition.Root appear show={show} as={Fragment}>
@@ -46,7 +51,7 @@ const ReviewModal: React.FunctionComponent<IReviewModalProps> = ({
         as="div"
         className="fixed inset-0 z-10 overflow-y-auto md:min"
         onClose={() => {
-          handleClose(false);
+          handleClose(false)
         }}
       >
         <Dialog.Overlay className="fixed inset-0 bg-cinder opacity-90 " />
@@ -64,7 +69,10 @@ const ReviewModal: React.FunctionComponent<IReviewModalProps> = ({
           </Transition.Child>
           {/* This element is to trick the browser into centering the modal contents. */}
 
-          <span className="inline-block h-screen align-middle" aria-hidden="true">
+          <span
+            className="inline-block h-screen align-middle"
+            aria-hidden="true"
+          >
             &#8203;
           </span>
           <Transition.Child
@@ -83,7 +91,11 @@ const ReviewModal: React.FunctionComponent<IReviewModalProps> = ({
               >
                 <span>Ma critique de</span>
                 <span>
-                  <MovieTitle originalTitle={original_title} title={title} shadow={false} />
+                  <MovieTitle
+                    originalTitle={original_title}
+                    title={title}
+                    shadow={false}
+                  />
                 </span>
               </Dialog.Title>
               <div className="mt-1 p-6">
@@ -91,39 +103,42 @@ const ReviewModal: React.FunctionComponent<IReviewModalProps> = ({
                   <RatingSelector canReset={false} />
                 </div>
 
-                <ReviewEditor editorState={editorState} handleChange={setEditorState} />
+                <ReviewEditor
+                  editorState={editorState}
+                  handleChange={setEditorState}
+                />
                 <div className="flex justify-end space-x-2 mt-5">
                   {!isEmpty(review) && (
                     <button
                       className="text-xs uppercase bg-cinder text-selago px-3 py-1 rounded"
                       onClick={() => {
-                        setIsDeletingReview(true);
+                        setIsDeletingReview(true)
                         axios
                           .delete(
-                            `${process.env.NEXT_PUBLIC_BASE_URL}/api/user/review/delete/${id}/${review?.id}`,
+                            `${process.env.NEXT_PUBLIC_BASE_URL}/api/user/review/delete/${id}/${review?.id}`
                           )
                           .then(() => {
-                            mutate(`/api/user/review/${id}`);
+                            mutate(`/api/user/review/${id}`)
                           })
                           .catch((error) => {
-                            console.error('delete rview', error);
+                            console.error("delete rview", error)
                           })
                           .finally(() => {
-                            setIsDeletingReview(false);
-                            handleClose(false);
-                          });
+                            setIsDeletingReview(false)
+                            handleClose(false)
+                          })
                       }}
                     >
                       {isDeletingReview && <ReviewButtonSpinner />}
-                      {isDeletingReview ? 'Suppression...' : 'Supprimer'}
+                      {isDeletingReview ? "Suppression..." : "Supprimer"}
                     </button>
                   )}
 
                   <button
                     className=" flex items-center  justify-center text-xs uppercase rounded text-selago bg-wild-strawberry-dark px-3 py-1"
                     onClick={() => {
-                      const contentState = editorState.getCurrentContent();
-                      setIsSendingReview(true);
+                      const contentState = editorState.getCurrentContent()
+                      setIsSendingReview(true)
 
                       axios
                         .post(`/api/movie/reviews`, {
@@ -131,30 +146,34 @@ const ReviewModal: React.FunctionComponent<IReviewModalProps> = ({
                           moviemetaId: id,
                         })
                         .then(() => {
-                          mutate(`${process.env.NEXT_PUBLIC_BASE_URL}/api/user/review/${id}`);
+                          mutate(
+                            `${process.env.NEXT_PUBLIC_BASE_URL}/api/user/review/${id}`
+                          )
                         })
                         .catch((error) => {
-                          console.log('error', error);
+                          console.log("error", error)
                         })
                         .finally(() => {
-                          handleClose(false);
-                          setIsSendingReview(false);
-                        });
+                          handleClose(false)
+                          setIsSendingReview(false)
+                        })
                     }}
                   >
                     {isSendingReview && <ReviewButtonSpinner />}
-                    {isSendingReview ? 'Envoi en cours...' : 'Envoyer'}
+                    {isSendingReview ? "Envoi en cours..." : "Envoyer"}
                   </button>
                 </div>
                 <p className="text-xs text-gray-500 mt-2">
-                  Nous vous rappelons qu&apos;il n&apos;est pas permis de tenir de propos violents,
-                  diffamatoires ou discriminatoires. Si vous dévoilez des secrets, n&apos;oubliez
-                  pas d&apos;utiliser le bouton &apos;spoiler&apos;. Toutes les critiques contraires
-                  à notre charte d&apos;écriture seront retirées. Merci de votre compréhension.
+                  Nous vous rappelons qu&apos;il n&apos;est pas permis de tenir
+                  de propos violents, diffamatoires ou discriminatoires. Si vous
+                  dévoilez des secrets, n&apos;oubliez pas d&apos;utiliser le
+                  bouton &apos;spoiler&apos;. Toutes les critiques contraires à
+                  notre charte d&apos;écriture seront retirées. Merci de votre
+                  compréhension.
                 </p>
                 <p className="text-xs text-gray-500 mt-2">
-                  En cliquant sur le bouton &quot;Envoyer votre critique&quot;, vous acceptez les
-                  conditions d&apos;utilisations de Tiween
+                  En cliquant sur le bouton &quot;Envoyer votre critique&quot;,
+                  vous acceptez les conditions d&apos;utilisations de Tiween
                 </p>
               </div>
             </div>
@@ -162,7 +181,7 @@ const ReviewModal: React.FunctionComponent<IReviewModalProps> = ({
         </div>
       </Dialog>
     </Transition.Root>
-  );
-};
+  )
+}
 
-export default ReviewModal;
+export default ReviewModal

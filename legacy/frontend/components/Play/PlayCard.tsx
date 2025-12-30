@@ -1,36 +1,41 @@
-import * as React from 'react';
+import * as React from "react"
+import Image from "next/image"
+import Link from "next/link"
+import { useRouter } from "next/router"
+import classNames from "classnames"
+import isEmpty from "lodash/isEmpty"
 
-import AlgoliaHit from '../../shared/models/AlgoliaHit';
-import CreativeWork from '../../shared/models/creative-work';
-import Image from 'next/image';
-import Label from '../shared/Label';
-import Link from 'next/link';
-import TheaterIcon from '../shared/icons/Theater';
-import Title from '../Movie/MovieTitle';
-import classNames from 'classnames';
-import { creativeWorkImageWithLoader } from '../../shared/services/cdn';
-import isEmpty from 'lodash/isEmpty';
-import { useRouter } from 'next/router';
+import AlgoliaHit from "../../shared/models/AlgoliaHit"
+import CreativeWork from "../../shared/models/creative-work"
+import { creativeWorkImageWithLoader } from "../../shared/services/cdn"
+import Title from "../Movie/MovieTitle"
+import TheaterIcon from "../shared/icons/Theater"
+import Label from "../shared/Label"
 
 interface PlayCardProps {
-  hit: CreativeWork & AlgoliaHit;
+  hit: CreativeWork & AlgoliaHit
 }
 
 const PlayCard: React.FunctionComponent<PlayCardProps> = ({ hit }) => {
-  const { id, title, slug, originalTitle, releaseYear } = hit;
-  const { locale } = useRouter();
+  const { id, title, slug, originalTitle, releaseYear } = hit
+  const { locale } = useRouter()
 
-  const image = creativeWorkImageWithLoader(hit);
+  const image = creativeWorkImageWithLoader(hit)
   const terms = [
-    { name: 'drame', id: '1' },
-    { name: 'comédie', id: '2' },
-  ];
+    { name: "drame", id: "1" },
+    { name: "comédie", id: "2" },
+  ]
   return (
-    <Link href={`/theatre/${slug}`} passHref key={hit?.objectID || id} locale={locale}>
+    <Link
+      href={`/theatre/${slug}`}
+      passHref
+      key={hit?.objectID || id}
+      locale={locale}
+    >
       <a>
         <div className="bg-bastille p-2 text-white rounded-sm flex justify-start items-start space-x-3">
           <div className="image-wrapper md:w-1/3">
-            {!isEmpty(image) && image?.type === 'poster' && (
+            {!isEmpty(image) && image?.type === "poster" && (
               <div className={classNames(image.ar)}>
                 <Image
                   className="rounded-sm"
@@ -55,22 +60,24 @@ const PlayCard: React.FunctionComponent<PlayCardProps> = ({ hit }) => {
               <span className="text-base font-bold">
                 <Title title={title} originalTitle={originalTitle} />
               </span>
-              {releaseYear && <span className="text-xs font-lato font-normal">{releaseYear}</span>}
+              {releaseYear && (
+                <span className="text-xs font-lato font-normal">
+                  {releaseYear}
+                </span>
+              )}
             </div>
             <div className="italic font-fira text-sm">de Essia Jaïbi</div>
 
             {terms?.length > 0 && (
               <div className="flex space-x-3 mt-9">
-                {terms?.map((term) => (
-                  <Label term={term} key={term.id} />
-                ))}
+                {terms?.map((term) => <Label term={term} key={term.id} />)}
               </div>
             )}
           </div>
         </div>
       </a>
     </Link>
-  );
-};
+  )
+}
 
-export default PlayCard;
+export default PlayCard

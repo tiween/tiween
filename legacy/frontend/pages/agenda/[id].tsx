@@ -1,22 +1,26 @@
-import { GetServerSideProps } from 'next';
-import * as React from 'react';
-import EventBlock from '../../components/Event/EventBlock';
-import Layout from '../../components/shared/Layout';
-import PageTitle from '../../components/shared/PageTitle';
-import Agenda from '../../shared/models/agenda';
-import Head from 'next/head';
-import { request } from '../../shared/services/strapi';
+import * as React from "react"
+import { GetServerSideProps } from "next"
+import Head from "next/head"
+
+import EventBlock from "../../components/Event/EventBlock"
+import Layout from "../../components/shared/Layout"
+import PageTitle from "../../components/shared/PageTitle"
+import Agenda from "../../shared/models/agenda"
+import { request } from "../../shared/services/strapi"
+
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const {
     params: { id },
-  } = context;
+  } = context
 
-  const agenda = await request(`/agenda/${id}`);
+  const agenda = await request(`/agenda/${id}`)
 
-  return { props: { agenda } };
-};
+  return { props: { agenda } }
+}
 
-const AgendaPage: React.FunctionComponent<{ agenda: Agenda }> = ({ agenda }) => {
+const AgendaPage: React.FunctionComponent<{ agenda: Agenda }> = ({
+  agenda,
+}) => {
   return (
     <Layout>
       <Head>
@@ -38,12 +42,12 @@ const AgendaPage: React.FunctionComponent<{ agenda: Agenda }> = ({ agenda }) => 
         <div>
           {agenda.events.map((event) => {
             // return <div key={`${item.id}-${event.id}`}>{event.id}</div>;
-            return <EventBlock key={`${agenda.id}-${event.id}`} event={event} />;
+            return <EventBlock key={`${agenda.id}-${event.id}`} event={event} />
           })}
         </div>
       </div>
     </Layout>
-  );
-};
+  )
+}
 
-export default AgendaPage;
+export default AgendaPage

@@ -1,23 +1,23 @@
 module.exports = {
-  type: 'admin',
+  type: "admin",
   routes: [
     {
-      method: 'GET',
-      path: '/settings',
-      handler: 'settings.get',
+      method: "GET",
+      path: "/settings",
+      handler: "settings.get",
       config: {
         policies: [],
         auth: false,
       },
     },
     {
-      method: 'POST',
-      path: '/settings',
-      handler: 'settings.set',
+      method: "POST",
+      path: "/settings",
+      handler: "settings.set",
       config: {
         policies: [],
         auth: false,
       },
     },
-  ]
-};
+  ],
+}

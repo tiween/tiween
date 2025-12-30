@@ -1,2 +1,3 @@
-import ShortMovieCard from './ShortMovieCard';
-export default ShortMovieCard;
+import ShortMovieCard from "./ShortMovieCard"
+
+export default ShortMovieCard

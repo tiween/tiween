@@ -1,12 +1,12 @@
-import * as React from 'react';
+import * as React from "react"
+import Image from "next/image"
 
-import Image from 'next/image';
-import TheaterIcon from '../shared/icons/Theater';
-import { personPhotoImageLoader } from '../../shared/services/cdn';
-import { useCreativeWork } from '../../shared/context/CreativeWorkContext';
+import { useCreativeWork } from "../../shared/context/CreativeWorkContext"
+import { personPhotoImageLoader } from "../../shared/services/cdn"
+import TheaterIcon from "../shared/icons/Theater"
 
 const PlayCast: React.FunctionComponent = () => {
-  const { cast } = useCreativeWork();
+  const { cast } = useCreativeWork()
   return (
     <div className="block">
       <h2 className="capitalize font-bold text-lg mb-2">Interprétation</h2>
@@ -38,14 +38,16 @@ const PlayCast: React.FunctionComponent = () => {
                   {item?.person?.fullName}
                 </span>
                 {item?.character && (
-                  <span className=" text-sm text-center  text-gray-500 ">{item?.character}</span>
+                  <span className=" text-sm text-center  text-gray-500 ">
+                    {item?.character}
+                  </span>
                 )}
               </div>
             </div>
           ))}
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default PlayCast;
+export default PlayCast

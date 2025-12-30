@@ -1,16 +1,16 @@
-'use strict'
+"use strict"
 
 module.exports = {
-  type: 'admin',
+  type: "admin",
   routes: [
     {
-      method: 'POST',
-      path: '/moviemeta/sync',
-      handler: 'moviemeta.syncWithTMDB',
+      method: "POST",
+      path: "/moviemeta/sync",
+      handler: "moviemeta.syncWithTMDB",
       config: {
         policies: [],
         auth: false,
       },
     },
-  ]
-};
+  ],
+}
