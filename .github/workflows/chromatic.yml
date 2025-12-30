@@ -1,0 +1,71 @@
+name: Chromatic
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+    paths:
+      - 'apps/client/**'
+      - 'packages/design-system/**'
+      - '.github/workflows/chromatic.yml'
+  pull_request:
+    branches:
+      - main
+      - develop
+    paths:
+      - 'apps/client/**'
+      - 'packages/design-system/**'
+      - '.github/workflows/chromatic.yml'
+
+concurrency:
+  group: chromatic-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+env:
+  CI: true
+  NPM_CONFIG_IGNORE_SCRIPTS: 'true'
+  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+  TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+
+jobs:
+  chromatic:
+    name: Visual Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Required for Chromatic to detect changes
+
+      - name: Cache turbo build setup
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: ${{ runner.os }}-turbo-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-turbo-
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: yarn
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile --ignore-engines
+
+      - name: Build Storybook
+        run: yarn build-storybook
+        working-directory: apps/client
+
+      - name: Run Chromatic
+        uses: chromaui/action@latest
+        with:
+          projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+          storybookBuildDir: apps/client/storybook-static
+          onlyChanged: true # TurboSnap - only test changed stories
+          autoAcceptChanges: main # Auto-accept on main to maintain baselines
+          exitZeroOnChanges: true # Don't fail PR on visual changes (review in Chromatic UI)
+          skip: 'dependabot/**' # Skip dependabot branches
