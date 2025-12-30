@@ -58,7 +58,6 @@ jobs:
 
       - name: Build Storybook
         run: yarn build-storybook
-        working-directory: apps/client
 
       - name: Run Chromatic
         uses: chromaui/action@latest
