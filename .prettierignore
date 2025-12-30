@@ -22,3 +22,4 @@ ui-debug.log
 **/types/api/*d.ts
 **/types/generated/**
 **/.strapi/client/**
+legacy/**
