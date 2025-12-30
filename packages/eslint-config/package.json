@@ -2,18 +2,27 @@
   "name": "@tiween/eslint-config",
   "version": "0.0.0",
   "private": true,
+  "type": "module",
+  "exports": {
+    "./next": "./next.mjs",
+    "./library": "./library.mjs",
+    "./react-internal": "./react-internal.mjs"
+  },
   "files": [
-    "library.js",
-    "next.js",
-    "react-internal.js"
+    "library.mjs",
+    "next.mjs",
+    "react-internal.mjs"
   ],
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^7.16.1",
-    "@typescript-eslint/parser": "^7.16.1",
-    "@vercel/style-guide": "^6.0.0",
-    "eslint-config-prettier": "^9.1.0",
+    "@eslint/js": "^9.39.0",
+    "@typescript-eslint/eslint-plugin": "^8.33.1",
+    "@typescript-eslint/parser": "^8.33.1",
+    "eslint-config-next": "^16.1.0",
+    "eslint-config-prettier": "^10.1.5",
     "eslint-config-turbo": "^2.5.0",
     "eslint-plugin-only-warn": "^1.1.0",
-    "typescript": "^5.5.3"
+    "globals": "^16.2.0",
+    "typescript": "^5.5.3",
+    "typescript-eslint": "^8.33.1"
   }
 }
