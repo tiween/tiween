@@ -1,4 +1,4 @@
-import { Filter, MapPin, SlidersHorizontal } from "lucide-react"
+import { MapPin, SlidersHorizontal } from "lucide-react"
 
 import type { Meta, StoryObj } from "@storybook/react"
 

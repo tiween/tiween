@@ -39,7 +39,7 @@ export default [
       "dist/**",
       "node_modules/**",
       ".*.js",
-      "next-env.d.ts",
+      "**/*.d.ts",
       "storybook-static/**",
     ],
   },

@@ -41,7 +41,7 @@ export const isAppLink = (link: string): boolean => {
 
     const url = new URL(link, baseUrl)
     return url.hostname === new URL(baseUrl).hostname
-  } catch (error) {
+  } catch {
     return false
   }
 }

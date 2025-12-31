@@ -94,10 +94,13 @@ export const authOptions: NextAuthOptions = {
             token.strapiJWT = jwt
             token.userId = user?.id
             token.blocked = user?.blocked
-          } catch (error: any) {
+          } catch (error) {
             token.error = "oauth_error"
 
-            if (error?.message?.includes("Email is already taken")) {
+            if (
+              error instanceof Error &&
+              error.message?.includes("Email is already taken")
+            ) {
               token.error = "different_provider"
             }
           }
@@ -138,9 +141,8 @@ export const authOptions: NextAuthOptions = {
           // API token is valid - update/reload user data or add more data
           token.name = fetchedUser.username
           token.blocked = fetchedUser.blocked ?? false
-        } catch (error: any) {
+        } catch {
           // API token is invalid - send error to client and user is logged out
-          // console.error("Strapi JWT token is invalid: ", error.message)
           token.error = "invalid_strapi_token"
         }
       }

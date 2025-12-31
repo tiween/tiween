@@ -1,13 +1,24 @@
 import nextConfig from "@tiween/eslint-config/next";
+import tseslint from "typescript-eslint";
 
 /** @type {import("eslint").Linter.Config[]} */
 export default [
   ...nextConfig,
+  ...tseslint.configs.recommended,
   {
     rules: {
       "no-console": ["warn", { allow: ["warn", "error"] }],
       "@next/next/no-html-link-for-pages": "off",
-      "no-unused-vars": "error",
+      // Use TypeScript-aware no-unused-vars rule instead of base ESLint rule
+      "no-unused-vars": "off",
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        {
+          argsIgnorePattern: "^_",
+          varsIgnorePattern: "^_",
+          caughtErrorsIgnorePattern: "^_",
+        },
+      ],
       "react/function-component-definition": "off",
       "react/hook-use-state": "off",
       "react/jsx-no-leaked-render": "off",
@@ -39,7 +50,7 @@ export default [
     files: ["src/components/ui/*.tsx"],
     rules: {
       "react/jsx-curly-brace-presence": "off",
-      "no-unused-vars": "off",
+      "@typescript-eslint/no-unused-vars": "off",
     },
   },
 ];
