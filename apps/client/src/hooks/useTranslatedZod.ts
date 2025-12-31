@@ -13,11 +13,11 @@ export function useTranslatedZod(zod: typeof z) {
   const t = useTranslations("errors.zodValidation")
 
   const errorMap: z.ZodErrorMap = React.useCallback(
-    // eslint-disable-next-line no-unused-vars
+     
     (issue, _ctx) => {
       let message
-      // eslint-disable-next-line no-unused-vars
-      const { code, ...values } = issue
+       
+      const { code: _code, ...values } = issue
       switch (issue.code) {
         case z.ZodIssueCode.invalid_type:
           if (issue.received === z.ZodParsedType.undefined) {
@@ -95,6 +95,7 @@ export function useTranslatedZod(zod: typeof z) {
         default:
           message = issue.code
       }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- dynamic translation keys from zod
       return { message: t(message as any, values as any) }
     },
     [t]

@@ -48,8 +48,8 @@ export const ImageWithPlaiceholder = async (props: ImageExtendedProps) => {
 
   const placeholder = srcPlaceholder ?? fallbackSrcPlaceholder
 
-  // eslint-disable-next-line no-unused-vars
-  const { fallbackSrc: fallback, ...imageProps } = props
+   
+  const { fallbackSrc: _fallback, ...imageProps } = props
 
   if (placeholder == null) {
     // Image and fallback image weren't loaded -> show local fallback image
