@@ -1,7 +1,9 @@
-const globalConfig = require("@tiween/prettier-config")
+import globalConfig from "@tiween/prettier-config"
 
 /** @type {import('prettier').Config} */
-module.exports = {
+const config = {
   ...globalConfig,
   plugins: [...globalConfig.plugins, "prettier-plugin-tailwindcss"],
 }
+
+export default config

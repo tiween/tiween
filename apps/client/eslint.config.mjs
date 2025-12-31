@@ -2,7 +2,7 @@ import nextConfig from "@tiween/eslint-config/next";
 import tseslint from "typescript-eslint";
 
 /** @type {import("eslint").Linter.Config[]} */
-export default [
+const config = [
   ...nextConfig,
   ...tseslint.configs.recommended,
   {
@@ -54,3 +54,5 @@ export default [
     },
   },
 ];
+
+export default config;

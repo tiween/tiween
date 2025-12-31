@@ -50,7 +50,7 @@ export default function middleware(req: NextRequest) {
 
   // If the request is for a non-public (auth) page, require authentication
   if (isAuthPage) {
-    return (authMiddleware as any)(req)
+    return (authMiddleware as (req: NextRequest) => NextResponse)(req)
   }
 
   // All other pages are public

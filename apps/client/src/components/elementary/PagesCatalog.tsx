@@ -27,7 +27,7 @@ export default function PagesCatalog() {
       )}
       {query.data && (
         <ul className="list-disc pl-5">
-          {query.data.data.map((page: any) => (
+          {query.data.data.map((page: { id: string; title: string; fullPath: string }) => (
             <li key={page.id}>
               <strong>{page.title}</strong> - {page.fullPath}
             </li>

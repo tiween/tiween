@@ -17,7 +17,7 @@ function ErrorBoundaryFallback({
   hideReset,
   showErrorMessage,
 }: {
-  readonly error: any
+  readonly error: Error
   readonly resetErrorBoundary: () => void
   readonly customErrorTitle?: string
   readonly hideReset?: boolean
@@ -91,9 +91,9 @@ export function ErrorBoundary({
   readonly showErrorMessage?: boolean
   readonly onReset?: () => void
   readonly onError?: (
-    // eslint-disable-next-line no-unused-vars
+     
     error: Error,
-    // eslint-disable-next-line no-unused-vars
+     
     info: { componentStack?: string | null }
   ) => void
 }) {

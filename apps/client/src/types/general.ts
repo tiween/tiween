@@ -3,8 +3,7 @@ import { AppSession } from "@/types/next-auth"
 // Use type safe message keys with `next-intl`
 type Messages = typeof import("../../locales/en.json")
 
-// eslint-disable-next-line no-unused-vars
-export interface IntlMessages extends Messages {}
+export type IntlMessages = Messages
 
 export interface CustomFetchOptions {
   // do not add locale query params to the request
@@ -24,7 +23,7 @@ export interface AppError {
   message: string | number
   status: number
   name?: string
-  details?: Record<string, any>
+  details?: Record<string, unknown>
 }
 
 export type NextMetadataTwitterCard =

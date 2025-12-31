@@ -10,7 +10,7 @@ import type { StaticImport } from "next/dist/shared/lib/get-img-props"
  */
 export const formatStrapiMediaUrl = (
   imageUrl: string | StaticImport | undefined | null
-): any => {
+): string | StaticImport | undefined => {
   if (!imageUrl) {
     return undefined
   }

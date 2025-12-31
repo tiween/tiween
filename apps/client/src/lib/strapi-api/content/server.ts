@@ -34,12 +34,13 @@ export async function fetchPage(
       requestInit,
       options
     )
-  } catch (e: any) {
+  } catch (e: unknown) {
+    const error = e instanceof Error ? e : new Error(String(e))
     console.error({
       message: `Error fetching page '${fullPath}' for locale '${locale}'`,
       error: {
-        error: e?.message,
-        stack: e?.stack,
+        error: error.message,
+        stack: error.stack,
       },
     })
   }
@@ -56,12 +57,13 @@ export async function fetchAllPages(
       populate: {},
       status: "published",
     })
-  } catch (e: any) {
+  } catch (e: unknown) {
+    const error = e instanceof Error ? e : new Error(String(e))
     console.error({
       message: `Error fetching all pages for locale '${locale}'`,
       error: {
-        error: e?.message,
-        stack: e?.stack,
+        error: error.message,
+        stack: error.stack,
       },
     })
     return { data: [] }
@@ -88,12 +90,13 @@ export async function fetchSeo(
       },
       fields: [],
     })
-  } catch (e: any) {
+  } catch (e: unknown) {
+    const error = e instanceof Error ? e : new Error(String(e))
     console.error({
       message: `Error fetching SEO for '${uid}' with fullPath '${fullPath}' for locale '${locale}'`,
       error: {
-        error: e?.message,
-        stack: e?.stack,
+        error: error.message,
+        stack: error.stack,
       },
     })
   }
@@ -110,12 +113,13 @@ export async function fetchNavbar(locale: Locale) {
         logoImage: { populate: { image: true, link: true } },
       },
     })
-  } catch (e: any) {
+  } catch (e: unknown) {
+    const error = e instanceof Error ? e : new Error(String(e))
     console.error({
       message: `Error fetching navbar for locale '${locale}'`,
       error: {
-        error: e?.message,
-        stack: e?.stack,
+        error: error.message,
+        stack: error.stack,
       },
     })
   }
@@ -133,12 +137,13 @@ export async function fetchFooter(locale: Locale) {
         links: true,
       },
     })
-  } catch (e: any) {
+  } catch (e: unknown) {
+    const error = e instanceof Error ? e : new Error(String(e))
     console.error({
       message: `Error fetching footer for locale '${locale}'`,
       error: {
-        error: e?.message,
-        stack: e?.stack,
+        error: error.message,
+        stack: error.stack,
       },
     })
   }

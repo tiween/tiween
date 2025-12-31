@@ -47,7 +47,7 @@ export function SignInForm() {
       router.refresh()
       setTimeout(() => router.push(callbackUrl), 300)
     } else {
-      const parsedError = safeJSONParse<any>(res.error)
+      const parsedError = safeJSONParse<{ message?: string }>(res.error)
       const message =
         "message" in parsedError
           ? parsedError.message

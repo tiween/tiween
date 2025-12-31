@@ -18,7 +18,7 @@ import StrapiCkEditorContent from "@/components/page-builder/components/utilitie
 
 export const PageContentComponents: {
   // [K in UID.Component]?: string // TODO: Next.js 15 has issues with dynamic imports inside pages
-  // eslint-disable-next-line no-unused-vars
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [K in UID.Component]?: React.ComponentType<any>
 } = {
   // elements, seo-utilities, utilities

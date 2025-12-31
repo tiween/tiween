@@ -51,7 +51,7 @@ export function AppCheckbox({
             <FormControl>
               <CheckboxComponent
                 {...field}
-                {...(nativeProps as any)}
+                {...(nativeProps as React.ComponentPropsWithoutRef<typeof CheckboxComponent>)}
                 checked={field.value}
                 onCheckedChange={field.onChange}
                 className={fieldClassName}

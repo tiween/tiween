@@ -48,7 +48,7 @@ export function ChangePasswordForm() {
         form.reset()
         router.push("/")
       },
-      onError: (error: any) => {
+      onError: (error: unknown) => {
         const errorMap = {
           "is invalid": t("errors.invalidCurrentPassword"),
           "be different": t("errors.newPasswordSameAsCurrent"),
