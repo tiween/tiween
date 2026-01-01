@@ -27,6 +27,8 @@ env:
   NPM_CONFIG_IGNORE_SCRIPTS: 'true'
   TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
   TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+  # Skip Strapi env validation for Storybook builds
+  STORYBOOK: 'true'
 
 jobs:
   chromatic:
