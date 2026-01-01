@@ -55,6 +55,16 @@ COPY turbo.json turbo.json
 
 ENV NODE_ENV=production
 
+# Build-time placeholder env vars for Next.js build validation
+# Real values are provided at runtime via environment variables
+ARG APP_PUBLIC_URL=http://localhost:3000
+ARG STRAPI_URL=http://localhost:1337
+ARG STRAPI_REST_READONLY_API_KEY=placeholder
+
+ENV APP_PUBLIC_URL=${APP_PUBLIC_URL}
+ENV STRAPI_URL=${STRAPI_URL}
+ENV STRAPI_REST_READONLY_API_KEY=${STRAPI_REST_READONLY_API_KEY}
+
 # Build the client package and its dependencies
 RUN turbo run build --filter=${WORKSPACE}
 
