@@ -13,6 +13,13 @@ const isStorybookBuild = Boolean(
   process.env.STORYBOOK || process.env.CHROMATIC
 )
 
+// Placeholder values for Storybook builds where Strapi is not available
+const STORYBOOK_PLACEHOLDERS = {
+  APP_PUBLIC_URL: "http://localhost:3000",
+  STRAPI_URL: "http://localhost:1337",
+  STRAPI_REST_READONLY_API_KEY: "storybook-placeholder",
+}
+
 export const env = createEnv({
   emptyStringAsUndefined: true,
   skipValidation: isStorybookBuild,
@@ -66,10 +73,18 @@ export const env = createEnv({
    * You'll get type errors if not all variables from `server` & `client` are included here.
    */
   runtimeEnv: {
-    APP_PUBLIC_URL: process.env.APP_PUBLIC_URL,
+    APP_PUBLIC_URL:
+      process.env.APP_PUBLIC_URL ||
+      (isStorybookBuild ? STORYBOOK_PLACEHOLDERS.APP_PUBLIC_URL : undefined),
 
-    STRAPI_URL: process.env.STRAPI_URL,
-    STRAPI_REST_READONLY_API_KEY: process.env.STRAPI_REST_READONLY_API_KEY,
+    STRAPI_URL:
+      process.env.STRAPI_URL ||
+      (isStorybookBuild ? STORYBOOK_PLACEHOLDERS.STRAPI_URL : undefined),
+    STRAPI_REST_READONLY_API_KEY:
+      process.env.STRAPI_REST_READONLY_API_KEY ||
+      (isStorybookBuild
+        ? STORYBOOK_PLACEHOLDERS.STRAPI_REST_READONLY_API_KEY
+        : undefined),
     STRAPI_REST_CUSTOM_API_KEY: process.env.STRAPI_REST_CUSTOM_API_KEY,
 
     NEXT_OUTPUT: process.env.NEXT_OUTPUT,
