@@ -9,8 +9,9 @@ const optionalZodBoolean = z
   .optional()
 
 // Skip validation for Storybook/Chromatic builds where Strapi is not needed
-const isStorybookBuild =
-  process.env.STORYBOOK === "true" || process.env.CHROMATIC === "true"
+const isStorybookBuild = Boolean(
+  process.env.STORYBOOK || process.env.CHROMATIC
+)
 
 export const env = createEnv({
   emptyStringAsUndefined: true,
