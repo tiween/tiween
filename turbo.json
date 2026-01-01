@@ -32,6 +32,15 @@
       "dependsOn": ["^build"],
       "cache": false,
       "persistent": true
+    },
+    "storybook": {
+      "dependsOn": ["@tiween/shared-types#build", "@tiween/design-system#build"],
+      "cache": false,
+      "persistent": true
+    },
+    "build-storybook": {
+      "dependsOn": ["@tiween/shared-types#build", "@tiween/design-system#build"],
+      "outputs": ["storybook-static/**"]
     }
   },
   "ui": "tui"
