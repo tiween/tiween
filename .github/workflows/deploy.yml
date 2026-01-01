@@ -1,5 +1,7 @@
 name: Deploy
 
+run-name: Deploy to ${{ github.event.inputs.environment || (github.ref_name == 'main' && 'Production') || 'Staging' }}
+
 on:
   workflow_dispatch:
     inputs:
