@@ -19,8 +19,6 @@ env:
   CI: true
   NPM_CONFIG_IGNORE_SCRIPTS: "true"
   STRAPI_REST_READONLY_API_KEY: random-value-just-for-build
-  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
-  TURBO_TEAM: ${{ vars.TURBO_TEAM }}
 
 jobs:
   lint:
