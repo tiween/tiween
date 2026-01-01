@@ -13,7 +13,10 @@ on:
         options:
           - staging
           - production
-  push:
+  workflow_run:
+    workflows: ["CI"]
+    types:
+      - completed
     branches:
       - main
       - develop
@@ -31,6 +34,10 @@ jobs:
   setup:
     name: Setup Deployment
     runs-on: ubuntu-latest
+    # Only run if CI succeeded (for workflow_run) or if manually triggered
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
     outputs:
       environment: ${{ steps.set-env.outputs.environment }}
       should_deploy: ${{ steps.set-env.outputs.should_deploy }}
@@ -39,15 +46,22 @@ jobs:
       - name: Determine environment
         id: set-env
         run: |
+          # Get the branch name from workflow_run event or current ref
+          if [ "${{ github.event_name }}" == "workflow_run" ]; then
+            BRANCH="${{ github.event.workflow_run.head_branch }}"
+          else
+            BRANCH="${{ github.ref_name }}"
+          fi
+
           if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
             echo "environment=${{ github.event.inputs.environment }}" >> $GITHUB_OUTPUT
             echo "should_deploy=true" >> $GITHUB_OUTPUT
             echo "image_tag=${{ github.event.inputs.environment }}" >> $GITHUB_OUTPUT
-          elif [ "${{ github.ref_name }}" == "main" ]; then
+          elif [ "$BRANCH" == "main" ]; then
             echo "environment=production" >> $GITHUB_OUTPUT
             echo "should_deploy=true" >> $GITHUB_OUTPUT
             echo "image_tag=production" >> $GITHUB_OUTPUT
-          elif [ "${{ github.ref_name }}" == "develop" ]; then
+          elif [ "$BRANCH" == "develop" ]; then
             echo "environment=staging" >> $GITHUB_OUTPUT
             echo "should_deploy=true" >> $GITHUB_OUTPUT
             echo "image_tag=staging" >> $GITHUB_OUTPUT
@@ -78,6 +92,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
