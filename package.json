@@ -32,12 +32,15 @@
     "release:dry": "semantic-release --dry-run"
   },
   "prettier": "@tiween/prettier-config",
+  "resolutions": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
   "devDependencies": {
     "@commitlint/cli": "19.3.0",
     "@commitlint/config-conventional": "19.2.2",
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/git": "^10.0.1",
-    "@storybook/nextjs-vite": "9.1.17",
     "@tiween/eslint-config": "*",
     "@tiween/prettier-config": "*",
     "@tiween/typescript-config": "*",

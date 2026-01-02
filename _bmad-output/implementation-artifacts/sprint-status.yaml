@@ -58,7 +58,7 @@ development_status:
   2a-1-layout-components-bottomnav: review
   2a-2-layout-components-header-and-pagecontainer: review
   2a-3-layout-components-stickyfilters: review
-  2a-4-discovery-components-eventcard: ready-for-dev
+  2a-4-discovery-components-eventcard: review
   2a-5-discovery-components-filmhero: ready-for-dev
   2a-6-discovery-components-categorytabs-and-dateselector: ready-for-dev
   2a-7-discovery-components-venuecard-and-searchbar: ready-for-dev
@@ -76,6 +76,7 @@ development_status:
   2a-19-common-components-badge-variants: ready-for-dev
   2a-20-scanner-components-ticketscanner-and-validationresult: ready-for-dev
   2a-21-scanner-components-attendancecounter: ready-for-dev
+  2a-22-discovery-components-filmcard: done
   epic-2a-retrospective: optional
 
   # Epic 2B: Strapi v5 Migration & Backend Foundation (PARALLEL TRACK B)

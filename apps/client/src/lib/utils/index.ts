@@ -1,0 +1,1 @@
+export { isArabic } from "./isArabic"
