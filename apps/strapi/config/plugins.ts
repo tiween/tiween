@@ -7,6 +7,11 @@ export default ({ env }) => {
   }
 
   return {
+    // ============================================
+    // ALL PLUGINS DISABLED FOR DEBUGGING
+    // Re-enable one by one to identify the issue
+    // ============================================
+
     // i18n configuration for ar/fr/en locales
     i18n: {
       enabled: true,
@@ -18,18 +23,16 @@ export default ({ env }) => {
 
     // Upload provider: ImageKit (production) or local (development)
     upload: {
+      enabled: false,
       config: imagekitConfig ?? localUploadConfig,
     },
 
-    seo: {
-      enabled: true,
-    },
-
     "config-sync": {
-      enabled: true,
+      enabled: false,
     },
 
     "users-permissions": {
+      enabled: true,
       config: {
         jwt: {
           expiresIn: "30d", // this value is synced with NextAuth session maxAge
@@ -38,7 +41,7 @@ export default ({ env }) => {
     },
 
     sentry: {
-      enabled: true,
+      enabled: false,
       config: {
         // Only set `dsn` property in production
         dsn: env("NODE_ENV") === "production" ? env("SENTRY_DSN") : null,
@@ -48,83 +51,19 @@ export default ({ env }) => {
 
     // Events Manager plugin for venue management
     "events-manager": {
-      enabled: true,
+      enabled: false,
       resolve: "./src/plugins/events-manager",
     },
 
     // ImageKit Admin Panel Integration (browse, manage, deliver media)
     // Only enabled when credentials are configured
     imagekit: {
-      enabled: !!env("IMAGEKIT_PUBLIC_KEY"),
+      enabled: false,
       config: {
         publicKey: env("IMAGEKIT_PUBLIC_KEY"),
         privateKey: env("IMAGEKIT_PRIVATE_KEY"),
         urlEndpoint: env("IMAGEKIT_URL_ENDPOINT"),
         folder: env("IMAGEKIT_FOLDER", "tiween"),
-      },
-    },
-
-    // REST API Response Caching with Redis
-    "rest-cache": {
-      enabled: env.bool("CACHE_ENABLED", true),
-      config: {
-        provider: {
-          name: "redis",
-          options: {
-            max: 32767,
-            connection: {
-              host: env("REDIS_HOST", "localhost"),
-              port: env.int("REDIS_PORT", 6379),
-              password: env("REDIS_PASSWORD", undefined),
-              db: env.int("REDIS_DB", 0),
-            },
-          },
-        },
-        strategy: {
-          enableEtagSupport: true,
-          enableXCacheHeaders: true,
-          clearRelatedCache: true,
-          maxAge: 300000, // 5 minutes default TTL
-          contentTypes: [
-            // Public read-only content with caching
-            {
-              contentType: "api::event.event",
-              maxAge: 300000, // 5 minutes - frequently updated
-            },
-            {
-              contentType: "api::venue.venue",
-              maxAge: 900000, // 15 minutes - rarely changes
-            },
-            {
-              contentType: "api::creative-work.creative-work",
-              maxAge: 1800000, // 30 minutes - static content
-            },
-            {
-              contentType: "api::showtime.showtime",
-              maxAge: 120000, // 2 minutes - ticket availability changes
-            },
-            {
-              contentType: "api::person.person",
-              maxAge: 1800000, // 30 minutes - rarely changes
-            },
-            {
-              contentType: "api::genre.genre",
-              maxAge: 3600000, // 60 minutes - reference data
-            },
-            {
-              contentType: "api::category.category",
-              maxAge: 3600000, // 60 minutes - reference data
-            },
-            {
-              contentType: "api::region.region",
-              maxAge: 3600000, // 60 minutes - reference data
-            },
-            {
-              contentType: "api::city.city",
-              maxAge: 3600000, // 60 minutes - reference data
-            },
-          ],
-        },
       },
     },
 

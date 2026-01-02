@@ -9,14 +9,5 @@ export default {
         description: "Check overall system health",
       },
     },
-    {
-      method: "GET",
-      path: "/health/redis",
-      handler: "health.redis",
-      config: {
-        auth: false,
-        description: "Check Redis connectivity",
-      },
-    },
   ],
 }

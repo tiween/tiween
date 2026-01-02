@@ -31,18 +31,12 @@
     ]
   },
   "dependencies": {
-    "@strapi-community/plugin-rest-cache": "^5.0.1",
-    "@strapi-community/provider-rest-cache-redis": "^5.0.0",
-    "@strapi/plugin-color-picker": "^5.29.0",
-    "@strapi/plugin-sentry": "^5.29.0",
-    "@strapi/plugin-seo": "2.0.8",
-    "@strapi/plugin-users-permissions": "^5.29.0",
-    "@strapi/provider-email-mailgun": "^5.29.0",
-    "@strapi/provider-upload-aws-s3": "^5.29.0",
-    "@strapi/strapi": "^5.29.0",
-    "@tiween/design-system": "*",
+    "@strapi/plugin-sentry": "^5.33.1",
+    "@strapi/plugin-users-permissions": "^5.33.1",
+    "@strapi/provider-email-mailgun": "^5.33.1",
+    "@strapi/provider-upload-aws-s3": "^5.33.1",
+    "@strapi/strapi": "^5.33.1",
     "@tiween/shared-types": "*",
-    "ioredis": "^5.8.2",
     "lodash": "^4.17.21",
     "pg": "^8.13.1",
     "qs": "^6.13.0",
@@ -61,7 +55,7 @@
     "typescript": "^5"
   },
   "engines": {
-    "node": ">=20",
+    "node": ">=22",
     "yarn": ">=1.22"
   },
   "strapi": {

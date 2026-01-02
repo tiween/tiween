@@ -404,7 +404,7 @@ src/extensions/email/templates/
 
 ```html
 <!-- src/extensions/email/templates/order-confirmation.html -->
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
     <meta charset="utf-8" />

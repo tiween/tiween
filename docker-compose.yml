@@ -4,7 +4,7 @@
 #
 # For local development without Docker containers, you can run:
 # - Client: yarn dev --filter=@tiween/client
-# - Strapi: cd apps/strapi && yarn dev (requires postgres/redis from this compose)
+# - Strapi: cd apps/strapi && yarn dev (requires postgres from this compose)
 
 name: tiween
 
@@ -56,10 +56,6 @@ services:
       - DATABASE_USERNAME=tiween
       - DATABASE_PASSWORD=tiween_dev_password
       - DATABASE_SSL=false
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-      - REDIS_DB=0
-      - CACHE_ENABLED=true
       - APP_KEYS=devkey1,devkey2,devkey3,devkey4
       - API_TOKEN_SALT=dev_api_token_salt
       - ADMIN_JWT_SECRET=dev_admin_jwt_secret
@@ -67,8 +63,6 @@ services:
       - TRANSFER_TOKEN_SALT=dev_transfer_token_salt
     depends_on:
       postgres:
-        condition: service_healthy
-      redis:
         condition: service_healthy
     command: sh -c "cd /app/apps/strapi && yarn develop"
     networks:
@@ -96,26 +90,8 @@ services:
     networks:
       - tiween-network
 
-  # Redis Cache
-  redis:
-    image: redis:7-alpine
-    restart: unless-stopped
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
-    command: redis-server --appendonly yes
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - tiween-network
-
 volumes:
   postgres_data:
-  redis_data:
   client_node_modules:
   client_next:
   strapi_node_modules:
