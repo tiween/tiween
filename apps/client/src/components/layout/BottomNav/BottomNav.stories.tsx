@@ -1,6 +1,6 @@
 import { useState } from "react"
 
-import type { Meta, StoryObj } from "@storybook/react"
+import type { Meta, StoryObj } from "@storybook/nextjs-vite"
 import type { BottomNavLabels, TabType } from "./BottomNav"
 
 import { BottomNav } from "./BottomNav"
@@ -232,10 +232,15 @@ export const AllStates: Story = {
       </div>
     </div>
   ),
+
   parameters: {
     layout: "padded",
+  },
+
+  globals: {
     viewport: {
-      defaultViewport: "mobile",
+      value: "mobile",
+      isRotated: false,
     },
   },
 }

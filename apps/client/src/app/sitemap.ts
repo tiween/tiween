@@ -42,7 +42,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 async function generateLocalizedSitemap(
   locale: Locale
 ): Promise<MetadataRoute.Sitemap> {
-  let pageEntities: Partial<
+  const pageEntities: Partial<
     Record<PageEntityUID, Awaited<ReturnType<typeof fetchAllPages>>["data"]>
   > = {}
 

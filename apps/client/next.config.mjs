@@ -35,7 +35,6 @@ const nextConfig = {
     turbopackFileSystemCacheForDev: true,
     turbopackFileSystemCacheForBuild: true,
   },
-  transpilePackages: ["@tiween/design-system"],
   images: {
     // Be aware that Strapi has optimization on by default
     // Do not optimize all images by default.

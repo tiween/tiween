@@ -148,7 +148,7 @@ For example, to add an [accordion component](https://ui.shadcn.com/docs/componen
 
 It is possible to build your own theme at [https://ui.shadcn.com/themes](https://ui.shadcn.com/themes), where you can configure global component styles, colors, border radius, export the theme, and integrate it into your project. More details are available in the [docs](https://ui.shadcn.com/docs/theming).
 
-- `/src/styles/globals.css` – Contains the project theme, Tailwind CSS configuration, and imports shared styles from the [@tiween/design-system](../../packages/design-system/README.md) package.
+- `/src/styles/globals.css` – Contains the project theme, Tailwind CSS configuration, and custom styles.
 
 To merge multiple Tailwind classes and handle dynamic class names more effectively, **strictly use** the `cn` function defined in `/src/lib/styles.ts`.
 

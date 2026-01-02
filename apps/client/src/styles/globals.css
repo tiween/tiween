@@ -1,6 +1,6 @@
 @import "tailwindcss";
-@import "@tiween/design-system/theme.css";
-@import "@tiween/design-system/custom-styles.css";
+@import "./theme.css";
+@import "./custom-styles.css";
 
 @plugin "tailwindcss-animate";
 

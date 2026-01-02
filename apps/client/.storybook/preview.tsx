@@ -7,15 +7,14 @@ import "../src/styles/globals.css"
 const preview: Preview = {
   parameters: {
     backgrounds: {
-      default: "tiween-dark",
-      values: [
-        { name: "tiween-dark", value: "#032523" },
-        { name: "surface", value: "#0A3533" },
-        { name: "surface-light", value: "#0F4542" },
-      ],
+      options: {
+        "tiween-dark": { name: "tiween-dark", value: "#032523" },
+        surface: { name: "surface", value: "#0A3533" },
+        "surface-light": { name: "surface-light", value: "#0F4542" },
+      },
     },
     viewport: {
-      viewports: {
+      options: {
         mobile: {
           name: "Mobile",
           styles: { width: "375px", height: "667px" },
@@ -29,7 +28,6 @@ const preview: Preview = {
           styles: { width: "1280px", height: "800px" },
         },
       },
-      defaultViewport: "mobile",
     },
     controls: {
       matchers: {
@@ -38,6 +36,7 @@ const preview: Preview = {
       },
     },
   },
+
   decorators: [
     (Story, context) => {
       const direction = context.globals.direction || "ltr"
@@ -48,6 +47,7 @@ const preview: Preview = {
       )
     },
   ],
+
   globalTypes: {
     direction: {
       name: "Direction",
@@ -61,6 +61,17 @@ const preview: Preview = {
         ],
         showName: true,
       },
+    },
+  },
+
+  initialGlobals: {
+    viewport: {
+      value: "mobile",
+      isRotated: false,
+    },
+
+    backgrounds: {
+      value: "tiween-dark",
     },
   },
 }

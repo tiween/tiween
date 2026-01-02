@@ -14,7 +14,7 @@ import { useToast } from "@/components/ui/use-toast"
 
 interface Props {
   readonly selectedFile: File | null
-  // eslint-disable-next-line no-unused-vars
+
   readonly setSelectedFile: (file: File | null) => void
   readonly tabIndex?: number
   readonly validTypes?: string[]

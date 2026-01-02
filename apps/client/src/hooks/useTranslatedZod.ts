@@ -13,10 +13,9 @@ export function useTranslatedZod(zod: typeof z) {
   const t = useTranslations("errors.zodValidation")
 
   const errorMap: z.ZodErrorMap = React.useCallback(
-     
     (issue, _ctx) => {
       let message
-       
+
       const { code: _code, ...values } = issue
       switch (issue.code) {
         case z.ZodIssueCode.invalid_type:

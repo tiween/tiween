@@ -32,7 +32,7 @@ interface Props {
 
 const DialogContext = createContext({
   closeModal: () => {},
-  // eslint-disable-next-line no-unused-vars
+
   setConfirmDialogClose: (_: boolean) => {},
   confirmClose: false,
 })

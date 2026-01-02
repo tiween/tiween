@@ -48,7 +48,6 @@ export const ImageWithPlaiceholder = async (props: ImageExtendedProps) => {
 
   const placeholder = srcPlaceholder ?? fallbackSrcPlaceholder
 
-   
   const { fallbackSrc: _fallback, ...imageProps } = props
 
   if (placeholder == null) {

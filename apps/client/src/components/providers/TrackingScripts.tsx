@@ -2,7 +2,6 @@ import Script from "next/script"
 
 import { isDevelopment } from "@/lib/general-helpers"
 
- 
 const _TrackingScriptWrapper = ({
   id,
   scriptContent,

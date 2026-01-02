@@ -91,9 +91,8 @@ export function ErrorBoundary({
   readonly showErrorMessage?: boolean
   readonly onReset?: () => void
   readonly onError?: (
-     
     error: Error,
-     
+
     info: { componentStack?: string | null }
   ) => void
 }) {
