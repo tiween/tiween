@@ -1,3 +1,20 @@
 {
-  "events-manager.plugin.name": "Gestionnaire d'événements"
+  "events-manager.plugin.name": "Gestionnaire d'événements",
+  "events-manager.settings.link": "Gestionnaire d'événements",
+  "events-manager.sidenav.title": "Gestionnaire d'événements",
+  "events-manager.sidenav.dashboard": "Tableau de bord",
+  "events-manager.sidenav.planning": "Planification",
+  "events-manager.sidenav.venues": "Lieux",
+  "events-manager.sidenav.import": "Importation",
+  "events-manager.pages.planning.title": "Planification",
+  "events-manager.pages.planning.subtitle": "Planifiez les événements et gérez les séances pour vos salles",
+  "events-manager.pages.import.title": "Importation",
+  "events-manager.pages.import.subtitle": "Gérer et importer des événements depuis des sources externes",
+  "events-manager.venue.select.label": "Sélectionner une salle",
+  "events-manager.venue.select.placeholder": "Choisissez une salle pour voir son programme",
+  "events-manager.calendar.empty": "Sélectionnez une salle ci-dessus pour voir et gérer son programme",
+  "events-manager.import.addBulk": "Ajouter en masse",
+  "events-manager.status.all": "Tous",
+  "events-manager.status.published": "Publié",
+  "events-manager.status.draft": "Brouillon"
 }

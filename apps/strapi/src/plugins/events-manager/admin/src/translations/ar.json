@@ -1,3 +1,20 @@
 {
-  "events-manager.plugin.name": "مدير الأحداث"
+  "events-manager.plugin.name": "مدير الأحداث",
+  "events-manager.settings.link": "مدير الأحداث",
+  "events-manager.sidenav.title": "مدير الأحداث",
+  "events-manager.sidenav.dashboard": "لوحة التحكم",
+  "events-manager.sidenav.planning": "التخطيط",
+  "events-manager.sidenav.venues": "الأماكن",
+  "events-manager.sidenav.import": "استيراد",
+  "events-manager.pages.planning.title": "التخطيط",
+  "events-manager.pages.planning.subtitle": "جدولة الأحداث وإدارة أوقات العرض لقاعاتك",
+  "events-manager.pages.import.title": "استيراد",
+  "events-manager.pages.import.subtitle": "إدارة واستيراد الأحداث من مصادر خارجية",
+  "events-manager.venue.select.label": "اختر القاعة",
+  "events-manager.venue.select.placeholder": "اختر قاعة لعرض جدولها",
+  "events-manager.calendar.empty": "اختر قاعة أعلاه لعرض وإدارة جدول أحداثها",
+  "events-manager.import.addBulk": "إضافة بالجملة",
+  "events-manager.status.all": "الكل",
+  "events-manager.status.published": "منشور",
+  "events-manager.status.draft": "مسودة"
 }

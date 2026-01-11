@@ -1,3 +1,20 @@
 {
-  "events-manager.plugin.name": "Events Manager"
+  "events-manager.plugin.name": "Events Manager",
+  "events-manager.settings.link": "Events Manager",
+  "events-manager.sidenav.title": "Events Manager",
+  "events-manager.sidenav.dashboard": "Dashboard",
+  "events-manager.sidenav.planning": "Planning",
+  "events-manager.sidenav.venues": "Venues",
+  "events-manager.sidenav.import": "Import",
+  "events-manager.pages.planning.title": "Planning",
+  "events-manager.pages.planning.subtitle": "Schedule events and manage showtimes for your venues",
+  "events-manager.pages.import.title": "Import",
+  "events-manager.pages.import.subtitle": "Manage and import events from external sources",
+  "events-manager.venue.select.label": "Select Venue",
+  "events-manager.venue.select.placeholder": "Choose a venue to view its schedule",
+  "events-manager.calendar.empty": "Select a venue above to view and manage its event schedule",
+  "events-manager.import.addBulk": "Add Bulk",
+  "events-manager.status.all": "All",
+  "events-manager.status.published": "Published",
+  "events-manager.status.draft": "Draft"
 }
