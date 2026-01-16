@@ -61,7 +61,10 @@ export interface CreativeWorksCast extends Struct.ComponentSchema {
   }
   attributes: {
     character: Schema.Attribute.String
-    person: Schema.Attribute.Relation<"oneToOne", "api::person.person">
+    person: Schema.Attribute.Relation<
+      "oneToOne",
+      "plugin::creative-works.person"
+    >
   }
 }
 
@@ -74,7 +77,10 @@ export interface CreativeWorksCredit extends Struct.ComponentSchema {
   }
   attributes: {
     job: Schema.Attribute.String
-    person: Schema.Attribute.Relation<"oneToOne", "api::person.person">
+    person: Schema.Attribute.Relation<
+      "oneToOne",
+      "plugin::creative-works.person"
+    >
   }
 }
 

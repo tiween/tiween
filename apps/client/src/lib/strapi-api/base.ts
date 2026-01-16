@@ -13,11 +13,23 @@ import { isDevelopment } from "@/lib/general-helpers"
 // Add endpoints here that are queried from the frontend.
 // Mapping of Strapi content type UIDs to API endpoint paths.
 
-export const API_ENDPOINTS: { [key in UID.ContentType]?: string } = {
-  "api::page.page": "/pages",
-  "api::footer.footer": "/footer",
-  "api::navbar.navbar": "/navbar",
-  "api::subscriber.subscriber": "/subscribers",
+// TODO: Plugin content types (events-manager, ticketing, etc.) are not yet in UID.ContentType
+// Once plugin types are exported to @tiween/admin, remove this type assertion
+export const API_ENDPOINTS: Record<string, string> = {
+  // Plugin content type endpoints (events-manager, ticketing, geography, etc.)
+  "plugin::events-manager.event": "/events-manager/events",
+  "plugin::events-manager.venue": "/events-manager/venues",
+  "plugin::events-manager.showtime": "/events-manager/showtimes",
+  "plugin::creative-works.creative-work": "/creative-works/creative-works",
+  "plugin::geography.region": "/geography/regions",
+  "plugin::geography.city": "/geography/cities",
+  "plugin::ticketing.ticket": "/ticketing/tickets",
+  "plugin::ticketing.ticket-order": "/ticketing/ticket-orders",
+  "plugin::user-engagement.user-watchlist": "/user-engagement/user-watchlists",
+  // Core content types
+  "api::category.category": "/categories",
+  "api::genre.genre": "/genres",
+  "api::person.person": "/people",
 } as const
 
 export default abstract class BaseStrapiClient {
@@ -259,13 +271,13 @@ export default abstract class BaseStrapiClient {
    * @param uid - UID of the Endpoint
    * @returns API Endpoint path
    */
-  public getStrapiApiPathByUId(uid: keyof typeof API_ENDPOINTS): string {
+  public getStrapiApiPathByUId(uid: string): string {
     const path = API_ENDPOINTS[uid]
     if (path) {
       return path
     }
     throw new Error(
-      `Endpoint for UID "${uid}" not found. Extend API_ENDPOINTS in lib/api/client.ts.`
+      `Endpoint for UID "${uid}" not found. Extend API_ENDPOINTS in lib/strapi-api/base.ts.`
     )
   }
 

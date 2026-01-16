@@ -8,11 +8,8 @@ import { setRequestLocale } from "next-intl/server"
 import { fontInter, fontLalezar, fontNotoSansArabic } from "@/lib/fonts"
 import { routing } from "@/lib/navigation"
 import { cn } from "@/lib/styles"
-import { ErrorBoundary } from "@/components/elementary/ErrorBoundary"
 import StrapiPreviewListener from "@/components/elementary/StrapiPreviewListener"
 import { TailwindIndicator } from "@/components/elementary/TailwindIndicator"
-import StrapiFooter from "@/components/page-builder/single-types/footer/StrapiFooter"
-import StrapiNavbar from "@/components/page-builder/single-types/navbar/StrapiNavbar"
 import { ClientProviders } from "@/components/providers/ClientProviders"
 import { ServerProviders } from "@/components/providers/ServerProviders"
 import TrackingScripts from "@/components/providers/TrackingScripts"
@@ -106,9 +103,7 @@ export default async function RootLayout({
           <StrapiPreviewListener />
           <ClientProviders>
             <div className="relative flex min-h-screen flex-col">
-              <ErrorBoundary hideFallback>
-                <StrapiNavbar locale={locale} />
-              </ErrorBoundary>
+              {/* TODO: Add Tiween Navbar component */}
 
               <div className="flex-1">
                 <div>{children}</div>
@@ -118,9 +113,7 @@ export default async function RootLayout({
 
               <Toaster />
 
-              <ErrorBoundary hideFallback>
-                <StrapiFooter locale={locale} />
-              </ErrorBoundary>
+              {/* TODO: Add Tiween Footer component */}
             </div>
           </ClientProviders>
         </ServerProviders>

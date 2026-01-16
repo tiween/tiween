@@ -1,0 +1,19 @@
+{
+  "name": "user-engagement",
+  "version": "1.0.0",
+  "description": "User interactions and preferences for Tiween",
+  "license": "MIT",
+  "strapi": {
+    "displayName": "User Engagement",
+    "name": "user-engagement",
+    "description": "Track user watchlists and preferences",
+    "kind": "plugin",
+    "required": false
+  },
+  "peerDependencies": {
+    "@strapi/strapi": "^5.0.0"
+  },
+  "dependencies": {
+    "creative-works": "1.0.0"
+  }
+}

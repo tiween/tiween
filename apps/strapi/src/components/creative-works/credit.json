@@ -10,7 +10,7 @@
     "person": {
       "type": "relation",
       "relation": "oneToOne",
-      "target": "api::person.person"
+      "target": "plugin::creative-works.person"
     },
     "job": {
       "type": "string"

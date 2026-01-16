@@ -1,0 +1,16 @@
+{
+  "name": "geography",
+  "version": "1.0.0",
+  "description": "Location hierarchy management for Tiween - regions and cities",
+  "license": "MIT",
+  "strapi": {
+    "displayName": "Geography",
+    "name": "geography",
+    "description": "Manage regions and cities",
+    "kind": "plugin",
+    "required": false
+  },
+  "peerDependencies": {
+    "@strapi/strapi": "^5.0.0"
+  }
+}

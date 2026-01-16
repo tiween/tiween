@@ -83,7 +83,7 @@
     "defaultRegion": {
       "type": "relation",
       "relation": "manyToOne",
-      "target": "api::region.region"
+      "target": "plugin::geography.region"
     }
   }
 }

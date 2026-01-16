@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recherche - Tiween</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lalezar&family=Noto+Sans+Arabic:wght@400;500;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'tiween-green': '#032523',
+            'tiween-green-light': '#0A3533',
+            'tiween-green-lighter': '#0F4542',
+            'tiween-yellow': '#F8EB06',
+            'tiween-yellow-dim': '#C4BA05',
+            'muted': '#A0A0A0',
+            'surface': '#0A3533',
+            'surface-hover': '#0F4542',
+          },
+          fontFamily: {
+            'display': ['Lalezar', 'cursive'],
+            'arabic': ['Noto Sans Arabic', 'sans-serif'],
+            'body': ['DM Sans', 'system-ui', 'sans-serif'],
+          },
+        },
+      },
+    }
+  </script>
+  <style>
+    * {
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background: linear-gradient(180deg, #032523 0%, #021a19 100%);
+      min-height: 100vh;
+    }
+
+    .noise-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      opacity: 0.03;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: #F8EB06;
+      box-shadow: 0 0 0 3px rgba(248, 235, 6, 0.1);
+    }
+
+    .filter-chip {
+      transition: all 0.2s ease;
+    }
+
+    .filter-chip:hover {
+      background: rgba(248, 235, 6, 0.1);
+    }
+
+    .filter-chip.active {
+      background: #F8EB06;
+      color: #032523;
+    }
+
+    .event-card {
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .event-card:hover {
+      transform: translateY(-4px);
+    }
+
+    .scrollbar-hide::-webkit-scrollbar {
+      display: none;
+    }
+
+    .scrollbar-hide {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .animate-fade-in {
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    .empty-state {
+      display: none;
+    }
+
+    .empty-state.show {
+      display: flex;
+    }
+
+    .results-section.hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body class="font-body text-white antialiased pb-20">
+  <!-- Noise texture overlay -->
+  <div class="noise-overlay"></div>
+
+  <!-- Search Header -->
+  <header class="sticky top-0 z-50 bg-tiween-green/95 backdrop-blur-md border-b border-white/5 px-4 py-3">
+    <div class="relative">
+      <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+      </svg>
+      <input
+        type="text"
+        id="searchInput"
+        placeholder="Rechercher un film, spectacle, lieu..."
+        class="search-input w-full pl-10 pr-10 py-3 bg-surface text-white placeholder:text-muted rounded-xl border border-white/10 text-sm min-h-[48px]"
+        autocomplete="off"
+      >
+      <button id="clearBtn" class="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-white/10 rounded-full items-center justify-center hidden hover:bg-white/20 transition-colors">
+        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="px-4 py-4">
+    <!-- Initial State: Recent Searches & Categories -->
+    <div id="initialState">
+      <!-- Recent Searches -->
+      <section class="mb-6">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="font-display text-lg">Recherches récentes</h2>
+          <button class="text-tiween-yellow text-xs font-medium hover:underline">Effacer</button>
+        </div>
+
+        <div class="space-y-2">
+          <button class="w-full flex items-center gap-3 px-3 py-2.5 bg-surface rounded-lg hover:bg-surface-hover transition-colors text-left">
+            <svg class="w-4 h-4 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <span class="text-sm">Dachra</span>
+          </button>
+          <button class="w-full flex items-center gap-3 px-3 py-2.5 bg-surface rounded-lg hover:bg-surface-hover transition-colors text-left">
+            <svg class="w-4 h-4 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <span class="text-sm">Théâtre Municipal</span>
+          </button>
+          <button class="w-full flex items-center gap-3 px-3 py-2.5 bg-surface rounded-lg hover:bg-surface-hover transition-colors text-left">
+            <svg class="w-4 h-4 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <span class="text-sm">Emel Mathlouthi concert</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- Browse by Category -->
+      <section class="mb-6">
+        <h2 class="font-display text-lg mb-3">Parcourir par catégorie</h2>
+
+        <div class="grid grid-cols-2 gap-3">
+          <button class="bg-surface rounded-xl p-4 text-left hover:bg-surface-hover transition-colors group">
+            <div class="w-12 h-12 bg-tiween-yellow/10 rounded-lg flex items-center justify-center mb-3 group-hover:bg-tiween-yellow/20 transition-colors">
+              <svg class="w-6 h-6 text-tiween-yellow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"/>
+              </svg>
+            </div>
+            <h3 class="font-semibold text-sm mb-0.5">Cinéma</h3>
+            <p class="text-xs text-muted">24 films</p>
+          </button>
+
+          <button class="bg-surface rounded-xl p-4 text-left hover:bg-surface-hover transition-colors group">
+            <div class="w-12 h-12 bg-tiween-yellow/10 rounded-lg flex items-center justify-center mb-3 group-hover:bg-tiween-yellow/20 transition-colors">
+              <svg class="w-6 h-6 text-tiween-yellow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"/>
+              </svg>
+            </div>
+            <h3 class="font-semibold text-sm mb-0.5">Théâtre</h3>
+            <p class="text-xs text-muted">18 spectacles</p>
+          </button>
+
+          <button class="bg-surface rounded-xl p-4 text-left hover:bg-surface-hover transition-colors group">
+            <div class="w-12 h-12 bg-tiween-yellow/10 rounded-lg flex items-center justify-center mb-3 group-hover:bg-tiween-yellow/20 transition-colors">
+              <svg class="w-6 h-6 text-tiween-yellow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/>
+              </svg>
+            </div>
+            <h3 class="font-semibold text-sm mb-0.5">Concerts</h3>
+            <p class="text-xs text-muted">12 événements</p>
+          </button>
+
+          <button class="bg-surface rounded-xl p-4 text-left hover:bg-surface-hover transition-colors group">
+            <div class="w-12 h-12 bg-tiween-yellow/10 rounded-lg flex items-center justify-center mb-3 group-hover:bg-tiween-yellow/20 transition-colors">
+              <svg class="w-6 h-6 text-tiween-yellow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+              </svg>
+            </div>
+            <h3 class="font-semibold text-sm mb-0.5">Expositions</h3>
+            <p class="text-xs text-muted">8 expositions</p>
+          </button>
+
+          <button class="bg-surface rounded-xl p-4 text-left hover:bg-surface-hover transition-colors group">
+            <div class="w-12 h-12 bg-tiween-yellow/10 rounded-lg flex items-center justify-center mb-3 group-hover:bg-tiween-yellow/20 transition-colors">
+              <svg class="w-6 h-6 text-tiween-yellow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+            </div>
+            <h3 class="font-semibold text-sm mb-0.5">Courts-métrages</h3>
+            <p class="text-xs text-muted">32 films</p>
+          </button>
+
+          <button class="bg-surface rounded-xl p-4 text-left hover:bg-surface-hover transition-colors group">
+            <div class="w-12 h-12 bg-tiween-yellow/10 rounded-lg flex items-center justify-center mb-3 group-hover:bg-tiween-yellow/20 transition-colors">
+              <svg class="w-6 h-6 text-tiween-yellow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+              </svg>
+            </div>
+            <h3 class="font-semibold text-sm mb-0.5">Lieux</h3>
+            <p class="text-xs text-muted">15 salles</p>
+          </button>
+        </div>
+      </section>
+
+      <!-- Popular Searches -->
+      <section>
+        <h2 class="font-display text-lg mb-3">Tendances</h2>
+        <div class="flex flex-wrap gap-2">
+          <button class="px-3 py-2 bg-surface text-sm rounded-full hover:bg-surface-hover transition-colors">
+            #Festival
+          </button>
+          <button class="px-3 py-2 bg-surface text-sm rounded-full hover:bg-surface-hover transition-colors">
+            #CinémaTunisien
+          </button>
+          <button class="px-3 py-2 bg-surface text-sm rounded-full hover:bg-surface-hover transition-colors">
+            #Théâtre
+          </button>
+          <button class="px-3 py-2 bg-surface text-sm rounded-full hover:bg-surface-hover transition-colors">
+            #Gratuit
+          </button>
+          <button class="px-3 py-2 bg-surface text-sm rounded-full hover:bg-surface-hover transition-colors">
+            #CeSoir
+          </button>
+        </div>
+      </section>
+    </div>
+
+    <!-- Search Results State -->
+    <div id="resultsState" class="results-section hidden">
+      <!-- Filter Chips -->
+      <div class="flex gap-2 mb-4 overflow-x-auto scrollbar-hide pb-2">
+        <button class="filter-chip active flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium min-h-[40px]">
+          Tout
+        </button>
+        <button class="filter-chip flex-shrink-0 px-4 py-2 bg-surface rounded-full text-sm font-medium text-white/80 min-h-[40px]">
+          Films
+        </button>
+        <button class="filter-chip flex-shrink-0 px-4 py-2 bg-surface rounded-full text-sm font-medium text-white/80 min-h-[40px]">
+          Spectacles
+        </button>
+        <button class="filter-chip flex-shrink-0 px-4 py-2 bg-surface rounded-full text-sm font-medium text-white/80 min-h-[40px]">
+          Lieux
+        </button>
+      </div>
+
+      <!-- Results Count -->
+      <p class="text-sm text-muted mb-4"><span id="resultCount">6</span> résultats pour "<span id="searchQuery">dachra</span>"</p>
+
+      <!-- Results Grid -->
+      <div class="grid grid-cols-2 gap-3" id="resultsGrid">
+        <!-- Result Card 1 - Overlay Design -->
+        <a href="event-detail.html" class="event-card group relative aspect-[2/3] rounded-xl overflow-hidden animate-fade-in block">
+          <img src="https://image.tmdb.org/t/p/w500/3bhkrj58Vtu7enYsRolD1fZdja1.jpg" alt="Dachra" class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+          <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
+
+          <!-- Category badge -->
+          <div class="absolute top-2.5 left-2.5 px-2 py-0.5 bg-black/50 backdrop-blur-md text-xs font-medium rounded-full border border-white/10">
+            Cinéma
+          </div>
+
+          <!-- Bottom overlay content -->
+          <div class="absolute bottom-0 left-0 right-0 p-3">
+            <h4 class="font-semibold text-sm mb-1 line-clamp-1 drop-shadow-lg">Dachra</h4>
+            <p class="text-xs text-white/70 line-clamp-1">Cinéma Le Colisée</p>
+          </div>
+        </a>
+
+        <!-- Result Card 2 - Overlay Design -->
+        <a href="event-detail.html" class="event-card group relative aspect-[2/3] rounded-xl overflow-hidden animate-fade-in block" style="animation-delay: 0.1s">
+          <img src="https://image.tmdb.org/t/p/w500/xV2sx0aD0M9bNXS3Q6SJMfLe8Yr.jpg" alt="Dachra 2" class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+          <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
+
+          <!-- Category badge -->
+          <div class="absolute top-2.5 left-2.5 px-2 py-0.5 bg-black/50 backdrop-blur-md text-xs font-medium rounded-full border border-white/10">
+            Cinéma
+          </div>
+
+          <!-- Bottom overlay content -->
+          <div class="absolute bottom-0 left-0 right-0 p-3">
+            <h4 class="font-semibold text-sm mb-1 line-clamp-1 drop-shadow-lg">Dachra 2: Le Retour</h4>
+            <p class="text-xs text-white/70 line-clamp-1">Pathé Tunis City</p>
+          </div>
+        </a>
+
+        <!-- Result Card 3 - Venue (horizontal layout preserved) -->
+        <a href="venue-detail.html" class="event-card bg-surface rounded-xl overflow-hidden animate-fade-in col-span-2 block hover:bg-surface-hover transition-colors" style="animation-delay: 0.2s">
+          <div class="flex">
+            <div class="w-24 h-24 flex-shrink-0 relative overflow-hidden">
+              <img src="https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?w=200&q=80" alt="Lieu" class="w-full h-full object-cover">
+              <div class="absolute inset-0 bg-gradient-to-r from-transparent to-surface/50"></div>
+            </div>
+            <div class="p-3 flex-1">
+              <span class="text-[10px] text-tiween-yellow font-medium uppercase tracking-wider">Lieu</span>
+              <h4 class="font-semibold text-sm mb-1">Cinéma Le Colisée</h4>
+              <p class="text-xs text-muted mb-2">Avenue Habib Bourguiba, Tunis</p>
+              <span class="text-xs text-tiween-yellow">3 séances "Dachra" aujourd'hui</span>
+            </div>
+          </div>
+        </a>
+
+        <!-- Result Card 4 - Overlay Design (FREE EVENT) -->
+        <a href="event-detail.html" class="event-card group relative aspect-[2/3] rounded-xl overflow-hidden animate-fade-in block" style="animation-delay: 0.3s">
+          <img src="https://images.unsplash.com/photo-1478720568477-152d9b164e26?w=400&q=80" alt="Documentary" class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+          <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
+
+          <!-- Category + Free badges -->
+          <div class="absolute top-2.5 left-2.5 flex items-center gap-1.5">
+            <div class="px-2 py-0.5 bg-black/50 backdrop-blur-md text-xs font-medium rounded-full border border-white/10">
+              Documentaire
+            </div>
+            <div class="px-2 py-0.5 bg-emerald-500 text-white text-xs font-bold rounded-full">
+              Gratuit
+            </div>
+          </div>
+
+          <!-- Bottom overlay content -->
+          <div class="absolute bottom-0 left-0 right-0 p-3">
+            <h4 class="font-semibold text-sm mb-1 line-clamp-1 drop-shadow-lg">Making of Dachra</h4>
+            <p class="text-xs text-white/70 line-clamp-1">El Teatro</p>
+          </div>
+        </a>
+
+        <!-- Result Card 5 - Overlay Design -->
+        <a href="event-detail.html" class="event-card group relative aspect-[2/3] rounded-xl overflow-hidden animate-fade-in block" style="animation-delay: 0.4s">
+          <img src="https://image.tmdb.org/t/p/w500/tDW7VggXLzslNJkNT87S11bPYfM.jpg" alt="Short Film" class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+          <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
+
+          <!-- Category badge -->
+          <div class="absolute top-2.5 left-2.5 px-2 py-0.5 bg-black/50 backdrop-blur-md text-xs font-medium rounded-full border border-white/10">
+            Court-métrage
+          </div>
+
+          <!-- Bottom overlay content -->
+          <div class="absolute bottom-0 left-0 right-0 p-3">
+            <h4 class="font-semibold text-sm mb-1 line-clamp-1 drop-shadow-lg">Dachra: Origins</h4>
+            <p class="text-xs text-white/70 line-clamp-1">CinéMadart</p>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div id="emptyState" class="empty-state flex-col items-center justify-center py-16 text-center">
+      <div class="w-24 h-24 bg-surface rounded-full flex items-center justify-center mb-4">
+        <svg class="w-12 h-12 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+      </div>
+      <h3 class="font-display text-xl mb-2">Aucun résultat</h3>
+      <p class="text-sm text-muted mb-4 max-w-xs">
+        Aucun événement trouvé pour "<span id="emptySearchQuery">xyz</span>".
+        Essayez une autre recherche.
+      </p>
+      <button id="clearSearchBtn" class="px-6 py-3 bg-surface text-tiween-yellow font-medium rounded-xl hover:bg-surface-hover transition-colors min-h-[48px]">
+        Effacer la recherche
+      </button>
+    </div>
+  </main>
+
+  <!-- Bottom Navigation -->
+  <nav class="fixed bottom-0 left-0 right-0 z-50 bg-tiween-green border-t border-white/10 safe-area-pb">
+    <div class="flex items-center justify-around h-16">
+      <a href="home.html" class="flex flex-col items-center justify-center w-full h-full text-muted hover:bg-white/5 transition-colors">
+        <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+        </svg>
+        <span class="text-xs font-medium">Accueil</span>
+      </a>
+      <a href="search.html" class="flex flex-col items-center justify-center w-full h-full text-tiween-yellow">
+        <svg class="w-6 h-6 mb-1" fill="currentColor" viewBox="0 0 24 24">
+          <path fill-rule="evenodd" d="M10.5 3.75a6.75 6.75 0 100 13.5 6.75 6.75 0 000-13.5zM2.25 10.5a8.25 8.25 0 1114.59 5.28l4.69 4.69a.75.75 0 11-1.06 1.06l-4.69-4.69A8.25 8.25 0 012.25 10.5z" clip-rule="evenodd"/>
+        </svg>
+        <span class="text-xs font-medium">Recherche</span>
+      </a>
+      <a href="my-tickets.html" class="flex flex-col items-center justify-center w-full h-full text-muted hover:bg-white/5 transition-colors relative">
+        <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"/>
+        </svg>
+        <span class="text-xs font-medium">Billets</span>
+        <span class="absolute top-1 right-1/4 w-5 h-5 bg-tiween-yellow text-tiween-green text-[10px] font-bold rounded-full flex items-center justify-center">2</span>
+      </a>
+      <a href="account.html" class="flex flex-col items-center justify-center w-full h-full text-muted hover:bg-white/5 transition-colors">
+        <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+        </svg>
+        <span class="text-xs font-medium">Compte</span>
+      </a>
+    </div>
+  </nav>
+
+  <script>
+    const searchInput = document.getElementById('searchInput');
+    const clearBtn = document.getElementById('clearBtn');
+    const initialState = document.getElementById('initialState');
+    const resultsState = document.getElementById('resultsState');
+    const emptyState = document.getElementById('emptyState');
+    const searchQuery = document.getElementById('searchQuery');
+    const emptySearchQuery = document.getElementById('emptySearchQuery');
+    const clearSearchBtn = document.getElementById('clearSearchBtn');
+
+    let debounceTimer;
+
+    searchInput.addEventListener('input', function() {
+      const query = this.value.trim();
+
+      // Show/hide clear button
+      if (query.length > 0) {
+        clearBtn.classList.remove('hidden');
+        clearBtn.classList.add('flex');
+      } else {
+        clearBtn.classList.add('hidden');
+        clearBtn.classList.remove('flex');
+      }
+
+      // Debounce search
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        if (query.length === 0) {
+          showInitialState();
+        } else if (query.toLowerCase().includes('xyz') || query.toLowerCase().includes('zzz')) {
+          showEmptyState(query);
+        } else {
+          showResults(query);
+        }
+      }, 300);
+    });
+
+    clearBtn.addEventListener('click', function() {
+      searchInput.value = '';
+      clearBtn.classList.add('hidden');
+      clearBtn.classList.remove('flex');
+      showInitialState();
+      searchInput.focus();
+    });
+
+    clearSearchBtn.addEventListener('click', function() {
+      searchInput.value = '';
+      clearBtn.classList.add('hidden');
+      showInitialState();
+      searchInput.focus();
+    });
+
+    function showInitialState() {
+      initialState.classList.remove('hidden');
+      resultsState.classList.add('hidden');
+      emptyState.classList.remove('show');
+    }
+
+    function showResults(query) {
+      initialState.classList.add('hidden');
+      resultsState.classList.remove('hidden');
+      emptyState.classList.remove('show');
+      searchQuery.textContent = query;
+    }
+
+    function showEmptyState(query) {
+      initialState.classList.add('hidden');
+      resultsState.classList.add('hidden');
+      emptyState.classList.add('show');
+      emptySearchQuery.textContent = query;
+    }
+
+    // Filter chip switching
+    document.querySelectorAll('.filter-chip').forEach(chip => {
+      chip.addEventListener('click', function() {
+        document.querySelectorAll('.filter-chip').forEach(c => {
+          c.classList.remove('active');
+          c.classList.add('bg-surface', 'text-white/80');
+        });
+        this.classList.add('active');
+        this.classList.remove('bg-surface', 'text-white/80');
+      });
+    });
+
+    // Recent search click
+    document.querySelectorAll('#initialState button').forEach(btn => {
+      if (btn.querySelector('svg.text-muted')) {
+        btn.addEventListener('click', function() {
+          const text = this.querySelector('span').textContent;
+          searchInput.value = text;
+          searchInput.dispatchEvent(new Event('input'));
+        });
+      }
+    });
+  </script>
+</body>
+</html>

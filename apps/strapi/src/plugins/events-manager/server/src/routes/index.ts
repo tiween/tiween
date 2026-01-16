@@ -34,6 +34,32 @@ export default {
           policies: [],
         },
       },
+      // Seed routes (admin only)
+      {
+        method: "POST",
+        path: "/seed",
+        handler: "seed.seed",
+        config: {
+          policies: [],
+          auth: false,
+        },
+      },
+      {
+        method: "POST",
+        path: "/seed/venues",
+        handler: "seed.seedVenues",
+        config: {
+          policies: [],
+        },
+      },
+      {
+        method: "POST",
+        path: "/seed/event-groups",
+        handler: "seed.seedEventGroups",
+        config: {
+          policies: [],
+        },
+      },
     ],
   },
 }

@@ -50,6 +50,10 @@ export const env = createEnv({
     SENTRY_SUPPRESS_GLOBAL_ERROR_HANDLER_FILE_WARNING: z.string().optional(),
 
     RECAPTCHA_SECRET_KEY: z.string().optional(),
+
+    // Brevo (Newsletter signup)
+    BREVO_API_KEY: z.string().optional(),
+    BREVO_LIST_ID: z.coerce.number().optional(),
   },
   /*
    * Environment variables available on the client (and server).
@@ -119,5 +123,9 @@ export const env = createEnv({
 
     RECAPTCHA_SECRET_KEY: process.env.RECAPTCHA_SECRET_KEY,
     NEXT_PUBLIC_RECAPTCHA_SITE_KEY: process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY,
+
+    // Brevo (Newsletter signup)
+    BREVO_API_KEY: process.env.BREVO_API_KEY,
+    BREVO_LIST_ID: process.env.BREVO_LIST_ID,
   },
 })

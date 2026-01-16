@@ -37,8 +37,9 @@
     "src/admin/",
     // Do not include test files
     "**/*.test.*",
-    // Do not include plugins in the server compilation
-    "src/plugins/**",
+    // Local plugins are included for compilation (they export content types)
+    // Only exclude plugin admin folders
+    "src/plugins/**/admin/**",
     // https://docs.strapi.io/dev-docs/typescript/development#fix-build-issues-with-the-generated-types
     "types/generated/**"
   ]

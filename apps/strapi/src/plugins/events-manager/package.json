@@ -1,12 +1,21 @@
 {
   "name": "events-manager",
-  "version": "0.0.0",
-  "description": "Event management plugin for Tiween - streamlined event scheduling and ticket management",
+  "version": "1.0.0",
+  "description": "Event scheduling and venue management for Tiween",
   "license": "MIT",
   "strapi": {
     "displayName": "Events Manager",
     "name": "events-manager",
-    "description": "Streamlined event management for venue managers",
-    "kind": "plugin"
+    "description": "Schedule events, manage venues, and handle showtimes",
+    "kind": "plugin",
+    "required": false
+  },
+  "peerDependencies": {
+    "@strapi/strapi": "^5.0.0"
+  },
+  "dependencies": {
+    "creative-works": "1.0.0",
+    "geography": "1.0.0",
+    "rrule": "^2.8.1"
   }
 }

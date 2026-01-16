@@ -31,6 +31,7 @@
     ]
   },
   "dependencies": {
+    "@ayhid/strapi-provider-email-brevo": "^0.0.0-development",
     "@strapi/plugin-sentry": "^5.33.1",
     "@strapi/plugin-users-permissions": "^5.33.1",
     "@strapi/provider-email-mailgun": "^5.33.1",
@@ -46,7 +47,10 @@
     "strapi-plugin-config-sync": "2.1.0",
     "strapi-plugin-imagekit": "^1.0.2",
     "strapi-provider-upload-imagekit": "^5.11.11",
-    "styled-components": "^6.0.0"
+    "styled-components": "^6.0.0",
+    "tmdb-ts": "^2.0.0",
+    "rrule": "^2.8.1",
+    "use-debounce": "^10.0.0"
   },
   "devDependencies": {
     "@types/node": "^22",

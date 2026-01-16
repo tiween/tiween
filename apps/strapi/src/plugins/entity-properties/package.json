@@ -1,0 +1,16 @@
+{
+  "name": "entity-properties",
+  "version": "1.0.0",
+  "description": "Flexible property/amenity system for attaching typed attributes to content types",
+  "license": "MIT",
+  "strapi": {
+    "displayName": "Entity Properties",
+    "name": "entity-properties",
+    "description": "Manage property definitions and categories for venues and other entities",
+    "kind": "plugin",
+    "required": false
+  },
+  "peerDependencies": {
+    "@strapi/strapi": "^5.0.0"
+  }
+}

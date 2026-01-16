@@ -1,0 +1,32 @@
+{
+  "kind": "collectionType",
+  "collectionName": "user_watchlists",
+  "info": {
+    "singularName": "user-watchlist",
+    "pluralName": "user-watchlists",
+    "displayName": "User Watchlist",
+    "description": "User's saved creative works for later viewing with notification preferences"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "user": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "creativeWork": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::creative-works.creative-work"
+    },
+    "addedAt": {
+      "type": "datetime"
+    },
+    "notifyChanges": {
+      "type": "boolean",
+      "default": true
+    }
+  }
+}

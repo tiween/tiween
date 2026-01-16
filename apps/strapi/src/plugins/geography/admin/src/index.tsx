@@ -1,0 +1,45 @@
+import { Earth } from "@strapi/icons"
+
+import { PLUGIN_ID } from "./pluginId"
+
+export default {
+  register(app: any) {
+    app.addMenuLink({
+      to: `/plugins/${PLUGIN_ID}`,
+      icon: Earth,
+      intlLabel: {
+        id: `${PLUGIN_ID}.plugin.name`,
+        defaultMessage: "Geography",
+      },
+      permissions: [],
+      Component: async () => {
+        const component = await import(
+          /* webpackChunkName: "geography" */ "./pages/App"
+        )
+        return component
+      },
+    })
+
+    app.registerPlugin({
+      id: PLUGIN_ID,
+      name: PLUGIN_ID,
+    })
+  },
+
+  bootstrap() {},
+
+  async registerTrads({ locales }: { locales: string[] }) {
+    return Promise.all(
+      locales.map(async (locale) => {
+        try {
+          const { default: data } = await import(
+            `./translations/${locale}.json`
+          )
+          return { data, locale }
+        } catch {
+          return { data: {}, locale }
+        }
+      })
+    )
+  },
+}

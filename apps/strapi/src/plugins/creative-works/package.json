@@ -1,0 +1,16 @@
+{
+  "name": "creative-works",
+  "version": "1.0.0",
+  "description": "Content catalog management for Tiween - films, plays, people, and genres",
+  "license": "MIT",
+  "strapi": {
+    "displayName": "Creative Works",
+    "name": "creative-works",
+    "description": "Manage films, plays, concerts, people, and genres",
+    "kind": "plugin",
+    "required": false
+  },
+  "peerDependencies": {
+    "@strapi/strapi": "^5.0.0"
+  }
+}

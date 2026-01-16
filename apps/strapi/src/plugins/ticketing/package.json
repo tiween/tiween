@@ -1,0 +1,19 @@
+{
+  "name": "ticketing",
+  "version": "1.0.0",
+  "description": "Ticket sales and order management for Tiween",
+  "license": "MIT",
+  "strapi": {
+    "displayName": "Ticketing",
+    "name": "ticketing",
+    "description": "Handle ticket sales, orders, and validation",
+    "kind": "plugin",
+    "required": false
+  },
+  "peerDependencies": {
+    "@strapi/strapi": "^5.0.0"
+  },
+  "dependencies": {
+    "events-manager": "1.0.0"
+  }
+}

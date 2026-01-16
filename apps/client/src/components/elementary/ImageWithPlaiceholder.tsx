@@ -39,10 +39,10 @@ export const ImageWithPlaiceholder = async (props: ImageExtendedProps) => {
   const fallbackSrc = formatStrapiMediaUrl(props.fallbackSrc)
 
   const srcPlaceholder =
-    src != null ? await generatePlaceholder(src) : undefined
+    typeof src === "string" ? await generatePlaceholder(src) : undefined
 
   const fallbackSrcPlaceholder =
-    srcPlaceholder == null && fallbackSrc != null
+    srcPlaceholder == null && typeof fallbackSrc === "string"
       ? await generatePlaceholder(fallbackSrc)
       : undefined
 

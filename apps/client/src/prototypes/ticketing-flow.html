@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Réservation - Tiween</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lalezar&family=Noto+Sans+Arabic:wght@400;500;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'tiween-green': '#032523',
+            'tiween-green-light': '#0A3533',
+            'tiween-green-lighter': '#0F4542',
+            'tiween-yellow': '#F8EB06',
+            'tiween-yellow-dim': '#C4BA05',
+            'muted': '#A0A0A0',
+            'surface': '#0A3533',
+            'surface-hover': '#0F4542',
+          },
+          fontFamily: {
+            'display': ['Lalezar', 'cursive'],
+            'arabic': ['Noto Sans Arabic', 'sans-serif'],
+            'body': ['DM Sans', 'system-ui', 'sans-serif'],
+          },
+        },
+      },
+    }
+  </script>
+  <style>
+    * {
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background: #032523;
+      min-height: 100vh;
+    }
+
+    .noise-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      opacity: 0.03;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    }
+
+    .step-complete {
+      background: #F8EB06;
+      border-color: #F8EB06;
+    }
+
+    .step-active {
+      border-color: #F8EB06;
+      color: #F8EB06;
+    }
+
+    .step-inactive {
+      border-color: rgba(255,255,255,0.2);
+      color: rgba(255,255,255,0.4);
+    }
+
+    .seat {
+      width: 28px;
+      height: 28px;
+      border-radius: 4px 4px 8px 8px;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+
+    .seat-available {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .seat-available:hover {
+      background: rgba(248,235,6,0.2);
+      border-color: rgba(248,235,6,0.5);
+    }
+
+    .seat-selected {
+      background: #F8EB06;
+      border: 1px solid #F8EB06;
+    }
+
+    .seat-taken {
+      background: rgba(255,255,255,0.05);
+      cursor: not-allowed;
+    }
+
+    .seat-vip {
+      background: rgba(168,85,247,0.2);
+      border: 1px solid rgba(168,85,247,0.4);
+    }
+
+    .input-field {
+      transition: all 0.2s ease;
+    }
+
+    .input-field:focus {
+      outline: none;
+      border-color: #F8EB06;
+      box-shadow: 0 0 0 3px rgba(248,235,6,0.1);
+    }
+
+    .card-input {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23A0A0A0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='1' y='4' width='22' height='16' rx='2' ry='2'%3E%3C/rect%3E%3Cline x1='1' y1='10' x2='23' y2='10'%3E%3C/line%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: 12px center;
+      padding-left: 44px;
+    }
+
+    .step-panel {
+      display: none;
+    }
+
+    .step-panel.active {
+      display: block;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .quantity-btn {
+      transition: all 0.2s ease;
+    }
+
+    .quantity-btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    .quantity-btn:not(:disabled):hover {
+      background: rgba(248,235,6,0.2);
+    }
+
+    .quantity-btn:not(:disabled):active {
+      transform: scale(0.95);
+    }
+  </style>
+</head>
+<body class="font-body text-white antialiased">
+  <!-- Noise texture overlay -->
+  <div class="noise-overlay"></div>
+
+  <!-- Header -->
+  <header class="fixed top-0 left-0 right-0 z-50 bg-tiween-green/95 backdrop-blur-md border-b border-white/5">
+    <div class="flex items-center justify-between px-4 py-3">
+      <button onclick="history.back()" class="w-10 h-10 flex items-center justify-center -ml-2">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+        </svg>
+      </button>
+      <h1 class="font-display text-lg">Réservation</h1>
+      <div class="w-10"></div>
+    </div>
+
+    <!-- Progress Steps -->
+    <div class="flex items-center justify-center gap-2 px-4 pb-3">
+      <div class="flex items-center">
+        <div id="step1Indicator" class="w-8 h-8 rounded-full border-2 step-active flex items-center justify-center text-sm font-semibold">1</div>
+        <div class="w-8 h-0.5 bg-white/20"></div>
+      </div>
+      <div class="flex items-center">
+        <div id="step2Indicator" class="w-8 h-8 rounded-full border-2 step-inactive flex items-center justify-center text-sm font-semibold">2</div>
+        <div class="w-8 h-0.5 bg-white/20"></div>
+      </div>
+      <div class="flex items-center">
+        <div id="step3Indicator" class="w-8 h-8 rounded-full border-2 step-inactive flex items-center justify-center text-sm font-semibold">3</div>
+        <div class="w-8 h-0.5 bg-white/20"></div>
+      </div>
+      <div id="step4Indicator" class="w-8 h-8 rounded-full border-2 step-inactive flex items-center justify-center text-sm font-semibold">4</div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="pt-28 pb-32 px-4">
+    <!-- Event Summary (always visible) -->
+    <div class="flex gap-3 mb-6 p-3 bg-surface rounded-xl">
+      <img src="https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=100&q=80" alt="Dachra" class="w-16 h-24 object-cover rounded-lg">
+      <div class="flex-1">
+        <h2 class="font-semibold mb-1">Dachra</h2>
+        <p class="text-sm text-muted mb-1">Cinéma Le Colisée</p>
+        <p class="text-sm text-tiween-yellow">Aujourd'hui, 17:00</p>
+        <div class="flex gap-1 mt-1">
+          <span class="px-1.5 py-0.5 bg-white/10 text-[10px] rounded">VOST</span>
+          <span class="px-1.5 py-0.5 bg-white/10 text-[10px] rounded">Salle 2</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 1: Ticket Type Selection -->
+    <div id="step1Panel" class="step-panel active">
+      <h3 class="font-display text-xl mb-4">Choisir vos billets</h3>
+
+      <!-- Ticket Types -->
+      <div class="space-y-3">
+        <!-- Standard Ticket -->
+        <div class="bg-surface rounded-xl p-4">
+          <div class="flex items-center justify-between mb-2">
+            <div>
+              <h4 class="font-semibold">Tarif Normal</h4>
+              <p class="text-sm text-muted">Accès standard</p>
+            </div>
+            <span class="text-lg font-bold text-tiween-yellow">15 DT</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-xs text-muted">Places disponibles: 42</span>
+            <div class="flex items-center gap-3">
+              <button class="quantity-btn w-10 h-10 bg-surface-hover rounded-lg flex items-center justify-center" data-type="normal" data-action="decrease" disabled>
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/>
+                </svg>
+              </button>
+              <span class="w-8 text-center text-lg font-semibold" id="normalQty">0</span>
+              <button class="quantity-btn w-10 h-10 bg-surface-hover rounded-lg flex items-center justify-center" data-type="normal" data-action="increase">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Reduced Ticket -->
+        <div class="bg-surface rounded-xl p-4">
+          <div class="flex items-center justify-between mb-2">
+            <div>
+              <h4 class="font-semibold">Tarif Réduit</h4>
+              <p class="text-sm text-muted">Étudiants, -18 ans</p>
+            </div>
+            <span class="text-lg font-bold text-tiween-yellow">10 DT</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-xs text-muted">Justificatif requis</span>
+            <div class="flex items-center gap-3">
+              <button class="quantity-btn w-10 h-10 bg-surface-hover rounded-lg flex items-center justify-center" data-type="reduced" data-action="decrease" disabled>
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/>
+                </svg>
+              </button>
+              <span class="w-8 text-center text-lg font-semibold" id="reducedQty">0</span>
+              <button class="quantity-btn w-10 h-10 bg-surface-hover rounded-lg flex items-center justify-center" data-type="reduced" data-action="increase">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- VIP Ticket -->
+        <div class="bg-surface rounded-xl p-4 border border-purple-500/30">
+          <div class="flex items-center justify-between mb-2">
+            <div>
+              <div class="flex items-center gap-2">
+                <h4 class="font-semibold">VIP</h4>
+                <span class="px-2 py-0.5 bg-purple-500/20 text-purple-400 text-[10px] font-semibold rounded">PREMIUM</span>
+              </div>
+              <p class="text-sm text-muted">Meilleure vue + Boisson incluse</p>
+            </div>
+            <span class="text-lg font-bold text-tiween-yellow">30 DT</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-xs text-muted">Places disponibles: 8</span>
+            <div class="flex items-center gap-3">
+              <button class="quantity-btn w-10 h-10 bg-surface-hover rounded-lg flex items-center justify-center" data-type="vip" data-action="decrease" disabled>
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/>
+                </svg>
+              </button>
+              <span class="w-8 text-center text-lg font-semibold" id="vipQty">0</span>
+              <button class="quantity-btn w-10 h-10 bg-surface-hover rounded-lg flex items-center justify-center" data-type="vip" data-action="increase">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2: Seat Selection -->
+    <div id="step2Panel" class="step-panel">
+      <h3 class="font-display text-xl mb-4">Choisir vos places</h3>
+
+      <!-- Screen indicator -->
+      <div class="mb-6 text-center">
+        <div class="w-3/4 h-2 bg-gradient-to-b from-white/30 to-transparent mx-auto rounded-t-full mb-2"></div>
+        <span class="text-xs text-muted uppercase tracking-wider">Écran</span>
+      </div>
+
+      <!-- Seat Map -->
+      <div class="bg-surface rounded-xl p-4 mb-4 overflow-x-auto">
+        <div class="min-w-[300px] space-y-2">
+          <!-- Row A -->
+          <div class="flex items-center gap-1 justify-center">
+            <span class="w-6 text-xs text-muted text-right mr-2">A</span>
+            <div class="seat seat-available" data-seat="A1"></div>
+            <div class="seat seat-available" data-seat="A2"></div>
+            <div class="seat seat-taken"></div>
+            <div class="seat seat-taken"></div>
+            <div class="seat seat-available" data-seat="A5"></div>
+            <div class="seat seat-available" data-seat="A6"></div>
+            <div class="seat seat-available" data-seat="A7"></div>
+            <div class="seat seat-available" data-seat="A8"></div>
+          </div>
+          <!-- Row B -->
+          <div class="flex items-center gap-1 justify-center">
+            <span class="w-6 text-xs text-muted text-right mr-2">B</span>
+            <div class="seat seat-available" data-seat="B1"></div>
+            <div class="seat seat-available" data-seat="B2"></div>
+            <div class="seat seat-available" data-seat="B3"></div>
+            <div class="seat seat-taken"></div>
+            <div class="seat seat-taken"></div>
+            <div class="seat seat-available" data-seat="B6"></div>
+            <div class="seat seat-available" data-seat="B7"></div>
+            <div class="seat seat-available" data-seat="B8"></div>
+          </div>
+          <!-- Row C -->
+          <div class="flex items-center gap-1 justify-center">
+            <span class="w-6 text-xs text-muted text-right mr-2">C</span>
+            <div class="seat seat-available" data-seat="C1"></div>
+            <div class="seat seat-available" data-seat="C2"></div>
+            <div class="seat seat-available" data-seat="C3"></div>
+            <div class="seat seat-available" data-seat="C4"></div>
+            <div class="seat seat-available" data-seat="C5"></div>
+            <div class="seat seat-available" data-seat="C6"></div>
+            <div class="seat seat-available" data-seat="C7"></div>
+            <div class="seat seat-available" data-seat="C8"></div>
+          </div>
+          <!-- Row D -->
+          <div class="flex items-center gap-1 justify-center">
+            <span class="w-6 text-xs text-muted text-right mr-2">D</span>
+            <div class="seat seat-available" data-seat="D1"></div>
+            <div class="seat seat-taken"></div>
+            <div class="seat seat-available" data-seat="D3"></div>
+            <div class="seat seat-available" data-seat="D4"></div>
+            <div class="seat seat-available" data-seat="D5"></div>
+            <div class="seat seat-available" data-seat="D6"></div>
+            <div class="seat seat-taken"></div>
+            <div class="seat seat-available" data-seat="D8"></div>
+          </div>
+          <!-- Row E - VIP -->
+          <div class="flex items-center gap-1 justify-center mt-4">
+            <span class="w-6 text-xs text-purple-400 text-right mr-2">VIP</span>
+            <div class="seat seat-vip" data-seat="E1"></div>
+            <div class="seat seat-vip" data-seat="E2"></div>
+            <div class="seat seat-vip" data-seat="E3"></div>
+            <div class="seat seat-vip" data-seat="E4"></div>
+            <div class="seat seat-vip" data-seat="E5"></div>
+            <div class="seat seat-vip" data-seat="E6"></div>
+            <div class="seat seat-vip" data-seat="E7"></div>
+            <div class="seat seat-vip" data-seat="E8"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Legend -->
+      <div class="flex items-center justify-center gap-4 text-xs text-muted mb-4">
+        <div class="flex items-center gap-1">
+          <div class="w-4 h-4 bg-white/10 rounded border border-white/20"></div>
+          <span>Disponible</span>
+        </div>
+        <div class="flex items-center gap-1">
+          <div class="w-4 h-4 bg-tiween-yellow rounded"></div>
+          <span>Sélectionné</span>
+        </div>
+        <div class="flex items-center gap-1">
+          <div class="w-4 h-4 bg-white/5 rounded"></div>
+          <span>Occupé</span>
+        </div>
+        <div class="flex items-center gap-1">
+          <div class="w-4 h-4 bg-purple-500/20 rounded border border-purple-500/40"></div>
+          <span>VIP</span>
+        </div>
+      </div>
+
+      <p class="text-center text-sm text-muted">
+        Places sélectionnées: <span id="selectedSeats" class="text-tiween-yellow font-semibold">-</span>
+      </p>
+    </div>
+
+    <!-- Step 3: Contact Info -->
+    <div id="step3Panel" class="step-panel">
+      <h3 class="font-display text-xl mb-4">Vos coordonnées</h3>
+
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium mb-2">Email *</label>
+          <input
+            type="email"
+            class="input-field w-full px-4 py-3 bg-surface text-white placeholder:text-muted rounded-xl border border-white/10 text-sm min-h-[48px]"
+            placeholder="votre@email.com"
+            value="ayoub@tiween.com"
+          >
+          <p class="text-xs text-muted mt-1">Les billets seront envoyés à cette adresse</p>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium mb-2">Téléphone</label>
+          <input
+            type="tel"
+            class="input-field w-full px-4 py-3 bg-surface text-white placeholder:text-muted rounded-xl border border-white/10 text-sm min-h-[48px]"
+            placeholder="+216 XX XXX XXX"
+          >
+        </div>
+
+        <div class="flex items-start gap-3 p-4 bg-surface rounded-xl">
+          <input type="checkbox" id="createAccount" class="w-5 h-5 mt-0.5 rounded border-white/20 bg-surface text-tiween-yellow focus:ring-tiween-yellow">
+          <div>
+            <label for="createAccount" class="text-sm font-medium cursor-pointer">Créer un compte</label>
+            <p class="text-xs text-muted">Accédez à vos billets facilement et gérez votre watchlist</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 4: Payment -->
+    <div id="step4Panel" class="step-panel">
+      <h3 class="font-display text-xl mb-4">Paiement</h3>
+
+      <!-- Payment Methods -->
+      <div class="space-y-3 mb-6">
+        <button class="w-full flex items-center gap-3 p-4 bg-surface rounded-xl border-2 border-tiween-yellow text-left">
+          <div class="w-10 h-10 bg-tiween-yellow/20 rounded-lg flex items-center justify-center">
+            <svg class="w-5 h-5 text-tiween-yellow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+            </svg>
+          </div>
+          <div class="flex-1">
+            <span class="font-semibold text-sm">Carte bancaire</span>
+            <p class="text-xs text-muted">Visa, Mastercard, e-Dinar</p>
+          </div>
+          <svg class="w-5 h-5 text-tiween-yellow" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+          </svg>
+        </button>
+
+        <button class="w-full flex items-center gap-3 p-4 bg-surface rounded-xl border border-white/10 text-left hover:border-white/20 transition-colors">
+          <div class="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center">
+            <svg class="w-5 h-5 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+            </svg>
+          </div>
+          <div class="flex-1">
+            <span class="font-semibold text-sm">Flouci</span>
+            <p class="text-xs text-muted">Paiement mobile</p>
+          </div>
+        </button>
+      </div>
+
+      <!-- Card Form -->
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium mb-2">Numéro de carte</label>
+          <input
+            type="text"
+            class="input-field card-input w-full py-3 pr-4 bg-surface text-white placeholder:text-muted rounded-xl border border-white/10 text-sm min-h-[48px]"
+            placeholder="1234 5678 9012 3456"
+          >
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-sm font-medium mb-2">Expiration</label>
+            <input
+              type="text"
+              class="input-field w-full px-4 py-3 bg-surface text-white placeholder:text-muted rounded-xl border border-white/10 text-sm min-h-[48px]"
+              placeholder="MM/AA"
+            >
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-2">CVV</label>
+            <input
+              type="text"
+              class="input-field w-full px-4 py-3 bg-surface text-white placeholder:text-muted rounded-xl border border-white/10 text-sm min-h-[48px]"
+              placeholder="123"
+            >
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium mb-2">Nom sur la carte</label>
+          <input
+            type="text"
+            class="input-field w-full px-4 py-3 bg-surface text-white placeholder:text-muted rounded-xl border border-white/10 text-sm min-h-[48px]"
+            placeholder="JOHN DOE"
+          >
+        </div>
+      </div>
+
+      <!-- Security Note -->
+      <div class="flex items-center gap-2 mt-4 p-3 bg-surface rounded-lg">
+        <svg class="w-4 h-4 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+        </svg>
+        <span class="text-xs text-muted">Paiement sécurisé avec cryptage SSL</span>
+      </div>
+    </div>
+  </main>
+
+  <!-- Bottom Order Summary & CTA -->
+  <div class="fixed bottom-0 left-0 right-0 bg-tiween-green/95 backdrop-blur-md border-t border-white/10 p-4 safe-area-pb">
+    <div class="flex items-center justify-between mb-3">
+      <div>
+        <p class="text-xs text-muted">Total</p>
+        <p class="text-2xl font-bold text-tiween-yellow" id="totalPrice">0 DT</p>
+      </div>
+      <div class="text-right">
+        <p class="text-sm" id="ticketSummary">0 billet(s)</p>
+      </div>
+    </div>
+    <button id="nextBtn" class="w-full py-4 bg-tiween-yellow text-tiween-green text-center font-bold rounded-xl hover:bg-tiween-yellow-dim transition-colors min-h-[52px] disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+      Continuer
+    </button>
+  </div>
+
+  <script>
+    // State
+    let currentStep = 1;
+    let tickets = { normal: 0, reduced: 0, vip: 0 };
+    let selectedSeats = [];
+    const prices = { normal: 15, reduced: 10, vip: 30 };
+
+    // DOM Elements
+    const panels = {
+      1: document.getElementById('step1Panel'),
+      2: document.getElementById('step2Panel'),
+      3: document.getElementById('step3Panel'),
+      4: document.getElementById('step4Panel')
+    };
+    const indicators = {
+      1: document.getElementById('step1Indicator'),
+      2: document.getElementById('step2Indicator'),
+      3: document.getElementById('step3Indicator'),
+      4: document.getElementById('step4Indicator')
+    };
+    const nextBtn = document.getElementById('nextBtn');
+    const totalPrice = document.getElementById('totalPrice');
+    const ticketSummary = document.getElementById('ticketSummary');
+    const selectedSeatsEl = document.getElementById('selectedSeats');
+
+    // Initialize quantity buttons
+    document.querySelectorAll('.quantity-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const type = this.dataset.type;
+        const action = this.dataset.action;
+
+        if (action === 'increase' && tickets[type] < 10) {
+          tickets[type]++;
+        } else if (action === 'decrease' && tickets[type] > 0) {
+          tickets[type]--;
+        }
+
+        updateQuantityDisplay(type);
+        updateTotal();
+      });
+    });
+
+    function updateQuantityDisplay(type) {
+      const qtyEl = document.getElementById(`${type}Qty`);
+      qtyEl.textContent = tickets[type];
+
+      // Update button states
+      const decreaseBtn = document.querySelector(`.quantity-btn[data-type="${type}"][data-action="decrease"]`);
+      const increaseBtn = document.querySelector(`.quantity-btn[data-type="${type}"][data-action="increase"]`);
+
+      decreaseBtn.disabled = tickets[type] === 0;
+      increaseBtn.disabled = tickets[type] >= 10;
+    }
+
+    function updateTotal() {
+      const total = tickets.normal * prices.normal +
+                   tickets.reduced * prices.reduced +
+                   tickets.vip * prices.vip;
+      const count = tickets.normal + tickets.reduced + tickets.vip;
+
+      totalPrice.textContent = `${total} DT`;
+      ticketSummary.textContent = `${count} billet${count !== 1 ? 's' : ''}`;
+
+      // Enable/disable next button
+      nextBtn.disabled = count === 0;
+    }
+
+    // Seat selection
+    document.querySelectorAll('.seat-available, .seat-vip').forEach(seat => {
+      seat.addEventListener('click', function() {
+        const seatId = this.dataset.seat;
+        const totalTickets = tickets.normal + tickets.reduced + tickets.vip;
+
+        if (this.classList.contains('seat-selected')) {
+          this.classList.remove('seat-selected');
+          if (this.classList.contains('seat-vip')) {
+            this.classList.add('seat-vip');
+          } else {
+            this.classList.add('seat-available');
+          }
+          selectedSeats = selectedSeats.filter(s => s !== seatId);
+        } else if (selectedSeats.length < totalTickets) {
+          this.classList.add('seat-selected');
+          this.classList.remove('seat-available', 'seat-vip');
+          selectedSeats.push(seatId);
+        }
+
+        selectedSeatsEl.textContent = selectedSeats.length > 0 ? selectedSeats.join(', ') : '-';
+        nextBtn.disabled = selectedSeats.length !== totalTickets;
+      });
+    });
+
+    // Step navigation
+    nextBtn.addEventListener('click', function() {
+      if (currentStep < 4) {
+        goToStep(currentStep + 1);
+      } else {
+        // Submit payment
+        window.location.href = 'ticket-confirmation.html';
+      }
+    });
+
+    function goToStep(step) {
+      // Hide current panel
+      panels[currentStep].classList.remove('active');
+
+      // Update indicators
+      if (step > currentStep) {
+        indicators[currentStep].classList.remove('step-active');
+        indicators[currentStep].classList.add('step-complete');
+        indicators[currentStep].innerHTML = '<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>';
+      }
+
+      currentStep = step;
+
+      // Show new panel
+      panels[currentStep].classList.add('active');
+      indicators[currentStep].classList.remove('step-inactive');
+      indicators[currentStep].classList.add('step-active');
+
+      // Update button text
+      if (currentStep === 4) {
+        nextBtn.textContent = 'Payer maintenant';
+      } else {
+        nextBtn.textContent = 'Continuer';
+      }
+
+      // Validate current step
+      validateCurrentStep();
+    }
+
+    function validateCurrentStep() {
+      const totalTickets = tickets.normal + tickets.reduced + tickets.vip;
+
+      switch (currentStep) {
+        case 1:
+          nextBtn.disabled = totalTickets === 0;
+          break;
+        case 2:
+          nextBtn.disabled = selectedSeats.length !== totalTickets;
+          break;
+        case 3:
+          nextBtn.disabled = false; // Email pre-filled
+          break;
+        case 4:
+          nextBtn.disabled = false;
+          break;
+      }
+    }
+
+    // Initialize
+    updateTotal();
+  </script>
+</body>
+</html>

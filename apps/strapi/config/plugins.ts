@@ -8,8 +8,7 @@ export default ({ env }) => {
 
   return {
     // ============================================
-    // ALL PLUGINS DISABLED FOR DEBUGGING
-    // Re-enable one by one to identify the issue
+    // STRAPI CORE PLUGINS
     // ============================================
 
     // i18n configuration for ar/fr/en locales
@@ -31,15 +30,6 @@ export default ({ env }) => {
       enabled: false,
     },
 
-    "users-permissions": {
-      enabled: true,
-      config: {
-        jwt: {
-          expiresIn: "30d", // this value is synced with NextAuth session maxAge
-        },
-      },
-    },
-
     sentry: {
       enabled: false,
       config: {
@@ -49,10 +39,70 @@ export default ({ env }) => {
       },
     },
 
-    // Events Manager plugin for venue management
+    // ============================================
+    // TIWEEN CUSTOM PLUGINS
+    // ============================================
+    // NOTE: These MUST load BEFORE users-permissions because
+    // the user extension references plugin content types
+
+    // Geography plugin - regions and cities (base plugin, no dependencies)
+    // Required by: user.defaultRegion, venue.cityRef
+    geography: {
+      enabled: true,
+      resolve: "./src/plugins/geography",
+    },
+
+    // Entity Properties plugin - flexible property/amenity system (base plugin)
+    // Required by: venue.properties
+    "entity-properties": {
+      enabled: true,
+      resolve: "./src/plugins/entity-properties",
+    },
+
+    // Creative Works plugin - films, plays, people, genres (base plugin)
+    // Required by: events-manager, user-engagement, cast/credit components
+    "creative-works": {
+      enabled: true,
+      resolve: "./src/plugins/creative-works",
+    },
+
+    // TMDB Integration plugin - movie metadata from TheMovieDB API
+    // Required by: events-manager (for movie search and details)
+    "tmdb-integration": {
+      enabled: true,
+      resolve: "./src/plugins/tmdb-integration",
+    },
+
+    // Events Manager plugin - events, venues, showtimes (depends on geography, creative-works, tmdb-integration)
     "events-manager": {
-      enabled: false,
+      enabled: true,
       resolve: "./src/plugins/events-manager",
+    },
+
+    // Ticketing plugin - orders and tickets (depends on events-manager)
+    ticketing: {
+      enabled: true,
+      resolve: "./src/plugins/ticketing",
+    },
+
+    // User Engagement plugin - watchlists (depends on creative-works)
+    "user-engagement": {
+      enabled: true,
+      resolve: "./src/plugins/user-engagement",
+    },
+
+    // ============================================
+    // STRAPI CORE PLUGINS (after custom plugins)
+    // ============================================
+    // users-permissions must load AFTER custom plugins that it references
+
+    "users-permissions": {
+      enabled: true,
+      config: {
+        jwt: {
+          expiresIn: "30d", // this value is synced with NextAuth session maxAge
+        },
+      },
     },
 
     // ImageKit Admin Panel Integration (browse, manage, deliver media)
@@ -67,20 +117,21 @@ export default ({ env }) => {
       },
     },
 
-    // email: {
-    //   config: {
-    //     provider: "mailgun",
-    //     providerOptions: {
-    //       key: env("MAILGUN_API_KEY"),
-    //       domain: env("MAILGUN_DOMAIN"),
-    //       url: env("MAILGUN_HOST", "https://api.eu.mailgun.net"),
-    //     },
-    //     settings: {
-    //       defaultFrom: env("MAILGUN_EMAIL"),
-    //       defaultReplyTo: env("MAILGUN_EMAIL"),
-    //     },
-    //   },
-    // },
+    // Email provider: Brevo
+    // Falls back to console logging when BREVO_API_KEY is not set
+    email: {
+      config: {
+        provider: "@ayhid/strapi-provider-email-brevo",
+        providerOptions: {
+          apiKey: env("BREVO_API_KEY"),
+        },
+        settings: {
+          defaultFrom: env("BREVO_SENDER_EMAIL", "noreply@tiween.tn"),
+          defaultReplyTo: env("BREVO_SENDER_EMAIL", "noreply@tiween.tn"),
+          defaultSenderName: env("BREVO_SENDER_NAME", "Tiween"),
+        },
+      },
+    },
   }
 }
 

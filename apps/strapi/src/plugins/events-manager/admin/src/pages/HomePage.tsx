@@ -1,48 +1,102 @@
-import { Main } from "@strapi/design-system"
-import { Layouts } from "@strapi/strapi/admin"
+import { useState } from "react"
+import { Box, Button, Main, Tabs } from "@strapi/design-system"
+import { Calendar, Database, House, Upload } from "@strapi/icons"
+import { Layouts, useFetchClient, useNotification } from "@strapi/strapi/admin"
+
+import { ImportTab } from "../components/ImportTab"
+import { PlanningTab } from "../components/PlanningTab"
+import { VenuesPage } from "./Venues"
 
 const HomePage = () => {
+  const { post } = useFetchClient()
+  const { toggleNotification } = useNotification()
+  const [isSeeding, setIsSeeding] = useState(false)
+
+  const handleSeedData = async () => {
+    setIsSeeding(true)
+    try {
+      const response = await post("/events-manager/seed", {})
+      const data = response.data as {
+        data: {
+          venues: { created: number; skipped: number }
+          eventGroups: { created: number; skipped: number }
+        }
+      }
+
+      toggleNotification({
+        type: "success",
+        message: `Seeded ${data.data.venues.created} venues and ${data.data.eventGroups.created} event groups`,
+      })
+
+      // Reload the page to refresh data
+      window.location.reload()
+    } catch (err) {
+      toggleNotification({
+        type: "danger",
+        message: "Failed to seed data. Check console for details.",
+      })
+      console.error("Seed error:", err)
+    } finally {
+      setIsSeeding(false)
+    }
+  }
+
   return (
     <Layouts.Root>
       <Main>
         <Layouts.Header
           title="Events Manager"
-          subtitle="Streamlined event management for venue managers"
+          subtitle="Schedule events and manage showtimes for your venues"
+          primaryAction={
+            <Button
+              startIcon={<Database />}
+              onClick={handleSeedData}
+              loading={isSeeding}
+              variant="secondary"
+            >
+              Seed Demo Data
+            </Button>
+          }
         />
         <Layouts.Content>
-          <div style={{ padding: "24px" }}>
-            <h2>Welcome to Events Manager</h2>
-            <p>
-              This plugin provides tools for managing events, showtimes, and
-              ticket inventory.
-            </p>
-            <h3>Features</h3>
-            <ul>
-              <li>Bulk showtime creation</li>
-              <li>Event duplication</li>
-              <li>Ticket inventory management</li>
-              <li>Event statistics</li>
-            </ul>
-            <h3>API Endpoints</h3>
-            <ul>
-              <li>
-                <code>POST /events-manager/bulk-showtimes</code> - Create
-                multiple showtimes
-              </li>
-              <li>
-                <code>POST /events-manager/duplicate-event</code> - Duplicate an
-                event
-              </li>
-              <li>
-                <code>PUT /events-manager/ticket-inventory</code> - Update
-                ticket counts
-              </li>
-              <li>
-                <code>GET /events-manager/event-stats/:eventId</code> - Get
-                event statistics
-              </li>
-            </ul>
-          </div>
+          <Box padding={6}>
+            <Tabs.Root defaultValue="planning">
+              <Tabs.List aria-label="Events Manager tabs">
+                <Tabs.Trigger value="planning">
+                  <Box paddingRight={2} style={{ display: "inline-flex" }}>
+                    <Calendar width={16} height={16} />
+                  </Box>
+                  Planning
+                </Tabs.Trigger>
+                <Tabs.Trigger value="venues">
+                  <Box paddingRight={2} style={{ display: "inline-flex" }}>
+                    <House width={16} height={16} />
+                  </Box>
+                  Lieux
+                </Tabs.Trigger>
+                <Tabs.Trigger value="import">
+                  <Box paddingRight={2} style={{ display: "inline-flex" }}>
+                    <Upload width={16} height={16} />
+                  </Box>
+                  Import
+                </Tabs.Trigger>
+              </Tabs.List>
+
+              <Box paddingTop={6}>
+                <Tabs.Content value="planning">
+                  <PlanningTab />
+                </Tabs.Content>
+
+                <Tabs.Content value="venues">
+                  <VenuesPage />
+                </Tabs.Content>
+
+                <Tabs.Content value="import">
+                  <ImportTab />
+                </Tabs.Content>
+              </Box>
+            </Tabs.Root>
+          </Box>
         </Layouts.Content>
       </Main>
     </Layouts.Root>

@@ -1,0 +1,51 @@
+{
+  "kind": "collectionType",
+  "collectionName": "tickets",
+  "info": {
+    "singularName": "ticket",
+    "pluralName": "tickets",
+    "displayName": "Ticket",
+    "description": "Individual tickets within an order, each with unique QR code for validation"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "ticketNumber": {
+      "type": "string",
+      "unique": true,
+      "required": true
+    },
+    "order": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::ticketing.ticket-order",
+      "inversedBy": "tickets"
+    },
+    "type": {
+      "type": "enumeration",
+      "enum": ["standard", "reduced", "vip"],
+      "default": "standard",
+      "required": true
+    },
+    "price": {
+      "type": "decimal",
+      "required": true
+    },
+    "qrCode": {
+      "type": "string"
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": ["valid", "scanned", "cancelled", "expired"],
+      "default": "valid",
+      "required": true
+    },
+    "scannedAt": {
+      "type": "datetime"
+    },
+    "seatInfo": {
+      "type": "json"
+    }
+  }
+}

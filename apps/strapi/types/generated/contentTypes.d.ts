@@ -430,766 +430,6 @@ export interface AdminUser extends Struct.CollectionTypeSchema {
   }
 }
 
-export interface ApiCategoryCategory extends Struct.CollectionTypeSchema {
-  collectionName: "categories"
-  info: {
-    description: "Event and content categories (Cinema, Theatre, Concerts, etc.)"
-    displayName: "Category"
-    pluralName: "categories"
-    singularName: "category"
-  }
-  options: {
-    draftAndPublish: false
-  }
-  pluginOptions: {
-    i18n: {
-      localized: true
-    }
-  }
-  attributes: {
-    createdAt: Schema.Attribute.DateTime
-    createdBy: Schema.Attribute.Relation<"oneToOne", "admin::user"> &
-      Schema.Attribute.Private
-    icon: Schema.Attribute.String
-    locale: Schema.Attribute.String
-    localizations: Schema.Attribute.Relation<
-      "oneToMany",
-      "api::category.category"
-    >
-    name: Schema.Attribute.String &
-      Schema.Attribute.Required &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    order: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>
-    publishedAt: Schema.Attribute.DateTime
-    slug: Schema.Attribute.UID<"name">
-    updatedAt: Schema.Attribute.DateTime
-    updatedBy: Schema.Attribute.Relation<"oneToOne", "admin::user"> &
-      Schema.Attribute.Private
-  }
-}
-
-export interface ApiCityCity extends Struct.CollectionTypeSchema {
-  collectionName: "cities"
-  info: {
-    description: "Cities and municipalities within regions"
-    displayName: "City"
-    pluralName: "cities"
-    singularName: "city"
-  }
-  options: {
-    draftAndPublish: false
-  }
-  pluginOptions: {
-    i18n: {
-      localized: true
-    }
-  }
-  attributes: {
-    createdAt: Schema.Attribute.DateTime
-    createdBy: Schema.Attribute.Relation<"oneToOne", "admin::user"> &
-      Schema.Attribute.Private
-    latitude: Schema.Attribute.Decimal
-    locale: Schema.Attribute.String
-    localizations: Schema.Attribute.Relation<"oneToMany", "api::city.city">
-    longitude: Schema.Attribute.Decimal
-    name: Schema.Attribute.String &
-      Schema.Attribute.Required &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    publishedAt: Schema.Attribute.DateTime
-    region: Schema.Attribute.Relation<"manyToOne", "api::region.region">
-    slug: Schema.Attribute.UID<"name">
-    updatedAt: Schema.Attribute.DateTime
-    updatedBy: Schema.Attribute.Relation<"oneToOne", "admin::user"> &
-      Schema.Attribute.Private
-  }
-}
-
-export interface ApiCreativeWorkCreativeWork
-  extends Struct.CollectionTypeSchema {
-  collectionName: "creative_works"
-  info: {
-    description: "Films, plays, short films, concerts, exhibitions and other creative works"
-    displayName: "Creative Work"
-    pluralName: "creative-works"
-    singularName: "creative-work"
-  }
-  options: {
-    draftAndPublish: true
-  }
-  pluginOptions: {
-    i18n: {
-      localized: true
-    }
-  }
-  attributes: {
-    ageRating: Schema.Attribute.Enumeration<["TP", "PG12", "PG16", "PG18"]> &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: false
-        }
-      }>
-    backdrop: Schema.Attribute.Media<"images"> &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: false
-        }
-      }>
-    cast: Schema.Attribute.Component<"creative-works.cast", true> &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: false
-        }
-      }>
-    createdAt: Schema.Attribute.DateTime
-    createdBy: Schema.Attribute.Relation<"oneToOne", "admin::user"> &
-      Schema.Attribute.Private
-    crew: Schema.Attribute.Component<"creative-works.credit", true> &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: false
-        }
-      }>
-    directors: Schema.Attribute.Relation<"manyToMany", "api::person.person">
-    duration: Schema.Attribute.Integer &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: false
-        }
-      }>
-    facts: Schema.Attribute.Component<"common.remarkable-fact", true> &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    genres: Schema.Attribute.Relation<"manyToMany", "api::genre.genre">
-    links: Schema.Attribute.Component<"common.social-link", true> &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: false
-        }
-      }>
-    locale: Schema.Attribute.String
-    localizations: Schema.Attribute.Relation<
-      "oneToMany",
-      "api::creative-work.creative-work"
-    >
-    originalTitle: Schema.Attribute.String &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: false
-        }
-      }>
-    photos: Schema.Attribute.Media<"images", true> &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: false
-        }
-      }>
-    poster: Schema.Attribute.Media<"images"> &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    publishedAt: Schema.Attribute.DateTime
-    rating: Schema.Attribute.Decimal &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: false
-        }
-      }>
-    releaseYear: Schema.Attribute.Integer &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: false
-        }
-      }>
-    slug: Schema.Attribute.UID<"title"> &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: false
-        }
-      }>
-    synopsis: Schema.Attribute.RichText &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    title: Schema.Attribute.String &
-      Schema.Attribute.Required &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    trailer: Schema.Attribute.String &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: false
-        }
-      }>
-    type: Schema.Attribute.Enumeration<
-      ["film", "play", "short-film", "concert", "exhibition"]
-    > &
-      Schema.Attribute.Required &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: false
-        }
-      }>
-    updatedAt: Schema.Attribute.DateTime
-    updatedBy: Schema.Attribute.Relation<"oneToOne", "admin::user"> &
-      Schema.Attribute.Private
-    videos: Schema.Attribute.Component<"common.video", true> &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: false
-        }
-      }>
-  }
-}
-
-export interface ApiEventEvent extends Struct.CollectionTypeSchema {
-  collectionName: "events"
-  info: {
-    description: "Events linking creative works to venues with showtimes"
-    displayName: "Event"
-    pluralName: "events"
-    singularName: "event"
-  }
-  options: {
-    draftAndPublish: true
-  }
-  attributes: {
-    createdAt: Schema.Attribute.DateTime
-    createdBy: Schema.Attribute.Relation<"oneToOne", "admin::user"> &
-      Schema.Attribute.Private
-    creativeWork: Schema.Attribute.Relation<
-      "manyToOne",
-      "api::creative-work.creative-work"
-    >
-    description: Schema.Attribute.RichText
-    endDate: Schema.Attribute.DateTime
-    featured: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>
-    links: Schema.Attribute.Component<"common.social-link", true>
-    locale: Schema.Attribute.String & Schema.Attribute.Private
-    localizations: Schema.Attribute.Relation<"oneToMany", "api::event.event"> &
-      Schema.Attribute.Private
-    poster: Schema.Attribute.Media<"images">
-    publishedAt: Schema.Attribute.DateTime
-    recurring: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>
-    recurringRule: Schema.Attribute.String
-    showtimes: Schema.Attribute.Relation<"oneToMany", "api::showtime.showtime">
-    slug: Schema.Attribute.UID<"title">
-    startDate: Schema.Attribute.DateTime & Schema.Attribute.Required
-    status: Schema.Attribute.Enumeration<
-      ["scheduled", "cancelled", "completed"]
-    > &
-      Schema.Attribute.Required &
-      Schema.Attribute.DefaultTo<"scheduled">
-    subtitle: Schema.Attribute.String
-    title: Schema.Attribute.String
-    updatedAt: Schema.Attribute.DateTime
-    updatedBy: Schema.Attribute.Relation<"oneToOne", "admin::user"> &
-      Schema.Attribute.Private
-    venue: Schema.Attribute.Relation<"manyToOne", "api::venue.venue">
-  }
-}
-
-export interface ApiGenreGenre extends Struct.CollectionTypeSchema {
-  collectionName: "genres"
-  info: {
-    description: "Content categories like Drama, Comedy, Action, etc."
-    displayName: "Genre"
-    pluralName: "genres"
-    singularName: "genre"
-  }
-  options: {
-    draftAndPublish: false
-  }
-  pluginOptions: {
-    i18n: {
-      localized: true
-    }
-  }
-  attributes: {
-    color: Schema.Attribute.String &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: false
-        }
-      }>
-    createdAt: Schema.Attribute.DateTime
-    createdBy: Schema.Attribute.Relation<"oneToOne", "admin::user"> &
-      Schema.Attribute.Private
-    icon: Schema.Attribute.String &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: false
-        }
-      }>
-    locale: Schema.Attribute.String
-    localizations: Schema.Attribute.Relation<"oneToMany", "api::genre.genre">
-    name: Schema.Attribute.String &
-      Schema.Attribute.Required &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    publishedAt: Schema.Attribute.DateTime
-    slug: Schema.Attribute.UID<"name"> &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: false
-        }
-      }>
-    updatedAt: Schema.Attribute.DateTime
-    updatedBy: Schema.Attribute.Relation<"oneToOne", "admin::user"> &
-      Schema.Attribute.Private
-  }
-}
-
-export interface ApiPersonPerson extends Struct.CollectionTypeSchema {
-  collectionName: "persons"
-  info: {
-    description: "Filmmakers, actors, directors, and other creative professionals"
-    displayName: "Person"
-    pluralName: "persons"
-    singularName: "person"
-  }
-  options: {
-    draftAndPublish: true
-  }
-  pluginOptions: {
-    i18n: {
-      localized: true
-    }
-  }
-  attributes: {
-    bio: Schema.Attribute.Text &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    birthDate: Schema.Attribute.Date &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: false
-        }
-      }>
-    createdAt: Schema.Attribute.DateTime
-    createdBy: Schema.Attribute.Relation<"oneToOne", "admin::user"> &
-      Schema.Attribute.Private
-    locale: Schema.Attribute.String
-    localizations: Schema.Attribute.Relation<"oneToMany", "api::person.person">
-    name: Schema.Attribute.String &
-      Schema.Attribute.Required &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: false
-        }
-      }>
-    nationality: Schema.Attribute.String &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: false
-        }
-      }>
-    photo: Schema.Attribute.Media<"images"> &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: false
-        }
-      }>
-    publishedAt: Schema.Attribute.DateTime
-    roles: Schema.Attribute.JSON &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: false
-        }
-      }>
-    slug: Schema.Attribute.UID<"name"> &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: false
-        }
-      }>
-    updatedAt: Schema.Attribute.DateTime
-    updatedBy: Schema.Attribute.Relation<"oneToOne", "admin::user"> &
-      Schema.Attribute.Private
-  }
-}
-
-export interface ApiRegionRegion extends Struct.CollectionTypeSchema {
-  collectionName: "regions"
-  info: {
-    description: "Geographic regions of Tunisia (governorates)"
-    displayName: "Region"
-    pluralName: "regions"
-    singularName: "region"
-  }
-  options: {
-    draftAndPublish: false
-  }
-  pluginOptions: {
-    i18n: {
-      localized: true
-    }
-  }
-  attributes: {
-    code: Schema.Attribute.String
-    createdAt: Schema.Attribute.DateTime
-    createdBy: Schema.Attribute.Relation<"oneToOne", "admin::user"> &
-      Schema.Attribute.Private
-    locale: Schema.Attribute.String
-    localizations: Schema.Attribute.Relation<"oneToMany", "api::region.region">
-    name: Schema.Attribute.String &
-      Schema.Attribute.Required &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    publishedAt: Schema.Attribute.DateTime
-    slug: Schema.Attribute.UID<"name">
-    updatedAt: Schema.Attribute.DateTime
-    updatedBy: Schema.Attribute.Relation<"oneToOne", "admin::user"> &
-      Schema.Attribute.Private
-  }
-}
-
-export interface ApiShowtimeShowtime extends Struct.CollectionTypeSchema {
-  collectionName: "showtimes"
-  info: {
-    description: "Individual screening times linking events to venues"
-    displayName: "Showtime"
-    pluralName: "showtimes"
-    singularName: "showtime"
-  }
-  options: {
-    draftAndPublish: false
-  }
-  attributes: {
-    createdAt: Schema.Attribute.DateTime
-    createdBy: Schema.Attribute.Relation<"oneToOne", "admin::user"> &
-      Schema.Attribute.Private
-    datetime: Schema.Attribute.DateTime & Schema.Attribute.Required
-    event: Schema.Attribute.Relation<"manyToOne", "api::event.event">
-    format: Schema.Attribute.Enumeration<
-      ["VOST", "VF", "VO", "THREE_D", "IMAX"]
-    > &
-      Schema.Attribute.DefaultTo<"VOST">
-    language: Schema.Attribute.Enumeration<["ar", "fr", "en", "other"]> &
-      Schema.Attribute.DefaultTo<"fr">
-    locale: Schema.Attribute.String & Schema.Attribute.Private
-    localizations: Schema.Attribute.Relation<
-      "oneToMany",
-      "api::showtime.showtime"
-    > &
-      Schema.Attribute.Private
-    premiere: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>
-    price: Schema.Attribute.Decimal
-    publishedAt: Schema.Attribute.DateTime
-    subtitles: Schema.Attribute.Enumeration<["ar", "fr", "en", "none"]> &
-      Schema.Attribute.DefaultTo<"none">
-    ticketsAvailable: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>
-    ticketsSold: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>
-    updatedAt: Schema.Attribute.DateTime
-    updatedBy: Schema.Attribute.Relation<"oneToOne", "admin::user"> &
-      Schema.Attribute.Private
-    venue: Schema.Attribute.Relation<"manyToOne", "api::venue.venue">
-  }
-}
-
-export interface ApiTicketOrderTicketOrder extends Struct.CollectionTypeSchema {
-  collectionName: "ticket_orders"
-  info: {
-    description: "Orders for ticket purchases, supports both registered users and guest checkout"
-    displayName: "Ticket Order"
-    pluralName: "ticket-orders"
-    singularName: "ticket-order"
-  }
-  options: {
-    draftAndPublish: false
-  }
-  attributes: {
-    createdAt: Schema.Attribute.DateTime
-    createdBy: Schema.Attribute.Relation<"oneToOne", "admin::user"> &
-      Schema.Attribute.Private
-    currency: Schema.Attribute.String & Schema.Attribute.DefaultTo<"TND">
-    event: Schema.Attribute.Relation<"manyToOne", "api::event.event">
-    guestEmail: Schema.Attribute.Email
-    guestName: Schema.Attribute.String
-    locale: Schema.Attribute.String & Schema.Attribute.Private
-    localizations: Schema.Attribute.Relation<
-      "oneToMany",
-      "api::ticket-order.ticket-order"
-    > &
-      Schema.Attribute.Private
-    orderNumber: Schema.Attribute.String &
-      Schema.Attribute.Required &
-      Schema.Attribute.Unique
-    paymentMethod: Schema.Attribute.String
-    paymentReference: Schema.Attribute.String
-    paymentStatus: Schema.Attribute.Enumeration<
-      ["pending", "paid", "failed", "refunded"]
-    > &
-      Schema.Attribute.Required &
-      Schema.Attribute.DefaultTo<"pending">
-    publishedAt: Schema.Attribute.DateTime
-    purchasedAt: Schema.Attribute.DateTime
-    showtime: Schema.Attribute.Relation<"manyToOne", "api::showtime.showtime">
-    tickets: Schema.Attribute.Relation<"oneToMany", "api::ticket.ticket">
-    totalAmount: Schema.Attribute.Decimal & Schema.Attribute.Required
-    updatedAt: Schema.Attribute.DateTime
-    updatedBy: Schema.Attribute.Relation<"oneToOne", "admin::user"> &
-      Schema.Attribute.Private
-    user: Schema.Attribute.Relation<
-      "manyToOne",
-      "plugin::users-permissions.user"
-    >
-  }
-}
-
-export interface ApiTicketTicket extends Struct.CollectionTypeSchema {
-  collectionName: "tickets"
-  info: {
-    description: "Individual tickets within an order, each with unique QR code for validation"
-    displayName: "Ticket"
-    pluralName: "tickets"
-    singularName: "ticket"
-  }
-  options: {
-    draftAndPublish: false
-  }
-  attributes: {
-    createdAt: Schema.Attribute.DateTime
-    createdBy: Schema.Attribute.Relation<"oneToOne", "admin::user"> &
-      Schema.Attribute.Private
-    locale: Schema.Attribute.String & Schema.Attribute.Private
-    localizations: Schema.Attribute.Relation<
-      "oneToMany",
-      "api::ticket.ticket"
-    > &
-      Schema.Attribute.Private
-    order: Schema.Attribute.Relation<
-      "manyToOne",
-      "api::ticket-order.ticket-order"
-    >
-    price: Schema.Attribute.Decimal & Schema.Attribute.Required
-    publishedAt: Schema.Attribute.DateTime
-    qrCode: Schema.Attribute.String
-    scannedAt: Schema.Attribute.DateTime
-    seatInfo: Schema.Attribute.JSON
-    status: Schema.Attribute.Enumeration<
-      ["valid", "scanned", "cancelled", "expired"]
-    > &
-      Schema.Attribute.Required &
-      Schema.Attribute.DefaultTo<"valid">
-    ticketNumber: Schema.Attribute.String &
-      Schema.Attribute.Required &
-      Schema.Attribute.Unique
-    type: Schema.Attribute.Enumeration<["standard", "reduced", "vip"]> &
-      Schema.Attribute.Required &
-      Schema.Attribute.DefaultTo<"standard">
-    updatedAt: Schema.Attribute.DateTime
-    updatedBy: Schema.Attribute.Relation<"oneToOne", "admin::user"> &
-      Schema.Attribute.Private
-  }
-}
-
-export interface ApiUserWatchlistUserWatchlist
-  extends Struct.CollectionTypeSchema {
-  collectionName: "user_watchlists"
-  info: {
-    description: "User's saved creative works for later viewing with notification preferences"
-    displayName: "User Watchlist"
-    pluralName: "user-watchlists"
-    singularName: "user-watchlist"
-  }
-  options: {
-    draftAndPublish: false
-  }
-  attributes: {
-    addedAt: Schema.Attribute.DateTime
-    createdAt: Schema.Attribute.DateTime
-    createdBy: Schema.Attribute.Relation<"oneToOne", "admin::user"> &
-      Schema.Attribute.Private
-    creativeWork: Schema.Attribute.Relation<
-      "manyToOne",
-      "api::creative-work.creative-work"
-    >
-    locale: Schema.Attribute.String & Schema.Attribute.Private
-    localizations: Schema.Attribute.Relation<
-      "oneToMany",
-      "api::user-watchlist.user-watchlist"
-    > &
-      Schema.Attribute.Private
-    notifyChanges: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<true>
-    publishedAt: Schema.Attribute.DateTime
-    updatedAt: Schema.Attribute.DateTime
-    updatedBy: Schema.Attribute.Relation<"oneToOne", "admin::user"> &
-      Schema.Attribute.Private
-    user: Schema.Attribute.Relation<
-      "manyToOne",
-      "plugin::users-permissions.user"
-    >
-  }
-}
-
-export interface ApiVenueVenue extends Struct.CollectionTypeSchema {
-  collectionName: "venues"
-  info: {
-    description: "Physical venues for events - cinemas, theaters, cultural centers"
-    displayName: "Venue"
-    pluralName: "venues"
-    singularName: "venue"
-  }
-  options: {
-    draftAndPublish: true
-  }
-  pluginOptions: {
-    i18n: {
-      localized: true
-    }
-  }
-  attributes: {
-    address: Schema.Attribute.String &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    capacity: Schema.Attribute.Integer &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: false
-        }
-      }>
-    city: Schema.Attribute.String &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: false
-        }
-      }>
-    cityRef: Schema.Attribute.Relation<"manyToOne", "api::city.city">
-    createdAt: Schema.Attribute.DateTime
-    createdBy: Schema.Attribute.Relation<"oneToOne", "admin::user"> &
-      Schema.Attribute.Private
-    description: Schema.Attribute.RichText &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    email: Schema.Attribute.Email &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: false
-        }
-      }>
-    images: Schema.Attribute.Media<"images", true> &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: false
-        }
-      }>
-    latitude: Schema.Attribute.Decimal &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: false
-        }
-      }>
-    links: Schema.Attribute.Component<"common.social-link", true> &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: false
-        }
-      }>
-    locale: Schema.Attribute.String
-    localizations: Schema.Attribute.Relation<"oneToMany", "api::venue.venue">
-    logo: Schema.Attribute.Media<"images"> &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: false
-        }
-      }>
-    longitude: Schema.Attribute.Decimal &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: false
-        }
-      }>
-    manager: Schema.Attribute.Relation<
-      "manyToOne",
-      "plugin::users-permissions.user"
-    >
-    name: Schema.Attribute.String &
-      Schema.Attribute.Required &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    phone: Schema.Attribute.String &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: false
-        }
-      }>
-    publishedAt: Schema.Attribute.DateTime
-    region: Schema.Attribute.String &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: false
-        }
-      }>
-    slug: Schema.Attribute.UID<"name"> &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: false
-        }
-      }>
-    status: Schema.Attribute.Enumeration<["pending", "approved", "suspended"]> &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: false
-        }
-      }> &
-      Schema.Attribute.DefaultTo<"pending">
-    type: Schema.Attribute.Enumeration<
-      ["cinema", "theater", "cultural-center", "museum", "other"]
-    > &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: false
-        }
-      }> &
-      Schema.Attribute.DefaultTo<"cinema">
-    updatedAt: Schema.Attribute.DateTime
-    updatedBy: Schema.Attribute.Relation<"oneToOne", "admin::user"> &
-      Schema.Attribute.Private
-    website: Schema.Attribute.String &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: false
-        }
-      }>
-  }
-}
-
 export interface PluginContentReleasesRelease
   extends Struct.CollectionTypeSchema {
   collectionName: "strapi_releases"
@@ -1277,6 +517,795 @@ export interface PluginContentReleasesReleaseAction
     >
     type: Schema.Attribute.Enumeration<["publish", "unpublish"]> &
       Schema.Attribute.Required
+    updatedAt: Schema.Attribute.DateTime
+    updatedBy: Schema.Attribute.Relation<"oneToOne", "admin::user"> &
+      Schema.Attribute.Private
+  }
+}
+
+export interface PluginCreativeWorksCategory
+  extends Struct.CollectionTypeSchema {
+  collectionName: "categories"
+  info: {
+    description: "Event and content categories (Cinema, Theatre, Concerts, etc.)"
+    displayName: "Category"
+    pluralName: "categories"
+    singularName: "category"
+  }
+  options: {
+    draftAndPublish: false
+  }
+  pluginOptions: {
+    i18n: {
+      localized: true
+    }
+  }
+  attributes: {
+    createdAt: Schema.Attribute.DateTime
+    createdBy: Schema.Attribute.Relation<"oneToOne", "admin::user"> &
+      Schema.Attribute.Private
+    icon: Schema.Attribute.String
+    locale: Schema.Attribute.String
+    localizations: Schema.Attribute.Relation<
+      "oneToMany",
+      "plugin::creative-works.category"
+    >
+    name: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    order: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>
+    publishedAt: Schema.Attribute.DateTime
+    slug: Schema.Attribute.UID<"name">
+    updatedAt: Schema.Attribute.DateTime
+    updatedBy: Schema.Attribute.Relation<"oneToOne", "admin::user"> &
+      Schema.Attribute.Private
+  }
+}
+
+export interface PluginCreativeWorksCreativeWork
+  extends Struct.CollectionTypeSchema {
+  collectionName: "creative_works"
+  info: {
+    description: "Films, plays, short films, concerts, exhibitions and other creative works"
+    displayName: "Creative Work"
+    pluralName: "creative-works"
+    singularName: "creative-work"
+  }
+  options: {
+    draftAndPublish: true
+  }
+  pluginOptions: {
+    i18n: {
+      localized: true
+    }
+  }
+  attributes: {
+    ageRating: Schema.Attribute.Enumeration<["TP", "PG12", "PG16", "PG18"]> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: false
+        }
+      }>
+    backdrop: Schema.Attribute.Media<"images"> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: false
+        }
+      }>
+    cast: Schema.Attribute.Component<"creative-works.cast", true> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: false
+        }
+      }>
+    createdAt: Schema.Attribute.DateTime
+    createdBy: Schema.Attribute.Relation<"oneToOne", "admin::user"> &
+      Schema.Attribute.Private
+    crew: Schema.Attribute.Component<"creative-works.credit", true> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: false
+        }
+      }>
+    directors: Schema.Attribute.Relation<
+      "manyToMany",
+      "plugin::creative-works.person"
+    >
+    duration: Schema.Attribute.Integer &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: false
+        }
+      }>
+    facts: Schema.Attribute.Component<"common.remarkable-fact", true> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    genres: Schema.Attribute.Relation<
+      "manyToMany",
+      "plugin::creative-works.genre"
+    >
+    links: Schema.Attribute.Component<"common.social-link", true> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: false
+        }
+      }>
+    locale: Schema.Attribute.String
+    localizations: Schema.Attribute.Relation<
+      "oneToMany",
+      "plugin::creative-works.creative-work"
+    >
+    originalTitle: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: false
+        }
+      }>
+    photos: Schema.Attribute.Media<"images", true> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: false
+        }
+      }>
+    poster: Schema.Attribute.Media<"images"> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    publishedAt: Schema.Attribute.DateTime
+    rating: Schema.Attribute.Decimal &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: false
+        }
+      }>
+    releaseYear: Schema.Attribute.Integer &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: false
+        }
+      }>
+    slug: Schema.Attribute.UID<"title"> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: false
+        }
+      }>
+    synopsis: Schema.Attribute.RichText &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    title: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    trailer: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: false
+        }
+      }>
+    type: Schema.Attribute.Enumeration<
+      ["film", "play", "short-film", "concert", "exhibition"]
+    > &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: false
+        }
+      }>
+    updatedAt: Schema.Attribute.DateTime
+    updatedBy: Schema.Attribute.Relation<"oneToOne", "admin::user"> &
+      Schema.Attribute.Private
+    videos: Schema.Attribute.Component<"common.video", true> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: false
+        }
+      }>
+  }
+}
+
+export interface PluginCreativeWorksGenre extends Struct.CollectionTypeSchema {
+  collectionName: "genres"
+  info: {
+    description: "Content categories like Drama, Comedy, Action, etc."
+    displayName: "Genre"
+    pluralName: "genres"
+    singularName: "genre"
+  }
+  options: {
+    draftAndPublish: false
+  }
+  pluginOptions: {
+    i18n: {
+      localized: true
+    }
+  }
+  attributes: {
+    color: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: false
+        }
+      }>
+    createdAt: Schema.Attribute.DateTime
+    createdBy: Schema.Attribute.Relation<"oneToOne", "admin::user"> &
+      Schema.Attribute.Private
+    icon: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: false
+        }
+      }>
+    locale: Schema.Attribute.String
+    localizations: Schema.Attribute.Relation<
+      "oneToMany",
+      "plugin::creative-works.genre"
+    >
+    name: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    publishedAt: Schema.Attribute.DateTime
+    slug: Schema.Attribute.UID<"name"> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: false
+        }
+      }>
+    updatedAt: Schema.Attribute.DateTime
+    updatedBy: Schema.Attribute.Relation<"oneToOne", "admin::user"> &
+      Schema.Attribute.Private
+  }
+}
+
+export interface PluginCreativeWorksPerson extends Struct.CollectionTypeSchema {
+  collectionName: "persons"
+  info: {
+    description: "Filmmakers, actors, directors, and other creative professionals"
+    displayName: "Person"
+    pluralName: "persons"
+    singularName: "person"
+  }
+  options: {
+    draftAndPublish: true
+  }
+  pluginOptions: {
+    i18n: {
+      localized: true
+    }
+  }
+  attributes: {
+    bio: Schema.Attribute.Text &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    birthDate: Schema.Attribute.Date &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: false
+        }
+      }>
+    createdAt: Schema.Attribute.DateTime
+    createdBy: Schema.Attribute.Relation<"oneToOne", "admin::user"> &
+      Schema.Attribute.Private
+    locale: Schema.Attribute.String
+    localizations: Schema.Attribute.Relation<
+      "oneToMany",
+      "plugin::creative-works.person"
+    >
+    name: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: false
+        }
+      }>
+    nationality: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: false
+        }
+      }>
+    photo: Schema.Attribute.Media<"images"> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: false
+        }
+      }>
+    publishedAt: Schema.Attribute.DateTime
+    roles: Schema.Attribute.JSON &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: false
+        }
+      }>
+    slug: Schema.Attribute.UID<"name"> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: false
+        }
+      }>
+    updatedAt: Schema.Attribute.DateTime
+    updatedBy: Schema.Attribute.Relation<"oneToOne", "admin::user"> &
+      Schema.Attribute.Private
+  }
+}
+
+export interface PluginEventsManagerEvent extends Struct.CollectionTypeSchema {
+  collectionName: "events"
+  info: {
+    description: "Events linking creative works to venues with showtimes"
+    displayName: "Event"
+    pluralName: "events"
+    singularName: "event"
+  }
+  options: {
+    draftAndPublish: true
+  }
+  attributes: {
+    createdAt: Schema.Attribute.DateTime
+    createdBy: Schema.Attribute.Relation<"oneToOne", "admin::user"> &
+      Schema.Attribute.Private
+    creativeWork: Schema.Attribute.Relation<
+      "manyToOne",
+      "plugin::creative-works.creative-work"
+    >
+    description: Schema.Attribute.RichText
+    endDate: Schema.Attribute.DateTime
+    eventGroup: Schema.Attribute.Relation<
+      "manyToOne",
+      "plugin::events-manager.event-group"
+    >
+    featured: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>
+    links: Schema.Attribute.Component<"common.social-link", true>
+    locale: Schema.Attribute.String & Schema.Attribute.Private
+    localizations: Schema.Attribute.Relation<
+      "oneToMany",
+      "plugin::events-manager.event"
+    > &
+      Schema.Attribute.Private
+    poster: Schema.Attribute.Media<"images">
+    publishedAt: Schema.Attribute.DateTime
+    recurring: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>
+    recurringRule: Schema.Attribute.String
+    showtimes: Schema.Attribute.Relation<
+      "oneToMany",
+      "plugin::events-manager.showtime"
+    >
+    slug: Schema.Attribute.UID<"title">
+    startDate: Schema.Attribute.DateTime & Schema.Attribute.Required
+    status: Schema.Attribute.Enumeration<
+      ["scheduled", "cancelled", "completed"]
+    > &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<"scheduled">
+    subtitle: Schema.Attribute.String
+    title: Schema.Attribute.String
+    tmdbId: Schema.Attribute.Integer
+    updatedAt: Schema.Attribute.DateTime
+    updatedBy: Schema.Attribute.Relation<"oneToOne", "admin::user"> &
+      Schema.Attribute.Private
+    venue: Schema.Attribute.Relation<
+      "manyToOne",
+      "plugin::events-manager.venue"
+    >
+  }
+}
+
+export interface PluginEventsManagerEventGroup
+  extends Struct.CollectionTypeSchema {
+  collectionName: "event_groups"
+  info: {
+    description: "Groups of events for festivals, seasons, or themed collections"
+    displayName: "Event Group"
+    pluralName: "event-groups"
+    singularName: "event-group"
+  }
+  options: {
+    draftAndPublish: true
+  }
+  pluginOptions: {
+    i18n: {
+      localized: true
+    }
+  }
+  attributes: {
+    createdAt: Schema.Attribute.DateTime
+    createdBy: Schema.Attribute.Relation<"oneToOne", "admin::user"> &
+      Schema.Attribute.Private
+    description: Schema.Attribute.RichText &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    endDate: Schema.Attribute.Date &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: false
+        }
+      }>
+    events: Schema.Attribute.Relation<
+      "oneToMany",
+      "plugin::events-manager.event"
+    >
+    featured: Schema.Attribute.Boolean &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: false
+        }
+      }> &
+      Schema.Attribute.DefaultTo<false>
+    gallery: Schema.Attribute.Media<"images", true> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: false
+        }
+      }>
+    hero: Schema.Attribute.Media<"images"> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    links: Schema.Attribute.Component<"common.social-link", true> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: false
+        }
+      }>
+    locale: Schema.Attribute.String
+    localizations: Schema.Attribute.Relation<
+      "oneToMany",
+      "plugin::events-manager.event-group"
+    >
+    poster: Schema.Attribute.Media<"images"> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    publishedAt: Schema.Attribute.DateTime
+    shortTitle: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    slug: Schema.Attribute.UID<"title"> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: false
+        }
+      }>
+    startDate: Schema.Attribute.Date &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: false
+        }
+      }>
+    subtitle: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    title: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    type: Schema.Attribute.Enumeration<
+      ["festival", "season", "series", "retrospective", "special"]
+    > &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: false
+        }
+      }> &
+      Schema.Attribute.DefaultTo<"festival">
+    updatedAt: Schema.Attribute.DateTime
+    updatedBy: Schema.Attribute.Relation<"oneToOne", "admin::user"> &
+      Schema.Attribute.Private
+  }
+}
+
+export interface PluginEventsManagerShowtime
+  extends Struct.CollectionTypeSchema {
+  collectionName: "showtimes"
+  info: {
+    description: "Individual screening times linking events to venues"
+    displayName: "Showtime"
+    pluralName: "showtimes"
+    singularName: "showtime"
+  }
+  options: {
+    draftAndPublish: false
+  }
+  attributes: {
+    createdAt: Schema.Attribute.DateTime
+    createdBy: Schema.Attribute.Relation<"oneToOne", "admin::user"> &
+      Schema.Attribute.Private
+    datetime: Schema.Attribute.DateTime & Schema.Attribute.Required
+    event: Schema.Attribute.Relation<
+      "manyToOne",
+      "plugin::events-manager.event"
+    >
+    format: Schema.Attribute.Enumeration<
+      ["VOST", "VF", "VO", "THREE_D", "IMAX"]
+    > &
+      Schema.Attribute.DefaultTo<"VOST">
+    language: Schema.Attribute.Enumeration<["ar", "fr", "en", "other"]> &
+      Schema.Attribute.DefaultTo<"fr">
+    locale: Schema.Attribute.String & Schema.Attribute.Private
+    localizations: Schema.Attribute.Relation<
+      "oneToMany",
+      "plugin::events-manager.showtime"
+    > &
+      Schema.Attribute.Private
+    parentShowtimeId: Schema.Attribute.Integer
+    premiere: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>
+    price: Schema.Attribute.Decimal
+    publishedAt: Schema.Attribute.DateTime
+    subtitles: Schema.Attribute.Enumeration<["ar", "fr", "en", "none"]> &
+      Schema.Attribute.DefaultTo<"none">
+    ticketsAvailable: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>
+    ticketsSold: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>
+    updatedAt: Schema.Attribute.DateTime
+    updatedBy: Schema.Attribute.Relation<"oneToOne", "admin::user"> &
+      Schema.Attribute.Private
+    venue: Schema.Attribute.Relation<
+      "manyToOne",
+      "plugin::events-manager.venue"
+    >
+  }
+}
+
+export interface PluginEventsManagerVenue extends Struct.CollectionTypeSchema {
+  collectionName: "venues"
+  info: {
+    description: "Physical venues for events - cinemas, theaters, cultural centers"
+    displayName: "Venue"
+    pluralName: "venues"
+    singularName: "venue"
+  }
+  options: {
+    draftAndPublish: true
+  }
+  pluginOptions: {
+    i18n: {
+      localized: true
+    }
+  }
+  attributes: {
+    address: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    capacity: Schema.Attribute.Integer &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: false
+        }
+      }>
+    city: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: false
+        }
+      }>
+    cityRef: Schema.Attribute.Relation<"manyToOne", "plugin::geography.city">
+    createdAt: Schema.Attribute.DateTime
+    createdBy: Schema.Attribute.Relation<"oneToOne", "admin::user"> &
+      Schema.Attribute.Private
+    description: Schema.Attribute.RichText &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    email: Schema.Attribute.Email &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: false
+        }
+      }>
+    images: Schema.Attribute.Media<"images", true> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: false
+        }
+      }>
+    latitude: Schema.Attribute.Decimal &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: false
+        }
+      }>
+    links: Schema.Attribute.Component<"common.social-link", true> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: false
+        }
+      }>
+    locale: Schema.Attribute.String
+    localizations: Schema.Attribute.Relation<
+      "oneToMany",
+      "plugin::events-manager.venue"
+    >
+    logo: Schema.Attribute.Media<"images"> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: false
+        }
+      }>
+    longitude: Schema.Attribute.Decimal &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: false
+        }
+      }>
+    manager: Schema.Attribute.Relation<
+      "manyToOne",
+      "plugin::users-permissions.user"
+    >
+    name: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    phone: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: false
+        }
+      }>
+    publishedAt: Schema.Attribute.DateTime
+    region: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: false
+        }
+      }>
+    slug: Schema.Attribute.UID<"name"> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: false
+        }
+      }>
+    status: Schema.Attribute.Enumeration<["pending", "approved", "suspended"]> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: false
+        }
+      }> &
+      Schema.Attribute.DefaultTo<"pending">
+    type: Schema.Attribute.Enumeration<
+      ["cinema", "theater", "cultural-center", "museum", "other"]
+    > &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: false
+        }
+      }> &
+      Schema.Attribute.DefaultTo<"cinema">
+    updatedAt: Schema.Attribute.DateTime
+    updatedBy: Schema.Attribute.Relation<"oneToOne", "admin::user"> &
+      Schema.Attribute.Private
+    website: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: false
+        }
+      }>
+  }
+}
+
+export interface PluginGeographyCity extends Struct.CollectionTypeSchema {
+  collectionName: "cities"
+  info: {
+    description: "Cities and municipalities within regions"
+    displayName: "City"
+    pluralName: "cities"
+    singularName: "city"
+  }
+  options: {
+    draftAndPublish: false
+  }
+  pluginOptions: {
+    i18n: {
+      localized: true
+    }
+  }
+  attributes: {
+    createdAt: Schema.Attribute.DateTime
+    createdBy: Schema.Attribute.Relation<"oneToOne", "admin::user"> &
+      Schema.Attribute.Private
+    latitude: Schema.Attribute.Decimal
+    locale: Schema.Attribute.String
+    localizations: Schema.Attribute.Relation<
+      "oneToMany",
+      "plugin::geography.city"
+    >
+    longitude: Schema.Attribute.Decimal
+    name: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    publishedAt: Schema.Attribute.DateTime
+    region: Schema.Attribute.Relation<"manyToOne", "plugin::geography.region">
+    slug: Schema.Attribute.UID<"name">
+    updatedAt: Schema.Attribute.DateTime
+    updatedBy: Schema.Attribute.Relation<"oneToOne", "admin::user"> &
+      Schema.Attribute.Private
+  }
+}
+
+export interface PluginGeographyRegion extends Struct.CollectionTypeSchema {
+  collectionName: "regions"
+  info: {
+    description: "Geographic regions of Tunisia (governorates)"
+    displayName: "Region"
+    pluralName: "regions"
+    singularName: "region"
+  }
+  options: {
+    draftAndPublish: false
+  }
+  pluginOptions: {
+    i18n: {
+      localized: true
+    }
+  }
+  attributes: {
+    cities: Schema.Attribute.Relation<"oneToMany", "plugin::geography.city">
+    code: Schema.Attribute.String
+    createdAt: Schema.Attribute.DateTime
+    createdBy: Schema.Attribute.Relation<"oneToOne", "admin::user"> &
+      Schema.Attribute.Private
+    locale: Schema.Attribute.String
+    localizations: Schema.Attribute.Relation<
+      "oneToMany",
+      "plugin::geography.region"
+    >
+    name: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    publishedAt: Schema.Attribute.DateTime
+    slug: Schema.Attribute.UID<"name">
     updatedAt: Schema.Attribute.DateTime
     updatedBy: Schema.Attribute.Relation<"oneToOne", "admin::user"> &
       Schema.Attribute.Private
@@ -1427,6 +1456,110 @@ export interface PluginReviewWorkflowsWorkflowStage
   }
 }
 
+export interface PluginTicketingTicket extends Struct.CollectionTypeSchema {
+  collectionName: "tickets"
+  info: {
+    description: "Individual tickets within an order, each with unique QR code for validation"
+    displayName: "Ticket"
+    pluralName: "tickets"
+    singularName: "ticket"
+  }
+  options: {
+    draftAndPublish: false
+  }
+  attributes: {
+    createdAt: Schema.Attribute.DateTime
+    createdBy: Schema.Attribute.Relation<"oneToOne", "admin::user"> &
+      Schema.Attribute.Private
+    locale: Schema.Attribute.String & Schema.Attribute.Private
+    localizations: Schema.Attribute.Relation<
+      "oneToMany",
+      "plugin::ticketing.ticket"
+    > &
+      Schema.Attribute.Private
+    order: Schema.Attribute.Relation<
+      "manyToOne",
+      "plugin::ticketing.ticket-order"
+    >
+    price: Schema.Attribute.Decimal & Schema.Attribute.Required
+    publishedAt: Schema.Attribute.DateTime
+    qrCode: Schema.Attribute.String
+    scannedAt: Schema.Attribute.DateTime
+    seatInfo: Schema.Attribute.JSON
+    status: Schema.Attribute.Enumeration<
+      ["valid", "scanned", "cancelled", "expired"]
+    > &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<"valid">
+    ticketNumber: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.Unique
+    type: Schema.Attribute.Enumeration<["standard", "reduced", "vip"]> &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<"standard">
+    updatedAt: Schema.Attribute.DateTime
+    updatedBy: Schema.Attribute.Relation<"oneToOne", "admin::user"> &
+      Schema.Attribute.Private
+  }
+}
+
+export interface PluginTicketingTicketOrder
+  extends Struct.CollectionTypeSchema {
+  collectionName: "ticket_orders"
+  info: {
+    description: "Orders for ticket purchases, supports both registered users and guest checkout"
+    displayName: "Ticket Order"
+    pluralName: "ticket-orders"
+    singularName: "ticket-order"
+  }
+  options: {
+    draftAndPublish: false
+  }
+  attributes: {
+    createdAt: Schema.Attribute.DateTime
+    createdBy: Schema.Attribute.Relation<"oneToOne", "admin::user"> &
+      Schema.Attribute.Private
+    currency: Schema.Attribute.String & Schema.Attribute.DefaultTo<"TND">
+    event: Schema.Attribute.Relation<
+      "manyToOne",
+      "plugin::events-manager.event"
+    >
+    guestEmail: Schema.Attribute.Email
+    guestName: Schema.Attribute.String
+    locale: Schema.Attribute.String & Schema.Attribute.Private
+    localizations: Schema.Attribute.Relation<
+      "oneToMany",
+      "plugin::ticketing.ticket-order"
+    > &
+      Schema.Attribute.Private
+    orderNumber: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.Unique
+    paymentMethod: Schema.Attribute.String
+    paymentReference: Schema.Attribute.String
+    paymentStatus: Schema.Attribute.Enumeration<
+      ["pending", "paid", "failed", "refunded"]
+    > &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<"pending">
+    publishedAt: Schema.Attribute.DateTime
+    purchasedAt: Schema.Attribute.DateTime
+    showtime: Schema.Attribute.Relation<
+      "manyToOne",
+      "plugin::events-manager.showtime"
+    >
+    tickets: Schema.Attribute.Relation<"oneToMany", "plugin::ticketing.ticket">
+    totalAmount: Schema.Attribute.Decimal & Schema.Attribute.Required
+    updatedAt: Schema.Attribute.DateTime
+    updatedBy: Schema.Attribute.Relation<"oneToOne", "admin::user"> &
+      Schema.Attribute.Private
+    user: Schema.Attribute.Relation<
+      "manyToOne",
+      "plugin::users-permissions.user"
+    >
+  }
+}
+
 export interface PluginUploadFile extends Struct.CollectionTypeSchema {
   collectionName: "files"
   info: {
@@ -1534,6 +1667,45 @@ export interface PluginUploadFolder extends Struct.CollectionTypeSchema {
     updatedAt: Schema.Attribute.DateTime
     updatedBy: Schema.Attribute.Relation<"oneToOne", "admin::user"> &
       Schema.Attribute.Private
+  }
+}
+
+export interface PluginUserEngagementUserWatchlist
+  extends Struct.CollectionTypeSchema {
+  collectionName: "user_watchlists"
+  info: {
+    description: "User's saved creative works for later viewing with notification preferences"
+    displayName: "User Watchlist"
+    pluralName: "user-watchlists"
+    singularName: "user-watchlist"
+  }
+  options: {
+    draftAndPublish: false
+  }
+  attributes: {
+    addedAt: Schema.Attribute.DateTime
+    createdAt: Schema.Attribute.DateTime
+    createdBy: Schema.Attribute.Relation<"oneToOne", "admin::user"> &
+      Schema.Attribute.Private
+    creativeWork: Schema.Attribute.Relation<
+      "manyToOne",
+      "plugin::creative-works.creative-work"
+    >
+    locale: Schema.Attribute.String & Schema.Attribute.Private
+    localizations: Schema.Attribute.Relation<
+      "oneToMany",
+      "plugin::user-engagement.user-watchlist"
+    > &
+      Schema.Attribute.Private
+    notifyChanges: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<true>
+    publishedAt: Schema.Attribute.DateTime
+    updatedAt: Schema.Attribute.DateTime
+    updatedBy: Schema.Attribute.Relation<"oneToOne", "admin::user"> &
+      Schema.Attribute.Private
+    user: Schema.Attribute.Relation<
+      "manyToOne",
+      "plugin::users-permissions.user"
+    >
   }
 }
 
@@ -1654,7 +1826,10 @@ export interface PluginUsersPermissionsUser
     createdAt: Schema.Attribute.DateTime
     createdBy: Schema.Attribute.Relation<"oneToOne", "admin::user"> &
       Schema.Attribute.Private
-    defaultRegion: Schema.Attribute.Relation<"manyToOne", "api::region.region">
+    defaultRegion: Schema.Attribute.Relation<
+      "manyToOne",
+      "plugin::geography.region"
+    >
     email: Schema.Attribute.Email &
       Schema.Attribute.Required &
       Schema.Attribute.SetMinMaxLength<{
@@ -1705,25 +1880,26 @@ declare module "@strapi/strapi" {
       "admin::transfer-token": AdminTransferToken
       "admin::transfer-token-permission": AdminTransferTokenPermission
       "admin::user": AdminUser
-      "api::category.category": ApiCategoryCategory
-      "api::city.city": ApiCityCity
-      "api::creative-work.creative-work": ApiCreativeWorkCreativeWork
-      "api::event.event": ApiEventEvent
-      "api::genre.genre": ApiGenreGenre
-      "api::person.person": ApiPersonPerson
-      "api::region.region": ApiRegionRegion
-      "api::showtime.showtime": ApiShowtimeShowtime
-      "api::ticket-order.ticket-order": ApiTicketOrderTicketOrder
-      "api::ticket.ticket": ApiTicketTicket
-      "api::user-watchlist.user-watchlist": ApiUserWatchlistUserWatchlist
-      "api::venue.venue": ApiVenueVenue
       "plugin::content-releases.release": PluginContentReleasesRelease
       "plugin::content-releases.release-action": PluginContentReleasesReleaseAction
+      "plugin::creative-works.category": PluginCreativeWorksCategory
+      "plugin::creative-works.creative-work": PluginCreativeWorksCreativeWork
+      "plugin::creative-works.genre": PluginCreativeWorksGenre
+      "plugin::creative-works.person": PluginCreativeWorksPerson
+      "plugin::events-manager.event": PluginEventsManagerEvent
+      "plugin::events-manager.event-group": PluginEventsManagerEventGroup
+      "plugin::events-manager.showtime": PluginEventsManagerShowtime
+      "plugin::events-manager.venue": PluginEventsManagerVenue
+      "plugin::geography.city": PluginGeographyCity
+      "plugin::geography.region": PluginGeographyRegion
       "plugin::i18n.locale": PluginI18NLocale
       "plugin::review-workflows.workflow": PluginReviewWorkflowsWorkflow
       "plugin::review-workflows.workflow-stage": PluginReviewWorkflowsWorkflowStage
+      "plugin::ticketing.ticket": PluginTicketingTicket
+      "plugin::ticketing.ticket-order": PluginTicketingTicketOrder
       "plugin::upload.file": PluginUploadFile
       "plugin::upload.folder": PluginUploadFolder
+      "plugin::user-engagement.user-watchlist": PluginUserEngagementUserWatchlist
       "plugin::users-permissions.permission": PluginUsersPermissionsPermission
       "plugin::users-permissions.role": PluginUsersPermissionsRole
       "plugin::users-permissions.user": PluginUsersPermissionsUser

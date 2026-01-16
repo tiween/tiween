@@ -1,5 +1,9 @@
 import type { Core } from "@strapi/strapi"
 
+const PLUGIN_ID = "events-manager"
+const EVENT_UID = `plugin::${PLUGIN_ID}.event`
+const SHOWTIME_UID = `plugin::${PLUGIN_ID}.showtime`
+
 interface BulkShowtimeParams {
   eventId: string
   venueId: string
@@ -41,14 +45,14 @@ const eventManagerService = ({ strapi }: { strapi: Core.Strapi }) => ({
     for (const date of dates) {
       const datetime = new Date(`${date}T${time}`)
 
-      const showtime = await strapi.documents("api::showtime.showtime").create({
+      const showtime = await strapi.documents(SHOWTIME_UID).create({
         data: {
           event: eventId,
           venue: venueId,
           datetime: datetime.toISOString(),
-          format,
-          language,
-          subtitles,
+          format: format as "VOST" | "VF" | "VO" | "THREE_D" | "IMAX",
+          language: language as "fr" | "ar" | "en" | "other",
+          subtitles: subtitles as "fr" | "ar" | "en" | "none",
           price,
           ticketsAvailable,
           ticketsSold: 0,
@@ -69,7 +73,7 @@ const eventManagerService = ({ strapi }: { strapi: Core.Strapi }) => ({
     const { eventId, newTitle, dateOffset = 0, copyShowtimes = false } = params
 
     // Fetch the original event
-    const originalEvent = await strapi.documents("api::event.event").findOne({
+    const originalEvent = await strapi.documents(EVENT_UID).findOne({
       documentId: eventId,
       populate: ["creativeWork", "venue", "showtimes"],
     })
@@ -79,14 +83,14 @@ const eventManagerService = ({ strapi }: { strapi: Core.Strapi }) => ({
     }
 
     // Create new event with duplicated data
-    const newEvent = await strapi.documents("api::event.event").create({
+    const newEvent = await strapi.documents(EVENT_UID).create({
       data: {
         title: newTitle || `${originalEvent.title} (Copy)`,
         slug: `${originalEvent.slug}-copy-${Date.now()}`,
         description: originalEvent.description,
         startDate: originalEvent.startDate,
         endDate: originalEvent.endDate,
-        status: "draft",
+        status: "scheduled",
         featured: false,
         creativeWork: originalEvent.creativeWork?.documentId,
         venue: originalEvent.venue?.documentId,
@@ -99,7 +103,7 @@ const eventManagerService = ({ strapi }: { strapi: Core.Strapi }) => ({
         const originalDate = new Date(showtime.datetime)
         originalDate.setDate(originalDate.getDate() + dateOffset)
 
-        await strapi.documents("api::showtime.showtime").create({
+        await strapi.documents(SHOWTIME_UID).create({
           data: {
             event: newEvent.documentId,
             venue:
@@ -134,7 +138,7 @@ const eventManagerService = ({ strapi }: { strapi: Core.Strapi }) => ({
       updateData.ticketsSold = ticketsSold
     }
 
-    return strapi.documents("api::showtime.showtime").update({
+    return strapi.documents(SHOWTIME_UID).update({
       documentId: showtimeId,
       data: updateData,
     })
@@ -144,7 +148,7 @@ const eventManagerService = ({ strapi }: { strapi: Core.Strapi }) => ({
    * Get event statistics
    */
   async getEventStats(eventId: string) {
-    const event = await strapi.documents("api::event.event").findOne({
+    const event = await strapi.documents(EVENT_UID).findOne({
       documentId: eventId,
       populate: ["showtimes"],
     })

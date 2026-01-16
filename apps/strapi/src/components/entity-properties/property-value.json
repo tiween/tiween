@@ -1,0 +1,28 @@
+{
+  "collectionName": "components_entity_properties_property_values",
+  "info": {
+    "displayName": "Property Value",
+    "icon": "check-square",
+    "description": "Stores a property value attached to an entity"
+  },
+  "options": {},
+  "attributes": {
+    "definition": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "plugin::entity-properties.property-definition"
+    },
+    "booleanValue": {
+      "type": "boolean"
+    },
+    "integerValue": {
+      "type": "integer"
+    },
+    "stringValue": {
+      "type": "string"
+    },
+    "enumValue": {
+      "type": "string"
+    }
+  }
+}

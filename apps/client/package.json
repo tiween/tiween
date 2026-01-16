@@ -21,6 +21,7 @@
     "**/sharp": "0.33.5"
   },
   "dependencies": {
+    "@getbrevo/brevo": "^3.0.1",
     "@hookform/error-message": "^2.0.1",
     "@hookform/resolvers": "^5.2.2",
     "@plaiceholder/next": "^3.0.0",

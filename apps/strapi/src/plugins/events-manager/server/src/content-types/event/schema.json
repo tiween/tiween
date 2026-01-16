@@ -1,0 +1,90 @@
+{
+  "kind": "collectionType",
+  "collectionName": "events",
+  "info": {
+    "singularName": "event",
+    "pluralName": "events",
+    "displayName": "Event",
+    "description": "Events linking creative works to venues with showtimes"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string"
+    },
+    "subtitle": {
+      "type": "string"
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "title"
+    },
+    "description": {
+      "type": "richtext"
+    },
+    "poster": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": ["images"]
+    },
+    "startDate": {
+      "type": "datetime",
+      "required": true
+    },
+    "endDate": {
+      "type": "datetime"
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": ["scheduled", "cancelled", "completed"],
+      "default": "scheduled",
+      "required": true
+    },
+    "featured": {
+      "type": "boolean",
+      "default": false
+    },
+    "recurring": {
+      "type": "boolean",
+      "default": false
+    },
+    "recurringRule": {
+      "type": "string"
+    },
+    "tmdbId": {
+      "type": "integer",
+      "unique": false
+    },
+    "links": {
+      "type": "component",
+      "repeatable": true,
+      "component": "common.social-link"
+    },
+    "creativeWork": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::creative-works.creative-work"
+    },
+    "venue": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::events-manager.venue"
+    },
+    "showtimes": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "plugin::events-manager.showtime",
+      "mappedBy": "event"
+    },
+    "eventGroup": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::events-manager.event-group",
+      "inversedBy": "events"
+    }
+  }
+}

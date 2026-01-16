@@ -1,0 +1,19 @@
+{
+  "name": "tmdb-integration",
+  "version": "1.0.0",
+  "description": "TMDB API integration for movie metadata",
+  "license": "MIT",
+  "strapi": {
+    "displayName": "TMDB Integration",
+    "name": "tmdb-integration",
+    "description": "Integrate with The Movie Database (TMDB) API for movie metadata",
+    "kind": "plugin",
+    "required": false
+  },
+  "peerDependencies": {
+    "@strapi/strapi": "^5.0.0"
+  },
+  "dependencies": {
+    "tmdb-ts": "^2.0.0"
+  }
+}
