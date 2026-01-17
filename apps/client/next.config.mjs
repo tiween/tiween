@@ -34,6 +34,13 @@ const nextConfig = {
     // Enable Turbopack filesystem caching for faster rebuilds
     turbopackFileSystemCacheForDev: true,
     turbopackFileSystemCacheForBuild: true,
+    // Optimize imports from barrel-file heavy packages to reduce bundle size
+    // This prevents importing the entire library when only a few icons/components are used
+    optimizePackageImports: [
+      "lucide-react",
+      "@radix-ui/react-icons",
+      "@tanstack/react-query",
+    ],
   },
   images: {
     // Be aware that Strapi has optimization on by default
