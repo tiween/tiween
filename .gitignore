@@ -51,3 +51,20 @@ storybook-static/
 
 # Local Netlify folder
 .netlify
+
+# Claude Code session files
+.call_count
+.circuit_breaker_*
+.exit_signals
+.last_reset
+.ralph_session
+.ralph_session_history
+.response_analysis
+
+# Logs and temp status
+logs/
+progress.json
+status.json
+
+# Nested repositories
+RALPH_PRD/
