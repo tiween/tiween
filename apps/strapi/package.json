@@ -17,6 +17,9 @@
     "generate:types": "strapi ts:generate-types",
     "import": "strapi import -f strapi-export.tar.gz",
     "run:db": "docker compose up -d db",
+    "seed": "tsx scripts/seeds/index.ts",
+    "seed:clear": "tsx scripts/seeds/clear.ts",
+    "seed:fresh": "yarn seed:clear && yarn seed",
     "start": "strapi start",
     "strapi": "strapi",
     "test": "jest --forceExit --detectOpenHandles",
@@ -56,6 +59,7 @@
     "@types/node": "^22",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "tsx": "^4.19.0",
     "typescript": "^5"
   },
   "engines": {

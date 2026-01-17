@@ -363,7 +363,9 @@ export function VenuesPage() {
                       <Th>
                         <Checkbox
                           checked={allSelected}
-                          indeterminate={someSelected && !allSelected ? true : undefined}
+                          indeterminate={
+                            someSelected && !allSelected ? true : undefined
+                          }
                           onCheckedChange={handleSelectAll}
                           aria-label="Tout sélectionner"
                         />

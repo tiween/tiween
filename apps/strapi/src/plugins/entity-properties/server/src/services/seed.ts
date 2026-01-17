@@ -232,43 +232,43 @@ const seed = ({ strapi }: { strapi: Core.Strapi }) => ({
 
     // Create root categories first
     for (const category of categories) {
-      const existing = await strapi.documents(
-        "plugin::entity-properties.property-category"
-      ).findFirst({
-        filters: { slug: category.slug },
-        locale,
-      })
-
-      if (!existing) {
-        const created = await strapi.documents(
-          "plugin::entity-properties.property-category"
-        ).create({
-          data: {
-            name: category.name,
-            slug: category.slug,
-            icon: category.icon,
-            sortOrder: category.sortOrder,
-          },
+      const existing = await strapi
+        .documents("plugin::entity-properties.property-category")
+        .findFirst({
+          filters: { slug: category.slug },
           locale,
         })
+
+      if (!existing) {
+        const created = await strapi
+          .documents("plugin::entity-properties.property-category")
+          .create({
+            data: {
+              name: category.name,
+              slug: category.slug,
+              icon: category.icon,
+              sortOrder: category.sortOrder,
+            },
+            locale,
+          })
         categoryMap.set(category.slug, created.id)
         strapi.log.info(`Created category: ${category.name}`)
 
         // Create children if any
         if (category.children) {
           for (const child of category.children) {
-            const childCreated = await strapi.documents(
-              "plugin::entity-properties.property-category"
-            ).create({
-              data: {
-                name: child.name,
-                slug: child.slug,
-                icon: child.icon,
-                sortOrder: child.sortOrder,
-                parent: created.id,
-              },
-              locale,
-            })
+            const childCreated = await strapi
+              .documents("plugin::entity-properties.property-category")
+              .create({
+                data: {
+                  name: child.name,
+                  slug: child.slug,
+                  icon: child.icon,
+                  sortOrder: child.sortOrder,
+                  parent: created.id,
+                },
+                locale,
+              })
             categoryMap.set(child.slug, childCreated.id)
             strapi.log.info(`Created child category: ${child.name}`)
           }
@@ -278,12 +278,12 @@ const seed = ({ strapi }: { strapi: Core.Strapi }) => ({
         // Still need to map children
         if (category.children) {
           for (const child of category.children) {
-            const existingChild = await strapi.documents(
-              "plugin::entity-properties.property-category"
-            ).findFirst({
-              filters: { slug: child.slug },
-              locale,
-            })
+            const existingChild = await strapi
+              .documents("plugin::entity-properties.property-category")
+              .findFirst({
+                filters: { slug: child.slug },
+                locale,
+              })
             if (existingChild) {
               categoryMap.set(child.slug, existingChild.id)
             }
@@ -300,30 +300,30 @@ const seed = ({ strapi }: { strapi: Core.Strapi }) => ({
     const categoryMap = await this.seedCategories(locale)
 
     for (const property of properties) {
-      const existing = await strapi.documents(
-        "plugin::entity-properties.property-definition"
-      ).findFirst({
-        filters: { slug: property.slug },
-        locale,
-      })
+      const existing = await strapi
+        .documents("plugin::entity-properties.property-definition")
+        .findFirst({
+          filters: { slug: property.slug },
+          locale,
+        })
 
       if (!existing) {
         const categoryId = categoryMap.get(property.categorySlug)
-        await strapi.documents(
-          "plugin::entity-properties.property-definition"
-        ).create({
-          data: {
-            name: property.name,
-            slug: property.slug,
-            description: property.description,
-            type: property.type,
-            icon: property.icon,
-            enumOptions: property.enumOptions,
-            sortOrder: property.sortOrder,
-            category: categoryId,
-          },
-          locale,
-        })
+        await strapi
+          .documents("plugin::entity-properties.property-definition")
+          .create({
+            data: {
+              name: property.name,
+              slug: property.slug,
+              description: property.description,
+              type: property.type,
+              icon: property.icon,
+              enumOptions: property.enumOptions,
+              sortOrder: property.sortOrder,
+              category: categoryId,
+            },
+            locale,
+          })
         strapi.log.info(`Created property: ${property.name}`)
       }
     }
