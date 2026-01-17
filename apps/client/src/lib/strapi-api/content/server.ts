@@ -1,5 +1,7 @@
 import "server-only"
 
+import { cache } from "react"
+
 import { mapCategoryToType } from "@/features/events/utils"
 
 import type { StrapiEvent } from "@/features/events/types"
@@ -133,8 +135,10 @@ export interface EventFilterOptions {
 
 /**
  * Fetch a single event by documentId with full details
+ * Wrapped with React.cache() for request-level deduplication
+ * (e.g., between generateMetadata and page component)
  */
-export async function getEventByDocumentId(
+export const getEventByDocumentId = cache(async function getEventByDocumentId(
   documentId: string,
   locale: string
 ): Promise<StrapiEvent | null> {
@@ -230,33 +234,57 @@ export async function getEventByDocumentId(
     console.error("[getEventByDocumentId] Error fetching event:", error)
     return null
   }
+})
+
+/**
+ * Parameters for fetching related events without needing the full event object
+ * This allows parallel fetching of the event and related events
+ */
+export interface RelatedEventsParams {
+  /** The documentId of the current event (to exclude from results) */
+  excludeDocumentId: string
+  /** The venue documentId to find events at the same venue */
+  venueDocumentId?: string
+  /** The creative work type to find similar events */
+  creativeWorkType?: string
 }
 
 /**
- * Fetch related events (same venue or same creative work type)
+ * Fetch related events by parameters (same venue or same creative work type)
+ * This version accepts parameters directly instead of the full event object,
+ * enabling parallel fetching with the main event query.
  */
-export async function getRelatedEvents(
-  event: StrapiEvent,
+export async function getRelatedEventsByParams(
+  params: RelatedEventsParams,
   locale: string,
   limit = 4
 ): Promise<StrapiEvent[]> {
+  const { excludeDocumentId, venueDocumentId, creativeWorkType } = params
+
+  // Build $or conditions based on available params
+  const orConditions: Record<string, unknown>[] = []
+  if (venueDocumentId) {
+    orConditions.push({ venue: { documentId: { $eq: venueDocumentId } } })
+  }
+  if (creativeWorkType) {
+    orConditions.push({ creativeWork: { type: { $eq: creativeWorkType } } })
+  }
+
+  // If no conditions, return empty (can't find related events)
+  if (orConditions.length === 0) {
+    return []
+  }
+
   try {
     const response = await PublicStrapiClient.fetchAPI(
       "/events-manager/events",
       {
         locale,
         filters: {
-          documentId: { $ne: event.documentId },
+          documentId: { $ne: excludeDocumentId },
           status: { $in: ["scheduled", "active"] },
           endDate: { $gte: new Date().toISOString().split("T")[0] },
-          $or: [
-            { venue: { documentId: { $eq: event.venue?.documentId } } },
-            {
-              creativeWork: {
-                type: { $eq: event.creativeWork?.type },
-              },
-            },
-          ],
+          $or: orConditions,
         },
         populate: {
           venue: {
@@ -282,9 +310,32 @@ export async function getRelatedEvents(
 
     return response.data || []
   } catch (error) {
-    console.error("[getRelatedEvents] Error fetching related events:", error)
+    console.error(
+      "[getRelatedEventsByParams] Error fetching related events:",
+      error
+    )
     return []
   }
+}
+
+/**
+ * Fetch related events (same venue or same creative work type)
+ * @deprecated Use getRelatedEventsByParams for parallel fetching
+ */
+export async function getRelatedEvents(
+  event: StrapiEvent,
+  locale: string,
+  limit = 4
+): Promise<StrapiEvent[]> {
+  return getRelatedEventsByParams(
+    {
+      excludeDocumentId: event.documentId,
+      venueDocumentId: event.venue?.documentId,
+      creativeWorkType: event.creativeWork?.type,
+    },
+    locale,
+    limit
+  )
 }
 
 /**

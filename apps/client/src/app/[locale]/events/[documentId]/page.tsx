@@ -8,7 +8,7 @@ import { setRequestLocale } from "next-intl/server"
 import { generateBreadcrumbJsonLd, generateEventJsonLd } from "@/lib/seo"
 import {
   getEventByDocumentId,
-  getRelatedEvents,
+  getRelatedEventsByParams,
 } from "@/lib/strapi-api/content/server"
 import { JsonLd } from "@/components/seo"
 
@@ -104,15 +104,24 @@ export default async function EventDetailRoute({ params }: PageProps) {
   // Enable static rendering
   setRequestLocale(locale)
 
-  // Fetch event data
+  // Fetch event data (deduplicated with generateMetadata via Next.js cache)
   const event = await getEventByDocumentId(documentId, locale)
 
   if (!event) {
     notFound()
   }
 
-  // Fetch related events
-  const relatedEvents = await getRelatedEvents(event, locale, 4)
+  // Fetch related events using event's venue and type for accurate matching
+  // This runs after event fetch since we need venue/type info
+  const relatedEvents = await getRelatedEventsByParams(
+    {
+      excludeDocumentId: documentId,
+      venueDocumentId: event.venue?.documentId,
+      creativeWorkType: event.creativeWork?.type,
+    },
+    locale,
+    4
+  )
 
   // Generate structured data
   const eventJsonLd = generateEventJsonLd(event, BASE_URL)
