@@ -98,8 +98,8 @@ Requires Epic 2A (UI) and Epic 2B (API) to be substantially complete.
 - [x] 3.1: Homepage with curated event listings
 - [x] 3.2: Category filtering (Cinema, Theatre, Music, Exhibitions)
 - [x] 3.3: Date filtering (Today, Tomorrow, This Week, Weekend, Custom date)
-- [ ] 3.4: Region/City filtering
-- [ ] 3.5: Venue filtering
+- [x] 3.4: Region/City filtering
+- [x] 3.5: Venue filtering
 - [ ] 3.6: Keyword search with Algolia integration
 - [x] 3.7: Event detail pages
 - [ ] 3.8: Map integration (Leaflet)
@@ -213,6 +213,18 @@ Requires Epic 2A (UI) and Epic 2B (API) to be substantially complete.
   - DateSelector component integrated in sticky filter bar
   - Dynamic section titles based on selected date
   - Smart UX: hides Today/Featured sections when date filter active
+- [x] Epic 3.4: Region/City filtering
+  - RegionCitySelector component with grouped regions and cities
+  - Geography API endpoints for regions and cities
+  - URL-based state management (?city=documentId)
+  - Server-side filtering with city documentId
+  - HomePageWithCity variant for city filtering
+- [x] Epic 3.5: Venue filtering
+  - VenueSelector component for venue selection
+  - Venue API with city-based filtering
+  - URL-based state management (?venue=documentId)
+  - Server-side filtering with venue documentId
+  - HomePageWithVenue variant for venue filtering
 - [x] Epic 3.7: Event detail pages
   - EventDetailPage component with full event info
   - Hero section with backdrop, title, metadata
@@ -240,8 +252,8 @@ Requires Epic 2A (UI) and Epic 2B (API) to be substantially complete.
 - **Remaining Epic 2B work** (optional):
   - 2B.13: OpenAPI documentation (can defer)
   - 2B.14: Data migration scripts (only needed for production with legacy data)
-- **Event discovery progress**: Homepage, detail pages, category/date filtering, and SEO complete
-- **Next priority**: 3.4 Region/City filtering or Epic 4 (User Authentication)
+- **Event discovery progress**: 9/11 tasks complete (82%)
+- **Next priority**: 3.8 Map integration or Epic 4 (User Authentication)
 - **Seed data**: Run `cd apps/strapi && yarn seed` to populate test data
 - **Tech specs**: Detailed specs for each story in `_bmad-output/implementation-artifacts/`
 - **Focus**: MVP includes Epics 1-6 (Foundation through Ticketing)
