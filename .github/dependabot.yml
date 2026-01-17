@@ -1,20 +1,182 @@
-# To get started with Dependabot version updates, you'll need to specify which
-# package ecosystems to update and where the package manifests are located.
-# Please see the documentation for all configuration options:
+# Dependabot configuration for Tiween monorepo
 # https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
 
 version: 2
 updates:
-  - package-ecosystem: "yarn" # See documentation for possible values
-    directory: "/" # Location of package manifests
+  # Root workspace - shared dev dependencies and tooling
+  - package-ecosystem: "npm"
+    directory: "/"
     schedule:
       interval: "weekly"
-  - package-ecosystem: "yarn"
-    directory: "/apps/ui"
+      day: "monday"
+    commit-message:
+      prefix: "chore(deps)"
+    labels:
+      - "dependencies"
+      - "root"
+    groups:
+      commitlint:
+        patterns:
+          - "@commitlint/*"
+          - "commitizen"
+          - "cz-*"
+      semantic-release:
+        patterns:
+          - "semantic-release*"
+          - "@semantic-release/*"
+      linting-formatting:
+        patterns:
+          - "eslint*"
+          - "prettier*"
+          - "husky"
+          - "lint-staged"
+      build-tools:
+        patterns:
+          - "turbo"
+
+  # Next.js Client App
+  - package-ecosystem: "npm"
+    directory: "/apps/client"
     schedule:
       interval: "weekly"
-  - package-ecosystem: "yarn"
+      day: "monday"
+    commit-message:
+      prefix: "chore(deps-client)"
+    labels:
+      - "dependencies"
+      - "client"
+    groups:
+      nextjs:
+        patterns:
+          - "next"
+          - "next-*"
+          - "@next/*"
+      react:
+        patterns:
+          - "react"
+          - "react-dom"
+          - "react-*"
+          - "@types/react"
+          - "@types/react-dom"
+      radix-ui:
+        patterns:
+          - "@radix-ui/*"
+      tanstack:
+        patterns:
+          - "@tanstack/*"
+      storybook:
+        patterns:
+          - "storybook"
+          - "@storybook/*"
+          - "chromatic"
+      tailwind:
+        patterns:
+          - "tailwindcss*"
+          - "@tailwindcss/*"
+          - "tailwind-*"
+          - "postcss*"
+      forms-validation:
+        patterns:
+          - "react-hook-form"
+          - "@hookform/*"
+          - "zod"
+      auth:
+        patterns:
+          - "next-auth"
+          - "jwt-*"
+      i18n:
+        patterns:
+          - "next-intl"
+      pwa:
+        patterns:
+          - "serwist"
+          - "@serwist/*"
+
+  # Strapi CMS App
+  - package-ecosystem: "npm"
     directory: "/apps/strapi"
     schedule:
       interval: "weekly"
+      day: "monday"
+    commit-message:
+      prefix: "chore(deps-strapi)"
+    labels:
+      - "dependencies"
+      - "strapi"
+    groups:
+      strapi-core:
+        patterns:
+          - "@strapi/*"
+      strapi-plugins:
+        patterns:
+          - "strapi-plugin-*"
+          - "strapi-provider-*"
+      database:
+        patterns:
+          - "pg"
+          - "pg-*"
+      react-strapi:
+        # Strapi admin panel React dependencies (pinned to React 18)
+        patterns:
+          - "react"
+          - "react-dom"
+          - "react-router-dom"
+          - "styled-components"
+          - "@types/react"
+          - "@types/react-dom"
+
+  # Shared packages - ESLint config
+  - package-ecosystem: "npm"
+    directory: "/packages/eslint-config"
+    schedule:
+      interval: "monthly"
+    commit-message:
+      prefix: "chore(deps-eslint-config)"
+    labels:
+      - "dependencies"
+      - "packages"
+
+  # Shared packages - Prettier config
+  - package-ecosystem: "npm"
+    directory: "/packages/prettier-config"
+    schedule:
+      interval: "monthly"
+    commit-message:
+      prefix: "chore(deps-prettier-config)"
+    labels:
+      - "dependencies"
+      - "packages"
+
+  # Shared packages - TypeScript config
+  - package-ecosystem: "npm"
+    directory: "/packages/typescript-config"
+    schedule:
+      interval: "monthly"
+    commit-message:
+      prefix: "chore(deps-ts-config)"
+    labels:
+      - "dependencies"
+      - "packages"
+
+  # Shared packages - Shared types
+  - package-ecosystem: "npm"
+    directory: "/packages/shared-types"
+    schedule:
+      interval: "monthly"
+    commit-message:
+      prefix: "chore(deps-shared-types)"
+    labels:
+      - "dependencies"
+      - "packages"
+
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    commit-message:
+      prefix: "chore(deps-actions)"
+    labels:
+      - "dependencies"
+      - "github-actions"
 
