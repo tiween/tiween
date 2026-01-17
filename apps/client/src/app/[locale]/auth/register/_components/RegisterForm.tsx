@@ -1,6 +1,10 @@
 "use client"
 
+import * as React from "react"
+import { useSearchParams } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { Loader2 } from "lucide-react"
+import { signIn } from "next-auth/react"
 import { useTranslations } from "next-intl"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
@@ -29,7 +33,12 @@ const ENABLE_EMAIL_CONFIRMATION = false
 export function RegisterForm() {
   const t = useTranslations("auth.register")
   const { toast } = useToast()
+  const searchParams = useSearchParams()
   const { registerMutation } = useUserMutations()
+  const [isAutoLoggingIn, setIsAutoLoggingIn] = React.useState(false)
+
+  // Get callback URL from search params (or default to home)
+  const callbackUrl = searchParams.get("callbackUrl") || "/"
 
   const form = useForm<z.infer<FormSchemaType>>({
     resolver: zodResolver(RegisterFormSchema),
@@ -50,6 +59,33 @@ export function RegisterForm() {
         password: values.password,
       },
       {
+        onSuccess: async () => {
+          // Auto-login after successful registration (if email confirmation is disabled)
+          if (!ENABLE_EMAIL_CONFIRMATION) {
+            setIsAutoLoggingIn(true)
+            try {
+              const result = await signIn("credentials", {
+                email: values.email,
+                password: values.password,
+                redirect: false,
+              })
+
+              if (result?.ok) {
+                // Redirect to callback URL or home
+                window.location.href = callbackUrl
+              } else {
+                // If auto-login fails, show success and link to sign in
+                toast({
+                  title: t("status.success"),
+                  description: "Please sign in with your new account.",
+                })
+                setIsAutoLoggingIn(false)
+              }
+            } catch {
+              setIsAutoLoggingIn(false)
+            }
+          }
+        },
         onError: (error) => {
           const errorMap = {
             "already taken": t("errors.emailUsernameTaken"),
@@ -75,16 +111,27 @@ export function RegisterForm() {
     )
   }
 
-  if (registerMutation.isSuccess) {
-    // This message is relevant if system requires email verification
-    // If user is `confirmed` immediately, this message is not needed
-    // and user should be redirected to sign in page
+  // Show loading state during auto-login
+  if (isAutoLoggingIn) {
     return (
       <Card className="m-auto w-[400px]">
         <CardHeader>
-          <h2 className="mx-auto">
-            {ENABLE_EMAIL_CONFIRMATION ? t("checkEmail") : t("status.success")}
-          </h2>
+          <CardTitle className="text-center">{t("status.success")}</CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-col items-center gap-4">
+          <Loader2 className="text-primary h-8 w-8 animate-spin" />
+          <p className="text-muted-foreground text-sm">Connexion en cours...</p>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  // Show success state if email confirmation is required
+  if (registerMutation.isSuccess && ENABLE_EMAIL_CONFIRMATION) {
+    return (
+      <Card className="m-auto w-[400px]">
+        <CardHeader>
+          <h2 className="mx-auto">{t("checkEmail")}</h2>
         </CardHeader>
         <CardContent>
           <Link
@@ -132,8 +179,16 @@ export function RegisterForm() {
             variant="default"
             form={registerFormName}
             className="w-full"
+            disabled={registerMutation.isPending}
           >
-            {t("submit")}
+            {registerMutation.isPending ? (
+              <>
+                <Loader2 className="me-2 h-4 w-4 animate-spin" />
+                Inscription...
+              </>
+            ) : (
+              t("submit")
+            )}
           </Button>
         </CardFooter>
       </Card>
