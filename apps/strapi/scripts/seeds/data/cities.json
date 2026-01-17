@@ -1,0 +1,114 @@
+[
+  {
+    "name": "Tunis",
+    "name_ar": "تونس",
+    "slug": "tunis",
+    "regionCode": "GT",
+    "latitude": 36.8065,
+    "longitude": 10.1815
+  },
+  {
+    "name": "La Marsa",
+    "name_ar": "المرسى",
+    "slug": "la-marsa",
+    "regionCode": "GT",
+    "latitude": 36.8892,
+    "longitude": 10.3229
+  },
+  {
+    "name": "Carthage",
+    "name_ar": "قرطاج",
+    "slug": "carthage",
+    "regionCode": "GT",
+    "latitude": 36.8528,
+    "longitude": 10.3233
+  },
+  {
+    "name": "Sidi Bou Said",
+    "name_ar": "سيدي بوسعيد",
+    "slug": "sidi-bou-said",
+    "regionCode": "GT",
+    "latitude": 36.8686,
+    "longitude": 10.3417
+  },
+  {
+    "name": "Ariana",
+    "name_ar": "أريانة",
+    "slug": "ariana",
+    "regionCode": "GT",
+    "latitude": 36.8625,
+    "longitude": 10.1956
+  },
+  {
+    "name": "Sousse",
+    "name_ar": "سوسة",
+    "slug": "sousse",
+    "regionCode": "SH",
+    "latitude": 35.8256,
+    "longitude": 10.6084
+  },
+  {
+    "name": "Monastir",
+    "name_ar": "المنستير",
+    "slug": "monastir",
+    "regionCode": "SH",
+    "latitude": 35.7643,
+    "longitude": 10.8113
+  },
+  {
+    "name": "Mahdia",
+    "name_ar": "المهدية",
+    "slug": "mahdia",
+    "regionCode": "SH",
+    "latitude": 35.5047,
+    "longitude": 11.0622
+  },
+  {
+    "name": "Sfax",
+    "name_ar": "صفاقس",
+    "slug": "sfax-city",
+    "regionCode": "SF",
+    "latitude": 34.7406,
+    "longitude": 10.7603
+  },
+  {
+    "name": "Hammamet",
+    "name_ar": "الحمامات",
+    "slug": "hammamet",
+    "regionCode": "CB",
+    "latitude": 36.4,
+    "longitude": 10.6167
+  },
+  {
+    "name": "Nabeul",
+    "name_ar": "نابل",
+    "slug": "nabeul",
+    "regionCode": "CB",
+    "latitude": 36.4561,
+    "longitude": 10.7376
+  },
+  {
+    "name": "Bizerte",
+    "name_ar": "بنزرت",
+    "slug": "bizerte",
+    "regionCode": "NO",
+    "latitude": 37.2744,
+    "longitude": 9.8739
+  },
+  {
+    "name": "Djerba",
+    "name_ar": "جربة",
+    "slug": "djerba",
+    "regionCode": "SD",
+    "latitude": 33.8075,
+    "longitude": 10.8451
+  },
+  {
+    "name": "Tozeur",
+    "name_ar": "توزر",
+    "slug": "tozeur",
+    "regionCode": "SD",
+    "latitude": 33.9197,
+    "longitude": 8.1339
+  }
+]

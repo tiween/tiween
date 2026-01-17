@@ -1,0 +1,38 @@
+[
+  {
+    "name": "Grand Tunis",
+    "name_ar": "تونس الكبرى",
+    "slug": "grand-tunis",
+    "code": "GT"
+  },
+  {
+    "name": "Cap Bon",
+    "name_ar": "الوطن القبلي",
+    "slug": "cap-bon",
+    "code": "CB"
+  },
+  {
+    "name": "Sahel",
+    "name_ar": "الساحل",
+    "slug": "sahel",
+    "code": "SH"
+  },
+  {
+    "name": "Sfax",
+    "name_ar": "صفاقس",
+    "slug": "sfax",
+    "code": "SF"
+  },
+  {
+    "name": "Sud",
+    "name_ar": "الجنوب",
+    "slug": "sud",
+    "code": "SD"
+  },
+  {
+    "name": "Nord-Ouest",
+    "name_ar": "الشمال الغربي",
+    "slug": "nord-ouest",
+    "code": "NO"
+  }
+]

@@ -1,0 +1,10 @@
+[
+  { "name": "Cinéma", "name_ar": "سينما", "slug": "cinema", "icon": "film" },
+  { "name": "Théâtre", "name_ar": "مسرح", "slug": "theatre", "icon": "drama" },
+  { "name": "Concert", "name_ar": "حفل موسيقي", "slug": "concert", "icon": "music" },
+  { "name": "Exposition", "name_ar": "معرض", "slug": "exposition", "icon": "palette" },
+  { "name": "Festival", "name_ar": "مهرجان", "slug": "festival", "icon": "sparkles" },
+  { "name": "Danse", "name_ar": "رقص", "slug": "danse", "icon": "dancers" },
+  { "name": "Littérature", "name_ar": "أدب", "slug": "litterature", "icon": "book" },
+  { "name": "Conférence", "name_ar": "محاضرة", "slug": "conference", "icon": "mic" }
+]

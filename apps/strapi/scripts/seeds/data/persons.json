@@ -1,0 +1,132 @@
+[
+  {
+    "name": "Kaouther Ben Hania",
+    "name_ar": "كوثر بن هنية",
+    "slug": "kaouther-ben-hania",
+    "biography": "Réalisatrice et scénariste tunisienne, nominée aux Oscars pour 'L'Homme qui a vendu sa peau'.",
+    "biography_ar": "مخرجة وكاتبة سيناريو تونسية، مرشحة للأوسكار عن فيلم 'الرجل الذي باع ظهره'.",
+    "birthDate": "1977-01-09",
+    "nationality": "Tunisienne",
+    "type": "director"
+  },
+  {
+    "name": "Ala Eddine Slim",
+    "name_ar": "علاء الدين سليم",
+    "slug": "ala-eddine-slim",
+    "biography": "Réalisateur tunisien connu pour son style contemplatif et poétique.",
+    "biography_ar": "مخرج تونسي معروف بأسلوبه التأملي والشعري.",
+    "birthDate": "1982-06-15",
+    "nationality": "Tunisienne",
+    "type": "director"
+  },
+  {
+    "name": "Hinde Boujemaa",
+    "name_ar": "هند بوجمعة",
+    "slug": "hinde-boujemaa",
+    "biography": "Réalisatrice tunisienne, connue pour 'Noura rêve'.",
+    "biography_ar": "مخرجة تونسية، معروفة بفيلم 'نورا تحلم'.",
+    "birthDate": "1970-03-22",
+    "nationality": "Tunisienne",
+    "type": "director"
+  },
+  {
+    "name": "Mohamed Ben Attia",
+    "name_ar": "محمد بن عطية",
+    "slug": "mohamed-ben-attia",
+    "biography": "Réalisateur tunisien, Ours d'argent à Berlin pour 'Hedi'.",
+    "biography_ar": "مخرج تونسي، حاز على جائزة الدب الفضي في برلين عن فيلم 'إنهيدي'.",
+    "birthDate": "1976-08-12",
+    "nationality": "Tunisienne",
+    "type": "director"
+  },
+  {
+    "name": "Leyla Bouzid",
+    "name_ar": "ليلى بوزيد",
+    "slug": "leyla-bouzid",
+    "biography": "Réalisatrice tunisienne, connue pour 'À peine j'ouvre les yeux'.",
+    "biography_ar": "مخرجة تونسية، معروفة بفيلم 'على حلّة عيني'.",
+    "birthDate": "1984-09-08",
+    "nationality": "Tunisienne",
+    "type": "director"
+  },
+  {
+    "name": "Nouri Bouzid",
+    "name_ar": "نوري بوزيد",
+    "slug": "nouri-bouzid",
+    "biography": "Pionnier du cinéma tunisien, réalisateur et scénariste légendaire.",
+    "biography_ar": "رائد السينما التونسية، مخرج وكاتب سيناريو أسطوري.",
+    "birthDate": "1945-09-11",
+    "nationality": "Tunisienne",
+    "type": "director"
+  },
+  {
+    "name": "Jalila Baccar",
+    "name_ar": "جليلة بكار",
+    "slug": "jalila-baccar",
+    "biography": "Actrice et metteuse en scène tunisienne, figure majeure du théâtre.",
+    "biography_ar": "ممثلة ومخرجة مسرحية تونسية، شخصية بارزة في المسرح.",
+    "birthDate": "1952-05-20",
+    "nationality": "Tunisienne",
+    "type": "director"
+  },
+  {
+    "name": "Denis Villeneuve",
+    "name_ar": "دينيس فيلنوف",
+    "slug": "denis-villeneuve",
+    "biography": "Réalisateur canadien, connu pour Blade Runner 2049, Dune.",
+    "biography_ar": "مخرج كندي، معروف بأفلام بليد رانر 2049، كثيب.",
+    "birthDate": "1967-10-03",
+    "nationality": "Canadienne",
+    "type": "director"
+  },
+  {
+    "name": "Yahya Mahayni",
+    "name_ar": "يحيى محايني",
+    "slug": "yahya-mahayni",
+    "biography": "Acteur syrien, rôle principal dans 'L'Homme qui a vendu sa peau'.",
+    "biography_ar": "ممثل سوري، بطل فيلم 'الرجل الذي باع ظهره'.",
+    "birthDate": "1988-04-15",
+    "nationality": "Syrienne",
+    "type": "actor"
+  },
+  {
+    "name": "Dea Liane",
+    "name_ar": "ديا ليان",
+    "slug": "dea-liane",
+    "biography": "Actrice belge d'origine libanaise.",
+    "biography_ar": "ممثلة بلجيكية من أصل لبناني.",
+    "birthDate": "1990-02-28",
+    "nationality": "Belge",
+    "type": "actor"
+  },
+  {
+    "name": "Monica Bellucci",
+    "name_ar": "مونيكا بيلوتشي",
+    "slug": "monica-bellucci",
+    "biography": "Actrice italienne de renommée internationale.",
+    "biography_ar": "ممثلة إيطالية ذات شهرة عالمية.",
+    "birthDate": "1964-09-30",
+    "nationality": "Italienne",
+    "type": "actor"
+  },
+  {
+    "name": "Timothée Chalamet",
+    "name_ar": "تيموثي شالاميه",
+    "slug": "timothee-chalamet",
+    "biography": "Acteur américain, rôle principal dans Dune.",
+    "biography_ar": "ممثل أمريكي، بطل فيلم كثيب.",
+    "birthDate": "1995-12-27",
+    "nationality": "Américaine",
+    "type": "actor"
+  },
+  {
+    "name": "Zendaya",
+    "name_ar": "زندايا",
+    "slug": "zendaya",
+    "biography": "Actrice et chanteuse américaine.",
+    "biography_ar": "ممثلة ومغنية أمريكية.",
+    "birthDate": "1996-09-01",
+    "nationality": "Américaine",
+    "type": "actor"
+  }
+]

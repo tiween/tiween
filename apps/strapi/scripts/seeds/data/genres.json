@@ -1,0 +1,17 @@
+[
+  { "name": "Drame", "name_ar": "دراما", "slug": "drame" },
+  { "name": "Comédie", "name_ar": "كوميديا", "slug": "comedie" },
+  { "name": "Action", "name_ar": "أكشن", "slug": "action" },
+  { "name": "Thriller", "name_ar": "إثارة", "slug": "thriller" },
+  { "name": "Horreur", "name_ar": "رعب", "slug": "horreur" },
+  { "name": "Science-fiction", "name_ar": "خيال علمي", "slug": "science-fiction" },
+  { "name": "Fantastique", "name_ar": "فانتازيا", "slug": "fantastique" },
+  { "name": "Romance", "name_ar": "رومانسي", "slug": "romance" },
+  { "name": "Documentaire", "name_ar": "وثائقي", "slug": "documentaire" },
+  { "name": "Animation", "name_ar": "رسوم متحركة", "slug": "animation" },
+  { "name": "Aventure", "name_ar": "مغامرة", "slug": "aventure" },
+  { "name": "Musique", "name_ar": "موسيقي", "slug": "musique" },
+  { "name": "Historique", "name_ar": "تاريخي", "slug": "historique" },
+  { "name": "Guerre", "name_ar": "حرب", "slug": "guerre" },
+  { "name": "Famille", "name_ar": "عائلي", "slug": "famille" }
+]
