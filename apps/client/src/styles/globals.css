@@ -59,6 +59,11 @@
   /* Radius */
   --radius: 0.5rem;
 
+  /* Transition Durations */
+  --transition-fast: 150ms;
+  --transition-normal: 200ms;
+  --transition-slow: 300ms;
+
   /* Sidebar (for shadcn sidebar component) */
   --sidebar: 169 79% 8%; /* tiween-green */
   --sidebar-foreground: 0 0% 100%;
@@ -131,6 +136,18 @@
       0 0 0 2px hsl(var(--ring)),
       0 0 0 4px hsl(var(--background));
   }
+
+  /* Reduced motion preference */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    ::before,
+    ::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
 }
 
 /* ============================================
@@ -190,4 +207,19 @@
     hsl(var(--background) / 0) 69.5%,
     hsl(var(--background) / 0.8) 100%
   ) !important;
+}
+
+/* Watchlist button pulse animation */
+@keyframes watchlist-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.15);
+  }
+}
+
+.animate-watchlist-pulse {
+  animation: watchlist-pulse 0.3s ease-in-out;
 }

@@ -59,23 +59,23 @@ development_status:
   2a-2-layout-components-header-and-pagecontainer: review
   2a-3-layout-components-stickyfilters: review
   2a-4-discovery-components-eventcard: review
-  2a-5-discovery-components-filmhero: ready-for-dev
-  2a-6-discovery-components-categorytabs-and-dateselector: ready-for-dev
-  2a-7-discovery-components-venuecard-and-searchbar: ready-for-dev
-  2a-8-discovery-components-searchresults: ready-for-dev
-  2a-9-ticketing-components-showtimebutton: ready-for-dev
-  2a-10-ticketing-components-quantityselector-and-ordersummary: ready-for-dev
-  2a-11-ticketing-components-ticketqr: ready-for-dev
-  2a-12-ticketing-components-seatselector: ready-for-dev
-  2a-13-ticketing-components-paymentform: ready-for-dev
-  2a-14-user-components-loginform-and-registerform: ready-for-dev
-  2a-15-user-components-profileform-and-sociallogin: ready-for-dev
-  2a-16-user-components-watchlistbutton: ready-for-dev
+  2a-5-discovery-components-filmhero: done
+  2a-6-discovery-components-categorytabs-and-dateselector: done
+  2a-7-discovery-components-venuecard-and-searchbar: done
+  2a-8-discovery-components-searchresults: done
+  2a-9-ticketing-components-showtimebutton: done
+  2a-10-ticketing-components-quantityselector-and-ordersummary: done
+  2a-11-ticketing-components-ticketqr: done
+  2a-12-ticketing-components-seatselector: done
+  2a-13-ticketing-components-paymentform: done
+  2a-14-user-components-loginform-and-registerform: in-progress
+  2a-15-user-components-profileform-and-sociallogin: done
+  2a-16-user-components-watchlistbutton: review
   2a-17-common-components-emptystate-and-errorboundary: ready-for-dev
   2a-18-common-components-loadingspinner-skeleton-toast: ready-for-dev
-  2a-19-common-components-badge-variants: ready-for-dev
-  2a-20-scanner-components-ticketscanner-and-validationresult: ready-for-dev
-  2a-21-scanner-components-attendancecounter: ready-for-dev
+  2a-19-common-components-badge-variants: done
+  2a-20-scanner-components-ticketscanner-and-validationresult: done
+  2a-21-scanner-components-attendancecounter: done
   2a-22-discovery-components-filmcard: done
   epic-2a-retrospective: optional
 
@@ -95,7 +95,7 @@ development_status:
   2b-12-email-configuration-with-brevo: review
   2b-13-api-documentation-with-openapi: ready-for-dev
   2b-14-data-migration-scripts-from-legacy-strapi-v4: ready-for-dev
-  2b-15-database-seeding-for-development: ready-for-dev
+  2b-15-database-seeding-for-development: done
   epic-2b-retrospective: optional
 
   # Epic 3: Event Discovery & Browsing

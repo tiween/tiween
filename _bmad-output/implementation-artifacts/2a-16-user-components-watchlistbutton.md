@@ -1,6 +1,6 @@
 # Story 2A.16: User Components - WatchlistButton
 
-Status: ready-for-dev
+Status: review
 
 ---
 
@@ -43,37 +43,37 @@ So that users can save events for later viewing.
 
 ## Tasks / Subtasks
 
-- [ ] **Task 1: Create WatchlistButton Component** (AC: #1, #2, #3)
+- [x] **Task 1: Create WatchlistButton Component** (AC: #1, #2, #3)
 
-  - [ ] 1.1 Create directory `src/features/watchlist/components/WatchlistButton/`
-  - [ ] 1.2 Define WatchlistButtonProps interface
-  - [ ] 1.3 Implement heart icon (outline/filled)
-  - [ ] 1.4 Implement not watchlisted state
-  - [ ] 1.5 Implement watchlisted state (filled yellow)
-  - [ ] 1.6 Implement loading state (spinner)
-  - [ ] 1.7 Implement disabled state (dimmed)
+  - [x] 1.1 Create directory `src/features/watchlist/components/WatchlistButton/`
+  - [x] 1.2 Define WatchlistButtonProps interface
+  - [x] 1.3 Implement heart icon (outline/filled)
+  - [x] 1.4 Implement not watchlisted state
+  - [x] 1.5 Implement watchlisted state (filled yellow)
+  - [x] 1.6 Implement loading state (spinner)
+  - [x] 1.7 Implement disabled state (dimmed)
 
-- [ ] **Task 2: Animation and Interaction** (AC: #4, #5, #6, #7)
+- [x] **Task 2: Animation and Interaction** (AC: #4, #5, #6, #7)
 
-  - [ ] 2.1 Add pulse animation on add
-  - [ ] 2.2 Implement onToggle callback
-  - [ ] 2.3 Connect isWatchlisted prop
-  - [ ] 2.4 Ensure 44x44px touch target
+  - [x] 2.1 Add pulse animation on add
+  - [x] 2.2 Implement onToggle callback
+  - [x] 2.3 Connect isWatchlisted prop
+  - [x] 2.4 Ensure 44x44px touch target
 
-- [ ] **Task 3: Accessibility** (AC: #8)
+- [x] **Task 3: Accessibility** (AC: #8)
 
-  - [ ] 3.1 Add aria-label for add state
-  - [ ] 3.2 Add aria-label for remove state
-  - [ ] 3.3 Add aria-pressed attribute
-  - [ ] 3.4 Add focus ring styling
+  - [x] 3.1 Add aria-label for add state
+  - [x] 3.2 Add aria-label for remove state
+  - [x] 3.3 Add aria-pressed attribute
+  - [x] 3.4 Add focus ring styling
 
-- [ ] **Task 4: Storybook Stories** (AC: #9)
-  - [ ] 4.1 Create WatchlistButton.stories.tsx
-  - [ ] 4.2 Add NotWatchlisted story
-  - [ ] 4.3 Add Watchlisted story
-  - [ ] 4.4 Add Loading story
-  - [ ] 4.5 Add Disabled story
-  - [ ] 4.6 Add WithAnimation story (interaction)
+- [x] **Task 4: Storybook Stories** (AC: #9)
+  - [x] 4.1 Create WatchlistButton.stories.tsx
+  - [x] 4.2 Add NotWatchlisted story
+  - [x] 4.3 Add Watchlisted story
+  - [x] 4.4 Add Loading story
+  - [x] 4.5 Add Disabled story
+  - [x] 4.6 Add WithAnimation story (interaction)
 
 ---
 
@@ -160,13 +160,27 @@ apps/client/src/features/watchlist/components/
 
 ### Agent Model Used
 
-{{agent_model_name_version}}
+claude-opus-4-5-20251101
+
+### Implementation Notes
+
+- Extracted WatchlistButton pattern from existing EventCard implementation (lines 159-191)
+- Added `variant` prop ("overlay" | "ghost") for different UI contexts
+- Used `useRef` to track previous state for pulse animation (only triggers on add, not remove)
+- Added `e.stopPropagation()` to prevent clicks from bubbling to parent cards
+- Animation keyframes added to `globals.css` under existing ANIMATIONS section
 
 ### File List
 
-- `apps/client/src/features/watchlist/components/WatchlistButton/WatchlistButton.tsx` (to create)
-- `apps/client/src/features/watchlist/components/WatchlistButton/WatchlistButton.stories.tsx` (to create)
-- `apps/client/src/features/watchlist/components/WatchlistButton/WatchlistButton.test.tsx` (to create)
-- `apps/client/src/features/watchlist/components/WatchlistButton/index.ts` (to create)
-- `apps/client/src/features/watchlist/components/index.ts` (to create)
-- `apps/client/src/features/watchlist/index.ts` (to create)
+- `apps/client/src/features/watchlist/components/WatchlistButton/WatchlistButton.tsx` (created)
+- `apps/client/src/features/watchlist/components/WatchlistButton/WatchlistButton.stories.tsx` (created)
+- `apps/client/src/features/watchlist/components/WatchlistButton/index.ts` (created)
+- `apps/client/src/features/watchlist/components/index.ts` (created)
+- `apps/client/src/features/watchlist/index.ts` (created)
+- `apps/client/src/styles/globals.css` (modified - added watchlist-pulse animation)
+
+### Change Log
+
+| Date       | Change                                              |
+| ---------- | --------------------------------------------------- |
+| 2026-01-26 | Initial implementation of WatchlistButton component |
