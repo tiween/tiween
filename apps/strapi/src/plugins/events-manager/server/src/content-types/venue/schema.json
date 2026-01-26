@@ -82,30 +82,6 @@
         }
       }
     },
-    "phone": {
-      "type": "string",
-      "pluginOptions": {
-        "i18n": {
-          "localized": false
-        }
-      }
-    },
-    "email": {
-      "type": "email",
-      "pluginOptions": {
-        "i18n": {
-          "localized": false
-        }
-      }
-    },
-    "website": {
-      "type": "string",
-      "pluginOptions": {
-        "i18n": {
-          "localized": false
-        }
-      }
-    },
     "images": {
       "type": "media",
       "multiple": true,
@@ -159,7 +135,7 @@
     "links": {
       "type": "component",
       "repeatable": true,
-      "component": "common.social-link",
+      "component": "common.link",
       "pluginOptions": {
         "i18n": {
           "localized": false

@@ -1,0 +1,75 @@
+{
+  "collectionName": "components_creative_works_theatre_details",
+  "info": {
+    "displayName": "Theatre Details",
+    "icon": "theater-masks",
+    "description": "Theatre-specific metadata for plays and performances"
+  },
+  "options": {},
+  "attributes": {
+    "playType": {
+      "type": "enumeration",
+      "enum": [
+        "original",
+        "adaptation",
+        "revival",
+        "translation",
+        "devised"
+      ],
+      "default": "original"
+    },
+    "format": {
+      "type": "enumeration",
+      "enum": [
+        "full-length",
+        "one-act",
+        "monologue",
+        "sketch",
+        "musical",
+        "opera",
+        "dance"
+      ],
+      "default": "full-length"
+    },
+    "actCount": {
+      "type": "integer",
+      "min": 1
+    },
+    "hasIntermission": {
+      "type": "boolean",
+      "default": false
+    },
+    "basedOn": {
+      "type": "string"
+    },
+    "originalLanguage": {
+      "type": "enumeration",
+      "enum": [
+        "arabic",
+        "darija",
+        "french",
+        "english",
+        "arabic-french",
+        "other"
+      ]
+    },
+    "performedLanguages": {
+      "type": "json"
+    },
+    "productionCompany": {
+      "type": "string"
+    },
+    "premiereDate": {
+      "type": "date"
+    },
+    "premiereVenue": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "plugin::events-manager.venue"
+    },
+    "isTourProduction": {
+      "type": "boolean",
+      "default": false
+    }
+  }
+}

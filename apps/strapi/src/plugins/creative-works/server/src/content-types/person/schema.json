@@ -76,6 +76,26 @@
           "localized": false
         }
       }
+    },
+    "links": {
+      "type": "component",
+      "repeatable": true,
+      "component": "common.link",
+      "pluginOptions": {
+        "i18n": {
+          "localized": false
+        }
+      }
+    },
+    "externalIds": {
+      "type": "component",
+      "repeatable": false,
+      "component": "creative-works.external-ids",
+      "pluginOptions": {
+        "i18n": {
+          "localized": false
+        }
+      }
     }
   }
 }

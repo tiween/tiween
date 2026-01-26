@@ -1,0 +1,45 @@
+{
+  "collectionName": "components_common_links",
+  "info": {
+    "displayName": "Link",
+    "icon": "link",
+    "description": "External links (social media, websites, contact info)"
+  },
+  "options": {},
+  "attributes": {
+    "url": {
+      "type": "string",
+      "required": true
+    },
+    "type": {
+      "type": "enumeration",
+      "enum": [
+        "website",
+        "facebook",
+        "instagram",
+        "youtube",
+        "twitter",
+        "tiktok",
+        "linkedin",
+        "vimeo",
+        "spotify",
+        "soundcloud",
+        "whatsapp",
+        "phone",
+        "email",
+        "imdb",
+        "tmdb",
+        "letterboxd",
+        "allocine",
+        "wikipedia",
+        "maps",
+        "booking",
+        "other"
+      ],
+      "required": true
+    },
+    "label": {
+      "type": "string"
+    }
+  }
+}

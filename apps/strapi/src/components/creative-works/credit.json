@@ -3,17 +3,52 @@
   "info": {
     "displayName": "Credit",
     "icon": "user-tie",
-    "description": "Crew member and job role mapping for creative works"
+    "description": "A person's contribution to a creative work (graph edge with properties)"
   },
   "options": {},
   "attributes": {
     "person": {
       "type": "relation",
       "relation": "oneToOne",
-      "target": "plugin::creative-works.person"
+      "target": "plugin::creative-works.person",
+      "required": true
     },
-    "job": {
+    "role": {
+      "type": "enumeration",
+      "enum": [
+        "director",
+        "playwright",
+        "screenwriter",
+        "adaptor",
+        "translator",
+        "composer",
+        "musical-director",
+        "choreographer",
+        "cast",
+        "set-designer",
+        "costume-designer",
+        "lighting-designer",
+        "sound-designer",
+        "projection-designer",
+        "stage-manager",
+        "producer",
+        "executive-producer",
+        "cinematographer",
+        "editor",
+        "other"
+      ],
+      "required": true
+    },
+    "character": {
       "type": "string"
+    },
+    "customRole": {
+      "type": "string"
+    },
+    "billing": {
+      "type": "integer",
+      "default": 99,
+      "min": 1
     }
   }
 }

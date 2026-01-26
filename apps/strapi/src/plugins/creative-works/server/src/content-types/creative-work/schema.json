@@ -5,7 +5,7 @@
     "singularName": "creative-work",
     "pluralName": "creative-works",
     "displayName": "Creative Work",
-    "description": "Films, plays, short films, concerts, exhibitions and other creative works"
+    "description": "Films, plays, short films and other creative works"
   },
   "options": {
     "draftAndPublish": true
@@ -44,7 +44,7 @@
     },
     "type": {
       "type": "enumeration",
-      "enum": ["film", "play", "short-film", "concert", "exhibition"],
+      "enum": ["film", "play", "short-film"],
       "required": true,
       "pluginOptions": {
         "i18n": {
@@ -81,22 +81,7 @@
       "relation": "manyToMany",
       "target": "plugin::creative-works.genre"
     },
-    "directors": {
-      "type": "relation",
-      "relation": "manyToMany",
-      "target": "plugin::creative-works.person"
-    },
-    "cast": {
-      "type": "component",
-      "repeatable": true,
-      "component": "creative-works.cast",
-      "pluginOptions": {
-        "i18n": {
-          "localized": false
-        }
-      }
-    },
-    "crew": {
+    "credits": {
       "type": "component",
       "repeatable": true,
       "component": "creative-works.credit",
@@ -139,14 +124,6 @@
         }
       }
     },
-    "trailer": {
-      "type": "string",
-      "pluginOptions": {
-        "i18n": {
-          "localized": false
-        }
-      }
-    },
     "videos": {
       "type": "component",
       "repeatable": true,
@@ -174,20 +151,40 @@
         }
       }
     },
-    "facts": {
+    "distinctions": {
       "type": "component",
       "repeatable": true,
-      "component": "common.remarkable-fact",
+      "component": "creative-works.distinction",
       "pluginOptions": {
         "i18n": {
-          "localized": true
+          "localized": false
+        }
+      }
+    },
+    "theatreDetails": {
+      "type": "component",
+      "repeatable": false,
+      "component": "creative-works.theatre-details",
+      "pluginOptions": {
+        "i18n": {
+          "localized": false
+        }
+      }
+    },
+    "externalIds": {
+      "type": "component",
+      "repeatable": false,
+      "component": "creative-works.external-ids",
+      "pluginOptions": {
+        "i18n": {
+          "localized": false
         }
       }
     },
     "links": {
       "type": "component",
       "repeatable": true,
-      "component": "common.social-link",
+      "component": "common.link",
       "pluginOptions": {
         "i18n": {
           "localized": false

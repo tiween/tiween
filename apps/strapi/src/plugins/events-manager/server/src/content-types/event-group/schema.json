@@ -135,7 +135,7 @@
     "links": {
       "type": "component",
       "repeatable": true,
-      "component": "common.social-link",
+      "component": "common.link",
       "pluginOptions": {
         "i18n": {
           "localized": false

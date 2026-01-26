@@ -1,0 +1,43 @@
+{
+  "collectionName": "components_creative_works_distinctions",
+  "info": {
+    "displayName": "Distinction",
+    "icon": "trophy",
+    "description": "Festival selections, awards, nominations, and recognitions"
+  },
+  "options": {},
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "edition": {
+      "type": "string"
+    },
+    "year": {
+      "type": "integer",
+      "required": true
+    },
+    "section": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string"
+    },
+    "result": {
+      "type": "enumeration",
+      "enum": [
+        "selected",
+        "nominated",
+        "winner",
+        "special-mention",
+        "honorable-mention",
+        "grand-prize"
+      ],
+      "default": "selected"
+    },
+    "awardName": {
+      "type": "string"
+    }
+  }
+}
