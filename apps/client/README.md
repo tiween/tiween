@@ -39,7 +39,7 @@ Copy & rename `.env.local.example` to `.env.local` and fill or update in the val
 
 #### Read-only API token
 
-To fetch public content from Strapi, you need to set `STRAPI_REST_READONLY_API_KEY` env variable. Based on [Strapi docs](https://docs.strapi.io/cms/features/api-tokens) you have to go to [Settings > API Tokens](http://localhost:1337/admin/settings/api-tokens) and "Create new API token". Token configuration:
+To fetch public content from Strapi, you need to set `STRAPI_REST_READONLY_API_KEY` env variable. Based on [Strapi docs](https://docs.strapi.io/cms/features/api-tokens) you have to go to [Settings > API Tokens](https://api.tiween.localhost:1355/admin/settings/api-tokens) and "Create new API token". Token configuration:
 
 ```
 Name: any name
@@ -64,7 +64,7 @@ Permissions: "Create subscriber"
 
 ### Run locally in dev mode (with hot-reloading)
 
-To run the app locally use:
+Local dev uses [Portless](https://github.com/portless/portless) — see the [root README](../../README.md#portless-setup-one-time-per-machine) for one-time setup.
 
 ```bash
 (nvm use) # switch node version
@@ -73,7 +73,7 @@ To run the app locally use:
 yarn dev
 ```
 
-App runs on [http://localhost:3000](http://localhost:3000) by default.
+App runs on [https://tiween.localhost:1355](https://tiween.localhost:1355) by default. To run without Portless (e.g. CI), call `next dev` directly — it falls back to `http://localhost:3000`.
 
 ## 🛠️ Production build (Docker)
 
@@ -166,7 +166,15 @@ export function MyComponent() {
 
 ### Data fetching
 
-There are 2 ways to fetch data from Strapi. Both of them use [BaseStrapiClient](src/lib/strapi-api/base.ts) class as a base class. This class isn't used directly, but extended by other classes.
+There are **3** ways to fetch data from Strapi:
+
+1. **`PublicStrapiClient` / `PrivateStrapiClient`** (extend `BaseStrapiClient`) — for **Strapi core content types** (`api::page.page`, etc.) where the response shape depends on `populate`/`fields` query params. These use Strapi's auto-generated TS types via `@tiween/admin`, which preserves populate-aware return typing.
+2. **`strapiOpenApi`** ([src/lib/strapi-api/openapi-client.ts](src/lib/strapi-api/openapi-client.ts)) — a typed [openapi-fetch](https://openapi-ts.dev/openapi-fetch/) client whose types come from Strapi's OpenAPI schema (served by `@strapi/plugin-documentation`). Use this for **custom plugin endpoints** (events-manager, ticketing, etc.) where one response schema fits all callers.
+3. The lower-level `fetchAPI` on `BaseStrapiClient` for ad-hoc calls.
+
+> **Regenerating openapi types:** run `yarn gen:strapi-types` while Strapi is running locally. The generated file lives at `src/types/strapi-openapi.d.ts` and **is committed** — re-run after any Strapi route change and commit the result so CI doesn't need Strapi running at build time.
+
+The remainder of this section describes the BaseStrapiClient flavors:
 
 #### Public API
 
@@ -278,7 +286,7 @@ export async function StrapiNavbar({ locale }: { readonly locale: Locale }) {
 
 Page builder landing page is rendered inside the main [dynamic route](src/app/[locale]/[[...rest]]/page.tsx). It is an optional catch-all segment that captures every segment — in our case, the `fullPath` attribute of pages (e.g. `/page-1-full-path`) from Strapi. All published pages are rendered as nested URLs.
 
-Special case is the Index/Root page. By default, its `fullPath` is set to shared value `/` in the [@tiween/shared-types](../../packages/shared-data/index.ts) package.
+Special case is the Index/Root page. By default, its `fullPath` is set to shared value `/`, defined as `ROOT_PAGE_PATH` in [`src/lib/strapi-helpers.ts`](src/lib/strapi-helpers.ts).
 
 Another important aspect is the mapping between Strapi components and frontend components. This is handled in the [src/components/page-builder/index.ts](src/components/page-builder/index.tsx) file. `PageContentComponents` contains a mapping between Strapi component names and their corresponding React components.
 

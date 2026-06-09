@@ -27,7 +27,7 @@ import {
 import { useToast } from "@/components/ui/use-toast"
 
 // To enable email confirmation, Strapi Users-Permissions plugin must be configured (e.g. email provider, redirect URL)
-// http://localhost:1337/admin/settings/users-permissions/advanced-settings
+// Local dev: https://api.tiween.localhost:1355/admin/settings/users-permissions/advanced-settings
 const ENABLE_EMAIL_CONFIRMATION = false
 
 export function RegisterForm() {

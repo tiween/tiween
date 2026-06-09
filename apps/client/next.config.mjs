@@ -70,6 +70,11 @@ const nextConfig = {
         protocol: "http",
         hostname: "127.0.0.1",
       },
+      {
+        protocol: "https",
+        hostname: "api.tiween.localhost",
+        port: "1355",
+      },
     ],
   },
 

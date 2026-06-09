@@ -1,10 +1,10 @@
 /* eslint-disable no-console */
 import { cookies, draftMode } from "next/headers"
 import { env } from "@/env.mjs"
-import { ROOT_PAGE_PATH } from "@tiween/shared-types"
 import { hasLocale } from "next-intl"
 
 import { redirect, routing } from "@/lib/navigation"
+import { ROOT_PAGE_PATH } from "@/lib/strapi-helpers"
 
 export async function GET(request: Request) {
   if (!env.STRAPI_PREVIEW_SECRET) {

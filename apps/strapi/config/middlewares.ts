@@ -57,7 +57,11 @@ export default [
     name: "strapi::cors",
     config: {
       enabled: true,
-      origin: ["http://localhost:3000", "http://localhost:6006"], // Next.js + Storybook
+      origin: [
+        "https://tiween.localhost:1355", // Next.js client (Portless)
+        "http://localhost:3000", // Next.js client (direct, fallback)
+        "http://localhost:6006", // Storybook
+      ],
       methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"],
       headers: ["Content-Type", "Authorization", "Origin", "Accept"],
       keepHeaderOnError: true,

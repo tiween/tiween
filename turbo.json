@@ -24,7 +24,6 @@
       "dependsOn": ["build"]
     },
     "dev": {
-      "dependsOn": ["@tiween/shared-types#build"],
       "cache": false,
       "persistent": true
     },
@@ -34,12 +33,10 @@
       "persistent": true
     },
     "storybook": {
-      "dependsOn": ["@tiween/shared-types#build"],
       "cache": false,
       "persistent": true
     },
     "build-storybook": {
-      "dependsOn": ["@tiween/shared-types#build"],
       "outputs": ["storybook-static/**"]
     }
   },

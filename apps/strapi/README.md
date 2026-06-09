@@ -60,9 +60,13 @@ Another way is to run **Strapi in docker** container too. Currently, an availabl
 
 #### Default dev addresses
 
-- Strapi runs on [http://localhost:1337](http://localhost:1337)
-- Admin panel is available on [http://localhost:1337/admin](http://localhost:1337/admin)
-- Postgres runs on [http://localhost:5432](http://localhost:5432)
+Local dev uses [Portless](https://github.com/portless/portless) — see the [root README](../../README.md#portless-setup-one-time-per-machine) for one-time setup.
+
+- Strapi runs on [https://api.tiween.localhost:1355](https://api.tiween.localhost:1355)
+- Admin panel is available on [https://api.tiween.localhost:1355/admin](https://api.tiween.localhost:1355/admin)
+- Postgres runs on [http://localhost:5432](http://localhost:5432) (not proxied)
+
+> Running `strapi develop` directly (without portless) still works and falls back to `http://localhost:1337`.
 
 ### Init database
 
@@ -233,6 +237,6 @@ This starter supports Strapi's new feature: [Previews](https://docs.strapi.io/cm
 In order to enable the feature, you need to configure the following environmental variables:
 
 - `STRAPI_PREVIEW_ENABLED`: `true` to enable, otherwise disabled
-- `CLIENT_URL`: Absolute URL of the frontend application (http://127.0.0.1:3000 for local development in most cases)
+- `CLIENT_URL`: Absolute URL of the frontend application (https://tiween.localhost:1355 for local Portless dev)
 - `STRAPI_PREVIEW_SECRET`: shared secret between frontend and backend, which is used to authenticate if the preview can be viewed.
   If configured correctly, you should be able to visit previews for content types that have been implemented in the `preview.config` configuration object in `config/admin.ts`.

@@ -39,6 +39,34 @@ export default ({ env }) => {
       },
     },
 
+    // OpenAPI/Swagger documentation. The client app fetches the generated
+    // schema and uses openapi-typescript + openapi-fetch to get typed REST calls.
+    // Served at /documentation/v1.0.0/full_documentation.json
+    documentation: {
+      enabled: true,
+      config: {
+        openapi: "3.0.0",
+        info: {
+          version: "1.0.0",
+          title: "Tiween API",
+          description:
+            "REST API consumed by the Tiween client. Generated via @strapi/plugin-documentation.",
+        },
+        "x-strapi-config": {
+          // Hide internal Strapi plugins from the generated spec
+          plugins: ["upload", "users-permissions"],
+          mutateDocumentation: undefined,
+        },
+        servers: [
+          {
+            url: "https://api.tiween.localhost:1355/api",
+            description: "Local (Portless)",
+          },
+          { url: "https://api.tiween.tn/api", description: "Production" },
+        ],
+      },
+    },
+
     // ============================================
     // TIWEEN CUSTOM PLUGINS
     // ============================================
