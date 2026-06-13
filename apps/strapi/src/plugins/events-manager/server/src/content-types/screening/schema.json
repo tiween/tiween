@@ -1,0 +1,69 @@
+{
+  "kind": "collectionType",
+  "collectionName": "screenings",
+  "info": {
+    "singularName": "screening",
+    "pluralName": "screenings",
+    "displayName": "Screening",
+    "description": "Sous-evenement cine (schema.org ScreeningEvent)"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "order": {
+      "type": "integer",
+      "default": 1
+    },
+    "startDateTime": {
+      "type": "datetime"
+    },
+    "videoFormat": {
+      "type": "enumeration",
+      "enum": [
+        "standard",
+        "threeD",
+        "imax",
+        "fourDX",
+        "format70mm"
+      ],
+      "default": "standard"
+    },
+    "audioLanguage": {
+      "type": "string"
+    },
+    "subtitleLanguage": {
+      "type": "string"
+    },
+    "price": {
+      "type": "decimal",
+      "default": 0
+    },
+    "ticketsAvailable": {
+      "type": "integer",
+      "default": 0
+    },
+    "ticketsSold": {
+      "type": "integer",
+      "default": 0
+    },
+    "event": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::events-manager.event",
+      "inversedBy": "screenings"
+    },
+    "movie": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::events-manager.movie",
+      "inversedBy": "screenings"
+    },
+    "features": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "plugin::events-manager.feature",
+      "inversedBy": "screenings"
+    }
+  }
+}

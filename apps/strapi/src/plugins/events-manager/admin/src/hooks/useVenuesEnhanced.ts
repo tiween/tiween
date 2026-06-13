@@ -8,6 +8,9 @@
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { useFetchClient } from "@strapi/strapi/admin"
 
+const VENUE_UID = "plugin::venues.venue"
+const VENUE_CM_PATH = `/content-manager/collection-types/${VENUE_UID}`
+
 /** Venue status options */
 export type VenueStatus = "pending" | "approved" | "suspended"
 
@@ -152,18 +155,15 @@ export function useVenuesList(options: UseVenuesListOptions = {}) {
         filters["cityRef"] = { id: cityId }
       }
 
-      const response = await get<VenuesResponse>(
-        "/content-manager/collection-types/plugin::events-manager.venue",
-        {
-          params: {
-            page,
-            pageSize,
-            sort,
-            populate: ["logo", "cityRef", "cityRef.region"],
-            filters: Object.keys(filters).length > 0 ? filters : undefined,
-          },
-        }
-      )
+      const response = await get<VenuesResponse>(VENUE_CM_PATH, {
+        params: {
+          page,
+          pageSize,
+          sort,
+          populate: ["logo", "cityRef", "cityRef.region"],
+          filters: Object.keys(filters).length > 0 ? filters : undefined,
+        },
+      })
 
       setVenues(response.data.results ?? [])
       setPagination(response.data.pagination)
@@ -208,7 +208,7 @@ export function useVenue(documentId: string | null) {
 
     try {
       const response = await get<{ data: Venue }>(
-        `/content-manager/collection-types/plugin::events-manager.venue/${documentId}`,
+        `${VENUE_CM_PATH}/${documentId}`,
         {
           params: {
             populate: [
@@ -280,10 +280,7 @@ export function useVenueMutations() {
       setError(null)
 
       try {
-        const response = await post<{ data: Venue }>(
-          "/content-manager/collection-types/plugin::events-manager.venue",
-          { data }
-        )
+        const response = await post<{ data: Venue }>(VENUE_CM_PATH, { data })
         return response.data.data ?? response.data
       } catch (err) {
         setError(err instanceof Error ? err : new Error(String(err)))
@@ -305,7 +302,7 @@ export function useVenueMutations() {
 
       try {
         const response = await put<{ data: Venue }>(
-          `/content-manager/collection-types/plugin::events-manager.venue/${documentId}`,
+          `${VENUE_CM_PATH}/${documentId}`,
           { data }
         )
         return response.data.data ?? response.data
@@ -325,9 +322,7 @@ export function useVenueMutations() {
       setError(null)
 
       try {
-        await del(
-          `/content-manager/collection-types/plugin::events-manager.venue/${documentId}`
-        )
+        await del(`${VENUE_CM_PATH}/${documentId}`)
         return true
       } catch (err) {
         setError(err instanceof Error ? err : new Error(String(err)))
@@ -348,10 +343,7 @@ export function useVenueMutations() {
         // Update each venue sequentially
         // Note: Could be optimized with a custom bulk endpoint
         for (const documentId of documentIds) {
-          await put(
-            `/content-manager/collection-types/plugin::events-manager.venue/${documentId}`,
-            { data: { status } }
-          )
+          await put(`${VENUE_CM_PATH}/${documentId}`, { data: { status } })
         }
         return true
       } catch (err) {
@@ -377,9 +369,7 @@ export function useVenueMutations() {
       try {
         for (const documentId of documentIds) {
           try {
-            await del(
-              `/content-manager/collection-types/plugin::events-manager.venue/${documentId}`
-            )
+            await del(`${VENUE_CM_PATH}/${documentId}`)
             success.push(documentId)
           } catch {
             failed.push(documentId)
@@ -403,7 +393,7 @@ export function useVenueMutations() {
       try {
         // First get the venue's id from documentId
         const venueResponse = await get<{ data: { id: number } }>(
-          `/content-manager/collection-types/plugin::events-manager.venue/${documentId}`,
+          `${VENUE_CM_PATH}/${documentId}`,
           { params: { fields: ["id"] } }
         )
         const venueId = venueResponse.data.data?.id ?? venueResponse.data?.id

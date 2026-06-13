@@ -1,5 +1,44 @@
 import type { Schema, Struct } from "@strapi/strapi"
 
+export interface CommonLink extends Struct.ComponentSchema {
+  collectionName: "components_common_links"
+  info: {
+    description: "External links (social media, websites, contact info)"
+    displayName: "Link"
+    icon: "link"
+  }
+  attributes: {
+    label: Schema.Attribute.String
+    type: Schema.Attribute.Enumeration<
+      [
+        "website",
+        "facebook",
+        "instagram",
+        "youtube",
+        "twitter",
+        "tiktok",
+        "linkedin",
+        "vimeo",
+        "spotify",
+        "soundcloud",
+        "whatsapp",
+        "phone",
+        "email",
+        "imdb",
+        "tmdb",
+        "letterboxd",
+        "allocine",
+        "wikipedia",
+        "maps",
+        "booking",
+        "other",
+      ]
+    > &
+      Schema.Attribute.Required
+    url: Schema.Attribute.String & Schema.Attribute.Required
+  }
+}
+
 export interface CommonRemarkableFact extends Struct.ComponentSchema {
   collectionName: "components_common_remarkable_facts"
   info: {
@@ -11,30 +50,6 @@ export interface CommonRemarkableFact extends Struct.ComponentSchema {
     country: Schema.Attribute.String
     name: Schema.Attribute.String & Schema.Attribute.Required
     year: Schema.Attribute.Integer
-  }
-}
-
-export interface CommonSocialLink extends Struct.ComponentSchema {
-  collectionName: "components_common_social_links"
-  info: {
-    description: "Social media and external links"
-    displayName: "Social Link"
-    icon: "link"
-  }
-  attributes: {
-    type: Schema.Attribute.Enumeration<
-      [
-        "facebook",
-        "instagram",
-        "youtube",
-        "twitter",
-        "website",
-        "phone",
-        "tiktok",
-      ]
-    > &
-      Schema.Attribute.Required
-    url: Schema.Attribute.String & Schema.Attribute.Required
   }
 }
 
@@ -52,35 +67,161 @@ export interface CommonVideo extends Struct.ComponentSchema {
   }
 }
 
-export interface CreativeWorksCast extends Struct.ComponentSchema {
-  collectionName: "components_creative_works_casts"
-  info: {
-    description: "Actor and character mapping for creative works"
-    displayName: "Cast"
-    icon: "user-circle"
-  }
-  attributes: {
-    character: Schema.Attribute.String
-    person: Schema.Attribute.Relation<
-      "oneToOne",
-      "plugin::creative-works.person"
-    >
-  }
-}
-
 export interface CreativeWorksCredit extends Struct.ComponentSchema {
   collectionName: "components_creative_works_credits"
   info: {
-    description: "Crew member and job role mapping for creative works"
+    description: "A person's contribution to a creative work (graph edge with properties)"
     displayName: "Credit"
     icon: "user-tie"
   }
   attributes: {
-    job: Schema.Attribute.String
+    billing: Schema.Attribute.Integer &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 1
+        },
+        number
+      > &
+      Schema.Attribute.DefaultTo<99>
+    character: Schema.Attribute.String
+    customRole: Schema.Attribute.String
     person: Schema.Attribute.Relation<
       "oneToOne",
       "plugin::creative-works.person"
+    > &
+      Schema.Attribute.Required
+    role: Schema.Attribute.Enumeration<
+      [
+        "director",
+        "playwright",
+        "screenwriter",
+        "adaptor",
+        "translator",
+        "composer",
+        "musical-director",
+        "choreographer",
+        "cast",
+        "set-designer",
+        "costume-designer",
+        "lighting-designer",
+        "sound-designer",
+        "projection-designer",
+        "stage-manager",
+        "producer",
+        "executive-producer",
+        "cinematographer",
+        "editor",
+        "other",
+      ]
+    > &
+      Schema.Attribute.Required
+  }
+}
+
+export interface CreativeWorksDistinction extends Struct.ComponentSchema {
+  collectionName: "components_creative_works_distinctions"
+  info: {
+    description: "Festival selections, awards, nominations, and recognitions"
+    displayName: "Distinction"
+    icon: "trophy"
+  }
+  attributes: {
+    awardName: Schema.Attribute.String
+    category: Schema.Attribute.String
+    edition: Schema.Attribute.String
+    name: Schema.Attribute.String & Schema.Attribute.Required
+    result: Schema.Attribute.Enumeration<
+      [
+        "selected",
+        "nominated",
+        "winner",
+        "special-mention",
+        "honorable-mention",
+        "grand-prize",
+      ]
+    > &
+      Schema.Attribute.DefaultTo<"selected">
+    section: Schema.Attribute.String
+    year: Schema.Attribute.Integer & Schema.Attribute.Required
+  }
+}
+
+export interface CreativeWorksExternalIds extends Struct.ComponentSchema {
+  collectionName: "components_creative_works_external_ids"
+  info: {
+    description: "External database identifiers for syncing (TMDB, IMDB, etc.)"
+    displayName: "External IDs"
+    icon: "link"
+  }
+  attributes: {
+    imdbId: Schema.Attribute.String
+    lastSyncedAt: Schema.Attribute.DateTime
+    tmdbId: Schema.Attribute.Integer
+  }
+}
+
+export interface CreativeWorksTheatreDetails extends Struct.ComponentSchema {
+  collectionName: "components_creative_works_theatre_details"
+  info: {
+    description: "Theatre-specific metadata for plays and performances"
+    displayName: "Theatre Details"
+    icon: "theater-masks"
+  }
+  attributes: {
+    actCount: Schema.Attribute.Integer &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 1
+        },
+        number
+      >
+    basedOn: Schema.Attribute.String
+    format: Schema.Attribute.Enumeration<
+      [
+        "full-length",
+        "one-act",
+        "monologue",
+        "sketch",
+        "musical",
+        "opera",
+        "dance",
+      ]
+    > &
+      Schema.Attribute.DefaultTo<"full-length">
+    hasIntermission: Schema.Attribute.Boolean &
+      Schema.Attribute.DefaultTo<false>
+    isTourProduction: Schema.Attribute.Boolean &
+      Schema.Attribute.DefaultTo<false>
+    originalLanguage: Schema.Attribute.Enumeration<
+      ["arabic", "darija", "french", "english", "arabic-french", "other"]
     >
+    performedLanguages: Schema.Attribute.JSON
+    playType: Schema.Attribute.Enumeration<
+      ["original", "adaptation", "revival", "translation", "devised"]
+    > &
+      Schema.Attribute.DefaultTo<"original">
+    premiereDate: Schema.Attribute.Date
+    premiereVenue: Schema.Attribute.Relation<"oneToOne", "plugin::venues.venue">
+    productionCompany: Schema.Attribute.String
+  }
+}
+
+export interface EntityPropertiesPropertyValue extends Struct.ComponentSchema {
+  collectionName: "components_entity_properties_property_values"
+  info: {
+    description: "Stores a property value attached to an entity"
+    displayName: "Property Value"
+    icon: "check-square"
+  }
+  attributes: {
+    booleanValue: Schema.Attribute.Boolean
+    definition: Schema.Attribute.Relation<
+      "oneToOne",
+      "plugin::venues.property-definition"
+    >
+    enumValue: Schema.Attribute.String
+    integerValue: Schema.Attribute.Integer
+    stringValue: Schema.Attribute.String
   }
 }
 
@@ -194,6 +335,18 @@ export interface SeoUtilitiesSocialIcons extends Struct.ComponentSchema {
   }
 }
 
+export interface SharedGeoPoint extends Struct.ComponentSchema {
+  collectionName: "components_shared_geo_points"
+  info: {
+    displayName: "Geo point"
+    icon: "pinMap"
+  }
+  attributes: {
+    latitude: Schema.Attribute.Decimal
+    longitude: Schema.Attribute.Decimal
+  }
+}
+
 export interface UtilitiesAccordions extends Struct.ComponentSchema {
   collectionName: "components_utilities_accordions"
   info: {
@@ -269,16 +422,20 @@ export interface UtilitiesText extends Struct.ComponentSchema {
 declare module "@strapi/strapi" {
   export module Public {
     export interface ComponentSchemas {
+      "common.link": CommonLink
       "common.remarkable-fact": CommonRemarkableFact
-      "common.social-link": CommonSocialLink
       "common.video": CommonVideo
-      "creative-works.cast": CreativeWorksCast
       "creative-works.credit": CreativeWorksCredit
+      "creative-works.distinction": CreativeWorksDistinction
+      "creative-works.external-ids": CreativeWorksExternalIds
+      "creative-works.theatre-details": CreativeWorksTheatreDetails
+      "entity-properties.property-value": EntityPropertiesPropertyValue
       "seo-utilities.meta-social": SeoUtilitiesMetaSocial
       "seo-utilities.seo": SeoUtilitiesSeo
       "seo-utilities.seo-og": SeoUtilitiesSeoOg
       "seo-utilities.seo-twitter": SeoUtilitiesSeoTwitter
       "seo-utilities.social-icons": SeoUtilitiesSocialIcons
+      "shared.geo-point": SharedGeoPoint
       "utilities.accordions": UtilitiesAccordions
       "utilities.basic-image": UtilitiesBasicImage
       "utilities.image-with-link": UtilitiesImageWithLink

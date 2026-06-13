@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from "react"
 import { useFetchClient } from "@strapi/strapi/admin"
 
+const VENUE_UID = "plugin::venues.venue"
+
 interface Venue {
   id: number
   documentId: string
@@ -30,7 +32,7 @@ export const useVenues = () => {
     setError(null)
     try {
       const response = await get<VenuesResponse>(
-        "/content-manager/collection-types/plugin::events-manager.venue",
+        `/content-manager/collection-types/${VENUE_UID}`,
         {
           params: {
             page: 1,

@@ -68,11 +68,11 @@ development_status:
   2a-11-ticketing-components-ticketqr: done
   2a-12-ticketing-components-seatselector: done
   2a-13-ticketing-components-paymentform: done
-  2a-14-user-components-loginform-and-registerform: in-progress
+  2a-14-user-components-loginform-and-registerform: review
   2a-15-user-components-profileform-and-sociallogin: done
   2a-16-user-components-watchlistbutton: review
-  2a-17-common-components-emptystate-and-errorboundary: ready-for-dev
-  2a-18-common-components-loadingspinner-skeleton-toast: ready-for-dev
+  2a-17-common-components-emptystate-and-errorboundary: review
+  2a-18-common-components-loadingspinner-skeleton-toast: review
   2a-19-common-components-badge-variants: done
   2a-20-scanner-components-ticketscanner-and-validationresult: done
   2a-21-scanner-components-attendancecounter: done
@@ -96,7 +96,19 @@ development_status:
   2b-13-api-documentation-with-openapi: ready-for-dev
   2b-14-data-migration-scripts-from-legacy-strapi-v4: ready-for-dev
   2b-15-database-seeding-for-development: done
+  2b-16-events-manager-plugin-test-coverage: review
   epic-2b-retrospective: optional
+
+  # Epic 2C: Plugin Architecture Decomposition (TRACK B continuation)
+  # Source: architecture amendment 2026-06-12. Sequencing: 2c-2 gates 2c-3;
+  # 2c-4 may precede 2c-3 (never concurrent); 2c-1 gates epic-7; 2c-4 gates epic-6.
+  epic-2c: in-progress
+  2c-1-extract-venues-plugin: review
+  2c-2-catalog-collision-data-audit: backlog
+  2c-3-catalog-move-into-creative-works: backlog
+  2c-4-ticketing-unit-of-work-and-atomic-inventory: backlog
+  2c-5-consolidation-sweep: backlog
+  epic-2c-retrospective: optional
 
   # Epic 3: Event Discovery & Browsing
   epic-3: backlog
@@ -190,6 +202,3 @@ development_status:
   10-7-install-prompts: backlog
   10-8-offline-status-indicators: backlog
   epic-10-retrospective: optional
-
-  # Standalone: Pre-Launch Marketing
-  standalone-coming-back-landing-page: ready-for-dev

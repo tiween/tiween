@@ -65,7 +65,7 @@
     "premiereVenue": {
       "type": "relation",
       "relation": "oneToOne",
-      "target": "plugin::events-manager.venue"
+      "target": "plugin::venues.venue"
     },
     "isTourProduction": {
       "type": "boolean",

@@ -1,16 +1,5 @@
 import type { Core } from "@strapi/strapi"
 
-interface SeedVenue {
-  name: string
-  slug: string
-  type: "cinema" | "theater" | "cultural-center" | "museum" | "other"
-  address: string
-  city: string
-  region: string
-  capacity?: number
-  status: "approved"
-}
-
 interface SeedEventGroup {
   title: string
   shortTitle?: string
@@ -21,89 +10,6 @@ interface SeedEventGroup {
   endDate?: string
   featured: boolean
 }
-
-const SEED_VENUES: SeedVenue[] = [
-  {
-    name: "Cinémathèque Tunisienne",
-    slug: "cinematheque-tunisienne",
-    type: "cinema",
-    address: "18 Rue Ibn Rachiq",
-    city: "Tunis",
-    region: "Tunis",
-    capacity: 300,
-    status: "approved",
-  },
-  {
-    name: "Théâtre Municipal de Tunis",
-    slug: "theatre-municipal-tunis",
-    type: "theater",
-    address: "Avenue Habib Bourguiba",
-    city: "Tunis",
-    region: "Tunis",
-    capacity: 850,
-    status: "approved",
-  },
-  {
-    name: "Cité de la Culture",
-    slug: "cite-de-la-culture",
-    type: "cultural-center",
-    address: "Avenue Mohamed V",
-    city: "Tunis",
-    region: "Tunis",
-    capacity: 1800,
-    status: "approved",
-  },
-  {
-    name: "Institut Français de Tunisie",
-    slug: "institut-francais-tunisie",
-    type: "cultural-center",
-    address: "20-22 Avenue de Paris",
-    city: "Tunis",
-    region: "Tunis",
-    capacity: 250,
-    status: "approved",
-  },
-  {
-    name: "Cinéma Le Colisée",
-    slug: "cinema-le-colisee",
-    type: "cinema",
-    address: "Avenue Habib Bourguiba",
-    city: "Tunis",
-    region: "Tunis",
-    capacity: 400,
-    status: "approved",
-  },
-  {
-    name: "Espace El Teatro",
-    slug: "espace-el-teatro",
-    type: "theater",
-    address: "Rue El Jazira",
-    city: "Tunis",
-    region: "Tunis",
-    capacity: 200,
-    status: "approved",
-  },
-  {
-    name: "Maison de la Culture Ibn Khaldoun",
-    slug: "maison-culture-ibn-khaldoun",
-    type: "cultural-center",
-    address: "Rue Ibn Khaldoun",
-    city: "Tunis",
-    region: "Tunis",
-    capacity: 350,
-    status: "approved",
-  },
-  {
-    name: "Acropolium de Carthage",
-    slug: "acropolium-carthage",
-    type: "cultural-center",
-    address: "Colline de Byrsa",
-    city: "Carthage",
-    region: "Tunis",
-    capacity: 500,
-    status: "approved",
-  },
-]
 
 const SEED_EVENT_GROUPS: SeedEventGroup[] = [
   {
@@ -171,37 +77,6 @@ const SEED_EVENT_GROUPS: SeedEventGroup[] = [
 ]
 
 const seedService = ({ strapi }: { strapi: Core.Strapi }) => ({
-  async seedVenues() {
-    const venueUID = "plugin::events-manager.venue"
-    let created = 0
-    let skipped = 0
-
-    for (const venueData of SEED_VENUES) {
-      // Check if venue already exists by slug
-      const existing = await strapi.documents(venueUID).findMany({
-        filters: { slug: venueData.slug },
-        limit: 1,
-      })
-
-      if (existing.length > 0) {
-        strapi.log.debug(
-          `[seed] Venue "${venueData.name}" already exists, skipping`
-        )
-        skipped++
-        continue
-      }
-
-      await strapi.documents(venueUID).create({
-        data: venueData,
-        status: "published",
-      })
-      strapi.log.info(`[seed] Created venue: ${venueData.name}`)
-      created++
-    }
-
-    return { created, skipped, total: SEED_VENUES.length }
-  },
-
   async seedEventGroups() {
     const eventGroupUID = "plugin::events-manager.event-group"
     let created = 0
@@ -236,7 +111,11 @@ const seedService = ({ strapi }: { strapi: Core.Strapi }) => ({
   async seedAll() {
     strapi.log.info("[seed] Starting seed process...")
 
-    const venueResults = await this.seedVenues()
+    // Venue seeding lives in the venues plugin (architecture amendment 2C.1).
+    const venueResults = await strapi
+      .plugin("venues")
+      .service("seed")
+      .seedVenues()
     const eventGroupResults = await this.seedEventGroups()
 
     strapi.log.info(

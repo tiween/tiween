@@ -120,7 +120,7 @@ export async function getVenues(
     }
 
     const response = await PublicStrapiClient.fetchAPI(
-      "/events-manager/venues",
+      "/venues/venues",
       {
         locale,
         filters,
@@ -163,7 +163,7 @@ export async function getVenueByDocumentId(
 ): Promise<StrapiVenueDetail | null> {
   try {
     const response = await PublicStrapiClient.fetchAPI(
-      `/events-manager/venues/${documentId}`,
+      `/venues/venues/${documentId}`,
       {
         locale,
         populate: {
@@ -208,7 +208,7 @@ export async function getVenueBySlug(
 ): Promise<StrapiVenueDetail | null> {
   try {
     const response = await PublicStrapiClient.fetchAPI(
-      "/events-manager/venues",
+      "/venues/venues",
       {
         locale,
         filters: {
@@ -307,7 +307,7 @@ export async function getVenuesForSelector(
     }
 
     const response = await PublicStrapiClient.fetchAPI(
-      "/events-manager/venues",
+      "/venues/venues",
       {
         locale,
         filters,

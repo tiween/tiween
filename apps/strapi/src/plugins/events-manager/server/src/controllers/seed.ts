@@ -17,22 +17,6 @@ const seedController = ({ strapi }: { strapi: Core.Strapi }) => ({
     }
   },
 
-  async seedVenues(ctx) {
-    try {
-      const seedService = strapi.plugin("events-manager").service("seed")
-      const results = await seedService.seedVenues()
-
-      ctx.body = {
-        success: true,
-        message: "Venues seeded successfully",
-        data: results,
-      }
-    } catch (error) {
-      strapi.log.error("[seed] Error seeding venues:", error)
-      ctx.throw(500, "Failed to seed venues")
-    }
-  },
-
   async seedEventGroups(ctx) {
     try {
       const seedService = strapi.plugin("events-manager").service("seed")

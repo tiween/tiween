@@ -22,12 +22,14 @@ const CONTENT_TYPES = [
   "plugin::ticketing.ticket-order",
 
   // Events (depends on venues and creative works)
-  "plugin::events-manager.showtime",
+  "plugin::events-manager.screening",
+  "plugin::events-manager.performance",
+  "plugin::events-manager.credit",
   "plugin::events-manager.event",
   "plugin::events-manager.event-group",
 
   // Venues
-  "plugin::events-manager.venue",
+  "plugin::venues.venue",
 
   // Creative works (depends on genres and persons)
   "plugin::creative-works.creative-work",
@@ -43,9 +45,9 @@ const CONTENT_TYPES = [
   "plugin::geography.city",
   "plugin::geography.region",
 
-  // Entity properties
-  "plugin::entity-properties.property-definition",
-  "plugin::entity-properties.property-category",
+  // Venue properties (moved from entity-properties — story 2C.1)
+  "plugin::venues.property-definition",
+  "plugin::venues.property-category",
 ]
 
 /**

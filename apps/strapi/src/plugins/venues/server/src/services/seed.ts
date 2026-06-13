@@ -1,5 +1,20 @@
 import type { Core } from "@strapi/strapi"
 
+const PLUGIN_ID = "venues"
+const VENUE_UID = `plugin::${PLUGIN_ID}.venue` as const
+const PROPERTY_CATEGORY_UID = `plugin::${PLUGIN_ID}.property-category` as const
+const PROPERTY_DEFINITION_UID =
+  `plugin::${PLUGIN_ID}.property-definition` as const
+
+interface SeedVenue {
+  name: string
+  slug: string
+  address: string
+  capacity?: number
+}
+
+type CategoryId = string | number
+
 interface CategorySeed {
   name: string
   slug: string
@@ -19,7 +34,58 @@ interface PropertySeed {
   categorySlug: string
 }
 
-const categories: CategorySeed[] = [
+const SEED_VENUES: SeedVenue[] = [
+  {
+    name: "Cinémathèque Tunisienne",
+    slug: "cinematheque-tunisienne",
+    address: "18 Rue Ibn Rachiq, Tunis",
+    capacity: 300,
+  },
+  {
+    name: "Théâtre Municipal de Tunis",
+    slug: "theatre-municipal-tunis",
+    address: "Avenue Habib Bourguiba, Tunis",
+    capacity: 850,
+  },
+  {
+    name: "Cité de la Culture",
+    slug: "cite-de-la-culture",
+    address: "Avenue Mohamed V, Tunis",
+    capacity: 1800,
+  },
+  {
+    name: "Institut Français de Tunisie",
+    slug: "institut-francais-tunisie",
+    address: "20-22 Avenue de Paris, Tunis",
+    capacity: 250,
+  },
+  {
+    name: "Cinéma Le Colisée",
+    slug: "cinema-le-colisee",
+    address: "Avenue Habib Bourguiba, Tunis",
+    capacity: 400,
+  },
+  {
+    name: "Espace El Teatro",
+    slug: "espace-el-teatro",
+    address: "Rue El Jazira, Tunis",
+    capacity: 200,
+  },
+  {
+    name: "Maison de la Culture Ibn Khaldoun",
+    slug: "maison-culture-ibn-khaldoun",
+    address: "Rue Ibn Khaldoun, Tunis",
+    capacity: 350,
+  },
+  {
+    name: "Acropolium de Carthage",
+    slug: "acropolium-carthage",
+    address: "Colline de Byrsa, Carthage",
+    capacity: 500,
+  },
+]
+
+const PROPERTY_CATEGORIES: CategorySeed[] = [
   {
     name: "Accessibility",
     slug: "accessibility",
@@ -32,12 +98,7 @@ const categories: CategorySeed[] = [
     icon: "building",
     sortOrder: 2,
     children: [
-      {
-        name: "Seating",
-        slug: "seating",
-        icon: "armchair",
-        sortOrder: 1,
-      },
+      { name: "Seating", slug: "seating", icon: "armchair", sortOrder: 1 },
       {
         name: "Audio/Visual",
         slug: "audio-visual",
@@ -52,15 +113,10 @@ const categories: CategorySeed[] = [
     icon: "concierge-bell",
     sortOrder: 3,
   },
-  {
-    name: "Technical",
-    slug: "technical",
-    icon: "settings",
-    sortOrder: 4,
-  },
+  { name: "Technical", slug: "technical", icon: "settings", sortOrder: 4 },
 ]
 
-const properties: PropertySeed[] = [
+const PROPERTY_DEFINITIONS: PropertySeed[] = [
   // Accessibility
   {
     name: "Wheelchair Accessible",
@@ -89,7 +145,6 @@ const properties: PropertySeed[] = [
     sortOrder: 3,
     categorySlug: "accessibility",
   },
-
   // Facilities - Seating
   {
     name: "Seating Capacity",
@@ -119,7 +174,6 @@ const properties: PropertySeed[] = [
     sortOrder: 3,
     categorySlug: "seating",
   },
-
   // Facilities - Audio/Visual
   {
     name: "Surround Sound",
@@ -157,7 +211,6 @@ const properties: PropertySeed[] = [
     sortOrder: 4,
     categorySlug: "audio-visual",
   },
-
   // Services
   {
     name: "Parking Available",
@@ -195,7 +248,6 @@ const properties: PropertySeed[] = [
     sortOrder: 4,
     categorySlug: "services",
   },
-
   // Technical
   {
     name: "Air Conditioning",
@@ -226,39 +278,62 @@ const properties: PropertySeed[] = [
   },
 ]
 
-const seed = ({ strapi }: { strapi: Core.Strapi }) => ({
-  async seedCategories(locale: string = "en") {
-    const categoryMap = new Map<string, number>()
+const seedService = ({ strapi }: { strapi: Core.Strapi }) => ({
+  async seedVenues() {
+    let created = 0
+    let skipped = 0
 
-    // Create root categories first
-    for (const category of categories) {
+    for (const venueData of SEED_VENUES) {
+      // Check if venue already exists by slug
+      const existing = await strapi.documents(VENUE_UID).findMany({
+        filters: { slug: venueData.slug },
+        limit: 1,
+      })
+
+      if (existing.length > 0) {
+        strapi.log.debug(
+          `[venues:seed] Venue "${venueData.name}" already exists, skipping`
+        )
+        skipped++
+        continue
+      }
+
+      await strapi.documents(VENUE_UID).create({
+        data: venueData,
+        status: "published",
+      })
+      strapi.log.info(`[venues:seed] Created venue: ${venueData.name}`)
+      created++
+    }
+
+    return { created, skipped, total: SEED_VENUES.length }
+  },
+
+  async seedPropertyCategories(locale: string = "en") {
+    const categoryMap = new Map<string, CategoryId>()
+
+    for (const category of PROPERTY_CATEGORIES) {
       const existing = await strapi
-        .documents("plugin::entity-properties.property-category")
-        .findFirst({
-          filters: { slug: category.slug },
-          locale,
-        })
+        .documents(PROPERTY_CATEGORY_UID)
+        .findFirst({ filters: { slug: category.slug }, locale })
 
       if (!existing) {
-        const created = await strapi
-          .documents("plugin::entity-properties.property-category")
-          .create({
-            data: {
-              name: category.name,
-              slug: category.slug,
-              icon: category.icon,
-              sortOrder: category.sortOrder,
-            },
-            locale,
-          })
+        const created = await strapi.documents(PROPERTY_CATEGORY_UID).create({
+          data: {
+            name: category.name,
+            slug: category.slug,
+            icon: category.icon,
+            sortOrder: category.sortOrder,
+          },
+          locale,
+        })
         categoryMap.set(category.slug, created.id)
-        strapi.log.info(`Created category: ${category.name}`)
+        strapi.log.info(`[venues:seed] Created category: ${category.name}`)
 
-        // Create children if any
         if (category.children) {
           for (const child of category.children) {
             const childCreated = await strapi
-              .documents("plugin::entity-properties.property-category")
+              .documents(PROPERTY_CATEGORY_UID)
               .create({
                 data: {
                   name: child.name,
@@ -270,20 +345,18 @@ const seed = ({ strapi }: { strapi: Core.Strapi }) => ({
                 locale,
               })
             categoryMap.set(child.slug, childCreated.id)
-            strapi.log.info(`Created child category: ${child.name}`)
+            strapi.log.info(
+              `[venues:seed] Created child category: ${child.name}`
+            )
           }
         }
       } else {
         categoryMap.set(category.slug, existing.id)
-        // Still need to map children
         if (category.children) {
           for (const child of category.children) {
             const existingChild = await strapi
-              .documents("plugin::entity-properties.property-category")
-              .findFirst({
-                filters: { slug: child.slug },
-                locale,
-              })
+              .documents(PROPERTY_CATEGORY_UID)
+              .findFirst({ filters: { slug: child.slug }, locale })
             if (existingChild) {
               categoryMap.set(child.slug, existingChild.id)
             }
@@ -295,45 +368,33 @@ const seed = ({ strapi }: { strapi: Core.Strapi }) => ({
     return categoryMap
   },
 
-  async seedProperties(locale: string = "en") {
-    // First ensure categories exist
-    const categoryMap = await this.seedCategories(locale)
+  async seedPropertyDefinitions(locale: string = "en") {
+    const categoryMap = await this.seedPropertyCategories(locale)
 
-    for (const property of properties) {
+    for (const property of PROPERTY_DEFINITIONS) {
       const existing = await strapi
-        .documents("plugin::entity-properties.property-definition")
-        .findFirst({
-          filters: { slug: property.slug },
-          locale,
-        })
+        .documents(PROPERTY_DEFINITION_UID)
+        .findFirst({ filters: { slug: property.slug }, locale })
 
       if (!existing) {
         const categoryId = categoryMap.get(property.categorySlug)
-        await strapi
-          .documents("plugin::entity-properties.property-definition")
-          .create({
-            data: {
-              name: property.name,
-              slug: property.slug,
-              description: property.description,
-              type: property.type,
-              icon: property.icon,
-              enumOptions: property.enumOptions,
-              sortOrder: property.sortOrder,
-              category: categoryId,
-            },
-            locale,
-          })
-        strapi.log.info(`Created property: ${property.name}`)
+        await strapi.documents(PROPERTY_DEFINITION_UID).create({
+          data: {
+            name: property.name,
+            slug: property.slug,
+            description: property.description,
+            type: property.type,
+            icon: property.icon,
+            enumOptions: property.enumOptions,
+            sortOrder: property.sortOrder,
+            category: categoryId,
+          },
+          locale,
+        })
+        strapi.log.info(`[venues:seed] Created property: ${property.name}`)
       }
     }
   },
-
-  async seedAll(locale: string = "en") {
-    strapi.log.info("Seeding entity properties...")
-    await this.seedProperties(locale)
-    strapi.log.info("Entity properties seeding complete")
-  },
 })
 
-export default seed
+export default seedService

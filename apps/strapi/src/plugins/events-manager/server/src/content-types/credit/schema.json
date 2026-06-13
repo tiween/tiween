@@ -1,0 +1,65 @@
+{
+  "kind": "collectionType",
+  "collectionName": "credits",
+  "info": {
+    "singularName": "credit",
+    "pluralName": "credits",
+    "displayName": "Credit",
+    "description": "Credit / generique : lien (personne, role, oeuvre) avec provenance"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "role": {
+      "type": "enumeration",
+      "enum": [
+        "director",
+        "actor",
+        "writer",
+        "composer",
+        "dop",
+        "producer",
+        "editor",
+        "stageDirector",
+        "other"
+      ],
+      "required": true
+    },
+    "source": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "enumeration",
+      "enum": [
+        "confirmed",
+        "needs_review"
+      ],
+      "default": "needs_review"
+    },
+    "person": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::events-manager.person",
+      "inversedBy": "credits"
+    },
+    "character": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::events-manager.character",
+      "inversedBy": "credits"
+    },
+    "movie": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::events-manager.movie",
+      "inversedBy": "credits"
+    },
+    "play": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::events-manager.play",
+      "inversedBy": "credits"
+    }
+  }
+}

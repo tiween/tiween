@@ -1,0 +1,40 @@
+{
+  "kind": "collectionType",
+  "collectionName": "venues",
+  "info": {
+    "singularName": "venue",
+    "pluralName": "venues",
+    "displayName": "Venue",
+    "description": "Lieu (schema.org MovieTheater / PerformingArtsTheater / Place)"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "address": {
+      "type": "text"
+    },
+    "geo": {
+      "type": "component",
+      "repeatable": false,
+      "component": "shared.geo-point"
+    },
+    "capacity": {
+      "type": "integer"
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "name"
+    },
+    "events": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "plugin::events-manager.event",
+      "mappedBy": "venue"
+    }
+  }
+}

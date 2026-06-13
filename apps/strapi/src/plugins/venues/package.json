@@ -1,0 +1,16 @@
+{
+  "name": "venues",
+  "version": "1.0.0",
+  "description": "Venue management for Tiween - venues and configurable properties/amenities",
+  "license": "MIT",
+  "strapi": {
+    "displayName": "Venues",
+    "name": "venues",
+    "description": "Manage venues and their configurable properties",
+    "kind": "plugin",
+    "required": false
+  },
+  "peerDependencies": {
+    "@strapi/strapi": "^5.0.0"
+  }
+}

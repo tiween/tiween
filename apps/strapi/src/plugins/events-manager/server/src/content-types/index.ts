@@ -1,11 +1,23 @@
+import character from "./character"
+import credit from "./credit"
 import event from "./event"
 import eventGroup from "./event-group"
-import showtime from "./showtime"
-import venue from "./venue"
+import feature from "./feature"
+import movie from "./movie"
+import performance from "./performance"
+import person from "./person"
+import play from "./play"
+import screening from "./screening"
 
 export default {
+  character,
+  credit,
   event,
   "event-group": eventGroup,
-  showtime,
-  venue,
+  feature,
+  movie,
+  performance,
+  person,
+  play,
+  screening,
 }

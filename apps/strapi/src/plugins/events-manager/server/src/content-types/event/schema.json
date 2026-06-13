@@ -5,86 +5,153 @@
     "singularName": "event",
     "pluralName": "events",
     "displayName": "Event",
-    "description": "Events linking creative works to venues with showtimes"
+    "description": "Occurrence datee et localisee (conteneur / superEvent)"
   },
   "options": {
     "draftAndPublish": true
   },
-  "pluginOptions": {},
+  "pluginOptions": {
+    "i18n": {
+      "localized": true
+    }
+  },
   "attributes": {
     "title": {
-      "type": "string"
+      "type": "string",
+      "required": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
     },
-    "subtitle": {
-      "type": "string"
+    "description": {
+      "type": "text",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "category": {
+      "type": "enumeration",
+      "enum": [
+        "movie_screening",
+        "theater_performance",
+        "concert",
+        "exhibition",
+        "other"
+      ],
+      "required": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": false
+        }
+      }
+    },
+    "startDateTime": {
+      "type": "datetime",
+      "required": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": false
+        }
+      }
+    },
+    "endDateTime": {
+      "type": "datetime",
+      "pluginOptions": {
+        "i18n": {
+          "localized": false
+        }
+      }
+    },
+    "eventStatus": {
+      "type": "enumeration",
+      "enum": [
+        "scheduled",
+        "cancelled",
+        "postponed",
+        "rescheduled"
+      ],
+      "default": "scheduled",
+      "pluginOptions": {
+        "i18n": {
+          "localized": false
+        }
+      }
+    },
+    "images": {
+      "type": "media",
+      "multiple": true,
+      "allowedTypes": [
+        "images"
+      ],
+      "pluginOptions": {
+        "i18n": {
+          "localized": false
+        }
+      }
     },
     "slug": {
       "type": "uid",
-      "targetField": "title"
+      "pluginOptions": {
+        "i18n": {
+          "localized": false
+        }
+      }
     },
-    "description": {
-      "type": "richtext"
-    },
-    "poster": {
-      "type": "media",
-      "multiple": false,
-      "required": false,
-      "allowedTypes": ["images"]
-    },
-    "startDate": {
-      "type": "datetime",
-      "required": true
-    },
-    "endDate": {
-      "type": "datetime"
-    },
-    "status": {
-      "type": "enumeration",
-      "enum": ["scheduled", "cancelled", "completed"],
-      "default": "scheduled",
-      "required": true
-    },
-    "featured": {
-      "type": "boolean",
-      "default": false
-    },
-    "recurring": {
-      "type": "boolean",
-      "default": false
-    },
-    "recurringRule": {
-      "type": "string"
-    },
-    "tmdbId": {
-      "type": "integer",
-      "unique": false
-    },
-    "links": {
-      "type": "component",
-      "repeatable": true,
-      "component": "common.link"
-    },
-    "creativeWork": {
-      "type": "relation",
-      "relation": "manyToOne",
-      "target": "plugin::creative-works.creative-work"
+    "externalId": {
+      "type": "string",
+      "pluginOptions": {
+        "i18n": {
+          "localized": false
+        }
+      }
     },
     "venue": {
       "type": "relation",
       "relation": "manyToOne",
-      "target": "plugin::events-manager.venue"
+      "target": "plugin::venues.venue",
+      "inversedBy": "events",
+      "pluginOptions": {
+        "i18n": {
+          "localized": false
+        }
+      }
     },
-    "showtimes": {
+    "screenings": {
       "type": "relation",
       "relation": "oneToMany",
-      "target": "plugin::events-manager.showtime",
-      "mappedBy": "event"
+      "target": "plugin::events-manager.screening",
+      "mappedBy": "event",
+      "pluginOptions": {
+        "i18n": {
+          "localized": false
+        }
+      }
+    },
+    "performances": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "plugin::events-manager.performance",
+      "mappedBy": "event",
+      "pluginOptions": {
+        "i18n": {
+          "localized": false
+        }
+      }
     },
     "eventGroup": {
       "type": "relation",
       "relation": "manyToOne",
       "target": "plugin::events-manager.event-group",
-      "inversedBy": "events"
+      "inversedBy": "events",
+      "pluginOptions": {
+        "i18n": {
+          "localized": false
+        }
+      }
     }
   }
 }

@@ -10,7 +10,7 @@
     "definition": {
       "type": "relation",
       "relation": "oneToOne",
-      "target": "plugin::entity-properties.property-definition"
+      "target": "plugin::venues.property-definition"
     },
     "booleanValue": {
       "type": "boolean"

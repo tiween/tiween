@@ -28,8 +28,6 @@ import personsData from "./data/persons.json"
 import regionsData from "./data/regions.json"
 import {
   addDays,
-  formatDate,
-  formatTime,
   randomInt,
   randomPick,
   randomPickMultiple,
@@ -307,6 +305,7 @@ async function seedCreativeWorks(strapi: any): Promise<SeedResult> {
         rating: work.rating,
         genres: genreIds,
         directors: directorIds,
+        trailer: work.trailer,
       },
       status: "published",
     })
@@ -326,15 +325,13 @@ async function seedVenues(strapi: any): Promise<SeedResult> {
   console.log("🏛️ Seeding venues...")
 
   // Use the existing seed service from events-manager plugin
-  const seedService = strapi.plugin("events-manager").service("seed")
+  const seedService = strapi.plugin("venues").service("seed")
   const result = await seedService.seedVenues()
 
   // Populate idMaps.venues with created venues
-  const venues = await strapi
-    .documents("plugin::events-manager.venue")
-    .findMany({
-      limit: 100,
-    })
+  const venues = await strapi.documents("plugin::venues.venue").findMany({
+    limit: 100,
+  })
   for (const venue of venues) {
     idMaps.venues[venue.slug] = venue.documentId
   }
@@ -353,12 +350,13 @@ async function seedEventGroups(strapi: any): Promise<SeedResult> {
 }
 
 /**
- * Seed events with showtimes
+ * Seed events with screenings/performances
  */
 async function seedEvents(strapi: any): Promise<SeedResult> {
   console.log("🎪 Seeding events...")
   const eventUid = "plugin::events-manager.event"
-  const showtimeUid = "plugin::events-manager.showtime"
+  const screeningUid = "plugin::events-manager.screening"
+  const performanceUid = "plugin::events-manager.performance"
   let created = 0,
     skipped = 0
 
@@ -400,13 +398,7 @@ async function seedEvents(strapi: any): Promise<SeedResult> {
     const startDate = addDays(today, startOffset)
     const endDate = addDays(startDate, randomInt(7, 21))
 
-    // Determine status based on dates
-    const status =
-      startOffset < -pastDays / 2
-        ? "completed"
-        : startOffset < 0
-          ? "scheduled"
-          : "scheduled"
+    const isFilm = work.type === "film" || work.type === "short-film"
 
     // Create event
     const event = await strapi.documents(eventUid).create({
@@ -414,11 +406,10 @@ async function seedEvents(strapi: any): Promise<SeedResult> {
         title: work.title,
         slug: eventSlug,
         description: work.synopsis,
-        startDate: formatDate(startDate),
-        endDate: formatDate(endDate),
-        status,
-        featured: i < 5, // First 5 events are featured
-        creativeWork: idMaps.creativeWorks[workSlug],
+        category: isFilm ? "movie_screening" : "theater_performance",
+        startDateTime: startDate.toISOString(),
+        endDateTime: endDate.toISOString(),
+        eventStatus: "scheduled",
         venue: idMaps.venues[venueSlug],
       },
       status: "published",
@@ -426,24 +417,42 @@ async function seedEvents(strapi: any): Promise<SeedResult> {
 
     idMaps.events[eventSlug] = event.documentId
 
-    // Create showtimes for this event
-    const showtimeCount = randomInt(2, 4)
-    const showtimeHours = [14, 17, 20, 22]
+    // Create screenings (films) or performances (plays) for this event
+    const subEventCount = randomInt(2, 4)
+    const subEventHours = [14, 17, 20, 22]
 
-    for (let j = 0; j < showtimeCount; j++) {
-      await strapi.documents(showtimeUid).create({
-        data: {
-          time: formatTime(showtimeHours[j]),
-          format: work.type === "film" ? "VOST" : null,
-          language: "ar",
-          subtitles: "fr",
-          price: randomInt(15, 35),
-          ticketsAvailable: randomInt(50, 150),
-          ticketsSold: randomInt(0, 30),
-          event: event.documentId,
-        },
-        status: "published",
-      })
+    for (let j = 0; j < subEventCount; j++) {
+      const subEventStart = new Date(startDate)
+      subEventStart.setUTCHours(subEventHours[j], 0, 0, 0)
+
+      const commonData = {
+        order: 1,
+        startDateTime: subEventStart.toISOString(),
+        audioLanguage: "ar",
+        price: randomInt(15, 35),
+        ticketsAvailable: randomInt(50, 150),
+        ticketsSold: randomInt(0, 30),
+        event: event.documentId,
+      }
+
+      if (isFilm) {
+        await strapi.documents(screeningUid).create({
+          data: {
+            ...commonData,
+            videoFormat: "standard",
+            subtitleLanguage: "fr",
+          },
+          status: "published",
+        })
+      } else {
+        await strapi.documents(performanceUid).create({
+          data: {
+            ...commonData,
+            surtitleLanguage: "fr",
+          },
+          status: "published",
+        })
+      }
     }
 
     created++

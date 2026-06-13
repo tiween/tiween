@@ -1,11 +1,11 @@
 {
   "kind": "collectionType",
-  "collectionName": "property_categories",
+  "collectionName": "property_definitions",
   "info": {
-    "singularName": "property-category",
-    "pluralName": "property-categories",
-    "displayName": "Property Category",
-    "description": "Groups related properties (e.g., Accessibility, Facilities, Services)"
+    "singularName": "property-definition",
+    "pluralName": "property-definitions",
+    "displayName": "Property Definition",
+    "description": "Defines reusable property schemas with type, icon, and validation rules"
   },
   "options": {
     "draftAndPublish": false
@@ -42,8 +42,27 @@
         }
       }
     },
+    "type": {
+      "type": "enumeration",
+      "enum": ["boolean", "integer", "string", "enum"],
+      "required": true,
+      "default": "boolean",
+      "pluginOptions": {
+        "i18n": {
+          "localized": false
+        }
+      }
+    },
     "icon": {
       "type": "string",
+      "pluginOptions": {
+        "i18n": {
+          "localized": false
+        }
+      }
+    },
+    "enumOptions": {
+      "type": "json",
       "pluginOptions": {
         "i18n": {
           "localized": false
@@ -59,23 +78,11 @@
         }
       }
     },
-    "parent": {
+    "category": {
       "type": "relation",
       "relation": "manyToOne",
-      "target": "plugin::entity-properties.property-category",
-      "inversedBy": "children"
-    },
-    "children": {
-      "type": "relation",
-      "relation": "oneToMany",
-      "target": "plugin::entity-properties.property-category",
-      "mappedBy": "parent"
-    },
-    "properties": {
-      "type": "relation",
-      "relation": "oneToMany",
-      "target": "plugin::entity-properties.property-definition",
-      "mappedBy": "category"
+      "target": "plugin::venues.property-category",
+      "inversedBy": "properties"
     }
   }
 }

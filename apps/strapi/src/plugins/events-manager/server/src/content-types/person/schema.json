@@ -1,14 +1,14 @@
 {
   "kind": "collectionType",
-  "collectionName": "property_definitions",
+  "collectionName": "people",
   "info": {
-    "singularName": "property-definition",
-    "pluralName": "property-definitions",
-    "displayName": "Property Definition",
-    "description": "Defines reusable property schemas with type, icon, and validation rules"
+    "singularName": "person",
+    "pluralName": "people",
+    "displayName": "Person",
+    "description": "Referentiel personnes (schema.org Person)"
   },
   "options": {
-    "draftAndPublish": false
+    "draftAndPublish": true
   },
   "pluginOptions": {
     "i18n": {
@@ -25,16 +25,7 @@
         }
       }
     },
-    "slug": {
-      "type": "uid",
-      "targetField": "name",
-      "pluginOptions": {
-        "i18n": {
-          "localized": false
-        }
-      }
-    },
-    "description": {
+    "bio": {
       "type": "text",
       "pluginOptions": {
         "i18n": {
@@ -42,18 +33,35 @@
         }
       }
     },
-    "type": {
-      "type": "enumeration",
-      "enum": ["boolean", "integer", "string", "enum"],
-      "required": true,
-      "default": "boolean",
+    "jobTitle": {
+      "type": "string",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "photo": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images"
+      ],
       "pluginOptions": {
         "i18n": {
           "localized": false
         }
       }
     },
-    "icon": {
+    "birthDate": {
+      "type": "date",
+      "pluginOptions": {
+        "i18n": {
+          "localized": false
+        }
+      }
+    },
+    "nationality": {
       "type": "string",
       "pluginOptions": {
         "i18n": {
@@ -61,28 +69,32 @@
         }
       }
     },
-    "enumOptions": {
-      "type": "json",
+    "slug": {
+      "type": "uid",
       "pluginOptions": {
         "i18n": {
           "localized": false
         }
       }
     },
-    "sortOrder": {
-      "type": "integer",
-      "default": 0,
+    "sameAs": {
+      "type": "string",
       "pluginOptions": {
         "i18n": {
           "localized": false
         }
       }
     },
-    "category": {
+    "credits": {
       "type": "relation",
-      "relation": "manyToOne",
-      "target": "plugin::entity-properties.property-category",
-      "inversedBy": "properties"
+      "relation": "oneToMany",
+      "target": "plugin::events-manager.credit",
+      "mappedBy": "person",
+      "pluginOptions": {
+        "i18n": {
+          "localized": false
+        }
+      }
     }
   }
 }

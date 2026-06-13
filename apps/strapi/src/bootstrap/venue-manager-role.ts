@@ -41,6 +41,8 @@ export async function ensureVenueManagerRole({
     // Note: Permissions are configured via the Strapi Admin Panel
     // or can be set programmatically using the permissions API.
     // See docs/PERMISSIONS.md for the full permission matrix.
+    // Venue permissions now target `plugin::venues.venue` (moved out of
+    // events-manager — architecture amendment story 2C.1).
 
     return role
   } catch (error) {

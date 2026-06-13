@@ -4,8 +4,8 @@ export default {
     routes: [
       {
         method: "POST",
-        path: "/bulk-showtimes",
-        handler: "event-manager.createBulkShowtimes",
+        path: "/bulk-screenings",
+        handler: "event-manager.createBulkScreenings",
         config: {
           policies: [],
         },
@@ -42,14 +42,6 @@ export default {
         config: {
           policies: [],
           auth: false,
-        },
-      },
-      {
-        method: "POST",
-        path: "/seed/venues",
-        handler: "seed.seedVenues",
-        config: {
-          policies: [],
         },
       },
       {

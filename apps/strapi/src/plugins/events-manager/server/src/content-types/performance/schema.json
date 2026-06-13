@@ -1,0 +1,58 @@
+{
+  "kind": "collectionType",
+  "collectionName": "performances",
+  "info": {
+    "singularName": "performance",
+    "pluralName": "performances",
+    "displayName": "Performance",
+    "description": "Sous-evenement theatre (schema.org TheaterEvent)"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "order": {
+      "type": "integer",
+      "default": 1
+    },
+    "startDateTime": {
+      "type": "datetime"
+    },
+    "audioLanguage": {
+      "type": "string"
+    },
+    "surtitleLanguage": {
+      "type": "string"
+    },
+    "price": {
+      "type": "decimal",
+      "default": 0
+    },
+    "ticketsAvailable": {
+      "type": "integer",
+      "default": 0
+    },
+    "ticketsSold": {
+      "type": "integer",
+      "default": 0
+    },
+    "event": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::events-manager.event",
+      "inversedBy": "performances"
+    },
+    "play": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::events-manager.play",
+      "inversedBy": "performances"
+    },
+    "features": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "plugin::events-manager.feature",
+      "inversedBy": "performances"
+    }
+  }
+}

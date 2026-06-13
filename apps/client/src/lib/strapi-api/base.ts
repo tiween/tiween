@@ -18,7 +18,7 @@ import { isDevelopment } from "@/lib/general-helpers"
 export const API_ENDPOINTS: Record<string, string> = {
   // Plugin content type endpoints (events-manager, ticketing, geography, etc.)
   "plugin::events-manager.event": "/events-manager/events",
-  "plugin::events-manager.venue": "/events-manager/venues",
+  "plugin::venues.venue": "/venues/venues",
   "plugin::events-manager.showtime": "/events-manager/showtimes",
   "plugin::creative-works.creative-work": "/creative-works/creative-works",
   "plugin::geography.region": "/geography/regions",

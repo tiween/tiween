@@ -80,8 +80,18 @@ export default ({ env }) => {
       resolve: "./src/plugins/geography",
     },
 
-    // Entity Properties plugin - flexible property/amenity system (base plugin)
-    // Required by: venue.properties
+    // Venues plugin - venues + configurable properties/amenities (base plugin)
+    // Owns: venue, property-category, property-definition. Must load BEFORE
+    // events-manager (event.venue targets plugin::venues.venue).
+    // Required by: event.venue, theatre-details.premiereVenue
+    venues: {
+      enabled: true,
+      resolve: "./src/plugins/venues",
+    },
+
+    // Entity Properties plugin - DEPRECATED (architecture amendment D6).
+    // Content types moved into the venues plugin; this shell registers no
+    // content types and is removed entirely in story 2C.5.
     "entity-properties": {
       enabled: true,
       resolve: "./src/plugins/entity-properties",
