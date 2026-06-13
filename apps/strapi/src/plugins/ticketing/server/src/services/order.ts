@@ -1,8 +1,20 @@
 import type { Core } from "@strapi/strapi"
 
+import { validate } from "../../../../../shared/validation"
+import { createOrderSchema } from "../validation/order"
+
 const PLUGIN_ID = "ticketing"
 const ORDER_UID = `plugin::${PLUGIN_ID}.ticket-order`
 const TICKET_UID = `plugin::${PLUGIN_ID}.ticket`
+
+/** Sub-event kind accepted by the events-manager public-api facade. */
+type SubEventKind = "screening" | "performance"
+
+/** Sub-event a sale targets, resolved from the validated XOR input. */
+interface SubEvent {
+  kind: SubEventKind
+  documentId: string
+}
 
 const orderService = ({ strapi }: { strapi: Core.Strapi }) => ({
   /**
@@ -15,53 +27,83 @@ const orderService = ({ strapi }: { strapi: Core.Strapi }) => ({
   },
 
   /**
-   * Create a new order with tickets
+   * Create a new order with tickets as a single unit of work.
+   *
+   * Wrapped in `strapi.db.transaction` so the four steps — validate, reserve
+   * inventory, create order, create N tickets — succeed or roll back together.
+   * Any throw (oversell, mid-loop failure) leaves no orphan order and no
+   * inventory drift. Inventory is reserved via the events-manager `public-api`
+   * facade (the sanctioned ticketing -> events-manager edge), which performs an
+   * atomic capacity-guarded UPDATE inside this same transaction.
    */
-  async createOrder(data: {
+  async createOrder(input: {
     userId?: string
     guestEmail?: string
     guestName?: string
     eventId: string
-    showtimeId: string
+    screeningId?: string
+    performanceId?: string
     tickets: Array<{ type: string; price: number }>
   }) {
-    const { userId, guestEmail, guestName, eventId, showtimeId, tickets } = data
+    // (a) Validate at the boundary (Zod via shared helper, screening XOR
+    // performance). Throws a Strapi ValidationError with an error CODE.
+    const data = validate(createOrderSchema, input)
+
+    const subEvent: SubEvent = data.screeningId
+      ? { kind: "screening", documentId: data.screeningId }
+      : { kind: "performance", documentId: data.performanceId as string }
 
     const orderNumber = this.generateOrderNumber()
-    const totalAmount = tickets.reduce((sum, t) => sum + t.price, 0)
+    const totalAmount = data.tickets.reduce((sum, t) => sum + t.price, 0)
 
-    // Create the order
-    const order = await strapi.documents(ORDER_UID).create({
-      data: {
-        orderNumber,
-        user: userId,
-        guestEmail,
-        guestName,
-        event: eventId,
-        showtime: showtimeId,
-        totalAmount,
-        currency: "TND",
-        paymentStatus: "pending",
-      },
-    })
+    const publicApi = strapi.plugin("events-manager").service("public-api")
 
-    // Create tickets for the order
-    const createdTickets = []
-    for (const ticketData of tickets) {
-      const ticketNumber = `${orderNumber}-${createdTickets.length + 1}`
-      const ticket = await strapi.documents(TICKET_UID).create({
+    return strapi.db.transaction(async ({ trx }) => {
+      // (b) Atomically reserve capacity. Throws TICKET_SOLD_OUT (rolls back the
+      // whole tx) when the request exceeds remaining seats.
+      await publicApi.adjustInventory(
+        subEvent.documentId,
+        subEvent.kind,
+        data.tickets.length,
+        trx
+      )
+
+      // (c) Create the order (auto-joins this tx via AsyncLocalStorage).
+      const order = await strapi.documents(ORDER_UID).create({
         data: {
-          ticketNumber,
-          order: order.documentId,
-          type: ticketData.type as "standard" | "reduced" | "vip",
-          price: ticketData.price,
-          status: "valid",
+          orderNumber,
+          user: data.userId,
+          guestEmail: data.guestEmail,
+          guestName: data.guestName,
+          event: data.eventId,
+          [subEvent.kind]: subEvent.documentId,
+          totalAmount,
+          currency: strapi.config.get(
+            "plugin::ticketing.defaultCurrency",
+            "TND"
+          ),
+          paymentStatus: "pending",
         },
       })
-      createdTickets.push(ticket)
-    }
 
-    return { order, tickets: createdTickets }
+      // (d) Create N tickets. A failure here rolls back the order + inventory.
+      const createdTickets = []
+      for (const ticketData of data.tickets) {
+        const ticketNumber = `${orderNumber}-${createdTickets.length + 1}`
+        const ticket = await strapi.documents(TICKET_UID).create({
+          data: {
+            ticketNumber,
+            order: order.documentId,
+            type: ticketData.type as "standard" | "reduced" | "vip",
+            price: ticketData.price,
+            status: "valid",
+          },
+        })
+        createdTickets.push(ticket)
+      }
+
+      return { order, tickets: createdTickets }
+    })
   },
 
   /**

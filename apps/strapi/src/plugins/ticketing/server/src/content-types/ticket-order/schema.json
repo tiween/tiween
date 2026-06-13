@@ -37,6 +37,16 @@
       "relation": "manyToOne",
       "target": "plugin::events-manager.showtime"
     },
+    "screening": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::events-manager.screening"
+    },
+    "performance": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::events-manager.performance"
+    },
     "tickets": {
       "type": "relation",
       "relation": "oneToMany",

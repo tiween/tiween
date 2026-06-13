@@ -335,18 +335,6 @@ export interface SeoUtilitiesSocialIcons extends Struct.ComponentSchema {
   }
 }
 
-export interface SharedGeoPoint extends Struct.ComponentSchema {
-  collectionName: "components_shared_geo_points"
-  info: {
-    displayName: "Geo point"
-    icon: "pinMap"
-  }
-  attributes: {
-    latitude: Schema.Attribute.Decimal
-    longitude: Schema.Attribute.Decimal
-  }
-}
-
 export interface UtilitiesAccordions extends Struct.ComponentSchema {
   collectionName: "components_utilities_accordions"
   info: {
@@ -435,7 +423,6 @@ declare module "@strapi/strapi" {
       "seo-utilities.seo-og": SeoUtilitiesSeoOg
       "seo-utilities.seo-twitter": SeoUtilitiesSeoTwitter
       "seo-utilities.social-icons": SeoUtilitiesSocialIcons
-      "shared.geo-point": SharedGeoPoint
       "utilities.accordions": UtilitiesAccordions
       "utilities.basic-image": UtilitiesBasicImage
       "utilities.image-with-link": UtilitiesImageWithLink

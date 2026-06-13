@@ -55,7 +55,8 @@
     "strapi-provider-upload-imagekit": "^5.11.11",
     "styled-components": "^6.0.0",
     "tmdb-ts": "^2.0.0",
-    "use-debounce": "^10.0.0"
+    "use-debounce": "^10.0.0",
+    "zod": "^3.25.67"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6",

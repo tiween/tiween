@@ -1994,6 +1994,10 @@ export interface PluginTicketingTicketOrder
       "manyToOne",
       "plugin::events-manager.screening"
     >
+    showtime: Schema.Attribute.Relation<
+      "manyToOne",
+      "plugin::events-manager.showtime"
+    >
     tickets: Schema.Attribute.Relation<"oneToMany", "plugin::ticketing.ticket">
     totalAmount: Schema.Attribute.Decimal & Schema.Attribute.Required
     updatedAt: Schema.Attribute.DateTime
