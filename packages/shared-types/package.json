@@ -15,6 +15,6 @@
     "dev": "tsc"
   },
   "devDependencies": {
-    "typescript": "^5"
+    "typescript": "^6"
   }
 }
