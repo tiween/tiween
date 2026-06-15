@@ -1,0 +1,119 @@
+# Tunisian Plays Crawler
+#
+# This workflow crawls Tunisian theatrical plays from various sources
+# and uploads the results as artifacts for review.
+#
+# Triggers:
+#   - Manual: workflow_dispatch
+#   - Scheduled: Weekly on Monday at 6 AM UTC (disabled until approved)
+#
+# Required Secrets:
+#   - IMAGEKIT_PUBLIC_KEY
+#   - IMAGEKIT_PRIVATE_KEY
+#   - IMAGEKIT_URL_ENDPOINT
+
+name: Crawl Tunisian Plays
+
+on:
+  # Manual trigger
+  workflow_dispatch:
+    inputs:
+      source:
+        description: 'Source to crawl (leave empty for all)'
+        required: false
+        type: choice
+        options:
+          - ''
+          - wikipedia
+          - teskerti
+        default: ''
+      skip_images:
+        description: 'Skip ImageKit uploads'
+        required: false
+        type: boolean
+        default: false
+      max_pages:
+        description: 'Maximum pages per source'
+        required: false
+        type: choice
+        options:
+          - '5'
+          - '10'
+          - '20'
+          - '50'
+        default: '10'
+
+  # Weekly schedule - DISABLED until manual testing approved
+  # Uncomment the following lines to enable scheduled crawls:
+  # schedule:
+  #   - cron: '0 6 * * 1'  # Every Monday at 6 AM UTC
+
+jobs:
+  crawl:
+    name: Crawl Plays
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Run crawler
+        working-directory: apps/strapi
+        env:
+          IMAGEKIT_PUBLIC_KEY: ${{ secrets.IMAGEKIT_PUBLIC_KEY }}
+          IMAGEKIT_PRIVATE_KEY: ${{ secrets.IMAGEKIT_PRIVATE_KEY }}
+          IMAGEKIT_URL_ENDPOINT: ${{ secrets.IMAGEKIT_URL_ENDPOINT }}
+          INPUT_SOURCE: ${{ inputs.source }}
+          INPUT_SKIP_IMAGES: ${{ inputs.skip_images }}
+          INPUT_MAX_PAGES: ${{ inputs.max_pages }}
+        run: |
+          ARGS="--verbose"
+
+          # Add source filter if specified (using validated choice input)
+          if [ -n "$INPUT_SOURCE" ]; then
+            ARGS="$ARGS --source $INPUT_SOURCE"
+          fi
+
+          # Skip images if specified
+          if [ "$INPUT_SKIP_IMAGES" = "true" ]; then
+            ARGS="$ARGS --skip-images"
+          fi
+
+          # Set max pages (using validated choice input)
+          ARGS="$ARGS --max-pages ${INPUT_MAX_PAGES:-10}"
+
+          echo "Running: yarn crawl:plays $ARGS"
+          yarn crawl:plays $ARGS
+
+      - name: Upload crawl results
+        uses: actions/upload-artifact@v4
+        with:
+          name: crawl-results-${{ github.run_number }}
+          path: apps/strapi/scripts/crawlers/tunisian-plays/output/
+          retention-days: 30
+          if-no-files-found: warn
+
+      - name: Generate summary
+        run: |
+          echo "## Crawl Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Find the latest output directory
+          OUTPUT_DIR=$(ls -td apps/strapi/scripts/crawlers/tunisian-plays/output/*-crawl 2>/dev/null | head -1)
+
+          if [ -n "$OUTPUT_DIR" ] && [ -f "$OUTPUT_DIR/report.md" ]; then
+            echo "### Report" >> $GITHUB_STEP_SUMMARY
+            cat "$OUTPUT_DIR/report.md" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "No crawl output found." >> $GITHUB_STEP_SUMMARY
+          fi
