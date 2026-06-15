@@ -1,0 +1,36 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(yarn test:*)",
+      "Bash(yarn test)",
+      "Bash(yarn lint:*)",
+      "Bash(yarn type-check:*)",
+      "Bash(yarn generate:types)",
+      "Bash(yarn build:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npx jest:*)",
+      "Bash(grep:*)",
+      "Bash(rg:*)",
+      "Bash(find:*)",
+      "Bash(ls:*)",
+      "Bash(cat:*)",
+      "Bash(sed -n:*)",
+      "Bash(head:*)",
+      "Bash(tail:*)",
+      "Bash(wc:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git show:*)",
+      "Bash(git rev-parse:*)",
+      "Bash(git branch:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(rm -rf apps/strapi/dist)",
+      "Bash(rm -rf apps/strapi/.strapi)",
+      "Read(//Users/ayoub/projects/tiween-bmad-version/**)",
+      "Edit(//Users/ayoub/projects/tiween-bmad-version/apps/**)",
+      "Edit(//Users/ayoub/projects/tiween-bmad-version/_bmad-output/**)"
+    ]
+  }
+}

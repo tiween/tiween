@@ -1,21 +1,19 @@
-<!-- OPENSPEC:START -->
+# Agent Instructions
 
-# OpenSpec Instructions
+**Single source of truth for planning: BMad** (`_bmad-output/`). OpenSpec was
+retired 2026-06-12 — do not recreate `openspec/`; plan new work as BMad
+epics/stories. History: `git log -- openspec/`; dispositions:
+`_bmad-output/project-planning-artifacts/openspec-retirement-ledger-2026-06-12.md`.
 
-These instructions are for AI assistants working in this project.
+When a request involves planning, proposals, architecture shifts, or new
+capabilities, consult:
 
-Always open `@/openspec/AGENTS.md` when the request:
+- `_bmad-output/project-context.md` — mandatory AI agent rules
+- `_bmad-output/project-planning-artifacts/architecture.md` — plugin
+  decomposition amendment (supersedes `_bmad-output/architecture/` for backend
+  module structure; dependency rules R1–R5 are review blockers)
+- `_bmad-output/project-planning-artifacts/epics/` — epics and stories
+- `_bmad-output/implementation-artifacts/sprint-status.yaml` — sprint tracking
 
-- Mentions planning or proposals (words like proposal, spec, change, plan)
-- Introduces new capabilities, breaking changes, architecture shifts, or big performance/security work
-- Sounds ambiguous and you need the authoritative spec before coding
-
-Use `@/openspec/AGENTS.md` to learn:
-
-- How to create and apply change proposals
-- Spec format and conventions
-- Project structure and guidelines
-
-Keep this managed block so 'openspec update' can refresh the instructions.
-
-<!-- OPENSPEC:END -->
+Implementation flows through the BMad story cycle: `bmad-create-story` →
+`bmad-dev-story` → `bmad-code-review`.
