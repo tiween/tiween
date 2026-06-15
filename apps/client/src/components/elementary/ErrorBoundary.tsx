@@ -1,8 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { ExclamationTriangleIcon } from "@radix-ui/react-icons"
-import { XIcon } from "lucide-react"
+import { AlertTriangle, XIcon } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { ErrorBoundary as ErrorBoundaryComp } from "react-error-boundary"
 
@@ -39,7 +38,7 @@ function ErrorBoundaryFallback({
 
   return (
     <Alert variant="destructive" className="relative">
-      <ExclamationTriangleIcon className="s-4" />
+      <AlertTriangle className="h-4 w-4" />
       <AlertTitle>{customErrorTitle ?? t("invalidContent")}</AlertTitle>
       <AlertDescription>
         {(showErrorMessage || isDev) && (

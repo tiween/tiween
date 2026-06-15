@@ -1,12 +1,12 @@
 "use client"
 
-import {
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  DoubleArrowLeftIcon,
-  DoubleArrowRightIcon,
-} from "@radix-ui/react-icons"
 import { Table } from "@tanstack/react-table"
+import {
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+} from "lucide-react"
 import { useTranslations } from "next-intl"
 
 import { removeThisWhenYouNeedMe } from "@/lib/general-helpers"
@@ -94,7 +94,7 @@ export function DataTablePagination<TData>({ table, simple }: Props<TData>) {
             disabled={!table.getCanPreviousPage()}
           >
             <span className="sr-only">{t("firstPage")}</span>
-            <DoubleArrowLeftIcon className="size-4" />
+            <ChevronsLeft className="size-4" />
           </Button>
           <Button
             variant="outline"
@@ -103,7 +103,7 @@ export function DataTablePagination<TData>({ table, simple }: Props<TData>) {
             disabled={!table.getCanPreviousPage()}
           >
             <span className="sr-only">{t("previousPage")}</span>
-            <ChevronLeftIcon className="size-4" />
+            <ChevronLeft className="size-4" />
           </Button>
           <Button
             variant="outline"
@@ -112,7 +112,7 @@ export function DataTablePagination<TData>({ table, simple }: Props<TData>) {
             disabled={!table.getCanNextPage()}
           >
             <span className="sr-only">{t("nextPage")}</span>
-            <ChevronRightIcon className="size-4" />
+            <ChevronRight className="size-4" />
           </Button>
           <Button
             variant="outline"
@@ -121,7 +121,7 @@ export function DataTablePagination<TData>({ table, simple }: Props<TData>) {
             disabled={!table.getCanNextPage()}
           >
             <span className="sr-only">{t("lastPage")}</span>
-            <DoubleArrowRightIcon className="size-4" />
+            <ChevronsRight className="size-4" />
           </Button>
         </div>
       </div>

@@ -400,6 +400,18 @@
   --ease-in: cubic-bezier(0.4, 0, 1, 1);
   --ease-out: cubic-bezier(0, 0, 0.2, 1);
   --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* ============================================
+     TRANSITION DURATIONS
+     ============================================
+     Standardized motion tokens for consistent animations:
+     - fast: micro-interactions (hover, focus, toggles)
+     - normal: state changes (color, opacity transitions)
+     - slow: emphasis (modals, entrance animations)
+     ============================================ */
+  --duration-fast: 150ms;
+  --duration-normal: 200ms;
+  --duration-slow: 300ms;
   --animate-spin: spin 1s linear infinite;
   --animate-ping: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
   --animate-pulse: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;

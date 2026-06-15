@@ -1,4 +1,4 @@
-import { LinkBreak2Icon } from "@radix-ui/react-icons"
+import { Unlink } from "lucide-react"
 import { getTranslations } from "next-intl/server"
 
 import { Link } from "@/lib/navigation"
@@ -7,7 +7,7 @@ export default async function NotFound() {
   const t = await getTranslations("errors.notFound")
   return (
     <div className="flex min-h-[calc(100vh-5rem)] flex-col items-center justify-center gap-2">
-      <LinkBreak2Icon className="size-8" />
+      <Unlink className="size-8" />
       <div className="text-center">
         <h2 className="mb-4 text-2xl font-semibold">{t("title")}</h2>
         <p>{t("description")}</p>

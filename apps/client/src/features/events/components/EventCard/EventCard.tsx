@@ -128,8 +128,9 @@ export function EventCard({
       className={cn(
         // Base card styles
         "bg-card text-card-foreground relative overflow-hidden rounded-xl border",
-        // Hover state with elevation
-        "transition-shadow duration-200 hover:shadow-lg",
+        // Hover state with elevation and scale (desktop only)
+        "transition-all duration-200",
+        "hover:shadow-lg lg:hover:scale-[1.02] lg:hover:shadow-xl",
         // Cursor pointer if clickable
         onClick && "cursor-pointer",
         // Focus styles for keyboard navigation

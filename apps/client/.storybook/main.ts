@@ -5,12 +5,18 @@ import type { StorybookConfig } from "@storybook/nextjs-vite"
 
 const config: StorybookConfig = {
   stories: ["../src/**/*.mdx", "../src/**/*.stories.@(js|jsx|ts|tsx)"],
-  addons: [getAbsolutePath("@storybook/addon-a11y")],
+  addons: [
+    getAbsolutePath("@storybook/addon-docs"),
+    getAbsolutePath("@storybook/addon-a11y"),
+  ],
   framework: {
     name: getAbsolutePath("@storybook/nextjs-vite"),
     options: {},
   },
   staticDirs: ["../public"],
+  docs: {
+    autodocs: "tag",
+  },
 }
 
 export default config

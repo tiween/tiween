@@ -1,0 +1,158 @@
+import { Meta } from "@storybook/blocks"
+
+<Meta title="Design Tokens" />
+
+# Design Tokens
+
+This page documents the design tokens used throughout the Tiween design system. These tokens are defined in `src/styles/theme.css` using CSS custom properties with Tailwind CSS v4.
+
+## Color System
+
+The Tiween color system uses the **OKLch** color space for perceptually uniform colors that look consistent across different hues.
+
+### Brand Colors
+
+| Token | Value | Usage |
+|-------|-------|-------|
+| `--color-primary` | `oklch(92.8% 0.2 103.76)` | Tiween Yellow #F8EB06 |
+| `--color-background` | `oklch(18% 0.03 170)` | Tiween Green #032523 |
+| `--color-surface` | `oklch(22% 0.03 170)` | Elevated surface |
+
+### Semantic Colors
+
+| Token | Light Mode | Dark Mode | Usage |
+|-------|------------|-----------|-------|
+| `foreground` | Gray 950 | Gray 50 | Primary text |
+| `muted` | Gray 100 | Gray 800 | Subdued backgrounds |
+| `muted-foreground` | Gray 500 | Gray 400 | Secondary text |
+| `accent` | Gray 100 | Gray 800 | Interactive highlights |
+| `destructive` | Red | Red | Error states, delete actions |
+
+### Usage in Tailwind
+
+```tsx
+// Background colors
+<div className="bg-background" />
+<div className="bg-surface" />
+<div className="bg-primary" />
+
+// Text colors
+<span className="text-foreground" />
+<span className="text-muted-foreground" />
+<span className="text-primary" />
+```
+
+## Typography Scale
+
+| Class | Size | Line Height | Usage |
+|-------|------|-------------|-------|
+| `text-xs` | 12px | 16px | Badges, captions |
+| `text-sm` | 14px | 20px | Secondary text, labels |
+| `text-base` | 16px | 24px | Body text |
+| `text-lg` | 18px | 28px | Subheadings |
+| `text-xl` | 20px | 28px | Section titles |
+| `text-2xl` | 24px | 32px | Page titles |
+| `text-3xl` | 30px | 36px | Hero titles |
+
+### Font Families
+
+| Token | Value | Usage |
+|-------|-------|-------|
+| `--font-sans` | Inter, system-ui | Body text |
+| `--font-display` | Lalezar, cursive | Decorative headings |
+| `--font-arabic` | Noto Sans Arabic | Arabic content (RTL) |
+
+```tsx
+// Usage
+<h1 className="font-display">Decorative Heading</h1>
+<p className="font-sans">Body text</p>
+<p className="font-arabic" dir="rtl">النص العربي</p>
+```
+
+## Spacing Scale
+
+Based on a 4px (0.25rem) unit system:
+
+| Token | Value | Pixels |
+|-------|-------|--------|
+| `0` | 0 | 0px |
+| `1` | 0.25rem | 4px |
+| `2` | 0.5rem | 8px |
+| `3` | 0.75rem | 12px |
+| `4` | 1rem | 16px |
+| `6` | 1.5rem | 24px |
+| `8` | 2rem | 32px |
+| `12` | 3rem | 48px |
+| `16` | 4rem | 64px |
+
+## Border Radius
+
+| Token | Value | Usage |
+|-------|-------|-------|
+| `rounded-sm` | 4px | Inputs, small elements |
+| `rounded-md` | 6px | Buttons, cards |
+| `rounded-lg` | 8px | Modals, larger cards |
+| `rounded-xl` | 12px | Feature cards |
+| `rounded-full` | 9999px | Badges, avatars |
+
+## Shadows
+
+| Token | Usage |
+|-------|-------|
+| `shadow-sm` | Subtle elevation |
+| `shadow` | Default cards |
+| `shadow-md` | Dropdowns, popovers |
+| `shadow-lg` | Modals, dialogs |
+| `shadow-xl` | Featured elements |
+
+## Animation
+
+### Transitions
+
+| Token | Duration | Usage |
+|-------|----------|-------|
+| `transition-colors` | 150ms | Color changes |
+| `transition-all` | 150ms | General transitions |
+| `duration-200` | 200ms | Slightly slower |
+| `duration-300` | 300ms | Modal animations |
+
+### Keyframes
+
+| Animation | Description |
+|-----------|-------------|
+| `spin` | Continuous rotation (loading spinners) |
+| `ping` | Pulse outward (notifications) |
+| `pulse` | Opacity fade (skeleton loading) |
+| `bounce` | Bounce effect (attention) |
+
+## Breakpoints
+
+| Token | Min Width | Typical Device |
+|-------|-----------|----------------|
+| `sm` | 640px | Large phones (landscape) |
+| `md` | 768px | Tablets |
+| `lg` | 1024px | Laptops |
+| `xl` | 1280px | Desktops |
+| `2xl` | 1536px | Large desktops |
+
+### Mobile-First Approach
+
+```tsx
+// Mobile base, then responsive overrides
+<div className="p-4 md:p-6 lg:p-8">
+  <h1 className="text-2xl md:text-3xl lg:text-4xl">
+    Responsive Heading
+  </h1>
+</div>
+```
+
+## Z-Index Scale
+
+| Token | Value | Usage |
+|-------|-------|-------|
+| `z-0` | 0 | Base layer |
+| `z-10` | 10 | Elevated content |
+| `z-20` | 20 | Dropdowns |
+| `z-30` | 30 | Sticky headers |
+| `z-40` | 40 | Fixed navigation |
+| `z-50` | 50 | Modals, dialogs |

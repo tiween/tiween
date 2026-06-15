@@ -9,6 +9,14 @@ import { cn } from "@/lib/utils"
 import LocaleSwitcher from "@/components/elementary/LocaleSwitcher"
 import { Button } from "@/components/ui/button"
 
+export interface HeaderLabels {
+  back: string
+}
+
+const defaultLabels: HeaderLabels = {
+  back: "Retour",
+}
+
 export interface HeaderProps {
   /** Optional title displayed in center */
   title?: string
@@ -24,6 +32,8 @@ export interface HeaderProps {
   className?: string
   /** Right side content slot */
   rightContent?: React.ReactNode
+  /** Localized labels */
+  labels?: HeaderLabels
 }
 
 export function Header({
@@ -34,6 +44,7 @@ export function Header({
   showLogo = true,
   className,
   rightContent,
+  labels = defaultLabels,
 }: HeaderProps) {
   const locale = useLocale()
   const isRTL = locale === "ar"
@@ -66,7 +77,7 @@ export function Header({
             variant="ghost"
             size="icon"
             onClick={onBack}
-            aria-label={isRTL ? "رجوع" : "Retour"}
+            aria-label={labels.back}
             className="h-10 w-10"
           >
             <BackArrow className="h-5 w-5" />

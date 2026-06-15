@@ -1,20 +1,24 @@
 import React from "react"
 
-import { cn } from "@/lib/styles"
+import { cn } from "@/lib/utils"
 
 const variantStyles = {
-  heading1: "typo-h1",
-  heading2: "typo-h2",
-  heading3: "typo-h3",
-  heading4: "typo-h4",
-  heading5: "typo-h5",
-  heading6: "typo-h6",
+  heading1: "text-4xl md:text-5xl",
+  heading2: "text-3xl md:text-4xl",
+  heading3: "text-2xl md:text-3xl",
+  heading4: "text-xl md:text-2xl",
+  heading5: "text-lg md:text-xl",
+  heading6: "text-base md:text-lg",
 }
 
 const textColorVariants = {
-  black: "text-black",
+  default: "text-foreground",
+  muted: "text-muted-foreground",
+  primary: "text-primary",
+  destructive: "text-destructive",
+  // Backward compatibility aliases
+  black: "text-foreground",
   white: "text-white",
-  // more variants will be added here
 }
 
 const fontWeightVariants = {
@@ -48,7 +52,7 @@ export const Heading = ({
   children,
   className,
   variant = "heading3",
-  textColor = "black",
+  textColor = "default",
   fontWeight = "semiBold",
   tag = "h3",
   id,
@@ -67,11 +71,9 @@ export const Heading = ({
     <Tag
       id={id}
       className={cn(
-        `typo-${tag}`,
         selectedVariant,
         selectedTextColor,
         selectedFontWeight,
-
         className
       )}
     >

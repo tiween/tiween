@@ -184,6 +184,12 @@
       "forgotPassword": "Mot de passe oublié",
       "createAccount": "Créer un compte"
     },
+    "social": {
+      "google": "Continuer avec Google",
+      "facebook": "Continuer avec Facebook",
+      "divider": "ou",
+      "error": "La connexion sociale a échoué"
+    },
 
     "register": {
       "status": {
@@ -261,5 +267,218 @@
     "title": "Vous êtes hors ligne",
     "description": "Il semble que vous ayez perdu votre connexion internet. Veuillez vérifier votre connexion et réessayer.",
     "retry": "Réessayer"
+  },
+
+  "events": {
+    "back": "Retour",
+    "share": "Partager",
+    "addToWatchlist": "Ajouter à la liste de suivi",
+    "removeFromWatchlist": "Retirer de la liste de suivi",
+    "priceFrom": "À partir de {price}",
+    "presentation": "Présentation",
+    "synopsis": "Synopsis",
+    "showMore": "Voir plus",
+    "showLess": "Voir moins",
+    "showtimes": "Séances",
+    "noShowtimes": "Aucune séance disponible",
+    "buyTickets": "Réserver des billets",
+    "ticketsAvailable": "{count} billets disponibles",
+    "soldOut": "Complet",
+    "artisticTeam": "Équipe artistique",
+    "cast": "Distribution",
+    "directors": "Mise en scène",
+    "relatedEvents": "Vous pourriez aussi aimer...",
+    "minutes": "min",
+    "venue": "Lieu",
+    "dateRange": "Du {start} au {end}",
+    "chooseRepresentation": "Choisir une représentation",
+    "photos": "Photos",
+    "seeAll": "Voir tout",
+    "noEvents": "Aucun événement disponible",
+    "saved": "Enregistré",
+    "save": "Enregistrer",
+    "by": "de",
+    "home": "Accueil"
+  },
+
+  "payment": {
+    "title": "Paiement",
+    "selectMethod": "Choisir un mode de paiement",
+    "securePayment": "Paiement sécurisé",
+    "termsLabel": "J'accepte les",
+    "termsLink": "conditions générales de vente",
+    "submitButton": "Payer",
+    "submitting": "Traitement en cours...",
+    "card": {
+      "cardNumber": "Numéro de carte",
+      "cardNumberPlaceholder": "1234 5678 9012 3456",
+      "expiryDate": "Date d'expiration",
+      "expiryDatePlaceholder": "MM/AA",
+      "cvv": "CVV",
+      "cvvPlaceholder": "123"
+    },
+    "mobile": {
+      "phone": "Numéro de téléphone",
+      "phonePlaceholder": "XX XXX XXX",
+      "phoneHint": "Vous recevrez un code de confirmation"
+    }
+  },
+
+  "header": {
+    "back": "Retour"
+  },
+
+  "search": {
+    "filters": "Filtres",
+    "category": "Catégorie",
+    "city": "Ville",
+    "clearFilters": "Effacer les filtres ({count})",
+    "popularSearches": "Recherches populaires",
+    "back": "Retour",
+    "categories": {
+      "cinema": "Cinéma",
+      "theater": "Théâtre",
+      "music": "Musique",
+      "exhibition": "Expositions"
+    }
+  },
+
+  "footer": {
+    "company": "Entreprise",
+    "legal": "Mentions légales",
+    "social": "Suivez-nous",
+    "aboutUs": "À propos",
+    "careers": "Carrières",
+    "press": "Presse",
+    "contact": "Contact",
+    "terms": "Conditions d'utilisation",
+    "privacy": "Politique de confidentialité",
+    "cookies": "Cookies",
+    "copyright": "© {year} Tiween. Tous droits réservés.",
+    "tagline": "La plateforme de billetterie culturelle en Tunisie."
+  },
+
+  "contribute": {
+    "steps": {
+      "basics": "Informations de base",
+      "theatreDetails": "Détails du spectacle",
+      "credits": "Équipe artistique",
+      "media": "Médias et liens",
+      "review": "Vérification et envoi"
+    },
+    "fields": {
+      "title": "Titre",
+      "originalTitle": "Titre original",
+      "synopsis": "Synopsis",
+      "releaseYear": "Année",
+      "duration": "Durée (minutes)",
+      "ageRating": "Classification d'âge",
+      "playType": "Type de pièce",
+      "format": "Format",
+      "actCount": "Nombre d'actes",
+      "hasIntermission": "Entracte",
+      "basedOn": "Basé sur",
+      "originalLanguage": "Langue originale",
+      "productionCompany": "Compagnie de production",
+      "premiereDate": "Date de première",
+      "person": "Personne",
+      "role": "Rôle",
+      "character": "Personnage",
+      "poster": "Affiche",
+      "videos": "Vidéos",
+      "links": "Liens",
+      "distinctions": "Prix et festivals",
+      "inputLanguage": "Langue de saisie",
+      "submitterEmail": "Votre email",
+      "submitterName": "Votre nom",
+      "acceptTerms": "J'accepte les conditions"
+    },
+    "buttons": {
+      "next": "Continuer",
+      "previous": "Retour",
+      "submit": "Envoyer",
+      "saveDraft": "Sauvegarder le brouillon",
+      "addCredit": "Ajouter un crédit",
+      "addVideo": "Ajouter une vidéo",
+      "addLink": "Ajouter un lien",
+      "addAward": "Ajouter un prix",
+      "remove": "Supprimer",
+      "cancel": "Annuler",
+      "createPerson": "Créer une nouvelle personne"
+    },
+    "errors": {
+      "TITLE_REQUIRED": "Le titre est requis",
+      "TITLE_TOO_LONG": "Le titre doit faire 200 caractères maximum",
+      "SYNOPSIS_TOO_LONG": "Le synopsis doit faire 5000 caractères maximum",
+      "INVALID_YEAR": "Année invalide",
+      "INVALID_DURATION": "La durée doit être entre 1 et 600 minutes",
+      "PLAY_TYPE_REQUIRED": "Le type de pièce est requis",
+      "FORMAT_REQUIRED": "Le format est requis",
+      "PLAYWRIGHT_OR_DIRECTOR_REQUIRED": "Au moins un auteur ou metteur en scène est requis",
+      "PERSON_REQUIRED": "La personne est requise",
+      "ROLE_REQUIRED": "Le rôle est requis",
+      "INVALID_URL": "URL invalide",
+      "INVALID_EMAIL": "Adresse email invalide",
+      "INPUT_LANGUAGE_REQUIRED": "Veuillez sélectionner la langue utilisée",
+      "TERMS_REQUIRED": "Vous devez accepter les conditions pour soumettre",
+      "RATE_LIMIT_EXCEEDED": "Trop de soumissions. Veuillez réessayer plus tard.",
+      "RECAPTCHA_FAILED": "La vérification de sécurité a échoué. Veuillez réessayer.",
+      "SUBMISSION_FAILED": "La soumission a échoué. Veuillez réessayer."
+    },
+    "tooltips": {
+      "originalTitle": "Si la pièce a un titre original différent (par exemple dans une autre langue)",
+      "basedOn": "Pour les adaptations ou traductions, sur quelle œuvre est-ce basé ?",
+      "inputLanguage": "La langue que vous avez utilisée pour remplir ce formulaire. Nous gérerons les traductions après vérification."
+    },
+    "placeholders": {
+      "title": "Entrez le titre de la pièce",
+      "synopsis": "Une brève description de la pièce...",
+      "searchPerson": "Rechercher une personne...",
+      "videoUrl": "https://youtube.com/watch?v=..."
+    },
+    "success": {
+      "title": "Merci !",
+      "message": "Votre soumission a été reçue et sera examinée par notre équipe. Nous apprécions votre contribution à la documentation du théâtre tunisien.",
+      "submitAnother": "Soumettre une autre pièce"
+    },
+    "playTypes": {
+      "original": "Originale",
+      "adaptation": "Adaptation",
+      "revival": "Reprise",
+      "translation": "Traduction",
+      "devised": "Création collective"
+    },
+    "formats": {
+      "full-length": "Pièce longue",
+      "one-act": "Pièce en un acte",
+      "monologue": "Monologue",
+      "sketch": "Sketch",
+      "musical": "Comédie musicale",
+      "opera": "Opéra",
+      "dance": "Théâtre dansé"
+    },
+    "roles": {
+      "playwright": "Auteur",
+      "director": "Metteur en scène",
+      "adaptor": "Adaptateur",
+      "translator": "Traducteur",
+      "composer": "Compositeur",
+      "musical-director": "Directeur musical",
+      "choreographer": "Chorégraphe",
+      "cast": "Comédien",
+      "set-designer": "Scénographe",
+      "costume-designer": "Costumier",
+      "lighting-designer": "Éclairagiste",
+      "sound-designer": "Créateur sonore",
+      "projection-designer": "Vidéaste",
+      "stage-manager": "Régisseur",
+      "producer": "Producteur",
+      "other": "Autre"
+    },
+    "languages": {
+      "ar": "Arabe (العربية)",
+      "fr": "Français",
+      "en": "Anglais (English)"
+    }
   }
 }

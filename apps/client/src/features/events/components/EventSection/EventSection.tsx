@@ -30,6 +30,10 @@ export interface EventSectionProps {
   events: EventCardEvent[]
   /** Card variant */
   variant?: EventCardVariant
+  /** Layout mode: "scroll" (horizontal), "grid" (responsive grid) */
+  layout?: "scroll" | "grid"
+  /** Number of grid columns (only for grid layout) */
+  gridColumns?: 2 | 3 | 4
   /** Whether the section is loading */
   isLoading?: boolean
   /** Number of skeleton cards to show while loading */
@@ -73,6 +77,8 @@ export function EventSection({
   title,
   events,
   variant = "default",
+  layout = "scroll",
+  gridColumns = 4,
   isLoading = false,
   skeletonCount = 4,
   seeAllHref,
@@ -138,13 +144,76 @@ export function EventSection({
     featured: "w-[320px]",
   }[variant]
 
-  const showNavigation = !isLoading && events.length > 2
+  const showNavigation = !isLoading && events.length > 2 && layout === "scroll"
+
+  // Grid column classes
+  const gridColsClass = {
+    2: "grid-cols-1 sm:grid-cols-2",
+    3: "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3",
+    4: "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4",
+  }[gridColumns]
+
+  // Render loading skeletons
+  const renderSkeletons = () =>
+    Array.from({ length: skeletonCount }).map((_, index) =>
+      layout === "scroll" ? (
+        <div key={index} className={cn("shrink-0", cardWidthClass)}>
+          <EventCardSkeleton variant={variant} />
+        </div>
+      ) : (
+        <EventCardSkeleton key={index} variant={variant} />
+      )
+    )
+
+  // Render event cards
+  const renderCards = () =>
+    events.map((event) =>
+      layout === "scroll" ? (
+        <div key={event.id} className={cn("shrink-0", cardWidthClass)}>
+          <EventCard
+            event={event}
+            variant={variant}
+            isWatchlisted={watchlistedIds.has(event.id)}
+            onClick={() => onEventClick?.(event.id)}
+            onWatchlist={() => onWatchlist?.(event.id)}
+          />
+        </div>
+      ) : (
+        <EventCard
+          key={event.id}
+          event={event}
+          variant={variant}
+          isWatchlisted={watchlistedIds.has(event.id)}
+          onClick={() => onEventClick?.(event.id)}
+          onWatchlist={() => onWatchlist?.(event.id)}
+        />
+      )
+    )
+
+  // Render empty state
+  const renderEmpty = () => (
+    <div
+      className={cn(
+        "text-muted-foreground flex items-center justify-center py-8 text-sm",
+        layout === "scroll" ? "w-full" : "col-span-full"
+      )}
+    >
+      {labels.noEvents}
+    </div>
+  )
 
   return (
     <section className={cn("py-4", className)}>
       {/* Header */}
-      <div className="mb-3 flex items-center justify-between px-4">
-        <h2 className="text-foreground text-lg font-semibold">{title}</h2>
+      <div
+        className={cn(
+          "mb-3 flex items-center justify-between",
+          layout === "scroll" ? "px-4" : ""
+        )}
+      >
+        <h2 className="text-foreground text-lg font-semibold lg:text-xl">
+          {title}
+        </h2>
         {seeAllHref && (
           <Link
             href={seeAllHref}
@@ -156,73 +225,64 @@ export function EventSection({
       </div>
 
       {/* Content */}
-      <div className="relative">
-        {/* Scroll buttons - desktop only */}
-        {showNavigation && canScrollLeft && (
-          <Button
-            variant="secondary"
-            size="icon"
-            onClick={() => scroll("left")}
-            className="absolute start-2 top-1/2 z-10 hidden h-9 w-9 -translate-y-1/2 rounded-full shadow-lg md:flex"
-            aria-label={isRTL ? "التالي" : "Précédent"}
-          >
-            {isRTL ? (
-              <ChevronRight className="h-5 w-5" />
-            ) : (
-              <ChevronLeft className="h-5 w-5" />
-            )}
-          </Button>
-        )}
-
-        {showNavigation && canScrollRight && (
-          <Button
-            variant="secondary"
-            size="icon"
-            onClick={() => scroll("right")}
-            className="absolute end-2 top-1/2 z-10 hidden h-9 w-9 -translate-y-1/2 rounded-full shadow-lg md:flex"
-            aria-label={isRTL ? "السابق" : "Suivant"}
-          >
-            {isRTL ? (
-              <ChevronLeft className="h-5 w-5" />
-            ) : (
-              <ChevronRight className="h-5 w-5" />
-            )}
-          </Button>
-        )}
-
-        {/* Scrollable container */}
-        <div
-          ref={scrollContainerRef}
-          className="no-scrollbar flex gap-3 overflow-x-auto scroll-smooth px-4"
-        >
-          {isLoading ? (
-            // Loading skeletons
-            Array.from({ length: skeletonCount }).map((_, index) => (
-              <div key={index} className={cn("shrink-0", cardWidthClass)}>
-                <EventCardSkeleton variant={variant} />
-              </div>
-            ))
-          ) : events.length === 0 ? (
-            // Empty state
-            <div className="text-muted-foreground flex w-full items-center justify-center py-8 text-sm">
-              {labels.noEvents}
-            </div>
-          ) : (
-            // Event cards
-            events.map((event) => (
-              <div key={event.id} className={cn("shrink-0", cardWidthClass)}>
-                <EventCard
-                  event={event}
-                  variant={variant}
-                  isWatchlisted={watchlistedIds.has(event.id)}
-                  onClick={() => onEventClick?.(event.id)}
-                  onWatchlist={() => onWatchlist?.(event.id)}
-                />
-              </div>
-            ))
+      {layout === "scroll" ? (
+        // Scroll layout
+        <div className="relative">
+          {/* Scroll buttons - desktop only */}
+          {showNavigation && canScrollLeft && (
+            <Button
+              variant="secondary"
+              size="icon"
+              onClick={() => scroll("left")}
+              className="absolute start-2 top-1/2 z-10 hidden h-9 w-9 -translate-y-1/2 rounded-full shadow-lg md:flex"
+              aria-label={isRTL ? "التالي" : "Précédent"}
+            >
+              {isRTL ? (
+                <ChevronRight className="h-5 w-5" />
+              ) : (
+                <ChevronLeft className="h-5 w-5" />
+              )}
+            </Button>
           )}
+
+          {showNavigation && canScrollRight && (
+            <Button
+              variant="secondary"
+              size="icon"
+              onClick={() => scroll("right")}
+              className="absolute end-2 top-1/2 z-10 hidden h-9 w-9 -translate-y-1/2 rounded-full shadow-lg md:flex"
+              aria-label={isRTL ? "السابق" : "Suivant"}
+            >
+              {isRTL ? (
+                <ChevronLeft className="h-5 w-5" />
+              ) : (
+                <ChevronRight className="h-5 w-5" />
+              )}
+            </Button>
+          )}
+
+          {/* Scrollable container */}
+          <div
+            ref={scrollContainerRef}
+            className="no-scrollbar flex gap-3 overflow-x-auto scroll-smooth px-4"
+          >
+            {isLoading
+              ? renderSkeletons()
+              : events.length === 0
+                ? renderEmpty()
+                : renderCards()}
+          </div>
         </div>
-      </div>
+      ) : (
+        // Grid layout
+        <div className={cn("grid gap-4 lg:gap-6", gridColsClass)}>
+          {isLoading
+            ? renderSkeletons()
+            : events.length === 0
+              ? renderEmpty()
+              : renderCards()}
+        </div>
+      )}
     </section>
   )
 }

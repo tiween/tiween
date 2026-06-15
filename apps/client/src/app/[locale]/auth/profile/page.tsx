@@ -31,6 +31,10 @@ export default async function ProfilePage({ params }: PageProps) {
     redirect(`/${locale}/auth/signin?callbackUrl=/${locale}/auth/profile`)
   }
 
+  if (session.user.userId == null) {
+    throw new Error("Authenticated session is missing userId")
+  }
+
   // Fetch regions for preference selector
   const regions = await getRegions(locale)
 

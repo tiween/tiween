@@ -54,6 +54,8 @@ export interface FilmHeroProps {
   onWatchlist?: () => void
   /** Called when share button is clicked */
   onShare?: () => void
+  /** Aspect ratio mode: "portrait" (4:5 mobile), "landscape" (16:9 desktop), "auto" (responsive) */
+  aspectMode?: "portrait" | "landscape" | "auto"
   /** Additional class names */
   className?: string
   /** Localized labels */
@@ -106,6 +108,7 @@ export function FilmHero({
   isWatchlisted = false,
   onWatchlist,
   onShare,
+  aspectMode = "auto",
   className,
   labels = defaultLabels,
 }: FilmHeroProps) {
@@ -122,14 +125,24 @@ export function FilmHero({
     onShare?.()
   }
 
+  // Aspect ratio classes based on mode
+  const aspectClasses = {
+    // Portrait mode: 4:5 aspect ratio (like mobile movie posters)
+    portrait: "aspect-[4/5] max-h-[500px]",
+    // Landscape mode: 16:9 aspect ratio (like cinema/TV)
+    landscape: "aspect-video max-h-[600px]",
+    // Auto mode: portrait on mobile, landscape on desktop
+    auto: "h-[300px] md:h-[350px] lg:aspect-video lg:h-auto lg:max-h-[500px]",
+  }[aspectMode]
+
   return (
     <section
       aria-labelledby={`film-hero-title-${event.id}`}
       className={cn(
-        // Responsive height: 300px mobile, 350px tablet, 400px desktop
-        "relative h-[300px] w-full md:h-[350px] lg:h-[400px]",
-        // Desktop: 60% width with sidebar space
-        "lg:w-[60%]",
+        // Base: full width
+        "relative w-full",
+        // Responsive aspect ratio based on mode
+        aspectClasses,
         // Overflow hidden for image
         "overflow-hidden",
         className

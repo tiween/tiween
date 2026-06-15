@@ -61,3 +61,21 @@ export type {
   PaymentFormData,
   PaymentFormInput,
 } from "./PaymentForm"
+
+export { DateSelectorDesktop, generateDateOptions } from "./DateSelectorDesktop"
+export type {
+  DateSelectorDesktopProps,
+  DateOption,
+} from "./DateSelectorDesktop"
+
+export { VenueShowtimeCard } from "./VenueShowtimeCard"
+export type { VenueShowtimeCardProps, ShowtimeSlot } from "./VenueShowtimeCard"
+
+export { TicketingPageDesktop } from "./TicketingPageDesktop"
+export type {
+  TicketingPageDesktopProps,
+  TicketingPageDesktopLabels,
+  Venue as TicketingVenue,
+  Showtime as TicketingShowtime,
+  MovieInfo,
+} from "./TicketingPageDesktop"

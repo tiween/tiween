@@ -1,0 +1,84 @@
+import { Meta } from "@storybook/blocks"
+
+<Meta title="Introduction" />
+
+# Tiween Design System
+
+Welcome to the Tiween Design System documentation. This Storybook serves as the living documentation for all UI components used across the Tiween ticketing platform.
+
+## Overview
+
+Tiween is a cultural ticketing platform for Tunisia, supporting **three languages** (French, Arabic, English) with full **RTL support**. The design system is built with:
+
+- **Tailwind CSS v4** with custom design tokens
+- **shadcn/ui** components as the foundation
+- **Radix UI** primitives for accessibility
+- **OKLch color space** for perceptually uniform colors
+
+## Brand Colors
+
+| Token | Value | Usage |
+|-------|-------|-------|
+| `primary` | `#F8EB06` (Tiween Yellow) | CTAs, highlights, interactive elements |
+| `background` | `#032523` (Tiween Green) | Main background |
+| `surface` | `#0A3533` | Elevated cards, secondary backgrounds |
+| `surface-light` | `#0F4542` | Hover states, tertiary backgrounds |
+
+## Typography
+
+| Font | Usage |
+|------|-------|
+| **Inter** | Body text, UI elements |
+| **Lalezar** | Display headings, decorative |
+| **Noto Sans Arabic** | Arabic content (RTL) |
+
+## Component Categories
+
+### UI Primitives (`UI/`)
+Core building blocks like Button, Input, Card, Badge, Dialog, etc.
+
+### Layout (`Layout/`)
+Page structure components: Header, BottomNav, Sidebar, Footer, PageContainer.
+
+### Features (`Features/`)
+Domain-specific components organized by feature:
+- **Events** - EventCard, EventSection, FilmHero
+- **Films** - FilmCard, FilmDetail
+- **Tickets** - SeatSelector, PaymentForm, OrderSummary
+- **Search** - SearchBar, SearchResults, FilterSidebar
+- **Venues** - VenueCard, VenueMap
+- **Auth** - ProfileForm, SocialLogin
+- **Scanner** - TicketScanner, ValidationResult
+- **Shorts** - ShortFilmCard, ShortsHero, ShortsFilters
+
+### Patterns (`Patterns/`)
+Composition examples showing how to combine components:
+- **Forms** - Checkout, login, registration, profile forms
+- **Page Layouts** - Search results, event detail, profile pages
+- **Data Display** - Stats, lists, order summaries, notifications
+
+## Internationalization (i18n)
+
+All components support:
+- **LTR** (Left-to-Right): French, English
+- **RTL** (Right-to-Left): Arabic
+
+Use the toolbar direction toggle to preview RTL layouts.
+
+## Accessibility
+
+Components follow WCAG 2.1 guidelines:
+- Proper focus management
+- Screen reader support
+- Keyboard navigation
+- Color contrast compliance
+
+## Getting Started
+
+```bash
+# Run Storybook
+yarn storybook
+
+# Build static Storybook
+yarn build-storybook
+```

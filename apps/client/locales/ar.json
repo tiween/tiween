@@ -184,6 +184,12 @@
       "forgotPassword": "نسيت كلمة المرور",
       "createAccount": "إنشاء حساب"
     },
+    "social": {
+      "google": "تابع باستخدام Google",
+      "facebook": "تابع باستخدام Facebook",
+      "divider": "أو",
+      "error": "فشل تسجيل الدخول عبر الشبكات الاجتماعية"
+    },
 
     "register": {
       "status": {
@@ -261,5 +267,218 @@
     "title": "أنت غير متصل",
     "description": "يبدو أنك فقدت الاتصال بالإنترنت. يرجى التحقق من اتصالك والمحاولة مرة أخرى.",
     "retry": "حاول مرة أخرى"
+  },
+
+  "events": {
+    "back": "رجوع",
+    "share": "مشاركة",
+    "addToWatchlist": "إضافة إلى قائمة المتابعة",
+    "removeFromWatchlist": "إزالة من قائمة المتابعة",
+    "priceFrom": "ابتداءً من {price}",
+    "presentation": "تقديم",
+    "synopsis": "ملخص",
+    "showMore": "عرض المزيد",
+    "showLess": "عرض أقل",
+    "showtimes": "أوقات العرض",
+    "noShowtimes": "لا توجد عروض متاحة",
+    "buyTickets": "حجز التذاكر",
+    "ticketsAvailable": "{count} تذكرة متاحة",
+    "soldOut": "نفدت التذاكر",
+    "artisticTeam": "الفريق الفني",
+    "cast": "طاقم التمثيل",
+    "directors": "الإخراج",
+    "relatedEvents": "قد يعجبك أيضاً...",
+    "minutes": "د",
+    "venue": "المكان",
+    "dateRange": "من {start} إلى {end}",
+    "chooseRepresentation": "اختر وقت العرض",
+    "photos": "الصور",
+    "seeAll": "عرض الكل",
+    "noEvents": "لا توجد فعاليات متاحة",
+    "saved": "تم الحفظ",
+    "save": "حفظ",
+    "by": "من إخراج",
+    "home": "الرئيسية"
+  },
+
+  "payment": {
+    "title": "الدفع",
+    "selectMethod": "اختر طريقة الدفع",
+    "securePayment": "دفع آمن",
+    "termsLabel": "أوافق على",
+    "termsLink": "الشروط والأحكام",
+    "submitButton": "ادفع",
+    "submitting": "جاري المعالجة...",
+    "card": {
+      "cardNumber": "رقم البطاقة",
+      "cardNumberPlaceholder": "1234 5678 9012 3456",
+      "expiryDate": "تاريخ الانتهاء",
+      "expiryDatePlaceholder": "شش/سس",
+      "cvv": "CVV",
+      "cvvPlaceholder": "123"
+    },
+    "mobile": {
+      "phone": "رقم الهاتف",
+      "phonePlaceholder": "XX XXX XXX",
+      "phoneHint": "ستتلقى رمز تأكيد"
+    }
+  },
+
+  "header": {
+    "back": "رجوع"
+  },
+
+  "search": {
+    "filters": "الفلاتر",
+    "category": "الفئة",
+    "city": "المدينة",
+    "clearFilters": "مسح الفلاتر ({count})",
+    "popularSearches": "عمليات البحث الشائعة",
+    "back": "رجوع",
+    "categories": {
+      "cinema": "سينما",
+      "theater": "مسرح",
+      "music": "موسيقى",
+      "exhibition": "معارض"
+    }
+  },
+
+  "footer": {
+    "company": "الشركة",
+    "legal": "قانوني",
+    "social": "تابعنا",
+    "aboutUs": "من نحن",
+    "careers": "وظائف",
+    "press": "الصحافة",
+    "contact": "اتصل بنا",
+    "terms": "شروط الاستخدام",
+    "privacy": "سياسة الخصوصية",
+    "cookies": "ملفات تعريف الارتباط",
+    "copyright": "© {year} تيوين. جميع الحقوق محفوظة.",
+    "tagline": "منصة حجز التذاكر الثقافية في تونس."
+  },
+
+  "contribute": {
+    "steps": {
+      "basics": "المعلومات الأساسية",
+      "theatreDetails": "تفاصيل المسرحية",
+      "credits": "فريق العمل",
+      "media": "الوسائط والروابط",
+      "review": "المراجعة والإرسال"
+    },
+    "fields": {
+      "title": "العنوان",
+      "originalTitle": "العنوان الأصلي",
+      "synopsis": "ملخص",
+      "releaseYear": "السنة",
+      "duration": "المدة (بالدقائق)",
+      "ageRating": "التصنيف العمري",
+      "playType": "نوع المسرحية",
+      "format": "الشكل",
+      "actCount": "عدد الفصول",
+      "hasIntermission": "يوجد استراحة",
+      "basedOn": "مقتبسة من",
+      "originalLanguage": "اللغة الأصلية",
+      "productionCompany": "شركة الإنتاج",
+      "premiereDate": "تاريخ العرض الأول",
+      "person": "الشخص",
+      "role": "الدور",
+      "character": "الشخصية",
+      "poster": "الملصق",
+      "videos": "الفيديوهات",
+      "links": "الروابط",
+      "distinctions": "الجوائز والمهرجانات",
+      "inputLanguage": "لغة الإدخال",
+      "submitterEmail": "بريدك الإلكتروني",
+      "submitterName": "اسمك",
+      "acceptTerms": "أوافق على الشروط"
+    },
+    "buttons": {
+      "next": "متابعة",
+      "previous": "رجوع",
+      "submit": "إرسال",
+      "saveDraft": "حفظ المسودة",
+      "addCredit": "إضافة فرد",
+      "addVideo": "إضافة فيديو",
+      "addLink": "إضافة رابط",
+      "addAward": "إضافة جائزة",
+      "remove": "حذف",
+      "cancel": "إلغاء",
+      "createPerson": "إضافة شخص جديد"
+    },
+    "errors": {
+      "TITLE_REQUIRED": "العنوان مطلوب",
+      "TITLE_TOO_LONG": "يجب ألا يتجاوز العنوان 200 حرف",
+      "SYNOPSIS_TOO_LONG": "يجب ألا يتجاوز الملخص 5000 حرف",
+      "INVALID_YEAR": "سنة غير صالحة",
+      "INVALID_DURATION": "يجب أن تكون المدة بين 1 و 600 دقيقة",
+      "PLAY_TYPE_REQUIRED": "نوع المسرحية مطلوب",
+      "FORMAT_REQUIRED": "الشكل مطلوب",
+      "PLAYWRIGHT_OR_DIRECTOR_REQUIRED": "يجب إضافة كاتب أو مخرج واحد على الأقل",
+      "PERSON_REQUIRED": "الشخص مطلوب",
+      "ROLE_REQUIRED": "الدور مطلوب",
+      "INVALID_URL": "رابط غير صالح",
+      "INVALID_EMAIL": "عنوان بريد إلكتروني غير صالح",
+      "INPUT_LANGUAGE_REQUIRED": "يرجى اختيار اللغة التي استخدمتها",
+      "TERMS_REQUIRED": "يجب الموافقة على الشروط للإرسال",
+      "RATE_LIMIT_EXCEEDED": "عدد كبير من المحاولات. يرجى المحاولة لاحقاً.",
+      "RECAPTCHA_FAILED": "فشل التحقق الأمني. يرجى المحاولة مرة أخرى.",
+      "SUBMISSION_FAILED": "فشل الإرسال. يرجى المحاولة مرة أخرى."
+    },
+    "tooltips": {
+      "originalTitle": "إذا كان للمسرحية عنوان أصلي مختلف (مثلاً بلغة أخرى)",
+      "basedOn": "للاقتباسات أو الترجمات، ما هو العمل الأصلي؟",
+      "inputLanguage": "اللغة التي استخدمتها لملء هذا النموذج. سنتولى الترجمات بعد المراجعة."
+    },
+    "placeholders": {
+      "title": "أدخل عنوان المسرحية",
+      "synopsis": "وصف مختصر للمسرحية...",
+      "searchPerson": "ابحث عن شخص...",
+      "videoUrl": "https://youtube.com/watch?v=..."
+    },
+    "success": {
+      "title": "شكراً لك!",
+      "message": "تم استلام مساهمتك وستتم مراجعتها من قبل فريقنا. نقدر مساهمتك في توثيق المسرح التونسي.",
+      "submitAnother": "إرسال مسرحية أخرى"
+    },
+    "playTypes": {
+      "original": "أصلية",
+      "adaptation": "اقتباس",
+      "revival": "إعادة إحياء",
+      "translation": "ترجمة",
+      "devised": "عمل جماعي"
+    },
+    "formats": {
+      "full-length": "كاملة",
+      "one-act": "فصل واحد",
+      "monologue": "مونولوج",
+      "sketch": "سكتش",
+      "musical": "موسيقية",
+      "opera": "أوبرا",
+      "dance": "مسرح راقص"
+    },
+    "roles": {
+      "playwright": "كاتب مسرحي",
+      "director": "مخرج",
+      "adaptor": "معد",
+      "translator": "مترجم",
+      "composer": "ملحن",
+      "musical-director": "مدير موسيقي",
+      "choreographer": "مصمم رقصات",
+      "cast": "ممثل",
+      "set-designer": "مصمم ديكور",
+      "costume-designer": "مصمم أزياء",
+      "lighting-designer": "مصمم إضاءة",
+      "sound-designer": "مصمم صوت",
+      "projection-designer": "مصمم عروض مرئية",
+      "stage-manager": "مدير خشبة",
+      "producer": "منتج",
+      "other": "أخرى"
+    },
+    "languages": {
+      "ar": "العربية",
+      "fr": "الفرنسية (Français)",
+      "en": "الإنجليزية (English)"
+    }
   }
 }

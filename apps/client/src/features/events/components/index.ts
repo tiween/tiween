@@ -21,6 +21,9 @@ export type { DateSelectorProps, DateSelectorLabels } from "./DateSelector"
 export { EventSection } from "./EventSection"
 export type { EventSectionProps, EventSectionLabels } from "./EventSection"
 
+export { EventGrid } from "./EventGrid"
+export type { EventGridProps, EventGridLabels } from "./EventGrid"
+
 export { HomePage, HomePageWithCity, HomePageWithVenue } from "./HomePage"
 export type {
   HomePageProps,
@@ -36,6 +39,12 @@ export type {
   EventDetailPageProps,
   EventDetailPageLabels,
 } from "./EventDetailPage"
+
+export { EventDetailPageDesktop } from "./EventDetailPageDesktop"
+export type {
+  EventDetailPageDesktopProps,
+  EventDetailPageDesktopLabels,
+} from "./EventDetailPageDesktop"
 
 export { RegionCitySelector } from "./RegionCitySelector"
 export type {

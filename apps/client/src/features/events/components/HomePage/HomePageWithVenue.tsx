@@ -13,7 +13,10 @@ import type { RegionOption } from "../RegionCitySelector/RegionCitySelector"
 import type { VenueOption } from "../VenueSelector/VenueSelector"
 
 import { BottomNav } from "@/components/layout/BottomNav"
+import { DesktopNav } from "@/components/layout/DesktopNav"
+import { Footer } from "@/components/layout/Footer"
 import { Header } from "@/components/layout/Header"
+import { MaxWidthContainer } from "@/components/layout/MaxWidthContainer"
 
 import { mapTypeToCategory } from "../../utils"
 import { CategoryTabs } from "../CategoryTabs"
@@ -387,8 +390,12 @@ export function HomePageWithVenue({
   }, [venues, activeCityId])
 
   return (
-    <div className="bg-background min-h-screen pb-20">
-      <Header showLogo showLanguageSwitcher />
+    <div className="bg-background min-h-screen pb-20 lg:pb-0">
+      {/* Mobile Header */}
+      <Header showLogo showLanguageSwitcher className="lg:hidden" />
+
+      {/* Desktop Navigation */}
+      <DesktopNav />
 
       {currentHeroEvent && (
         <div className="relative">
@@ -406,11 +413,11 @@ export function HomePageWithVenue({
                 })
               }
             }}
-            className="w-full lg:w-full"
+            aspectMode="auto"
           />
 
           {featuredEvents.length > 1 && (
-            <div className="absolute bottom-20 left-1/2 flex -translate-x-1/2 gap-2">
+            <div className="absolute bottom-20 left-1/2 flex -translate-x-1/2 gap-2 lg:bottom-8">
               {featuredEvents.map((_, index) => (
                 <button
                   key={index}
@@ -430,91 +437,166 @@ export function HomePageWithVenue({
       )}
 
       {/* Filter Section - Category, Location, Venue, and Date */}
-      <div className="bg-secondary sticky top-12 z-30 space-y-2 border-b pb-2">
+      <div className="bg-secondary sticky top-12 z-30 space-y-2 border-b pb-2 lg:top-16">
         {/* Category Tabs */}
-        <CategoryTabs
-          activeCategory={activeCategory}
-          onCategoryChange={handleCategoryChange}
-          labels={labels.categoryTabs}
-          className="pt-2"
-        />
+        <MaxWidthContainer noPadding className="lg:px-0">
+          <CategoryTabs
+            activeCategory={activeCategory}
+            onCategoryChange={handleCategoryChange}
+            labels={labels.categoryTabs}
+            className="pt-2"
+          />
+        </MaxWidthContainer>
 
         {/* Location + Venue + Date Filters Row */}
-        <div className="no-scrollbar flex items-center gap-2 overflow-x-auto px-4">
-          {/* Region/City Selector */}
-          {regions.length > 0 && (
-            <RegionCitySelector
-              regions={regions}
-              selectedCityId={activeCityId || null}
-              onCityChange={handleCityChange}
-              labels={labels.regionCitySelector}
-              className="shrink-0"
-            />
-          )}
+        <MaxWidthContainer noPadding>
+          <div className="no-scrollbar flex items-center gap-2 overflow-x-auto px-4 lg:px-0">
+            {/* Region/City Selector */}
+            {regions.length > 0 && (
+              <RegionCitySelector
+                regions={regions}
+                selectedCityId={activeCityId || null}
+                onCityChange={handleCityChange}
+                labels={labels.regionCitySelector}
+                className="shrink-0"
+              />
+            )}
 
-          {/* Venue Selector */}
-          {filteredVenues.length > 0 && (
-            <VenueSelector
-              venues={filteredVenues}
-              selectedVenueId={activeVenueId || null}
-              onVenueChange={handleVenueChange}
-              labels={labels.venueSelector}
-              className="shrink-0"
-            />
-          )}
+            {/* Venue Selector */}
+            {filteredVenues.length > 0 && (
+              <VenueSelector
+                venues={filteredVenues}
+                selectedVenueId={activeVenueId || null}
+                onVenueChange={handleVenueChange}
+                labels={labels.venueSelector}
+                className="shrink-0"
+              />
+            )}
 
-          {/* Date Selector */}
-          <DateSelector
-            selectedDate={selectedDate}
-            onDateChange={handleDateChange}
-            locale={locale === "ar" ? "fr-TN" : `${locale}-TN`}
-            labels={labels.dateSelector}
-            className="flex-1"
-          />
-        </div>
+            {/* Date Selector */}
+            <DateSelector
+              selectedDate={selectedDate}
+              onDateChange={handleDateChange}
+              locale={locale === "ar" ? "fr-TN" : `${locale}-TN`}
+              labels={labels.dateSelector}
+              className="flex-1"
+            />
+          </div>
+        </MaxWidthContainer>
       </div>
 
-      {/* Today Section */}
-      {!activeDate && todayCards.length > 0 && (
-        <EventSection
-          title={labels.todayTitle}
-          events={todayCards}
-          variant="default"
-          seeAllHref={buildSeeAllUrl(`/${locale}/events?date=today`)}
-          onEventClick={handleEventClick}
-          onWatchlist={handleWatchlist}
-          watchlistedIds={watchlistedIds}
-          labels={labels.eventSection}
-        />
-      )}
+      {/* Main Content */}
+      <main>
+        {/* Today Section - scroll on mobile, grid on desktop */}
+        {!activeDate && todayCards.length > 0 && (
+          <>
+            {/* Mobile: horizontal scroll */}
+            <div className="lg:hidden">
+              <EventSection
+                title={labels.todayTitle}
+                events={todayCards}
+                variant="default"
+                layout="scroll"
+                seeAllHref={buildSeeAllUrl(`/${locale}/events?date=today`)}
+                onEventClick={handleEventClick}
+                onWatchlist={handleWatchlist}
+                watchlistedIds={watchlistedIds}
+                labels={labels.eventSection}
+              />
+            </div>
+            {/* Desktop: grid layout */}
+            <MaxWidthContainer className="hidden lg:block">
+              <EventSection
+                title={labels.todayTitle}
+                events={todayCards}
+                variant="default"
+                layout="grid"
+                gridColumns={4}
+                seeAllHref={buildSeeAllUrl(`/${locale}/events?date=today`)}
+                onEventClick={handleEventClick}
+                onWatchlist={handleWatchlist}
+                watchlistedIds={watchlistedIds}
+                labels={labels.eventSection}
+              />
+            </MaxWidthContainer>
+          </>
+        )}
 
-      {/* Featured Section */}
-      {!activeDate && featuredEvents.length > 0 && (
-        <EventSection
-          title={labels.featuredTitle}
-          events={featuredEvents.map(toEventCardEvent)}
-          variant="featured"
-          seeAllHref={buildSeeAllUrl(`/${locale}/events?featured=true`)}
-          onEventClick={handleEventClick}
-          onWatchlist={handleWatchlist}
-          watchlistedIds={watchlistedIds}
-          labels={labels.eventSection}
-        />
-      )}
+        {/* Featured Section - scroll on mobile, grid on desktop */}
+        {!activeDate && featuredEvents.length > 0 && (
+          <>
+            {/* Mobile: horizontal scroll */}
+            <div className="lg:hidden">
+              <EventSection
+                title={labels.featuredTitle}
+                events={featuredEvents.map(toEventCardEvent)}
+                variant="featured"
+                layout="scroll"
+                seeAllHref={buildSeeAllUrl(`/${locale}/events?featured=true`)}
+                onEventClick={handleEventClick}
+                onWatchlist={handleWatchlist}
+                watchlistedIds={watchlistedIds}
+                labels={labels.eventSection}
+              />
+            </div>
+            {/* Desktop: grid layout */}
+            <MaxWidthContainer className="hidden lg:block">
+              <EventSection
+                title={labels.featuredTitle}
+                events={featuredEvents.map(toEventCardEvent)}
+                variant="featured"
+                layout="grid"
+                gridColumns={3}
+                seeAllHref={buildSeeAllUrl(`/${locale}/events?featured=true`)}
+                onEventClick={handleEventClick}
+                onWatchlist={handleWatchlist}
+                watchlistedIds={watchlistedIds}
+                labels={labels.eventSection}
+              />
+            </MaxWidthContainer>
+          </>
+        )}
 
-      {/* Upcoming/Filtered Events Section */}
-      <EventSection
-        title={getUpcomingTitle()}
-        events={upcomingCards}
-        variant="default"
-        seeAllHref={buildSeeAllUrl(`/${locale}/events`)}
-        onEventClick={handleEventClick}
-        onWatchlist={handleWatchlist}
-        watchlistedIds={watchlistedIds}
-        labels={labels.eventSection}
-        isLoading={false}
-      />
+        {/* Upcoming/Filtered Events Section */}
+        <>
+          {/* Mobile: horizontal scroll */}
+          <div className="lg:hidden">
+            <EventSection
+              title={getUpcomingTitle()}
+              events={upcomingCards}
+              variant="default"
+              layout="scroll"
+              seeAllHref={buildSeeAllUrl(`/${locale}/events`)}
+              onEventClick={handleEventClick}
+              onWatchlist={handleWatchlist}
+              watchlistedIds={watchlistedIds}
+              labels={labels.eventSection}
+              isLoading={false}
+            />
+          </div>
+          {/* Desktop: grid layout */}
+          <MaxWidthContainer className="hidden lg:block">
+            <EventSection
+              title={getUpcomingTitle()}
+              events={upcomingCards}
+              variant="default"
+              layout="grid"
+              gridColumns={4}
+              seeAllHref={buildSeeAllUrl(`/${locale}/events`)}
+              onEventClick={handleEventClick}
+              onWatchlist={handleWatchlist}
+              watchlistedIds={watchlistedIds}
+              labels={labels.eventSection}
+              isLoading={false}
+            />
+          </MaxWidthContainer>
+        </>
+      </main>
 
+      {/* Desktop Footer */}
+      <Footer />
+
+      {/* Mobile Bottom Navigation */}
       <BottomNav
         activeTab={activeTab}
         onNavigate={handleNavigate}

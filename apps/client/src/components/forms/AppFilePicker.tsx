@@ -1,8 +1,7 @@
 "use client"
 
 import { useRef, useState } from "react"
-import { Cross1Icon } from "@radix-ui/react-icons"
-import { PaperclipIcon } from "lucide-react"
+import { PaperclipIcon, X } from "lucide-react"
 import { useTranslations } from "next-intl"
 
 import { removeThisWhenYouNeedMe } from "@/lib/general-helpers"
@@ -139,7 +138,7 @@ export function AppFilePicker({
                       removeSelectedFile()
                     }}
                   >
-                    <Cross1Icon />
+                    <X className="h-4 w-4" />
                   </button>
                 </Tooltip>
               </div>

@@ -56,6 +56,10 @@ export interface SearchResultsProps {
   isLoadingMore?: boolean
   /** Active filters to display */
   activeFilters?: SearchFilter[]
+  /** Layout mode: "list" (vertical stack), "grid" (responsive grid) */
+  layout?: "list" | "grid"
+  /** Number of grid columns (only for grid layout) */
+  gridColumns?: 2 | 3 | 4
   /** Called when user scrolls to bottom */
   onLoadMore?: () => void
   /** Called when user removes a filter */
@@ -106,6 +110,8 @@ export function SearchResults({
   hasMore = false,
   isLoadingMore = false,
   activeFilters = [],
+  layout = "list",
+  gridColumns = 3,
   onLoadMore,
   onRemoveFilter,
   onEventClick,
@@ -116,6 +122,13 @@ export function SearchResults({
   className,
 }: SearchResultsProps) {
   const loadMoreRef = React.useRef<HTMLDivElement>(null)
+
+  // Grid column classes
+  const gridColsClass = {
+    2: "grid-cols-1 sm:grid-cols-2",
+    3: "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3",
+    4: "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4",
+  }[gridColumns]
 
   // Intersection observer for infinite scroll
   React.useEffect(() => {
@@ -201,8 +214,12 @@ export function SearchResults({
         </div>
       )}
 
-      {/* Results list */}
-      <div className="space-y-3">
+      {/* Results - list or grid layout */}
+      <div
+        className={cn(
+          layout === "list" ? "space-y-3" : `grid gap-4 ${gridColsClass}`
+        )}
+      >
         {results.map((event) => (
           <EventCard
             key={event.id}

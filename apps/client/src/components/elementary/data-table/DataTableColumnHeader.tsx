@@ -1,12 +1,7 @@
 "use client"
 
-import {
-  ArrowDownIcon,
-  ArrowUpIcon,
-  CaretSortIcon,
-} from "@radix-ui/react-icons"
 import { Column } from "@tanstack/react-table"
-import { ArrowUpDown } from "lucide-react"
+import { ArrowDown, ArrowUp, ArrowUpDown, ChevronsUpDown } from "lucide-react"
 import { useTranslations } from "next-intl"
 
 import { removeThisWhenYouNeedMe } from "@/lib/general-helpers"
@@ -64,22 +59,22 @@ export function DataTableColumnHeader<TData, TValue>({
           >
             <span>{title}</span>
             {column.getIsSorted() === "desc" ? (
-              <ArrowDownIcon className="ml-2 size-4" />
+              <ArrowDown className="ml-2 size-4" />
             ) : column.getIsSorted() === "asc" ? (
-              <ArrowUpIcon className="ml-2 size-4" />
+              <ArrowUp className="ml-2 size-4" />
             ) : (
-              <CaretSortIcon className="ml-2 size-4" />
+              <ChevronsUpDown className="ml-2 size-4" />
             )}
           </Button>
         </DropdownMenuTrigger>
 
         <DropdownMenuContent align="start">
           <DropdownMenuItem onClick={() => column.toggleSorting(false)}>
-            <ArrowUpIcon className="text-muted-foreground/70 mr-2 size-3.5" />
+            <ArrowUp className="text-muted-foreground/70 mr-2 size-3.5" />
             {t("ascending")}
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => column.toggleSorting(true)}>
-            <ArrowDownIcon className="text-muted-foreground/70 mr-2 size-3.5" />
+            <ArrowDown className="text-muted-foreground/70 mr-2 size-3.5" />
             {t("descending")}
           </DropdownMenuItem>
           {/* <DropdownMenuSeparator />

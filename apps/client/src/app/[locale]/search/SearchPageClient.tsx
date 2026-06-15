@@ -5,9 +5,11 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { CategoryTabs } from "@/features/events/components"
 import { RegionCitySelector } from "@/features/events/components/RegionCitySelector"
 import { mapTypeToCategory } from "@/features/events/utils"
+import { FilterSidebar } from "@/features/search/components/FilterSidebar"
 import { SearchBar } from "@/features/search/components/SearchBar"
 import { SearchResults } from "@/features/search/components/SearchResults"
 import { ArrowLeft, SlidersHorizontal } from "lucide-react"
+import { useTranslations } from "next-intl"
 
 import type { CategoryType } from "@/features/events/components"
 import type { RegionOption } from "@/features/events/components/RegionCitySelector"
@@ -16,6 +18,11 @@ import type { StrapiEvent } from "@/features/events/types/strapi.types"
 import type { SearchFilter } from "@/features/search/components/SearchResults"
 
 import { cn } from "@/lib/utils"
+import { DesktopNav } from "@/components/layout/DesktopNav"
+import { Footer } from "@/components/layout/Footer"
+import { MaxWidthContainer } from "@/components/layout/MaxWidthContainer"
+import { TwoColumnLayout } from "@/components/layout/TwoColumnLayout"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
   Sheet,
@@ -28,6 +35,14 @@ import {
 // Local storage key for recent searches
 const RECENT_SEARCHES_KEY = "tiween_recent_searches"
 const MAX_RECENT_SEARCHES = 5
+
+/**
+ * API response type for search endpoint
+ */
+interface SearchApiResponse {
+  events: StrapiEvent[]
+  total: number
+}
 
 interface SearchResult {
   events: StrapiEvent[]
@@ -82,6 +97,7 @@ export function SearchPageClient({
   const router = useRouter()
   const searchParams = useSearchParams()
   const isRTL = locale === "ar"
+  const t = useTranslations("search")
 
   // State
   const [query, setQuery] = React.useState(initialQuery)
@@ -153,7 +169,7 @@ export function SearchPageClient({
         const response = await fetch(
           `/api/search?${params.toString()}&locale=${locale}&limit=20`
         )
-        const data = await response.json()
+        const data: SearchApiResponse = await response.json()
 
         const events = (data.events || []).map(toEventCardEvent)
         setResults(events)
@@ -210,7 +226,7 @@ export function SearchPageClient({
       const response = await fetch(
         `/api/search?${params.toString()}&locale=${locale}&limit=20`
       )
-      const data = await response.json()
+      const data: SearchApiResponse = await response.json()
 
       const newEvents = (data.events || []).map(toEventCardEvent)
       setResults((prev) => [...prev, ...newEvents])
@@ -261,15 +277,14 @@ export function SearchPageClient({
   // Build active filters array for display
   const activeFilters: SearchFilter[] = []
   if (category) {
-    const categoryLabels: Record<string, string> = {
-      cinema: "Cinéma",
-      theater: "Théâtre",
-      music: "Musique",
-      exhibition: "Expositions",
-    }
+    const categoryKey = category as
+      | "cinema"
+      | "theater"
+      | "music"
+      | "exhibition"
     activeFilters.push({
       key: "category",
-      label: categoryLabels[category] || category,
+      label: t(`categories.${categoryKey}`),
     })
   }
   if (cityId) {
@@ -287,11 +302,24 @@ export function SearchPageClient({
     if (key === "city") setCityId(undefined)
   }
 
+  // Handle clear all filters
+  const handleClearAllFilters = () => {
+    setCategory(undefined)
+    setCityId(undefined)
+  }
+
+  // Calculate filter count
+  const filterCount =
+    (category && category !== "all" ? 1 : 0) + (cityId ? 1 : 0)
+
   return (
     <div className="bg-background min-h-screen">
+      {/* Desktop Navigation */}
+      <DesktopNav />
+
       {/* Sticky Header */}
-      <header className="bg-background/95 sticky top-0 z-40 border-b backdrop-blur-sm">
-        <div className="mx-auto max-w-3xl px-4 py-3">
+      <header className="bg-background/95 sticky top-0 z-40 border-b backdrop-blur-sm lg:top-16">
+        <MaxWidthContainer className="py-3">
           {/* Back button and search bar */}
           <div className="flex items-center gap-3">
             <Button
@@ -299,7 +327,7 @@ export function SearchPageClient({
               size="icon"
               onClick={() => router.back()}
               className="shrink-0"
-              aria-label="Retour"
+              aria-label={t("back")}
             >
               <ArrowLeft className={cn("h-5 w-5", isRTL && "rotate-180")} />
             </Button>
@@ -316,34 +344,47 @@ export function SearchPageClient({
               className="flex-1"
             />
 
-            {/* Mobile Filters Sheet */}
+            {/* Mobile Filters Sheet - hidden on desktop */}
             <Sheet>
               <SheetTrigger asChild>
-                <Button variant="outline" size="icon" className="shrink-0">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="relative shrink-0 lg:hidden"
+                >
                   <SlidersHorizontal className="h-5 w-5" />
+                  {filterCount > 0 && (
+                    <Badge
+                      variant="destructive"
+                      className="absolute -end-1 -top-1 flex h-5 w-5 items-center justify-center p-0 text-xs"
+                    >
+                      {filterCount}
+                    </Badge>
+                  )}
                 </Button>
               </SheetTrigger>
               <SheetContent side={isRTL ? "left" : "right"}>
                 <SheetHeader>
-                  <SheetTitle>Filtres</SheetTitle>
+                  <SheetTitle>{t("filters")}</SheetTitle>
                 </SheetHeader>
                 <div className="mt-6 space-y-6">
                   {/* Category filter */}
                   <div>
                     <h3 className="text-foreground mb-3 text-sm font-medium">
-                      Catégorie
+                      {t("category")}
                     </h3>
                     <CategoryTabs
-                      activeCategory={category}
-                      onCategoryChange={handleCategoryChange}
-                      variant="pills"
+                      activeCategory={category || "all"}
+                      onCategoryChange={(cat) =>
+                        handleCategoryChange(cat === "all" ? undefined : cat)
+                      }
                     />
                   </div>
 
                   {/* Location filter */}
                   <div>
                     <h3 className="text-foreground mb-3 text-sm font-medium">
-                      Ville
+                      {t("city")}
                     </h3>
                     <RegionCitySelector
                       regions={regions}
@@ -351,54 +392,131 @@ export function SearchPageClient({
                       onCityChange={handleCityChange}
                     />
                   </div>
+
+                  {/* Clear all button */}
+                  {filterCount > 0 && (
+                    <Button
+                      variant="outline"
+                      onClick={handleClearAllFilters}
+                      className="w-full"
+                    >
+                      {t("clearFilters", { count: filterCount })}
+                    </Button>
+                  )}
                 </div>
               </SheetContent>
             </Sheet>
           </div>
-        </div>
+        </MaxWidthContainer>
       </header>
 
       {/* Main Content */}
-      <main className="mx-auto max-w-3xl px-4 py-6">
-        {/* Show popular searches when no query */}
-        {!debouncedQuery && !isLoading && (
-          <div className="space-y-4">
-            <h2 className="text-foreground text-lg font-medium">
-              Recherches populaires
-            </h2>
-            <div className="flex flex-wrap gap-2">
-              {popularSearches.map((term) => (
-                <Button
-                  key={term}
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleSearch(term)}
-                  className="rounded-full"
-                >
-                  {term}
-                </Button>
-              ))}
+      <MaxWidthContainer className="py-6">
+        {/* Mobile: Full-width content */}
+        <div className="lg:hidden">
+          {/* Show popular searches when no query */}
+          {!debouncedQuery && !isLoading && (
+            <div className="space-y-4">
+              <h2 className="text-foreground text-lg font-medium">
+                {t("popularSearches")}
+              </h2>
+              <div className="flex flex-wrap gap-2">
+                {popularSearches.map((term) => (
+                  <Button
+                    key={term}
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleSearch(term)}
+                    className="rounded-full"
+                  >
+                    {term}
+                  </Button>
+                ))}
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Search results */}
-        {(debouncedQuery || isLoading) && (
-          <SearchResults
-            query={debouncedQuery}
-            results={results}
-            totalCount={totalCount}
-            isLoading={isLoading}
-            hasMore={hasMore}
-            isLoadingMore={isLoadingMore}
-            activeFilters={activeFilters}
-            onLoadMore={handleLoadMore}
-            onRemoveFilter={handleRemoveFilter}
-            onEventClick={handleEventClick}
-            onClear={handleClear}
-          />
-        )}
-      </main>
+          {/* Search results */}
+          {(debouncedQuery || isLoading) && (
+            <SearchResults
+              query={debouncedQuery}
+              results={results}
+              totalCount={totalCount}
+              isLoading={isLoading}
+              hasMore={hasMore}
+              isLoadingMore={isLoadingMore}
+              activeFilters={activeFilters}
+              onLoadMore={handleLoadMore}
+              onRemoveFilter={handleRemoveFilter}
+              onEventClick={handleEventClick}
+              onClear={handleClear}
+            />
+          )}
+        </div>
+
+        {/* Desktop: Two-column layout with sidebar */}
+        <div className="hidden lg:block">
+          <TwoColumnLayout
+            sidebarWidth={3}
+            sidebarPosition="start"
+            sidebar={
+              <FilterSidebar
+                category={category}
+                onCategoryChange={handleCategoryChange}
+                cityId={cityId}
+                onCityChange={handleCityChange}
+                regions={regions}
+                filterCount={filterCount}
+                onClearAll={handleClearAllFilters}
+              />
+            }
+          >
+            {/* Show popular searches when no query */}
+            {!debouncedQuery && !isLoading && (
+              <div className="space-y-4">
+                <h2 className="text-foreground text-xl font-medium">
+                  {t("popularSearches")}
+                </h2>
+                <div className="flex flex-wrap gap-2">
+                  {popularSearches.map((term) => (
+                    <Button
+                      key={term}
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleSearch(term)}
+                      className="rounded-full"
+                    >
+                      {term}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Search results in grid */}
+            {(debouncedQuery || isLoading) && (
+              <SearchResults
+                query={debouncedQuery}
+                results={results}
+                totalCount={totalCount}
+                isLoading={isLoading}
+                hasMore={hasMore}
+                isLoadingMore={isLoadingMore}
+                activeFilters={activeFilters}
+                onLoadMore={handleLoadMore}
+                onRemoveFilter={handleRemoveFilter}
+                onEventClick={handleEventClick}
+                onClear={handleClear}
+                layout="grid"
+                gridColumns={3}
+              />
+            )}
+          </TwoColumnLayout>
+        </div>
+      </MaxWidthContainer>
+
+      {/* Desktop Footer */}
+      <Footer />
     </div>
   )
 }

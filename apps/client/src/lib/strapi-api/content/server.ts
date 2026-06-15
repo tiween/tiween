@@ -1,7 +1,6 @@
 import "server-only"
 
 import { cache } from "react"
-
 import { mapCategoryToType } from "@/features/events/utils"
 
 import type { StrapiEvent } from "@/features/events/types"
