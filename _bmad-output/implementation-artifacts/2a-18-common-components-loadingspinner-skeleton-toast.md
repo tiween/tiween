@@ -1,6 +1,6 @@
 # Story 2A.18: Common Components - LoadingSpinner, Skeleton, Toast
 
-Status: ready-for-dev
+Status: review
 
 ---
 
@@ -46,36 +46,36 @@ So that the app provides feedback during loading and operations.
 
 ## Tasks / Subtasks
 
-- [ ] **Task 1: Create LoadingSpinner Component** (AC: #1, #2)
+- [x] **Task 1: Create LoadingSpinner Component** (AC: #1, #2)
 
-  - [ ] 1.1 Create directory `src/components/common/LoadingSpinner/`
-  - [ ] 1.2 Define LoadingSpinnerProps interface
-  - [ ] 1.3 Implement spinning animation
-  - [ ] 1.4 Add size variants (sm, md, lg)
-  - [ ] 1.5 Add optional label text
-  - [ ] 1.6 Add centered positioning option
+  - [x] 1.1 Create directory `src/components/common/LoadingSpinner/`
+  - [x] 1.2 Define LoadingSpinnerProps interface
+  - [x] 1.3 Implement spinning animation
+  - [x] 1.4 Add size variants (sm, md, lg)
+  - [x] 1.5 Add optional label text
+  - [x] 1.6 Add centered positioning option
 
-- [ ] **Task 2: Create Skeleton Presets** (AC: #3)
+- [x] **Task 2: Create Skeleton Presets** (AC: #3)
 
-  - [ ] 2.1 Create directory `src/components/common/Skeleton/`
-  - [ ] 2.2 Create EventCardSkeleton
-  - [ ] 2.3 Create FilmHeroSkeleton
-  - [ ] 2.4 Create TicketCardSkeleton
-  - [ ] 2.5 Create ListSkeleton with configurable rows
+  - [x] 2.1 Create directory `src/components/common/Skeleton/`
+  - [x] 2.2 Create EventCardSkeleton
+  - [x] 2.3 Create FilmHeroSkeleton
+  - [x] 2.4 Create TicketCardSkeleton
+  - [x] 2.5 Create ListSkeleton with configurable rows
 
-- [ ] **Task 3: Configure Toast Theme** (AC: #4)
+- [x] **Task 3: Configure Toast Theme** (AC: #4)
 
-  - [ ] 3.1 Extend shadcn Toast with Tiween colors
-  - [ ] 3.2 Configure success variant (green)
-  - [ ] 3.3 Configure error variant (red)
-  - [ ] 3.4 Configure warning variant (yellow)
-  - [ ] 3.5 Configure info variant (blue)
-  - [ ] 3.6 Set responsive positioning
+  - [x] 3.1 Extend shadcn Toast with Tiween colors
+  - [x] 3.2 Configure success variant (green)
+  - [x] 3.3 Configure error variant (red)
+  - [x] 3.4 Configure warning variant (yellow)
+  - [x] 3.5 Configure info variant (blue)
+  - [x] 3.6 Set responsive positioning
 
-- [ ] **Task 4: Storybook Stories** (AC: #5)
-  - [ ] 4.1 Create LoadingSpinner.stories.tsx
-  - [ ] 4.2 Create Skeleton.stories.tsx with all presets
-  - [ ] 4.3 Create Toast.stories.tsx with all variants
+- [x] **Task 4: Storybook Stories** (AC: #5)
+  - [x] 4.1 Create LoadingSpinner.stories.tsx
+  - [x] 4.2 Create Skeleton.stories.tsx with all presets
+  - [x] 4.3 Create Toast.stories.tsx with all variants
 
 ---
 
@@ -172,16 +172,41 @@ apps/client/src/components/common/
 
 ### Agent Model Used
 
-{{agent_model_name_version}}
+claude-fable-5 (Fable 5)
+
+### Debug Log
+
+- 2026-06-11: Resumed story marked `in-progress` in sprint-status but with code already implemented and unchecked tasks. Audited implementation against all ACs, validated, and finalized story bookkeeping.
+- `yarn install` was required at monorepo root (node_modules missing after the Portless/shared-types refactor commit `97e329d`).
+- Full `yarn typecheck` reports 123 pre-existing errors, ALL in unrelated files (`src/lib/strapi-api/content/*`, `src/features/*`, map/geolocation libs) caused by the creative-works data model redesign and shared-types package deletion. **Zero type errors in any file owned by this story.** These pre-existing failures are out of scope here and should be addressed in track 2B follow-up work.
+- ESLint on story files: 0 errors. Fixed 1 warning (`react/no-unescaped-entities` in `toast.stories.tsx`). Remaining warning in `ErrorBoundary.stories.tsx` belongs to story 2A.17.
+- No unit-test infrastructure is configured in `apps/client` (no test script, no vitest config); per epic 2A pattern, Storybook stories are the validation deliverable for visual components (AC #5), and no test tasks exist in this story.
+
+### Completion Notes
+
+- **LoadingSpinner** (`components/common/LoadingSpinner/`): sm/md/lg sizes, optional label with size-matched typography, `centered` and bonus `fullPage` modes, accessible (role=status, aria-busy, sr-only fallback label), i18n-ready via `labels` prop. Satisfies AC #1, #2.
+- **Skeleton presets** (`components/common/Skeleton/`): `ListSkeleton` (configurable rows), `FilmHeroSkeleton`, `TicketCardSkeleton` created locally; `EventCardSkeleton` lives in `features/events/components/EventCard/` (co-located with EventCard per project file-organization rules) and is re-exported from the Skeleton barrel for the API required by AC #3.
+- **Toast** (`components/ui/toast.tsx`): CVA variants success (green), info (blue), warning (yellow), destructive/error (red) with Tiween theme tokens; viewport positioned bottom-center with bottom-nav clearance (`pb-20`) on mobile, top-right on desktop (`sm:` breakpoint). Satisfies AC #4.
+- **Storybook**: LoadingSpinner (9 stories incl. RTL), Skeleton (16 stories covering all 4 presets + base), Toast (8 stories covering all variants, action, interactive demo, RTL). Satisfies AC #5.
+- All exports wired through `components/common/index.ts` barrel.
 
 ### File List
 
-- `apps/client/src/components/common/LoadingSpinner/LoadingSpinner.tsx` (to create)
-- `apps/client/src/components/common/LoadingSpinner/LoadingSpinner.stories.tsx` (to create)
-- `apps/client/src/components/common/LoadingSpinner/index.ts` (to create)
-- `apps/client/src/components/common/Skeleton/EventCardSkeleton.tsx` (to create)
-- `apps/client/src/components/common/Skeleton/FilmHeroSkeleton.tsx` (to create)
-- `apps/client/src/components/common/Skeleton/TicketCardSkeleton.tsx` (to create)
-- `apps/client/src/components/common/Skeleton/ListSkeleton.tsx` (to create)
-- `apps/client/src/components/common/Skeleton/Skeleton.stories.tsx` (to create)
-- `apps/client/src/components/common/Skeleton/index.ts` (to create)
+- `apps/client/src/components/common/LoadingSpinner/LoadingSpinner.tsx` (created)
+- `apps/client/src/components/common/LoadingSpinner/LoadingSpinner.stories.tsx` (created)
+- `apps/client/src/components/common/LoadingSpinner/index.ts` (created)
+- `apps/client/src/components/common/Skeleton/FilmHeroSkeleton.tsx` (created)
+- `apps/client/src/components/common/Skeleton/TicketCardSkeleton.tsx` (created)
+- `apps/client/src/components/common/Skeleton/ListSkeleton.tsx` (created)
+- `apps/client/src/components/common/Skeleton/Skeleton.stories.tsx` (created)
+- `apps/client/src/components/common/Skeleton/index.ts` (created)
+- `apps/client/src/components/common/index.ts` (modified — barrel exports)
+- `apps/client/src/components/ui/toast.tsx` (modified — Tiween variants + responsive viewport)
+- `apps/client/src/components/ui/toaster.tsx` (created)
+- `apps/client/src/components/ui/use-toast.ts` (created)
+- `apps/client/src/components/ui/toast.stories.tsx` (created; lint warning fixed)
+- `apps/client/src/features/events/components/EventCard/EventCardSkeleton.tsx` (referenced — re-exported via Skeleton barrel)
+
+### Change Log
+
+- 2026-06-11: Audited existing implementation against all 5 ACs, fixed `react/no-unescaped-entities` lint warning in `toast.stories.tsx`, completed task checkboxes, Dev Agent Record and File List; story confirmed ready for review.

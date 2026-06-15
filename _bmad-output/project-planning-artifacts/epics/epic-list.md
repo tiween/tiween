@@ -1,6 +1,14 @@
 # Epic List
 
-## Epic 1: Project Foundation & Infrastructure
+> **Phase Tags:**
+>
+> - **[MVP]** = Relaunch scope (cinema showtimes)
+> - **[MVP-partial]** = Some stories in MVP, others deferred
+> - **[Phase 2]** = Post-relaunch features
+
+---
+
+## Epic 1: Project Foundation & Infrastructure [MVP]
 
 Development teams have a fully configured monorepo with Next.js 16.1, Strapi v5, and all tooling ready for parallel development.
 
@@ -20,94 +28,137 @@ Development teams have a fully configured monorepo with Next.js 16.1, Strapi v5,
 
 ---
 
-## Epic 2A: Component Library & Design System (PARALLEL TRACK A)
+## Epic 2A: Component Library & Design System (PARALLEL TRACK A) [MVP-partial]
 
 Complete UI component library with Storybook stories, ready for integration. Designers and developers can review all components with dummy data.
 
-**Scope:**
+**MVP Scope (Discovery + Layout only):**
 
 - **Layout Components:** BottomNav, Header, PageContainer, StickyFilters
-- **Discovery Components:** EventCard, FilmHero, CategoryTabs, DateSelector, VenueCard, SearchBar, SearchResults
-- **Ticketing Components:** ShowtimeButton, SeatSelector, TicketQR, QuantitySelector, OrderSummary, PaymentForm
-- **User Components:** WatchlistButton, LoginForm, RegisterForm, ProfileForm, SocialLogin
+- **Discovery Components:** EventCard, FilmHero, CategoryTabs, DateSelector, VenueCard, SearchBar, SearchResults, FilmCard
 - **Common Components:** EmptyState, ErrorBoundary, LoadingSpinner, Skeleton, Toast, Badge
-- **Scanner Components:** TicketScanner, ValidationResult, AttendanceCounter
+- **User Components:** LoginForm, RegisterForm, ProfileForm, SocialLogin
 - All with `.stories.tsx` files and dummy data
 
-**FRs covered:** UI foundation for FR1-FR66 (all components needed for features)
+**Phase 2 Scope (Deferred):**
+
+- **Ticketing Components:** ShowtimeButton, SeatSelector, TicketQR, QuantitySelector, OrderSummary, PaymentForm
+- **User Components:** WatchlistButton
+- **Scanner Components:** TicketScanner, ValidationResult, AttendanceCounter
+
+**FRs covered:** UI foundation for MVP discovery features
 **NFRs addressed:** NFR-A1 to NFR-A9 (Accessibility), NFR-P3, NFR-P4 (Performance)
 
 ---
 
-## Epic 2B: Strapi v5 Migration & Backend Foundation (PARALLEL TRACK B)
+## Epic 2B: Strapi v5 Migration & Backend Foundation (PARALLEL TRACK B) [MVP-partial]
 
-Fully migrated Strapi v5 backend with all content-types, plugins, and data ready for frontend integration.
+Fully migrated Strapi v5 backend with core content-types ready for frontend integration.
 
-**Scope:**
+**MVP Scope:**
 
 - Strapi v4 → v5 upgrade
-- Content-type recreation/migration:
-  - Event, Movie, CreativeWork, Person
-  - Venue (formerly Medium), Showtime
-  - TicketOrder, Ticket, UserWatchlist
-  - Review, VenueSubscription
+- Core content-type migration:
+  - CreativeWork (films), Person, Genre
+  - Venue, Showtime
+  - Region, City, Category
 - Events Manager plugin recreation for v5
-- User permissions extension (B2C user, B2B venue manager, Admin roles)
+- Basic user permissions (public, authenticated, admin)
 - Data migration scripts from legacy Strapi v4
-- Redis integration (sessions, caching, rate limiting)
+- Redis integration (sessions, caching)
 - ImageKit provider configuration
-- Resend email configuration
-- API documentation (OpenAPI)
+- Brevo email configuration (basic)
+- Database seeding for development
 
-**FRs covered:** FR57, FR58 (media handling); Backend foundation for FR32-FR53
-**NFRs addressed:** NFR-S1 to NFR-S10 (Security), NFR-SC1 to NFR-SC6 (Scalability), NFR-R5 to NFR-R7 (Backups)
+**Phase 2 Scope (Deferred):**
+
+- Ticketing content-types: TicketOrder, Ticket
+- User content-types: UserWatchlist, UserPreferences
+- B2B venue manager role configuration
+- Advanced permissions (venue data isolation)
+
+**FRs covered:** FR57, FR58 (media handling); Backend foundation for discovery
+**NFRs addressed:** NFR-S1 to NFR-S10 (Security), NFR-SC1 to NFR-SC6 (Scalability)
 
 ---
 
-## Epic 3: Event Discovery & Browsing
+## Epic 2C: Plugin Architecture Decomposition (TRACK B continuation) [MVP-partial → Phase 2 gate]
 
-Users can browse, filter, and search all cultural events across Tunisia without creating an account.
+The Strapi backend is decomposed into clean bounded-context plugins per the
+architecture amendment (2026-06-12): new `venues` plugin, single catalog of
+record in `creative-works`, scheduling-only `events-manager`, transactional
+`ticketing`. Future `payments` plugin lands with Epic 6.
 
 **Scope:**
 
-- Homepage with curated event listings ("Ce soir", "Cette semaine", featured)
-- Category filtering (Cinéma, Théâtre, Courts-métrages, Musique, Expositions)
-- Date filtering (Aujourd'hui, Demain, Ce weekend, Custom range)
-- Region/City filtering (Greater Tunis, Sfax, Sousse, etc.)
-- Venue filtering
-- Keyword search with Algolia integration
-- Event detail pages with full information
-- Map integration for venue location (Leaflet/Mapbox)
-- Geolocation "near me" filtering
+- Extract `venues` plugin from events-manager (+ absorb entity-properties types) — gates Epic 7
+- Catalog collision data audit (person/genre overlap)
+- Move catalog types (movie, play, person, character, credit) into creative-works
+- Ticketing Unit of Work transaction + atomic inventory facade — gates Epic 6
+- Consolidation sweep (subEventStrategy map, public-api facades, shared kit, delete entity-properties)
+
+**Sequencing:** 2C.2 gates 2C.3; 2C.4 may precede 2C.3 (never concurrent); the
+events-manager admin UI rebuild (former OpenSpec change, retired) is re-planned
+after 2C.3 against post-move UIDs.
+
+**FRs covered:** structural enabler for FR24–31 (purchase integrity) and FR32–46 (B2B isolation)
+**NFRs addressed:** NFR-S5 (venue data isolation), payment/financial integrity
+
+---
+
+## Epic 3: Event Discovery & Browsing [MVP]
+
+Users can browse and search cinema showtimes across Tunisia without creating an account.
+
+**MVP Scope (Cinema Focus):**
+
+- Homepage with movie listings ("À l'affiche", "Prochainement")
+- Date filtering (Aujourd'hui, Demain, specific date)
+- Cinema/venue filtering
+- Region filtering (Greater Tunis)
+- Film detail pages with synopsis, trailer, cast, duration
+- Venue detail pages with location, contact, map
+- Keyword search (film titles)
 - Share functionality (Web Share API)
 - SEO optimization (SSR, structured data)
 
-**FRs covered:** FR1, FR2, FR3, FR4, FR5, FR6, FR7, FR8, FR9, FR10, FR56
+**Phase 2 Scope (Deferred):**
+
+- Category filtering (theater, concerts, exhibitions)
+- Regional expansion (Sfax, Sousse)
+- Geolocation "near me" filtering
+
+**FRs covered:** FR1, FR2, FR3, FR4, FR5, FR7, FR10
 **NFRs addressed:** NFR-P1, NFR-P2, NFR-P5, NFR-P9 (Performance)
 
 ---
 
-## Epic 4: User Authentication & Profiles
+## Epic 4: User Authentication & Profiles [MVP-partial]
 
-Users can register, login, manage their profiles, and set preferences for language and region.
+Users can register, login, and set basic preferences.
 
-**Scope:**
+**MVP Scope:**
 
 - Email/password registration with validation
 - Social login (Google, Facebook) via NextAuth.js
 - Password reset flow with email
-- Profile management (name, email, avatar)
+- Basic profile management (name, email)
 - Language preference setting (AR/FR/EN)
-- Default region setting for discovery
-- Guest checkout capability (email-only for ticket purchase)
+- Default region setting
 - Session management with Redis
 
-**FRs covered:** FR11, FR12, FR13, FR14, FR15, FR16, FR18
+**Phase 2 Scope (Deferred):**
+
+- Guest checkout capability
+- Purchase history view
+- Advanced profile features
+
+**FRs covered:** FR11, FR12, FR13, FR14, FR15, FR16
 **NFRs addressed:** NFR-S2, NFR-S4, NFR-S8 (Security), NFR-IN4 (Social OAuth)
 
 ---
 
-## Epic 5: Watchlist & Personalization
+## Epic 5: Watchlist & Personalization [Phase 2]
 
 Authenticated users can save events to their watchlist, access it offline, and sync across devices.
 
@@ -125,7 +176,7 @@ Authenticated users can save events to their watchlist, access it offline, and s
 
 ---
 
-## Epic 6: B2C Ticketing & Purchases
+## Epic 6: B2C Ticketing & Purchases [Phase 2]
 
 Users can purchase tickets for events, receive QR codes, and access them offline on event night.
 
@@ -137,20 +188,21 @@ Users can purchase tickets for events, receive QR codes, and access them offline
   - e-Dinar, Sobflous, D17, Flouci (local)
   - Visa, Mastercard (international)
 - QR code ticket generation (HMAC-SHA256 signed)
-- Email ticket delivery via Resend
+- Email ticket delivery via Brevo
 - In-app ticket viewing ("Mes Billets")
 - Offline QR access (IndexedDB)
 - Purchase confirmation screen with celebration
 - Purchase history view
 - Real-time ticket availability (WebSocket/Socket.io)
 - Checkout flow (3 steps max)
+- Guest checkout capability
 
-**FRs covered:** FR17, FR24, FR25, FR26, FR27, FR28, FR29, FR30, FR31, FR64
-**NFRs addressed:** NFR-S3, NFR-S7 (Payment security, QR signing), NFR-P7, NFR-P8 (Performance), NFR-R2 (Payment success), NFR-IN1, NFR-IN3 (Integration)
+**FRs covered:** FR17, FR18, FR24, FR25, FR26, FR27, FR28, FR29, FR30, FR31, FR64
+**NFRs addressed:** NFR-S3, NFR-S7 (Payment security, QR signing), NFR-P7, NFR-P8 (Performance)
 
 ---
 
-## Epic 7: B2B Venue Management
+## Epic 7: B2B Venue Management [Phase 2]
 
 Venue managers can register, manage their venue profile, create/edit events, configure ticketing, and view analytics via Strapi Admin.
 
@@ -172,7 +224,7 @@ Venue managers can register, manage their venue profile, create/edit events, con
 
 ---
 
-## Epic 8: B2B Ticket Validation (Scanner)
+## Epic 8: B2B Ticket Validation (Scanner) [Phase 2]
 
 Venue staff can scan and validate tickets at event entry, track attendance, and operate with intermittent connectivity.
 
@@ -194,45 +246,52 @@ Venue staff can scan and validate tickets at event entry, track attendance, and 
 
 ---
 
-## Epic 9: Platform Administration
+## Epic 9: Platform Administration [MVP-partial]
 
-Admins can moderate venues, manage content quality, view platform analytics, and manage users via Strapi Admin.
+Admins can manage content and moderate the platform via Strapi Admin.
 
-**Scope:**
+**MVP Scope:**
 
-- Venue approval/rejection workflow with email notifications
-- Manual event creation and editing
-- Event flagging for quality issues
-- Platform-wide analytics dashboard (MAU, transactions, venues)
-- User account management (view, suspend, delete)
+- Manual film/showtime creation and editing
+- Venue information management
 - Content categories management
 - Regions/cities management
-- Admin action audit logging
-- Data quality checks and flagging
 
-**FRs covered:** FR47, FR48, FR49, FR50, FR51, FR52, FR53
-**NFRs addressed:** NFR-S6 (Admin audit logging)
+**Phase 2 Scope (Deferred):**
+
+- Venue approval/rejection workflow
+- Event flagging for quality issues
+- Platform-wide analytics dashboard (MAU, transactions)
+- User account management (view, suspend)
+- Admin action audit logging
+
+**FRs covered:** FR48, FR49, FR50, FR53
+**NFRs addressed:** NFR-S6 (Admin audit logging) - Phase 2
 
 ---
 
-## Epic 10: PWA & Offline Experience
+## Epic 10: PWA & Offline Experience [MVP-partial]
 
-Users can install the app, browse cached content offline, access watchlist and tickets without connectivity, and sync when back online.
+Users can install the app and browse cached content offline.
 
-**Scope:**
+**MVP Scope:**
 
 - PWA manifest configuration (icons, theme, display)
 - Service worker with Serwist
 - Event listing caching strategy (stale-while-revalidate)
-- Offline browsing of cached events
-- Offline watchlist access
-- Offline ticket QR display
-- Background sync for queued actions
-- Install prompts (custom banner, post-purchase)
+- Offline browsing of cached showtimes
+- Install prompts (custom banner)
 - Offline status indicators
 - Graceful degradation messaging
 
-**FRs covered:** FR59, FR60, FR61, FR62, FR63
-**NFRs addressed:** NFR-P6 (Offline load <1s), NFR-R3 (Sync success >95%), NFR-R8 (Graceful degradation)
+**Phase 2 Scope (Deferred):**
+
+- Offline watchlist access
+- Offline ticket QR display
+- Background sync for queued actions
+- Post-purchase install prompts
+
+**FRs covered:** FR59, FR60, FR63
+**NFRs addressed:** NFR-P6 (Offline load <1s), NFR-R8 (Graceful degradation)
 
 ---

@@ -1,4 +1,14 @@
-# Epic 6: B2C Ticketing & Purchases
+# Epic 6: B2C Ticketing & Purchases [Phase 2]
+
+> **Deferred to Phase 2:** Ticketing and payment integration descoped from MVP to focus on cinema showtimes discovery. Will be implemented after validating user demand.
+
+> **Prerequisite (2026-06-12):** Epic 2C.4 (ticketing Unit of Work + atomic
+> inventory facade) must be done before stories 6.1/6.3 start. Story 6.10
+> (real-time availability) builds on the `events-manager.public-api` inventory
+> facade. Konnect integration is implemented as a dedicated `payments` plugin
+> (Anti-Corruption Layer per architecture amendment D5) — created when this
+> epic starts, mirroring tmdb-integration; ticketing calls it only via its
+> `public-api` facade.
 
 Users can purchase tickets for events, receive QR codes, and access them offline on event night.
 
@@ -50,7 +60,7 @@ So that I can complete my purchase with familiar options.
 **When** I select a payment method
 **Then** I can choose from: e-Dinar, Sobflous, D17, Flouci, Carte bancaire
 **And** selecting a method shows appropriate form fields
-**And** payment is processed via Konnect Network API
+**And** payment is processed via Konnect Network API through the dedicated `payments` plugin (`payments.public-api`; webhook at `/payments/konnect/webhook` with signature verification)
 **And** payment completes within 5 seconds (NFR-IN1)
 **And** failed payments show clear error and retry option
 **And** I am not charged if payment fails

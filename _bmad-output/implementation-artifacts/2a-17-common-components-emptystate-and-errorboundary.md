@@ -1,6 +1,6 @@
 # Story 2A.17: Common Components - EmptyState and ErrorBoundary
 
-Status: ready-for-dev
+Status: review
 
 ---
 
@@ -49,36 +49,36 @@ So that the app handles empty data and errors gracefully.
 
 ## Tasks / Subtasks
 
-- [ ] **Task 1: Create EmptyState Component** (AC: #1, #2, #3)
+- [x] **Task 1: Create EmptyState Component** (AC: #1, #2, #3)
 
-  - [ ] 1.1 Create directory `src/components/common/EmptyState/`
-  - [ ] 1.2 Define EmptyStateProps interface
-  - [ ] 1.3 Implement illustration slot
-  - [ ] 1.4 Add title text
-  - [ ] 1.5 Add description text
-  - [ ] 1.6 Add primary CTA button
-  - [ ] 1.7 Add optional secondary action
-  - [ ] 1.8 Create preset variants (noResults, emptyWatchlist, noTickets, noEvents, offline)
+  - [x] 1.1 Create directory `src/components/common/EmptyState/`
+  - [x] 1.2 Define EmptyStateProps interface
+  - [x] 1.3 Implement illustration slot
+  - [x] 1.4 Add title text
+  - [x] 1.5 Add description text
+  - [x] 1.6 Add primary CTA button
+  - [x] 1.7 Add optional secondary action
+  - [x] 1.8 Create preset variants (noResults, emptyWatchlist, noTickets, noEvents, offline)
 
-- [ ] **Task 2: Create ErrorBoundary Component** (AC: #4)
+- [x] **Task 2: Create ErrorBoundary Component** (AC: #4)
 
-  - [ ] 2.1 Create directory `src/components/common/ErrorBoundary/`
-  - [ ] 2.2 Implement React ErrorBoundary class
-  - [ ] 2.3 Create ErrorFallback functional component
-  - [ ] 2.4 Add error message display
-  - [ ] 2.5 Add "Try again" button
-  - [ ] 2.6 Implement onError callback for logging
+  - [x] 2.1 Create directory `src/components/common/ErrorBoundary/`
+  - [x] 2.2 Implement React ErrorBoundary class
+  - [x] 2.3 Create ErrorFallback functional component
+  - [x] 2.4 Add error message display
+  - [x] 2.5 Add "Try again" button
+  - [x] 2.6 Implement onError callback for logging
 
-- [ ] **Task 3: Storybook Stories** (AC: #5)
+- [x] **Task 3: Storybook Stories** (AC: #5)
 
-  - [ ] 3.1 Create EmptyState.stories.tsx
-  - [ ] 3.2 Add stories for each preset variant
-  - [ ] 3.3 Create ErrorBoundary.stories.tsx
-  - [ ] 3.4 Add stories with different error types
+  - [x] 3.1 Create EmptyState.stories.tsx
+  - [x] 3.2 Add stories for each preset variant
+  - [x] 3.3 Create ErrorBoundary.stories.tsx
+  - [x] 3.4 Add stories with different error types
 
-- [ ] **Task 4: RTL Support** (AC: #6)
-  - [ ] 4.1 Center-align content (works in both directions)
-  - [ ] 4.2 Add RTL stories with Arabic text
+- [x] **Task 4: RTL Support** (AC: #6)
+  - [x] 4.1 Center-align content (works in both directions)
+  - [x] 4.2 Add RTL stories with Arabic text
 
 ---
 
@@ -208,15 +208,30 @@ apps/client/src/components/common/
 
 ### Agent Model Used
 
-{{agent_model_name_version}}
+claude-opus-4-5-20251101
+
+### Implementation Notes
+
+- Created EmptyState with 5 preset variants (noResults, emptyWatchlist, noTickets, noEvents, offline) plus "custom" for fully customizable states
+- Each preset has a lucide-react icon and default French labels with i18n support via `labels` prop
+- ErrorBoundary uses React class component (required for getDerivedStateFromError/componentDidCatch lifecycle methods)
+- ErrorFallback is a separate functional component that can be used standalone or with libraries like react-error-boundary
+- Both components support RTL via centered layouts and logical properties
+- Added development-mode stack trace display in ErrorFallback for debugging
 
 ### File List
 
-- `apps/client/src/components/common/EmptyState/EmptyState.tsx` (to create)
-- `apps/client/src/components/common/EmptyState/EmptyState.stories.tsx` (to create)
-- `apps/client/src/components/common/EmptyState/index.ts` (to create)
-- `apps/client/src/components/common/ErrorBoundary/ErrorBoundary.tsx` (to create)
-- `apps/client/src/components/common/ErrorBoundary/ErrorFallback.tsx` (to create)
-- `apps/client/src/components/common/ErrorBoundary/ErrorBoundary.stories.tsx` (to create)
-- `apps/client/src/components/common/ErrorBoundary/index.ts` (to create)
-- `apps/client/src/components/common/index.ts` (to create)
+- `apps/client/src/components/common/EmptyState/EmptyState.tsx` (created)
+- `apps/client/src/components/common/EmptyState/EmptyState.stories.tsx` (created)
+- `apps/client/src/components/common/EmptyState/index.ts` (created)
+- `apps/client/src/components/common/ErrorBoundary/ErrorBoundary.tsx` (created)
+- `apps/client/src/components/common/ErrorBoundary/ErrorFallback.tsx` (created)
+- `apps/client/src/components/common/ErrorBoundary/ErrorBoundary.stories.tsx` (created)
+- `apps/client/src/components/common/ErrorBoundary/index.ts` (created)
+- `apps/client/src/components/common/index.ts` (created)
+
+### Change Log
+
+| Date       | Change                                                            |
+| ---------- | ----------------------------------------------------------------- |
+| 2026-01-26 | Initial implementation of EmptyState and ErrorBoundary components |

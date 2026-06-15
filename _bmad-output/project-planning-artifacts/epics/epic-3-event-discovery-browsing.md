@@ -1,8 +1,10 @@
-# Epic 3: Event Discovery & Browsing
+# Epic 3: Event Discovery & Browsing [MVP]
 
-Users can browse, filter, and search all cultural events across Tunisia without creating an account.
+Users can browse and search cinema showtimes across Tunisia without creating an account.
 
-## Story 3.1: Homepage with Curated Event Listings
+> **MVP Focus:** Cinema showtimes only. Category filtering for theater/concerts deferred to Phase 2.
+
+## Story 3.1: Homepage with Curated Event Listings [MVP]
 
 As a **visitor**,
 I want to see curated event listings on the homepage,
@@ -23,7 +25,9 @@ So that I can quickly discover what's happening culturally in Tunisia.
 
 ---
 
-## Story 3.2: Category Filtering
+## Story 3.2: Category Filtering [Phase 2]
+
+> **Deferred:** MVP focuses on cinema only. Multi-category filtering added in Phase 2.
 
 As a **visitor**,
 I want to filter events by category,
@@ -42,7 +46,7 @@ So that I can focus on the type of cultural content I'm interested in.
 
 ---
 
-## Story 3.3: Date Range Filtering
+## Story 3.3: Date Range Filtering [MVP]
 
 As a **visitor**,
 I want to filter events by date,
@@ -61,7 +65,7 @@ So that I can find events happening when I'm available.
 
 ---
 
-## Story 3.4: Region and City Filtering
+## Story 3.4: Region and City Filtering [MVP]
 
 As a **visitor**,
 I want to filter events by location,
@@ -80,7 +84,7 @@ So that I can find events near me or in a specific area.
 
 ---
 
-## Story 3.5: Venue Filtering
+## Story 3.5: Venue Filtering [MVP]
 
 As a **visitor**,
 I want to filter events by venue,
@@ -98,7 +102,7 @@ So that I can see what's playing at a specific place.
 
 ---
 
-## Story 3.6: Keyword Search with Algolia
+## Story 3.6: Keyword Search with Algolia [MVP]
 
 As a **visitor**,
 I want to search for events by keyword,
@@ -117,7 +121,7 @@ So that I can find specific films, plays, or artists.
 
 ---
 
-## Story 3.7: Event Detail Page
+## Story 3.7: Event Detail Page [MVP]
 
 As a **visitor**,
 I want to view complete details about an event,
@@ -138,7 +142,7 @@ So that I can decide if I want to attend.
 
 ---
 
-## Story 3.8: Venue Location on Map
+## Story 3.8: Venue Location on Map [MVP]
 
 As a **visitor**,
 I want to see the venue location on a map,
@@ -156,7 +160,9 @@ So that I can plan how to get there.
 
 ---
 
-## Story 3.9: Geolocation "Near Me" Filtering
+## Story 3.9: Geolocation "Near Me" Filtering [Phase 2]
+
+> **Deferred:** Region filtering sufficient for MVP. Geolocation added in Phase 2.
 
 As a **visitor**,
 I want to find events near my current location,
@@ -174,7 +180,7 @@ So that I can easily attend without traveling far.
 
 ---
 
-## Story 3.10: Share Event Details
+## Story 3.10: Share Event Details [MVP]
 
 As a **visitor**,
 I want to share an event with friends,

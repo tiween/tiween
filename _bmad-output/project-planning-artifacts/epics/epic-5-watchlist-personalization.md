@@ -1,4 +1,6 @@
-# Epic 5: Watchlist & Personalization
+# Epic 5: Watchlist & Personalization [Phase 2]
+
+> **Deferred to Phase 2:** Watchlist functionality descoped from MVP to focus on cinema showtimes discovery.
 
 Authenticated users can save events to their watchlist, access it offline, and sync across devices.
 

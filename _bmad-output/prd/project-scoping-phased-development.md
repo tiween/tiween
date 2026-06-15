@@ -2,25 +2,29 @@
 
 ## MVP Strategy & Philosophy
 
-**MVP Approach:** Revenue MVP + Platform MVP Hybrid
+**MVP Approach:** Parity-First Relaunch
 
-- Generate early revenue through ticketing to validate business model
-- Build platform foundation for venue self-service to scale operations
+- Match legacy tiween.com functionality with modern tech stack
+- Focus exclusively on **cinema showtimes** to validate platform
+- Defer ticketing/payment complexity to Phase 2 after user validation
 
 **Project Context: Brownfield Migration**
 
 - **Existing Strapi v4 backend** with established content models and data
 - **Data migration required** from Strapi v4 → v5
 - **Strong foundation** reduces backend development time
-- **Focus shifts** to frontend rebuild (Next.js latest), new features, and migration
+- **Focus shifts** to frontend rebuild (Next.js latest) and migration
 
 **Core Value Proposition for MVP:**
+"Find what's playing at cinemas across Tunisia" (B2C)
+
+**Phase 2 Value Proposition (Post-Relaunch):**
 "Find any cultural event in Tunisia, buy tickets instantly" (B2C)
 "Reach new audiences and sell tickets with lower fees" (B2B)
 
 **Resource Requirements:**
 
-- 2-3 full-stack developers (Next.js + Strapi v5 migration expertise)
+- 1-2 full-stack developers (Next.js + Strapi v5 migration expertise)
 - 1 designer (mobile-first, RTL experience)
 - 1 part-time data operator (manual content enrichment)
 
@@ -42,66 +46,82 @@
 - User accounts (if applicable)
 - Relationships and taxonomies
 
-## MVP Feature Set (Phase 1: Months 1-6)
+## MVP Feature Set (Phase 1: Relaunch)
+
+**MVP Focus: Cinema Showtimes Only**
+
+The MVP matches legacy tiween.com functionality - cinema showtimes discovery with modern tech stack.
 
 **Core User Journeys Supported:**
 
-| Journey                         | MVP Support | Deferred to Post-MVP  |
-| ------------------------------- | ----------- | --------------------- |
-| Yasmine (Discovery + Ticketing) | Full        | -                     |
-| Karim (Regional + Offline)      | Full        | Push notifications    |
-| Mounir (Venue Manager)          | Full        | Advanced analytics    |
-| Ahmed (Anonymous Explorer)      | Full        | -                     |
-| Rami (Scanner)                  | Full        | Offline sync          |
-| Nadia (Admin)                   | Basic       | Advanced moderation   |
-| Salma (Institutional)           | Partial     | Multi-space, bulk ops |
+| Journey                    | MVP Support | Deferred to Phase 2  |
+| -------------------------- | ----------- | -------------------- |
+| Yasmine (Discovery)        | Partial     | Ticketing, Watchlist |
+| Karim (Regional + Offline) | Partial     | Push notifications   |
+| Ahmed (Anonymous Explorer) | Full        | -                    |
+| Mounir (Venue Manager)     | None        | Full B2B dashboard   |
+| Rami (Scanner)             | None        | Full scanner app     |
+| Nadia (Admin)              | Basic       | Advanced moderation  |
+| Salma (Institutional)      | None        | Full B2B features    |
 
 **Must-Have Capabilities (MVP):**
 
-| Capability                               | B2C | B2B | Admin |
-| ---------------------------------------- | --- | --- | ----- |
-| Event discovery (browse, filter, search) | ✅  | -   | -     |
-| Event details with media                 | ✅  | ✅  | ✅    |
-| User registration/login                  | ✅  | ✅  | ✅    |
-| Watchlist                                | ✅  | -   | -     |
-| Guest checkout                           | ✅  | -   | -     |
-| Ticket purchase + QR delivery            | ✅  | -   | -     |
-| Venue registration + profile             | -   | ✅  | ✅    |
-| Schedule management (CRUD)               | -   | ✅  | ✅    |
-| Basic analytics (views)                  | -   | ✅  | -     |
-| Ticketing setup + inventory              | -   | ✅  | -     |
-| QR scanner app                           | -   | ✅  | -     |
-| Venue approval workflow                  | -   | -   | ✅    |
-| Manual data entry interface              | -   | -   | ✅    |
-| PWA installable                          | ✅  | ✅  | -     |
-| Offline cached listings                  | ✅  | -   | -     |
-| Offline ticket display                   | ✅  | -   | -     |
-| Multilingual (AR/FR/EN)                  | ✅  | ✅  | ✅    |
+| Capability                              | B2C | Admin |
+| --------------------------------------- | --- | ----- |
+| Movie showtimes discovery               | ✅  | -     |
+| Filter by date                          | ✅  | -     |
+| Filter by cinema/venue                  | ✅  | -     |
+| Filter by region (Greater Tunis)        | ✅  | -     |
+| Film details with media (trailer, cast) | ✅  | ✅    |
+| Venue info (location, contact, map)     | ✅  | ✅    |
+| User registration/login                 | ✅  | ✅    |
+| Manual data entry interface             | -   | ✅    |
+| Content management (films, venues)      | -   | ✅    |
+| PWA installable                         | ✅  | -     |
+| Offline cached listings                 | ✅  | -     |
+| Multilingual (AR/FR/EN)                 | ✅  | ✅    |
 
-**Explicitly Excluded from MVP:**
+**Explicitly Descoped from MVP (Moved to Phase 2):**
 
-- Credits system (Phase 2)
-- Push notifications (Phase 2)
-- AI-generated content (Phase 2)
-- Advanced venue analytics (Phase 2)
-- Multi-space management for institutions (Phase 2)
-- Native mobile apps (Phase 3)
-- AI recommendations (Phase 3)
-- Physical POS integration (Phase 3)
+| Feature                      | Rationale                                  |
+| ---------------------------- | ------------------------------------------ |
+| Watchlist                    | Nice-to-have, not core discovery           |
+| Ticketing/Payment            | Complex integration, validate demand first |
+| QR ticket delivery           | Depends on ticketing                       |
+| Guest checkout               | Depends on ticketing                       |
+| B2B venue dashboard          | Focus on B2C relaunch first                |
+| Venue self-registration      | Depends on B2B dashboard                   |
+| QR scanner app               | Depends on ticketing                       |
+| Theater/concerts/exhibitions | Cinema-first, expand categories later      |
+| Ratings/reviews              | Community features after user base         |
+| Push notifications           | Add after user base established            |
+| Credits system               | Requires ticketing foundation              |
+| AI-generated content         | Phase 2 optimization                       |
+| Advanced venue analytics     | Phase 2 B2B feature                        |
 
 ## Post-MVP Features
 
-**Phase 2: Growth (Months 6-12)**
+**Phase 2a: Core Features (Months 3-6 Post-Relaunch)**
 
-| Feature                           | Value                           | Complexity |
-| --------------------------------- | ------------------------------- | ---------- |
-| Credits system                    | Recurring revenue, user lock-in | Medium     |
-| Push notifications                | Engagement, reminders           | Low        |
-| Regional expansion (Sfax, Sousse) | Market coverage                 | Low        |
-| Advanced venue analytics          | B2B value, retention            | Medium     |
-| AI-generated SEO content          | Organic traffic                 | Medium     |
-| Multi-space venue management      | Institutional clients           | Medium     |
-| Bulk event creation               | Institutional efficiency        | Low        |
+| Feature                           | Value                      | Complexity |
+| --------------------------------- | -------------------------- | ---------- |
+| Watchlist functionality           | User engagement, retention | Low        |
+| Ticketing + Payment integration   | Revenue generation         | High       |
+| B2B venue self-service dashboard  | Scalable data input        | Medium     |
+| Expand to theater/concerts        | Category growth            | Low        |
+| Push notifications                | Engagement, reminders      | Low        |
+| Regional expansion (Sfax, Sousse) | Market coverage            | Low        |
+
+**Phase 2b: Growth (Months 6-12)**
+
+| Feature                          | Value                           | Complexity |
+| -------------------------------- | ------------------------------- | ---------- |
+| Credits system                   | Recurring revenue, user lock-in | Medium     |
+| QR scanner for ticket validation | B2B operations                  | Medium     |
+| Advanced venue analytics         | B2B value, retention            | Medium     |
+| AI-generated SEO content         | Organic traffic                 | Medium     |
+| Multi-space venue management     | Institutional clients           | Medium     |
+| Bulk event creation              | Institutional efficiency        | Low        |
 
 **Phase 3: Expansion (Year 2+)**
 
@@ -149,29 +169,28 @@
 
 **Must Launch With:**
 
-- [ ] Event discovery with filtering (category, date, region)
-- [ ] Event details with venue info
-- [ ] User accounts (email + social)
-- [ ] Watchlist functionality
-- [ ] Guest checkout
-- [ ] Payment integration (1 provider)
-- [ ] QR ticket delivery
-- [ ] Venue self-registration
-- [ ] Venue event management
-- [ ] Basic analytics dashboard
-- [ ] Admin approval workflow
+- [ ] Movie showtimes discovery (browse films showing)
+- [ ] Showtime listings by film
+- [ ] Showtime listings by venue/cinema
+- [ ] Filter by date
+- [ ] Filter by region (Greater Tunis)
+- [ ] Film details (synopsis, trailer, cast, duration, rating)
+- [ ] Venue details (location, contact, map)
+- [ ] User accounts (email + social login)
 - [ ] PWA installable
-- [ ] Offline listings cache
+- [ ] Offline cached listings
 - [ ] AR/FR/EN languages
-- [ ] 10+ venues with content
 - [ ] Strapi v4 → v5 migration complete
 - [ ] Data migration validated
+- [ ] All Greater Tunis cinemas with showtimes
 
-**Can Launch Without (Add Week 1-4):**
+**Can Launch Without (Add in Phase 2):**
 
-- Scanner app (manual check-in initially)
+- Watchlist functionality
+- Ticketing/Payment
+- B2B venue dashboard
 - Push notifications
-- Advanced moderation tools
-- Data export features
+- Theater/concerts/exhibitions categories
+- Scanner app
 
 ---

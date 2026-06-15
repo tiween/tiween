@@ -1,4 +1,6 @@
-# Epic 8: B2B Ticket Validation (Scanner)
+# Epic 8: B2B Ticket Validation (Scanner) [Phase 2]
+
+> **Deferred to Phase 2:** Scanner depends on ticketing (Epic 6), which is deferred from MVP.
 
 Venue staff can scan and validate tickets at event entry, track attendance, and operate with intermittent connectivity.
 

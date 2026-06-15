@@ -1,8 +1,12 @@
-# Epic 9: Platform Administration
+# Epic 9: Platform Administration [MVP-partial]
 
-Admins can moderate venues, manage content quality, view platform analytics, and manage users via Strapi Admin.
+Admins can manage content and moderate the platform via Strapi Admin.
 
-## Story 9.1: Venue Approval Workflow
+> **MVP Scope:** Manual content management (films, showtimes, venues). Advanced features deferred to Phase 2.
+
+## Story 9.1: Venue Approval Workflow [Phase 2]
+
+> **Deferred:** B2B venue self-registration not in MVP. Admin creates venues directly.
 
 As an **admin**,
 I want to approve or reject venue registrations,
@@ -21,25 +25,28 @@ So that only legitimate venues are listed.
 
 ---
 
-## Story 9.2: Manual Event Creation and Editing
+## Story 9.2: Manual Event Creation and Editing [MVP]
 
 As an **admin**,
-I want to create and edit any event,
-So that I can ensure complete and accurate listings.
+I want to create and edit films and showtimes,
+So that users see accurate cinema listings.
 
 **Acceptance Criteria:**
 
 **Given** I am in Strapi admin
-**When** I create or edit events
-**Then** I can create events for any venue
-**And** I can edit any event regardless of owner
-**And** I can add events without ticketing (free/informational)
-**And** changes are logged with admin user ID
-**And** I can set featured events for homepage promotion
+**When** I create or edit content
+**Then** I can create films with full details (title, synopsis, trailer, cast, duration)
+**And** I can create showtimes linked to films and venues
+**And** I can edit any film or showtime
+**And** I can manage venue information (name, location, contact)
+**And** I can set featured films for homepage promotion
+**And** changes are reflected on the platform immediately
 
 ---
 
-## Story 9.3: Event Flagging for Quality Issues
+## Story 9.3: Event Flagging for Quality Issues [Phase 2]
+
+> **Deferred:** Quality flagging workflow added when B2B venues can create their own events.
 
 As an **admin**,
 I want to flag events with quality issues,
@@ -57,7 +64,9 @@ So that venue managers can correct problems.
 
 ---
 
-## Story 9.4: Platform Analytics Dashboard
+## Story 9.4: Platform Analytics Dashboard [Phase 2]
+
+> **Deferred:** Analytics dashboard added in Phase 2 when there's meaningful data to analyze.
 
 As an **admin**,
 I want to view platform-wide analytics,
@@ -76,7 +85,9 @@ So that I can monitor growth and performance.
 
 ---
 
-## Story 9.5: User Account Management
+## Story 9.5: User Account Management [Phase 2]
+
+> **Deferred:** User management added in Phase 2 when user base grows.
 
 As an **admin**,
 I want to manage user accounts,
@@ -95,7 +106,7 @@ So that I can handle support issues and policy violations.
 
 ---
 
-## Story 9.6: Categories and Regions Management
+## Story 9.6: Categories and Regions Management [MVP]
 
 As an **admin**,
 I want to manage content categories and regions,

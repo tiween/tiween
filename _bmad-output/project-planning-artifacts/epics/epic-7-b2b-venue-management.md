@@ -1,4 +1,13 @@
-# Epic 7: B2B Venue Management
+# Epic 7: B2B Venue Management [Phase 2]
+
+> **Deferred to Phase 2:** B2B venue self-service dashboard descoped from MVP. Admin manages venue data manually in MVP.
+
+> **Prerequisite (2026-06-12):** Epic 2C.1 (venues plugin extraction) must be
+> done before this epic starts. All venue stories target the `venues` plugin —
+> Venue Manager RBAC seeds against `plugin::venues.*` UIDs, and venue
+> amenities/properties use the property-category/property-definition types
+> absorbed from entity-properties. See the architecture amendment
+> (`architecture.md`, 2026-06-12).
 
 Venue managers can register, manage their venue profile, create/edit events, configure ticketing, and view analytics via Strapi Admin.
 

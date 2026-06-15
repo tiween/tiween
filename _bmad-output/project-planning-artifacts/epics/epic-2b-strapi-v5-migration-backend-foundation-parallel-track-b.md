@@ -1,5 +1,14 @@
 # Epic 2B: Strapi v5 Migration & Backend Foundation (PARALLEL TRACK B)
 
+> **Status note (2026-06-12):** the implemented model diverged from these story
+> texts by design. The Showtime component was deleted and replaced by the
+> schema.org redesign (screening/performance sub-events); content types live in
+> plugins under `src/plugins/`, not `src/api/`. Story texts below are kept as
+> historical record — do NOT use them as the source of truth for the current
+> data model. Structural work continues in
+> [Epic 2C](./epic-2c-plugin-architecture-decomposition.md), governed by the
+> architecture amendment (`architecture.md`, 2026-06-12).
+
 Fully migrated Strapi v5 backend with all content-types, plugins, and data ready for frontend integration.
 
 ## Story 2B.1: Strapi v5 Upgrade and Project Setup
@@ -413,5 +422,34 @@ So that developers have realistic data to work with.
   **And** seed command is added: `yarn seed`
   **And** seeds are idempotent
   **And** test fixtures use subset of seed data
+
+---
+
+## Story 2B.16: Events Manager Plugin — Test Coverage
+
+As a **developer**,
+I want comprehensive unit and integration tests for the events-manager Strapi v5 plugin,
+So that future refactors and the upcoming Strapi version upgrade can be made without regressing event scheduling, showtime management, or ticket inventory behavior.
+
+**Acceptance Criteria:**
+
+**Given** the events-manager plugin (Story 2B.8) is in place
+**When** I add test infrastructure and write coverage
+**Then** test infrastructure is set up at `apps/strapi/`:
+
+- `supertest`, `sqlite3`, `@testing-library/react`, `jsdom` added as devDeps
+- `config/env/test/database.ts` overrides DB to SQLite
+- `tests/helpers/strapi.ts`, `tests/helpers/auth.ts`, `tests/fixtures/events.ts` exist
+- `jest.config.ts` supports both `node` and `jsdom` environments
+  **And** service tests cover bulk-showtime, duplicate-event, and ticket-inventory services
+  **And** controller tests via Supertest cover list/create/update/delete + duplicate + bulk-showtime endpoints (including auth and role checks)
+  **And** admin component test infrastructure (React Testing Library + `@strapi/strapi/admin` hook mocks) is set up
+  **And** at least 2 proof-of-concept admin component tests exist (one form, one list)
+  **And** `yarn test` runs all new tests green locally (CI integration is out of scope — separate story)
+  **And** coverage ≥ 80% for events-manager server code
+  **And** `apps/strapi/tests/README.md` documents the pattern as a template for the other 6 custom plugins
+  **And** all test files are TypeScript with no `any` types
+
+**Note:** This story serves as the **testing template** for the other 6 custom Strapi plugins (creative-works, geography, ticketing, entity-properties, tmdb-integration, user-engagement). Future stories will replicate this pattern per plugin.
 
 ---
