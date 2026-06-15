@@ -92,8 +92,10 @@ record in `creative-works`, scheduling-only `events-manager`, transactional
 **Scope:**
 
 - Extract `venues` plugin from events-manager (+ absorb entity-properties types) — gates Epic 7
-- Catalog collision data audit (person/genre overlap)
-- Move catalog types (movie, play, person, character, credit) into creative-works
+- Catalog collision data audit (person/genre overlap; both catalogs empty)
+- Consolidate catalog on `creative-works`: unified `creative-work` (type enum) wins,
+  `movie`/`play` retired; `person`/`character`/`credit-role` + cast[]/credits[]/videos[]
+  components (inverted 2026-06-15 — GTM = read-only directory)
 - Ticketing Unit of Work transaction + atomic inventory facade — gates Epic 6
 - Consolidation sweep (subEventStrategy map, public-api facades, shared kit, delete entity-properties)
 

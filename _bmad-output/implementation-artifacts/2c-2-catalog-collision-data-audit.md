@@ -1,6 +1,19 @@
 # Story 2C.2: Catalog Collision Data Audit
 
-Status: review
+Status: done
+
+> ⚠️ **SUPERSEDED 2026-06-15** by `sprint-change-proposal-2026-06-15.md` (GTM
+> redefined as a read-only directory of plays, screenings, and short films;
+> ticketing ships post-GTM). The §3 decision below — "events-manager normalized
+> model wins wholesale; retire creative-work" — is **INVERTED**: the unified
+> `creative-work` (`type` enum film/short-film/play) is now the catalog of
+> record, and `movie`/`play` are **RETIRED**. People graph = `person` +
+> `character` content types + a NEW `credit-role` content type; `cast[]`/`credits[]`
+> are repeatable COMPONENTS on creative-work; `videos[]` gains a `videoType` enum.
+> No dynamic zone. §1 (both catalogs EMPTY → schema-only) and §2 (collision
+> surface) remain factually valid. **For the current target, read the rewritten
+> `2c-3-catalog-move-into-creative-works.md`.** This file is retained for
+> decision history only.
 
 ## Story
 

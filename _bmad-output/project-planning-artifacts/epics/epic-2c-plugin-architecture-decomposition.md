@@ -10,6 +10,17 @@ a scheduling-only `events-manager`, and a transactionally-safe `ticketing` plugi
 (unblocking Epic 6). Each story is independently shippable as one PR batching
 server + client changes.
 
+> **2026-06-15 REVISION (catalog direction):** Stories 2C.2/2C.3 originally chose
+> the events-manager normalized model (`movie`/`play`) as the catalog and retired
+> the unified `creative-work`. With the GTM redefined as a **read-only directory**
+> (ticketing post-GTM), that direction is **inverted**: the unified `creative-work`
+> (type enum) is the catalog of record and `movie`/`play` are **retired**; people
+> graph = `person`/`character`/`credit-role` with `cast[]`/`credits[]`/`videos[]`
+> components. See `sprint-change-proposal-2026-06-15.md`. The story stubs below are
+> updated to the inverted target; the implementation specs live in
+> `_bmad-output/implementation-artifacts/2c-2-*.md` (superseded audit) and
+> `2c-3-*.md` (rewritten).
+
 **Sequencing rules:**
 
 - 2C.2 gates 2C.3 (data audit before catalog move)
@@ -59,32 +70,37 @@ So that the catalog move (2C.3) has a decided, evidence-based merge strategy bef
 **Given** both plugins define `person` (and creative-works defines genre/category) with potentially overlapping data
 **When** I run the audit
 **Then** a report documents per colliding type: collectionName of each side, row counts per environment, overlap analysis (matching names/slugs), and which side TMDB imports write to
-**And** a decision is recorded: merge into the surviving type OR rename-then-migrate, with row-level migration mapping
-**And** the credit relations rewrite plan (credit.person targets) is specified
+**And** a decision is recorded (both catalogs confirmed EMPTY → schema-only, no migration)
 **And** the decision is appended to the architecture amendment's Gap Analysis as resolved
 **And** 2C.3 is blocked until this story is done
 
+> _Note: the §3 model decision in `2c-2-...md` was **inverted 2026-06-15**
+> (unified `creative-work` wins, `movie`/`play` retired). The audit's empty-catalog
+> finding stands; the chosen model is now the inverse. See 2C.3._
+
 ---
 
-## Story 2C.3: Catalog Move into Creative-Works
+## Story 2C.3: Consolidate Catalog on Creative-Works
 
 As a **developer**,
-I want the catalog types (movie, play, person, character, credit) moved from events-manager into creative-works,
-So that the platform has a single catalog of record and watchlist + ticketing point at the same entities.
+I want events-manager's normalized `movie`/`play` retired and the unified `creative-work` (type enum) established as the single catalog of record, with a `person`/`character`/`credit-role` people graph and `cast[]`/`credits[]`/`videos[]` components,
+So that the read-only GTM directory renders rich work pages from one queryable catalog and events-manager becomes scheduling-only.
 
-**Acceptance Criteria:**
+**Acceptance Criteria:** _(inverted 2026-06-15 — see `2c-3-catalog-move-into-creative-works.md` for the full spec)_
 
-**Given** 2C.2's audit decision is recorded
-**When** I move the catalog types
-**Then** movie, play, person, character, credit schemas move verbatim (collectionNames preserved; only relation target UIDs change)
-**And** the person/genre collision is resolved per the 2C.2 decision, including data migration if merging
-**And** `screening.movie` and `performance.play` relations target creative-works UIDs
-**And** the credit XOR lifecycle subscriber (`lifecycles/credit.ts` + bootstrap registration) moves to creative-works
-**And** permissions are re-seeded for all moved types with the same role grants
-**And** events-manager admin hooks (useCreativeWorks, usePeople) reference new UIDs
-**And** client paths for shorts/search/event-detail populate chains reference moved types correctly
-**And** grep gate passes: zero `plugin::events-manager.(movie|play|person|character|credit)` references
-**And** existing events-manager test suite passes against the retargeted relations
+**Given** 2C.2's (superseded) audit confirms both catalogs are empty
+**When** I consolidate the catalog
+**Then** events-manager's `movie`/`play` content types are retired (no data → deleted) and deregistered
+**And** the unified `creative-work` (type enum film/short-film/play) is the single catalog of record
+**And** `person` and `character` are content types and a NEW `credit-role` content type exists (RBAC-safe name, not `role`)
+**And** `cast[]` (→ person, character) and `credits[]` (→ person, credit-role) are repeatable components on `creative-work`; `videos[]` has a `videoType` enum
+**And** `screening.movie` and `performance.play` relations retarget to `plugin::creative-works.creative-work`
+**And** the movie⊻play credit XOR lifecycle is retired (nothing to enforce)
+**And** `user-engagement.user-watchlist.creativeWork` is unchanged (`creative-work` survives)
+**And** events-manager admin hooks (useCreativeWorks, usePeople) resolve to the creative-work/person UIDs
+**And** no dynamic zone is introduced (structured enums + components only)
+**And** grep gate passes: zero `plugin::events-manager.(movie|play)` references
+**And** `yarn generate:types` boots Strapi clean and the unit suite passes
 
 ---
 

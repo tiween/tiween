@@ -70,11 +70,13 @@ boundaries — the decomposition follows requirement seams, not technical whim:
    schema relation targets, permission seeds, admin hooks, and client endpoint
    paths. `collectionName` is plugin-agnostic — preserving it avoids DB table
    migrations; only UID references migrate.
-3. **In-flight catalog redesign**: creative-works was recently redesigned for
-   theatre support; events-manager still carries the legacy catalog types
-   (movie, play, person, character, credit). Two competing catalogs exist
-   today — user-engagement points at creative-works, ticketing at
-   events-manager sub-events.
+3. **Catalog of record = creative-works' unified `creative-work`** (REVISED
+   2026-06-15): the June-12 theatre redesign (`creative-work` type enum +
+   typed components) is the catalog. events-manager's legacy `movie`/`play`
+   are retired. Both catalogs were empty, so this is schema-only.
+   user-engagement already points at creative-works; ticketing points at
+   events-manager sub-events (scheduling), whose `.movie`/`.play` relations
+   retarget to `creative-work`.
 4. **Epic dependency order**: Epics 6/7/8 (Phase 2) all gate on Epic 4 (auth,
    done). None started — the decomposition must land before they do.
 5. **Documented architecture drift**: the original architecture document
@@ -154,8 +156,15 @@ implementation story of migration step 1.
 **Critical Decisions (Block Implementation):**
 
 - D1 — Extract `venues` plugin from events-manager (unblocks Epic 7 RBAC scoping)
-- D2 — Move catalog types (movie, play, person, character, credit) from
-  events-manager into creative-works; single catalog of record
+- D2 — creative-works' unified `creative-work` (type: film | short-film | play)
+  is the single catalog of record. The events-manager normalized catalog
+  (movie, play) is RETIRED. People graph: `person` + `character` content types
+  - a NEW `credit-role` content type (crew vocabulary; named to avoid the Strapi
+    RBAC `role` collision). `cast[]` (→ person, character) and `credits[]`
+    (→ person, credit-role) are repeatable COMPONENTS on creative-work; `videos[]`
+    gains a `videoType` enum (trailer/teaser/clip/…). No dynamic zone (rejected —
+    keep data structured/queryable). [REVISED 2026-06-15 — inverts the earlier
+    "normalized movie/play wins" direction; see sprint-change-proposal-2026-06-15.]
 - D3 — Ticketing order creation becomes a Unit of Work: `strapi.db.transaction`
   wrapping availability check → order+tickets create → inventory decrement via
   events-manager facade (must land before Epic 6 carries real money)
@@ -182,16 +191,16 @@ implementation story of migration step 1.
 
 Target plugin map — 8 plugins, each one bounded context:
 
-| Plugin                 | Owns (content types)                                              | Notes                                                                                     |
-| ---------------------- | ----------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| `creative-works`       | creative-work, person, character, credit, genre, category         | Single catalog of record; absorbs events-manager catalog; credit XOR lifecycle moves here |
-| `venues` ✨            | venue + entity-properties' property-category, property-definition | New; serves Epic 7 B2B + Venue Manager RBAC                                               |
-| `events-manager`       | event, screening, performance, feature, event-group               | Scheduling only; `screening.work` relation retargets to creative-work                     |
-| `ticketing`            | ticket-order, ticket                                              | + scanning; Unit-of-Work order creation                                                   |
-| `payments` ✨ (future) | none — Konnect client, webhook, status mapping                    | Created with Epic 6; ACL pattern per tmdb-integration                                     |
-| `user-engagement`      | user-watchlist                                                    | Unchanged; future engagement features land here until Rule of Three                       |
-| `geography`            | region, city                                                      | Unchanged                                                                                 |
-| `tmdb-integration`     | none                                                              | Unchanged; reference ACL implementation                                                   |
+| Plugin                 | Owns (content types)                                                       | Notes                                                                                                                                      |
+| ---------------------- | -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `creative-works`       | creative-work (type enum), person, character, credit-role, genre, category | Single catalog of record; rich unified core + `cast[]`/`credits[]`/`videos[]` components. `movie`/`play` retired (no XOR lifecycle needed) |
+| `venues` ✨            | venue + entity-properties' property-category, property-definition          | New; serves Epic 7 B2B + Venue Manager RBAC                                                                                                |
+| `events-manager`       | event, screening, performance, feature, event-group                        | Scheduling only; `screening.movie` → creative-work, `performance.play` → creative-work                                                     |
+| `ticketing`            | ticket-order, ticket                                                       | + scanning; Unit-of-Work order creation                                                                                                    |
+| `payments` ✨ (future) | none — Konnect client, webhook, status mapping                             | Created with Epic 6; ACL pattern per tmdb-integration                                                                                      |
+| `user-engagement`      | user-watchlist                                                             | Unchanged; future engagement features land here until Rule of Three                                                                        |
+| `geography`            | region, city                                                               | Unchanged                                                                                                                                  |
+| `tmdb-integration`     | none                                                                       | Unchanged; reference ACL implementation                                                                                                    |
 
 Database/cache/search decisions inherited unchanged from original architecture
 (PostgreSQL 16, Redis 7, Algolia). All content-type moves preserve
@@ -242,8 +251,10 @@ plugin moves are code-level only.
 1. Step 1 — Scaffold `venues` (sibling-clone), move venue type +
    entity-properties types, retarget `event.venue`, re-seed permissions,
    update client paths (one PR)
-2. Step 2 — Catalog move into creative-works, retarget screening/performance
-   relations, move credit lifecycle, update admin hooks + client paths (one PR)
+2. Step 2 — Consolidate catalog on creative-works (`creative-work` type enum
+   wins; retire movie/play; add credit-role + cast[]/credits[] components),
+   retarget screening/performance relations, update admin hooks + client paths
+   (one PR)
 3. Step 3 — Ticketing Unit of Work + inventory facade + tests (can precede
    step 2 if Epic 6 is hotter; never concurrent with it)
 4. Step 4 — `subEventStrategy` extraction; facade convention sweep; delete
@@ -330,7 +341,7 @@ When moving a content type between plugins, agents MUST:
 
 1. Copy `schema.json` verbatim — change ONLY relation `target` UIDs; never
    touch `collectionName`, attribute names, or localization flags.
-2. Move lifecycle subscribers with their content type (e.g. credit XOR).
+2. Move lifecycle subscribers with their content type when applicable.
 3. Re-seed permissions: old `plugin::<old>.<type>` actions removed, new
    `plugin::<new>.<type>` actions granted to the same roles (incl. Venue Manager).
 4. Update admin hooks' UID constants and content-manager links.
@@ -374,11 +385,11 @@ apps/strapi/src/
 │   ├── error-codes.ts                # SCREAMING_SNAKE constants
 │   └── testing.ts                    # strapi mock helpers
 └── plugins/
-    ├── creative-works/               # CATALOG (absorbs events-manager catalog)
+    ├── creative-works/               # CATALOG (unified creative-work, type enum)
     │   └── server/src/
     │       ├── content-types/        # creative-work, person, character,
-    │       │                         #   credit, genre, category
-    │       ├── lifecycles/credit.ts  # XOR invariant (moved from events-manager)
+    │       │                         #   credit-role, genre, category
+    │       ├── components/           # cast[], credits[], videos[] (videoType enum)
     │       ├── services/             # creative-work, person, public-api ✨
     │       ├── controllers/  routes/  validation/
     ├── venues/                       # ✨ NEW — B2B venue domain (Epic 7)
@@ -457,17 +468,22 @@ boundary moves are UID-level only.
 - [ ] Client: `lib/api/content/venues.ts` paths `/events-manager/venues` → `/venues`
 - [ ] Grep gate: zero `events-manager.venue` references; dev smoke: venue pages render
 
-**Step 2 — Catalog move into `creative-works`**
+**Step 2 — Catalog consolidation on `creative-works` (inverted 2026-06-15)**
 
-- [ ] Move movie, play, person, character, credit schemas verbatim (collectionNames kept)
-- [ ] Resolve person/genre collisions with existing creative-works types
-      (merge or rename-then-migrate — decided at implementation with data audit)
-- [ ] Retarget `screening.movie` / `performance.play` → creative-works UIDs
-- [ ] Move `lifecycles/credit.ts` XOR subscriber + its bootstrap registration
-- [ ] Re-seed permissions for all moved types (same role grants)
+- [ ] Retire events-manager `movie`/`play` content types (no data → delete);
+      `creative-work` (type enum) is the catalog of record
+- [ ] Ensure `person`, `character` are content types in creative-works
+- [ ] Add NEW `credit-role` content type (crew vocabulary; RBAC-safe name)
+- [ ] Model `cast[]` (→ person, character) and `credits[]` (→ person, credit-role)
+      as repeatable COMPONENTS on creative-work; add `videoType` enum to `videos[]`
+- [ ] Retarget `screening.movie` → `plugin::creative-works.creative-work`;
+      `performance.play` → `plugin::creative-works.creative-work`
+- [ ] No XOR credit lifecycle (movie/play retired — nothing to enforce)
+- [ ] Re-seed permissions for the catalog types (public read + editor roles)
 - [ ] Update events-manager admin hooks (useCreativeWorks, usePeople) UIDs
-- [ ] Client: shorts/search/events populate paths referencing moved types
-- [ ] Grep gate: zero `plugin::events-manager.(movie|play|person|character|credit)`
+- [ ] Client: shorts/search/events populate paths reference `creative-work`
+- [ ] Grep gate: zero `plugin::events-manager.(movie|play)`; zero standalone
+      `credit`-as-content-type or RBAC `role` collision references
 
 **Step 3 — Ticketing Unit of Work (may precede step 2; never concurrent)**
 
@@ -538,16 +554,20 @@ checks. Patterns include concrete file references from the live codebase.
 
 **Important (tracked, with resolution path):**
 
-1. **Step 2 person/genre collision** — RESOLVED 2026-06-15 by story 2C.2
-   (`_bmad-output/implementation-artifacts/2c-2-catalog-collision-data-audit.md`).
-   Both catalogs are EMPTY (no data → no migration). Decision: the
-   events-manager normalized model wins wholesale — creative-works' June-12
-   redesign catalog (creative-work type-enum, component-credit) is RETIRED, and
-   events-manager's movie/play/person/character/credit (separate types,
-   normalized, with the movie⊻play XOR lifecycle) move into creative-works.
-   creative-works keeps genre/category. ⚠️ New open item for 2C.3: retiring
-   `creative-work` breaks `user-engagement.user-watchlist.creativeWork` — 2C.3
-   must re-target that relation (likely to movie/play).
+1. **Step 2 catalog model** — RESOLVED 2026-06-15 by story 2C.2, then **REVISED
+   2026-06-15** (GTM redefined as a read-only directory; see
+   `sprint-change-proposal-2026-06-15.md`). The earlier 2C.2 "normalized
+   movie/play wins" decision is **INVERTED**: the unified `creative-work`
+   (`type` enum film/short-film/play) **wins** and is the single catalog of
+   record; events-manager's `movie`/`play` content types are **RETIRED**. People
+   graph = `person` + `character` content types + a NEW `credit-role` content
+   type (RBAC-safe name); `cast[]` (→ person, character) and `credits[]`
+   (→ person, credit-role) are repeatable COMPONENTS on creative-work; `videos[]`
+   gains a `videoType` enum. No dynamic zone (rejected). Both catalogs EMPTY → a
+   pure schema change, no data migration. ✅ `user-engagement.user-watchlist.creativeWork`
+   is now **unaffected** — `creative-work` survives the inversion. The
+   `2c-2-...md` audit is retained as superseded history; `2c-3-...md` is rewritten
+   to this inverted (simpler) target.
 2. **Inventory concurrency** — addressed below (was critical until resolved).
 
 **Nice-to-have:** dependency-rule lint (grep-based CI check for foreign UIDs);
@@ -606,8 +626,9 @@ Step 3 checklist gains: concurrency test (two parallel orders for the last seat
 
 ### Architecture Readiness Assessment
 
-**Overall Status:** READY WITH MINOR GAPS — steps 1, 3, 4 are immediately
-implementable; step 2 requires the person/genre data audit first.
+**Overall Status:** READY — steps 1, 3, 4 immediately implementable; step 2's
+data audit (2C.2) is done and its model decided (REVISED 2026-06-15: unified
+`creative-work` wins, `movie`/`play` retired), so step 2 is implementable too.
 
 **Confidence Level:** High — grounded in verified code analysis of all 7
 plugins, not assumptions.
