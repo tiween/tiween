@@ -104,9 +104,9 @@ development_status:
   # 2c-4 may precede 2c-3 (never concurrent); 2c-1 gates epic-7; 2c-4 gates epic-6.
   epic-2c: in-progress
   2c-1-extract-venues-plugin: review
-  2c-2-catalog-collision-data-audit: backlog
+  2c-2-catalog-collision-data-audit: done
   2c-3-catalog-move-into-creative-works: backlog
-  2c-4-ticketing-unit-of-work-and-atomic-inventory: backlog
+  2c-4-ticketing-unit-of-work-and-atomic-inventory: review
   2c-5-consolidation-sweep: backlog
   epic-2c-retrospective: optional
 
