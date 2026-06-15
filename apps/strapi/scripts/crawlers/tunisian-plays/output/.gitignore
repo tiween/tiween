@@ -1,0 +1,3 @@
+# Ignore all crawl output except this .gitignore
+*
+!.gitignore

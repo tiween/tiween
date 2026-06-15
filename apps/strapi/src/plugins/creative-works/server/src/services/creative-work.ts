@@ -10,17 +10,14 @@ const creativeWorkService = ({ strapi }: { strapi: Core.Strapi }) => ({
   async findFeatured(limit = 10) {
     return strapi.documents(CREATIVE_WORK_UID).findMany({
       limit,
-      populate: ["poster", "genres", "directors"],
+      populate: ["poster", "genres", "credits"],
     })
   },
 
   /**
    * Find creative works by type
    */
-  async findByType(
-    type: "film" | "play" | "short-film" | "concert" | "exhibition",
-    limit = 20
-  ) {
+  async findByType(type: "film" | "play" | "short-film", limit = 20) {
     return strapi.documents(CREATIVE_WORK_UID).findMany({
       filters: { type },
       limit,
@@ -55,11 +52,8 @@ const creativeWorkService = ({ strapi }: { strapi: Core.Strapi }) => ({
         "backdrop",
         "photos",
         "genres",
-        "directors",
-        "cast",
-        "crew",
+        "credits",
         "videos",
-        "facts",
         "links",
       ],
     })

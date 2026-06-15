@@ -1,0 +1,16 @@
+{
+  "collectionName": "components_shared_geo_points",
+  "info": {
+    "displayName": "Geo point",
+    "icon": "pinMap"
+  },
+  "options": {},
+  "attributes": {
+    "latitude": {
+      "type": "decimal"
+    },
+    "longitude": {
+      "type": "decimal"
+    }
+  }
+}

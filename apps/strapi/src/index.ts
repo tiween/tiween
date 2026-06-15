@@ -1,5 +1,6 @@
 import type { Core } from "@strapi/strapi"
 
+import { ensureI18nLocales } from "./bootstrap/i18n-locales"
 import { ensureVenueManagerRole } from "./bootstrap/venue-manager-role"
 import { registerAdminUserSubscriber } from "./lifeCycles/adminUser"
 import { registerUserSubscriber } from "./lifeCycles/user"
@@ -26,5 +27,8 @@ export default {
 
     // Ensure custom roles exist
     await ensureVenueManagerRole({ strapi })
+
+    // Ensure i18n locales exist (fr is the default, ar is required)
+    await ensureI18nLocales({ strapi })
   },
 }

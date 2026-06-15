@@ -2,16 +2,26 @@ import type { Core } from "@strapi/strapi"
 
 const PLUGIN_ID = "events-manager"
 const EVENT_UID = `plugin::${PLUGIN_ID}.event`
-const SHOWTIME_UID = `plugin::${PLUGIN_ID}.showtime`
+const SCREENING_UID = `plugin::${PLUGIN_ID}.screening`
+const PERFORMANCE_UID = `plugin::${PLUGIN_ID}.performance`
 
-interface BulkShowtimeParams {
+export type SubEventKind = "screening" | "performance"
+
+const SUB_EVENT_UIDS = {
+  screening: SCREENING_UID,
+  performance: PERFORMANCE_UID,
+} as const
+
+interface BulkScreeningParams {
   eventId: string
-  venueId: string
+  movieId: string
+  /** Dates in YYYY-MM-DD format */
   dates: string[]
+  /** Time in HH:mm, interpreted as UTC — callers must convert local showtime to UTC */
   time: string
-  format?: string
-  language?: string
-  subtitles?: string
+  videoFormat?: string
+  audioLanguage?: string
+  subtitleLanguage?: string
   price?: number
   ticketsAvailable?: number
 }
@@ -19,67 +29,144 @@ interface BulkShowtimeParams {
 interface DuplicateEventParams {
   eventId: string
   newTitle?: string
-  dateOffset?: number // days to add to showtime dates
-  copyShowtimes?: boolean
+  dateOffset?: number // days to add to screening/performance dates
+  copySubEvents?: boolean
+}
+
+const DATE_FORMAT = /^\d{4}-\d{2}-\d{2}$/
+const TIME_FORMAT = /^([01]\d|2[0-3]):[0-5]\d$/
+
+/**
+ * Validate a YYYY-MM-DD date string, including calendar validity.
+ * Date.UTC rolls overflowing components over (2026-02-30 becomes March 2),
+ * so a round-trip comparison is needed to reject impossible dates.
+ */
+const assertValidDate = (date: string): void => {
+  if (typeof date !== "string" || !DATE_FORMAT.test(date)) {
+    throw new Error(`Invalid date "${date}": expected YYYY-MM-DD`)
+  }
+
+  const [year, month, day] = date.split("-").map(Number)
+  const parsed = new Date(Date.UTC(year, month - 1, day))
+
+  if (
+    parsed.getUTCFullYear() !== year ||
+    parsed.getUTCMonth() !== month - 1 ||
+    parsed.getUTCDate() !== day
+  ) {
+    throw new Error(`Invalid date "${date}": not a valid calendar date`)
+  }
+}
+
+const assertValidTime = (time: string): void => {
+  if (typeof time !== "string" || !TIME_FORMAT.test(time)) {
+    throw new Error(`Invalid time "${time}": expected HH:mm (00:00-23:59)`)
+  }
+}
+
+const assertNonNegativeInteger = (value: unknown, field: string): void => {
+  if (typeof value !== "number") {
+    throw new Error(`Invalid ${field}: must be a number`)
+  }
+  if (!Number.isInteger(value) || value < 0) {
+    throw new Error(`Invalid ${field}: must be a non-negative integer`)
+  }
+}
+
+const assertSubEventKind = (kind: string): void => {
+  if (kind !== "screening" && kind !== "performance") {
+    throw new Error(
+      `Invalid kind "${kind}": expected "screening" or "performance"`
+    )
+  }
 }
 
 const eventManagerService = ({ strapi }: { strapi: Core.Strapi }) => ({
   /**
-   * Create multiple showtimes for an event
+   * Create multiple screenings of a movie for an event
    */
-  async createBulkShowtimes(params: BulkShowtimeParams) {
+  async createBulkScreenings(params: BulkScreeningParams) {
     const {
       eventId,
-      venueId,
+      movieId,
       dates,
       time,
-      format = "VOST",
-      language = "fr",
-      subtitles = "none",
+      videoFormat = "standard",
+      audioLanguage = "fr",
+      subtitleLanguage,
       price = 0,
       ticketsAvailable = 0,
     } = params
 
-    const createdShowtimes = []
+    // Validate everything up front so a bad entry can't leave partial writes
+    if (!Array.isArray(dates) || dates.length === 0) {
+      throw new Error("dates must be a non-empty array of YYYY-MM-DD strings")
+    }
+    dates.forEach(assertValidDate)
+    assertValidTime(time)
+    assertNonNegativeInteger(ticketsAvailable, "ticketsAvailable")
+    if (typeof price !== "number" || !Number.isFinite(price) || price < 0) {
+      throw new Error("Invalid price: must be a non-negative finite number")
+    }
+
+    const createdScreenings = []
 
     for (const date of dates) {
-      const datetime = new Date(`${date}T${time}`)
+      const startDateTime = new Date(`${date}T${time}:00Z`)
 
-      const showtime = await strapi.documents(SHOWTIME_UID).create({
+      const screening = await strapi.documents(SCREENING_UID).create({
         data: {
           event: eventId,
-          venue: venueId,
-          datetime: datetime.toISOString(),
-          format: format as "VOST" | "VF" | "VO" | "THREE_D" | "IMAX",
-          language: language as "fr" | "ar" | "en" | "other",
-          subtitles: subtitles as "fr" | "ar" | "en" | "none",
+          movie: movieId,
+          order: 1,
+          startDateTime: startDateTime.toISOString(),
+          videoFormat: videoFormat as
+            | "standard"
+            | "threeD"
+            | "imax"
+            | "fourDX"
+            | "format70mm",
+          audioLanguage,
+          subtitleLanguage,
           price,
           ticketsAvailable,
           ticketsSold: 0,
-          premiere: false,
         },
       })
 
-      createdShowtimes.push(showtime)
+      createdScreenings.push(screening)
     }
 
-    return createdShowtimes
+    return createdScreenings
   },
 
   /**
-   * Duplicate an event with optional showtime copying
+   * Duplicate an event with optional screening/performance copying
    */
   async duplicateEvent(params: DuplicateEventParams) {
-    const { eventId, newTitle, dateOffset = 0, copyShowtimes = false } = params
+    const { eventId, newTitle, dateOffset = 0, copySubEvents = false } = params
 
     // Fetch the original event
     const originalEvent = await strapi.documents(EVENT_UID).findOne({
       documentId: eventId,
-      populate: ["creativeWork", "venue", "showtimes"],
+      populate: {
+        venue: true,
+        screenings: { populate: ["movie"] },
+        performances: { populate: ["play"] },
+      },
     })
 
     if (!originalEvent) {
       throw new Error("Event not found")
+    }
+
+    const offsetDate = (
+      value: string | Date | null | undefined
+    ): string | null => {
+      if (!value) return null
+      const date = new Date(value)
+      date.setDate(date.getDate() + dateOffset)
+      return date.toISOString()
     }
 
     // Create new event with duplicated data
@@ -88,34 +175,47 @@ const eventManagerService = ({ strapi }: { strapi: Core.Strapi }) => ({
         title: newTitle || `${originalEvent.title} (Copy)`,
         slug: `${originalEvent.slug}-copy-${Date.now()}`,
         description: originalEvent.description,
-        startDate: originalEvent.startDate,
-        endDate: originalEvent.endDate,
-        status: "scheduled",
-        featured: false,
-        creativeWork: originalEvent.creativeWork?.documentId,
+        category: originalEvent.category,
+        startDateTime:
+          offsetDate(originalEvent.startDateTime) ??
+          originalEvent.startDateTime,
+        endDateTime: offsetDate(originalEvent.endDateTime),
+        eventStatus: "scheduled",
         venue: originalEvent.venue?.documentId,
       },
     })
 
-    // Copy showtimes if requested
-    if (copyShowtimes && originalEvent.showtimes?.length > 0) {
-      for (const showtime of originalEvent.showtimes) {
-        const originalDate = new Date(showtime.datetime)
-        originalDate.setDate(originalDate.getDate() + dateOffset)
-
-        await strapi.documents(SHOWTIME_UID).create({
+    // Copy screenings and performances if requested
+    if (copySubEvents) {
+      for (const screening of originalEvent.screenings ?? []) {
+        await strapi.documents(SCREENING_UID).create({
           data: {
             event: newEvent.documentId,
-            venue:
-              showtime.venue?.documentId || originalEvent.venue?.documentId,
-            datetime: originalDate.toISOString(),
-            format: showtime.format,
-            language: showtime.language,
-            subtitles: showtime.subtitles,
-            price: showtime.price,
-            ticketsAvailable: showtime.ticketsAvailable,
+            movie: screening.movie?.documentId,
+            order: screening.order,
+            startDateTime: offsetDate(screening.startDateTime),
+            videoFormat: screening.videoFormat,
+            audioLanguage: screening.audioLanguage,
+            subtitleLanguage: screening.subtitleLanguage,
+            price: screening.price,
+            ticketsAvailable: screening.ticketsAvailable,
             ticketsSold: 0,
-            premiere: false,
+          },
+        })
+      }
+
+      for (const performance of originalEvent.performances ?? []) {
+        await strapi.documents(PERFORMANCE_UID).create({
+          data: {
+            event: newEvent.documentId,
+            play: performance.play?.documentId,
+            order: performance.order,
+            startDateTime: offsetDate(performance.startDateTime),
+            audioLanguage: performance.audioLanguage,
+            surtitleLanguage: performance.surtitleLanguage,
+            price: performance.price,
+            ticketsAvailable: performance.ticketsAvailable,
+            ticketsSold: 0,
           },
         })
       }
@@ -125,44 +225,83 @@ const eventManagerService = ({ strapi }: { strapi: Core.Strapi }) => ({
   },
 
   /**
-   * Update ticket inventory for a showtime
+   * Update ticket inventory for a screening or a performance
    */
   async updateTicketInventory(
-    showtimeId: string,
+    subEventId: string,
     ticketsAvailable: number,
-    ticketsSold?: number
+    ticketsSold?: number,
+    kind: SubEventKind = "screening"
   ) {
-    const updateData: Record<string, number> = { ticketsAvailable }
+    assertSubEventKind(kind)
+    assertNonNegativeInteger(ticketsAvailable, "ticketsAvailable")
+    if (ticketsSold !== undefined) {
+      assertNonNegativeInteger(ticketsSold, "ticketsSold")
+      if (ticketsSold > ticketsAvailable) {
+        throw new Error(
+          `ticketsSold (${ticketsSold}) cannot exceed ticketsAvailable (${ticketsAvailable})`
+        )
+      }
+    }
+
+    const uid = SUB_EVENT_UIDS[kind]
+
+    // Check-then-act: a concurrent purchase can bump ticketsSold between this
+    // read and the update below. The guard catches operator mistakes, not races —
+    // a DB-level CHECK (ticketsSold <= ticketsAvailable) remains the final enforcer.
+    const subEvent = await strapi.documents(uid).findOne({
+      documentId: subEventId,
+    })
+
+    if (!subEvent) {
+      throw new Error(
+        `${kind === "screening" ? "Screening" : "Performance"} not found`
+      )
+    }
+
+    // When ticketsSold is untouched, capacity can't drop below what's already sold
+    if (ticketsSold === undefined && ticketsAvailable < subEvent.ticketsSold) {
+      throw new Error(
+        `ticketsSold (${subEvent.ticketsSold}) cannot exceed ticketsAvailable (${ticketsAvailable})`
+      )
+    }
+
+    const updateData: { ticketsAvailable: number; ticketsSold?: number } = {
+      ticketsAvailable,
+    }
 
     if (ticketsSold !== undefined) {
       updateData.ticketsSold = ticketsSold
     }
 
-    return strapi.documents(SHOWTIME_UID).update({
-      documentId: showtimeId,
+    return strapi.documents(uid).update({
+      documentId: subEventId,
       data: updateData,
     })
   },
 
   /**
-   * Get event statistics
+   * Get event statistics across screenings and performances
    */
   async getEventStats(eventId: string) {
     const event = await strapi.documents(EVENT_UID).findOne({
       documentId: eventId,
-      populate: ["showtimes"],
+      populate: ["screenings", "performances"],
     })
 
     if (!event) {
       throw new Error("Event not found")
     }
 
-    const showtimes = event.showtimes || []
-    const totalTicketsAvailable = showtimes.reduce(
+    const subEvents = [
+      ...(event.screenings || []),
+      ...(event.performances || []),
+    ]
+    const totalTicketsAvailable = subEvents.reduce(
       (sum: number, s: any) => sum + (s.ticketsAvailable || 0),
       0
     )
-    const totalTicketsSold = showtimes.reduce(
+    const totalTicketsSold = subEvents.reduce(
       (sum: number, s: any) => sum + (s.ticketsSold || 0),
       0
     )
@@ -170,7 +309,9 @@ const eventManagerService = ({ strapi }: { strapi: Core.Strapi }) => ({
     return {
       eventId,
       title: event.title,
-      showtimeCount: showtimes.length,
+      screeningCount: (event.screenings || []).length,
+      performanceCount: (event.performances || []).length,
+      subEventCount: subEvents.length,
       totalTicketsAvailable,
       totalTicketsSold,
       remainingTickets: totalTicketsAvailable - totalTicketsSold,

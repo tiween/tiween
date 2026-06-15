@@ -208,6 +208,9 @@ export async function loginUser(
     throw new Error(`Login failed: ${response.status}`)
   }
 
-  const data = await response.json()
+  const data = (await response.json()) as { jwt?: string }
+  if (typeof data.jwt !== "string") {
+    throw new Error("Login response missing jwt")
+  }
   return data.jwt
 }

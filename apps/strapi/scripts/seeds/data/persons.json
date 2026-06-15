@@ -128,5 +128,115 @@
     "birthDate": "1996-09-01",
     "nationality": "Américaine",
     "type": "actor"
+  },
+  {
+    "name": "Maher Elhasnaoui",
+    "name_ar": "ماهر الحسناوي",
+    "slug": "maher-elhasnaoui",
+    "biography": "Réalisateur tunisien, connu pour le court-métrage 'Khalâa' (2016).",
+    "biography_ar": "مخرج تونسي، معروف بالفيلم القصير 'خلعة' (2016).",
+    "birthDate": null,
+    "nationality": "Tunisienne",
+    "type": "director"
+  },
+  {
+    "name": "Anouar Lahouar",
+    "name_ar": "أنور لهوار",
+    "slug": "anouar-lahouar",
+    "biography": "Réalisateur et scénariste tunisien, connu pour le court-métrage 'Le Masseur' (2011).",
+    "biography_ar": "مخرج وكاتب سيناريو تونسي، معروف بالفيلم القصير 'الطيّاب' (2011).",
+    "birthDate": null,
+    "nationality": "Tunisienne",
+    "type": "director"
+  },
+  {
+    "name": "Oussama Boukhris",
+    "name_ar": "أسامة بوخريس",
+    "slug": "oussama-boukhris",
+    "biography": "Réalisateur et directeur de la photographie tunisien, connu pour 'Petit Frère' (2013).",
+    "biography_ar": "مخرج ومدير تصوير تونسي، معروف بفيلم 'قريد العش' (2013).",
+    "birthDate": null,
+    "nationality": "Tunisienne",
+    "type": "director"
+  },
+  {
+    "name": "Anis Lassoued",
+    "name_ar": "أنيس لسود",
+    "slug": "anis-lassoued",
+    "biography": "Réalisateur tunisien, connu pour 'Les Souliers de l'Aïd' (2012), sélectionné aux JCC.",
+    "biography_ar": "مخرج تونسي، معروف بفيلم 'صباط العيد' (2012)، المختار في أيام قرطاج السينمائية.",
+    "birthDate": null,
+    "nationality": "Tunisienne",
+    "type": "director"
+  },
+  {
+    "name": "Aymen Lajmi",
+    "name_ar": "أيمن لعجمي",
+    "slug": "aymen-lajmi",
+    "biography": "Réalisateur tunisien, connu pour le court-métrage 'Comme Un Fils'.",
+    "biography_ar": "مخرج تونسي، معروف بالفيلم القصير 'كيما ولدي'.",
+    "birthDate": null,
+    "nationality": "Tunisienne",
+    "type": "director"
+  },
+  {
+    "name": "Noomane Hamda",
+    "name_ar": "نعمان حمدة",
+    "slug": "noomane-hamda",
+    "biography": "Acteur tunisien, rôle principal dans 'Le Masseur'.",
+    "biography_ar": "ممثل تونسي، بطل فيلم 'الطيّاب'.",
+    "birthDate": null,
+    "nationality": "Tunisienne",
+    "type": "actor"
+  },
+  {
+    "name": "Mohamed Amine Hamzaoui",
+    "name_ar": "محمد أمين حمزاوي",
+    "slug": "mohamed-amine-hamzaoui",
+    "biography": "Acteur et rappeur tunisien, connu pour 'Comme Un Fils' et sa carrière musicale.",
+    "biography_ar": "ممثل ومغني راب تونسي، معروف بفيلم 'كيما ولدي' ومسيرته الموسيقية.",
+    "birthDate": null,
+    "nationality": "Tunisienne",
+    "type": "actor"
+  },
+  {
+    "name": "Mohamed Ali Khmiri",
+    "name_ar": "محمد علي خميري",
+    "slug": "mohamed-ali-khmiri",
+    "biography": "Acteur tunisien, apparaît dans 'Comme Un Fils'.",
+    "biography_ar": "ممثل تونسي، ظهر في فيلم 'كيما ولدي'.",
+    "birthDate": null,
+    "nationality": "Tunisienne",
+    "type": "actor"
+  },
+  {
+    "name": "Sabri Feddini",
+    "name_ar": "صبري فديني",
+    "slug": "sabri-feddini",
+    "biography": "Acteur tunisien, rôle de Mehdi dans 'Petit Frère'.",
+    "biography_ar": "ممثل تونسي، لعب دور مهدي في فيلم 'قريد العش'.",
+    "birthDate": null,
+    "nationality": "Tunisienne",
+    "type": "actor"
+  },
+  {
+    "name": "Lamine Belkhodja",
+    "name_ar": "لمين بلخوجة",
+    "slug": "lamine-belkhodja",
+    "biography": "Acteur tunisien, rôle de Slim dans 'Petit Frère'.",
+    "biography_ar": "ممثل تونسي، لعب دور سليم في فيلم 'قريد العش'.",
+    "birthDate": null,
+    "nationality": "Tunisienne",
+    "type": "actor"
+  },
+  {
+    "name": "Chema Ben Chaabene",
+    "name_ar": "شامة بن شعبان",
+    "slug": "chema-ben-chaabene",
+    "biography": "Actrice tunisienne, apparaît dans 'Les Souliers de l'Aïd'.",
+    "biography_ar": "ممثلة تونسية، ظهرت في فيلم 'صباط العيد'.",
+    "birthDate": null,
+    "nationality": "Tunisienne",
+    "type": "actor"
   }
 ]

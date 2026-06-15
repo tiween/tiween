@@ -2,46 +2,46 @@ import type { Core } from "@strapi/strapi"
 
 const eventManagerController = ({ strapi }: { strapi: Core.Strapi }) => ({
   /**
-   * Create bulk showtimes for an event
+   * Create bulk screenings for an event
    */
-  async createBulkShowtimes(ctx: any) {
+  async createBulkScreenings(ctx: any) {
     try {
       const {
         eventId,
-        venueId,
+        movieId,
         dates,
         time,
-        format,
-        language,
-        subtitles,
+        videoFormat,
+        audioLanguage,
+        subtitleLanguage,
         price,
         ticketsAvailable,
       } = ctx.request.body
 
-      if (!eventId || !venueId || !dates || !time) {
+      if (!eventId || !movieId || !dates || !time) {
         return ctx.badRequest(
-          "Missing required fields: eventId, venueId, dates, time"
+          "Missing required fields: eventId, movieId, dates, time"
         )
       }
 
-      const showtimes = await strapi
+      const screenings = await strapi
         .plugin("events-manager")
         .service("event-manager")
-        .createBulkShowtimes({
+        .createBulkScreenings({
           eventId,
-          venueId,
+          movieId,
           dates,
           time,
-          format,
-          language,
-          subtitles,
+          videoFormat,
+          audioLanguage,
+          subtitleLanguage,
           price,
           ticketsAvailable,
         })
 
       return ctx.send({
-        message: `Created ${showtimes.length} showtimes`,
-        data: showtimes,
+        message: `Created ${screenings.length} screenings`,
+        data: screenings,
       })
     } catch (error: any) {
       return ctx.badRequest(error.message)
@@ -53,7 +53,7 @@ const eventManagerController = ({ strapi }: { strapi: Core.Strapi }) => ({
    */
   async duplicateEvent(ctx: any) {
     try {
-      const { eventId, newTitle, dateOffset, copyShowtimes } = ctx.request.body
+      const { eventId, newTitle, dateOffset, copySubEvents } = ctx.request.body
 
       if (!eventId) {
         return ctx.badRequest("Missing required field: eventId")
@@ -66,7 +66,7 @@ const eventManagerController = ({ strapi }: { strapi: Core.Strapi }) => ({
           eventId,
           newTitle,
           dateOffset,
-          copyShowtimes,
+          copySubEvents,
         })
 
       return ctx.send({
@@ -79,26 +79,27 @@ const eventManagerController = ({ strapi }: { strapi: Core.Strapi }) => ({
   },
 
   /**
-   * Update ticket inventory
+   * Update ticket inventory for a screening or a performance
    */
   async updateTicketInventory(ctx: any) {
     try {
-      const { showtimeId, ticketsAvailable, ticketsSold } = ctx.request.body
+      const { subEventId, kind, ticketsAvailable, ticketsSold } =
+        ctx.request.body
 
-      if (!showtimeId || ticketsAvailable === undefined) {
+      if (!subEventId || ticketsAvailable === undefined) {
         return ctx.badRequest(
-          "Missing required fields: showtimeId, ticketsAvailable"
+          "Missing required fields: subEventId, ticketsAvailable"
         )
       }
 
-      const showtime = await strapi
+      const subEvent = await strapi
         .plugin("events-manager")
         .service("event-manager")
-        .updateTicketInventory(showtimeId, ticketsAvailable, ticketsSold)
+        .updateTicketInventory(subEventId, ticketsAvailable, ticketsSold, kind)
 
       return ctx.send({
         message: "Ticket inventory updated",
-        data: showtime,
+        data: subEvent,
       })
     } catch (error: any) {
       return ctx.badRequest(error.message)
