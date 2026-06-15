@@ -70,12 +70,7 @@ describe("order.createOrder (unit)", () => {
 
     // Inventory reserved exactly once, with +qty and the screening kind/id.
     expect(adjustInventory).toHaveBeenCalledTimes(1)
-    expect(adjustInventory).toHaveBeenCalledWith(
-      "screening-1",
-      "screening",
-      2,
-      expect.objectContaining({ __trx: true })
-    )
+    expect(adjustInventory).toHaveBeenCalledWith("screening-1", "screening", 2)
 
     // One order + two tickets created (3 document creates total).
     expect(documentCreate).toHaveBeenCalledTimes(3)
@@ -140,6 +135,24 @@ describe("order.createOrder (unit)", () => {
     expect(documentCreate).not.toHaveBeenCalled()
   })
 
+  it("validation: null screeningId is treated as absent (XOR), routes to performance", async () => {
+    const { strapi, adjustInventory } = buildStrapi()
+    const service = orderService({ strapi })
+
+    // screeningId: null must NOT count as a provided value; performanceId wins.
+    await service.createOrder({
+      ...baseInput,
+      screeningId: null as any,
+      performanceId: "performance-1",
+    })
+
+    expect(adjustInventory).toHaveBeenCalledWith(
+      "performance-1",
+      "performance",
+      2
+    )
+  })
+
   it("validation failure: both screening AND performance is rejected (XOR)", async () => {
     const { strapi, adjustInventory } = buildStrapi()
     const service = orderService({ strapi })
@@ -190,8 +203,7 @@ describe("order.createOrder (unit)", () => {
     expect(adjustInventory).toHaveBeenCalledWith(
       "performance-1",
       "performance",
-      2,
-      expect.anything()
+      2
     )
     const orderCall = documentCreate.mock.calls[0][0]
     expect(orderCall.data.performance).toBe("performance-1")

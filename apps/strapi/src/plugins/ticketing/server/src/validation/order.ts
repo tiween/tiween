@@ -18,8 +18,19 @@ export const createOrderSchema = z
     guestEmail: z.string().email().optional(),
     guestName: z.string().min(1).optional(),
     eventId: z.string().min(1),
-    screeningId: z.string().min(1).optional(),
-    performanceId: z.string().min(1).optional(),
+    // `.nullish()` + transform collapses null → undefined so the XOR check and
+    // the downstream `data.screeningId ? ...` routing agree on what "absent"
+    // means (a JSON `null` must not slip past the XOR as if it were a value).
+    screeningId: z
+      .string()
+      .min(1)
+      .nullish()
+      .transform((v) => v ?? undefined),
+    performanceId: z
+      .string()
+      .min(1)
+      .nullish()
+      .transform((v) => v ?? undefined),
     tickets: z.array(ticketInputSchema).min(1),
   })
   .refine(

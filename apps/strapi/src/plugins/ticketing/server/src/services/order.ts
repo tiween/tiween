@@ -58,14 +58,14 @@ const orderService = ({ strapi }: { strapi: Core.Strapi }) => ({
 
     const publicApi = strapi.plugin("events-manager").service("public-api")
 
-    return strapi.db.transaction(async ({ trx }) => {
-      // (b) Atomically reserve capacity. Throws TICKET_SOLD_OUT (rolls back the
-      // whole tx) when the request exceeds remaining seats.
+    return strapi.db.transaction(async () => {
+      // (b) Reserve capacity. Throws TICKET_SOLD_OUT (rolls back the whole tx)
+      // when the request exceeds remaining seats. The facade's Document Service
+      // write auto-enlists in this transaction via AsyncLocalStorage.
       await publicApi.adjustInventory(
         subEvent.documentId,
         subEvent.kind,
-        data.tickets.length,
-        trx
+        data.tickets.length
       )
 
       // (c) Create the order (auto-joins this tx via AsyncLocalStorage).
@@ -136,7 +136,7 @@ const orderService = ({ strapi }: { strapi: Core.Strapi }) => ({
   async findByOrderNumber(orderNumber: string) {
     const orders = await strapi.documents(ORDER_UID).findMany({
       filters: { orderNumber },
-      populate: ["tickets", "event", "showtime", "user"],
+      populate: ["tickets", "event", "screening", "performance", "user"],
     })
 
     return orders[0] || null

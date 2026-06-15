@@ -3,136 +3,148 @@ import publicApiService from "../public-api"
 /**
  * Unit tests for events-manager `public-api.adjustInventory` (mocked Strapi).
  *
- * The oversell race is closed by a single atomic capacity-guarded SQL UPDATE.
- * We cannot assert true DB concurrency here, so we assert the load-bearing
- * invariants of that statement instead:
- *  - the UPDATE carries the capacity guard (ticketsSold + delta <= available)
- *  - the SET is column-relative (ticketsSold = ticketsSold + delta)
- *  - zero affected rows => TICKET_SOLD_OUT
- *  - it binds to the caller's transaction (never opens its own)
- *  - refunds (delta < 0) use a floor guard, not the capacity guard
+ * adjustInventory is a Document Service read-modify-write (no raw SQL). We assert
+ * its load-bearing invariants:
+ *  - it reads the PUBLISHED row (status: "published") of the draftAndPublish doc
+ *  - a sale that fits writes ticketsSold = current + delta
+ *  - a sale that exceeds capacity throws TICKET_SOLD_OUT and does NOT write
+ *  - a refund (delta < 0) decrements, floored at zero
+ *  - unknown kind / zero delta / missing document are rejected
+ *
+ * Concurrency is intentionally NOT covered — it is deferred to Epic 6
+ * (read-modify-write is racy by design for now; see deferred-work.md).
  */
 
-/** Build a chainable knex-query mock that resolves to `affectedRows`. */
-function buildKnexQuery(affectedRows: number) {
-  const calls: { method: string; args: unknown[] }[] = []
-  const query: any = {}
-  const record =
-    (method: string) =>
-    (...args: unknown[]) => {
-      calls.push({ method, args })
-      return query
-    }
-  query.transacting = record("transacting")
-  query.where = record("where")
-  query.update = record("update")
-  query.andWhereRaw = record("andWhereRaw")
-  // Awaiting the builder resolves to the affected-row count.
-  query.then = (resolve: (v: number) => unknown) => resolve(affectedRows)
-  return { query, calls }
+interface DocApiMock {
+  findOne: jest.Mock
+  update: jest.Mock
 }
 
-function buildStrapi(affectedRows: number) {
-  const { query, calls } = buildKnexQuery(affectedRows)
-
-  const knex: any = jest.fn(() => query)
-  knex.raw = jest.fn((sql: string, bindings: unknown[]) => ({
-    __raw: sql,
-    bindings,
-  }))
-
-  const strapi: any = {
-    db: {
-      connection: knex,
-      metadata: {
-        get: jest.fn(() => ({
-          tableName: "screenings",
-          attributes: {
-            documentId: { columnName: "document_id" },
-            ticketsSold: { columnName: "tickets_sold" },
-            ticketsAvailable: { columnName: "tickets_available" },
-          },
-        })),
-      },
-    },
+function buildStrapi(
+  doc: { ticketsSold: number; ticketsAvailable: number } | null
+) {
+  const docApi: DocApiMock = {
+    findOne: jest.fn(async () =>
+      doc ? { documentId: "screening-1", ...doc } : null
+    ),
+    update: jest.fn(async () => ({ documentId: "screening-1" })),
   }
 
-  return { strapi, knex, query, calls }
+  const strapi: any = {
+    documents: jest.fn(() => docApi),
+  }
+
+  return { strapi, docApi }
 }
 
 describe("public-api.adjustInventory (unit)", () => {
-  const trx = { __trx: true } as any
-
-  it("issues a column-relative, capacity-guarded UPDATE bound to the tx", async () => {
-    const { strapi, knex, query, calls } = buildStrapi(1)
+  it("reads the published row and writes current + delta on a fitting sale", async () => {
+    const { strapi, docApi } = buildStrapi({
+      ticketsSold: 3,
+      ticketsAvailable: 10,
+    })
     const service = publicApiService({ strapi })
 
-    await service.adjustInventory("screening-1", "screening", 2, trx)
+    await service.adjustInventory("screening-1", "screening", 2)
 
-    // Targets the resolved table and binds to the caller's transaction.
-    expect(knex).toHaveBeenCalledWith("screenings")
-    expect(calls.find((c) => c.method === "transacting")?.args).toEqual([trx])
-
-    // SET tickets_sold = tickets_sold + delta (column-relative, via raw).
-    expect(knex.raw).toHaveBeenCalledWith("?? + ?", ["tickets_sold", 2])
-
-    // WHERE document_id = id
-    expect(calls.find((c) => c.method === "where")?.args).toEqual([
-      "document_id",
-      "screening-1",
-    ])
-
-    // Capacity guard present: tickets_sold + delta <= tickets_available
-    const guard = calls.find((c) => c.method === "andWhereRaw")
-    expect(guard?.args).toEqual([
-      "?? + ? <= ??",
-      ["tickets_sold", 2, "tickets_available"],
-    ])
+    expect(strapi.documents).toHaveBeenCalledWith(
+      "plugin::events-manager.screening"
+    )
+    expect(docApi.findOne).toHaveBeenCalledWith(
+      expect.objectContaining({
+        documentId: "screening-1",
+        status: "published",
+      })
+    )
+    expect(docApi.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        documentId: "screening-1",
+        status: "published",
+        data: { ticketsSold: 5 },
+      })
+    )
   })
 
-  it("throws TICKET_SOLD_OUT when zero rows pass the guard", async () => {
-    const { strapi } = buildStrapi(0)
+  it("throws TICKET_SOLD_OUT and does not write when the sale exceeds capacity", async () => {
+    const { strapi, docApi } = buildStrapi({
+      ticketsSold: 9,
+      ticketsAvailable: 10,
+    })
     const service = publicApiService({ strapi })
 
     await expect(
-      service.adjustInventory("screening-1", "screening", 1, trx)
+      service.adjustInventory("screening-1", "screening", 2)
     ).rejects.toMatchObject({ code: "TICKET_SOLD_OUT" })
+    expect(docApi.update).not.toHaveBeenCalled()
   })
 
-  it("does not throw when at least one row is updated", async () => {
-    const { strapi } = buildStrapi(1)
+  it("allows a sale that exactly fills remaining capacity", async () => {
+    const { strapi, docApi } = buildStrapi({
+      ticketsSold: 8,
+      ticketsAvailable: 10,
+    })
     const service = publicApiService({ strapi })
 
     await expect(
-      service.adjustInventory("screening-1", "screening", 1, trx)
+      service.adjustInventory("screening-1", "screening", 2)
     ).resolves.toBeUndefined()
+    expect(docApi.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: { ticketsSold: 10 } })
+    )
   })
 
-  it("refund (delta < 0) uses a floor guard, not the capacity guard", async () => {
-    const { strapi, calls } = buildStrapi(1)
+  it("refund (delta < 0) decrements sold count", async () => {
+    const { strapi, docApi } = buildStrapi({
+      ticketsSold: 4,
+      ticketsAvailable: 10,
+    })
     const service = publicApiService({ strapi })
 
-    await service.adjustInventory("screening-1", "screening", -1, trx)
+    await service.adjustInventory("screening-1", "screening", -1)
 
-    const guard = calls.find((c) => c.method === "andWhereRaw")
-    expect(guard?.args).toEqual(["?? + ? >= 0", ["tickets_sold", -1]])
+    expect(docApi.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: { ticketsSold: 3 } })
+    )
+  })
+
+  it("refund cannot drive sold count below zero", async () => {
+    const { strapi, docApi } = buildStrapi({
+      ticketsSold: 0,
+      ticketsAvailable: 10,
+    })
+    const service = publicApiService({ strapi })
+
+    await expect(
+      service.adjustInventory("screening-1", "screening", -1)
+    ).rejects.toMatchObject({ code: "TICKET_SOLD_OUT" })
+    expect(docApi.update).not.toHaveBeenCalled()
+  })
+
+  it("throws when the sub-event document does not exist", async () => {
+    const { strapi, docApi } = buildStrapi(null)
+    const service = publicApiService({ strapi })
+
+    await expect(
+      service.adjustInventory("missing", "screening", 1)
+    ).rejects.toThrow(/not found/)
+    expect(docApi.update).not.toHaveBeenCalled()
   })
 
   it("rejects an unknown sub-event kind", async () => {
-    const { strapi } = buildStrapi(1)
+    const { strapi } = buildStrapi({ ticketsSold: 0, ticketsAvailable: 10 })
     const service = publicApiService({ strapi })
 
     await expect(
-      service.adjustInventory("x", "balloon" as any, 1, trx)
+      service.adjustInventory("x", "balloon" as any, 1)
     ).rejects.toThrow(/Unknown sub-event kind/)
   })
 
   it("rejects a zero delta", async () => {
-    const { strapi } = buildStrapi(1)
+    const { strapi } = buildStrapi({ ticketsSold: 0, ticketsAvailable: 10 })
     const service = publicApiService({ strapi })
 
     await expect(
-      service.adjustInventory("screening-1", "screening", 0, trx)
+      service.adjustInventory("screening-1", "screening", 0)
     ).rejects.toThrow(/non-zero integer/)
   })
 })

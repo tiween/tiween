@@ -1,6 +1,12 @@
 # Story 2C.4: Ticketing Unit of Work and Atomic Inventory
 
-Status: review
+Status: done
+
+> Review closed 2026-06-15. Both decision-needed findings resolved (draftAndPublish
+> double-count fixed via Document Service; concurrency safety deferred to Epic 6 since
+> ticketing ships post-GTM). All actionable patch findings fixed. Remaining items are
+> Epic-6-gated or integration-suite-blocked — tracked in deferred-work.md. 16/16 unit
+> tests green.
 
 <!-- Implemented on branch feat/2c-4-ticketing-uow (commit 5dfa1bd), based on
 2C.1 (446f578). Gate note: the initial agent run mis-reported the unit gate —
@@ -46,6 +52,39 @@ so that ticket sales cannot oversell capacity or orphan partial orders before Ep
   - [ ] `yarn test --testPathPattern unit` green incl. new ticketing tests
   - [ ] `yarn generate:types` boots Strapi cleanly (0 errors)
   - [ ] grep: no new foreign-UID `strapi.documents()` calls (rule R4); the only cross-plugin call is ticketing → events-manager public-api
+
+## Review Findings
+
+_Code review 2026-06-15 (Blind Hunter + Edge Case Hunter + Acceptance Auditor, all 3 layers). The draftAndPublish double-count was independently flagged by 2 layers and verified directly against the code + Strapi v5 draft/publish semantics._
+
+### Decision-needed → RESOLVED 2026-06-15 (Ayoub)
+
+Direction: fix the double-count via Document Service (no raw SQL — standing rule); do
+NOT build concurrency mechanics now (ticketing ships post-GTM, so the oversell race is
+deferred to Epic 6).
+
+- [x] [Review][Decision] **~~Atomic UPDATE double-counts on published sub-events (draftAndPublish)~~ — FIXED.** `adjustInventory` rewritten from raw-knex UPDATE to a Document Service read-modify-write reading/writing `status: "published"` — it now operates on the single live row, eliminating the draft+published double-count. Raw SQL removed entirely. Unit tests rewritten against the Document Service mock (8 green). Concurrency intentionally NOT handled — see deferred-work.md (Epic 6 gate). [public-api.ts]
+- [x] [Review][Decision] **DB CHECK(tickets_sold <= tickets_available) backstop — DEFERRED to Epic 6.** Not added now; recorded in deferred-work.md as the preferred concurrency-safety mechanism to add before ticketing goes live. The legacy `event-manager.ts` comment that references a non-existent CHECK is noted there too.
+
+### Patch (fixable, unambiguous)
+
+- [x] [Review][Patch] **Zero rows conflates "sold out" with "sub-event not found"** — FIXED by the rewrite: `findOne` returning null now throws a distinct `not found` error; `TICKET_SOLD_OUT` is reserved for the explicit capacity check.
+- [x] [Review][Patch] **Stale `showtime` relation in `findByOrderNumber` populate** [order.ts:139] — FIXED: populate changed to `["tickets", "event", "screening", "performance", "user"]`. (The legacy `showtime` *relation* on the ticket-order schema itself is left as a separate cleanup — see Deferred; it is unused, not wrong.)
+- [x] [Review][Patch] **Silent column-name fallback masks metadata miss** — OBSOLETE: the entire `resolveColumns`/`col()` metadata path was deleted with the raw SQL. No column-name resolution remains.
+- [x] [Review][Patch] **XOR validation has a null-vs-undefined gap** [validation/order.ts] — FIXED: `screeningId`/`performanceId` use `.nullish().transform(v => v ?? undefined)`, collapsing null→undefined at the boundary so the XOR check and downstream routing agree. Test added (null screeningId routes to performance). 16/16 unit tests green.
+
+### Deferred (real but not actionable now)
+
+- [x] [Review][Defer] **Transaction threading of order/ticket writes rests on AsyncLocalStorage auto-join** [order.ts createOrder] — deferred: Edge Hunter verified against Strapi v5 docs that Document Service writes inside `strapi.db.transaction` auto-join the tx via ALS, and `adjustInventory` explicitly `.transacting(trx)`. The mechanism is documented-correct; the only execution proof is the skipped integration test. Re-confirm when the integration suite can boot.
+- [x] [Review][Defer] **Integration test `describe.skip` — real concurrency assertion never runs** [order.service.test.ts] — deferred, pre-existing: blocked by the `db.config.connection` env failure that blocks ALL integration suites. Also note `seedScreening` creates draft-only rows, so even un-skipped it would not catch the double-count without a `status: published` fixture.
+- [x] [Review][Defer] **Refund path (delta<0) has no upper bound / idempotency and shares TICKET_SOLD_OUT code** [public-api.ts] — deferred: no refund caller is wired yet (Epic 6). Revisit with the refund feature; give it a distinct error code then.
+- [x] [Review][Defer] **`affectedRows === 0` strict check is knex-driver dependent** [public-api.ts:112] — deferred: correct for the configured Postgres (returns rowcount); harden alongside the F1 fix.
+
+### Dismissed (3)
+
+- `SUB_EVENT_UIDS` duplicated in public-api.ts rather than imported — defensible for a facade (avoids coupling to an internal module); the auditor itself called it acceptable.
+- `type as "standard"|...` cast in order.ts — redundant but harmless (value already Zod-validated).
+- `this.generateOrderNumber()` binding / order-null nits — false positives (lexical capture is safe; Document Service throws on failure).
 
 ## Dev Notes
 
