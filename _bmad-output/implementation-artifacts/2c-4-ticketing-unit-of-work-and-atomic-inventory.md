@@ -69,7 +69,7 @@ deferred to Epic 6).
 ### Patch (fixable, unambiguous)
 
 - [x] [Review][Patch] **Zero rows conflates "sold out" with "sub-event not found"** — FIXED by the rewrite: `findOne` returning null now throws a distinct `not found` error; `TICKET_SOLD_OUT` is reserved for the explicit capacity check.
-- [x] [Review][Patch] **Stale `showtime` relation in `findByOrderNumber` populate** [order.ts:139] — FIXED: populate changed to `["tickets", "event", "screening", "performance", "user"]`. (The legacy `showtime` *relation* on the ticket-order schema itself is left as a separate cleanup — see Deferred; it is unused, not wrong.)
+- [x] [Review][Patch] **Stale `showtime` relation in `findByOrderNumber` populate** [order.ts:139] — FIXED: populate changed to `["tickets", "event", "screening", "performance", "user"]`. (The legacy `showtime` _relation_ on the ticket-order schema itself is left as a separate cleanup — see Deferred; it is unused, not wrong.)
 - [x] [Review][Patch] **Silent column-name fallback masks metadata miss** — OBSOLETE: the entire `resolveColumns`/`col()` metadata path was deleted with the raw SQL. No column-name resolution remains.
 - [x] [Review][Patch] **XOR validation has a null-vs-undefined gap** [validation/order.ts] — FIXED: `screeningId`/`performanceId` use `.nullish().transform(v => v ?? undefined)`, collapsing null→undefined at the boundary so the XOR check and downstream routing agree. Test added (null screeningId routes to performance). 16/16 unit tests green.
 
