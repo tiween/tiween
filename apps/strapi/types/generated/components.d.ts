@@ -64,13 +64,53 @@ export interface CommonVideo extends Struct.ComponentSchema {
     type: Schema.Attribute.Enumeration<["FULL_LENGTH", "TEASER", "CLIP"]> &
       Schema.Attribute.DefaultTo<"TEASER">
     url: Schema.Attribute.String & Schema.Attribute.Required
+    videoType: Schema.Attribute.Enumeration<
+      [
+        "trailer",
+        "teaser",
+        "clip",
+        "featurette",
+        "interview",
+        "behind-the-scenes",
+        "full-length",
+      ]
+    > &
+      Schema.Attribute.DefaultTo<"trailer">
+  }
+}
+
+export interface CreativeWorksCast extends Struct.ComponentSchema {
+  collectionName: "components_creative_works_casts"
+  info: {
+    description: "An actor's portrayal of a character in a creative work (person \u2192 character graph edge)"
+    displayName: "Cast"
+    icon: "users"
+  }
+  attributes: {
+    billing: Schema.Attribute.Integer &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 1
+        },
+        number
+      > &
+      Schema.Attribute.DefaultTo<99>
+    character: Schema.Attribute.Relation<
+      "oneToOne",
+      "plugin::creative-works.character"
+    >
+    person: Schema.Attribute.Relation<
+      "oneToOne",
+      "plugin::creative-works.person"
+    > &
+      Schema.Attribute.Required
   }
 }
 
 export interface CreativeWorksCredit extends Struct.ComponentSchema {
   collectionName: "components_creative_works_credits"
   info: {
-    description: "A person's contribution to a creative work (graph edge with properties)"
+    description: "A crew member's contribution to a creative work (person \u2192 credit-role graph edge)"
     displayName: "Credit"
     icon: "user-tie"
   }
@@ -83,36 +123,15 @@ export interface CreativeWorksCredit extends Struct.ComponentSchema {
         number
       > &
       Schema.Attribute.DefaultTo<99>
-    character: Schema.Attribute.String
+    creditRole: Schema.Attribute.Relation<
+      "oneToOne",
+      "plugin::creative-works.credit-role"
+    > &
+      Schema.Attribute.Required
     customRole: Schema.Attribute.String
     person: Schema.Attribute.Relation<
       "oneToOne",
       "plugin::creative-works.person"
-    > &
-      Schema.Attribute.Required
-    role: Schema.Attribute.Enumeration<
-      [
-        "director",
-        "playwright",
-        "screenwriter",
-        "adaptor",
-        "translator",
-        "composer",
-        "musical-director",
-        "choreographer",
-        "cast",
-        "set-designer",
-        "costume-designer",
-        "lighting-designer",
-        "sound-designer",
-        "projection-designer",
-        "stage-manager",
-        "producer",
-        "executive-producer",
-        "cinematographer",
-        "editor",
-        "other",
-      ]
     > &
       Schema.Attribute.Required
   }
@@ -335,6 +354,18 @@ export interface SeoUtilitiesSocialIcons extends Struct.ComponentSchema {
   }
 }
 
+export interface SharedGeoPoint extends Struct.ComponentSchema {
+  collectionName: "components_shared_geo_points"
+  info: {
+    displayName: "Geo point"
+    icon: "pinMap"
+  }
+  attributes: {
+    latitude: Schema.Attribute.Decimal
+    longitude: Schema.Attribute.Decimal
+  }
+}
+
 export interface UtilitiesAccordions extends Struct.ComponentSchema {
   collectionName: "components_utilities_accordions"
   info: {
@@ -413,6 +444,7 @@ declare module "@strapi/strapi" {
       "common.link": CommonLink
       "common.remarkable-fact": CommonRemarkableFact
       "common.video": CommonVideo
+      "creative-works.cast": CreativeWorksCast
       "creative-works.credit": CreativeWorksCredit
       "creative-works.distinction": CreativeWorksDistinction
       "creative-works.external-ids": CreativeWorksExternalIds
@@ -423,6 +455,7 @@ declare module "@strapi/strapi" {
       "seo-utilities.seo-og": SeoUtilitiesSeoOg
       "seo-utilities.seo-twitter": SeoUtilitiesSeoTwitter
       "seo-utilities.social-icons": SeoUtilitiesSocialIcons
+      "shared.geo-point": SharedGeoPoint
       "utilities.accordions": UtilitiesAccordions
       "utilities.basic-image": UtilitiesBasicImage
       "utilities.image-with-link": UtilitiesImageWithLink

@@ -81,6 +81,16 @@
       "relation": "manyToMany",
       "target": "plugin::creative-works.genre"
     },
+    "cast": {
+      "type": "component",
+      "repeatable": true,
+      "component": "creative-works.cast",
+      "pluginOptions": {
+        "i18n": {
+          "localized": false
+        }
+      }
+    },
     "credits": {
       "type": "component",
       "repeatable": true,

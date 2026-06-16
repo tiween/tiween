@@ -20,6 +20,20 @@
       ],
       "default": "TEASER",
       "required": false
+    },
+    "videoType": {
+      "type": "enumeration",
+      "enum": [
+        "trailer",
+        "teaser",
+        "clip",
+        "featurette",
+        "interview",
+        "behind-the-scenes",
+        "full-length"
+      ],
+      "default": "trailer",
+      "required": false
     }
   }
 }

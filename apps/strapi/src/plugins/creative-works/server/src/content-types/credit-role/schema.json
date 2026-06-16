@@ -1,0 +1,60 @@
+{
+  "kind": "collectionType",
+  "collectionName": "credit_roles",
+  "info": {
+    "singularName": "credit-role",
+    "pluralName": "credit-roles",
+    "displayName": "Credit Role",
+    "description": "Crew vocabulary for creative-work credits (director, writer, composer, playwright, …). Named 'credit-role' to avoid the Strapi RBAC 'role' collision (admin::role / plugin::users-permissions.role)."
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {
+    "i18n": {
+      "localized": true
+    }
+  },
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "name",
+      "pluginOptions": {
+        "i18n": {
+          "localized": false
+        }
+      }
+    },
+    "department": {
+      "type": "enumeration",
+      "enum": [
+        "directing",
+        "writing",
+        "production",
+        "camera",
+        "editing",
+        "sound",
+        "music",
+        "art",
+        "costume-makeup",
+        "lighting",
+        "stage",
+        "other"
+      ],
+      "pluginOptions": {
+        "i18n": {
+          "localized": false
+        }
+      }
+    }
+  }
+}

@@ -56,8 +56,7 @@
     "movie": {
       "type": "relation",
       "relation": "manyToOne",
-      "target": "plugin::events-manager.movie",
-      "inversedBy": "screenings"
+      "target": "plugin::creative-works.creative-work"
     },
     "features": {
       "type": "relation",

@@ -24,18 +24,19 @@ const CONTENT_TYPES = [
   // Events (depends on venues and creative works)
   "plugin::events-manager.screening",
   "plugin::events-manager.performance",
-  "plugin::events-manager.credit",
   "plugin::events-manager.event",
   "plugin::events-manager.event-group",
 
   // Venues
   "plugin::venues.venue",
 
-  // Creative works (depends on genres and persons)
+  // Creative works (depends on genres, persons, characters, credit-roles)
   "plugin::creative-works.creative-work",
 
-  // Persons
+  // People graph
   "plugin::creative-works.person",
+  "plugin::creative-works.character",
+  "plugin::creative-works.credit-role",
 
   // Reference data (no dependencies)
   "plugin::creative-works.genre",

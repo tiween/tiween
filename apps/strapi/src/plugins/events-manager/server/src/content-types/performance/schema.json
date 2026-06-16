@@ -45,8 +45,7 @@
     "play": {
       "type": "relation",
       "relation": "manyToOne",
-      "target": "plugin::events-manager.play",
-      "inversedBy": "performances"
+      "target": "plugin::creative-works.creative-work"
     },
     "features": {
       "type": "relation",

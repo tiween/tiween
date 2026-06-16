@@ -10,7 +10,10 @@ import type { Core } from "@strapi/strapi"
 const EVENT_UID = "plugin::events-manager.event"
 const SCREENING_UID = "plugin::events-manager.screening"
 const VENUE_UID = "plugin::venues.venue"
-const MOVIE_UID = "plugin::events-manager.movie"
+// The catalog of record is the unified creative-work (2C.3 consolidation).
+// A screening's `movie` field now targets plugin::creative-works.creative-work,
+// so the "movie" fixture seeds a creative-work with type: "film".
+const WORK_UID = "plugin::creative-works.creative-work"
 
 export interface SeededVenue {
   documentId: string
@@ -60,14 +63,14 @@ export async function seedMovie(
   overrides: Partial<{ title: string }> = {}
 ): Promise<SeededMovie> {
   const title = overrides.title ?? `Test Movie ${uniq("m")}`
-  const movie = await strapi.documents(MOVIE_UID).create({
+  const work = await strapi.documents(WORK_UID).create({
     data: {
       title,
       slug: title.toLowerCase().replace(/[^a-z0-9]/g, "-"),
-      kind: "feature",
+      type: "film",
     },
   })
-  return { documentId: movie.documentId, title: movie.title }
+  return { documentId: work.documentId, title: work.title }
 }
 
 export async function seedEvent(
@@ -135,8 +138,8 @@ export async function seedScreening(
 }
 
 export async function cleanupContent(strapi: Core.Strapi): Promise<void> {
-  // Clean in reverse-dependency order: screenings -> events -> movies -> venues
-  for (const uid of [SCREENING_UID, EVENT_UID, MOVIE_UID, VENUE_UID] as const) {
+  // Clean in reverse-dependency order: screenings -> events -> works -> venues
+  for (const uid of [SCREENING_UID, EVENT_UID, WORK_UID, VENUE_UID] as const) {
     let items = await strapi.documents(uid).findMany({ limit: 100 })
     while (items.length > 0) {
       for (const item of items) {

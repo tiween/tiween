@@ -1,0 +1,27 @@
+{
+  "collectionName": "components_creative_works_casts",
+  "info": {
+    "displayName": "Cast",
+    "icon": "users",
+    "description": "An actor's portrayal of a character in a creative work (person → character graph edge)"
+  },
+  "options": {},
+  "attributes": {
+    "person": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "plugin::creative-works.person",
+      "required": true
+    },
+    "character": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "plugin::creative-works.character"
+    },
+    "billing": {
+      "type": "integer",
+      "default": 99,
+      "min": 1
+    }
+  }
+}

@@ -566,6 +566,58 @@ export interface PluginCreativeWorksCategory
   }
 }
 
+export interface PluginCreativeWorksCharacter
+  extends Struct.CollectionTypeSchema {
+  collectionName: "characters"
+  info: {
+    description: "Fictional characters portrayed in creative works (schema.org Person)"
+    displayName: "Character"
+    pluralName: "characters"
+    singularName: "character"
+  }
+  options: {
+    draftAndPublish: true
+  }
+  pluginOptions: {
+    i18n: {
+      localized: true
+    }
+  }
+  attributes: {
+    createdAt: Schema.Attribute.DateTime
+    createdBy: Schema.Attribute.Relation<"oneToOne", "admin::user"> &
+      Schema.Attribute.Private
+    description: Schema.Attribute.Text &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    locale: Schema.Attribute.String
+    localizations: Schema.Attribute.Relation<
+      "oneToMany",
+      "plugin::creative-works.character"
+    >
+    name: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    publishedAt: Schema.Attribute.DateTime
+    slug: Schema.Attribute.UID<"name"> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: false
+        }
+      }>
+    updatedAt: Schema.Attribute.DateTime
+    updatedBy: Schema.Attribute.Relation<"oneToOne", "admin::user"> &
+      Schema.Attribute.Private
+  }
+}
+
 export interface PluginCreativeWorksCreativeWork
   extends Struct.CollectionTypeSchema {
   collectionName: "creative_works"
@@ -591,6 +643,12 @@ export interface PluginCreativeWorksCreativeWork
         }
       }>
     backdrop: Schema.Attribute.Media<"images"> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: false
+        }
+      }>
+    cast: Schema.Attribute.Component<"creative-works.cast", true> &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: false
@@ -719,6 +777,73 @@ export interface PluginCreativeWorksCreativeWork
           localized: false
         }
       }>
+  }
+}
+
+export interface PluginCreativeWorksCreditRole
+  extends Struct.CollectionTypeSchema {
+  collectionName: "credit_roles"
+  info: {
+    description: "Crew vocabulary for creative-work credits (director, writer, composer, playwright, \u2026). Named 'credit-role' to avoid the Strapi RBAC 'role' collision (admin::role / plugin::users-permissions.role)."
+    displayName: "Credit Role"
+    pluralName: "credit-roles"
+    singularName: "credit-role"
+  }
+  options: {
+    draftAndPublish: true
+  }
+  pluginOptions: {
+    i18n: {
+      localized: true
+    }
+  }
+  attributes: {
+    createdAt: Schema.Attribute.DateTime
+    createdBy: Schema.Attribute.Relation<"oneToOne", "admin::user"> &
+      Schema.Attribute.Private
+    department: Schema.Attribute.Enumeration<
+      [
+        "directing",
+        "writing",
+        "production",
+        "camera",
+        "editing",
+        "sound",
+        "music",
+        "art",
+        "costume-makeup",
+        "lighting",
+        "stage",
+        "other",
+      ]
+    > &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: false
+        }
+      }>
+    locale: Schema.Attribute.String
+    localizations: Schema.Attribute.Relation<
+      "oneToMany",
+      "plugin::creative-works.credit-role"
+    >
+    name: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    publishedAt: Schema.Attribute.DateTime
+    slug: Schema.Attribute.UID<"name"> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: false
+        }
+      }>
+    updatedAt: Schema.Attribute.DateTime
+    updatedBy: Schema.Attribute.Relation<"oneToOne", "admin::user"> &
+      Schema.Attribute.Private
   }
 }
 
@@ -863,125 +988,6 @@ export interface PluginCreativeWorksPerson extends Struct.CollectionTypeSchema {
           localized: false
         }
       }>
-    updatedAt: Schema.Attribute.DateTime
-    updatedBy: Schema.Attribute.Relation<"oneToOne", "admin::user"> &
-      Schema.Attribute.Private
-  }
-}
-
-export interface PluginEventsManagerCharacter
-  extends Struct.CollectionTypeSchema {
-  collectionName: "characters"
-  info: {
-    description: "Personnage de fiction (schema.org Person en sortie)"
-    displayName: "Character"
-    pluralName: "characters"
-    singularName: "character"
-  }
-  options: {
-    draftAndPublish: true
-  }
-  pluginOptions: {
-    i18n: {
-      localized: true
-    }
-  }
-  attributes: {
-    createdAt: Schema.Attribute.DateTime
-    createdBy: Schema.Attribute.Relation<"oneToOne", "admin::user"> &
-      Schema.Attribute.Private
-    credits: Schema.Attribute.Relation<
-      "oneToMany",
-      "plugin::events-manager.credit"
-    > &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: false
-        }
-      }>
-    description: Schema.Attribute.Text &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    locale: Schema.Attribute.String
-    localizations: Schema.Attribute.Relation<
-      "oneToMany",
-      "plugin::events-manager.character"
-    >
-    name: Schema.Attribute.String &
-      Schema.Attribute.Required &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    publishedAt: Schema.Attribute.DateTime
-    slug: Schema.Attribute.UID &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: false
-        }
-      }>
-    updatedAt: Schema.Attribute.DateTime
-    updatedBy: Schema.Attribute.Relation<"oneToOne", "admin::user"> &
-      Schema.Attribute.Private
-  }
-}
-
-export interface PluginEventsManagerCredit extends Struct.CollectionTypeSchema {
-  collectionName: "credits"
-  info: {
-    description: "Credit / generique : lien (personne, role, oeuvre) avec provenance"
-    displayName: "Credit"
-    pluralName: "credits"
-    singularName: "credit"
-  }
-  options: {
-    draftAndPublish: true
-  }
-  attributes: {
-    character: Schema.Attribute.Relation<
-      "manyToOne",
-      "plugin::events-manager.character"
-    >
-    confidence: Schema.Attribute.Enumeration<["confirmed", "needs_review"]> &
-      Schema.Attribute.DefaultTo<"needs_review">
-    createdAt: Schema.Attribute.DateTime
-    createdBy: Schema.Attribute.Relation<"oneToOne", "admin::user"> &
-      Schema.Attribute.Private
-    locale: Schema.Attribute.String & Schema.Attribute.Private
-    localizations: Schema.Attribute.Relation<
-      "oneToMany",
-      "plugin::events-manager.credit"
-    > &
-      Schema.Attribute.Private
-    movie: Schema.Attribute.Relation<
-      "manyToOne",
-      "plugin::events-manager.movie"
-    >
-    person: Schema.Attribute.Relation<
-      "manyToOne",
-      "plugin::events-manager.person"
-    >
-    play: Schema.Attribute.Relation<"manyToOne", "plugin::events-manager.play">
-    publishedAt: Schema.Attribute.DateTime
-    role: Schema.Attribute.Enumeration<
-      [
-        "director",
-        "actor",
-        "writer",
-        "composer",
-        "dop",
-        "producer",
-        "editor",
-        "stageDirector",
-        "other",
-      ]
-    > &
-      Schema.Attribute.Required
-    source: Schema.Attribute.String
     updatedAt: Schema.Attribute.DateTime
     updatedBy: Schema.Attribute.Relation<"oneToOne", "admin::user"> &
       Schema.Attribute.Private
@@ -1319,58 +1325,6 @@ export interface PluginEventsManagerFeature
   }
 }
 
-export interface PluginEventsManagerMovie extends Struct.CollectionTypeSchema {
-  collectionName: "movies"
-  info: {
-    description: "Oeuvre cinema (schema.org Movie) - cache TMDB optionnel ou saisie maison"
-    displayName: "Movie"
-    pluralName: "movies"
-    singularName: "movie"
-  }
-  options: {
-    draftAndPublish: true
-  }
-  attributes: {
-    createdAt: Schema.Attribute.DateTime
-    createdBy: Schema.Attribute.Relation<"oneToOne", "admin::user"> &
-      Schema.Attribute.Private
-    credits: Schema.Attribute.Relation<
-      "oneToMany",
-      "plugin::events-manager.credit"
-    >
-    director: Schema.Attribute.String
-    fetchedAt: Schema.Attribute.DateTime
-    kind: Schema.Attribute.Enumeration<["feature", "short", "medium"]> &
-      Schema.Attribute.Required &
-      Schema.Attribute.DefaultTo<"feature">
-    locale: Schema.Attribute.String & Schema.Attribute.Private
-    localizations: Schema.Attribute.Relation<
-      "oneToMany",
-      "plugin::events-manager.movie"
-    > &
-      Schema.Attribute.Private
-    originalLanguage: Schema.Attribute.String
-    originalTitle: Schema.Attribute.String
-    overview: Schema.Attribute.Text
-    payload: Schema.Attribute.JSON
-    poster: Schema.Attribute.Media<"images">
-    posterPath: Schema.Attribute.String
-    publishedAt: Schema.Attribute.DateTime
-    releaseDate: Schema.Attribute.Date
-    runtime: Schema.Attribute.Integer
-    screenings: Schema.Attribute.Relation<
-      "oneToMany",
-      "plugin::events-manager.screening"
-    >
-    slug: Schema.Attribute.UID<"title">
-    title: Schema.Attribute.String & Schema.Attribute.Required
-    tmdbId: Schema.Attribute.String & Schema.Attribute.Unique
-    updatedAt: Schema.Attribute.DateTime
-    updatedBy: Schema.Attribute.Relation<"oneToOne", "admin::user"> &
-      Schema.Attribute.Private
-  }
-}
-
 export interface PluginEventsManagerPerformance
   extends Struct.CollectionTypeSchema {
   collectionName: "performances"
@@ -1403,214 +1357,16 @@ export interface PluginEventsManagerPerformance
     > &
       Schema.Attribute.Private
     order: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<1>
-    play: Schema.Attribute.Relation<"manyToOne", "plugin::events-manager.play">
+    play: Schema.Attribute.Relation<
+      "manyToOne",
+      "plugin::creative-works.creative-work"
+    >
     price: Schema.Attribute.Decimal & Schema.Attribute.DefaultTo<0>
     publishedAt: Schema.Attribute.DateTime
     startDateTime: Schema.Attribute.DateTime
     surtitleLanguage: Schema.Attribute.String
     ticketsAvailable: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>
     ticketsSold: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>
-    updatedAt: Schema.Attribute.DateTime
-    updatedBy: Schema.Attribute.Relation<"oneToOne", "admin::user"> &
-      Schema.Attribute.Private
-  }
-}
-
-export interface PluginEventsManagerPerson extends Struct.CollectionTypeSchema {
-  collectionName: "people"
-  info: {
-    description: "Referentiel personnes (schema.org Person)"
-    displayName: "Person"
-    pluralName: "people"
-    singularName: "person"
-  }
-  options: {
-    draftAndPublish: true
-  }
-  pluginOptions: {
-    i18n: {
-      localized: true
-    }
-  }
-  attributes: {
-    bio: Schema.Attribute.Text &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    birthDate: Schema.Attribute.Date &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: false
-        }
-      }>
-    createdAt: Schema.Attribute.DateTime
-    createdBy: Schema.Attribute.Relation<"oneToOne", "admin::user"> &
-      Schema.Attribute.Private
-    credits: Schema.Attribute.Relation<
-      "oneToMany",
-      "plugin::events-manager.credit"
-    > &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: false
-        }
-      }>
-    jobTitle: Schema.Attribute.String &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    locale: Schema.Attribute.String
-    localizations: Schema.Attribute.Relation<
-      "oneToMany",
-      "plugin::events-manager.person"
-    >
-    name: Schema.Attribute.String &
-      Schema.Attribute.Required &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    nationality: Schema.Attribute.String &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: false
-        }
-      }>
-    photo: Schema.Attribute.Media<"images"> &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: false
-        }
-      }>
-    publishedAt: Schema.Attribute.DateTime
-    sameAs: Schema.Attribute.String &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: false
-        }
-      }>
-    slug: Schema.Attribute.UID &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: false
-        }
-      }>
-    updatedAt: Schema.Attribute.DateTime
-    updatedBy: Schema.Attribute.Relation<"oneToOne", "admin::user"> &
-      Schema.Attribute.Private
-  }
-}
-
-export interface PluginEventsManagerPlay extends Struct.CollectionTypeSchema {
-  collectionName: "plays"
-  info: {
-    description: "Oeuvre theatre (schema.org Play)"
-    displayName: "Play"
-    pluralName: "plays"
-    singularName: "play"
-  }
-  options: {
-    draftAndPublish: true
-  }
-  pluginOptions: {
-    i18n: {
-      localized: true
-    }
-  }
-  attributes: {
-    author: Schema.Attribute.String &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: false
-        }
-      }>
-    cast: Schema.Attribute.Text &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: false
-        }
-      }>
-    company: Schema.Attribute.String &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: false
-        }
-      }>
-    createdAt: Schema.Attribute.DateTime
-    createdBy: Schema.Attribute.Relation<"oneToOne", "admin::user"> &
-      Schema.Attribute.Private
-    credits: Schema.Attribute.Relation<
-      "oneToMany",
-      "plugin::events-manager.credit"
-    > &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: false
-        }
-      }>
-    director: Schema.Attribute.String &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: false
-        }
-      }>
-    locale: Schema.Attribute.String
-    localizations: Schema.Attribute.Relation<
-      "oneToMany",
-      "plugin::events-manager.play"
-    >
-    performances: Schema.Attribute.Relation<
-      "oneToMany",
-      "plugin::events-manager.performance"
-    > &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: false
-        }
-      }>
-    poster: Schema.Attribute.Media<"images"> &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: false
-        }
-      }>
-    publishedAt: Schema.Attribute.DateTime
-    runtime: Schema.Attribute.Integer &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: false
-        }
-      }>
-    sameAs: Schema.Attribute.String &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: false
-        }
-      }>
-    slug: Schema.Attribute.UID &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: false
-        }
-      }>
-    synopsis: Schema.Attribute.Text &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    title: Schema.Attribute.String &
-      Schema.Attribute.Required &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
     updatedAt: Schema.Attribute.DateTime
     updatedBy: Schema.Attribute.Relation<"oneToOne", "admin::user"> &
       Schema.Attribute.Private
@@ -1650,7 +1406,7 @@ export interface PluginEventsManagerScreening
       Schema.Attribute.Private
     movie: Schema.Attribute.Relation<
       "manyToOne",
-      "plugin::events-manager.movie"
+      "plugin::creative-works.creative-work"
     >
     order: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<1>
     price: Schema.Attribute.Decimal & Schema.Attribute.DefaultTo<0>
@@ -2532,18 +2288,15 @@ declare module "@strapi/strapi" {
       "plugin::content-releases.release": PluginContentReleasesRelease
       "plugin::content-releases.release-action": PluginContentReleasesReleaseAction
       "plugin::creative-works.category": PluginCreativeWorksCategory
+      "plugin::creative-works.character": PluginCreativeWorksCharacter
       "plugin::creative-works.creative-work": PluginCreativeWorksCreativeWork
+      "plugin::creative-works.credit-role": PluginCreativeWorksCreditRole
       "plugin::creative-works.genre": PluginCreativeWorksGenre
       "plugin::creative-works.person": PluginCreativeWorksPerson
-      "plugin::events-manager.character": PluginEventsManagerCharacter
-      "plugin::events-manager.credit": PluginEventsManagerCredit
       "plugin::events-manager.event": PluginEventsManagerEvent
       "plugin::events-manager.event-group": PluginEventsManagerEventGroup
       "plugin::events-manager.feature": PluginEventsManagerFeature
-      "plugin::events-manager.movie": PluginEventsManagerMovie
       "plugin::events-manager.performance": PluginEventsManagerPerformance
-      "plugin::events-manager.person": PluginEventsManagerPerson
-      "plugin::events-manager.play": PluginEventsManagerPlay
       "plugin::events-manager.screening": PluginEventsManagerScreening
       "plugin::geography.city": PluginGeographyCity
       "plugin::geography.region": PluginGeographyRegion

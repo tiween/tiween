@@ -1,6 +1,10 @@
+---
+baseline_commit: 54c092c1b14f20281792eb607173a1529a609a92
+---
+
 # Story 2C.3: Consolidate Catalog on Creative-Works
 
-Status: ready-for-dev
+Status: in-progress
 
 > **REWRITTEN 2026-06-15** to the inverted catalog model (see
 > `sprint-change-proposal-2026-06-15.md`). The previous version of this story
@@ -52,25 +56,25 @@ so that the read-only GTM directory renders rich work pages from one queryable c
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Retire events-manager movie/play (AC: 1, 5)
-  - [ ] Grep users of `plugin::events-manager.movie`/`.play` + the credit XOR lifecycle — inventory before deleting
-  - [ ] Delete `movie`, `play` content types + the movie⊻play `credit` XOR lifecycle + its bootstrap registration; remove from events-manager `content-types/index.ts`
-- [ ] Task 2: Establish creative-work catalog shape (AC: 2, 6)
-  - [ ] Confirm `creative-work` rich core fields; add/confirm `videos[]` component with `videoType` enum
-  - [ ] Confirm no dynamic zone; variation via enums + components only
-- [ ] Task 3: People graph + components (AC: 3, 4)
-  - [ ] Ensure `person`, `character` content types in creative-works
-  - [ ] Add `credit-role` content type (RBAC-safe name)
-  - [ ] Add `cast[]` (→ person, character) and `credits[]` (→ person, credit-role) repeatable components on `creative-work`
-  - [ ] Register `credit-role` (and any new components) in creative-works content-types/components indices
-- [ ] Task 4: Retarget scheduling relations (AC: 7)
-  - [ ] `screening.movie` / `performance.play` targets → `plugin::creative-works.creative-work`; note any field rename chosen
-- [ ] Task 5: Admin + client reconciliation (AC: 9)
-  - [ ] Verify events-manager admin hooks (useCreativeWorks, usePeople, Catalog/WorkForm/Works) resolve to creative-work/person UIDs
-  - [ ] Client base.ts mapping + content modules reference `creative-work`
-- [ ] Task 6: Verification (AC: 11, 12)
-  - [ ] grep gate (events-manager movie/play = zero; no `role`-named credit type)
-  - [ ] `yarn generate:types` boots clean; unit suite green
+- [x] Task 1: Retire events-manager movie/play (AC: 1, 5)
+  - [x] Grep users of `plugin::events-manager.movie`/`.play` + the credit XOR lifecycle — inventory before deleting
+  - [x] Delete `movie`, `play` content types + the movie⊻play `credit` XOR lifecycle + its bootstrap registration; remove from events-manager `content-types/index.ts`
+- [x] Task 2: Establish creative-work catalog shape (AC: 2, 6)
+  - [x] Confirm `creative-work` rich core fields; add/confirm `videos[]` component with `videoType` enum
+  - [x] Confirm no dynamic zone; variation via enums + components only
+- [x] Task 3: People graph + components (AC: 3, 4)
+  - [x] Ensure `person`, `character` content types in creative-works
+  - [x] Add `credit-role` content type (RBAC-safe name)
+  - [x] Add `cast[]` (→ person, character) and `credits[]` (→ person, credit-role) repeatable components on `creative-work`
+  - [x] Register `credit-role` (and any new components) in creative-works content-types/components indices
+- [x] Task 4: Retarget scheduling relations (AC: 7)
+  - [x] `screening.movie` / `performance.play` targets → `plugin::creative-works.creative-work`; note any field rename chosen
+- [x] Task 5: Admin + client reconciliation (AC: 9)
+  - [x] Verify events-manager admin hooks (useCreativeWorks, usePeople, Catalog/WorkForm/Works) resolve to creative-work/person UIDs
+  - [x] Client base.ts mapping + content modules reference `creative-work`
+- [x] Task 6: Verification (AC: 11, 12)
+  - [x] grep gate (events-manager movie/play = zero; no `role`-named credit type)
+  - [x] `yarn generate:types` boots clean; unit suite green
 
 ## Dev Notes
 
