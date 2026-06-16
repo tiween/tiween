@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Tiween — Refined Accents on Aubergine & Cobalt</title>
+<style>
+  :root { font-family: Inter, system-ui, -apple-system, sans-serif; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #0c0c10; color: #eee; padding: 32px 24px 80px; }
+  h1 { font-size: 26px; margin: 0 0 6px; }
+  .lede { color: #aaa; max-width: 840px; line-height: 1.55; margin: 0 0 8px; font-size: 14px; }
+  .lede b { color:#fff; }
+  .lede code { background:#222; padding:1px 5px; border-radius:4px; font-size:12px; }
+  .section-h { font-size:19px; margin:34px 0 4px; display:flex; align-items:center; gap:12px;}
+  .field-chip { width:26px;height:26px;border-radius:7px;border:1px solid rgba(255,255,255,.2);}
+  .section-sub { font-size:13px; color:#9a9aaa; margin:0 0 18px; }
+
+  .grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(330px,1fr)); gap:20px; }
+
+  .variant { border-radius:16px; overflow:hidden; border:1px solid rgba(255,255,255,.08); }
+  .v-head { padding:14px 16px 10px; }
+  .v-head h3 { font-size:16px; margin:0 0 4px; }
+  .swrow { display:flex; align-items:center; gap:8px; }
+  .dot { width:22px;height:22px;border-radius:6px;border:1px solid rgba(255,255,255,.2); }
+  .hx { font-size:11px; font-family:ui-monospace,monospace; opacity:.65; }
+  .v-note { font-size:11.5px; opacity:.8; margin-top:7px; line-height:1.45; }
+
+  .body { padding:6px 16px 18px; display:flex; gap:15px; align-items:flex-start; }
+  .card { width:140px; border-radius:14px; overflow:hidden; flex-shrink:0; }
+  .poster { aspect-ratio:2/3; position:relative; display:flex; align-items:flex-end; }
+  .poster .badge { position:absolute; top:7px; left:7px; font-size:9.5px; font-weight:800; padding:2px 7px; border-radius:7px; }
+  .poster .heart { position:absolute; top:7px; right:7px; width:24px;height:24px;border-radius:999px;display:flex;align-items:center;justify-content:center;font-size:12px; }
+  .card-body { padding:9px 10px 11px; }
+  .card-body .title { font-size:12.5px; font-weight:800; line-height:1.2; }
+  .card-body .meta { font-size:10.5px; margin-top:3px; }
+  .card-body .price { font-size:11px; font-weight:800; margin-top:7px; display:inline-block; padding:2px 8px; border-radius:7px; }
+  .chrome { flex:1; min-width:120px; }
+  .chrome .line { height:9px; border-radius:5px; margin:6px 0; }
+  .recos { font-size:10.5px; font-weight:700; margin:8px 0 2px; }
+  .selbtn { margin-top:8px; font-size:10.5px; font-weight:800; padding:6px 10px; border-radius:8px; display:inline-block; }
+  .cta { margin-top:10px; text-align:center; font-size:12.5px; font-weight:800; padding:10px; border-radius:999px; }
+  .link { font-size:11px; margin-top:9px; font-weight:600; }
+  .nav { display:flex; gap:11px; margin-top:11px; font-size:10px; }
+  .nav .active { font-weight:800; }
+  .reco { font-size:13px; color:#ddd; line-height:1.6; max-width:840px; margin-top:14px;}
+  .reco b{color:#fff;}
+</style>
+</head>
+<body>
+  <h1>🎨 Refined Accents — premium, not garish</h1>
+  <p class="lede">
+    Your two standout fields, held constant. Garish yellow &amp; fast-food orange are <b>out</b>. Each tile swaps in a <b>jewel-rich / refined-warm</b> action color
+    (CTA pill, selected showtime <code>▣</code>, active nav, recommended ✲). Same poster &amp; layout per row — only the accent changes. Pick the one that feels luxe.
+  </p>
+
+  <!-- ===== AUBERGINE ===== -->
+  <div class="section-h"><span class="field-chip" style="background:#241326;"></span> Midnight Aubergine <span style="font-size:13px;color:#9a9aaa;font-weight:400;">field <code style="font-size:11px;">#241326</code> · jewel-rich accents</span></div>
+  <p class="section-sub">Plum is elegant &amp; warm-cool ambiguous — it wants an accent with depth, not brightness. Three jewel directions:</p>
+  <div class="grid">
+
+    <!-- A: coral -->
+    <div class="variant" style="background:#241326;">
+      <div class="v-head"><h3>A · Deep Coral</h3>
+        <div class="swrow"><span class="dot" style="background:#F26B5E;"></span><span class="hx">#F26B5E</span></div>
+        <div class="v-note" style="color:#c9b8d0;">Warm coral with the saturation pulled back — glows on plum without shouting. Inviting, contemporary, still rich.</div>
+      </div>
+      <div class="body">
+        <div class="card" style="background:#31203A;"><div class="poster" style="background:linear-gradient(155deg,#5a3068,#31203A);"><span class="badge" style="background:#F26B5E;color:#2a0f12;">VOST</span><span class="heart" style="background:rgba(242,107,94,.25);">🤍</span></div>
+          <div class="card-body" style="color:#fff;"><div class="title">Communion</div><div class="meta" style="color:#A99FB0;">Le Rio · 14/06</div><span class="price" style="background:#F26B5E;color:#2a0f12;">12,20 DT</span></div></div>
+        <div class="chrome"><div class="line" style="background:#3E2A48;width:86%;"></div><div class="line" style="background:#3E2A48;width:60%;"></div>
+          <div class="recos" style="color:#F58A7E;">✲ Recommandé</div>
+          <span class="selbtn" style="background:#F26B5E;color:#2a0f12;">▣ 21h00</span>
+          <div class="cta" style="background:#F26B5E;color:#2a0f12;">Réserver</div>
+          <div class="link" style="color:#F58A7E;">Bande annonce →</div>
+          <div class="nav"><span class="active" style="color:#F26B5E;">● Accueil</span><span style="color:#A99FB0;">Recherche</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- B: magenta rose -->
+    <div class="variant" style="background:#241326;">
+      <div class="v-head"><h3>B · Magenta Rose</h3>
+        <div class="swrow"><span class="dot" style="background:#E5478A;"></span><span class="hx">#E5478A</span></div>
+        <div class="v-note" style="color:#c9b8d0;">A jewel pink-magenta that lives in the same family as the plum — feels native to the field. Bold, cultural, very ownable.</div>
+      </div>
+      <div class="body">
+        <div class="card" style="background:#31203A;"><div class="poster" style="background:linear-gradient(155deg,#5a3068,#31203A);"><span class="badge" style="background:#E5478A;color:#2a0a1a;">VOST</span><span class="heart" style="background:rgba(229,71,138,.25);">🤍</span></div>
+          <div class="card-body" style="color:#fff;"><div class="title">Communion</div><div class="meta" style="color:#A99FB0;">Le Rio · 14/06</div><span class="price" style="background:#E5478A;color:#fff;">12,20 DT</span></div></div>
+        <div class="chrome"><div class="line" style="background:#3E2A48;width:86%;"></div><div class="line" style="background:#3E2A48;width:60%;"></div>
+          <div class="recos" style="color:#F06FA6;">✲ Recommandé</div>
+          <span class="selbtn" style="background:#E5478A;color:#fff;">▣ 21h00</span>
+          <div class="cta" style="background:#E5478A;color:#fff;">Réserver</div>
+          <div class="link" style="color:#F06FA6;">Bande annonce →</div>
+          <div class="nav"><span class="active" style="color:#E5478A;">● Accueil</span><span style="color:#A99FB0;">Recherche</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- C: gold leaf -->
+    <div class="variant" style="background:#241326;">
+      <div class="v-head"><h3>C · Gold Leaf</h3>
+        <div class="swrow"><span class="dot" style="background:#D4A24A;"></span><span class="hx">#D4A24A</span></div>
+        <div class="v-note" style="color:#c9b8d0;">The "luxe yellow" you wanted instead of garish lemon — antique/burnished gold. Theatre-program gilt on aubergine velvet. Most premium.</div>
+      </div>
+      <div class="body">
+        <div class="card" style="background:#31203A;"><div class="poster" style="background:linear-gradient(155deg,#5a3068,#31203A);"><span class="badge" style="background:#D4A24A;color:#2a1a06;">VOST</span><span class="heart" style="background:rgba(212,162,74,.25);">🤍</span></div>
+          <div class="card-body" style="color:#fff;"><div class="title">Communion</div><div class="meta" style="color:#A99FB0;">Le Rio · 14/06</div><span class="price" style="background:#D4A24A;color:#2a1a06;">12,20 DT</span></div></div>
+        <div class="chrome"><div class="line" style="background:#3E2A48;width:86%;"></div><div class="line" style="background:#3E2A48;width:60%;"></div>
+          <div class="recos" style="color:#E0B563;">✲ Recommandé</div>
+          <span class="selbtn" style="background:#D4A24A;color:#2a1a06;">▣ 21h00</span>
+          <div class="cta" style="background:#D4A24A;color:#2a1a06;">Réserver</div>
+          <div class="link" style="color:#E0B563;">Bande annonce →</div>
+          <div class="nav"><span class="active" style="color:#D4A24A;">● Accueil</span><span style="color:#A99FB0;">Recherche</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ===== COBALT ===== -->
+  <div class="section-h"><span class="field-chip" style="background:#0B1C3A;"></span> Tunis Pop <span style="font-size:13px;color:#9a9aaa;font-weight:400;">field <code style="font-size:11px;">#0B1C3A</code> · refined-warm accents</span></div>
+  <p class="section-sub">Cobalt is cool &amp; deep — a refined warm accent gives the contrast without the fast-food shout. Three warm directions:</p>
+  <div class="grid">
+
+    <!-- D: coral on cobalt -->
+    <div class="variant" style="background:#0B1C3A;">
+      <div class="v-head"><h3>D · Coral</h3>
+        <div class="swrow"><span class="dot" style="background:#F2705E;"></span><span class="hx">#F2705E</span></div>
+        <div class="v-note" style="color:#9db6dd;">Warm coral against deep cobalt = the classic premium duo (think travel/editorial brands). Friendly heat, no grease. Strong AA on white text.</div>
+      </div>
+      <div class="body">
+        <div class="card" style="background:#13294F;"><div class="poster" style="background:linear-gradient(155deg,#27457e,#13294F);"><span class="badge" style="background:#F2705E;color:#2a0f0a;">VOST</span><span class="heart" style="background:rgba(242,112,94,.25);">🤍</span></div>
+          <div class="card-body" style="color:#fff;"><div class="title">Communion</div><div class="meta" style="color:#9DB6DD;">Le Rio · 14/06</div><span class="price" style="background:#F2705E;color:#2a0f0a;">12,20 DT</span></div></div>
+        <div class="chrome"><div class="line" style="background:#1D3A6B;width:86%;"></div><div class="line" style="background:#1D3A6B;width:60%;"></div>
+          <div class="recos" style="color:#F58E7E;">✲ Recommandé</div>
+          <span class="selbtn" style="background:#F2705E;color:#2a0f0a;">▣ 21h00</span>
+          <div class="cta" style="background:#F2705E;color:#fff;">Réserver</div>
+          <div class="link" style="color:#F58E7E;">Bande annonce →</div>
+          <div class="nav"><span class="active" style="color:#F2705E;">● Accueil</span><span style="color:#9DB6DD;">Recherche</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- E: terracotta on cobalt -->
+    <div class="variant" style="background:#0B1C3A;">
+      <div class="v-head"><h3>E · Terracotta</h3>
+        <div class="swrow"><span class="dot" style="background:#D9693A;"></span><span class="hx">#D9693A</span></div>
+        <div class="v-note" style="color:#9db6dd;">Clay/zellige terracotta — the orange you liked the IDEA of, but earthed &amp; grown-up. Most distinctly Tunisian; warm without the neon.</div>
+      </div>
+      <div class="body">
+        <div class="card" style="background:#13294F;"><div class="poster" style="background:linear-gradient(155deg,#27457e,#13294F);"><span class="badge" style="background:#D9693A;color:#fff;">VOST</span><span class="heart" style="background:rgba(217,105,58,.28);">🤍</span></div>
+          <div class="card-body" style="color:#fff;"><div class="title">Communion</div><div class="meta" style="color:#9DB6DD;">Le Rio · 14/06</div><span class="price" style="background:#D9693A;color:#fff;">12,20 DT</span></div></div>
+        <div class="chrome"><div class="line" style="background:#1D3A6B;width:86%;"></div><div class="line" style="background:#1D3A6B;width:60%;"></div>
+          <div class="recos" style="color:#E5895F;">✲ Recommandé</div>
+          <span class="selbtn" style="background:#D9693A;color:#fff;">▣ 21h00</span>
+          <div class="cta" style="background:#D9693A;color:#fff;">Réserver</div>
+          <div class="link" style="color:#E5895F;">Bande annonce →</div>
+          <div class="nav"><span class="active" style="color:#D9693A;">● Accueil</span><span style="color:#9DB6DD;">Recherche</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- F: warm gold on cobalt -->
+    <div class="variant" style="background:#0B1C3A;">
+      <div class="v-head"><h3>F · Warm Gold</h3>
+        <div class="swrow"><span class="dot" style="background:#E8B24C;"></span><span class="hx">#E8B24C</span></div>
+        <div class="v-note" style="color:#9db6dd;">Amber-gold on cobalt = navy-and-gold, the most timeless premium pairing there is. Keeps a hint of the brand's "sunny" without the lemon glare.</div>
+      </div>
+      <div class="body">
+        <div class="card" style="background:#13294F;"><div class="poster" style="background:linear-gradient(155deg,#27457e,#13294F);"><span class="badge" style="background:#E8B24C;color:#2a1d06;">VOST</span><span class="heart" style="background:rgba(232,178,76,.28);">🤍</span></div>
+          <div class="card-body" style="color:#fff;"><div class="title">Communion</div><div class="meta" style="color:#9DB6DD;">Le Rio · 14/06</div><span class="price" style="background:#E8B24C;color:#2a1d06;">12,20 DT</span></div></div>
+        <div class="chrome"><div class="line" style="background:#1D3A6B;width:86%;"></div><div class="line" style="background:#1D3A6B;width:60%;"></div>
+          <div class="recos" style="color:#F0C46E;">✲ Recommandé</div>
+          <span class="selbtn" style="background:#E8B24C;color:#2a1d06;">▣ 21h00</span>
+          <div class="cta" style="background:#E8B24C;color:#2a1d06;">Réserver</div>
+          <div class="link" style="color:#F0C46E;">Bande annonce →</div>
+          <div class="nav"><span class="active" style="color:#E8B24C;">● Accueil</span><span style="color:#9DB6DD;">Recherche</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <p class="reco">
+    <b>Sally's read:</b> On <b>plum</b>, <b>C · Gold Leaf</b> is the most premium (aubergine + burnished gold = theatre velvet &amp; gilt), while <b>B · Magenta Rose</b> is the most ownable/cultural. On <b>cobalt</b>, <b>E · Terracotta</b> is the most distinctly Tunisian (the orange idea, refined), and <b>F · Warm Gold</b> is the most timeless (navy &amp; gold).
+    <br><br>
+    <b>A pattern worth noticing:</b> coral (A &amp; D) and gold (C &amp; F) both work on <i>either</i> field — so if you want one accent that survives whichever field wins, coral or gold is the safe bridge. Tell me your pick per field (e.g. "plum + gold leaf", "cobalt + terracotta") and I'll build the full token set + category sub-palette + AA table. Or I can put your two finalists head-to-head on a full discovery feed.
+  </p>
+</body>
+</html>

@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Tiween — Aubergine Exploration (6 cool-leaning plums)</title>
+<style>
+  :root { font-family: Inter, system-ui, -apple-system, sans-serif; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #0d0d0f; color: #eee; padding: 32px 24px 80px; }
+  h1 { font-size: 26px; margin: 0 0 6px; }
+  .lede { color: #aaa; max-width: 780px; line-height: 1.5; margin: 0 0 28px; font-size: 14px; }
+  .lede code { background:#222; padding:1px 5px; border-radius:4px; font-size:12px; }
+  .lede b { color:#ddd; }
+
+  .palette { margin: 0 0 36px; border-radius: 16px; overflow: hidden; border: 1px solid #2a2a2a; }
+  .pal-head { padding: 14px 18px; display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; }
+  .pal-head h2 { font-size: 18px; margin:0; color:#fff; }
+  .tag { font-size: 11px; font-weight: 700; padding: 2px 9px; border-radius: 999px; letter-spacing:.04em; }
+  .tag.cool { background:#1c2348; color:#9fb0ff; }
+  .tag.neu  { background:#3a2440; color:#e0a0e8; }
+  .tag.warm { background:#451d2a; color:#f0859f; }
+  .pal-note { font-size: 12.5px; color:#aaa; }
+
+  .stage { display:grid; grid-template-columns: 1fr; gap:0; }
+  @media(min-width:920px){ .stage{ grid-template-columns: 360px 1fr; } }
+
+  .swatches { padding: 18px; display:flex; flex-wrap:wrap; gap:10px; align-content:flex-start; }
+  .sw { width: 92px; }
+  .chip { height: 50px; border-radius: 10px; border:1px solid rgba(255,255,255,.14); }
+  .sw .lbl { font-size: 10.5px; color:#ccc; margin-top:5px; line-height:1.3; }
+  .sw .hex { font-size: 10px; color:#888; font-family: ui-monospace, monospace; }
+
+  .demo { padding: 22px; }
+  .demo-row { display:flex; gap:18px; align-items:flex-start; flex-wrap:wrap; }
+
+  .card { width: 168px; border-radius:16px; overflow:hidden; }
+  .poster { aspect-ratio: 2/3; position:relative; display:flex; align-items:flex-end; }
+  .poster .badge { position:absolute; top:8px; left:8px; font-size:10px; font-weight:700; padding:2px 7px; border-radius:8px; }
+  .poster .heart { position:absolute; top:8px; right:8px; width:26px;height:26px; border-radius:999px; display:flex;align-items:center;justify-content:center; background:rgba(0,0,0,.4); font-size:13px;}
+  .card-body { padding:10px 11px 12px; }
+  .card-body .title { font-size:13.5px; font-weight:700; line-height:1.25; }
+  .card-body .meta { font-size:11px; margin-top:4px; }
+  .card-body .price { font-size:11.5px; font-weight:700; margin-top:8px; display:inline-block; padding:2px 8px; border-radius:8px; }
+
+  .chrome { width: 232px; border-radius:16px; padding:16px; }
+  .chrome h3 { font-size:14px; margin:0 0 10px; }
+  .chrome .line { height:10px; border-radius:5px; margin:7px 0; }
+  .cta { margin-top:14px; text-align:center; font-size:13px; font-weight:700; padding:11px; border-radius:999px; }
+  .link { font-size:12px; margin-top:10px; }
+  .err  { font-size:11px; margin-top:10px; display:flex; align-items:center; gap:5px; }
+  .nav { display:flex; gap:14px; margin-top:14px; font-size:11px; }
+  .nav .active { font-weight:700; }
+  .recos { font-size:11px; margin-top:6px; }
+
+  .mono { display:flex; gap:0; margin:0; }
+  .mono div { flex:1; height:36px; }
+
+  .verdict { font-size:12.5px; color:#bbb; padding:0 18px 18px; line-height:1.5; }
+  .verdict b { color:#ddd; }
+</style>
+</head>
+<body>
+  <h1>🎨 Tiween — Aubergine Exploration</h1>
+  <p class="lede">
+    Six plum/aubergine fields, leaning <b>cool / orchid-ink</b> as you asked, with a couple of neighbours so you can feel the temperature edges.
+    Action stays <code>#F8EB06</code> yellow (equity). Each renders a real EventCard + chrome + an <b>error line</b> (plum sits near red — worth watching that errors stay legible).
+    The teal price-chip in several variants is the <b>Tiween-teal equity cameo</b>. Tiny strip under each = the field→surface→raised ramp.
+  </p>
+
+  <!-- A1 ORCHID INK -->
+  <div class="palette" style="background:#1B1633;">
+    <div class="pal-head"><h2>Ⓐ Orchid Ink</h2><span class="tag cool">COOL</span>
+      <span class="pal-note">Bluest of the set — night-sky violet. Electric yellow. Most "modern premiere". Watch it doesn't read crypto.</span></div>
+    <div class="stage">
+      <div class="swatches">
+        <div class="sw"><div class="chip" style="background:#1B1633"></div><div class="lbl">field</div><div class="hex">#1B1633</div></div>
+        <div class="sw"><div class="chip" style="background:#272045"></div><div class="lbl">surface</div><div class="hex">#272045</div></div>
+        <div class="sw"><div class="chip" style="background:#332B57"></div><div class="lbl">raised</div><div class="hex">#332B57</div></div>
+        <div class="sw"><div class="chip" style="background:#A6A0BE"></div><div class="lbl">muted</div><div class="hex">#A6A0BE</div></div>
+        <div class="sw"><div class="chip" style="background:#F8EB06"></div><div class="lbl">action</div><div class="hex">#F8EB06</div></div>
+        <div class="sw"><div class="chip" style="background:#16B8A6"></div><div class="lbl">teal accent</div><div class="hex">#16B8A6</div></div>
+      </div>
+      <div class="demo"><div class="demo-row">
+        <div class="card" style="background:#272045;">
+          <div class="poster" style="background:linear-gradient(160deg,#3d3470,#272045);"><span class="badge" style="background:#F8EB06;color:#1B1633;">VOST</span><span class="heart">💛</span></div>
+          <div class="card-body" style="color:#fff;"><div class="title">Communion</div><div class="meta" style="color:#A6A0BE;">Le Rio · 14/06</div><span class="price" style="background:#16B8A6;color:#06231F;">12,20 DT</span></div>
+        </div>
+        <div class="chrome" style="background:#272045;color:#fff;">
+          <h3>Accueil</h3><div class="line" style="background:#332B57;width:90%;"></div><div class="line" style="background:#332B57;width:70%;"></div>
+          <div class="recos" style="color:#F8EB06;">✲ Recommandé</div>
+          <div class="cta" style="background:#F8EB06;color:#1B1633;">Réserver</div>
+          <div class="link" style="color:#5FE3D2;">Voir la bande annonce →</div>
+          <div class="err" style="color:#FF8A8A;">⚠ Séance complète</div>
+          <div class="nav"><span class="active" style="color:#F8EB06;">● Accueil</span><span style="color:#A6A0BE;">Recherche</span><span style="color:#A6A0BE;">Compte</span></div>
+        </div>
+      </div></div>
+    </div>
+    <div class="mono"><div style="background:#1B1633"></div><div style="background:#272045"></div><div style="background:#332B57"></div></div>
+    <div class="verdict"><b>Verdict:</b> Most electric. Bright teal accent (a vivid take on equity) snaps against the violet. If "modern + nightlife" is the vibe, this is it — just keep saturation in check so it stays cultural, not fintech.</div>
+  </div>
+
+  <!-- A2 INDIGO PLUM -->
+  <div class="palette" style="background:#1E1A38;">
+    <div class="pal-head"><h2>Ⓑ Indigo Plum</h2><span class="tag cool">COOL</span>
+      <span class="pal-note">Indigo undertone — deep, calm, "after-dark cinema". Teal cameo kept muted/brand-accurate.</span></div>
+    <div class="stage">
+      <div class="swatches">
+        <div class="sw"><div class="chip" style="background:#1E1A38"></div><div class="lbl">field</div><div class="hex">#1E1A38</div></div>
+        <div class="sw"><div class="chip" style="background:#2A254C"></div><div class="lbl">surface</div><div class="hex">#2A254C</div></div>
+        <div class="sw"><div class="chip" style="background:#373160"></div><div class="lbl">raised</div><div class="hex">#373160</div></div>
+        <div class="sw"><div class="chip" style="background:#A8A2C0"></div><div class="lbl">muted</div><div class="hex">#A8A2C0</div></div>
+        <div class="sw"><div class="chip" style="background:#F8EB06"></div><div class="lbl">action</div><div class="hex">#F8EB06</div></div>
+        <div class="sw"><div class="chip" style="background:#0F8074"></div><div class="lbl">teal accent</div><div class="hex">#0F8074</div></div>
+      </div>
+      <div class="demo"><div class="demo-row">
+        <div class="card" style="background:#2A254C;">
+          <div class="poster" style="background:linear-gradient(160deg,#403978,#2A254C);"><span class="badge" style="background:#F8EB06;color:#1E1A38;">VOST</span><span class="heart">💛</span></div>
+          <div class="card-body" style="color:#fff;"><div class="title">Communion</div><div class="meta" style="color:#A8A2C0;">Le Rio · 14/06</div><span class="price" style="background:#0F8074;color:#fff;">12,20 DT</span></div>
+        </div>
+        <div class="chrome" style="background:#2A254C;color:#fff;">
+          <h3>Accueil</h3><div class="line" style="background:#373160;width:90%;"></div><div class="line" style="background:#373160;width:70%;"></div>
+          <div class="recos" style="color:#F8EB06;">✲ Recommandé</div>
+          <div class="cta" style="background:#F8EB06;color:#1E1A38;">Réserver</div>
+          <div class="link" style="color:#8AB4FF;">Voir la bande annonce →</div>
+          <div class="err" style="color:#FF8A8A;">⚠ Séance complète</div>
+          <div class="nav"><span class="active" style="color:#F8EB06;">● Accueil</span><span style="color:#A8A2C0;">Recherche</span><span style="color:#A8A2C0;">Compte</span></div>
+        </div>
+      </div></div>
+    </div>
+    <div class="mono"><div style="background:#1E1A38"></div><div style="background:#2A254C"></div><div style="background:#373160"></div></div>
+    <div class="verdict"><b>Verdict:</b> The "calm cool" pick. Indigo reads premium and steady; the cobalt-tint link from the locked brand (<code>#8AB4FF</code>) still works here, so a11y rules carry over cleanly. My favourite cool variant for shippability.</div>
+  </div>
+
+  <!-- A3 PLUM NOIR (the original ③, refined) -->
+  <div class="palette" style="background:#241326;">
+    <div class="pal-head"><h2>Ⓒ Plum Noir</h2><span class="tag neu">NEUTRAL</span>
+      <span class="pal-note">The original ③ aubergine, kept as the balanced reference. True red-violet — timeless theater curtain.</span></div>
+    <div class="stage">
+      <div class="swatches">
+        <div class="sw"><div class="chip" style="background:#241326"></div><div class="lbl">field</div><div class="hex">#241326</div></div>
+        <div class="sw"><div class="chip" style="background:#31203A"></div><div class="lbl">surface</div><div class="hex">#31203A</div></div>
+        <div class="sw"><div class="chip" style="background:#3E2A48"></div><div class="lbl">raised</div><div class="hex">#3E2A48</div></div>
+        <div class="sw"><div class="chip" style="background:#A99FB0"></div><div class="lbl">muted</div><div class="hex">#A99FB0</div></div>
+        <div class="sw"><div class="chip" style="background:#F8EB06"></div><div class="lbl">action</div><div class="hex">#F8EB06</div></div>
+        <div class="sw"><div class="chip" style="background:#1E8A7A"></div><div class="lbl">teal accent</div><div class="hex">#1E8A7A</div></div>
+      </div>
+      <div class="demo"><div class="demo-row">
+        <div class="card" style="background:#31203A;">
+          <div class="poster" style="background:linear-gradient(160deg,#4a3057,#31203A);"><span class="badge" style="background:#F8EB06;color:#241326;">VOST</span><span class="heart">💛</span></div>
+          <div class="card-body" style="color:#fff;"><div class="title">Communion</div><div class="meta" style="color:#A99FB0;">Le Rio · 14/06</div><span class="price" style="background:#1E8A7A;color:#fff;">12,20 DT</span></div>
+        </div>
+        <div class="chrome" style="background:#31203A;color:#fff;">
+          <h3>Accueil</h3><div class="line" style="background:#3E2A48;width:90%;"></div><div class="line" style="background:#3E2A48;width:70%;"></div>
+          <div class="recos" style="color:#F8EB06;">✲ Recommandé</div>
+          <div class="cta" style="background:#F8EB06;color:#241326;">Réserver</div>
+          <div class="link" style="color:#E0A899;">Voir la bande annonce →</div>
+          <div class="err" style="color:#FF8A8A;">⚠ Séance complète</div>
+          <div class="nav"><span class="active" style="color:#F8EB06;">● Accueil</span><span style="color:#A99FB0;">Recherche</span><span style="color:#A99FB0;">Compte</span></div>
+        </div>
+      </div></div>
+    </div>
+    <div class="mono"><div style="background:#241326"></div><div style="background:#31203A"></div><div style="background:#3E2A48"></div></div>
+    <div class="verdict"><b>Verdict:</b> The one you loved, anchored here as the neutral midpoint. Balanced warm-cool. Compare it left (cooler Ⓐ/Ⓑ) and right (warmer Ⓓ/Ⓔ) to find your exact temperature.</div>
+  </div>
+
+  <!-- A4 VIOLET VELVET -->
+  <div class="palette" style="background:#2A1530;">
+    <div class="pal-head"><h2>Ⓓ Violet Velvet</h2><span class="tag neu">NEUTRAL+</span>
+      <span class="pal-note">A touch more magenta/lift than Ⓒ — richer, more saturated curtain. Luxe but still cultural.</span></div>
+    <div class="stage">
+      <div class="swatches">
+        <div class="sw"><div class="chip" style="background:#2A1530"></div><div class="lbl">field</div><div class="hex">#2A1530</div></div>
+        <div class="sw"><div class="chip" style="background:#392043"></div><div class="lbl">surface</div><div class="hex">#392043</div></div>
+        <div class="sw"><div class="chip" style="background:#492C54"></div><div class="lbl">raised</div><div class="hex">#492C54</div></div>
+        <div class="sw"><div class="chip" style="background:#B0A2B8"></div><div class="lbl">muted</div><div class="hex">#B0A2B8</div></div>
+        <div class="sw"><div class="chip" style="background:#F8EB06"></div><div class="lbl">action</div><div class="hex">#F8EB06</div></div>
+        <div class="sw"><div class="chip" style="background:#1E8A7A"></div><div class="lbl">teal accent</div><div class="hex">#1E8A7A</div></div>
+      </div>
+      <div class="demo"><div class="demo-row">
+        <div class="card" style="background:#392043;">
+          <div class="poster" style="background:linear-gradient(160deg,#5a3568,#392043);"><span class="badge" style="background:#F8EB06;color:#2A1530;">VOST</span><span class="heart">💛</span></div>
+          <div class="card-body" style="color:#fff;"><div class="title">Communion</div><div class="meta" style="color:#B0A2B8;">Le Rio · 14/06</div><span class="price" style="background:#1E8A7A;color:#fff;">12,20 DT</span></div>
+        </div>
+        <div class="chrome" style="background:#392043;color:#fff;">
+          <h3>Accueil</h3><div class="line" style="background:#492C54;width:90%;"></div><div class="line" style="background:#492C54;width:70%;"></div>
+          <div class="recos" style="color:#F8EB06;">✲ Recommandé</div>
+          <div class="cta" style="background:#F8EB06;color:#2A1530;">Réserver</div>
+          <div class="link" style="color:#E8B8E0;">Voir la bande annonce →</div>
+          <div class="err" style="color:#FF8A8A;">⚠ Séance complète</div>
+          <div class="nav"><span class="active" style="color:#F8EB06;">● Accueil</span><span style="color:#B0A2B8;">Recherche</span><span style="color:#B0A2B8;">Compte</span></div>
+        </div>
+      </div></div>
+    </div>
+    <div class="mono"><div style="background:#2A1530"></div><div style="background:#392043"></div><div style="background:#492C54"></div></div>
+    <div class="verdict"><b>Verdict:</b> The most "velvet". Saturated and theatrical. Risk: leans fashion/beauty-brand if posters are sparse — strongest when the feed is full of artwork.</div>
+  </div>
+
+  <!-- A5 AUBERGINE + TEAL DUO (equity-forward) -->
+  <div class="palette" style="background:#221A33;">
+    <div class="pal-head"><h2>Ⓔ Aubergine × Teal Duo</h2><span class="tag cool">COOL · EQUITY</span>
+      <span class="pal-note">Cool plum field, but <b>surfaces carry a teal undertone</b> — the two brand worlds blended. Maximum continuity with the locked teal brand while living in plum.</span></div>
+    <div class="stage">
+      <div class="swatches">
+        <div class="sw"><div class="chip" style="background:#221A33"></div><div class="lbl">field</div><div class="hex">#221A33</div></div>
+        <div class="sw"><div class="chip" style="background:#243140"></div><div class="lbl">surface (teal-lean)</div><div class="hex">#243140</div></div>
+        <div class="sw"><div class="chip" style="background:#2E4750"></div><div class="lbl">raised</div><div class="hex">#2E4750</div></div>
+        <div class="sw"><div class="chip" style="background:#A4ADB4"></div><div class="lbl">muted</div><div class="hex">#A4ADB4</div></div>
+        <div class="sw"><div class="chip" style="background:#F8EB06"></div><div class="lbl">action</div><div class="hex">#F8EB06</div></div>
+        <div class="sw"><div class="chip" style="background:#C98AE8"></div><div class="lbl">orchid link</div><div class="hex">#C98AE8</div></div>
+      </div>
+      <div class="demo"><div class="demo-row">
+        <div class="card" style="background:#243140;">
+          <div class="poster" style="background:linear-gradient(160deg,#3a2f5a,#243140);"><span class="badge" style="background:#F8EB06;color:#221A33;">VOST</span><span class="heart">💛</span></div>
+          <div class="card-body" style="color:#fff;"><div class="title">Communion</div><div class="meta" style="color:#A4ADB4;">Le Rio · 14/06</div><span class="price" style="background:#2E4750;color:#fff;">12,20 DT</span></div>
+        </div>
+        <div class="chrome" style="background:#243140;color:#fff;">
+          <h3>Accueil</h3><div class="line" style="background:#2E4750;width:90%;"></div><div class="line" style="background:#2E4750;width:70%;"></div>
+          <div class="recos" style="color:#F8EB06;">✲ Recommandé</div>
+          <div class="cta" style="background:#F8EB06;color:#221A33;">Réserver</div>
+          <div class="link" style="color:#C98AE8;">Voir la bande annonce →</div>
+          <div class="err" style="color:#FF8A8A;">⚠ Séance complète</div>
+          <div class="nav"><span class="active" style="color:#F8EB06;">● Accueil</span><span style="color:#A4ADB4;">Recherche</span><span style="color:#A4ADB4;">Compte</span></div>
+        </div>
+      </div></div>
+    </div>
+    <div class="mono"><div style="background:#221A33"></div><div style="background:#243140"></div><div style="background:#2E4750"></div></div>
+    <div class="verdict"><b>Verdict:</b> The clever bridge — plum field + teal surfaces means the app you stand in still has the Tiween teal in its bones, while the overall mood is aubergine. Orchid link <code>#C98AE8</code> ties the accent back to the field. Best "have your cake & eat it".</div>
+  </div>
+
+  <!-- A6 BLACKCURRANT (deep/cinematic) -->
+  <div class="palette" style="background:#160E1F;">
+    <div class="pal-head"><h2>Ⓕ Blackcurrant</h2><span class="tag cool">COOL · DEEP</span>
+      <span class="pal-note">Darkest, most cinematic — near-black plum so posters dominate utterly. Theater goes fully dark.</span></div>
+    <div class="stage">
+      <div class="swatches">
+        <div class="sw"><div class="chip" style="background:#160E1F"></div><div class="lbl">field</div><div class="hex">#160E1F</div></div>
+        <div class="sw"><div class="chip" style="background:#22182E"></div><div class="lbl">surface</div><div class="hex">#22182E</div></div>
+        <div class="sw"><div class="chip" style="background:#2F233E"></div><div class="lbl">raised</div><div class="hex">#2F233E</div></div>
+        <div class="sw"><div class="chip" style="background:#9F98AC"></div><div class="lbl">muted</div><div class="hex">#9F98AC</div></div>
+        <div class="sw"><div class="chip" style="background:#F8EB06"></div><div class="lbl">action</div><div class="hex">#F8EB06</div></div>
+        <div class="sw"><div class="chip" style="background:#22B8A4"></div><div class="lbl">teal accent</div><div class="hex">#22B8A4</div></div>
+      </div>
+      <div class="demo"><div class="demo-row">
+        <div class="card" style="background:#22182E;">
+          <div class="poster" style="background:linear-gradient(160deg,#362a4a,#22182E);"><span class="badge" style="background:#F8EB06;color:#160E1F;">VOST</span><span class="heart">💛</span></div>
+          <div class="card-body" style="color:#fff;"><div class="title">Communion</div><div class="meta" style="color:#9F98AC;">Le Rio · 14/06</div><span class="price" style="background:#22B8A4;color:#062320;">12,20 DT</span></div>
+        </div>
+        <div class="chrome" style="background:#22182E;color:#fff;">
+          <h3>Accueil</h3><div class="line" style="background:#2F233E;width:90%;"></div><div class="line" style="background:#2F233E;width:70%;"></div>
+          <div class="recos" style="color:#F8EB06;">✲ Recommandé</div>
+          <div class="cta" style="background:#F8EB06;color:#160E1F;">Réserver</div>
+          <div class="link" style="color:#8AB4FF;">Voir la bande annonce →</div>
+          <div class="err" style="color:#FF8A8A;">⚠ Séance complète</div>
+          <div class="nav"><span class="active" style="color:#F8EB06;">● Accueil</span><span style="color:#9F98AC;">Recherche</span><span style="color:#9F98AC;">Compte</span></div>
+        </div>
+      </div></div>
+    </div>
+    <div class="mono"><div style="background:#160E1F"></div><div style="background:#22182E"></div><div style="background:#2F233E"></div></div>
+    <div class="verdict"><b>Verdict:</b> The OLED / true-cinema option. Maximum poster drama, minimum field presence. Risk: so dark the "plum" only whispers — surfaces do the color-telling. Great for an immersive, image-led directory.</div>
+  </div>
+
+  <p class="lede" style="margin-top:10px;">
+    <b>Sally's read of the cool spectrum:</b> Ⓑ Indigo Plum = safest cool (the existing <code>#8AB4FF</code> link carries over). Ⓐ Orchid Ink = most electric/nightlife.
+    Ⓔ Aubergine × Teal Duo = the smartest equity play (plum mood, teal in the surfaces you actually touch). Ⓕ Blackcurrant = most cinematic.
+    Tell me a letter and I'll build it into a full token set + contrast table; or mix two and I'll spin the hybrid.
+    <br><br>
+    <b>One a11y flag I'm already watching:</b> on every plum field, the error red is shown as a <i>lightened</i> <code>#FF8A8A</code> (~5:1) rather than the locked <code>#EF4444</code> — because pure red on plum drops toward ~3:1 and risks blending with the field. Worth confirming when we lock one.
+  </p>
+</body>
+</html>

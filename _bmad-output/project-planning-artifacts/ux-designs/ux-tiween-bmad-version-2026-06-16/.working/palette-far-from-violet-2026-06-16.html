@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Tiween — Far From Violet (warm earth + wildcards)</title>
+<style>
+  :root { font-family: Inter, system-ui, -apple-system, sans-serif; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #0d0d0c; color: #eee; padding: 32px 24px 80px; }
+  h1 { font-size: 26px; margin: 0 0 6px; }
+  .lede { color: #aaa; max-width: 800px; line-height: 1.5; margin: 0 0 28px; font-size: 14px; }
+  .lede code { background:#222; padding:1px 5px; border-radius:4px; font-size:12px; }
+  .lede b { color:#ddd; }
+
+  .palette { margin: 0 0 36px; border-radius: 16px; overflow: hidden; border: 1px solid #2a2a2a; }
+  .pal-head { padding: 14px 18px; display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; }
+  .pal-head h2 { font-size: 18px; margin:0; color:#fff; }
+  .tag { font-size: 11px; font-weight: 700; padding: 2px 9px; border-radius: 999px; letter-spacing:.04em; }
+  .tag.earth { background:#3a2a14; color:#f0c070; }
+  .tag.olive { background:#2c3315; color:#c2d870; }
+  .tag.wild  { background:#3a1420; color:#f08aa0; }
+  .pal-note { font-size: 12.5px; color:#aaa; }
+
+  .stage { display:grid; grid-template-columns: 1fr; gap:0; }
+  @media(min-width:920px){ .stage{ grid-template-columns: 360px 1fr; } }
+
+  .swatches { padding: 18px; display:flex; flex-wrap:wrap; gap:10px; align-content:flex-start; }
+  .sw { width: 92px; }
+  .chip { height: 50px; border-radius: 10px; border:1px solid rgba(255,255,255,.14); }
+  .sw .lbl { font-size: 10.5px; color:#ccc; margin-top:5px; line-height:1.3; }
+  .sw .hex { font-size: 10px; color:#888; font-family: ui-monospace, monospace; }
+
+  .demo { padding: 22px; }
+  .demo-row { display:flex; gap:18px; align-items:flex-start; flex-wrap:wrap; }
+
+  .card { width: 168px; border-radius:16px; overflow:hidden; }
+  .poster { aspect-ratio: 2/3; position:relative; display:flex; align-items:flex-end; }
+  .poster .badge { position:absolute; top:8px; left:8px; font-size:10px; font-weight:700; padding:2px 7px; border-radius:8px; }
+  .poster .heart { position:absolute; top:8px; right:8px; width:26px;height:26px; border-radius:999px; display:flex;align-items:center;justify-content:center; background:rgba(0,0,0,.4); font-size:13px;}
+  .card-body { padding:10px 11px 12px; }
+  .card-body .title { font-size:13.5px; font-weight:700; line-height:1.25; }
+  .card-body .meta { font-size:11px; margin-top:4px; }
+  .card-body .price { font-size:11.5px; font-weight:700; margin-top:8px; display:inline-block; padding:2px 8px; border-radius:8px; }
+
+  .chrome { width: 232px; border-radius:16px; padding:16px; }
+  .chrome h3 { font-size:14px; margin:0 0 10px; }
+  .chrome .line { height:10px; border-radius:5px; margin:7px 0; }
+  .cta { margin-top:14px; text-align:center; font-size:13px; font-weight:700; padding:11px; border-radius:999px; }
+  .link { font-size:12px; margin-top:10px; }
+  .err  { font-size:11px; margin-top:10px; display:flex; align-items:center; gap:5px; }
+  .nav { display:flex; gap:14px; margin-top:14px; font-size:11px; }
+  .nav .active { font-weight:700; }
+  .recos { font-size:11px; margin-top:6px; }
+  .mono { display:flex; gap:0; margin:0; }
+  .mono div { flex:1; height:36px; }
+  .verdict { font-size:12.5px; color:#bbb; padding:0 18px 18px; line-height:1.5; }
+  .verdict b { color:#ddd; }
+</style>
+</head>
+<body>
+  <h1>🎨 Tiween — Far From Violet</h1>
+  <p class="lede">
+    You crossed the wheel. These leave the cool/plum world entirely for the <b>warm half</b> — earths, rusts, olives — plus two wildcards.
+    This is, not coincidentally, the palette of <b>Tunisia itself</b>: sand, harissa, zellige clay, olive, Sahara dusk.
+    Action stays <code>#F8EB06</code> yellow <i>except</i> where the field gets too warm to let yellow read — there I flex the action color and call it out.
+    Each shows EventCard + chrome + error line. The <b>teal chip</b> = the Tiween-teal equity cameo (cool spark against warm fields = nice tension).
+  </p>
+
+  <!-- F1 HARISSA / RUST -->
+  <div class="palette" style="background:#1F120C;">
+    <div class="pal-head"><h2>① Harissa</h2><span class="tag earth">WARM EARTH</span>
+      <span class="pal-note">Deep roasted-rust field. Spice-market warmth. Yellow still reads (warm-on-warm but enough value gap). Teal cameo = cooling spark.</span></div>
+    <div class="stage">
+      <div class="swatches">
+        <div class="sw"><div class="chip" style="background:#1F120C"></div><div class="lbl">field</div><div class="hex">#1F120C</div></div>
+        <div class="sw"><div class="chip" style="background:#2E1C12"></div><div class="lbl">surface</div><div class="hex">#2E1C12</div></div>
+        <div class="sw"><div class="chip" style="background:#3D271A"></div><div class="lbl">raised</div><div class="hex">#3D271A</div></div>
+        <div class="sw"><div class="chip" style="background:#BBA890"></div><div class="lbl">muted (sand)</div><div class="hex">#BBA890</div></div>
+        <div class="sw"><div class="chip" style="background:#F8EB06"></div><div class="lbl">action</div><div class="hex">#F8EB06</div></div>
+        <div class="sw"><div class="chip" style="background:#1FA89A"></div><div class="lbl">teal accent</div><div class="hex">#1FA89A</div></div>
+      </div>
+      <div class="demo"><div class="demo-row">
+        <div class="card" style="background:#2E1C12;">
+          <div class="poster" style="background:linear-gradient(160deg,#5a3a22,#2E1C12);"><span class="badge" style="background:#F8EB06;color:#1F120C;">VOST</span><span class="heart">💛</span></div>
+          <div class="card-body" style="color:#fff;"><div class="title">Communion</div><div class="meta" style="color:#BBA890;">Le Rio · 14/06</div><span class="price" style="background:#1FA89A;color:#06231F;">12,20 DT</span></div>
+        </div>
+        <div class="chrome" style="background:#2E1C12;color:#fff;">
+          <h3>Accueil</h3><div class="line" style="background:#3D271A;width:90%;"></div><div class="line" style="background:#3D271A;width:70%;"></div>
+          <div class="recos" style="color:#F8EB06;">✲ Recommandé</div>
+          <div class="cta" style="background:#F8EB06;color:#1F120C;">Réserver</div>
+          <div class="link" style="color:#5FD0C2;">Voir la bande annonce →</div>
+          <div class="err" style="color:#FF9A8A;">⚠ Séance complète</div>
+          <div class="nav"><span class="active" style="color:#F8EB06;">● Accueil</span><span style="color:#BBA890;">Recherche</span><span style="color:#BBA890;">Compte</span></div>
+        </div>
+      </div></div>
+    </div>
+    <div class="mono"><div style="background:#1F120C"></div><div style="background:#2E1C12"></div><div style="background:#3D271A"></div></div>
+    <div class="verdict"><b>Verdict:</b> Maximum "Tunisian warmth". Risk: warm field + warm yellow = lower energy separation than on teal/plum; the cool teal cameo is what keeps it from feeling like a tagine menu. Posters must carry contrast.</div>
+  </div>
+
+  <!-- F2 OLIVE NOIR -->
+  <div class="palette" style="background:#16190E;">
+    <div class="pal-head"><h2>② Olive Noir</h2><span class="tag olive">OLIVE / GREEN-EARTH</span>
+      <span class="pal-note">Dark olive — the bridge between the old teal-green brand and warm earth. Yellow SINGS on olive (near-complement). Most natural fit for the existing green equity.</span></div>
+    <div class="stage">
+      <div class="swatches">
+        <div class="sw"><div class="chip" style="background:#16190E"></div><div class="lbl">field</div><div class="hex">#16190E</div></div>
+        <div class="sw"><div class="chip" style="background:#222614"></div><div class="lbl">surface</div><div class="hex">#222614</div></div>
+        <div class="sw"><div class="chip" style="background:#30351E"></div><div class="lbl">raised</div><div class="hex">#30351E</div></div>
+        <div class="sw"><div class="chip" style="background:#B4B498"></div><div class="lbl">muted (dried-grass)</div><div class="hex">#B4B498</div></div>
+        <div class="sw"><div class="chip" style="background:#F8EB06"></div><div class="lbl">action</div><div class="hex">#F8EB06</div></div>
+        <div class="sw"><div class="chip" style="background:#E8743B"></div><div class="lbl">terracotta</div><div class="hex">#E8743B</div></div>
+      </div>
+      <div class="demo"><div class="demo-row">
+        <div class="card" style="background:#222614;">
+          <div class="poster" style="background:linear-gradient(160deg,#3e451f,#222614);"><span class="badge" style="background:#F8EB06;color:#16190E;">VOST</span><span class="heart">💛</span></div>
+          <div class="card-body" style="color:#fff;"><div class="title">Communion</div><div class="meta" style="color:#B4B498;">Le Rio · 14/06</div><span class="price" style="background:#E8743B;color:#1f0d05;">12,20 DT</span></div>
+        </div>
+        <div class="chrome" style="background:#222614;color:#fff;">
+          <h3>Accueil</h3><div class="line" style="background:#30351E;width:90%;"></div><div class="line" style="background:#30351E;width:70%;"></div>
+          <div class="recos" style="color:#F8EB06;">✲ Recommandé</div>
+          <div class="cta" style="background:#F8EB06;color:#16190E;">Réserver</div>
+          <div class="link" style="color:#F0A074;">Voir la bande annonce →</div>
+          <div class="err" style="color:#FF9A8A;">⚠ Séance complète</div>
+          <div class="nav"><span class="active" style="color:#F8EB06;">● Accueil</span><span style="color:#B4B498;">Recherche</span><span style="color:#B4B498;">Compte</span></div>
+        </div>
+      </div></div>
+    </div>
+    <div class="mono"><div style="background:#16190E"></div><div style="background:#222614"></div><div style="background:#30351E"></div></div>
+    <div class="verdict"><b>Verdict:</b> My sleeper favourite of this board. It's "far from violet" but still GREEN — so it keeps a thread to the brand DNA while feeling totally different (earthy, not clinical). Yellow + terracotta on olive = harvest/Mediterranean. Strong contender.</div>
+  </div>
+
+  <!-- F3 SAHARA DUSK (sand-light wildcard: NOT dark) -->
+  <div class="palette" style="background:#EDE3D2;">
+    <div class="pal-head"><h2>③ Sahara Dusk</h2><span class="tag wild">WILDCARD · LIGHT</span>
+      <span class="pal-note">The real provocation: a LIGHT sand theme. Breaks the dark-first rule entirely. Action flexes to dark-teal (yellow can't read on sand). Editorial, gallery-print feel.</span></div>
+    <div class="stage" style="background:#EDE3D2;">
+      <div class="swatches">
+        <div class="sw"><div class="chip" style="background:#EDE3D2"></div><div class="lbl" style="color:#5a5246;">field (sand)</div><div class="hex" style="color:#8a8170;">#EDE3D2</div></div>
+        <div class="sw"><div class="chip" style="background:#FBF6EC"></div><div class="lbl" style="color:#5a5246;">surface</div><div class="hex" style="color:#8a8170;">#FBF6EC</div></div>
+        <div class="sw"><div class="chip" style="background:#E0D3BC"></div><div class="lbl" style="color:#5a5246;">sunk</div><div class="hex" style="color:#8a8170;">#E0D3BC</div></div>
+        <div class="sw"><div class="chip" style="background:#6B6354"></div><div class="lbl" style="color:#5a5246;">muted text</div><div class="hex" style="color:#8a8170;">#6B6354</div></div>
+        <div class="sw"><div class="chip" style="background:#0E4A42"></div><div class="lbl" style="color:#5a5246;">action (teal)</div><div class="hex" style="color:#8a8170;">#0E4A42</div></div>
+        <div class="sw"><div class="chip" style="background:#C2410C"></div><div class="lbl" style="color:#5a5246;">terracotta</div><div class="hex" style="color:#8a8170;">#C2410C</div></div>
+      </div>
+      <div class="demo"><div class="demo-row">
+        <div class="card" style="background:#FBF6EC; border:1px solid #E0D3BC;">
+          <div class="poster" style="background:linear-gradient(160deg,#cdbfa6,#E0D3BC);"><span class="badge" style="background:#0E4A42;color:#fff;">VOST</span><span class="heart" style="background:rgba(255,255,255,.6);">🧡</span></div>
+          <div class="card-body" style="color:#2a2620;"><div class="title">Communion</div><div class="meta" style="color:#6B6354;">Le Rio · 14/06</div><span class="price" style="background:#0E4A42;color:#fff;">12,20 DT</span></div>
+        </div>
+        <div class="chrome" style="background:#FBF6EC;color:#2a2620; border:1px solid #E0D3BC;">
+          <h3>Accueil</h3><div class="line" style="background:#E0D3BC;width:90%;"></div><div class="line" style="background:#E0D3BC;width:70%;"></div>
+          <div class="recos" style="color:#C2410C;">✲ Recommandé</div>
+          <div class="cta" style="background:#0E4A42;color:#fff;">Réserver</div>
+          <div class="link" style="color:#C2410C;">Voir la bande annonce →</div>
+          <div class="err" style="color:#B91C1C;">⚠ Séance complète</div>
+          <div class="nav"><span class="active" style="color:#0E4A42;">● Accueil</span><span style="color:#6B6354;">Recherche</span><span style="color:#6B6354;">Compte</span></div>
+        </div>
+      </div></div>
+    </div>
+    <div class="mono"><div style="background:#EDE3D2"></div><div style="background:#FBF6EC"></div><div style="background:#E0D3BC"></div></div>
+    <div class="verdict"><b>Verdict:</b> The brave one. A light, paper/sand theme reads like an art-house programme or gallery print — very "cultural institution". BUT: it abandons the dark-cinema mood that makes posters pop, and contradicts the locked dark-first decision + outdoor-glare logic. Shown because "far from violet" should include "far from dark". Action becomes dark-teal here.</div>
+  </div>
+
+  <!-- F4 COFFEE & CREAM -->
+  <div class="palette" style="background:#1C1714;">
+    <div class="pal-head"><h2>④ Coffee &amp; Cream</h2><span class="tag earth">WARM NEUTRAL</span>
+      <span class="pal-note">Warm near-black coffee field — like ④ Ink &amp; Saffron from round 1 but pushed warmer/browner. Almost neutral → posters & category colors get full room.</span></div>
+    <div class="stage">
+      <div class="swatches">
+        <div class="sw"><div class="chip" style="background:#1C1714"></div><div class="lbl">field</div><div class="hex">#1C1714</div></div>
+        <div class="sw"><div class="chip" style="background:#29221D"></div><div class="lbl">surface</div><div class="hex">#29221D</div></div>
+        <div class="sw"><div class="chip" style="background:#372E27"></div><div class="lbl">raised</div><div class="hex">#372E27</div></div>
+        <div class="sw"><div class="chip" style="background:#BCAE9C"></div><div class="lbl">muted (cream)</div><div class="hex">#BCAE9C</div></div>
+        <div class="sw"><div class="chip" style="background:#F8EB06"></div><div class="lbl">action</div><div class="hex">#F8EB06</div></div>
+        <div class="sw"><div class="chip" style="background:#1FA89A"></div><div class="lbl">teal accent</div><div class="hex">#1FA89A</div></div>
+      </div>
+      <div class="demo"><div class="demo-row">
+        <div class="card" style="background:#29221D;">
+          <div class="poster" style="background:linear-gradient(160deg,#473b30,#29221D);"><span class="badge" style="background:#F8EB06;color:#1C1714;">VOST</span><span class="heart">💛</span></div>
+          <div class="card-body" style="color:#fff;"><div class="title">Communion</div><div class="meta" style="color:#BCAE9C;">Le Rio · 14/06</div><span class="price" style="background:#1FA89A;color:#06231F;">12,20 DT</span></div>
+        </div>
+        <div class="chrome" style="background:#29221D;color:#fff;">
+          <h3>Accueil</h3><div class="line" style="background:#372E27;width:90%;"></div><div class="line" style="background:#372E27;width:70%;"></div>
+          <div class="recos" style="color:#F8EB06;">✲ Recommandé</div>
+          <div class="cta" style="background:#F8EB06;color:#1C1714;">Réserver</div>
+          <div class="link" style="color:#5FD0C2;">Voir la bande annonce →</div>
+          <div class="err" style="color:#FF9A8A;">⚠ Séance complète</div>
+          <div class="nav"><span class="active" style="color:#F8EB06;">● Accueil</span><span style="color:#BCAE9C;">Recherche</span><span style="color:#BCAE9C;">Compte</span></div>
+        </div>
+      </div></div>
+    </div>
+    <div class="mono"><div style="background:#1C1714"></div><div style="background:#29221D"></div><div style="background:#372E27"></div></div>
+    <div class="verdict"><b>Verdict:</b> The safest "warm" pick — warm enough to feel cozy/Tunisian, neutral enough that yellow keeps full punch and posters dominate. If "far from violet but still shippable & dark" is the brief, this is the answer.</div>
+  </div>
+
+  <!-- F5 COPPER PATINA (warm field + cool-green accent = max tension) -->
+  <div class="palette" style="background:#1A130D;">
+    <div class="pal-head"><h2>⑤ Copper Patina</h2><span class="tag earth">WARM + COOL DUO</span>
+      <span class="pal-note">Warm copper-brown field, but the SECOND accent is oxidized-teal/verdigris — the green that copper turns. Warm field, cool spark: built-in story, max tension.</span></div>
+    <div class="stage">
+      <div class="swatches">
+        <div class="sw"><div class="chip" style="background:#1A130D"></div><div class="lbl">field</div><div class="hex">#1A130D</div></div>
+        <div class="sw"><div class="chip" style="background:#2A2015"></div><div class="lbl">surface</div><div class="hex">#2A2015</div></div>
+        <div class="sw"><div class="chip" style="background:#3A2D1E"></div><div class="lbl">raised</div><div class="hex">#3A2D1E</div></div>
+        <div class="sw"><div class="chip" style="background:#BCA890"></div><div class="lbl">muted</div><div class="hex">#BCA890</div></div>
+        <div class="sw"><div class="chip" style="background:#FFB833"></div><div class="lbl">action (amber)</div><div class="hex">#FFB833</div></div>
+        <div class="sw"><div class="chip" style="background:#3AA88F"></div><div class="lbl">verdigris</div><div class="hex">#3AA88F</div></div>
+      </div>
+      <div class="demo"><div class="demo-row">
+        <div class="card" style="background:#2A2015;">
+          <div class="poster" style="background:linear-gradient(160deg,#574028,#2A2015);"><span class="badge" style="background:#FFB833;color:#1A130D;">VOST</span><span class="heart">🧡</span></div>
+          <div class="card-body" style="color:#fff;"><div class="title">Communion</div><div class="meta" style="color:#BCA890;">Le Rio · 14/06</div><span class="price" style="background:#3AA88F;color:#06231F;">12,20 DT</span></div>
+        </div>
+        <div class="chrome" style="background:#2A2015;color:#fff;">
+          <h3>Accueil</h3><div class="line" style="background:#3A2D1E;width:90%;"></div><div class="line" style="background:#3A2D1E;width:70%;"></div>
+          <div class="recos" style="color:#FFB833;">✲ Recommandé</div>
+          <div class="cta" style="background:#FFB833;color:#1A130D;">Réserver</div>
+          <div class="link" style="color:#5FD0BB;">Voir la bande annonce →</div>
+          <div class="err" style="color:#FF9A8A;">⚠ Séance complète</div>
+          <div class="nav"><span class="active" style="color:#FFB833;">● Accueil</span><span style="color:#BCA890;">Recherche</span><span style="color:#BCA890;">Compte</span></div>
+        </div>
+      </div></div>
+    </div>
+    <div class="mono"><div style="background:#1A130D"></div><div style="background:#2A2015"></div><div style="background:#3A2D1E"></div></div>
+    <div class="verdict"><b>Verdict:</b> The most conceptual. Here I FLEXED action from lemon-yellow to <b>amber #FFB833</b> — on a copper field, pure lemon-yellow gets muddy; amber holds. Verdigris (copper's patina) is a gorgeous, meaningful 2nd accent. Bold but cohesive. Note: amber departs from the exact brand yellow.</div>
+  </div>
+
+  <!-- F6 INK & EMBER (near-neutral charcoal + ember accents, no field hue) -->
+  <div class="palette" style="background:#131210;">
+    <div class="pal-head"><h2>⑥ Ink &amp; Ember</h2><span class="tag wild">WILDCARD · NEUTRAL</span>
+      <span class="pal-note">Almost-true-black neutral field — no hue commitment at all. Lets WARM accents (ember orange + yellow) and the teal cameo do every bit of the talking. The "let the posters & accents be the color" philosophy.</span></div>
+    <div class="stage">
+      <div class="swatches">
+        <div class="sw"><div class="chip" style="background:#131210"></div><div class="lbl">field</div><div class="hex">#131210</div></div>
+        <div class="sw"><div class="chip" style="background:#1E1D1A"></div><div class="lbl">surface</div><div class="hex">#1E1D1A</div></div>
+        <div class="sw"><div class="chip" style="background:#2A2925"></div><div class="lbl">raised</div><div class="hex">#2A2925</div></div>
+        <div class="sw"><div class="chip" style="background:#A8A49C"></div><div class="lbl">muted</div><div class="hex">#A8A49C</div></div>
+        <div class="sw"><div class="chip" style="background:#F8EB06"></div><div class="lbl">action</div><div class="hex">#F8EB06</div></div>
+        <div class="sw"><div class="chip" style="background:#FF6B35"></div><div class="lbl">ember</div><div class="hex">#FF6B35</div></div>
+      </div>
+      <div class="demo"><div class="demo-row">
+        <div class="card" style="background:#1E1D1A;">
+          <div class="poster" style="background:linear-gradient(160deg,#35332c,#1E1D1A);"><span class="badge" style="background:#F8EB06;color:#131210;">VOST</span><span class="heart">💛</span></div>
+          <div class="card-body" style="color:#fff;"><div class="title">Communion</div><div class="meta" style="color:#A8A49C;">Le Rio · 14/06</div><span class="price" style="background:#FF6B35;color:#1f0a02;">12,20 DT</span></div>
+        </div>
+        <div class="chrome" style="background:#1E1D1A;color:#fff;">
+          <h3>Accueil</h3><div class="line" style="background:#2A2925;width:90%;"></div><div class="line" style="background:#2A2925;width:70%;"></div>
+          <div class="recos" style="color:#F8EB06;">✲ Recommandé</div>
+          <div class="cta" style="background:#F8EB06;color:#131210;">Réserver</div>
+          <div class="link" style="color:#FF8A5C;">Voir la bande annonce →</div>
+          <div class="err" style="color:#FF9A8A;">⚠ Séance complète</div>
+          <div class="nav"><span class="active" style="color:#F8EB06;">● Accueil</span><span style="color:#A8A49C;">Recherche</span><span style="color:#A8A49C;">Compte</span></div>
+        </div>
+      </div></div>
+    </div>
+    <div class="mono"><div style="background:#131210"></div><div style="background:#1E1D1A"></div><div style="background:#2A2925"></div></div>
+    <div class="verdict"><b>Verdict:</b> The minimalist's answer. No field hue = no clinical-cool problem AND no warm-menu problem; warmth comes purely from ember + yellow accents. Most flexible for category color-coding. Risk: a neutral field is the least ownable/distinctive — Tiween could look like any premium dark app.</div>
+  </div>
+
+  <p class="lede" style="margin-top:10px;">
+    <b>Sally's read — far from violet:</b>
+    ② <b>Olive Noir</b> is my pick — it travels far from plum yet stays in the green family that's already Tiween's DNA; yellow sings on olive.
+    ④ <b>Coffee &amp; Cream</b> = safest warm-dark.
+    ① Harissa &amp; ⑤ Copper = boldest "Tunisian", but warm-on-warm fights the yellow (⑤ solves it by flexing to amber).
+    ③ Sahara Dusk = the true rule-breaker (LIGHT) — gorgeous as an art-house identity but contradicts dark-first + outdoor-glare logic.
+    ⑥ Ink &amp; Ember = neutral, flexible, least distinctive.
+    <br><br>
+    Tell me a number to develop into a full token set, or mix any two (e.g. "② field + ⑤ verdigris accent"). And if none of these — say what's still missing and I'll keep hunting.
+  </p>
+</body>
+</html>

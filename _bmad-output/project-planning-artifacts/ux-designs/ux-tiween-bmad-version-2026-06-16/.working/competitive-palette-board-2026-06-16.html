@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Tiween — Competitive Palette Board (what others built)</title>
+<style>
+  :root { font-family: Inter, system-ui, -apple-system, sans-serif; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #14141a; color: #eee; padding: 32px 24px 80px; }
+  h1 { font-size: 27px; margin: 0 0 6px; }
+  .lede { color: #aaa; max-width: 880px; line-height: 1.55; margin: 0 0 26px; font-size: 14px; }
+  .lede b { color:#fff; }
+  .lede code { background:#26262f; padding:1px 5px; border-radius:4px; font-size:12px; }
+
+  .grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(380px,1fr)); gap:20px; }
+  .ref { background:#1d1d26; border:1px solid #2c2c38; border-radius:14px; overflow:hidden; }
+  .shot { width:100%; display:block; border-bottom:1px solid #2c2c38; background:#000; }
+  .ref-body { padding:14px 16px 16px; }
+  .ref-body h2 { font-size:16px; margin:0 0 2px; }
+  .cat { font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:#8a8aa0; }
+  .swrow { display:flex; gap:6px; margin:10px 0 8px; flex-wrap:wrap; }
+  .sw { width:30px; height:30px; border-radius:6px; border:1px solid rgba(255,255,255,.15); }
+  .note { font-size:12.5px; color:#bcbcca; line-height:1.5; }
+  .note b { color:#fff; }
+  .verdict-tag { display:inline-block; font-size:10.5px; font-weight:700; padding:2px 8px; border-radius:999px; margin-top:8px; }
+  .vt-safe { background:#22303a; color:#7fd0e8; }
+  .vt-loud { background:#3a2210; color:#ffb05c; }
+  .vt-clut { background:#3a1a1a; color:#ff8a8a; }
+
+  .map { margin:34px 0 0; background:#1d1d26; border:1px solid #2c2c38; border-radius:14px; padding:22px; }
+  .map h2 { font-size:19px; margin:0 0 4px; }
+  .map p { font-size:13px; color:#bcbcca; line-height:1.55; max-width:880px;}
+  .quad { display:grid; grid-template-columns:1fr 1fr; gap:2px; background:#2c2c38; border-radius:10px; overflow:hidden; margin:18px 0 6px; max-width:720px;}
+  .cell { background:#1d1d26; padding:14px 16px; min-height:96px;}
+  .cell .lab { font-size:11px; font-weight:700; color:#8a8aa0; text-transform:uppercase; letter-spacing:.04em; }
+  .cell .who { font-size:13px; color:#ddd; margin-top:6px; line-height:1.5;}
+  .cell .tiw { font-size:12px; color:#F8EB06; margin-top:8px; font-weight:700;}
+  .axis { font-size:11px; color:#777; }
+
+  .take { margin-top:22px; font-size:13.5px; color:#ddd; line-height:1.6; max-width:880px;}
+  .take b { color:#fff; }
+  .take .big { color:#F8EB06; font-weight:700; }
+</style>
+</head>
+<body>
+  <h1>🎨 What others built — Competitive Palette Board</h1>
+  <p class="lede">
+    Seven live captures (16 Jun 2026) across the four reference sets. Read the <b>camps</b>: film/ticketing aggregators play it muted or cluttered;
+    culture/art brands go fearless. Swatches are sampled-by-eye from each capture. The takeaway map at the bottom is the real payoff — it shows the <b>empty quadrant Tiween can own</b>.
+  </p>
+
+  <div class="grid">
+
+    <!-- LETTERBOXD -->
+    <div class="ref">
+      <img class="shot" src="refs/ref-letterboxd.png" alt="Letterboxd" />
+      <div class="ref-body">
+        <div class="cat">Film discovery · social catalog</div>
+        <h2>Letterboxd</h2>
+        <div class="swrow">
+          <span class="sw" style="background:#14181C"></span><span class="sw" style="background:#2C3440"></span>
+          <span class="sw" style="background:#456"></span><span class="sw" style="background:#00E054"></span>
+          <span class="sw" style="background:#40BCF4"></span><span class="sw" style="background:#FF8000"></span>
+        </div>
+        <div class="note"><b>Charcoal-navy field, posters do ALL the color.</b> The famous green/blue/orange dots are tiny rating accents only — UI is deliberately invisible so artwork leads. A wall of 2:3 posters. <b>Tiween already does this</b> (poster-forward dark).</div>
+        <span class="verdict-tag vt-safe">SAFE · poster-forward dark</span>
+      </div>
+    </div>
+
+    <!-- MUBI -->
+    <div class="ref">
+      <img class="shot" src="refs/ref-mubi.png" alt="Mubi" />
+      <div class="ref-body">
+        <div class="cat">Art-house film · curation</div>
+        <h2>Mubi</h2>
+        <div class="swrow">
+          <span class="sw" style="background:#000000"></span><span class="sw" style="background:#0A0A0A"></span>
+          <span class="sw" style="background:#1A47E6"></span><span class="sw" style="background:#FFFFFF"></span>
+        </div>
+        <div class="note"><b>Near-black + one electric blue + white. Extreme restraint.</b> A single full-bleed cinematic still, tiny type, one blue CTA. The "premium = almost no color" school. Elegant but cold — leans cinema-utility, not "alive".</div>
+        <span class="verdict-tag vt-safe">SAFE · minimal black</span>
+      </div>
+    </div>
+
+    <!-- DICE -->
+    <div class="ref">
+      <img class="shot" src="refs/ref-dice.png" alt="Dice" />
+      <div class="ref-body">
+        <div class="cat">Events · gigs discovery</div>
+        <h2>Dice</h2>
+        <div class="swrow">
+          <span class="sw" style="background:#0B0B0B"></span><span class="sw" style="background:#1A1A1A"></span>
+          <span class="sw" style="background:#EDEDED"></span><span class="sw" style="background:#7B61FF"></span>
+        </div>
+        <div class="note"><b>Black field, event ARTWORK is the color.</b> Square event cards in a tight grid; each flyer brings its own palette so the page feels colorful while the chrome stays monochrome. Smart: lets a thousand promoters' art coexist. Closest to Tiween's events half.</div>
+        <span class="verdict-tag vt-safe">SAFE · artwork-led dark</span>
+      </div>
+    </div>
+
+    <!-- RA -->
+    <div class="ref">
+      <img class="shot" src="refs/ref-ra.png" alt="Resident Advisor" />
+      <div class="ref-body">
+        <div class="cat">Electronic music · culture</div>
+        <h2>Resident Advisor</h2>
+        <div class="swrow">
+          <span class="sw" style="background:#000000"></span><span class="sw" style="background:#F4F408"></span>
+          <span class="sw" style="background:#19E0FF"></span><span class="sw" style="background:#FF4FA3"></span>
+          <span class="sw" style="background:#FFFFFF"></span>
+        </div>
+        <div class="note"><b>Black + FLUORO YELLOW banners + clashing event swatches.</b> Loud, editorial, type-as-graphic ("MAKING IBIZA DANCE SINCE 1976"). Cyan/pink/yellow blocks collide on purpose. This is <b>"punchy" done by a real culture brand</b> — proof it works.</div>
+        <span class="verdict-tag vt-loud">LOUD · editorial culture</span>
+      </div>
+    </div>
+
+    <!-- FEVER -->
+    <div class="ref">
+      <img class="shot" src="refs/ref-fever.png" alt="Fever" />
+      <div class="ref-body">
+        <div class="cat">Events aggregator · mass-market</div>
+        <h2>Fever</h2>
+        <div class="swrow">
+          <span class="sw" style="background:#FFFFFF"></span><span class="sw" style="background:#1A1A2E"></span>
+          <span class="sw" style="background:#FF5A36"></span><span class="sw" style="background:#FF2D55"></span>
+        </div>
+        <div class="note"><b>Light/white shell + warm hero gradient + red accent.</b> "Top 10" rail of dark thumbnail cards on white. Friendly, commercial, a bit generic-marketplace. Shows light CAN work for events — but reads more "deals" than "culture".</div>
+        <span class="verdict-tag vt-safe">SAFE · light marketplace</span>
+      </div>
+    </div>
+
+    <!-- TESKERTI -->
+    <div class="ref">
+      <img class="shot" src="refs/ref-teskerti.png" alt="Teskerti" />
+      <div class="ref-body">
+        <div class="cat">MENA · Tunisian ticketing (competitor)</div>
+        <h2>Teskerti.tn</h2>
+        <div class="swrow">
+          <span class="sw" style="background:#E4002B"></span><span class="sw" style="background:#FFFFFF"></span>
+          <span class="sw" style="background:#1A1A1A"></span><span class="sw" style="background:#FFD200"></span>
+        </div>
+        <div class="note"><b>White + red, dense, banner-heavy, a car ad mid-page.</b> The actual local competitor: functional but cluttered, no clear hierarchy, mixed Arabic/Latin promo art. <b>This is the bar Tiween clears easily</b> — almost any disciplined system beats it. The opportunity is obvious.</div>
+        <span class="verdict-tag vt-clut">CLUTTERED · the gap to beat</span>
+      </div>
+    </div>
+
+    <!-- AVIGNON -->
+    <div class="ref">
+      <img class="shot" src="refs/ref-avignon.png" alt="Festival d'Avignon" />
+      <div class="ref-body">
+        <div class="cat">Editorial · arts institution</div>
+        <h2>Festival d'Avignon</h2>
+        <div class="swrow">
+          <span class="sw" style="background:#FFE600"></span><span class="sw" style="background:#000000"></span>
+          <span class="sw" style="background:#E4002B"></span>
+        </div>
+        <div class="note"><b>Full-bleed CHROME YELLOW + raw black brushstroke + a serif display face.</b> A world-class theatre festival whose entire identity is one fearless yellow field and ink. Zero posters needed — the COLOR is the brand. <b>The clearest proof your "punchy/art" instinct is legitimate, not risky.</b></div>
+        <span class="verdict-tag vt-loud">LOUD · fearless art identity</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- POSITIONING MAP -->
+  <div class="map">
+    <h2>The positioning map — where's the white space?</h2>
+    <p>Plot the seven on two axes: <span class="axis">vertical = <b>utility ↔ culture</b> (does it feel like a tool or a movement?)</span> · <span class="axis">horizontal = <b>restrained ↔ loud</b>.</span> Almost everyone clusters in two corners. One corner is nearly empty.</p>
+    <div class="quad">
+      <div class="cell">
+        <div class="lab">Culture · Restrained</div>
+        <div class="who">Mubi (cold-minimal). Letterboxd leans here too.</div>
+      </div>
+      <div class="cell">
+        <div class="lab">Culture · LOUD ← the open lane</div>
+        <div class="who">RA, Avignon — and almost no one in <i>film/events listings</i> lives here.</div>
+        <div class="tiw">◀ Tiween's white space: a LOUD, culture-first directory (Zellige / Tunis Pop / punchy)</div>
+      </div>
+      <div class="cell">
+        <div class="lab">Utility · Restrained</div>
+        <div class="who">Dice, Fever — safe, artwork/marketplace-led.</div>
+      </div>
+      <div class="cell">
+        <div class="lab">Utility · LOUD (= cluttered)</div>
+        <div class="who">Teskerti — loud by accident, not design. The trap.</div>
+      </div>
+    </div>
+  </div>
+
+  <p class="take">
+    <b>Sally's read of the field:</b><br>
+    <b>1. Everyone safe goes poster/artwork-led dark.</b> Letterboxd, Dice, Mubi all hide the UI and let images carry color. Tiween already does this — so doing it again is <i>table stakes, not differentiation</i>.<br>
+    <b>2. The brands that feel like CULTURE are loud.</b> RA (fluoro yellow + clashing swatches) and Avignon (chrome-yellow field + ink) are unmistakable. Your <span class="big">punchy direction lands Tiween in the one quadrant film/events listings have left empty</span> — culture-first AND loud.<br>
+    <b>3. The local bar is low.</b> Teskerti is the cluttered-loud trap (loud by accident). Tiween's job isn't to out-shout it — it's to be loud <i>on purpose, with a system</i> (category color-coding) so it reads designed, not busy.<br>
+    <b>4. Interesting tension:</b> the two loudest references (RA, Avignon) both center on <span class="big">YELLOW</span> — the exact color you asked to substitute. Worth a beat: yellow may be more ownable in the culture space than I'd assumed. Tiween's <code>#F8EB06</code> sits right between RA's <code>#F4F408</code> and Avignon's <code>#FFE600</code>.<br><br>
+    <b>Recommendation:</b> the references validate going <b>punchy/culture-loud</b> over the polite paper — specifically <b>③ Zellige</b> or <b>② Tunis Pop</b>, governed by a <b>category color system</b> (RA's discipline) so the loudness is wayfinding, not noise. And don't be too quick to kill yellow — the two strongest culture brands in this set are built on it.
+  </p>
+</body>
+</html>

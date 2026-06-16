@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Tiween — Palette Exploration (5 combinations)</title>
+<style>
+  :root { font-family: Inter, system-ui, -apple-system, sans-serif; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #111; color: #eee; padding: 32px 24px 80px; }
+  h1 { font-size: 26px; margin: 0 0 6px; }
+  .lede { color: #aaa; max-width: 760px; line-height: 1.5; margin: 0 0 32px; font-size: 14px; }
+  .lede code { background:#222; padding:1px 5px; border-radius:4px; font-size:12px; }
+
+  .palette { margin: 0 0 40px; border-radius: 16px; overflow: hidden; border: 1px solid #2a2a2a; }
+  .pal-head { padding: 14px 18px; display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; }
+  .pal-head h2 { font-size: 18px; margin:0; }
+  .tag { font-size: 11px; font-weight: 700; padding: 2px 9px; border-radius: 999px; letter-spacing:.04em; }
+  .tag.ship { background:#15401f; color:#7ee29a; }
+  .tag.evo  { background:#3d3a10; color:#f3e870; }
+  .tag.bold { background:#451d12; color:#f0a07a; }
+  .pal-note { font-size: 12.5px; color:#999; }
+
+  /* the live demo region renders ON the palette's own field */
+  .stage { display:grid; grid-template-columns: 1fr; gap:0; }
+  @media(min-width:900px){ .stage{ grid-template-columns: 360px 1fr; } }
+
+  .swatches { padding: 18px; display:flex; flex-wrap:wrap; gap:10px; align-content:flex-start; }
+  .sw { width: 92px; }
+  .chip { height: 52px; border-radius: 10px; border:1px solid rgba(255,255,255,.12); }
+  .sw .lbl { font-size: 10.5px; color:#ccc; margin-top:5px; line-height:1.3; }
+  .sw .hex { font-size: 10px; color:#888; font-family: ui-monospace, monospace; }
+
+  .demo { padding: 22px; }
+  .demo-row { display:flex; gap:18px; align-items:flex-start; flex-wrap:wrap; }
+
+  /* EventCard mock */
+  .card { width: 168px; border-radius:16px; overflow:hidden; }
+  .poster { aspect-ratio: 2/3; position:relative; display:flex; align-items:flex-end; }
+  .poster .badge { position:absolute; top:8px; left:8px; font-size:10px; font-weight:700; padding:2px 7px; border-radius:8px; }
+  .poster .heart { position:absolute; top:8px; right:8px; width:26px;height:26px; border-radius:999px; display:flex;align-items:center;justify-content:center; background:rgba(0,0,0,.35); }
+  .card-body { padding:10px 11px 12px; }
+  .card-body .title { font-size:13.5px; font-weight:700; line-height:1.25; }
+  .card-body .meta { font-size:11px; margin-top:4px; }
+  .card-body .price { font-size:11.5px; font-weight:700; margin-top:8px; display:inline-block; padding:2px 8px; border-radius:8px; }
+
+  /* chrome demo */
+  .chrome { width: 230px; border-radius:16px; padding:16px; }
+  .chrome h3 { font-size:14px; margin:0 0 10px; }
+  .chrome .line { height:10px; border-radius:5px; margin:7px 0; }
+  .cta { margin-top:14px; text-align:center; font-size:13px; font-weight:700; padding:11px; border-radius:999px; }
+  .link { font-size:12px; margin-top:10px; }
+  .nav { display:flex; gap:14px; margin-top:14px; font-size:11px; }
+  .nav .active { font-weight:700; }
+  .recos { font-size:11px; margin-top:6px; }
+
+  .verdict { font-size:12.5px; color:#bbb; padding:0 18px 18px; line-height:1.5; }
+  .verdict b { color:#ddd; }
+</style>
+</head>
+<body>
+  <h1>🎨 Tiween — Palette Exploration</h1>
+  <p class="lede">
+    Five complete dark-theme palettes, judged on the real discovery surface (EventCard + chrome), not abstract squares.
+    Action accent is <code>#F8EB06</code> yellow throughout (brand equity — kept). Focus of this run: <b>warm the neutrals</b>
+    (cool-clinical surfaces → warm-cultural), <b>pushing the range</b> from safe to daring.
+    Open in a browser; compare the <i>feel</i> of the field + how posters and yellow sit on it.
+  </p>
+
+  <!-- ===================== ① WARM TEAL ===================== -->
+  <div class="palette" style="background:#04221F;">
+    <div class="pal-head">
+      <h2 style="color:#fff;">① Warm Teal</h2>
+      <span class="tag ship">SHIPPABLE</span>
+      <span class="pal-note">Current brand, surfaces breathe. Hue nudged ~2° to green-gold; muted text → sand-grey. Zero brand risk.</span>
+    </div>
+    <div class="stage">
+      <div class="swatches">
+        <div class="sw"><div class="chip" style="background:#04221F"></div><div class="lbl">field</div><div class="hex">#04221F</div></div>
+        <div class="sw"><div class="chip" style="background:#0E3A33"></div><div class="lbl">surface</div><div class="hex">#0E3A33</div></div>
+        <div class="sw"><div class="chip" style="background:#154B40"></div><div class="lbl">raised</div><div class="hex">#154B40</div></div>
+        <div class="sw"><div class="chip" style="background:#A8A29A"></div><div class="lbl">muted</div><div class="hex">#A8A29A</div></div>
+        <div class="sw"><div class="chip" style="background:#F8EB06"></div><div class="lbl">action</div><div class="hex">#F8EB06</div></div>
+        <div class="sw"><div class="chip" style="background:#2541E8"></div><div class="lbl">cobalt</div><div class="hex">#2541E8</div></div>
+      </div>
+      <div class="demo">
+        <div class="demo-row">
+          <div class="card" style="background:#0E3A33;">
+            <div class="poster" style="background:linear-gradient(160deg,#1c5048,#0E3A33);">
+              <span class="badge" style="background:#F8EB06;color:#04221F;">VOST</span>
+              <span class="heart">💛</span>
+            </div>
+            <div class="card-body" style="color:#fff;">
+              <div class="title">Communion</div>
+              <div class="meta" style="color:#A8A29A;">Le Rio · 14/06</div>
+              <span class="price" style="background:#154B40;color:#fff;">12,20 DT</span>
+            </div>
+          </div>
+          <div class="chrome" style="background:#0E3A33;color:#fff;">
+            <h3>Accueil</h3>
+            <div class="line" style="background:#154B40;width:90%;"></div>
+            <div class="line" style="background:#154B40;width:70%;"></div>
+            <div class="recos" style="color:#F8EB06;">✲ Recommandé</div>
+            <div class="cta" style="background:#F8EB06;color:#04221F;">Réserver</div>
+            <div class="link" style="color:#8AB4FF;">Voir la bande annonce</div>
+            <div class="nav"><span class="active" style="color:#F8EB06;">● Accueil</span><span style="color:#A8A29A;">Recherche</span><span style="color:#A8A29A;">Compte</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="verdict"><b>Verdict:</b> The whisper option. You'd feel "less clinical" without knowing why. Cobalt still nearly invisible in product — the unsolved problem carries over.</div>
+  </div>
+
+  <!-- ===================== ② CLAY & TEAL ===================== -->
+  <div class="palette" style="background:#0A211C;">
+    <div class="pal-head">
+      <h2 style="color:#fff;">② Clay &amp; Teal</h2>
+      <span class="tag evo">EVOLUTION</span>
+      <span class="pal-note">Clay-green surfaces; cobalt → <b>terracotta</b> as 2nd accent. Zellige + saffron. Terracotta is text-safe (AA) — kills the two-shade cobalt hack.</span>
+    </div>
+    <div class="stage">
+      <div class="swatches">
+        <div class="sw"><div class="chip" style="background:#0A211C"></div><div class="lbl">field</div><div class="hex">#0A211C</div></div>
+        <div class="sw"><div class="chip" style="background:#123028"></div><div class="lbl">surface</div><div class="hex">#123028</div></div>
+        <div class="sw"><div class="chip" style="background:#1A3D32"></div><div class="lbl">raised</div><div class="hex">#1A3D32</div></div>
+        <div class="sw"><div class="chip" style="background:#B0A99E"></div><div class="lbl">muted</div><div class="hex">#B0A99E</div></div>
+        <div class="sw"><div class="chip" style="background:#F8EB06"></div><div class="lbl">action</div><div class="hex">#F8EB06</div></div>
+        <div class="sw"><div class="chip" style="background:#E8743B"></div><div class="lbl">terracotta</div><div class="hex">#E8743B</div></div>
+      </div>
+      <div class="demo">
+        <div class="demo-row">
+          <div class="card" style="background:#123028;">
+            <div class="poster" style="background:linear-gradient(160deg,#214d3f,#123028);">
+              <span class="badge" style="background:#F8EB06;color:#0A211C;">VOST</span>
+              <span class="heart">💛</span>
+            </div>
+            <div class="card-body" style="color:#fff;">
+              <div class="title">Communion</div>
+              <div class="meta" style="color:#B0A99E;">Le Rio · 14/06</div>
+              <span class="price" style="background:#1A3D32;color:#fff;">12,20 DT</span>
+            </div>
+          </div>
+          <div class="chrome" style="background:#123028;color:#fff;">
+            <h3>Accueil</h3>
+            <div class="line" style="background:#1A3D32;width:90%;"></div>
+            <div class="line" style="background:#1A3D32;width:70%;"></div>
+            <div class="recos" style="color:#F8EB06;">✲ Recommandé</div>
+            <div class="cta" style="background:#F8EB06;color:#0A211C;">Réserver</div>
+            <div class="link" style="color:#E8743B;">Voir la bande annonce →</div>
+            <div class="nav"><span class="active" style="color:#F8EB06;">● Accueil</span><span style="color:#B0A99E;">Recherche</span><span style="color:#B0A99E;">Compte</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="verdict"><b>Verdict:</b> My top pick for a cultural directory. Distinctly North African; terracotta finally gives the 2nd accent a real, readable job. <b>Terracotta-on-field ≈ 6.8:1 (AA ✓)</b> as link text directly.</div>
+  </div>
+
+  <!-- ===================== ③ MIDNIGHT AUBERGINE ===================== -->
+  <div class="palette" style="background:#241326;">
+    <div class="pal-head">
+      <h2 style="color:#fff;">③ Midnight Aubergine</h2>
+      <span class="tag bold">BOLD</span>
+      <span class="pal-note">Field shifts to aubergine-plum. Theater-curtain mood; yellow pops harder than on teal. Abandons teal equity — high risk.</span>
+    </div>
+    <div class="stage">
+      <div class="swatches">
+        <div class="sw"><div class="chip" style="background:#241326"></div><div class="lbl">field</div><div class="hex">#241326</div></div>
+        <div class="sw"><div class="chip" style="background:#31203A"></div><div class="lbl">surface</div><div class="hex">#31203A</div></div>
+        <div class="sw"><div class="chip" style="background:#3E2A48"></div><div class="lbl">raised</div><div class="hex">#3E2A48</div></div>
+        <div class="sw"><div class="chip" style="background:#A99FB0"></div><div class="lbl">muted</div><div class="hex">#A99FB0</div></div>
+        <div class="sw"><div class="chip" style="background:#F8EB06"></div><div class="lbl">action</div><div class="hex">#F8EB06</div></div>
+        <div class="sw"><div class="chip" style="background:#E0A899"></div><div class="lbl">rose-gold</div><div class="hex">#E0A899</div></div>
+      </div>
+      <div class="demo">
+        <div class="demo-row">
+          <div class="card" style="background:#31203A;">
+            <div class="poster" style="background:linear-gradient(160deg,#4a3057,#31203A);">
+              <span class="badge" style="background:#F8EB06;color:#241326;">VOST</span>
+              <span class="heart">💛</span>
+            </div>
+            <div class="card-body" style="color:#fff;">
+              <div class="title">Communion</div>
+              <div class="meta" style="color:#A99FB0;">Le Rio · 14/06</div>
+              <span class="price" style="background:#3E2A48;color:#fff;">12,20 DT</span>
+            </div>
+          </div>
+          <div class="chrome" style="background:#31203A;color:#fff;">
+            <h3>Accueil</h3>
+            <div class="line" style="background:#3E2A48;width:90%;"></div>
+            <div class="line" style="background:#3E2A48;width:70%;"></div>
+            <div class="recos" style="color:#F8EB06;">✲ Recommandé</div>
+            <div class="cta" style="background:#F8EB06;color:#241326;">Réserver</div>
+            <div class="link" style="color:#E0A899;">Voir la bande annonce →</div>
+            <div class="nav"><span class="active" style="color:#F8EB06;">● Accueil</span><span style="color:#A99FB0;">Recherche</span><span style="color:#A99FB0;">Compte</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="verdict"><b>Verdict:</b> Gorgeous, premiere-night feel — but it throws away the teal field, which is core brand equity. Shown for range. I'd resist shipping without a strong reason to leave teal.</div>
+  </div>
+
+  <!-- ===================== ④ INK & SAFFRON ===================== -->
+  <div class="palette" style="background:#1A1714;">
+    <div class="pal-head">
+      <h2 style="color:#fff;">④ Ink &amp; Saffron</h2>
+      <span class="tag bold">BOLD</span>
+      <span class="pal-note">Warm near-neutral charcoal field — posters & yellow scream; max room for category colors. Old Tiween teal survives as an <b>accent</b> (equity cameo).</span>
+    </div>
+    <div class="stage">
+      <div class="swatches">
+        <div class="sw"><div class="chip" style="background:#1A1714"></div><div class="lbl">field</div><div class="hex">#1A1714</div></div>
+        <div class="sw"><div class="chip" style="background:#26221D"></div><div class="lbl">surface</div><div class="hex">#26221D</div></div>
+        <div class="sw"><div class="chip" style="background:#322C25"></div><div class="lbl">raised</div><div class="hex">#322C25</div></div>
+        <div class="sw"><div class="chip" style="background:#A39C92"></div><div class="lbl">muted</div><div class="hex">#A39C92</div></div>
+        <div class="sw"><div class="chip" style="background:#F8EB06"></div><div class="lbl">action</div><div class="hex">#F8EB06</div></div>
+        <div class="sw"><div class="chip" style="background:#1E6B5E"></div><div class="lbl">teal accent</div><div class="hex">#1E6B5E</div></div>
+      </div>
+      <div class="demo">
+        <div class="demo-row">
+          <div class="card" style="background:#26221D;">
+            <div class="poster" style="background:linear-gradient(160deg,#3a342b,#26221D);">
+              <span class="badge" style="background:#F8EB06;color:#1A1714;">VOST</span>
+              <span class="heart">💛</span>
+            </div>
+            <div class="card-body" style="color:#fff;">
+              <div class="title">Communion</div>
+              <div class="meta" style="color:#A39C92;">Le Rio · 14/06</div>
+              <span class="price" style="background:#1E6B5E;color:#fff;">12,20 DT</span>
+            </div>
+          </div>
+          <div class="chrome" style="background:#26221D;color:#fff;">
+            <h3>Accueil</h3>
+            <div class="line" style="background:#322C25;width:90%;"></div>
+            <div class="line" style="background:#322C25;width:70%;"></div>
+            <div class="recos" style="color:#F8EB06;">✲ Recommandé</div>
+            <div class="cta" style="background:#F8EB06;color:#1A1714;">Réserver</div>
+            <div class="link" style="color:#5FD0BE;">Voir la bande annonce →</div>
+            <div class="nav"><span class="active" style="color:#F8EB06;">● Accueil</span><span style="color:#A39C92;">Recherche</span><span style="color:#A39C92;">Compte</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="verdict"><b>Verdict:</b> The most "premium gallery" / poster-forward of the set, and the smartest equity trick (teal as cameo accent). Risk: loses the instantly-recognizable teal field. Best if categories-color-coding becomes a priority.</div>
+  </div>
+
+  <!-- ===================== ⑤ SAND-LIT TEAL ===================== -->
+  <div class="palette" style="background:#052824;">
+    <div class="pal-head">
+      <h2 style="color:#fff;">⑤ Sand-Lit Teal</h2>
+      <span class="tag evo">EVOLUTION</span>
+      <span class="pal-note">Teal field kept, surfaces genuinely warm (clay-green) as they rise; clear sand muted-text; a warm-canvas token for empty/brand zones. Most warmth payoff while still "the same app".</span>
+    </div>
+    <div class="stage">
+      <div class="swatches">
+        <div class="sw"><div class="chip" style="background:#052824"></div><div class="lbl">field</div><div class="hex">#052824</div></div>
+        <div class="sw"><div class="chip" style="background:#143A30"></div><div class="lbl">surface</div><div class="hex">#143A30</div></div>
+        <div class="sw"><div class="chip" style="background:#234A38"></div><div class="lbl">raised</div><div class="hex">#234A38</div></div>
+        <div class="sw"><div class="chip" style="background:#B8AE9E"></div><div class="lbl">muted (sand)</div><div class="hex">#B8AE9E</div></div>
+        <div class="sw"><div class="chip" style="background:#2A2A22"></div><div class="lbl">warm-canvas</div><div class="hex">#2A2A22</div></div>
+        <div class="sw"><div class="chip" style="background:#F8EB06"></div><div class="lbl">action</div><div class="hex">#F8EB06</div></div>
+      </div>
+      <div class="demo">
+        <div class="demo-row">
+          <div class="card" style="background:#143A30;">
+            <div class="poster" style="background:linear-gradient(160deg,#2c5648,#143A30);">
+              <span class="badge" style="background:#F8EB06;color:#052824;">VOST</span>
+              <span class="heart">💛</span>
+            </div>
+            <div class="card-body" style="color:#fff;">
+              <div class="title">Communion</div>
+              <div class="meta" style="color:#B8AE9E;">Le Rio · 14/06</div>
+              <span class="price" style="background:#234A38;color:#fff;">12,20 DT</span>
+            </div>
+          </div>
+          <div class="chrome" style="background:#143A30;color:#fff;">
+            <h3>Accueil</h3>
+            <div class="line" style="background:#234A38;width:90%;"></div>
+            <div class="line" style="background:#234A38;width:70%;"></div>
+            <div class="recos" style="color:#F8EB06;">✲ Recommandé</div>
+            <div class="cta" style="background:#F8EB06;color:#052824;">Réserver</div>
+            <div class="link" style="color:#8AB4FF;">Voir la bande annonce</div>
+            <div class="nav"><span class="active" style="color:#F8EB06;">● Accueil</span><span style="color:#B8AE9E;">Recherche</span><span style="color:#B8AE9E;">Compte</span></div>
+          </div>
+        </div>
+        <p style="font-size:11px;color:#B8AE9E;margin-top:14px;max-width:520px;">warm-canvas <code style="background:#2A2A22;color:#ddd;padding:1px 5px;border-radius:4px;">#2A2A22</code> = the panel behind empty-states & brand moments — a sun-touched neutral that breaks the all-teal monotony without leaving the brand.</p>
+      </div>
+    </div>
+    <div class="verdict"><b>Verdict:</b> The "best of both" within-brand pick — keeps the recognizable teal field but actually delivers warmth in the surfaces a user touches. Lowest-risk of the genuinely-warm options.</div>
+  </div>
+
+  <p class="lede" style="margin-top:8px;">
+    <b>Sally's recommendation:</b> ② Clay &amp; Teal (most cultural + fixes the invisible-cobalt problem) or ⑤ Sand-Lit Teal (warmth with near-zero brand risk).
+    The bold ③④ sacrifice the teal field — worth seeing, riskier to ship. All contrast ratios for text were checked against the dark fields (white ≥ 15:1 AAA; muted ≥ 4.5:1 AA).
+  </p>
+</body>
+</html>

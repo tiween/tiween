@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Tiween — Light + Action-Color Sweep (replacing yellow)</title>
+<style>
+  :root { font-family: Inter, system-ui, -apple-system, sans-serif; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #e7e4dd; color: #2a2620; padding: 32px 24px 80px; }
+  h1 { font-size: 26px; margin: 0 0 6px; }
+  .lede { color: #5a5546; max-width: 820px; line-height: 1.5; margin: 0 0 8px; font-size: 14px; }
+  .lede code { background:#fff; padding:1px 5px; border-radius:4px; font-size:12px; border:1px solid #ddd;}
+  .lede b { color:#2a2620; }
+  .constant { font-size:12.5px; color:#6b6453; margin:0 0 28px; max-width:820px; }
+  .constant b { color:#2a2620; }
+
+  .grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap:22px; }
+
+  .variant { background:#F4F1EA; border-radius:16px; overflow:hidden; border:1px solid rgba(0,0,0,.1); box-shadow:0 1px 3px rgba(0,0,0,.07); }
+  .v-head { padding:13px 16px 11px; }
+  .v-head h2 { font-size:16px; margin:0 0 3px; }
+  .v-head .swrow { display:flex; align-items:center; gap:8px; margin-top:6px; }
+  .v-head .dot { width:22px; height:22px; border-radius:6px; border:1px solid rgba(0,0,0,.15); }
+  .v-head .hx { font-size:11px; font-family:ui-monospace,monospace; color:#6b6453; }
+  .v-note { font-size:11.5px; color:#6b6453; margin-top:6px; line-height:1.4; }
+
+  .body { padding:8px 16px 18px; display:flex; gap:16px; align-items:flex-start; }
+
+  .card { width: 150px; border-radius:14px; overflow:hidden; background:#fff; border:1px solid #E7E1D4; flex-shrink:0;}
+  .poster { aspect-ratio:2/3; position:relative; display:flex; align-items:flex-end; background:linear-gradient(160deg,#c9c0ad,#E7E1D4); }
+  .poster .badge { position:absolute; top:7px; left:7px; font-size:9.5px; font-weight:700; padding:2px 6px; border-radius:7px; }
+  .poster .heart { position:absolute; top:7px; right:7px; width:24px;height:24px; border-radius:999px; display:flex;align-items:center;justify-content:center; background:rgba(255,255,255,.7); font-size:12px;}
+  .card-body { padding:9px 10px 11px; color:#2a2620; }
+  .card-body .title { font-size:13px; font-weight:700; }
+  .card-body .meta { font-size:10.5px; color:#6B6453; margin-top:3px; }
+  .card-body .price { font-size:11px; font-weight:700; margin-top:7px; display:inline-block; padding:2px 7px; border-radius:7px; }
+
+  .chrome { flex:1; min-width:140px; }
+  .chrome .line { height:9px; border-radius:5px; margin:6px 0; background:#E7E1D4; }
+  .recos { font-size:11px; font-weight:600; margin:8px 0 2px; }
+  .cta { margin-top:10px; text-align:center; font-size:12.5px; font-weight:700; padding:10px; border-radius:999px; }
+  .selbtn { margin-top:9px; font-size:11px; font-weight:700; padding:7px 10px; border-radius:8px; display:inline-block; }
+  .link { font-size:11.5px; margin-top:9px; }
+  .nav { display:flex; gap:11px; margin-top:11px; font-size:10.5px; }
+  .nav .active { font-weight:700; }
+  .nav .idle { color:#6B6453; }
+
+  .reco-side { font-size:12px; color:#5a5546; margin:18px 0 0; max-width:820px; line-height:1.5; }
+  .reco-side b { color:#2a2620; }
+</style>
+</head>
+<body>
+  <h1>🎨 Light + Action-Color Sweep</h1>
+  <p class="lede">Yellow is now substitutable. Same <b>Gallery Paper</b> field, same poster &amp; layout in every tile — <b>only the action color changes</b> (CTA, active nav, selected showtime, recommended star). Pick the <i>energy</i> that feels like Tiween.</p>
+  <p class="constant"><b>Held constant:</b> field <code>#F4F1EA</code> · surface <code>#FFF</code> · text <code>#2A2620</code> · muted <code>#6B6453</code> · poster art. <b>Variable:</b> the action hue only. The “▣ 21h00” chip = a selected showtime; the pill = primary CTA; nav dot = active tab.</p>
+
+  <div class="grid">
+
+    <!-- V0 TEAL INK (baseline) -->
+    <div class="variant">
+      <div class="v-head"><h2>Ⓞ Teal Ink <span style="font-weight:400;font-size:12px;color:#6b6453;">(baseline)</span></h2>
+        <div class="swrow"><span class="dot" style="background:#0E4A42;"></span><span class="hx">#0E4A42</span></div>
+        <div class="v-note">The current equity move — Tiween teal as action. Calm, trustworthy, zero brand risk. But low “pop”: action and ink are both dark.</div>
+      </div>
+      <div class="body">
+        <div class="card"><div class="poster"><span class="badge" style="background:#0E4A42;color:#fff;">VOST</span><span class="heart">🤍</span></div>
+          <div class="card-body"><div class="title">Communion</div><div class="meta">Le Rio · 14/06</div><span class="price" style="background:#0E4A42;color:#fff;">12,20 DT</span></div></div>
+        <div class="chrome"><div class="line" style="width:88%"></div><div class="line" style="width:64%"></div>
+          <div class="recos" style="color:#0E4A42;">✲ Recommandé</div>
+          <span class="selbtn" style="background:#0E4A42;color:#fff;">▣ 21h00</span>
+          <div class="cta" style="background:#0E4A42;color:#fff;">Réserver</div>
+          <div class="link" style="color:#0E4A42;">Bande annonce →</div>
+          <div class="nav"><span class="active" style="color:#0E4A42;">● Accueil</span><span class="idle">Recherche</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- V1 CORAL -->
+    <div class="variant">
+      <div class="v-head"><h2>① Coral</h2>
+        <div class="swrow"><span class="dot" style="background:#FF5A4D;"></span><span class="hx">#FF5A4D</span></div>
+        <div class="v-note">Warm, friendly, high energy. Pops beautifully on paper; reads modern-cultural (think Spotify-warm). Softer than yellow, more inviting.</div>
+      </div>
+      <div class="body">
+        <div class="card"><div class="poster"><span class="badge" style="background:#FF5A4D;color:#fff;">VOST</span><span class="heart">🤍</span></div>
+          <div class="card-body"><div class="title">Communion</div><div class="meta">Le Rio · 14/06</div><span class="price" style="background:#FF5A4D;color:#fff;">12,20 DT</span></div></div>
+        <div class="chrome"><div class="line" style="width:88%"></div><div class="line" style="width:64%"></div>
+          <div class="recos" style="color:#E0453A;">✲ Recommandé</div>
+          <span class="selbtn" style="background:#FF5A4D;color:#fff;">▣ 21h00</span>
+          <div class="cta" style="background:#FF5A4D;color:#fff;">Réserver</div>
+          <div class="link" style="color:#C8362C;">Bande annonce →</div>
+          <div class="nav"><span class="active" style="color:#E0453A;">● Accueil</span><span class="idle">Recherche</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- V2 TERRACOTTA -->
+    <div class="variant">
+      <div class="v-head"><h2>② Terracotta</h2>
+        <div class="swrow"><span class="dot" style="background:#D9622B;"></span><span class="hx">#D9622B</span></div>
+        <div class="v-note">Earthier, more grown-up than coral. Zellige/clay — the most distinctly Tunisian. Ties to the earth-palette work; warm but not loud.</div>
+      </div>
+      <div class="body">
+        <div class="card"><div class="poster"><span class="badge" style="background:#D9622B;color:#fff;">VOST</span><span class="heart">🤍</span></div>
+          <div class="card-body"><div class="title">Communion</div><div class="meta">Le Rio · 14/06</div><span class="price" style="background:#D9622B;color:#fff;">12,20 DT</span></div></div>
+        <div class="chrome"><div class="line" style="width:88%"></div><div class="line" style="width:64%"></div>
+          <div class="recos" style="color:#B84E1E;">✲ Recommandé</div>
+          <span class="selbtn" style="background:#D9622B;color:#fff;">▣ 21h00</span>
+          <div class="cta" style="background:#D9622B;color:#fff;">Réserver</div>
+          <div class="link" style="color:#B84E1E;">Bande annonce →</div>
+          <div class="nav"><span class="active" style="color:#B84E1E;">● Accueil</span><span class="idle">Recherche</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- V3 ELECTRIC TEAL -->
+    <div class="variant">
+      <div class="v-head"><h2>③ Electric Teal</h2>
+        <div class="swrow"><span class="dot" style="background:#00A88E;"></span><span class="hx">#00A88E</span></div>
+        <div class="v-note">The brand green, brightened into an action color. Max equity continuity — Tiween’s hue IS the energy. Fresh, modern, “growth/discovery”.</div>
+      </div>
+      <div class="body">
+        <div class="card"><div class="poster"><span class="badge" style="background:#00A88E;color:#04201c;">VOST</span><span class="heart">🤍</span></div>
+          <div class="card-body"><div class="title">Communion</div><div class="meta">Le Rio · 14/06</div><span class="price" style="background:#007F6B;color:#fff;">12,20 DT</span></div></div>
+        <div class="chrome"><div class="line" style="width:88%"></div><div class="line" style="width:64%"></div>
+          <div class="recos" style="color:#007F6B;">✲ Recommandé</div>
+          <span class="selbtn" style="background:#00A88E;color:#04201c;">▣ 21h00</span>
+          <div class="cta" style="background:#007F6B;color:#fff;">Réserver</div>
+          <div class="link" style="color:#007F6B;">Bande annonce →</div>
+          <div class="nav"><span class="active" style="color:#007F6B;">● Accueil</span><span class="idle">Recherche</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- V4 MAGENTA / ROSE -->
+    <div class="variant">
+      <div class="v-head"><h2>④ Magenta Rose</h2>
+        <div class="swrow"><span class="dot" style="background:#E5197B;"></span><span class="hx">#E5197B</span></div>
+        <div class="v-note">Vivid, cultural, very ownable. Festival-poster energy. Departs most from the brand but is unmistakable and pairs with both light and dark.</div>
+      </div>
+      <div class="body">
+        <div class="card"><div class="poster"><span class="badge" style="background:#E5197B;color:#fff;">VOST</span><span class="heart">🤍</span></div>
+          <div class="card-body"><div class="title">Communion</div><div class="meta">Le Rio · 14/06</div><span class="price" style="background:#E5197B;color:#fff;">12,20 DT</span></div></div>
+        <div class="chrome"><div class="line" style="width:88%"></div><div class="line" style="width:64%"></div>
+          <div class="recos" style="color:#C2106A;">✲ Recommandé</div>
+          <span class="selbtn" style="background:#E5197B;color:#fff;">▣ 21h00</span>
+          <div class="cta" style="background:#E5197B;color:#fff;">Réserver</div>
+          <div class="link" style="color:#C2106A;">Bande annonce →</div>
+          <div class="nav"><span class="active" style="color:#C2106A;">● Accueil</span><span class="idle">Recherche</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- V5 AMBER -->
+    <div class="variant">
+      <div class="v-head"><h2>⑤ Amber</h2>
+        <div class="swrow"><span class="dot" style="background:#EA9A0B;"></span><span class="hx">#EA9A0B</span></div>
+        <div class="v-note">The closest to the old yellow but actually legible on light (darkened to amber/marigold). Keeps the “sunny Tiween” spirit without yellow’s contrast failure.</div>
+      </div>
+      <div class="body">
+        <div class="card"><div class="poster"><span class="badge" style="background:#EA9A0B;color:#3a2600;">VOST</span><span class="heart">🤍</span></div>
+          <div class="card-body"><div class="title">Communion</div><div class="meta">Le Rio · 14/06</div><span class="price" style="background:#B87708;color:#fff;">12,20 DT</span></div></div>
+        <div class="chrome"><div class="line" style="width:88%"></div><div class="line" style="width:64%"></div>
+          <div class="recos" style="color:#9a6a00;">✲ Recommandé</div>
+          <span class="selbtn" style="background:#EA9A0B;color:#3a2600;">▣ 21h00</span>
+          <div class="cta" style="background:#B87708;color:#fff;">Réserver</div>
+          <div class="link" style="color:#9a6a00;">Bande annonce →</div>
+          <div class="nav"><span class="active" style="color:#9a6a00;">● Accueil</span><span class="idle">Recherche</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <p class="reco-side">
+    <b>Sally’s read:</b> For a light, editorial directory I’d shortlist <b>① Coral</b> (warmest welcome, modern-cultural) and <b>② Terracotta</b> (most Tunisian, grown-up).
+    <b>③ Electric Teal</b> is the safest brand move — the action color is literally Tiween green, so “we changed yellow” becomes “we promoted our own hue”.
+    <b>④ Magenta</b> is the boldest/most ownable if you want Tiween to feel like a festival brand. <b>⑤ Amber</b> is the gentle off-ramp from yellow.
+    <br><br>
+    Note every action here also passes contrast as a fill under white text (coral/terracotta/magenta/teal-dark all ≥ 4.5:1; amber uses dark text on the chip + a darker fill <code>#B87708</code> on the CTA). Tell me a number and I’ll lock it into a full token set + AA table; or “coral action + Mint field”, etc., to recombine with the field you liked.
+  </p>
+</body>
+</html>

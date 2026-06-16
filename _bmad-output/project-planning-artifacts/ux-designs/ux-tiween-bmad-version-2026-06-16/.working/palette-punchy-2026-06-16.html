@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Tiween — PUNCHY (movement · culture · life · art)</title>
+<style>
+  :root { font-family: Inter, system-ui, -apple-system, sans-serif; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #0a0a0a; color: #eee; padding: 32px 24px 90px; }
+  h1 { font-size: 30px; margin: 0 0 4px; letter-spacing:-.02em; }
+  .lede { color: #aaa; max-width: 820px; line-height: 1.55; margin: 0 0 30px; font-size: 14px; }
+  .lede code { background:#222; padding:1px 5px; border-radius:4px; font-size:12px; }
+  .lede b { color:#fff; }
+
+  .palette { margin: 0 0 30px; border-radius: 18px; overflow: hidden; position:relative; }
+  .pal-head { padding: 16px 20px 12px; display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; }
+  .pal-head h2 { font-size: 21px; margin:0; letter-spacing:-.01em; }
+  .tag { font-size: 10.5px; font-weight: 800; padding: 3px 10px; border-radius: 999px; letter-spacing:.06em; text-transform:uppercase; }
+  .pal-note { font-size: 12.5px; opacity:.85; }
+
+  .stage { display:grid; grid-template-columns: 1fr; gap:0; }
+  @media(min-width:940px){ .stage{ grid-template-columns: 340px 1fr; } }
+
+  .swatches { padding: 18px 20px; display:flex; flex-wrap:wrap; gap:9px; align-content:flex-start; }
+  .sw { width: 86px; }
+  .chip { height: 46px; border-radius: 9px; border:1px solid rgba(255,255,255,.18); }
+  .sw .lbl { font-size: 10px; margin-top:4px; line-height:1.25; opacity:.85;}
+  .sw .hex { font-size: 9.5px; opacity:.55; font-family: ui-monospace, monospace; }
+
+  .demo { padding: 20px; }
+  .demo-row { display:flex; gap:18px; align-items:flex-start; flex-wrap:wrap; }
+
+  .card { width: 162px; border-radius:16px; overflow:hidden; }
+  .poster { aspect-ratio: 2/3; position:relative; display:flex; align-items:flex-end; }
+  .poster .badge { position:absolute; top:8px; left:8px; font-size:10px; font-weight:800; padding:3px 8px; border-radius:7px; letter-spacing:.03em;}
+  .poster .heart { position:absolute; top:8px; right:8px; width:27px;height:27px; border-radius:999px; display:flex;align-items:center;justify-content:center; font-size:13px;}
+  .card-body { padding:10px 11px 13px; }
+  .card-body .title { font-size:14px; font-weight:800; line-height:1.15; letter-spacing:-.01em;}
+  .card-body .meta { font-size:11px; margin-top:4px; }
+  .card-body .price { font-size:11.5px; font-weight:800; margin-top:9px; display:inline-block; padding:3px 9px; border-radius:7px; }
+
+  .chrome { width: 234px; border-radius:16px; padding:16px; }
+  .chrome h3 { font-size:15px; margin:0 0 10px; font-weight:800; letter-spacing:-.01em;}
+  .chrome .line { height:10px; border-radius:5px; margin:7px 0; }
+  .selbtn { margin-top:10px; font-size:11px; font-weight:800; padding:7px 11px; border-radius:8px; display:inline-block; }
+  .cta { margin-top:12px; text-align:center; font-size:13.5px; font-weight:800; padding:12px; border-radius:999px; letter-spacing:.01em;}
+  .link { font-size:12px; margin-top:10px; font-weight:600;}
+  .nav { display:flex; gap:13px; margin-top:13px; font-size:11px; }
+  .nav .active { font-weight:800; }
+  .recos { font-size:11px; margin-top:6px; font-weight:700;}
+  .mono { display:flex; gap:0; }
+  .mono div { flex:1; height:34px; }
+  .verdict { font-size:12.5px; padding:14px 20px 18px; line-height:1.55; }
+  .verdict b { }
+</style>
+</head>
+<body>
+  <h1>🎨 PUNCHY — movement · culture · life · art</h1>
+  <p class="lede">
+    No more polite paper. These are <b>festival-poster loud</b> — high saturation, clashing/complementary pairs, electric darks.
+    Energy comes from color <i>tension</i>, not harmony. Every one still keeps text legible (non-negotiable), but the <b>vibe dial is at 10</b>.
+    Each shows a real EventCard + chrome. Where two loud colors sit together on purpose, that's the point — let them vibrate.
+  </p>
+
+  <!-- P1 SAHARA NEON -->
+  <div class="palette" style="background:#120A1F;">
+    <div class="pal-head"><h2>① Sahara Neon</h2><span class="tag" style="background:#FF2D6F;color:#fff;">ELECTRIC DUO</span>
+      <span class="pal-note">Ink-violet night + <b>hot magenta × electric cyan</b> clash. Saharan rave / film-festival-after-dark. The two accents vibrate against each other.</span></div>
+    <div class="stage">
+      <div class="swatches">
+        <div class="sw"><div class="chip" style="background:#120A1F"></div><div class="lbl">field</div><div class="hex">#120A1F</div></div>
+        <div class="sw"><div class="chip" style="background:#1E1233"></div><div class="lbl">surface</div><div class="hex">#1E1233</div></div>
+        <div class="sw"><div class="chip" style="background:#2C1A4A"></div><div class="lbl">raised</div><div class="hex">#2C1A4A</div></div>
+        <div class="sw"><div class="chip" style="background:#FF2D6F"></div><div class="lbl">magenta (action)</div><div class="hex">#FF2D6F</div></div>
+        <div class="sw"><div class="chip" style="background:#16E0C8"></div><div class="lbl">cyan</div><div class="hex">#16E0C8</div></div>
+        <div class="sw"><div class="chip" style="background:#FFD23F"></div><div class="lbl">gold spark</div><div class="hex">#FFD23F</div></div>
+      </div>
+      <div class="demo"><div class="demo-row">
+        <div class="card" style="background:#1E1233;">
+          <div class="poster" style="background:linear-gradient(150deg,#FF2D6F33,#16E0C833,#1E1233);"><span class="badge" style="background:#16E0C8;color:#08231f;">VOST</span><span class="heart" style="background:rgba(255,45,111,.25);">💗</span></div>
+          <div class="card-body" style="color:#fff;"><div class="title">Communion</div><div class="meta" style="color:#B79FD6;">Le Rio · 14/06</div><span class="price" style="background:#FF2D6F;color:#fff;">12,20 DT</span></div>
+        </div>
+        <div class="chrome" style="background:#1E1233;color:#fff;">
+          <h3>Accueil</h3><div class="line" style="background:#2C1A4A;width:88%;"></div><div class="line" style="background:#2C1A4A;width:62%;"></div>
+          <div class="recos" style="color:#FFD23F;">✲ Recommandé</div>
+          <span class="selbtn" style="background:#16E0C8;color:#08231f;">▣ 21h00</span>
+          <div class="cta" style="background:#FF2D6F;color:#fff;">Réserver</div>
+          <div class="link" style="color:#16E0C8;">Bande annonce →</div>
+          <div class="nav"><span class="active" style="color:#FF2D6F;">● Accueil</span><span style="color:#B79FD6;">Recherche</span></div>
+        </div>
+      </div></div>
+    </div>
+    <div class="mono"><div style="background:#120A1F"></div><div style="background:#1E1233"></div><div style="background:#2C1A4A"></div></div>
+    <div class="verdict" style="color:#cbb8e0;"><b>Verdict:</b> Pure nightlife electricity. Magenta+cyan is the loudest, most "now" pair here. Maximum movement; risk = could read clubby/EDM if posters aren't grounding it. The one that screams "something is happening tonight".</div>
+  </div>
+
+  <!-- P2 TUNIS POP -->
+  <div class="palette" style="background:#0B1C3A;">
+    <div class="pal-head"><h2>② Tunis Pop</h2><span class="tag" style="background:#FF5C00;color:#fff;">POSTER POP</span>
+      <span class="pal-note">Deep cobalt (brand blue, finally loud) + <b>blazing orange</b> + a green spark. Classic Tunisian-poster / Mediterranean-pop triad. Bold but rooted.</span></div>
+    <div class="stage">
+      <div class="swatches">
+        <div class="sw"><div class="chip" style="background:#0B1C3A"></div><div class="lbl">field (cobalt-ink)</div><div class="hex">#0B1C3A</div></div>
+        <div class="sw"><div class="chip" style="background:#13294F"></div><div class="lbl">surface</div><div class="hex">#13294F</div></div>
+        <div class="sw"><div class="chip" style="background:#1D3A6B"></div><div class="lbl">raised</div><div class="hex">#1D3A6B</div></div>
+        <div class="sw"><div class="chip" style="background:#FF5C00"></div><div class="lbl">orange (action)</div><div class="hex">#FF5C00</div></div>
+        <div class="sw"><div class="chip" style="background:#FFC400"></div><div class="lbl">marigold</div><div class="hex">#FFC400</div></div>
+        <div class="sw"><div class="chip" style="background:#1DD9A3"></div><div class="lbl">green spark</div><div class="hex">#1DD9A3</div></div>
+      </div>
+      <div class="demo"><div class="demo-row">
+        <div class="card" style="background:#13294F;">
+          <div class="poster" style="background:linear-gradient(150deg,#FF5C0044,#13294F);"><span class="badge" style="background:#FFC400;color:#1a1200;">VOST</span><span class="heart" style="background:rgba(255,92,0,.3);">🧡</span></div>
+          <div class="card-body" style="color:#fff;"><div class="title">Communion</div><div class="meta" style="color:#9DB6DD;">Le Rio · 14/06</div><span class="price" style="background:#FF5C00;color:#fff;">12,20 DT</span></div>
+        </div>
+        <div class="chrome" style="background:#13294F;color:#fff;">
+          <h3>Accueil</h3><div class="line" style="background:#1D3A6B;width:88%;"></div><div class="line" style="background:#1D3A6B;width:62%;"></div>
+          <div class="recos" style="color:#FFC400;">✲ Recommandé</div>
+          <span class="selbtn" style="background:#1DD9A3;color:#062b22;">▣ 21h00</span>
+          <div class="cta" style="background:#FF5C00;color:#fff;">Réserver</div>
+          <div class="link" style="color:#FFC400;">Bande annonce →</div>
+          <div class="nav"><span class="active" style="color:#FF5C00;">● Accueil</span><span style="color:#9DB6DD;">Recherche</span></div>
+        </div>
+      </div></div>
+    </div>
+    <div class="mono"><div style="background:#0B1C3A"></div><div style="background:#13294F"></div><div style="background:#1D3A6B"></div></div>
+    <div class="verdict" style="color:#a9c0e0;"><b>Verdict:</b> My pick for "punchy AND defensible". Cobalt is literally a Tiween brand color (it was exiled to links — here it's the whole stage). Orange+marigold+green = sun-drenched Tunisian poster. Loud, joyful, unmistakably North African, still legible.</div>
+  </div>
+
+  <!-- P3 ZELLIGE -->
+  <div class="palette" style="background:#06403A;">
+    <div class="pal-head"><h2>③ Zellige</h2><span class="tag" style="background:#FF3B30;color:#fff;">TILE CLASH</span>
+      <span class="pal-note">Saturated <b>Tiween green field, turned up</b> + clashing tile colors (vermilion, cobalt, marigold) like a real zellige mosaic. The brand hue, but ALIVE.</span></div>
+    <div class="stage">
+      <div class="swatches">
+        <div class="sw"><div class="chip" style="background:#06403A"></div><div class="lbl">field (live green)</div><div class="hex">#06403A</div></div>
+        <div class="sw"><div class="chip" style="background:#085249"></div><div class="lbl">surface</div><div class="hex">#085249</div></div>
+        <div class="sw"><div class="chip" style="background:#0B6459"></div><div class="lbl">raised</div><div class="hex">#0B6459</div></div>
+        <div class="sw"><div class="chip" style="background:#FF3B30"></div><div class="lbl">vermilion (action)</div><div class="hex">#FF3B30</div></div>
+        <div class="sw"><div class="chip" style="background:#FFC400"></div><div class="lbl">marigold</div><div class="hex">#FFC400</div></div>
+        <div class="sw"><div class="chip" style="background:#37A0FF"></div><div class="lbl">tile blue</div><div class="hex">#37A0FF</div></div>
+      </div>
+      <div class="demo"><div class="demo-row">
+        <div class="card" style="background:#085249;">
+          <div class="poster" style="background:linear-gradient(150deg,#FFC40033,#FF3B3033,#085249);"><span class="badge" style="background:#FFC400;color:#1a1200;">VOST</span><span class="heart" style="background:rgba(255,59,48,.3);">❤️</span></div>
+          <div class="card-body" style="color:#fff;"><div class="title">Communion</div><div class="meta" style="color:#8FC4BB;">Le Rio · 14/06</div><span class="price" style="background:#FF3B30;color:#fff;">12,20 DT</span></div>
+        </div>
+        <div class="chrome" style="background:#085249;color:#fff;">
+          <h3>Accueil</h3><div class="line" style="background:#0B6459;width:88%;"></div><div class="line" style="background:#0B6459;width:62%;"></div>
+          <div class="recos" style="color:#FFC400;">✲ Recommandé</div>
+          <span class="selbtn" style="background:#37A0FF;color:#04223f;">▣ 21h00</span>
+          <div class="cta" style="background:#FF3B30;color:#fff;">Réserver</div>
+          <div class="link" style="color:#FFC400;">Bande annonce →</div>
+          <div class="nav"><span class="active" style="color:#FF3B30;">● Accueil</span><span style="color:#8FC4BB;">Recherche</span></div>
+        </div>
+      </div></div>
+    </div>
+    <div class="mono"><div style="background:#06403A"></div><div style="background:#085249"></div><div style="background:#0B6459"></div></div>
+    <div class="verdict" style="color:#9ad0c6;"><b>Verdict:</b> Keeps the most brand equity of the punchy set — it's still Tiween GREEN — but every accent is a clashing zellige tile. Green + vermilion + marigold + blue is unapologetically mosaic. Most "this is a CULTURE app" while staying recognizably Tiween.</div>
+  </div>
+
+  <!-- P4 RISO RIOT -->
+  <div class="palette" style="background:#FCEFE0;">
+    <div class="pal-head"><h2>④ Riso Riot</h2><span class="tag" style="background:#FF4D00;color:#fff;">LIGHT · RISO</span>
+      <span class="pal-note">Warm cream, but <b>riso-print loud</b>: fluoro orange + electric blue + hot pink, ink-black type. Art-school flyer / silkscreen energy. Light ≠ quiet.</span></div>
+    <div class="stage" style="background:#FCEFE0;">
+      <div class="swatches">
+        <div class="sw"><div class="chip" style="background:#FCEFE0"></div><div class="lbl" style="color:#7a5e3a;">field</div><div class="hex" style="color:#7a5e3a;">#FCEFE0</div></div>
+        <div class="sw"><div class="chip" style="background:#FFFFFF"></div><div class="lbl" style="color:#7a5e3a;">surface</div><div class="hex" style="color:#7a5e3a;">#FFFFFF</div></div>
+        <div class="sw"><div class="chip" style="background:#1A1414"></div><div class="lbl" style="color:#7a5e3a;">ink</div><div class="hex" style="color:#7a5e3a;">#1A1414</div></div>
+        <div class="sw"><div class="chip" style="background:#FF4D00"></div><div class="lbl" style="color:#7a5e3a;">fluoro orange</div><div class="hex" style="color:#7a5e3a;">#FF4D00</div></div>
+        <div class="sw"><div class="chip" style="background:#2B4BFF"></div><div class="lbl" style="color:#7a5e3a;">electric blue</div><div class="hex" style="color:#7a5e3a;">#2B4BFF</div></div>
+        <div class="sw"><div class="chip" style="background:#FF2E93"></div><div class="lbl" style="color:#7a5e3a;">hot pink</div><div class="hex" style="color:#7a5e3a;">#FF2E93</div></div>
+      </div>
+      <div class="demo"><div class="demo-row">
+        <div class="card" style="background:#FFFFFF; border:2px solid #1A1414;">
+          <div class="poster" style="background:linear-gradient(150deg,#FF4D0055,#2B4BFF55,#FCEFE0);"><span class="badge" style="background:#1A1414;color:#fff;">VOST</span><span class="heart" style="background:rgba(255,46,147,.35);">💖</span></div>
+          <div class="card-body" style="color:#1A1414;"><div class="title">Communion</div><div class="meta" style="color:#7a5e3a;">Le Rio · 14/06</div><span class="price" style="background:#FF4D00;color:#fff;">12,20 DT</span></div>
+        </div>
+        <div class="chrome" style="background:#FFFFFF;color:#1A1414; border:2px solid #1A1414;">
+          <h3>Accueil</h3><div class="line" style="background:#FCEFE0;width:88%;"></div><div class="line" style="background:#FCEFE0;width:62%;"></div>
+          <div class="recos" style="color:#FF2E93;">✲ Recommandé</div>
+          <span class="selbtn" style="background:#2B4BFF;color:#fff;">▣ 21h00</span>
+          <div class="cta" style="background:#FF4D00;color:#fff;">Réserver</div>
+          <div class="link" style="color:#2B4BFF;">Bande annonce →</div>
+          <div class="nav"><span class="active" style="color:#FF4D00;">● Accueil</span><span style="color:#7a5e3a;">Recherche</span></div>
+        </div>
+      </div></div>
+    </div>
+    <div class="mono"><div style="background:#FCEFE0"></div><div style="background:#FFFFFF"></div><div style="background:#1A1414"></div></div>
+    <div class="verdict" style="color:#6a5232;"><b>Verdict:</b> The art-school answer — proves LIGHT can be the loudest of all. Riso fluoros + heavy ink borders = silkscreen gig-poster. Maximum "art/print/culture". Risk: trendy, can date; heavy borders are a strong commitment. But nothing here has more personality.</div>
+  </div>
+
+  <!-- P5 MIDNIGHT MARQUEE -->
+  <div class="palette" style="background:#0A0A0C;">
+    <div class="pal-head"><h2>⑤ Midnight Marquee</h2><span class="tag" style="background:#FFD60A;color:#1a1500;">NEON ON BLACK</span>
+      <span class="pal-note">True black (cinema marquee) + <b>neon-sign colors</b>: marquee yellow, hot red, electric teal. Yellow KEPT but as a glowing neon, not flat brand fill. Theatre-at-night.</span></div>
+    <div class="stage">
+      <div class="swatches">
+        <div class="sw"><div class="chip" style="background:#0A0A0C"></div><div class="lbl">field (black)</div><div class="hex">#0A0A0C</div></div>
+        <div class="sw"><div class="chip" style="background:#161618"></div><div class="lbl">surface</div><div class="hex">#161618</div></div>
+        <div class="sw"><div class="chip" style="background:#242427"></div><div class="lbl">raised</div><div class="hex">#242427</div></div>
+        <div class="sw"><div class="chip" style="background:#FFD60A"></div><div class="lbl">marquee yellow</div><div class="hex">#FFD60A</div></div>
+        <div class="sw"><div class="chip" style="background:#FF3355"></div><div class="lbl">neon red (action)</div><div class="hex">#FF3355</div></div>
+        <div class="sw"><div class="chip" style="background:#2EE6D6"></div><div class="lbl">neon teal</div><div class="hex">#2EE6D6</div></div>
+      </div>
+      <div class="demo"><div class="demo-row">
+        <div class="card" style="background:#161618;">
+          <div class="poster" style="background:linear-gradient(150deg,#FF335533,#2EE6D633,#161618);"><span class="badge" style="background:#FFD60A;color:#1a1500;">VOST</span><span class="heart" style="background:rgba(255,51,85,.3);">❤️</span></div>
+          <div class="card-body" style="color:#fff;"><div class="title">Communion</div><div class="meta" style="color:#9a9aa2;">Le Rio · 14/06</div><span class="price" style="background:#FF3355;color:#fff;">12,20 DT</span></div>
+        </div>
+        <div class="chrome" style="background:#161618;color:#fff;">
+          <h3>Accueil</h3><div class="line" style="background:#242427;width:88%;"></div><div class="line" style="background:#242427;width:62%;"></div>
+          <div class="recos" style="color:#FFD60A;">✲ Recommandé</div>
+          <span class="selbtn" style="background:#2EE6D6;color:#063330;">▣ 21h00</span>
+          <div class="cta" style="background:#FF3355;color:#fff;">Réserver</div>
+          <div class="link" style="color:#2EE6D6;">Bande annonce →</div>
+          <div class="nav"><span class="active" style="color:#FFD60A;">● Accueil</span><span style="color:#9a9aa2;">Recherche</span></div>
+        </div>
+      </div></div>
+    </div>
+    <div class="mono"><div style="background:#0A0A0C"></div><div style="background:#161618"></div><div style="background:#242427"></div></div>
+    <div class="verdict" style="color:#b0b0b8;"><b>Verdict:</b> Cinema-marquee / neon-sign. Black lets all three neons glow like bulbs over a theatre door. Keeps the yellow as a marquee accent (equity nod) while red drives action. Most "show / spectacle". OLED-friendly, poster-forward, loud without color-clutter on chrome.</div>
+  </div>
+
+  <!-- P6 CARNIVAL -->
+  <div class="palette" style="background:#2A0E3A;">
+    <div class="pal-head"><h2>⑥ Carnival</h2><span class="tag" style="background:#FF6B00;color:#fff;">MAXIMALIST</span>
+      <span class="pal-note">Deep purple-magenta field with the <b>widest spread</b>: orange action, lime, cyan, pink all in play. Street-festival / carnival. The most colors, most life — disciplined to chrome edges only.</span></div>
+    <div class="stage">
+      <div class="swatches">
+        <div class="sw"><div class="chip" style="background:#2A0E3A"></div><div class="lbl">field</div><div class="hex">#2A0E3A</div></div>
+        <div class="sw"><div class="chip" style="background:#3A1550"></div><div class="lbl">surface</div><div class="hex">#3A1550</div></div>
+        <div class="sw"><div class="chip" style="background:#4C1E66"></div><div class="lbl">raised</div><div class="hex">#4C1E66</div></div>
+        <div class="sw"><div class="chip" style="background:#FF6B00"></div><div class="lbl">orange (action)</div><div class="hex">#FF6B00</div></div>
+        <div class="sw"><div class="chip" style="background:#B6FF1F"></div><div class="lbl">lime</div><div class="hex">#B6FF1F</div></div>
+        <div class="sw"><div class="chip" style="background:#28D7E8"></div><div class="lbl">cyan</div><div class="hex">#28D7E8</div></div>
+      </div>
+      <div class="demo"><div class="demo-row">
+        <div class="card" style="background:#3A1550;">
+          <div class="poster" style="background:linear-gradient(150deg,#FF6B0033,#28D7E833,#B6FF1F22,#3A1550);"><span class="badge" style="background:#B6FF1F;color:#1d2e00;">VOST</span><span class="heart" style="background:rgba(255,107,0,.3);">🧡</span></div>
+          <div class="card-body" style="color:#fff;"><div class="title">Communion</div><div class="meta" style="color:#C3A8D6;">Le Rio · 14/06</div><span class="price" style="background:#FF6B00;color:#fff;">12,20 DT</span></div>
+        </div>
+        <div class="chrome" style="background:#3A1550;color:#fff;">
+          <h3>Accueil</h3><div class="line" style="background:#4C1E66;width:88%;"></div><div class="line" style="background:#4C1E66;width:62%;"></div>
+          <div class="recos" style="color:#B6FF1F;">✲ Recommandé</div>
+          <span class="selbtn" style="background:#28D7E8;color:#04313a;">▣ 21h00</span>
+          <div class="cta" style="background:#FF6B00;color:#fff;">Réserver</div>
+          <div class="link" style="color:#28D7E8;">Bande annonce →</div>
+          <div class="nav"><span class="active" style="color:#FF6B00;">● Accueil</span><span style="color:#C3A8D6;">Recherche</span></div>
+        </div>
+      </div></div>
+    </div>
+    <div class="mono"><div style="background:#2A0E3A"></div><div style="background:#3A1550"></div><div style="background:#4C1E66"></div></div>
+    <div class="verdict" style="color:#c9b0d8;"><b>Verdict:</b> Maximum life — a whole carnival of color. Works if categories each get their own hue (cinema=orange, theatre=magenta, music=cyan, art=lime…) so the spread is SYSTEMATIC, not random. Risk: hardest to keep disciplined; needs strict rules or it's chaos. Highest ceiling, highest skill to land.</div>
+  </div>
+
+  <p class="lede" style="margin-top:14px;">
+    <b>Sally's read — punchy:</b>
+    ② <b>Tunis Pop</b> = loud but defensible (cobalt is already a brand color; orange+marigold = Tunisian poster). ③ <b>Zellige</b> = keeps the Tiween GREEN but makes it vibrate with clashing tile accents — most "still us, but alive".
+    ① Sahara Neon &amp; ⑤ Midnight Marquee = nightlife/spectacle. ④ Riso Riot = light done LOUD (art-school silkscreen). ⑥ Carnival = maximalist, best if categories drive the color system.
+    <br><br>
+    These can absolutely fold the <b>category color-coding</b> idea in (cinema / theatre / shorts / concerts / exhibitions each a hue) — that's how you make "a riot of color" feel <i>designed</i> rather than busy. Pick one (or "③ field + ① accents", or "make ② the system with category hues") and I'll build the full token set + the category sub-palette + AA table. Or throw me another adjective and I'll keep chasing.
+  </p>
+</body>
+</html>

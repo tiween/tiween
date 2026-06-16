@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Tiween — Gold Leaf × Aubergine (discovery feed preview)</title>
+<style>
+  :root{
+    --field:#241326; --surface:#31203A; --raised:#3E2A48; --line:#4A3556;
+    --fg:#FFFFFF; --muted:#B0A6B8;
+    --gold:#D4A24A; --gold-tint:#E0B563; --gold-ink:#2A1A06;
+    --magenta:#E5478A; --link:#F0A6C8;
+    --success:#5BD08A; --warning:#E8B24C; --danger:#FF8A8A;
+    /* category hues */
+    --cat-cinema:#E0B563; --cat-theatre:#E5478A; --cat-shorts:#5FD0C2; --cat-music:#7B9CFF; --cat-art:#C98AE8;
+    --r-card:16px; --r-chip:8px; --r-cta:999px;
+    font-family:Inter,system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--field);color:var(--fg);}
+  .wrap{max-width:1120px;margin:0 auto;padding:20px 20px 100px;}
+
+  /* header */
+  .top{display:flex;align-items:center;justify-content:space-between;padding:6px 0 18px;}
+  .brand{display:flex;align-items:center;gap:10px;}
+  .mono-logo{width:34px;height:34px;border-radius:999px;background:var(--gold);color:var(--gold-ink);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;}
+  .brand .name{font-weight:800;font-size:18px;letter-spacing:-.01em;}
+  .top .acct{width:34px;height:34px;border-radius:999px;background:var(--surface);border:1px solid var(--line);}
+
+  /* hero */
+  .hero{position:relative;border-radius:20px;overflow:hidden;min-height:230px;display:flex;align-items:flex-end;
+        background:linear-gradient(120deg,#4a2a52,#241326 70%);padding:22px;margin-bottom:8px;}
+  .hero .eyebrow{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);}
+  .hero h1{font-size:30px;margin:6px 0 4px;letter-spacing:-.02em;}
+  .hero p{margin:0 0 14px;color:#E7DEEA;font-size:13.5px;max-width:440px;}
+  .hero .pager{position:absolute;top:18px;right:18px;font-size:11px;background:rgba(0,0,0,.3);padding:3px 9px;border-radius:999px;color:#E7DEEA;}
+  .cta{display:inline-block;background:var(--gold);color:var(--gold-ink);font-weight:800;font-size:14px;padding:12px 22px;border-radius:var(--r-cta);text-decoration:none;}
+  .cta.ghost{background:transparent;color:var(--gold-tint);border:1.5px solid var(--gold);margin-left:8px;}
+
+  /* category chips */
+  .cats{display:flex;gap:9px;flex-wrap:wrap;margin:20px 0 14px;}
+  .cat{font-size:12.5px;font-weight:700;padding:7px 14px;border-radius:var(--r-cta);background:var(--surface);border:1px solid var(--line);color:var(--muted);cursor:default;display:flex;align-items:center;gap:7px;}
+  .cat .d{width:9px;height:9px;border-radius:999px;}
+  .cat.active{background:var(--gold);color:var(--gold-ink);border-color:var(--gold);}
+
+  .section-row{display:flex;align-items:baseline;justify-content:space-between;margin:22px 0 12px;}
+  .section-row h2{font-size:18px;margin:0;letter-spacing:-.01em;}
+  .section-row a{color:var(--gold-tint);font-size:12.5px;text-decoration:none;font-weight:600;}
+
+  /* feed */
+  .feed{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:16px;}
+  .card{background:var(--surface);border-radius:var(--r-card);overflow:hidden;}
+  .poster{aspect-ratio:2/3;position:relative;display:flex;align-items:flex-end;}
+  .poster .catbadge{position:absolute;top:9px;left:9px;font-size:10px;font-weight:800;padding:3px 8px;border-radius:var(--r-chip);color:#1a1020;}
+  .poster .heart{position:absolute;top:9px;right:9px;width:28px;height:28px;border-radius:999px;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;font-size:14px;}
+  .poster .heart.saved{color:var(--gold);}
+  .cbody{padding:11px 12px 13px;}
+  .cbody .t{font-size:14px;font-weight:800;line-height:1.2;}
+  .cbody .m{font-size:11.5px;color:var(--muted);margin-top:5px;}
+  .cbody .foot{display:flex;align-items:center;justify-content:space-between;margin-top:10px;}
+  .cbody .price{font-size:12px;font-weight:800;background:var(--gold);color:var(--gold-ink);padding:3px 9px;border-radius:var(--r-chip);}
+  .cbody .reco{font-size:11px;color:var(--gold-tint);font-weight:700;}
+  .showtimes{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;}
+  .st{font-size:11px;font-weight:700;padding:5px 9px;border-radius:var(--r-chip);background:var(--raised);color:var(--fg);border:1px solid var(--line);}
+  .st.sel{background:var(--gold);color:var(--gold-ink);border-color:var(--gold);}
+  .st.out{color:var(--muted);text-decoration:line-through;}
+
+  /* bottom nav */
+  .nav{position:fixed;bottom:0;left:0;right:0;height:64px;background:var(--surface);border-top:1px solid var(--line);display:flex;justify-content:space-around;align-items:center;}
+  .nav a{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10.5px;color:var(--muted);text-decoration:none;}
+  .nav a.active{color:var(--gold);font-weight:700;}
+  .nav .ic{font-size:17px;}
+
+  .note{font-size:12px;color:var(--muted);margin-top:26px;line-height:1.6;}
+  .note b{color:#fff;}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <div class="brand"><div class="mono-logo">ت</div><span class="name">tiween</span></div>
+      <div class="acct"></div>
+    </div>
+
+    <div class="hero">
+      <span class="pager">01 / 05</span>
+      <div>
+        <div class="eyebrow">✲ À l'affiche cette semaine</div>
+        <h1>Communion</h1>
+        <p>Théâtre national · Sofia Jebali — une fresque intime sur la mémoire et l'exil, primée à Carthage.</p>
+        <a class="cta" href="#">Voir les séances</a><a class="cta ghost" href="#">Bande annonce</a>
+      </div>
+    </div>
+
+    <div class="cats">
+      <span class="cat active">Tout</span>
+      <span class="cat"><span class="d" style="background:var(--cat-cinema)"></span>Cinéma</span>
+      <span class="cat"><span class="d" style="background:var(--cat-theatre)"></span>Théâtre</span>
+      <span class="cat"><span class="d" style="background:var(--cat-shorts)"></span>Courts-métrages</span>
+      <span class="cat"><span class="d" style="background:var(--cat-music)"></span>Concerts</span>
+      <span class="cat"><span class="d" style="background:var(--cat-art)"></span>Expositions</span>
+    </div>
+
+    <div class="section-row"><h2>Près de vous · Tunis</h2><a href="#">Tout voir →</a></div>
+
+    <div class="feed">
+      <!-- card 1 theatre -->
+      <div class="card"><div class="poster" style="background:linear-gradient(155deg,#5a3068,#31203A);">
+        <span class="catbadge" style="background:var(--cat-theatre);color:#fff;">Théâtre</span><span class="heart saved">♥</span></div>
+        <div class="cbody"><div class="t">Communion</div><div class="m">Le Rio · 14/06</div>
+          <div class="showtimes"><span class="st sel">21h00</span><span class="st">18h30</span></div>
+          <div class="foot"><span class="price">12,20 DT</span><span class="reco">✲</span></div></div></div>
+      <!-- card 2 cinema -->
+      <div class="card"><div class="poster" style="background:linear-gradient(155deg,#3a2c52,#241326);">
+        <span class="catbadge" style="background:var(--cat-cinema);">Cinéma</span><span class="heart">♡</span></div>
+        <div class="cbody"><div class="t">Les Filles d'Olfa</div><div class="m">CinéMadart · 15/06</div>
+          <div class="showtimes"><span class="st">15h00</span><span class="st">20h00</span></div>
+          <div class="foot"><span class="price">10,00 DT</span></div></div></div>
+      <!-- card 3 shorts -->
+      <div class="card"><div class="poster" style="background:linear-gradient(155deg,#2c4a48,#31203A);">
+        <span class="catbadge" style="background:var(--cat-shorts);">Courts</span><span class="heart">♡</span></div>
+        <div class="cbody"><div class="t">Nuit Blanche · Sélection</div><div class="m">Cité Culture · 16/06</div>
+          <div class="showtimes"><span class="st">19h00</span></div>
+          <div class="foot"><span class="price">Gratuit</span></div></div></div>
+      <!-- card 4 music -->
+      <div class="card"><div class="poster" style="background:linear-gradient(155deg,#2a3566,#241326);">
+        <span class="catbadge" style="background:var(--cat-music);color:#fff;">Concert</span><span class="heart">♡</span></div>
+        <div class="cbody"><div class="t">Emel · Live</div><div class="m">Théâtre Romain · 18/06</div>
+          <div class="showtimes"><span class="st">20h30</span><span class="st out">22h00</span></div>
+          <div class="foot"><span class="price">35,00 DT</span><span class="reco">✲</span></div></div></div>
+      <!-- card 5 art -->
+      <div class="card"><div class="poster" style="background:linear-gradient(155deg,#43335c,#31203A);">
+        <span class="catbadge" style="background:var(--cat-art);color:#fff;">Expo</span><span class="heart saved">♥</span></div>
+        <div class="cbody"><div class="t">Zellige · Formes</div><div class="m">B7L9 · jusqu'au 30/06</div>
+          <div class="showtimes"><span class="st">10h–18h</span></div>
+          <div class="foot"><span class="price">8,00 DT</span></div></div></div>
+      <!-- card 6 cinema -->
+      <div class="card"><div class="poster" style="background:linear-gradient(155deg,#352856,#241326);">
+        <span class="catbadge" style="background:var(--cat-cinema);">Cinéma</span><span class="heart">♡</span></div>
+        <div class="cbody"><div class="t">Sous les Figues</div><div class="m">Le Colisée · 17/06</div>
+          <div class="showtimes"><span class="st">16h00</span><span class="st">21h30</span></div>
+          <div class="foot"><span class="price">10,00 DT</span></div></div></div>
+    </div>
+
+    <p class="note">
+      <b>Gold Leaf × Aubergine</b> — live feed. Action = gold pill + gold selected-showtime + gold active nav + gold ✲ recommended (all dark-ink text on gold, AA-safe).
+      Links/secondary = gold-tint or rose. <b>Category color-coding</b> (the RA/Avignon discipline): cinema=gold · théâtre=magenta · courts=teal · concerts=blue · expo=violet — so the colorful feed is <i>wayfinding</i>, not noise.
+      Yellow's DNA survives, matured into gilt. White text 17.6:1 (AAA), gold-as-text 7.6:1 (AA), gold CTA uses dark ink (7.3:1).
+    </p>
+  </div>
+
+  <div class="nav">
+    <a class="active"><span class="ic">⌂</span>Accueil</a>
+    <a><span class="ic">⌕</span>Recherche</a>
+    <a><span class="ic">♥</span>Watchlist</a>
+    <a><span class="ic">◔</span>Compte</a>
+  </div>
+</body>
+</html>

@@ -68,3 +68,6 @@ status.json
 
 # Nested repositories
 RALPH_PRD/
+
+# Playwright MCP browser artifacts (scratch)
+.playwright-mcp/
