@@ -1,5 +1,7 @@
 # UX Spec-Coverage Review — Pass 1
 
+> **⚠️ PARTIALLY SUPERSEDED 2026-06-16.** Run against the **retired** Tiween-Green + Yellow + Cobalt palette. The B2C identity was revised the same day to **Gold Leaf × Aubergine** (single-accent gold `#D4A24A`; cobalt dropped; secondary = Magenta Rose `#E5478A`). The structural findings below (section order, `{token}` resolution, IA↔flow↔component coverage) remain valid. The **palette-specific findings are now moot**: M1 (two-accent under-documentation) and M2 (`secondary-foreground`/text-on-cobalt) are resolved by the single-accent revision; m1's cobalt `[NEEDS-HEX]` is closed (cobalt dropped — see EXPERIENCE.md Open items); m2's daylight pair is now aubergine `#241326` on white, not `#032523`. **`DESIGN.md` / `EXPERIENCE.md` are the source of truth** for current tokens.
+
 Run: ux-tiween-bmad-version-2026-06-16 · Reviewer: spec-coverage (bmad-ux) · Date: 2026-06-16
 Scope: DESIGN.md (visual spine) + EXPERIENCE.md (experience spine) vs .decision-log.md.
 Method: section-order check · `{token}` resolution · cross-spine contradiction · declared-vs-used tokens · IA↔flow↔component coverage · 3-improvement consistency.

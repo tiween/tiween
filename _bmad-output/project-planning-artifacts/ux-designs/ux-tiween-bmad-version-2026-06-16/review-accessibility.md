@@ -1,5 +1,7 @@
 # Accessibility Review — Tiween B2C (WCAG 2.1 AA)
 
+> **⚠️ SUPERSEDED 2026-06-16.** This review was run against the **retired** Tiween-Green + Yellow + Cobalt palette. The B2C identity was revised the same day to **Gold Leaf × Aubergine** (field `#241326`, action `#D4A24A`, link-text `#E0B563`, secondary `#E5478A`; cobalt dropped, single-accent system adopted). **Every contrast ratio and color pair below is computed against retired hexes and is no longer valid.** The headline cobalt-link CRITICAL finding is moot — cobalt no longer exists in the palette. For current, recomputed contrast values, **`DESIGN.md` is the source of truth** (all ratios there are computed against the live tokens). This file is retained as an audit trail of the prior-palette review only; do not action its findings. A fresh a11y pass against Gold Leaf × Aubergine should be run before handoff if one is needed.
+
 > Reviewer lens: WCAG 2.1 AA for a consumer ticketing PWA handling payments.
 > Scope: `DESIGN.md` (visual identity) + `EXPERIENCE.md` (behavior). Spines not edited.
 > Date: 2026-06-16. All contrast ratios below computed with the WCAG 2.x relative-luminance formula (sRGB).
