@@ -14,6 +14,10 @@ const VENUE_UID = "plugin::venues.venue"
 // A screening's `movie` field now targets plugin::creative-works.creative-work,
 // so the "movie" fixture seeds a creative-work with type: "film".
 const WORK_UID = "plugin::creative-works.creative-work"
+// People-graph vocab referenced by creative-work cast[]/credits[] components.
+// Cleaned AFTER works so the component references are already released.
+const CHARACTER_UID = "plugin::creative-works.character"
+const CREDIT_ROLE_UID = "plugin::creative-works.credit-role"
 
 export interface SeededVenue {
   documentId: string
@@ -138,8 +142,16 @@ export async function seedScreening(
 }
 
 export async function cleanupContent(strapi: Core.Strapi): Promise<void> {
-  // Clean in reverse-dependency order: screenings -> events -> works -> venues
-  for (const uid of [SCREENING_UID, EVENT_UID, WORK_UID, VENUE_UID] as const) {
+  // Clean in reverse-dependency order: screenings -> events -> works ->
+  // character/credit-role (referenced by work cast[]/credits[]) -> venues
+  for (const uid of [
+    SCREENING_UID,
+    EVENT_UID,
+    WORK_UID,
+    CHARACTER_UID,
+    CREDIT_ROLE_UID,
+    VENUE_UID,
+  ] as const) {
     let items = await strapi.documents(uid).findMany({ limit: 100 })
     while (items.length > 0) {
       for (const item of items) {

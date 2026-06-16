@@ -76,6 +76,28 @@ so that the read-only GTM directory renders rich work pages from one queryable c
   - [x] grep gate (events-manager movie/play = zero; no `role`-named credit type)
   - [x] `yarn generate:types` boots clean; unit suite green
 
+### Review Findings (code review 2026-06-16)
+
+_Adversarial review of commit `1058c76` — Blind Hunter + Edge Case Hunter + Acceptance Auditor. All 12 ACs judged SATISFIED by the Auditor; findings below are deviations/risks, not AC failures._
+
+**Decision needed:**
+
+- [x] [Review][Decision → Deferred 2026-06-16] Admin WorkForm is a runtime break, not just a stale mapping — all three layers flagged this. `WorkForm/schema.ts:261-267` (`workToApiPayload`) still POSTs `credits: [{ person, role, character, customRole, billing }]` to the `creative-work` content-manager API, but the reworked `credit` component dropped `role`/`character` and added `creditRole` as a **required** relation. Saving any work with a credit fails validation (missing required `creditRole`) or silently drops `role`/`character`. The admin build stays green only because `useCreativeWorks.ts:35-42` hand-rolls its own `Credit` interface. Folds in: stale `Catalog/options.ts:13-34,98` enum vocab + `credit.creditRole required:true` burden. **Deferred — reason: catalog empty + GTM read-only; admin WorkForm rebuild is a sequenced follow-up story, no live data at risk** (already tracked in deferred-work.md).
+- [x] [Review][Decision → Dismissed 2026-06-16] AC7 literally says "keep inversedBy" but the dev dropped it on both `screening.movie`/`performance.play` retargets — keeping it would break type-gen (creative-work has no inverse). All layers agree the drop is technically correct; no reverse `work → screenings/performances` query exists. **Resolved: accepted — one-way relations are correct for GTM (forward rendering only; reverse lookups deferred per guardrail #3). Nothing to fix.**
+
+**Patch (unambiguous fixes):**
+
+- [x] [Review][Patch → Fixed 2026-06-16] `videoType` enum `default: "trailer"` persisted alongside legacy `type` on every admin video write → inconsistent dual-enum data before the migration story runs [apps/strapi/src/components/common/video.json]. **Fixed: dropped the `videoType` default so the field stays null until a consumer/migration sets it intentionally. Type-gen 0 errors.**
+- [x] [Review][Patch → Fixed 2026-06-16] Test helper `cleanupContent` didn't clean the new `character`/`credit-role` content-types → row leakage once tests seed cast/credits [apps/strapi/tests/fixtures/events.ts]. **Fixed: added `CHARACTER_UID` + `CREDIT_ROLE_UID` to the cleanup loop, ordered after `WORK_UID` so component references release first. Unit suite green (50/50).**
+
+> **Also generalize (no new fix needed):** `credit.billing` (`cast.json` sibling in `credit.json`) shares the same `default:99`/no-tiebreak shape as the deferred `cast.billing` item below — covered under that same deferral.
+
+**Deferred (pre-existing or out of scope):**
+
+- [x] [Review][Defer] `credit-role` has no unique/required `slug` guard and `department` is optional+nullable → duplicate/ambiguous vocabulary rows possible [apps/strapi/.../credit-role/schema.json] — deferred, data-integrity hardening for an empty catalog
+- [x] [Review][Defer] Seed `index.ts:307-308` writes phantom `directors`/`trailer` fields (silently dropped) and never populates the new `cast[]`/`credits[]` components [apps/strapi/scripts/seeds/index.ts] — deferred, pre-existing at baseline 54c092c
+- [x] [Review][Defer] `cast.billing` default 99 / no max / optional `character` → unbilled cast collapse with no sort tiebreak [apps/strapi/src/components/creative-works/cast.json] — deferred, no current consumer of billing sort
+
 ## Dev Notes
 
 ### Authoritative constraints (architecture amendment — MUST follow)
@@ -131,8 +153,68 @@ so that the read-only GTM directory renders rich work pages from one queryable c
 
 ### Agent Model Used
 
+claude-opus-4-8 (Opus 4.8, 1M context)
+
 ### Debug Log References
+
+- Unit gate: `yarn test --testPathPattern unit` → 6 suites / 50 tests passed (3.3s). Pre-existing `jest-haste-map` collisions + `ts-jest isolatedModules` deprecation warnings only (stale `dist/`, unrelated to this change).
+- Integration-level proof: `rm -rf dist .strapi && yarn generate:types` → Strapi booted, all plugins registered, "0 warning(s) and 0 error(s)". Confirms every retargeted relation resolves.
+- Generated-type spot checks: `screening.movie` → `manyToOne plugin::creative-works.creative-work`; `CreativeWorksCast` = {person, character, billing}; `CreativeWorksCredit` = {person, creditRole, customRole, billing}; `PluginEventsManagerMovie/Play/Credit` absent (0); `PluginCreativeWorksCharacter`/`CreditRole` present.
 
 ### Completion Notes List
 
+**Implementation summary** — pure schema consolidation (both catalogs empty → no data migration), per architecture amendment D2 (REVISED 2026-06-15) and `sprint-change-proposal-2026-06-15.md`.
+
+- **AC1/AC5 — Retired events-manager catalog:** deleted `movie`, `play`, `credit`, `person`, `character` content-types (the people graph also lived in events-manager) + the movie⊻play `credit` XOR lifecycle + its bootstrap registration; deregistered from `content-types/index.ts`. Now-empty `lifecycles/` dir removed.
+- **AC2/AC6 — creative-work is the catalog of record:** confirmed rich core fields; added a `videoType` enum to the `videos[]` (`common.video`) component **additively** (kept legacy `type` to avoid breaking the not-yet-rebuilt admin/client — see deferred-work). No dynamic zone.
+- **AC3 — People graph:** `person` already in creative-works; added **`character`** and **`credit-role`** content-types (RBAC-safe name, never `role`).
+- **AC4 — cast/credits components (decision: relations carrying extras):** new relation-based **`cast`** component `{person, character, billing}`; reworked **`credit`** component from the old enum shape to `{person, creditRole, customRole, billing}`. Wired `cast[]` + `credits[]` as separate repeatable components on `creative-work`. Components are app-level (auto-discovered) — no index registration needed.
+- **AC7 — Scheduling relations (decision: keep field names, lowest churn):** `screening.movie` and `performance.play` retargeted to `plugin::creative-works.creative-work`, field names kept, `inversedBy` dropped (one-way — creative-work carries no scheduling inverse, respecting the dependency boundary). Service/controller (`event-manager.ts`) needed **zero changes** — they reference `movie`/`play` only as field names + a `movieId` documentId param.
+- **AC8 — Watchlist:** verified `user-watchlist.creativeWork` already targets the surviving `creative-work` — unchanged.
+- **AC9 — Admin/client (verify, don't rewrite):** re-verified directly — admin `useCreativeWorks.ts`/`usePeople.ts` resolve to `plugin::creative-works.creative-work`/`.person`; client `base.ts` maps `/creative-works/creative-works`; shorts hit `/creative-works` with `type:short-film`. Zero admin/client refs to retired UIDs. The admin `WorkForm` _component mapping_ is stale against the new relation-based credit shape — the admin rebuild the story's sequencing note **explicitly defers**; recorded in deferred-work.md (does not affect the AC12 gates).
+- **AC10 — Register/deregister:** `creative-work`, `person`, `character`, `credit-role` registered in creative-works `content-types/index.ts`; `movie`/`play`/credit/person/character removed from events-manager `content-types/index.ts`. Updated `scripts/seeds/clear.ts` (dropped retired `events-manager.credit`; added `character` + `credit-role`).
+- **AC11 — Grep gate:** zero `plugin::events-manager.(movie|play)` repo-wide (excl node_modules/dist/git/generated/planning/legacy); zero retired credit/person/character UID refs; `credit-role` not named `role`.
+- **AC12 — Verify:** unit suite green (50/50); `yarn generate:types` boots with 0 errors.
+
+**Deferred (recorded in deferred-work.md):** events-manager admin WorkForm rebuild against the new component shapes; migrate `common.video` consumers from legacy `type` to `videoType`. Both are post-2C.3 per the story's sequencing note; neither affects the gates (admin/src compiles via Vite, not type-gen/unit).
+
 ### File List
+
+**Deleted (retired):**
+
+- `apps/strapi/src/plugins/events-manager/server/src/content-types/movie/` (schema.json, index.ts)
+- `apps/strapi/src/plugins/events-manager/server/src/content-types/play/` (schema.json, index.ts)
+- `apps/strapi/src/plugins/events-manager/server/src/content-types/credit/` (schema.json, index.ts)
+- `apps/strapi/src/plugins/events-manager/server/src/content-types/person/` (schema.json, index.ts)
+- `apps/strapi/src/plugins/events-manager/server/src/content-types/character/` (schema.json, index.ts)
+- `apps/strapi/src/plugins/events-manager/server/src/lifecycles/credit.ts` (+ now-empty `lifecycles/` dir)
+
+**Added:**
+
+- `apps/strapi/src/plugins/creative-works/server/src/content-types/character/schema.json`
+- `apps/strapi/src/plugins/creative-works/server/src/content-types/character/index.ts`
+- `apps/strapi/src/plugins/creative-works/server/src/content-types/credit-role/schema.json`
+- `apps/strapi/src/plugins/creative-works/server/src/content-types/credit-role/index.ts`
+- `apps/strapi/src/components/creative-works/cast.json`
+
+**Modified:**
+
+- `apps/strapi/src/components/creative-works/credit.json` (enum → relation-based: person/creditRole/customRole/billing)
+- `apps/strapi/src/components/common/video.json` (added `videoType` enum, additive)
+- `apps/strapi/src/plugins/creative-works/server/src/content-types/creative-work/schema.json` (added `cast[]`)
+- `apps/strapi/src/plugins/creative-works/server/src/content-types/index.ts` (register character, credit-role)
+- `apps/strapi/src/plugins/events-manager/server/src/content-types/index.ts` (deregister movie/play/credit/person/character)
+- `apps/strapi/src/plugins/events-manager/server/src/bootstrap.ts` (drop credit XOR subscriber)
+- `apps/strapi/src/plugins/events-manager/server/src/content-types/screening/schema.json` (movie → creative-work, drop inversedBy)
+- `apps/strapi/src/plugins/events-manager/server/src/content-types/performance/schema.json` (play → creative-work, drop inversedBy)
+- `apps/strapi/tests/fixtures/events.ts` (seedMovie → creative-work type:film; cleanup UID)
+- `apps/strapi/scripts/seeds/clear.ts` (drop retired credit UID; add character + credit-role)
+- `apps/strapi/types/generated/contentTypes.d.ts` (regenerated)
+- `apps/strapi/types/generated/components.d.ts` (regenerated)
+- `_bmad-output/implementation-artifacts/deferred-work.md` (recorded deferred admin rebuild + videoType migration)
+
+## Change Log
+
+| Date       | Change                                                                                                                                                                                                                                                                                                                                                                                |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2026-06-16 | Implemented 2C.3 catalog consolidation: retired events-manager movie/play/credit/person/character + XOR lifecycle; established creative-work as catalog of record with relation-based cast[]/credits[] components, new character/credit-role content-types, videoType enum; retargeted screening.movie/performance.play → creative-work. Unit suite green (50/50); type-gen 0 errors. |

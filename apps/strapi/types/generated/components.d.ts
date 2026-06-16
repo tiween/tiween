@@ -74,8 +74,7 @@ export interface CommonVideo extends Struct.ComponentSchema {
         "behind-the-scenes",
         "full-length",
       ]
-    > &
-      Schema.Attribute.DefaultTo<"trailer">
+    >
   }
 }
 

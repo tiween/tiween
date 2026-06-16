@@ -32,7 +32,6 @@
         "behind-the-scenes",
         "full-length"
       ],
-      "default": "trailer",
       "required": false
     }
   }
