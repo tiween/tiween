@@ -53,8 +53,6 @@ interface FormData {
   status: VenueStatus
   address: string
   cityId: number | null
-  latitude: string
-  longitude: string
   phone: string
   email: string
   website: string
@@ -71,8 +69,6 @@ const initialFormData: FormData = {
   status: "pending",
   address: "",
   cityId: null,
-  latitude: "",
-  longitude: "",
   phone: "",
   email: "",
   website: "",
@@ -132,8 +128,6 @@ export function VenueFormModal({
         status: venue.status || "pending",
         address: venue.address || "",
         cityId: venue.cityRef?.id || null,
-        latitude: venue.latitude?.toString() || "",
-        longitude: venue.longitude?.toString() || "",
         phone: venue.phone || "",
         email: venue.email || "",
         website: venue.website || "",
@@ -210,14 +204,6 @@ export function VenueFormModal({
       newErrors.email = "Email invalide"
     }
 
-    if (formData.latitude && isNaN(parseFloat(formData.latitude))) {
-      newErrors.latitude = "Latitude invalide"
-    }
-
-    if (formData.longitude && isNaN(parseFloat(formData.longitude))) {
-      newErrors.longitude = "Longitude invalide"
-    }
-
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }, [formData])
@@ -233,10 +219,6 @@ export function VenueFormModal({
       status: formData.status,
       address: formData.address || undefined,
       cityRef: formData.cityId || undefined,
-      latitude: formData.latitude ? parseFloat(formData.latitude) : undefined,
-      longitude: formData.longitude
-        ? parseFloat(formData.longitude)
-        : undefined,
       phone: formData.phone || undefined,
       email: formData.email || undefined,
       website: formData.website || undefined,
@@ -378,33 +360,12 @@ export function VenueFormModal({
                   </Field.Root>
                 </Grid.Item>
 
-                <Grid.Item col={6} s={12}>
-                  <Field.Root error={errors.latitude}>
-                    <Field.Label>Latitude</Field.Label>
-                    <TextInput
-                      value={formData.latitude}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                        handleChange("latitude")(e.target.value)
-                      }
-                      placeholder="36.8065"
-                    />
-                    <Field.Error />
-                  </Field.Root>
-                </Grid.Item>
-
-                <Grid.Item col={6} s={12}>
-                  <Field.Root error={errors.longitude}>
-                    <Field.Label>Longitude</Field.Label>
-                    <TextInput
-                      value={formData.longitude}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                        handleChange("longitude")(e.target.value)
-                      }
-                      placeholder="10.1815"
-                    />
-                    <Field.Error />
-                  </Field.Root>
-                </Grid.Item>
+                {/*
+                  Coordinates: raw latitude/longitude inputs removed in 2D.1.
+                  The venue schema's single coordinate source is the `geo`
+                  (shared.geo-point) component. 2D.2 replaces this with an
+                  address + map picker that geocodes into geo.latitude/longitude.
+                */}
               </Grid.Root>
             </Box>
 

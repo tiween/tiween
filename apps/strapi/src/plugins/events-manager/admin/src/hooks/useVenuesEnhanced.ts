@@ -43,10 +43,6 @@ export interface Venue {
   slug: string
   description?: string
   address?: string
-  city?: string
-  region?: string
-  latitude?: number
-  longitude?: number
   phone?: string
   email?: string
   website?: string
@@ -250,10 +246,6 @@ export interface VenueInput {
   slug?: string
   description?: string
   address?: string
-  city?: string
-  region?: string
-  latitude?: number
-  longitude?: number
   phone?: string
   email?: string
   website?: string

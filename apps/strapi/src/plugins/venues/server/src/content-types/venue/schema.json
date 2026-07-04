@@ -15,20 +15,68 @@
       "type": "string",
       "required": true
     },
+    "slug": {
+      "type": "uid",
+      "targetField": "name"
+    },
+    "description": {
+      "type": "text"
+    },
     "address": {
       "type": "text"
+    },
+    "cityRef": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::geography.city"
     },
     "geo": {
       "type": "component",
       "repeatable": false,
       "component": "shared.geo-point"
     },
+    "phone": {
+      "type": "string"
+    },
+    "email": {
+      "type": "email"
+    },
+    "website": {
+      "type": "string"
+    },
+    "type": {
+      "type": "enumeration",
+      "enum": ["cinema", "theater", "cultural-center", "museum", "other"]
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": ["pending", "approved", "suspended"],
+      "default": "pending"
+    },
     "capacity": {
       "type": "integer"
     },
-    "slug": {
-      "type": "uid",
-      "targetField": "name"
+    "logo": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": ["images"]
+    },
+    "images": {
+      "type": "media",
+      "multiple": true,
+      "required": false,
+      "allowedTypes": ["images"]
+    },
+    "manager": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "properties": {
+      "type": "component",
+      "repeatable": true,
+      "component": "entity-properties.property-value"
     },
     "events": {
       "type": "relation",

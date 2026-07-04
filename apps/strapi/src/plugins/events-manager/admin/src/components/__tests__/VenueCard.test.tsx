@@ -27,8 +27,12 @@ const baseVenue: Venue = {
   type: "cinema",
   status: "approved",
   capacity: 250,
-  city: "Tunis",
-  region: "Tunis",
+  cityRef: {
+    id: 1,
+    documentId: "city-1",
+    name: "Tunis",
+    region: { id: 1, documentId: "region-1", name: "Tunis" },
+  },
 }
 
 describe("VenueCard", () => {
@@ -49,14 +53,19 @@ describe("VenueCard", () => {
 
   it("renders just the city when region is omitted", () => {
     renderWithProvider(
-      <VenueCard venue={{ ...baseVenue, region: undefined }} />
+      <VenueCard
+        venue={{
+          ...baseVenue,
+          cityRef: { id: 1, documentId: "city-1", name: "Tunis" },
+        }}
+      />
     )
     expect(screen.getByText("Tunis")).toBeInTheDocument()
   })
 
-  it("renders 'Emplacement non défini' when neither city nor cityRef is set", () => {
+  it("renders 'Emplacement non défini' when cityRef is not set", () => {
     renderWithProvider(
-      <VenueCard venue={{ ...baseVenue, city: undefined, region: undefined }} />
+      <VenueCard venue={{ ...baseVenue, cityRef: undefined }} />
     )
     expect(screen.getByText(/emplacement non défini/i)).toBeInTheDocument()
   })

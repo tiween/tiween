@@ -149,7 +149,7 @@ export function VenueSelector({
             {selectedVenue.name}
           </Typography>
           <Typography variant="pi" textColor="neutral600">
-            {selectedVenue.cityRef?.name || selectedVenue.city || ""}
+            {selectedVenue.cityRef?.name || ""}
             {selectedVenue.type &&
               ` • ${TYPE_LABELS[selectedVenue.type] || selectedVenue.type}`}
           </Typography>
@@ -194,9 +194,7 @@ export function VenueSelector({
                   {venue.name}
                 </Typography>
                 <Typography variant="pi" textColor="neutral600">
-                  {venue.cityRef?.name ||
-                    venue.city ||
-                    "Emplacement non défini"}
+                  {venue.cityRef?.name || "Emplacement non défini"}
                   {venue.type && ` • ${TYPE_LABELS[venue.type]}`}
                 </Typography>
               </Flex>

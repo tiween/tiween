@@ -79,8 +79,8 @@ export function VenueCard({
 
   const typeConfig = venue.type ? TYPE_CONFIG[venue.type] : null
 
-  const cityName = venue.cityRef?.name || venue.city || null
-  const regionName = venue.cityRef?.region?.name || venue.region || null
+  const cityName = venue.cityRef?.name || null
+  const regionName = venue.cityRef?.region?.name || null
   const locationText = cityName
     ? regionName
       ? `${cityName}, ${regionName}`

@@ -1750,10 +1750,6 @@ export interface PluginTicketingTicketOrder
       "manyToOne",
       "plugin::events-manager.screening"
     >
-    showtime: Schema.Attribute.Relation<
-      "manyToOne",
-      "plugin::events-manager.showtime"
-    >
     tickets: Schema.Attribute.Relation<"oneToMany", "plugin::ticketing.ticket">
     totalAmount: Schema.Attribute.Decimal & Schema.Attribute.Required
     updatedAt: Schema.Attribute.DateTime
@@ -2251,26 +2247,46 @@ export interface PluginVenuesVenue extends Struct.CollectionTypeSchema {
   attributes: {
     address: Schema.Attribute.Text
     capacity: Schema.Attribute.Integer
+    cityRef: Schema.Attribute.Relation<"manyToOne", "plugin::geography.city">
     createdAt: Schema.Attribute.DateTime
     createdBy: Schema.Attribute.Relation<"oneToOne", "admin::user"> &
       Schema.Attribute.Private
+    description: Schema.Attribute.Text
+    email: Schema.Attribute.Email
     events: Schema.Attribute.Relation<
       "oneToMany",
       "plugin::events-manager.event"
     >
     geo: Schema.Attribute.Component<"shared.geo-point", false>
+    images: Schema.Attribute.Media<"images", true>
     locale: Schema.Attribute.String & Schema.Attribute.Private
     localizations: Schema.Attribute.Relation<
       "oneToMany",
       "plugin::venues.venue"
     > &
       Schema.Attribute.Private
+    logo: Schema.Attribute.Media<"images">
+    manager: Schema.Attribute.Relation<
+      "manyToOne",
+      "plugin::users-permissions.user"
+    >
     name: Schema.Attribute.String & Schema.Attribute.Required
+    phone: Schema.Attribute.String
+    properties: Schema.Attribute.Component<
+      "entity-properties.property-value",
+      true
+    >
     publishedAt: Schema.Attribute.DateTime
     slug: Schema.Attribute.UID<"name">
+    status: Schema.Attribute.Enumeration<["pending", "approved", "suspended"]> &
+      Schema.Attribute.DefaultTo<"pending">
+    type: Schema.Attribute.Enumeration<
+      ["cinema", "theater", "cultural-center", "museum", "other"]
+    >
     updatedAt: Schema.Attribute.DateTime
     updatedBy: Schema.Attribute.Relation<"oneToOne", "admin::user"> &
       Schema.Attribute.Private
+    website: Schema.Attribute.String
   }
 }
 

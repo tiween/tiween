@@ -32,11 +32,6 @@
       "relation": "manyToOne",
       "target": "plugin::events-manager.event"
     },
-    "showtime": {
-      "type": "relation",
-      "relation": "manyToOne",
-      "target": "plugin::events-manager.showtime"
-    },
     "screening": {
       "type": "relation",
       "relation": "manyToOne",

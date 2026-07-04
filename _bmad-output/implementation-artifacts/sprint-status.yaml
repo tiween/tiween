@@ -109,10 +109,20 @@ development_status:
   epic-2c: in-progress
   2c-1-extract-venues-plugin: review
   2c-2-catalog-collision-data-audit: done
-  2c-3-catalog-move-into-creative-works: in-progress
+  2c-3-catalog-move-into-creative-works: review
   2c-4-ticketing-unit-of-work-and-atomic-inventory: done
   2c-5-consolidation-sweep: backlog
   epic-2c-retrospective: optional
+
+  # Epic 2D: Venues & Properties Admin UI (new feature 2026-06-16)
+  # Prereq: 2c-1 stable. Source: sprint-change-proposal-2026-06-16.
+  # 2d-1 (schema extension) gates 2d-2/2d-3/2d-4.
+  epic-2d: in-progress
+  2d-1-extend-venue-schema-to-rich-model: done
+  2d-2-venue-crud-admin-ui: ready-for-dev
+  2d-3-property-authoring-ui: backlog
+  2d-4-attach-properties-to-venue: backlog
+  epic-2d-retrospective: optional
 
   # Epic 3: Event Discovery & Browsing
   epic-3: backlog

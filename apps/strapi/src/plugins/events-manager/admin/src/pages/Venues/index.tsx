@@ -229,8 +229,8 @@ export function VenuesPage() {
 
   // Get location display text
   const getLocationText = (venue: Venue) => {
-    const city = venue.cityRef?.name || venue.city
-    const region = venue.cityRef?.region?.name || venue.region
+    const city = venue.cityRef?.name
+    const region = venue.cityRef?.region?.name
     if (city && region) return `${city}, ${region}`
     if (city) return city
     return "-"

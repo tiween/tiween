@@ -25,6 +25,7 @@
     "seed:fresh": "yarn seed:clear && yarn seed",
     "start": "strapi start",
     "strapi": "strapi",
+    "type-check": "tsc --noEmit",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
