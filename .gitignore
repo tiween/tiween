@@ -71,3 +71,8 @@ RALPH_PRD/
 
 # Playwright MCP browser artifacts (scratch)
 .playwright-mcp/
+.bmad-loop/runs/
+.bmad-loop/cache/
+
+# CodeGraph index (generated)
+.codegraph/

@@ -76,7 +76,42 @@
       "Bash(xargs basename -a)",
       "Bash(echo \"=== exit $? ===\")",
       "Bash(awk '{print $1}')",
-      "Bash(awk -F/ '{print $1\"/\"$2}')"
+      "Bash(awk -F/ '{print $1\"/\"$2}')",
+      "Bash(python3 -m http.server 8123)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:8123/shorts-detail-preview.html)",
+      "mcp__plugin_playwright_playwright__browser_take_screenshot",
+      "Bash(asdf current *)",
+      "Bash(lsof -ti:8123)",
+      "Bash(xargs kill)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:8123/shorts-detail-preview.html)",
+      "mcp__plugin_playwright_playwright__browser_resize",
+      "mcp__plugin_playwright_playwright__browser_navigate",
+      "mcp__plugin_playwright_playwright__browser_evaluate",
+      "Bash(cd /Users/ayoub/projects/tiween-bmad-version/_bmad-output/project-planning-artifacts/ux-designs)",
+      "Bash(find . -maxdepth 2 -name \"DESIGN.md\")",
+      "Bash(ls -la ux-tiween-bmad-version-2026-06-16/)",
+      "mcp__plugin_playwright_playwright__browser_close",
+      "Bash(node_modules/.bin/prettier *)",
+      "Bash(yarn --version)",
+      "Bash(yarn --silent tsc --noEmit tests/fixtures/events.ts)",
+      "Bash(codegraph --version)",
+      "Read(//Users/ayoub/**)",
+      "Read(//Users/ayoub/.asdf/installs/**)",
+      "Bash(PATH=\"/Users/ayoub/.asdf/installs/nodejs/22.22.0/bin:$PATH\" /Users/ayoub/.asdf/installs/nodejs/22.22.0/bin/codegraph *)",
+      "Bash(PATH=/Users/ayoub/.asdf/installs/nodejs/22.22.0/bin:__TRACKED_VAR__ codegraph init --help)",
+      "Bash(PATH=/Users/ayoub/.asdf/installs/nodejs/22.21.1/bin:__TRACKED_VAR__ /Users/ayoub/projects/tiween-bmad-version/node_modules/.bin/codegraph --version)",
+      "Bash(ls -1 docker-compose*.y*ml compose*.y*ml)",
+      "Bash(docker inspect *)",
+      "Bash(open \"/Users/ayoub/projects/tiween-bmad-version/_bmad-output/project-planning-artifacts/ux-designs/ux-tiween-bmad-version-2026-06-16/.working/gold-coral-gradient-explore.html\")",
+      "Bash(sort -t: -k1 -n)",
+      "Bash(awk '{print \"FR-\"$2\" \\(\"$1\"x\\)\"}')",
+      "Bash(claude mcp *)",
+      "Bash(rm -rf apps/strapi/dist apps/strapi/.strapi)",
+      "Bash(awk '/export interface PluginVenuesVenue/,/^}/' types/generated/contentTypes.d.ts)",
+      "Bash(asdf install *)"
     ]
-  }
+  },
+  "enabledMcpjsonServers": [
+    "codegraph"
+  ]
 }
