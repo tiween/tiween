@@ -32,6 +32,11 @@ So that I can list my events and sell tickets.
 
 ## Story 7.2: Venue Profile Management
 
+> **Prerequisite (2026-06-16):** When Phase 2 begins, the Venue Manager
+> self-service profile UI **builds on Epic 2D's venues-plugin admin** (rich venue
+> model + relocated venue form + property attachment) rather than re-deriving a
+> venue form. See `sprint-change-proposal-2026-06-16.md`.
+
 As a **venue manager**,
 I want to manage my venue's profile,
 So that visitors see accurate and attractive information.

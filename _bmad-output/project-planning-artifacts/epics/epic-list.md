@@ -108,6 +108,32 @@ after 2C.3 against post-move UIDs.
 
 ---
 
+## Epic 2D: Venues & Properties Admin UI [MVP-back-office]
+
+> **Source:** New feature (2026-06-16) — see sprint-change-proposal-2026-06-16.md.
+> Prerequisite: Epic 2C.1 stable.
+
+The venues plugin gains a first-class admin UI for creating and managing venues and
+their configurable properties, replacing the placeholder HomePage. The venue content
+type is extended to the rich model and the events-manager venue form is relocated
+into the venues plugin (single source of venue truth). Serves both Admin/Editor and
+Venue Manager roles (RBAC seeded in 2C.1).
+
+**Scope:**
+
+- Extend `plugin::venues.venue` to the rich model (city/region/contact/type/status/
+  media/manager) + add a repeatable `property-value` component field — gates the UI stories
+- Venue CRUD admin UI (relocate the events-manager venue form into the venues plugin)
+- Property authoring UI (definitions + hierarchical categories, i18n)
+- Attach property values to venues (typed inputs by definition type)
+
+**Sequencing:** starts after 2C.1 is stable; 2D.1 gates 2D.2/2D.3/2D.4.
+
+**FRs covered:** back-office enabler for FR32–FR40 (B2B venue management); precedes Epic 7.2
+**NFRs addressed:** NFR-S5 (venue data isolation, RBAC scoping)
+
+---
+
 ## Epic 3: Event Discovery & Browsing [MVP]
 
 Users can browse and search cinema showtimes across Tunisia without creating an account.

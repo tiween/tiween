@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Tiween — Gold→Coral gradient exploration</title>
+<style>
+  :root{
+    --bg:#241326; --fg:#fff; --surface:#31203A; --raised:#3E2A48;
+    --border:#4A3556; --muted:#B0A6B8; --gold:#D4A24A; --ink:#2A1A06;
+    --gold-tint:#E0B563; --destructive:#FF8A8A;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);
+    font-family:Inter,system-ui,-apple-system,sans-serif;line-height:1.5;padding:32px 20px 80px}
+  h1{font-size:26px;margin:0 0 4px} .sub{color:var(--muted);margin:0 0 28px;font-size:14px}
+  h2{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--gold-tint);
+    margin:36px 0 14px;border-bottom:1px solid var(--border);padding-bottom:6px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:18px}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px}
+  .name{font-size:14px;font-weight:600;margin:0 0 2px}
+  .meta{font-size:12px;color:var(--muted);margin:0 0 14px;font-family:'JetBrains Mono',monospace}
+  /* CTA — full pill, dark ink label */
+  .cta{display:flex;align-items:center;justify-content:center;height:48px;border-radius:9999px;
+    color:var(--ink);font-weight:700;font-size:16px;border:none;width:100%;cursor:pointer;
+    box-shadow:0 1px 0 rgba(0,0,0,.15) inset}
+  /* pill chip (actionable) */
+  .pillrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+  .pill{display:inline-flex;align-items:center;height:32px;padding:0 14px;border-radius:9999px;
+    color:var(--ink);font-weight:600;font-size:13px}
+  /* heart */
+  .accentrow{display:flex;align-items:center;gap:18px;margin-top:14px}
+  .heart{font-size:24px;-webkit-background-clip:text;background-clip:text;color:transparent}
+  .star{font-size:20px;-webkit-background-clip:text;background-clip:text;color:transparent}
+  .solidgold{background:var(--gold)}
+  .legend{font-size:11px;color:var(--muted);margin-top:10px;font-family:'JetBrains Mono',monospace}
+  .destructive{display:inline-flex;height:32px;align-items:center;padding:0 14px;border-radius:9999px;
+    background:transparent;border:1px solid var(--destructive);color:var(--destructive);font-size:13px;font-weight:600}
+  .feedwrap{max-width:380px}
+  .eventcard{background:var(--surface);border-radius:16px;overflow:hidden;border:1px solid var(--border)}
+  .poster{aspect-ratio:2/3;background:linear-gradient(160deg,#3E2A48,#241326);position:relative}
+  .badge{position:absolute;top:10px;left:10px;height:24px;display:inline-flex;align-items:center;
+    padding:0 10px;border-radius:9999px;font-size:11px;font-weight:700;color:var(--ink)}
+  .heartbtn{position:absolute;top:8px;right:8px;font-size:22px;-webkit-background-clip:text;background-clip:text;color:transparent}
+  .ecbody{padding:12px}
+  .ectitle{font-size:15px;font-weight:600;margin:0 0 2px}
+  .ecmeta{font-size:12px;color:var(--muted);margin:0 0 12px}
+  .swatchbar{height:14px;border-radius:8px;margin-top:8px}
+</style>
+</head>
+<body>
+  <h1>Gold → Coral gradient — action signal exploration</h1>
+  <p class="sub">All gradients run <b>Gold Leaf #D4A24A → coral endpoint</b>, label uses dark ink #2A1A06.
+  Compare against the lone solid-gold control (current spec) at the bottom. Field = Midnight Aubergine #241326.</p>
+
+  <h2>Candidate gradients on the primary CTA + pills</h2>
+  <div class="grid" id="grid"></div>
+
+  <h2>Semantic-gap check — does the coral end read as the error red?</h2>
+  <div class="card" style="max-width:520px">
+    <p class="name">Coral CTA pill vs. destructive #FF8A8A</p>
+    <div class="pillrow">
+      <span class="pill" id="coralVsRed">Réserver</span>
+      <span class="destructive">Annuler le billet</span>
+    </div>
+    <p class="legend">If these read as "the same family" the coral is too red — push toward terracotta.</p>
+  </div>
+
+  <h2>Reference — current spec (solid gold, single-accent)</h2>
+  <div class="card" style="max-width:320px">
+    <p class="name">Solid Gold Leaf (today)</p>
+    <p class="meta">#D4A24A · ink 7.3:1</p>
+    <button class="cta solidgold">Réserver</button>
+    <div class="pillrow"><span class="pill solidgold">15h00</span><span class="pill solidgold">VOST</span></div>
+    <div class="accentrow">
+      <span class="heart solidgold" style="color:var(--gold)">&#10084;</span>
+      <span class="star" style="color:var(--gold)">&#10038;</span>
+    </div>
+  </div>
+
+  <h2>In-context — EventCard with gradient watchlist heart + gradient badge</h2>
+  <div class="feedwrap">
+    <div class="eventcard">
+      <div class="poster">
+        <span class="badge" id="ctxBadge">CINÉMA</span>
+        <span class="heartbtn" id="ctxHeart">&#10084;</span>
+      </div>
+      <div class="ecbody">
+        <p class="ectitle">الرجل الذي باع ظهره</p>
+        <p class="ecmeta">CinéMadart • 12/06 • <span style="direction:ltr;unicode-bidi:isolate">12,20 DT</span></p>
+        <button class="cta" id="ctxCta">Réserver</button>
+      </div>
+    </div>
+    <p class="legend">Recommended endpoint pre-applied. Heart + badge use the same gradient as the CTA.</p>
+  </div>
+
+<script>
+  const ink='#2A1A06';
+  const cands=[
+    ['#EC6A45','gilt-coral','smoothest gold→coral; reads as one warm metal'],
+    ['#E8654A','deep coral','balanced; clear coral, still warm'],
+    ['#E07856','terracotta (muted)','earthiest; lowest red-clash risk'],
+    ['#D96F4C','burnt coral','deep & muted; sunset metallic'],
+    ['#F26B4E','warm coral','punchier, more saturated'],
+    ['#FF5A5F','coral-red (Airbnb)','loudest; closest to error red — risk'],
+  ];
+  function grad(end){return `linear-gradient(135deg, var(--gold) 0%, ${end} 100%)`}
+  const grid=document.getElementById('grid');
+  cands.forEach(([hex,name,note])=>{
+    const c=document.createElement('div');c.className='card';
+    c.innerHTML=`
+      <p class="name">${name}</p>
+      <p class="meta">#D4A24A → ${hex}</p>
+      <button class="cta" style="background:${grad(hex)}">Réserver</button>
+      <div class="pillrow">
+        <span class="pill" style="background:${grad(hex)}">15h00</span>
+        <span class="pill" style="background:${grad(hex)}">Acheter</span>
+        <span class="pill" style="background:${grad(hex)}">VOST</span>
+      </div>
+      <div class="accentrow">
+        <span class="heart" style="background:${grad(hex)}">&#10084;</span>
+        <span class="star" style="background:${grad(hex)}">&#10038;</span>
+        <span class="legend" style="margin:0">heart + ✲</span>
+      </div>
+      <div class="swatchbar" style="background:${grad(hex)}"></div>
+      <p class="legend">${note}</p>`;
+    grid.appendChild(c);
+  });
+  // default-applied endpoint for the contextual examples (gilt-coral)
+  const def='#EC6A45';
+  document.getElementById('ctxCta').style.background=grad(def);
+  document.getElementById('ctxBadge').style.background=grad(def);
+  document.getElementById('ctxHeart').style.background=grad(def);
+  document.getElementById('coralVsRed').style.background=grad(def);
+</script>
+</body>
+</html>

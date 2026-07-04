@@ -1,0 +1,45 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8">
+<title>S1 · Venues list (layout mock)</title><link rel="stylesheet" href="_mock.css"></head><body>
+<div class="banner">LAYOUT-ONLY mock — real UI uses <b>@strapi/design-system v2</b>. Colors/pixels are NOT the DS theme. See DESIGN.md + ds-component-binding.md.</div>
+<div class="app">
+  <nav class="nav">
+    <h1>Venues</h1>
+    <a class="active"><span class="ic"></span> Lieux</a>
+    <a><span class="ic"></span> Propriétés</a>
+    <small>Admin / Editor view (Properties visible)</small>
+  </nav>
+  <div class="main">
+    <div class="hdr">
+      <div><h2>Lieux</h2><p>Layouts.Header — title + primary action</p></div>
+      <button class="btn">+ Nouveau lieu</button>
+    </div>
+    <div class="body">
+      <div class="toolbar">
+        <div class="search">🔍 Rechercher un lieu…  <i style="color:#bbb">(Searchbar · debounce 300ms)</i></div>
+        <div class="sel">Statut : Tous ▾</div>
+        <div class="sel">Type : Tous ▾</div>
+        <div class="sel">Ville : Toutes ▾</div>
+      </div>
+      <table>
+        <thead><tr>
+          <th style="width:36px">☐</th>
+          <th>Nom <span class="sort">▲</span></th><th>Ville</th><th>Type</th>
+          <th>Statut</th><th>Capacité</th><th style="width:90px">Actions</th>
+        </tr></thead>
+        <tbody>
+          <tr><td>☑</td><td>CinéMadart</td><td>Carthage</td><td>Cinéma</td><td><span class="badge b-pending">En attente</span></td><td>320</td>
+            <td><div class="actions"><button class="iconbtn">✎</button><button class="iconbtn">🗑</button></div></td></tr>
+          <tr><td>☐</td><td>Théâtre Municipal</td><td>Tunis</td><td>Théâtre</td><td><span class="badge b-approved">Approuvé</span></td><td>800</td>
+            <td><div class="actions"><button class="iconbtn">✎</button><button class="iconbtn">🗑</button></div></td></tr>
+          <tr><td>☐</td><td>Centre Culturel B'chira</td><td>Tunis</td><td>Centre culturel</td><td><span class="badge b-approved">Approuvé</span></td><td>150</td>
+            <td><div class="actions"><button class="iconbtn">✎</button><button class="iconbtn">🗑</button></div></td></tr>
+          <tr><td>☐</td><td>Musée du Bardo</td><td>Tunis</td><td>Musée</td><td><span class="badge b-suspended">Suspendu</span></td><td>—</td>
+            <td><div class="actions"><button class="iconbtn">✎</button><button class="iconbtn">🗑</button></div></td></tr>
+        </tbody>
+      </table>
+      <p style="margin-top:12px;font-size:12px;color:#8e8ea9">Selection active → <b>BulkActionsDropdown</b>: Supprimer · Changer le statut (→ Dialog confirm)</p>
+      <div class="pager"><span>‹</span><span class="cur">1</span><span>2</span><span>3</span><span>›</span></div>
+      <p style="margin-top:18px;font-size:12px;color:#8e8ea9"><b>Empty state</b> (when 0 venues): EmptyStateLayout — « Aucun lieu pour le moment » + bouton « Créer un lieu ».</p>
+    </div>
+  </div>
+</div></body></html>

@@ -17,6 +17,7 @@
     - [Epic 2A: Component Library & Design System [MVP-partial]](./epic-list.md#epic-2a-component-library-design-system-parallel-track-a)
     - [Epic 2B: Strapi v5 Migration & Backend Foundation [MVP-partial]](./epic-list.md#epic-2b-strapi-v5-migration-backend-foundation-parallel-track-b)
     - [Epic 2C: Plugin Architecture Decomposition [MVP-partial → Phase 2 gate]](./epic-list.md#epic-2c-plugin-architecture-decomposition-track-b-continuation-mvp-partial--phase-2-gate)
+    - [Epic 2D: Venues & Properties Admin UI [MVP-back-office]](./epic-list.md#epic-2d-venues-properties-admin-ui-mvp-back-office)
     - [Epic 3: Event Discovery & Browsing [MVP]](./epic-list.md#epic-3-event-discovery-browsing)
     - [Epic 4: User Authentication & Profiles [MVP-partial]](./epic-list.md#epic-4-user-authentication-profiles)
     - [Epic 5: Watchlist & Personalization [Phase 2]](./epic-list.md#epic-5-watchlist-personalization)
@@ -92,6 +93,13 @@
   - [Story 2C.3: Catalog Move into Creative-Works](./epic-2c-plugin-architecture-decomposition.md#story-2c3-catalog-move-into-creative-works)
   - [Story 2C.4: Ticketing Unit of Work and Atomic Inventory](./epic-2c-plugin-architecture-decomposition.md#story-2c4-ticketing-unit-of-work-and-atomic-inventory) [gates Epic 6]
   - [Story 2C.5: Consolidation Sweep](./epic-2c-plugin-architecture-decomposition.md#story-2c5-consolidation-sweep)
+
+- [Epic 2D: Venues & Properties Admin UI](./epic-2d-venues-properties-admin-ui.md) **[MVP-back-office]**
+
+  - [Story 2D.1: Extend Venue Schema to Rich Model](./epic-2d-venues-properties-admin-ui.md#story-2d1-extend-venue-schema-to-rich-model) [gates 2D.2/2D.3/2D.4]
+  - [Story 2D.2: Venue CRUD Admin UI (Venues Plugin)](./epic-2d-venues-properties-admin-ui.md#story-2d2-venue-crud-admin-ui-venues-plugin)
+  - [Story 2D.3: Property Authoring UI (Definitions + Categories)](./epic-2d-venues-properties-admin-ui.md#story-2d3-property-authoring-ui-definitions--categories)
+  - [Story 2D.4: Attach Properties to a Venue](./epic-2d-venues-properties-admin-ui.md#story-2d4-attach-properties-to-a-venue)
 
 - [Epic 3: Event Discovery & Browsing](./epic-3-event-discovery-browsing.md) **[MVP]**
 

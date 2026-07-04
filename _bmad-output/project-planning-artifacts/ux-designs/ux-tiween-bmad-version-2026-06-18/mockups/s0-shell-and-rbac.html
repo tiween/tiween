@@ -1,0 +1,47 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8">
+<title>S0 · Plugin shell + RBAC views (layout mock)</title><link rel="stylesheet" href="_mock.css"></head><body>
+<div class="banner">LAYOUT-ONLY mock — real shell uses <b>Layouts.Root sideNav + SideNav</b> (@strapi/strapi/admin). See ds-component-binding.md §1.</div>
+
+<div style="padding:16px 32px;background:#fff;border-bottom:1px solid #dcdce4">
+  <strong>Two role views of the same plugin shell.</strong> Routing mirrors events-manager App.tsx; index redirects to <code>/venues</code>.
+</div>
+
+<!-- Admin/Editor view -->
+<div class="app" style="min-height:auto;border-bottom:4px solid #eee">
+  <nav class="nav">
+    <h1>Venues</h1>
+    <a class="active"><span class="ic"></span> Lieux</a>
+    <a><span class="ic"></span> Propriétés</a>
+    <small>ROLE: Admin / Editor — canManageAllVenues = true</small>
+  </nav>
+  <div class="main">
+    <div class="hdr"><div><h2>Lieux</h2><p>Lands here by default · sees ALL venues · « Nouveau lieu » visible · Propriétés nav visible</p></div>
+      <button class="btn">+ Nouveau lieu</button></div>
+    <div class="body"><div class="empty"><div class="big">Liste complète des lieux (toutes villes / statuts)</div>Table + filtres + bulk actions (voir S1).</div></div>
+  </div>
+</div>
+
+<!-- Venue Manager view -->
+<div class="app" style="min-height:auto">
+  <nav class="nav">
+    <h1>Venues</h1>
+    <a class="active"><span class="ic"></span> Lieux</a>
+    <a class="hidden"><span class="ic"></span> Propriétés <small style="display:inline;padding:0;color:#bbb">(masqué)</small></a>
+    <small>ROLE: Venue Manager — canManageAllVenues = false</small>
+  </nav>
+  <div class="main">
+    <div class="hdr"><div><h2>Mon lieu</h2><p>Liste pré-filtrée côté serveur à son seul lieu · pas de « Nouveau lieu » · Propriétés masqué</p></div></div>
+    <div class="body">
+      <table><thead><tr><th>Nom</th><th>Ville</th><th>Statut</th><th>Actions</th></tr></thead>
+        <tbody><tr><td>CinéMadart</td><td>Carthage</td><td><span class="badge b-approved">Approuvé</span></td>
+          <td><button class="iconbtn">✎</button></td></tr></tbody></table>
+      <p style="margin-top:12px;font-size:12px;color:#8e8ea9">In the edit modal, <b>Statut is read-only</b> for this role (only admins approve/suspend). Properties remain editable for the owned venue.</p>
+    </div>
+  </div>
+</div>
+
+<div style="padding:20px 32px;font-size:12px;color:#666687;background:#fff;border-top:1px solid #dcdce4">
+<strong>IA map:</strong> Layouts.Root( SideNav[ Lieux→/venues (default), Propriétés→/properties (Admin/Editor only) ] + Outlet ).
+Confirmations use <b>Dialog</b>; success/error use <b>useNotification</b> toasts — never alert().
+</div>
+</body></html>

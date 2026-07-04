@@ -54,6 +54,15 @@ so that Epic 7's Venue Manager role has a clean permission boundary and venue-do
   - [x] unit suite 64/64 green (incl. new venues seed test + rewritten events-manager seed test); `yarn generate:types` booted Strapi cleanly (0 errors) — proves plugin + all cross-plugin relations register
   - [x] Boot verified via type generation (Strapi starts, schemas resolve). Live `yarn dev:strapi` admin/endpoint smoke deferred to reviewer (integration jest blocked by pre-existing test-DB env issue, see Completion Notes)
 
+## Review Findings
+
+_Code review 2026-06-20 (3 adversarial layers: Blind Hunter, Edge Case Hunter, Acceptance Auditor). 14 raw findings → 4 retained (7 dismissed as noise/false-positive, incl. a wrong-baseline "AC2 schema gutted" claim — the minimal venue schema was the commanded scope per guardrail R3, and rich fields were since restored by story 2D.1)._
+
+- [ ] [Review][Patch] `yarn seed` is broken — `seedEntityProperties` calls the deleted entity-properties seed service [apps/strapi/scripts/seeds/index.ts:542] — `strapi.plugin("entity-properties").service("seed")` now resolves to `{}` (emptied shell); `.seedAll("en")` throws `TypeError`. Called at line 578 BEFORE all other seeds, so the entire `yarn seed` pipeline dies (catch does `process.exit(1)`). Corollary: property categories/definitions are never seeded by any caller — the relocated `seedPropertyCategories`/`seedPropertyDefinitions` in the venues plugin have no production invoker. Fix: repoint to `strapi.plugin("venues").service("seed").seedPropertyDefinitions("en")`.
+- [ ] [Review][Patch] Controllers violate guardrail R7 — untyped `ctx` + prose error message [apps/strapi/src/plugins/venues/server/src/controllers/index.ts:9,33] — `findVenues(ctx)`/`findVenue(ctx)`/`seedVenues(ctx)` lack `: Context` typing; `findVenue` returns `ctx.notFound("Venue not found")` (prose) instead of a CODE like `ctx.notFound("VENUE_NOT_FOUND")`. New code, in scope. R7 mandates typed ctx + error codes.
+- [ ] [Review][Patch] Stale UID in docs defeats the AC10 grep gate [apps/strapi/docs/plugin-architecture.md:81] — still reads `plugin::events-manager.venue`. AC10 requires zero `events-manager.venue` references repo-wide; the dev grep gate excluded docs.
+- [x] [Review][Defer] entity-properties component namespace is a 2C.5 tripwire [apps/strapi/src/components/entity-properties/property-value.json] — deferred, pre-existing. The venue `properties` field uses component UID `entity-properties.property-value` (a component category, not the plugin — does NOT break boot). When 2C.5 deletes entity-properties, if it removes `src/components/entity-properties/`, the venue properties field breaks. Rename/relocate the component category (e.g. `venues.property-value`) before that deletion.
+
 ## Dev Notes
 
 ### Authoritative constraints (architecture amendment — MUST follow)

@@ -1,0 +1,69 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8">
+<title>S1 · Venue form modal + S3 properties (layout mock)</title><link rel="stylesheet" href="_mock.css"></head><body>
+<div class="banner">LAYOUT-ONLY mock — real UI uses <b>Modal.* + Field.Root</b> from @strapi/design-system v2. See ds-component-binding.md §3 & §5/§6.</div>
+<div class="scrim">
+  <div class="modal">
+    <div class="m-hd"><h3>Modifier CinéMadart</h3><button class="iconbtn">✕</button></div>
+    <div class="m-bd">
+
+      <div class="section"><h4>Informations générales</h4>
+        <div class="grid">
+          <div class="field req"><label>Nom</label><div class="inp">CinéMadart</div></div>
+          <div class="field"><label>Slug</label><div class="inp">cinemadart</div><div class="hint">Généré automatiquement</div></div>
+          <div class="field req"><label>Type</label><div class="inp">Cinéma ▾</div></div>
+          <div class="field"><label>Statut</label><div class="inp">En attente ▾</div><div class="hint">Lecture seule pour les Venue Managers</div></div>
+        </div>
+      </div>
+
+      <div class="section"><h4>Localisation</h4>
+        <div class="note">⭐ Novel interaction: address → « Localiser » (geocode) → draggable pin → writes geo.latitude/longitude. <b>No raw lat/lng entry.</b></div>
+        <div class="grid">
+          <div class="field full"><label>Adresse</label><div class="inp" style="display:flex;justify-content:space-between">Rue de Carthage, Tunis <button class="btn sec" style="padding:4px 10px">Localiser</button></div></div>
+          <div class="field full"><div class="map"><span class="pin">📍</span>map canvas (provider TBD · the one sanctioned non-DS element, inside DS chrome)</div>
+            <div class="hint">Coordonnées résolues : 36.8590, 10.3300 (lecture seule) · bouton a11y « Utiliser cette adresse »</div></div>
+          <div class="field full"><label>Ville</label><div class="inp">Tunis ▾ (CitySelector)</div></div>
+        </div>
+      </div>
+
+      <div class="section"><h4>Contact</h4>
+        <div class="grid">
+          <div class="field"><label>Téléphone</label><div class="inp">+216 71 …</div></div>
+          <div class="field"><label>Email</label><div class="inp">contact@cinemadart.tn</div></div>
+          <div class="field full"><label>Site web</label><div class="inp">https://…</div></div>
+        </div>
+      </div>
+
+      <div class="section"><h4>Détails</h4>
+        <div class="grid">
+          <div class="field full"><label>Description</label><div class="inp" style="min-height:64px">Textarea…</div></div>
+          <div class="field"><label>Capacité</label><div class="inp">320 (NumberInput)</div></div>
+        </div>
+      </div>
+
+      <div class="section"><h4>Médias</h4>
+        <div class="grid">
+          <div class="field"><label>Logo</label><div class="inp" style="min-height:60px">MediaInput (single)</div></div>
+          <div class="field"><label>Galerie</label><div class="inp" style="min-height:60px">MediaInput (multiple)</div></div>
+        </div>
+      </div>
+
+      <div class="section"><h4>Propriétés <span style="font-weight:400;color:#8e8ea9;font-size:11px">— S3 · grouped by category (Accordion) · type-adaptive inputs</span></h4>
+        <div class="acc">
+          <div class="a-hd">Accessibilité <span>▾</span></div>
+          <div class="a-bd">
+            <div class="prow"><div><div class="pname">Accès PMR</div><div class="ptype">boolean → Toggle</div></div><div class="toggle"></div><button class="iconbtn">🗑</button></div>
+            <div class="prow"><div><div class="pname">Boucle magnétique</div><div class="ptype">boolean → Toggle</div></div><div class="toggle off"></div><button class="iconbtn">🗑</button></div>
+          </div>
+          <div class="a-hd" style="border-top:1px solid #dcdce4">Équipements <span>▾</span></div>
+          <div class="a-bd">
+            <div class="prow"><div><div class="pname">Nombre de salles</div><div class="ptype">integer → NumberInput</div></div><div class="inp" style="min-height:32px">4</div><button class="iconbtn">🗑</button></div>
+            <div class="prow"><div><div class="pname">Type d'écran</div><div class="ptype">enum → SingleSelect (enumOptions)</div></div><div class="inp" style="min-height:32px">IMAX ▾</div><button class="iconbtn">🗑</button></div>
+          </div>
+        </div>
+        <div style="margin-top:10px"><button class="btn sec">+ Ajouter une propriété (picker of unattached definitions)</button></div>
+      </div>
+
+    </div>
+    <div class="m-ft"><button class="btn sec">Annuler</button><button class="btn">Enregistrer</button></div>
+  </div>
+</div></body></html>

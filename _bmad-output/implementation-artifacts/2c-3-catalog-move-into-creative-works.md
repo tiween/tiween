@@ -4,7 +4,7 @@ baseline_commit: 54c092c1b14f20281792eb607173a1529a609a92
 
 # Story 2C.3: Consolidate Catalog on Creative-Works
 
-Status: in-progress
+Status: review
 
 > **REWRITTEN 2026-06-15** to the inverted catalog model (see
 > `sprint-change-proposal-2026-06-15.md`). The previous version of this story
@@ -178,6 +178,8 @@ claude-opus-4-8 (Opus 4.8, 1M context)
 
 **Deferred (recorded in deferred-work.md):** events-manager admin WorkForm rebuild against the new component shapes; migrate `common.video` consumers from legacy `type` to `videoType`. Both are post-2C.3 per the story's sequencing note; neither affects the gates (admin/src compiles via Vite, not type-gen/unit).
 
+**DoD re-verification (2026-06-17, this session):** Independently re-ran all enforceable gates rather than trusting recorded results — unit suite 50/50 green; `rm -rf dist .strapi && yarn generate:types` boots Strapi clean (all plugins registered, 0 warnings / 0 errors, clean shutdown), proving every retargeted relation resolves; grep gate clean (zero retired `movie`/`play` UID refs, no RBAC `role` collision). Note: a `ticketing.ticket-order` `showtime`-relation diff surfaced during type-gen is from a **separate uncommitted workstream**, NOT 2C.3 — left untouched and excluded from this story's File List. All 6 tasks + all review follow-ups verified `[x]`. Status advanced in-progress → review.
+
 ### File List
 
 **Deleted (retired):**
@@ -218,3 +220,4 @@ claude-opus-4-8 (Opus 4.8, 1M context)
 | Date       | Change                                                                                                                                                                                                                                                                                                                                                                                |
 | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 2026-06-16 | Implemented 2C.3 catalog consolidation: retired events-manager movie/play/credit/person/character + XOR lifecycle; established creative-work as catalog of record with relation-based cast[]/credits[] components, new character/credit-role content-types, videoType enum; retargeted screening.movie/performance.play → creative-work. Unit suite green (50/50); type-gen 0 errors. |
+| 2026-06-17 | DoD re-verification: re-ran AC11/AC12 gates independently — unit suite 50/50 green; `rm -rf dist .strapi && yarn generate:types` boots clean (0 warnings/0 errors); grep gate confirms zero `plugin::events-manager.(movie\|play)` refs and no `role`-named credit type. All tasks + review follow-ups complete. Status → review.                                                     |

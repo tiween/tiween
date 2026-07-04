@@ -1,0 +1,62 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8">
+<title>S2 · Property authoring (layout mock)</title><link rel="stylesheet" href="_mock.css"></head><body>
+<div class="banner">LAYOUT-ONLY mock — real UI uses @strapi/design-system v2 (Tabs, Modal, SingleSelect). See ds-component-binding.md §4.</div>
+<div class="app">
+  <nav class="nav">
+    <h1>Venues</h1>
+    <a><span class="ic"></span> Lieux</a>
+    <a class="active"><span class="ic"></span> Propriétés</a>
+    <small>Admin / Editor only — hidden for Venue Managers</small>
+  </nav>
+  <div class="main">
+    <div class="hdr"><div><h2>Propriétés</h2><p>Vocabulaire réutilisable attaché aux lieux</p></div></div>
+    <div class="body">
+      <div class="tabs"><div class="t on">Catégories</div><div class="t">Définitions</div></div>
+
+      <!-- CATEGORIES tab -->
+      <div style="display:flex;justify-content:space-between;margin-bottom:12px">
+        <strong style="font-size:13px">Arborescence des catégories</strong>
+        <button class="btn">+ Nouvelle catégorie</button>
+      </div>
+      <div class="tree">
+        <div class="node"><div><strong>Accessibilité</strong> <span class="meta">· 0 enfant · sortOrder 1</span></div>
+          <div class="actions"><button class="iconbtn">✎</button><button class="iconbtn">🗑</button></div></div>
+        <div class="node"><div><strong>Équipements</strong> <span class="meta">· 1 enfant · sortOrder 2</span></div>
+          <div class="actions"><button class="iconbtn">✎</button><button class="iconbtn">🗑</button></div></div>
+        <div class="node child"><div><strong>Audio / Vidéo</strong> <span class="meta">· parent : Équipements</span></div>
+          <div class="actions"><button class="iconbtn">✎</button><button class="iconbtn">🗑</button></div></div>
+      </div>
+      <p style="margin-top:14px;font-size:12px;color:#8e8ea9">Parent picker is <b>cycle-safe</b> (excludes self + descendants). Delete is guarded when children/definitions are attached.</p>
+
+      <!-- DEFINITION form preview (modal, type-aware) -->
+      <div class="scrim" style="margin-top:24px;border-radius:4px">
+        <div class="modal" style="max-width:640px">
+          <div class="m-hd"><h3>Nouvelle définition</h3>
+            <div class="locale"><span class="on">FR</span><span>AR</span><span>EN</span></div></div>
+          <div class="m-bd">
+            <div class="grid">
+              <div class="field req"><label>Nom (i18n)</label><div class="inp">Type d'écran</div></div>
+              <div class="field"><label>Slug</label><div class="inp">type-decran</div></div>
+              <div class="field req"><label>Type</label><div class="inp">enum ▾</div></div>
+              <div class="field"><label>Catégorie</label><div class="inp">Audio / Vidéo ▾</div></div>
+              <div class="field full"><label>Description (i18n)</label><div class="inp" style="min-height:48px">…</div></div>
+            </div>
+            <div class="note" style="margin-top:16px">⭐ Conditional: <b>type = enum</b> reveals the enumOptions editor. Save blocked if empty (code ENUM_OPTIONS_REQUIRED).</div>
+            <div class="field full"><label>Options (enumOptions)</label>
+              <div class="prow" style="grid-template-columns:1fr 36px"><div class="inp">Standard</div><button class="iconbtn">🗑</button></div>
+              <div class="prow" style="grid-template-columns:1fr 36px"><div class="inp">IMAX</div><button class="iconbtn">🗑</button></div>
+              <div class="prow" style="grid-template-columns:1fr 36px"><div class="inp">4DX</div><button class="iconbtn">🗑</button></div>
+              <button class="btn sec" style="margin-top:6px">+ Ajouter une option</button>
+            </div>
+            <div class="grid" style="margin-top:8px">
+              <div class="field"><label>Icône</label><div class="inp">monitor</div></div>
+              <div class="field"><label>Ordre</label><div class="inp">3 (NumberInput)</div></div>
+            </div>
+          </div>
+          <div class="m-ft"><button class="btn sec">Annuler</button><button class="btn">Créer</button></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div></body></html>

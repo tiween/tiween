@@ -649,3 +649,23 @@ Run strapi-reviewer on plugin changes.
 
 **First Implementation Priority:** Step 1 — sibling-clone `geography` →
 `venues`, per the Step 1 checklist.
+
+---
+
+## Addendum (2026-06-16): Venues Plugin Rich Venue Model + Admin UI
+
+> Source: `sprint-change-proposal-2026-06-16.md` (new feature: venue + property
+> authoring UI). Consistent with — not superseding — this amendment.
+
+The `venues` plugin's `venue` content type is **extended from the lean migrated
+shape** (`name`, `address`, `geo`, `capacity`, `slug`, `events`) **to the rich
+model**: `city`/`region`, `phone`, `email`, `website`, `type` (enum), `status`
+(enum), `logo`/`images` (media), `manager` (relation), plus a **repeatable
+`property-value` component field** for attaching configurable amenities. New fields
+are additive (dev-only data, no table migration).
+
+The `venues` plugin owns the **canonical venue admin UI** (replacing its placeholder
+HomePage). The existing events-manager venue form (`VenueFormModal` +
+`useVenuesEnhanced`, which already assume the rich model) is **relocated** into the
+venues plugin — there is exactly one venue form, and `plugin::venues.venue` is the
+single source of venue truth. Tracked as **Epic 2D**.
