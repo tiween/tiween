@@ -4,8 +4,9 @@ type: "feature"
 created: "2026-07-05"
 status: "done"
 baseline_revision: "77a75d6ce492d1bc8aec392de614376c7c055a37"
+final_revision: "PENDING_COMMIT"
 review_loop_iteration: 0
-followup_review_recommended: true
+followup_review_recommended: false
 sprint_key: "3-1-public-events-browse-api-and-data-foundation"
 split_from: "3-1-homepage-with-curated-event-listings (split 2026-07-05 — see sprint-change-proposal-2026-07-05.md)"
 depended_on_by: ["3-11-homepage-with-curated-event-listings"]
@@ -117,6 +118,19 @@ This is the backend half of the original Story 3.1, split out on 2026-07-05 beca
   - Deferred (see deferred-work.md, 2026-07-05): (1) blanket populate exposes internal `ticketsSold`/`ticketsAvailable` to anonymous callers — correct public field projection depends on the 3.1b data contract; (2) trending in-JS cap-then-rank has no DB rollup/caching/rate-limit — architectural, harmless at MVP volume.
   - Rejected: `count({status} as never)` live-behaviour doubt (v5 `count` honors `status`); ISO-only datetime / `featured` literal brittleness (acceptable); non-transactional count+findMany race (standard Strapi pagination caveat).
 
+### 2026-07-05 — Review pass (follow-up)
+
+- intent_gap: 0
+- bad_spec: 0
+- patch: 3: (high 0, medium 2, low 1)
+- defer: 0
+- reject: 9: (low 9)
+- addressed_findings:
+  - `[medium]` `[patch]` The `startDate <= endDate` range refine compared the raw ISO strings lexically; because `isoDatetime` allows a timezone offset, a valid mixed-offset range (e.g. `12:00+05:00` = 07:00Z before `09:00Z`) was wrongly rejected as `INVALID_QUERY` (and some inverted ranges slipped through). Now parses both bounds to epoch ms and compares instants; added a mixed-offset acceptance test.
+  - `[medium]` `[patch]` The default public browse (`GET /events` with no `eventStatus`) surfaced `cancelled` events, inconsistent with `trending` which already excludes them — a cancelled screening is not a browsable listing. `buildFilters` now defaults to `eventStatus != cancelled` when no explicit status is passed; an explicit `eventStatus=cancelled` still overrides. Added two service tests (default exclusion + explicit override).
+  - `[low]` `[patch]` `findEvent` read `ctx.query.locale` raw, bypassing the `min(2).max(10)` guard applied on the list/trending routes; now validated through a shared `detailQuerySchema` (400 `INVALID_QUERY` on a malformed locale), matching the other read paths. Added a malformed-locale test.
+  - Rejected (9): trending cap-then-rank dropping top sellers beyond 500, trending `total`/`pageCount` capped at the fetch limit, and the unauthenticated trending heavy-fetch/no-rate-limit surface — all three already covered by the two existing deferred-work entries (field projection + trending scalability), not re-deferred; `endDate` filtering `startDateTime` rather than overlap semantics (a defensible point-in-time-screening design choice, not a defect); unknown-but-well-formed `locale` causing a 500 (unverified — Strapi v5 Document Service returns an empty/default-locale read, it does not throw); no `fields` allowlist on event scalars (same class as the deferred field-projection entry); `page > pageCount` returning empty data (standard Strapi pagination behaviour, 200 per the I/O matrix); negative `ticketsSold` skewing rank (non-negative counter — hypothetical bad data); non-transactional `count`+`findMany` race (standard pagination caveat, already rejected in the prior pass).
+
 ## Auto Run Result
 
 Status: done
@@ -135,6 +149,8 @@ Status: done
 - Tests: [controllers/**tests**/events.unit.test.ts](../../apps/strapi/src/plugins/events-manager/server/src/controllers/__tests__/events.unit.test.ts) and [services/**tests**/events.unit.test.ts](../../apps/strapi/src/plugins/events-manager/server/src/services/__tests__/events.unit.test.ts) — 25 unit tests (happy/featured/trending, empty-data, invalid-query incl. sort allowlist + inverted range, cinema scoping, locale threading, tie-break).
 
 **Review findings breakdown.** 6 patches applied (5 medium, 1 low — see Review Triage Log), 2 items deferred (medium; public field projection + trending scalability), 3 rejected as noise. No intent-gap and no bad-spec loopback (`review_loop_iteration` stayed 0).
+
+**Follow-up review pass (2026-07-05).** A fresh adversarial + edge-case review of the full diff produced 3 additional patches — all applied, all test-covered, no new defers and no spec loopback: (1) range-order validation now compares instants instead of ISO strings (offset-safe); (2) the default public browse now excludes `cancelled` events (consistent with `trending`, overridable via explicit `eventStatus`); (3) `findEvent` now validates `locale` through the same guard as the other read paths. Nine findings were rejected — the trending cap/total/DoS trio is already captured by the two existing deferred-work entries (not re-deferred), and the rest were design choices, standard behaviour, or unverified. Tests grew from 25 → 29 (all green); `yarn type-check` clean. `followup_review_recommended` lowered to `false`: the new surface has now had two review passes and every remaining concern is an already-logged architectural deferral.
 
 **Verification performed.**
 

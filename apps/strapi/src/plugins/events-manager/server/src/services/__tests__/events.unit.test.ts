@@ -86,6 +86,39 @@ describe("events service.findEvents (unit)", () => {
     )
   })
 
+  it("excludes cancelled events by default when no eventStatus is given", async () => {
+    const { strapi, api } = buildStrapi({ count: jest.fn(async () => 0) })
+    const service = eventsService({ strapi })
+
+    await service.findEvents({ page: 1, pageSize: 25 })
+
+    expect(api.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        filters: expect.objectContaining({
+          category: "movie_screening",
+          eventStatus: { $ne: "cancelled" },
+        }),
+      })
+    )
+  })
+
+  it("honours an explicit eventStatus over the default cancelled exclusion", async () => {
+    const { strapi, api } = buildStrapi({ count: jest.fn(async () => 0) })
+    const service = eventsService({ strapi })
+
+    await service.findEvents({
+      page: 1,
+      pageSize: 25,
+      eventStatus: "cancelled",
+    })
+
+    expect(api.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        filters: expect.objectContaining({ eventStatus: "cancelled" }),
+      })
+    )
+  })
+
   it("returns data:[] with valid pagination when there is no data", async () => {
     const { strapi } = buildStrapi({
       findMany: jest.fn(async () => []),

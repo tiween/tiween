@@ -120,6 +120,23 @@ describe("events controller.findEvents (unit)", () => {
     expect(service.findEvents).not.toHaveBeenCalled()
   })
 
+  it("accepts a valid range whose bounds carry different UTC offsets", async () => {
+    const { controller, service } = buildController()
+    // 12:00+05:00 = 07:00Z, before 09:00Z — a valid range. A lexical string
+    // compare would wrongly reject this; the instant compare must accept it.
+    const ctx = ctxWith({
+      query: {
+        startDate: "2026-01-01T12:00:00+05:00",
+        endDate: "2026-01-01T09:00:00+00:00",
+      },
+    })
+
+    await controller.findEvents(ctx)
+
+    expect(ctx.badRequest).not.toHaveBeenCalled()
+    expect(service.findEvents).toHaveBeenCalled()
+  })
+
   it("400s with INVALID_QUERY when startDate is after endDate", async () => {
     const { controller } = buildController()
     const ctx = ctxWith({
@@ -211,5 +228,19 @@ describe("events controller.findEvent (unit)", () => {
     await controller.findEvent(ctx)
 
     expect(findEvent).toHaveBeenCalledWith("e1", "fr")
+  })
+
+  it("400s with INVALID_QUERY on a malformed locale (same guard as list)", async () => {
+    const findEvent = jest.fn(async () => ({ documentId: "e1" }))
+    const { controller } = buildController({ findEvent })
+    const ctx = ctxWith({
+      params: { documentId: "e1" },
+      query: { locale: "f" }, // 1 char — below the min(2) guard
+    })
+
+    await controller.findEvent(ctx)
+
+    expect(ctx.badRequest).toHaveBeenCalledWith("INVALID_QUERY")
+    expect(findEvent).not.toHaveBeenCalled()
   })
 })

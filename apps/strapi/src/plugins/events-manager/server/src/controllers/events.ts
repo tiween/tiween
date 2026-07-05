@@ -50,15 +50,33 @@ const listQuerySchema = z
     sort: z.enum(SORTABLE).optional(),
     locale: z.string().min(2).max(10).optional(),
   })
-  .refine((q) => !q.startDate || !q.endDate || q.startDate <= q.endDate, {
-    message: "startDate must be on or before endDate",
-  })
+  .refine(
+    // Compare instants, not strings. `isoDatetime` allows a timezone offset, so
+    // a lexical compare of the raw strings misorders mixed-offset ranges (e.g.
+    // `...T12:00:00+05:00` is 07:00Z, earlier than `...T09:00:00+00:00`, yet
+    // sorts lexically after it). Parse to epoch ms before comparing.
+    (q) =>
+      !q.startDate ||
+      !q.endDate ||
+      new Date(q.startDate).getTime() <= new Date(q.endDate).getTime(),
+    { message: "startDate must be on or before endDate" }
+  )
+
+// `locale` is validated identically on every read path (list/trending/detail):
+// a 2–10 char string, stripped when absent. It is NOT checked against the set
+// of configured locales here — an unconfigured-but-well-formed locale yields an
+// empty/default-locale read from the Document Service, never a thrown 500.
+const localeParam = z.string().min(2).max(10).optional()
 
 const trendingQuerySchema = z.object({
   page: z.coerce.number().int().positive().max(10_000).default(1),
   pageSize: z.coerce.number().int().positive().max(MAX_PAGE_SIZE).default(25),
-  locale: z.string().min(2).max(10).optional(),
+  locale: localeParam,
 })
+
+// Detail route (`/events/:documentId`) only consumes `locale`; validate it with
+// the same guard the list/trending routes use instead of reading it raw.
+const detailQuerySchema = z.object({ locale: localeParam })
 
 const eventsController = ({ strapi }: { strapi: Core.Strapi }) => ({
   /**
@@ -100,14 +118,17 @@ const eventsController = ({ strapi }: { strapi: Core.Strapi }) => ({
    * GET /events/:documentId — single published cinema event.
    */
   async findEvent(ctx: any) {
+    const parsed = detailQuerySchema.safeParse(ctx.query ?? {})
+    if (!parsed.success) {
+      return ctx.badRequest("INVALID_QUERY")
+    }
+
     const { documentId } = ctx.params
-    const locale =
-      typeof ctx.query?.locale === "string" ? ctx.query.locale : undefined
 
     const event = await strapi
       .plugin(PLUGIN_ID)
       .service("events")
-      .findEvent(documentId, locale)
+      .findEvent(documentId, parsed.data.locale)
 
     if (!event) {
       return ctx.notFound("EVENT_NOT_FOUND")

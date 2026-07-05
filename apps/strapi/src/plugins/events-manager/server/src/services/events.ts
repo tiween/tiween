@@ -75,6 +75,12 @@ function buildFilters(params: {
   }
   if (params.eventStatus) {
     filters.eventStatus = params.eventStatus
+  } else {
+    // No explicit status filter: exclude cancelled events from the default
+    // public browse, mirroring the trending endpoint (a cancelled screening is
+    // not a browsable listing). A caller can still request them explicitly via
+    // `eventStatus=cancelled`.
+    filters.eventStatus = { $ne: "cancelled" }
   }
 
   const range: Record<string, string> = {}
