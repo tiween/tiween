@@ -83,6 +83,9 @@ const categoryVariants: Record<string, "default" | "secondary" | "outline"> = {
 
 function formatDate(date: string | Date): string {
   const d = typeof date === "string" ? new Date(date) : date
+  // Guard against a missing/unparseable date ("" from the curated mapper when an
+  // event has no start instant) — render nothing rather than "Invalid Date".
+  if (Number.isNaN(d.getTime())) return ""
   return d.toLocaleDateString("fr-TN", {
     day: "2-digit",
     month: "2-digit",
@@ -209,7 +212,7 @@ export function EventCard({
         {/* Venue and Date */}
         <div className="text-muted-foreground mt-1 text-sm">
           <span>{event.venueName}</span>
-          {config.showDate && (
+          {config.showDate && formatDate(event.date) && (
             <>
               <span className="mx-1">•</span>
               <span>{formatDate(event.date)}</span>

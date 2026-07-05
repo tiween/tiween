@@ -18,7 +18,6 @@
       "imageUrl": "https://tiween.tn/og-image.jpg"
     }
   },
-
   "general": {
     "noOptionsAvailable": "Aucune option disponible",
     "search": "Rechercher",
@@ -28,7 +27,6 @@
     "submitForm": "Envoyer",
     "saveChanges": "Enregistrer"
   },
-
   "tables": {
     "previousPage": "Page précédente",
     "nextPage": "Page suivante",
@@ -40,7 +38,6 @@
     "descending": "Décroissant",
     "noData": "Aucune donnée"
   },
-
   "navbar": {
     "account": "Compte",
     "actions": {
@@ -50,7 +47,6 @@
       "signIn": "Connexion"
     }
   },
-
   "common": {
     "home": "Accueil",
     "search": "Recherche",
@@ -59,7 +55,6 @@
     "events": "Événements",
     "categories": "Catégories"
   },
-
   "buttons": {
     "buy": "Acheter",
     "cancel": "Annuler",
@@ -69,7 +64,6 @@
     "skip": "Passer",
     "learnMore": "En savoir plus"
   },
-
   "comps": {
     "fileInput": {
       "label": "Sélectionner un fichier",
@@ -92,7 +86,6 @@
       "confirmClose": "Voulez-vous fermer cette fenêtre ? Vous perdrez toutes les modifications non enregistrées."
     }
   },
-
   "errors": {
     "global": {
       "title": "Une erreur inconnue s'est produite",
@@ -100,24 +93,20 @@
       "invalidContent": "Ce contenu ne peut pas être affiché",
       "somethingWentWrong": "Une erreur s'est produite"
     },
-
     "notFound": {
       "title": "Page non trouvée",
       "description": "La page que vous recherchez n'existe pas.",
       "solution": "Veuillez vérifier l'URL ou retourner à la page d'accueil.",
       "redirect": "Aller à la page d'accueil"
     },
-
     "forms": {
       "errorsInForm": "Le formulaire contient des erreurs",
       "checkFormForErrors": "Veuillez vérifier les champs manquants"
     },
-
     "zodValidation": {
       "invalid_type": "Type attendu : {expected}, reçu : {received}",
       "invalid_type_received_undefined": "Ce champ est obligatoire",
       "invalid_literal": "Valeur invalide, attendue : {expected}",
-
       "invalid_string": {
         "regex": "Format invalide"
       },
@@ -152,7 +141,6 @@
       }
     }
   },
-
   "contactForm": {
     "name": "Nom complet",
     "namePlaceholder": "Jean Dupont",
@@ -165,7 +153,6 @@
     "error": "Le formulaire n'a pas pu être envoyé. Veuillez réessayer plus tard.",
     "gdprLink": "En savoir plus sur le traitement des données"
   },
-
   "auth": {
     "signIn": {
       "status": {
@@ -190,7 +177,6 @@
       "divider": "ou",
       "error": "La connexion sociale a échoué"
     },
-
     "register": {
       "status": {
         "fail": "Échec de l'inscription",
@@ -213,7 +199,6 @@
       "signInLinkLinkDescription": "Vous avez déjà un compte ?",
       "signInLink": "Se connecter"
     },
-
     "changePassword": {
       "errors": {
         "invalidCurrentPassword": "Le mot de passe actuel est incorrect",
@@ -228,7 +213,6 @@
       "confirmPassword": "Confirmer le nouveau mot de passe",
       "submit": "Changer le mot de passe"
     },
-
     "accountActivation": {
       "successfullySet": "Compte activé avec succès. Vous pouvez maintenant vous connecter.",
       "errors": {
@@ -244,7 +228,6 @@
       "password": "Nouveau mot de passe",
       "confirmPassword": "Confirmer le mot de passe"
     },
-
     "resetPassword": {
       "successfullySet": "Mot de passe modifié avec succès.",
       "header": "Réinitialiser le mot de passe",
@@ -253,7 +236,6 @@
       "password": "Nouveau mot de passe",
       "confirmPassword": "Confirmer le mot de passe"
     },
-
     "forgotPassword": {
       "passwordChangeEmailSent": "Un email avec les instructions de réinitialisation vous a été envoyé.",
       "header": "Mot de passe oublié",
@@ -262,13 +244,11 @@
       "submit": "Récupérer le compte"
     }
   },
-
   "offline": {
     "title": "Vous êtes hors ligne",
     "description": "Il semble que vous ayez perdu votre connexion internet. Veuillez vérifier votre connexion et réessayer.",
     "retry": "Réessayer"
   },
-
   "events": {
     "back": "Retour",
     "share": "Partager",
@@ -300,7 +280,6 @@
     "by": "de",
     "home": "Accueil"
   },
-
   "payment": {
     "title": "Paiement",
     "selectMethod": "Choisir un mode de paiement",
@@ -323,11 +302,9 @@
       "phoneHint": "Vous recevrez un code de confirmation"
     }
   },
-
   "header": {
     "back": "Retour"
   },
-
   "search": {
     "filters": "Filtres",
     "category": "Catégorie",
@@ -342,7 +319,6 @@
       "exhibition": "Expositions"
     }
   },
-
   "footer": {
     "company": "Entreprise",
     "legal": "Mentions légales",
@@ -357,7 +333,6 @@
     "copyright": "© {year} Tiween. Tous droits réservés.",
     "tagline": "La plateforme de billetterie culturelle en Tunisie."
   },
-
   "contribute": {
     "steps": {
       "basics": "Informations de base",
@@ -479,6 +454,56 @@
       "ar": "Arabe (العربية)",
       "fr": "Français",
       "en": "Anglais (English)"
+    }
+  },
+  "home": {
+    "metaTitle": "Tiween - Découvrez les événements culturels en Tunisie",
+    "metaDescription": "Tiween est la plateforme de billetterie culturelle en Tunisie. Découvrez les films, pièces de théâtre, concerts et expositions près de chez vous.",
+    "featuredTitle": "À l'affiche",
+    "upcomingTitle": "À venir",
+    "todayTitle": "Aujourd'hui",
+    "tonightTitle": "Ce soir",
+    "thisWeekTitle": "Cette semaine",
+    "trendingTitle": "Tendances",
+    "bottomNav": {
+      "home": "Accueil",
+      "search": "Recherche",
+      "tickets": "Billets",
+      "account": "Compte",
+      "navigation": "Navigation principale",
+      "unscannedTickets": "{count} billets non scannés"
+    },
+    "categoryTabs": {
+      "all": "Tout",
+      "cinema": "Cinéma",
+      "theater": "Théâtre",
+      "shorts": "Courts-métrages",
+      "music": "Musique",
+      "exhibitions": "Expositions"
+    },
+    "dateSelector": {
+      "today": "Aujourd'hui",
+      "tomorrow": "Demain",
+      "custom": "Choisir",
+      "selectDate": "Sélectionner une date"
+    },
+    "eventSection": {
+      "seeAll": "Voir tout",
+      "noEvents": "Aucun événement disponible"
+    },
+    "regionCitySelector": {
+      "allLocations": "Toute la Tunisie",
+      "selectLocation": "Lieu",
+      "allCities": "Toutes les villes"
+    },
+    "venueSelector": {
+      "allVenues": "Tous les lieux",
+      "selectVenue": "Lieu",
+      "cinema": "Cinémas",
+      "theater": "Théâtres",
+      "culturalCenter": "Centres culturels",
+      "museum": "Musées",
+      "other": "Autres"
     }
   }
 }

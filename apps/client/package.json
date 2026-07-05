@@ -11,6 +11,8 @@
     "preview": "next build && next start",
     "start": "next start",
     "storybook": "storybook dev -p 6006",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "typecheck": "tsc --noEmit"
   },
   "browserslist": [
@@ -85,6 +87,8 @@
     "@storybook/addon-docs": "^10.1.11",
     "@storybook/nextjs-vite": "10.1.11",
     "@tailwindcss/postcss": "^4.0.9",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
     "@tiween/admin": "*",
     "@tiween/eslint-config": "*",
     "@tiween/prettier-config": "*",
@@ -94,16 +98,19 @@
     "@types/qs": "^6",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@vitejs/plugin-react": "^4.3.4",
     "chromatic": "^13.3.4",
     "eslint-plugin-jsx-a11y": "^6.10.2",
     "eslint-plugin-storybook": "10.1.11",
+    "jsdom": "^29.1.1",
     "openapi-typescript": "^7.13.0",
     "postcss": "^8.4.47",
     "prettier-plugin-tailwindcss": "^0.6.11",
     "serwist": "^9.4.2",
     "storybook": "10.1.11",
     "tailwindcss": "^4.0.9",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "2.1.9"
   },
   "engines": {
     "node": ">=22",

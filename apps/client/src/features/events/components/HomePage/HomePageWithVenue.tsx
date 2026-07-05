@@ -5,10 +5,8 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { useLocale } from "next-intl"
 
 import type { TabType } from "@/components/layout/BottomNav"
-import type { EventCardEvent } from "../../types/event.types"
 import type { StrapiEvent } from "../../types/strapi.types"
 import type { CategoryType } from "../CategoryTabs"
-import type { FilmHeroEvent } from "../FilmHero"
 import type { RegionOption } from "../RegionCitySelector/RegionCitySelector"
 import type { VenueOption } from "../VenueSelector/VenueSelector"
 
@@ -18,7 +16,7 @@ import { Footer } from "@/components/layout/Footer"
 import { Header } from "@/components/layout/Header"
 import { MaxWidthContainer } from "@/components/layout/MaxWidthContainer"
 
-import { mapTypeToCategory } from "../../utils"
+import { toEventCardEvent, toFilmHeroEvent } from "../../utils"
 import { CategoryTabs } from "../CategoryTabs"
 import { DateSelector } from "../DateSelector"
 import { EventSection } from "../EventSection"
@@ -30,6 +28,12 @@ export interface HomePageWithVenueLabels {
   featuredTitle: string
   upcomingTitle: string
   todayTitle: string
+  /** "Ce soir" — events happening today. */
+  tonightTitle: string
+  /** "Cette semaine" — events in the next 7 days. */
+  thisWeekTitle: string
+  /** "Tendances" — trending events. */
+  trendingTitle: string
   bottomNav: {
     home: string
     search: string
@@ -76,6 +80,9 @@ const defaultLabels: HomePageWithVenueLabels = {
   featuredTitle: "À l'affiche",
   upcomingTitle: "À venir",
   todayTitle: "Aujourd'hui",
+  tonightTitle: "Ce soir",
+  thisWeekTitle: "Cette semaine",
+  trendingTitle: "Tendances",
   bottomNav: {
     home: "Accueil",
     search: "Recherche",
@@ -121,12 +128,16 @@ const defaultLabels: HomePageWithVenueLabels = {
 export interface HomePageWithVenueProps {
   /** Featured events for hero section */
   featuredEvents: StrapiEvent[]
-  /** Upcoming events for listing */
-  upcomingEvents: StrapiEvent[]
-  /** Events happening today */
+  /** Events happening today ("Ce soir") */
   todayEvents: StrapiEvent[]
-  /** Total number of upcoming events */
-  totalUpcoming: number
+  /** Events in the next 7 days ("Cette semaine") */
+  thisWeekEvents?: StrapiEvent[]
+  /** Trending events ("Tendances") */
+  trendingEvents?: StrapiEvent[]
+  /** Upcoming events for listing (legacy homepage variants) */
+  upcomingEvents?: StrapiEvent[]
+  /** Total number of upcoming events (legacy homepage variants) */
+  totalUpcoming?: number
   /** Available regions with their cities */
   regions: RegionOption[]
   /** Available venues */
@@ -143,49 +154,17 @@ export interface HomePageWithVenueProps {
   labels?: HomePageWithVenueLabels
 }
 
-function toEventCardEvent(event: StrapiEvent): EventCardEvent {
-  const minPrice = event.showtimes?.reduce((min, st) => {
-    return st.price < min ? st.price : min
-  }, event.showtimes[0]?.price || 0)
-
-  return {
-    id: event.documentId,
-    title: event.creativeWork?.title || event.title,
-    posterUrl:
-      event.creativeWork?.poster?.formats?.medium?.url ||
-      event.creativeWork?.poster?.url,
-    category: mapTypeToCategory(event.creativeWork?.type),
-    venueName: event.venue?.name || "",
-    date: event.startDate,
-    price: minPrice,
-    currency: "TND",
-  }
-}
-
-function toFilmHeroEvent(event: StrapiEvent): FilmHeroEvent {
-  return {
-    id: event.documentId,
-    title: event.creativeWork?.title || event.title,
-    backdropUrl:
-      event.creativeWork?.backdrop?.url ||
-      event.creativeWork?.poster?.formats?.large?.url ||
-      event.creativeWork?.poster?.url,
-    category: mapTypeToCategory(event.creativeWork?.type),
-    genres: event.creativeWork?.genres?.map((g) => g.name),
-    rating: event.creativeWork?.rating,
-    duration: event.creativeWork?.duration,
-    year: event.creativeWork?.releaseYear,
-    venueCount: 1,
-  }
-}
-
 function toDateString(date: Date): string {
-  return date.toISOString().split("T")[0]
+  return date.toISOString().slice(0, 10)
 }
 
 function parseDateString(dateStr: string): Date {
-  const [year, month, day] = dateStr.split("-").map(Number)
-  const date = new Date(year, month - 1, day)
+  const parts = dateStr.split("-")
+  const date = new Date(
+    Number(parts[0]),
+    Number(parts[1]) - 1,
+    Number(parts[2])
+  )
   date.setHours(0, 0, 0, 0)
   return date
 }
@@ -207,9 +186,9 @@ function isToday(dateStr: string): boolean {
  */
 export function HomePageWithVenue({
   featuredEvents,
-  upcomingEvents,
   todayEvents,
-  totalUpcoming,
+  thisWeekEvents = [],
+  trendingEvents = [],
   regions,
   venues,
   activeCategory = "all",
@@ -342,8 +321,17 @@ export function HomePageWithVenue({
     setHeroIndex(0)
   }, [featuredEvents])
 
-  const upcomingCards = upcomingEvents.map(toEventCardEvent)
-  const todayCards = todayEvents.map(toEventCardEvent)
+  // Localized accessible label for the hero pagination dots (a11y — AA).
+  const heroSlideLabel = (n: number) =>
+    locale === "ar"
+      ? `الانتقال إلى الشريحة ${n}`
+      : locale === "en"
+        ? `Go to slide ${n}`
+        : `Aller au slide ${n}`
+
+  const tonightCards = todayEvents.map((e) => toEventCardEvent(e, locale))
+  const thisWeekCards = thisWeekEvents.map((e) => toEventCardEvent(e, locale))
+  const trendingCards = trendingEvents.map((e) => toEventCardEvent(e, locale))
 
   const buildSeeAllUrl = (basePath: string) => {
     const params = new URLSearchParams()
@@ -362,32 +350,58 @@ export function HomePageWithVenue({
     return queryString ? `${base}?${queryString}` : base
   }
 
-  const getUpcomingTitle = () => {
-    if (!activeDate) return labels.upcomingTitle
-    if (activeDate === "today") return labels.todayTitle
-    if (activeDate === "tomorrow") return "Demain"
-    if (activeDate === "this-week") return "Cette semaine"
-    if (activeDate === "weekend") return "Ce week-end"
-    if (/^\d{4}-\d{2}-\d{2}$/.test(activeDate)) {
-      const date = parseDateString(activeDate)
-      return date.toLocaleDateString(
-        locale === "ar" ? "fr-TN" : `${locale}-TN`,
-        {
-          weekday: "long",
-          day: "numeric",
-          month: "long",
-        }
-      )
-    }
-    return labels.upcomingTitle
-  }
-
   // Filter venues by selected city if a city is selected
   const filteredVenues = React.useMemo(() => {
     if (!activeCityId) return venues
     // This assumes venues have city info - if not all venues would show
     return venues
   }, [venues, activeCityId])
+
+  /**
+   * Render a curated section with the shared EventSection primitive:
+   * horizontal scroll on mobile, responsive grid on desktop. The section keeps
+   * its own inline empty state, so a slice with zero events degrades gracefully
+   * (never a cold empty page).
+   */
+  const renderCuratedSection = (
+    key: string,
+    title: string,
+    events: ReturnType<typeof toEventCardEvent>[],
+    seeAllHref?: string,
+    variant: "default" | "featured" = "default"
+  ) => (
+    <React.Fragment key={key}>
+      {/* Mobile: horizontal scroll */}
+      <div className="lg:hidden">
+        <EventSection
+          title={title}
+          events={events}
+          variant={variant}
+          layout="scroll"
+          seeAllHref={seeAllHref}
+          onEventClick={handleEventClick}
+          onWatchlist={handleWatchlist}
+          watchlistedIds={watchlistedIds}
+          labels={labels.eventSection}
+        />
+      </div>
+      {/* Desktop: responsive grid */}
+      <MaxWidthContainer className="hidden lg:block">
+        <EventSection
+          title={title}
+          events={events}
+          variant={variant}
+          layout="grid"
+          gridColumns={4}
+          seeAllHref={seeAllHref}
+          onEventClick={handleEventClick}
+          onWatchlist={handleWatchlist}
+          watchlistedIds={watchlistedIds}
+          labels={labels.eventSection}
+        />
+      </MaxWidthContainer>
+    </React.Fragment>
+  )
 
   return (
     <div className="bg-background min-h-screen pb-20 lg:pb-0">
@@ -400,7 +414,7 @@ export function HomePageWithVenue({
       {currentHeroEvent && (
         <div className="relative">
           <FilmHero
-            event={toFilmHeroEvent(currentHeroEvent)}
+            event={toFilmHeroEvent(currentHeroEvent, locale)}
             isWatchlisted={watchlistedIds.has(currentHeroEvent.documentId)}
             onWatchlist={() => handleWatchlist(currentHeroEvent.documentId)}
             onShare={() => {
@@ -428,7 +442,7 @@ export function HomePageWithVenue({
                       ? "bg-primary w-4"
                       : "bg-white/50 hover:bg-white/75"
                   }`}
-                  aria-label={`Aller au slide ${index + 1}`}
+                  aria-label={heroSlideLabel(index + 1)}
                 />
               ))}
             </div>
@@ -485,112 +499,30 @@ export function HomePageWithVenue({
         </MaxWidthContainer>
       </div>
 
-      {/* Main Content */}
+      {/* Main Content — curated slices (always rendered; each degrades to its
+          own inline empty state so the page is never a cold empty page). */}
       <main>
-        {/* Today Section - scroll on mobile, grid on desktop */}
-        {!activeDate && todayCards.length > 0 && (
-          <>
-            {/* Mobile: horizontal scroll */}
-            <div className="lg:hidden">
-              <EventSection
-                title={labels.todayTitle}
-                events={todayCards}
-                variant="default"
-                layout="scroll"
-                seeAllHref={buildSeeAllUrl(`/${locale}/events?date=today`)}
-                onEventClick={handleEventClick}
-                onWatchlist={handleWatchlist}
-                watchlistedIds={watchlistedIds}
-                labels={labels.eventSection}
-              />
-            </div>
-            {/* Desktop: grid layout */}
-            <MaxWidthContainer className="hidden lg:block">
-              <EventSection
-                title={labels.todayTitle}
-                events={todayCards}
-                variant="default"
-                layout="grid"
-                gridColumns={4}
-                seeAllHref={buildSeeAllUrl(`/${locale}/events?date=today`)}
-                onEventClick={handleEventClick}
-                onWatchlist={handleWatchlist}
-                watchlistedIds={watchlistedIds}
-                labels={labels.eventSection}
-              />
-            </MaxWidthContainer>
-          </>
+        {renderCuratedSection(
+          "tonight",
+          labels.tonightTitle,
+          tonightCards,
+          buildSeeAllUrl(`/${locale}/events?date=today`)
         )}
 
-        {/* Featured Section - scroll on mobile, grid on desktop */}
-        {!activeDate && featuredEvents.length > 0 && (
-          <>
-            {/* Mobile: horizontal scroll */}
-            <div className="lg:hidden">
-              <EventSection
-                title={labels.featuredTitle}
-                events={featuredEvents.map(toEventCardEvent)}
-                variant="featured"
-                layout="scroll"
-                seeAllHref={buildSeeAllUrl(`/${locale}/events?featured=true`)}
-                onEventClick={handleEventClick}
-                onWatchlist={handleWatchlist}
-                watchlistedIds={watchlistedIds}
-                labels={labels.eventSection}
-              />
-            </div>
-            {/* Desktop: grid layout */}
-            <MaxWidthContainer className="hidden lg:block">
-              <EventSection
-                title={labels.featuredTitle}
-                events={featuredEvents.map(toEventCardEvent)}
-                variant="featured"
-                layout="grid"
-                gridColumns={3}
-                seeAllHref={buildSeeAllUrl(`/${locale}/events?featured=true`)}
-                onEventClick={handleEventClick}
-                onWatchlist={handleWatchlist}
-                watchlistedIds={watchlistedIds}
-                labels={labels.eventSection}
-              />
-            </MaxWidthContainer>
-          </>
+        {renderCuratedSection(
+          "this-week",
+          labels.thisWeekTitle,
+          thisWeekCards,
+          buildSeeAllUrl(`/${locale}/events?date=this-week`)
         )}
 
-        {/* Upcoming/Filtered Events Section */}
-        <>
-          {/* Mobile: horizontal scroll */}
-          <div className="lg:hidden">
-            <EventSection
-              title={getUpcomingTitle()}
-              events={upcomingCards}
-              variant="default"
-              layout="scroll"
-              seeAllHref={buildSeeAllUrl(`/${locale}/events`)}
-              onEventClick={handleEventClick}
-              onWatchlist={handleWatchlist}
-              watchlistedIds={watchlistedIds}
-              labels={labels.eventSection}
-              isLoading={false}
-            />
-          </div>
-          {/* Desktop: grid layout */}
-          <MaxWidthContainer className="hidden lg:block">
-            <EventSection
-              title={getUpcomingTitle()}
-              events={upcomingCards}
-              variant="default"
-              layout="grid"
-              gridColumns={4}
-              seeAllHref={buildSeeAllUrl(`/${locale}/events`)}
-              onEventClick={handleEventClick}
-              onWatchlist={handleWatchlist}
-              watchlistedIds={watchlistedIds}
-              labels={labels.eventSection}
-              isLoading={false}
-            />
-          </MaxWidthContainer>
-        </>
+        {renderCuratedSection(
+          "trending",
+          labels.trendingTitle,
+          trendingCards,
+          buildSeeAllUrl(`/${locale}/events`),
+          "featured"
+        )}
       </main>
 
       {/* Desktop Footer */}

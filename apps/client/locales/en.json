@@ -18,7 +18,6 @@
       "imageUrl": "https://tiween.tn/og-image.jpg"
     }
   },
-
   "general": {
     "noOptionsAvailable": "No options available",
     "search": "Search",
@@ -28,7 +27,6 @@
     "submitForm": "Submit",
     "saveChanges": "Save changes"
   },
-
   "tables": {
     "previousPage": "Previous page",
     "nextPage": "Next page",
@@ -40,7 +38,6 @@
     "descending": "Descending",
     "noData": "No data"
   },
-
   "navbar": {
     "account": "Account",
     "actions": {
@@ -50,7 +47,6 @@
       "signIn": "Sign in"
     }
   },
-
   "common": {
     "home": "Home",
     "search": "Search",
@@ -59,7 +55,6 @@
     "events": "Events",
     "categories": "Categories"
   },
-
   "buttons": {
     "buy": "Buy",
     "cancel": "Cancel",
@@ -69,7 +64,6 @@
     "skip": "Skip",
     "learnMore": "Learn more"
   },
-
   "comps": {
     "fileInput": {
       "label": "Select file",
@@ -92,7 +86,6 @@
       "confirmClose": "Do you want to close the dialog? You will lose all unsaved changes."
     }
   },
-
   "errors": {
     "global": {
       "title": "An unknown error occurred",
@@ -100,24 +93,20 @@
       "invalidContent": "This content could not be displayed",
       "somethingWentWrong": "Something went wrong 🥺"
     },
-
     "notFound": {
       "title": "Page not found",
       "description": "The page you are looking for was not found.",
       "solution": "Please check if you have entered the correct URL or return to the home page.",
       "redirect": "Go to home page"
     },
-
     "forms": {
       "errorsInForm": "The form contains errors",
       "checkFormForErrors": "Please check if any values are missing"
     },
-
     "zodValidation": {
       "invalid_type": "Expected type is {expected}, but received {received}",
       "invalid_type_received_undefined": "Field is required",
       "invalid_literal": "Invalid value, expected {expected}",
-
       "invalid_string": {
         "regex": "Invalid format"
       },
@@ -152,7 +141,6 @@
       }
     }
   },
-
   "contactForm": {
     "name": "First name and last name",
     "namePlaceholder": "John Doe",
@@ -165,7 +153,6 @@
     "error": "The form could not be sent. Please try again later.",
     "gdprLink": "Read more about the processing of personal data"
   },
-
   "auth": {
     "signIn": {
       "status": {
@@ -190,7 +177,6 @@
       "divider": "or",
       "error": "Social sign-in failed"
     },
-
     "register": {
       "status": {
         "fail": "Registration failed",
@@ -213,7 +199,6 @@
       "signInLinkLinkDescription": "Already have an account?",
       "signInLink": "Sign in"
     },
-
     "changePassword": {
       "errors": {
         "invalidCurrentPassword": "Current password does not match",
@@ -228,7 +213,6 @@
       "confirmPassword": "Confirm new password",
       "submit": "Change password"
     },
-
     "accountActivation": {
       "successfullySet": "Account successfully activated. You can now sign in.",
       "errors": {
@@ -244,7 +228,6 @@
       "password": "New password",
       "confirmPassword": "Confirm password"
     },
-
     "resetPassword": {
       "successfullySet": "Password successfully changed.",
       "header": "Reset password",
@@ -253,7 +236,6 @@
       "password": "New password",
       "confirmPassword": "Confirm password"
     },
-
     "forgotPassword": {
       "passwordChangeEmailSent": "An email with password reset instructions has been sent to you.",
       "header": "Forgot password",
@@ -262,13 +244,11 @@
       "submit": "Recover account"
     }
   },
-
   "offline": {
     "title": "You're offline",
     "description": "It looks like you've lost your internet connection. Please check your connection and try again.",
     "retry": "Try again"
   },
-
   "events": {
     "back": "Back",
     "share": "Share",
@@ -300,7 +280,6 @@
     "by": "by",
     "home": "Home"
   },
-
   "payment": {
     "title": "Payment",
     "selectMethod": "Choose a payment method",
@@ -323,11 +302,9 @@
       "phoneHint": "You will receive a confirmation code"
     }
   },
-
   "header": {
     "back": "Back"
   },
-
   "search": {
     "filters": "Filters",
     "category": "Category",
@@ -342,7 +319,6 @@
       "exhibition": "Exhibitions"
     }
   },
-
   "footer": {
     "company": "Company",
     "legal": "Legal",
@@ -357,7 +333,6 @@
     "copyright": "© {year} Tiween. All rights reserved.",
     "tagline": "The cultural ticketing platform in Tunisia."
   },
-
   "contribute": {
     "steps": {
       "basics": "Basic Information",
@@ -479,6 +454,56 @@
       "ar": "Arabic (العربية)",
       "fr": "French (Français)",
       "en": "English"
+    }
+  },
+  "home": {
+    "metaTitle": "Tiween - Discover cultural events in Tunisia",
+    "metaDescription": "Tiween is Tunisia's cultural ticketing platform. Discover films, plays, concerts and exhibitions near you.",
+    "featuredTitle": "Featured",
+    "upcomingTitle": "Upcoming",
+    "todayTitle": "Today",
+    "tonightTitle": "Tonight",
+    "thisWeekTitle": "This week",
+    "trendingTitle": "Trending",
+    "bottomNav": {
+      "home": "Home",
+      "search": "Search",
+      "tickets": "Tickets",
+      "account": "Account",
+      "navigation": "Main navigation",
+      "unscannedTickets": "{count} unscanned tickets"
+    },
+    "categoryTabs": {
+      "all": "All",
+      "cinema": "Cinema",
+      "theater": "Theater",
+      "shorts": "Short films",
+      "music": "Music",
+      "exhibitions": "Exhibitions"
+    },
+    "dateSelector": {
+      "today": "Today",
+      "tomorrow": "Tomorrow",
+      "custom": "Choose",
+      "selectDate": "Select a date"
+    },
+    "eventSection": {
+      "seeAll": "See all",
+      "noEvents": "No events available"
+    },
+    "regionCitySelector": {
+      "allLocations": "All Tunisia",
+      "selectLocation": "Location",
+      "allCities": "All cities"
+    },
+    "venueSelector": {
+      "allVenues": "All venues",
+      "selectVenue": "Venue",
+      "cinema": "Cinemas",
+      "theater": "Theaters",
+      "culturalCenter": "Cultural centers",
+      "museum": "Museums",
+      "other": "Other"
     }
   }
 }

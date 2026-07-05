@@ -108,7 +108,8 @@
       "Bash(claude mcp *)",
       "Bash(rm -rf apps/strapi/dist apps/strapi/.strapi)",
       "Bash(awk '/export interface PluginVenuesVenue/,/^}/' types/generated/contentTypes.d.ts)",
-      "Bash(asdf install *)"
+      "Bash(asdf install *)",
+      "Bash(bmad-loop resume *)"
     ]
   },
   "enabledMcpjsonServers": [

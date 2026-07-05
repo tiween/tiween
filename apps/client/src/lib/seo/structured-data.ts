@@ -166,21 +166,45 @@ function minutesToISO8601Duration(minutes?: number): string | undefined {
 }
 
 /**
- * Parse coordinates string "lat,lng" to GeoCoordinates
+ * Map the real event `category` enum to a Schema.org Event @type.
  */
-function parseCoordinates(coords?: string): GeoCoordinatesSchema | undefined {
-  if (!coords) return undefined
-  const [lat, lng] = coords.split(",").map(Number)
-  if (isNaN(lat) || isNaN(lng)) return undefined
-  return {
-    "@type": "GeoCoordinates",
-    latitude: lat,
-    longitude: lng,
+function mapCategoryToEventType(category?: string): EventSchema["@type"] {
+  switch (category) {
+    case "movie_screening":
+      return "ScreeningEvent"
+    case "theater_performance":
+      return "TheaterEvent"
+    case "concert":
+      return "MusicEvent"
+    case "exhibition":
+      return "ExhibitionEvent"
+    default:
+      return "Event"
   }
 }
 
 /**
- * Generate JSON-LD structured data for a Strapi event
+ * Build GeoCoordinates from the venue's `{ lat, lng }` object.
+ */
+function buildGeo(coords?: {
+  lat: number
+  lng: number
+}): GeoCoordinatesSchema | undefined {
+  if (!coords || isNaN(coords.lat) || isNaN(coords.lng)) return undefined
+  return {
+    "@type": "GeoCoordinates",
+    latitude: coords.lat,
+    longitude: coords.lng,
+  }
+}
+
+/**
+ * Generate JSON-LD structured data for a Strapi event.
+ *
+ * Reads the REAL events-manager schema first (`startDateTime`, `endDateTime`,
+ * `eventStatus`, `category`, `screenings`, `images`) and falls back to the
+ * deprecated legacy fields where present so both the curated homepage and the
+ * event-detail page produce valid output.
  */
 export function generateEventJsonLd(
   event: StrapiEvent,
@@ -189,57 +213,47 @@ export function generateEventJsonLd(
   const work = event.creativeWork
   const venue = event.venue
 
-  // Get minimum price from showtimes
-  const minPrice = event.showtimes?.reduce((min, st) => {
-    return st.price < min ? st.price : min
-  }, event.showtimes[0]?.price || 0)
-
-  // Get max price for range display
-  const maxPrice = event.showtimes?.reduce((max, st) => {
-    return st.price > max ? st.price : max
-  }, 0)
+  // Ticket prices: real `screenings` first, then legacy `showtimes`.
+  const priced = [...(event.screenings ?? []), ...(event.showtimes ?? [])]
+  const prices = priced
+    .map((s) => s.price)
+    .filter((p): p is number => typeof p === "number")
+  const minPrice = prices.length > 0 ? Math.min(...prices) : undefined
+  // Unknown inventory (missing `ticketsAvailable`) is treated as available —
+  // absence of data is not evidence of a sell-out. Only an explicit 0 across
+  // every priced screening marks the event SoldOut.
+  const hasInventory = priced.some(
+    (s) => s.ticketsAvailable === undefined || s.ticketsAvailable > 0
+  )
 
   // Build offer(s)
   const offers: OfferSchema[] = []
-  if (event.showtimes && event.showtimes.length > 0) {
-    // If all same price, single offer; otherwise aggregate
-    if (minPrice === maxPrice) {
-      offers.push({
-        "@type": "Offer",
-        url: `${baseUrl}/events/${event.documentId}`,
-        price: minPrice,
-        priceCurrency: "TND",
-        availability: event.showtimes.some((st) => st.ticketsAvailable > 0)
-          ? "InStock"
-          : "SoldOut",
-      })
-    } else {
-      // Multiple price tiers - show lowest as main offer
-      offers.push({
-        "@type": "Offer",
-        url: `${baseUrl}/events/${event.documentId}`,
-        price: minPrice,
-        priceCurrency: "TND",
-        availability: "InStock",
-      })
-    }
+  if (minPrice !== undefined) {
+    offers.push({
+      "@type": "Offer",
+      url: `${baseUrl}/events/${event.documentId}`,
+      price: minPrice,
+      priceCurrency: "TND",
+      availability: hasInventory ? "InStock" : "SoldOut",
+    })
   }
 
-  // Build location
+  // Build location (support real `cityRef` and legacy `city`)
+  const city = venue?.cityRef ?? venue?.city
   const location: PlaceSchema | undefined = venue
     ? {
         "@type": "Place",
         name: venue.name,
-        address: venue.city
+        address: city
           ? {
               "@type": "PostalAddress",
               streetAddress: venue.address,
-              addressLocality: venue.city.name,
-              addressRegion: venue.city.region?.name,
+              addressLocality: city.name,
+              addressRegion: city.region?.name,
               addressCountry: "Tunisia",
             }
           : venue.address,
-        geo: parseCoordinates(venue.coordinates),
+        geo: buildGeo(venue.coordinates),
         telephone: venue.phone,
       }
     : undefined
@@ -286,26 +300,51 @@ export function generateEventJsonLd(
       }
     : undefined
 
-  // Get image URLs
+  // Get image URLs (real event `images` first, then legacy work/venue media).
+  // schema.org requires ABSOLUTE image URLs; Strapi local media URLs are
+  // relative (`/uploads/...`), so prefix them with `baseUrl` (mirrors the offer
+  // URL a few lines up). A relative `image` is dropped from the rich result.
+  const toAbsoluteUrl = (url: string): string =>
+    /^https?:\/\//i.test(url) ? url : `${baseUrl}${url}`
   const images: string[] = []
-  if (work?.poster?.url) images.push(work.poster.url)
-  if (work?.backdrop?.url) images.push(work.backdrop.url)
+  event.images?.forEach((img) => {
+    if (img.url) images.push(toAbsoluteUrl(img.url))
+  })
+  if (work?.poster?.url) images.push(toAbsoluteUrl(work.poster.url))
+  if (work?.backdrop?.url) images.push(toAbsoluteUrl(work.backdrop.url))
   if (venue?.images) {
     venue.images.forEach((img) => {
-      if (img.url) images.push(img.url)
+      if (img.url) images.push(toAbsoluteUrl(img.url))
     })
   }
 
+  const startDate = event.startDateTime ?? event.startDate ?? ""
+  const endDate = event.endDateTime ?? event.endDate
+  // schema.org EventStatusType — map the real lifecycle status. `postponed` and
+  // `rescheduled` must map to their own statuses, not silently degrade to
+  // `EventScheduled` (which would misreport the event to search engines).
+  const lifecycleStatus = event.eventStatus ?? event.status
+  const eventStatusSchema: EventSchema["eventStatus"] =
+    lifecycleStatus === "cancelled"
+      ? "EventCancelled"
+      : lifecycleStatus === "postponed"
+        ? "EventPostponed"
+        : lifecycleStatus === "rescheduled"
+          ? "EventRescheduled"
+          : "EventScheduled"
+  const eventType = event.category
+    ? mapCategoryToEventType(event.category)
+    : mapEventType(work?.type)
+
   return {
     "@context": "https://schema.org",
-    "@type": mapEventType(work?.type),
+    "@type": eventType,
     name: work?.title || event.title,
-    description: work?.synopsis,
+    description: work?.synopsis ?? event.description,
     image: images.length > 0 ? images : undefined,
-    startDate: event.startDate,
-    endDate: event.endDate,
-    eventStatus:
-      event.status === "cancelled" ? "EventCancelled" : "EventScheduled",
+    startDate,
+    endDate,
+    eventStatus: eventStatusSchema,
     eventAttendanceMode: "OfflineEventAttendanceMode",
     location,
     offers:

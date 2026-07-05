@@ -18,7 +18,6 @@
       "imageUrl": "https://tiween.tn/og-image.jpg"
     }
   },
-
   "general": {
     "noOptionsAvailable": "لا توجد خيارات متاحة",
     "search": "بحث",
@@ -28,7 +27,6 @@
     "submitForm": "إرسال",
     "saveChanges": "حفظ التغييرات"
   },
-
   "tables": {
     "previousPage": "الصفحة السابقة",
     "nextPage": "الصفحة التالية",
@@ -40,7 +38,6 @@
     "descending": "تنازلي",
     "noData": "لا توجد بيانات"
   },
-
   "navbar": {
     "account": "الحساب",
     "actions": {
@@ -50,7 +47,6 @@
       "signIn": "تسجيل الدخول"
     }
   },
-
   "common": {
     "home": "الرئيسية",
     "search": "البحث",
@@ -59,7 +55,6 @@
     "events": "الفعاليات",
     "categories": "التصنيفات"
   },
-
   "buttons": {
     "buy": "شراء",
     "cancel": "إلغاء",
@@ -69,7 +64,6 @@
     "skip": "تخطي",
     "learnMore": "اعرف المزيد"
   },
-
   "comps": {
     "fileInput": {
       "label": "اختر ملفاً",
@@ -92,7 +86,6 @@
       "confirmClose": "هل تريد إغلاق النافذة؟ ستفقد جميع التغييرات غير المحفوظة."
     }
   },
-
   "errors": {
     "global": {
       "title": "حدث خطأ غير معروف",
@@ -100,24 +93,20 @@
       "invalidContent": "لا يمكن عرض هذا المحتوى",
       "somethingWentWrong": "حدث خطأ ما"
     },
-
     "notFound": {
       "title": "الصفحة غير موجودة",
       "description": "الصفحة التي تبحث عنها غير موجودة.",
       "solution": "يرجى التحقق من الرابط أو العودة إلى الصفحة الرئيسية.",
       "redirect": "الذهاب إلى الصفحة الرئيسية"
     },
-
     "forms": {
       "errorsInForm": "يحتوي النموذج على أخطاء",
       "checkFormForErrors": "يرجى التحقق من الحقول المفقودة"
     },
-
     "zodValidation": {
       "invalid_type": "النوع المتوقع: {expected}، المستلم: {received}",
       "invalid_type_received_undefined": "هذا الحقل مطلوب",
       "invalid_literal": "قيمة غير صالحة، المتوقع: {expected}",
-
       "invalid_string": {
         "regex": "صيغة غير صالحة"
       },
@@ -152,7 +141,6 @@
       }
     }
   },
-
   "contactForm": {
     "name": "الاسم الكامل",
     "namePlaceholder": "محمد علي",
@@ -165,7 +153,6 @@
     "error": "تعذر إرسال النموذج. يرجى المحاولة لاحقاً.",
     "gdprLink": "اقرأ المزيد عن معالجة البيانات"
   },
-
   "auth": {
     "signIn": {
       "status": {
@@ -190,7 +177,6 @@
       "divider": "أو",
       "error": "فشل تسجيل الدخول عبر الشبكات الاجتماعية"
     },
-
     "register": {
       "status": {
         "fail": "فشل التسجيل",
@@ -213,7 +199,6 @@
       "signInLinkLinkDescription": "لديك حساب بالفعل؟",
       "signInLink": "تسجيل الدخول"
     },
-
     "changePassword": {
       "errors": {
         "invalidCurrentPassword": "كلمة المرور الحالية غير صحيحة",
@@ -228,7 +213,6 @@
       "confirmPassword": "تأكيد كلمة المرور الجديدة",
       "submit": "تغيير كلمة المرور"
     },
-
     "accountActivation": {
       "successfullySet": "تم تفعيل الحساب بنجاح. يمكنك الآن تسجيل الدخول.",
       "errors": {
@@ -244,7 +228,6 @@
       "password": "كلمة المرور الجديدة",
       "confirmPassword": "تأكيد كلمة المرور"
     },
-
     "resetPassword": {
       "successfullySet": "تم تغيير كلمة المرور بنجاح.",
       "header": "إعادة تعيين كلمة المرور",
@@ -253,7 +236,6 @@
       "password": "كلمة المرور الجديدة",
       "confirmPassword": "تأكيد كلمة المرور"
     },
-
     "forgotPassword": {
       "passwordChangeEmailSent": "تم إرسال بريد إلكتروني يحتوي على تعليمات إعادة التعيين.",
       "header": "نسيت كلمة المرور",
@@ -262,13 +244,11 @@
       "submit": "استرداد الحساب"
     }
   },
-
   "offline": {
     "title": "أنت غير متصل",
     "description": "يبدو أنك فقدت الاتصال بالإنترنت. يرجى التحقق من اتصالك والمحاولة مرة أخرى.",
     "retry": "حاول مرة أخرى"
   },
-
   "events": {
     "back": "رجوع",
     "share": "مشاركة",
@@ -300,7 +280,6 @@
     "by": "من إخراج",
     "home": "الرئيسية"
   },
-
   "payment": {
     "title": "الدفع",
     "selectMethod": "اختر طريقة الدفع",
@@ -323,11 +302,9 @@
       "phoneHint": "ستتلقى رمز تأكيد"
     }
   },
-
   "header": {
     "back": "رجوع"
   },
-
   "search": {
     "filters": "الفلاتر",
     "category": "الفئة",
@@ -342,7 +319,6 @@
       "exhibition": "معارض"
     }
   },
-
   "footer": {
     "company": "الشركة",
     "legal": "قانوني",
@@ -357,7 +333,6 @@
     "copyright": "© {year} تيوين. جميع الحقوق محفوظة.",
     "tagline": "منصة حجز التذاكر الثقافية في تونس."
   },
-
   "contribute": {
     "steps": {
       "basics": "المعلومات الأساسية",
@@ -479,6 +454,56 @@
       "ar": "العربية",
       "fr": "الفرنسية (Français)",
       "en": "الإنجليزية (English)"
+    }
+  },
+  "home": {
+    "metaTitle": "تيوين - اكتشف الفعاليات الثقافية في تونس",
+    "metaDescription": "تيوين هي منصة التذاكر الثقافية في تونس. اكتشف الأفلام والمسرحيات والحفلات والمعارض القريبة منك.",
+    "featuredTitle": "المميزة",
+    "upcomingTitle": "قادم",
+    "todayTitle": "اليوم",
+    "tonightTitle": "الليلة",
+    "thisWeekTitle": "هذا الأسبوع",
+    "trendingTitle": "الرائجة",
+    "bottomNav": {
+      "home": "الرئيسية",
+      "search": "بحث",
+      "tickets": "التذاكر",
+      "account": "الحساب",
+      "navigation": "التنقل الرئيسي",
+      "unscannedTickets": "{count} تذاكر غير ممسوحة"
+    },
+    "categoryTabs": {
+      "all": "الكل",
+      "cinema": "سينما",
+      "theater": "مسرح",
+      "shorts": "أفلام قصيرة",
+      "music": "موسيقى",
+      "exhibitions": "معارض"
+    },
+    "dateSelector": {
+      "today": "اليوم",
+      "tomorrow": "غداً",
+      "custom": "اختر",
+      "selectDate": "اختر تاريخاً"
+    },
+    "eventSection": {
+      "seeAll": "عرض الكل",
+      "noEvents": "لا توجد فعاليات متاحة"
+    },
+    "regionCitySelector": {
+      "allLocations": "كل تونس",
+      "selectLocation": "الموقع",
+      "allCities": "كل المدن"
+    },
+    "venueSelector": {
+      "allVenues": "كل الأماكن",
+      "selectVenue": "المكان",
+      "cinema": "سينمات",
+      "theater": "مسارح",
+      "culturalCenter": "مراكز ثقافية",
+      "museum": "متاحف",
+      "other": "أخرى"
     }
   }
 }
