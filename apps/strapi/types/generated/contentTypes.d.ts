@@ -1065,6 +1065,13 @@ export interface PluginEventsManagerEvent extends Struct.CollectionTypeSchema {
           localized: false
         }
       }>
+    featured: Schema.Attribute.Boolean &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: false
+        }
+      }> &
+      Schema.Attribute.DefaultTo<false>
     images: Schema.Attribute.Media<"images", true> &
       Schema.Attribute.SetPluginOptions<{
         i18n: {

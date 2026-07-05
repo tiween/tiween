@@ -2,9 +2,10 @@
 title: "Public Events Browse API & Data Foundation (Story 3.1a)"
 type: "feature"
 created: "2026-07-05"
-status: "ready-for-dev"
+status: "done"
+baseline_revision: "77a75d6ce492d1bc8aec392de614376c7c055a37"
 review_loop_iteration: 0
-followup_review_recommended: false
+followup_review_recommended: true
 sprint_key: "3-1-public-events-browse-api-and-data-foundation"
 split_from: "3-1-homepage-with-curated-event-listings (split 2026-07-05 — see sprint-change-proposal-2026-07-05.md)"
 depended_on_by: ["3-11-homepage-with-curated-event-listings"]
@@ -71,11 +72,11 @@ decisions_resolved:
 
 **Execution:**
 
-- [ ] `.../events-manager/server/src/routes/` — add public `content-api` GET routes for `event` (+ read `screening`) with populate/filter (`startDateTime` range, `eventStatus`) / sort.
-- [ ] `.../events-manager/server/src/content-types/event/schema.json` — add `featured` boolean (default false); regenerate types; add seed support.
-- [ ] `.../events-manager/server/src/{services,controllers,routes}/` — add a `trending` service/endpoint aggregating `sum(screening.ticketsSold)` desc for upcoming events.
-- [ ] `apps/strapi/scripts/seeds/index.ts` — set `featured` on a few events and non-zero `ticketsSold` so featured + trending slices return data.
-- [ ] Backend tests where a runner exists — happy path (list/featured/trending), empty-data, invalid-query.
+- [x] `.../events-manager/server/src/routes/` — add public `content-api` GET routes for `event` (+ read `screening`) with populate/filter (`startDateTime` range, `eventStatus`) / sort.
+- [x] `.../events-manager/server/src/content-types/event/schema.json` — add `featured` boolean (default false); regenerate types; add seed support.
+- [x] `.../events-manager/server/src/{services,controllers,routes}/` — add a `trending` service/endpoint aggregating `sum(screening.ticketsSold)` desc for upcoming events.
+- [x] `apps/strapi/scripts/seeds/index.ts` — set `featured` on a few events and non-zero `ticketsSold` so featured + trending slices return data.
+- [x] Backend tests where a runner exists — happy path (list/featured/trending), empty-data, invalid-query.
 
 **Acceptance Criteria:**
 
@@ -96,3 +97,55 @@ decisions_resolved:
 ## Notes
 
 This is the backend half of the original Story 3.1, split out on 2026-07-05 because the combined full-stack slice exceeded a single unattended dev pass. The frontend half (fix-and-wire the existing homepage UI to this API, JSON-LD, SSR, perf) is Story 3.1b / sprint key `3-11`, which depends on this story. See `sprint-change-proposal-2026-07-05.md`.
+
+## Review Triage Log
+
+### 2026-07-05 — Review pass
+
+- intent_gap: 0
+- bad_spec: 0
+- patch: 6: (high 0, medium 5, low 1)
+- defer: 2: (high 0, medium 2, low 0)
+- reject: 3: (low 3)
+- addressed_findings:
+  - `[medium]` `[patch]` `findEvent` had no cinema scope → non-`movie_screening` events were retrievable by documentId; now the detail read enforces `category = movie_screening` and treats other categories as not-found (EVENT_NOT_FOUND), matching the list endpoint.
+  - `[medium]` `[patch]` Free-string `sort` was forwarded to the Document Service, which throws on an unknown field → uncaught 500, violating the "no whole-request 500 on bad input" AC; `sort` is now a Zod `enum` allowlist (`startDateTime|title` × `asc|desc`) and anything else returns 400 `INVALID_QUERY`.
+  - `[medium]` `[patch]` Trending fetched its 500-row window with no deterministic order and no tie-break; added `sort: startDateTime:asc` to the fetch and a stable `documentId` secondary key so ranking/pagination are deterministic across requests.
+  - `[medium]` `[patch]` Trending surfaced `cancelled` events; the trending query now excludes `eventStatus = cancelled` (a cancelled show is not "trending").
+  - `[medium]` `[patch]` The localized `event` type was read with no `locale`, and `.strict()` schemas 400'd a benign `?locale=` (and any other extra param); schemas now accept an optional validated `locale` (threaded through all reads) and strip unknown params instead of rejecting them.
+  - `[low]` `[patch]` `startDate > endDate` silently returned an empty 200; added a Zod `.refine` so an inverted range is a 400 `INVALID_QUERY`.
+  - Deferred (see deferred-work.md, 2026-07-05): (1) blanket populate exposes internal `ticketsSold`/`ticketsAvailable` to anonymous callers — correct public field projection depends on the 3.1b data contract; (2) trending in-JS cap-then-rank has no DB rollup/caching/rate-limit — architectural, harmless at MVP volume.
+  - Rejected: `count({status} as never)` live-behaviour doubt (v5 `count` honors `status`); ISO-only datetime / `featured` literal brittleness (acceptable); non-transactional count+findMany race (standard Strapi pagination caveat).
+
+## Auto Run Result
+
+Status: done
+
+**Summary.** Implemented the backend data foundation for Epic-3 discovery (Story 3.1a): public `content-api` GET endpoints on the `events-manager` plugin for browsing published cinema events, an additive `featured` flag, and a custom trending ranking — all Strapi v5 Document Service only, returning the v5 response shape directly with error codes and Zod-validated input. No frontend work (that is 3.1b / `3-11`).
+
+**Files changed.**
+
+- [apps/strapi/src/plugins/events-manager/server/src/routes/index.ts](../../apps/strapi/src/plugins/events-manager/server/src/routes/index.ts) — added a public `content-api` route group (`GET /events`, `GET /events/trending` registered before `GET /events/:documentId`, all `auth: false`); existing admin/seed routes untouched.
+- [apps/strapi/src/plugins/events-manager/server/src/controllers/events.ts](../../apps/strapi/src/plugins/events-manager/server/src/controllers/events.ts) — new public controller; Zod query validation (page/pageSize/featured/eventStatus/date-range/`sort` allowlist/`locale`) → 400 `INVALID_QUERY`; `findEvent` → `EVENT_NOT_FOUND`; sets the v5 result on `ctx.body`.
+- [apps/strapi/src/plugins/events-manager/server/src/services/events.ts](../../apps/strapi/src/plugins/events-manager/server/src/services/events.ts) — new read service: `findEvents` (published + cinema, filters/populate/pagination + count), `findEvent` (single, cinema-scoped, locale-aware), `findTrending` (upcoming, cancelled excluded, sum `screening.ticketsSold` desc with stable tie-break, JS pagination).
+- [apps/strapi/src/plugins/events-manager/server/src/controllers/index.ts](../../apps/strapi/src/plugins/events-manager/server/src/controllers/index.ts) & [services/index.ts](../../apps/strapi/src/plugins/events-manager/server/src/services/index.ts) — wired the new `events` controller/service into the barrels; `public-api.ts` untouched.
+- [apps/strapi/src/plugins/events-manager/server/src/content-types/event/schema.json](../../apps/strapi/src/plugins/events-manager/server/src/content-types/event/schema.json) — additive `featured` boolean (default false, `i18n.localized: false`).
+- [apps/strapi/types/generated/contentTypes.d.ts](../../apps/strapi/types/generated/contentTypes.d.ts) — manually added the `featured` attribute (`yarn generate:types` needs a full Strapi boot).
+- [apps/strapi/scripts/seeds/index.ts](../../apps/strapi/scripts/seeds/index.ts) — mark every 3rd cinema event `featured`; raised screening `ticketsSold` floor to a non-zero range so featured/trending slices return data.
+- Tests: [controllers/**tests**/events.unit.test.ts](../../apps/strapi/src/plugins/events-manager/server/src/controllers/__tests__/events.unit.test.ts) and [services/**tests**/events.unit.test.ts](../../apps/strapi/src/plugins/events-manager/server/src/services/__tests__/events.unit.test.ts) — 25 unit tests (happy/featured/trending, empty-data, invalid-query incl. sort allowlist + inverted range, cinema scoping, locale threading, tie-break).
+
+**Review findings breakdown.** 6 patches applied (5 medium, 1 low — see Review Triage Log), 2 items deferred (medium; public field projection + trending scalability), 3 rejected as noise. No intent-gap and no bad-spec loopback (`review_loop_iteration` stayed 0).
+
+**Verification performed.**
+
+- `yarn type-check` → PASS (no type errors).
+- `yarn test --testPathPattern events.unit` → PASS (25/25 new tests).
+- `yarn test --runInBand` (full suite, serial) → PASS: 12 suites passed / 1 skipped, 103 passed / 4 skipped, 0 failed. (Default parallel `yarn test` shows pre-existing failures from boot-based integration suites colliding on a shared SQLite DB — environmental, not from this change.)
+- `yarn build` → PASS (per implementation pass).
+- Live `yarn seed:fresh && yarn develop` + curl and `yarn generate:types` require a running DB / full Strapi boot and were not executed in the unattended run; seed and types changes type-check and build.
+
+**Residual risks.**
+
+- Not exercised against a live DB, so runtime pagination totals and the `content-api` route prefix are verified by mirroring the `venues` reference pattern and by unit tests, not by a live request. Recommend a quick `seed:fresh` + curl smoke check when a Strapi instance is available.
+- The two deferred items (public field projection of internal sales data; trending scalability/caching) are logged in deferred-work.md and should be addressed with, or before, 3.1b consumes these endpoints.
+- `followup_review_recommended: true` — the review pass made six behaviour/API-affecting fixes across the new surface, warranting an independent follow-up review.

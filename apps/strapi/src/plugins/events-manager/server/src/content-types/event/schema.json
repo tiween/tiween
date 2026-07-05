@@ -81,6 +81,15 @@
         }
       }
     },
+    "featured": {
+      "type": "boolean",
+      "default": false,
+      "pluginOptions": {
+        "i18n": {
+          "localized": false
+        }
+      }
+    },
     "images": {
       "type": "media",
       "multiple": true,

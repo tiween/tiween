@@ -400,6 +400,10 @@ async function seedEvents(strapi: any): Promise<SeedResult> {
 
     const isFilm = work.type === "film" || work.type === "short-film"
 
+    // Feature a meaningful subset of cinema events so the `featured=true` slice
+    // and homepage curation return data (Story 3.1a).
+    const featured = isFilm && i % 3 === 0
+
     // Create event
     const event = await strapi.documents(eventUid).create({
       data: {
@@ -410,6 +414,7 @@ async function seedEvents(strapi: any): Promise<SeedResult> {
         startDateTime: startDate.toISOString(),
         endDateTime: endDate.toISOString(),
         eventStatus: "scheduled",
+        featured,
         venue: idMaps.venues[venueSlug],
       },
       status: "published",
@@ -431,7 +436,9 @@ async function seedEvents(strapi: any): Promise<SeedResult> {
         audioLanguage: "ar",
         price: randomInt(15, 35),
         ticketsAvailable: randomInt(50, 150),
-        ticketsSold: randomInt(0, 30),
+        // Non-zero floor so the trending slice (ranked by sum(ticketsSold))
+        // is always exercisable against seeded data (Story 3.1a).
+        ticketsSold: randomInt(5, 40),
         event: event.documentId,
       }
 
