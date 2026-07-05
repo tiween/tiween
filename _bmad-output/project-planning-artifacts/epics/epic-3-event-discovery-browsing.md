@@ -4,7 +4,41 @@ Users can browse and search cinema showtimes across Tunisia without creating an 
 
 > **MVP Focus:** Cinema showtimes only. Category filtering for theater/concerts deferred to Phase 2.
 
-## Story 3.1: Homepage with Curated Event Listings [MVP]
+> **Story 3.1 split (2026-07-05):** The original "Homepage with Curated Event
+> Listings" was a full-stack vertical slice that exceeded a single unattended
+> dev pass (timed out, then finished without a committable result). Per
+> `sprint-change-proposal-2026-07-05.md` it is split along its data/presentation
+> seam into **Story 3.1a — Public Events Browse API & Data Foundation** (backend,
+> sprint key `3-1`) and **Story 3.1b — Homepage with Curated Event Listings**
+> (frontend, sprint key `3-11`). 3.1b depends on 3.1a. The four scoping decisions
+> resolved on 2026-07-04 (3.1 owns the public events browse API; `featured`
+> boolean; trending = `sum(screening.ticketsSold)`; fix-and-wire the existing
+> homepage) carry forward unchanged.
+
+## Story 3.1a: Public Events Browse API & Data Foundation [MVP]
+
+As a **frontend consumer of the events-manager plugin**,
+I want a public REST API that lists cinema events with the fields, filters, and
+popularity signal the discovery surfaces need,
+So that every Epic-3 browsing surface (homepage, filters, search) has a real
+data foundation to build on.
+
+**Acceptance Criteria:**
+
+**Given** the `events-manager` plugin is running
+**When** a client requests the public content-api events endpoint
+**Then** it returns published `event`s in the Strapi v5 response shape (`data`, `meta.pagination`)
+**And** it supports date-range filtering (`startDateTime`), `eventStatus` filtering, sorting, and relation populate (`venue`, `screenings`, `screening.movie` → creative-work)
+**And** the `event` content-type has an additive `featured` boolean (types regenerated, seed support added) so a featured/hero slice can be queried
+**And** a custom `trending` service/endpoint returns upcoming events ranked by `sum(screening.ticketsSold)` desc
+**And** cross-plugin access stays behind the plugin's public-api facade / plugin route prefixes
+**And** the endpoints are exercised against seeded data (`yarn seed:fresh`) and return populated results
+
+---
+
+## Story 3.1b: Homepage with Curated Event Listings [MVP]
+
+> **Depends on Story 3.1a** (public events browse API + `featured` + trending must exist).
 
 As a **visitor**,
 I want to see curated event listings on the homepage,
@@ -22,6 +56,7 @@ So that I can quickly discover what's happening culturally in Tunisia.
 **And** the page loads in under 3 seconds (NFR-P1)
 **And** content is rendered via SSR for SEO
 **And** structured data (JSON-LD) is included for events
+**And** the existing `HomePageWithVenue`/`EventSection`/`FilmHero`/`EventCard` UI is fixed-and-wired to the real API (not rebuilt), with the frontend data layer aligned to the real plugin schema
 
 ---
 

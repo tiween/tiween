@@ -103,15 +103,16 @@
 
 - [Epic 3: Event Discovery & Browsing](./epic-3-event-discovery-browsing.md) **[MVP]**
 
-  - [Story 3.1: Homepage with Curated Event Listings](./epic-3-event-discovery-browsing.md#story-31-homepage-with-curated-event-listings) [MVP]
-  - [Story 3.2: Category Filtering](./epic-3-event-discovery-browsing.md#story-32-category-filtering) [Phase 2]
+  - [Story 3.1a: Public Events Browse API & Data Foundation](./epic-3-event-discovery-browsing.md#story-31a-public-events-browse-api--data-foundation) [MVP] (sprint key `3-1`; split from 3.1 on 2026-07-05)
+  - [Story 3.1b: Homepage with Curated Event Listings](./epic-3-event-discovery-browsing.md#story-31b-homepage-with-curated-event-listings) [MVP] (sprint key `3-11`; depends on 3.1a)
+  - [Story 3.2: Category Filtering](./epic-3-event-discovery-browsing.md#story-32-category-filtering) [Phase 2 — deferred]
   - [Story 3.3: Date Range Filtering](./epic-3-event-discovery-browsing.md#story-33-date-range-filtering) [MVP]
   - [Story 3.4: Region and City Filtering](./epic-3-event-discovery-browsing.md#story-34-region-and-city-filtering) [MVP]
   - [Story 3.5: Venue Filtering](./epic-3-event-discovery-browsing.md#story-35-venue-filtering) [MVP]
   - [Story 3.6: Keyword Search with Algolia](./epic-3-event-discovery-browsing.md#story-36-keyword-search-with-algolia) [MVP]
   - [Story 3.7: Event Detail Page](./epic-3-event-discovery-browsing.md#story-37-event-detail-page) [MVP]
   - [Story 3.8: Venue Location on Map](./epic-3-event-discovery-browsing.md#story-38-venue-location-on-map) [MVP]
-  - [Story 3.9: Geolocation "Near Me" Filtering](./epic-3-event-discovery-browsing.md#story-39-geolocation-near-me-filtering) [Phase 2]
+  - [Story 3.9: Geolocation "Near Me" Filtering](./epic-3-event-discovery-browsing.md#story-39-geolocation-near-me-filtering) [Phase 2 — deferred]
   - [Story 3.10: Share Event Details](./epic-3-event-discovery-browsing.md#story-310-share-event-details) [MVP]
 
 - [Epic 4: User Authentication & Profiles](./epic-4-user-authentication-profiles.md) **[MVP-partial]**

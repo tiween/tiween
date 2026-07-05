@@ -125,16 +125,25 @@ development_status:
   epic-2d-retrospective: optional
 
   # Epic 3: Event Discovery & Browsing
+  # 2026-07-05 REVISION (sprint-change-proposal-2026-07-05): Story 3.1 split
+  # along its data/presentation seam into 3.1a (backend, key 3-1) + 3.1b
+  # (frontend, key 3-11, depends on 3-1); it exceeded a single unattended dev
+  # pass. Sub-story keys must stay numeric (the loop ignores letter-suffixed
+  # keys). 3.1b is file-ordered right after 3.1a so the loop runs backend first.
+  # Phase-2 stories 3-2 (category filtering) and 3-9 (geolocation near-me) are
+  # marked `deferred` so the loop skips them during MVP (only backlog/
+  # ready-for-dev are actionable); they stay tracked here for visibility.
   epic-3: backlog
-  3-1-homepage-with-curated-event-listings: backlog
-  3-2-category-filtering: backlog
+  3-1-public-events-browse-api-and-data-foundation: backlog
+  3-11-homepage-with-curated-event-listings: backlog
+  3-2-category-filtering: deferred
   3-3-date-range-filtering: backlog
   3-4-region-and-city-filtering: backlog
   3-5-venue-filtering: backlog
   3-6-keyword-search-with-algolia: backlog
   3-7-event-detail-page: backlog
   3-8-venue-location-on-map: backlog
-  3-9-geolocation-near-me-filtering: backlog
+  3-9-geolocation-near-me-filtering: deferred
   3-10-share-event-details: backlog
   epic-3-retrospective: optional
 
