@@ -4,7 +4,7 @@ type: "feature"
 created: "2026-07-05"
 status: "done"
 baseline_revision: "77a75d6ce492d1bc8aec392de614376c7c055a37"
-final_revision: "PENDING_COMMIT"
+final_revision: "cde5824663b4c25f82acc30ff1a9b84226aade56"
 review_loop_iteration: 0
 followup_review_recommended: false
 sprint_key: "3-1-public-events-browse-api-and-data-foundation"
