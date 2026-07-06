@@ -291,10 +291,12 @@ export function generateEventJsonLd(
           "@type": "Person" as const,
           name: d.name,
         })),
-        actor: work.cast?.map((a) => ({
-          "@type": "Person" as const,
-          name: a.person?.name ?? "",
-        })),
+        actor: work.cast
+          ?.filter((a) => a.person?.name)
+          .map((a) => ({
+            "@type": "Person" as const,
+            name: a.person!.name,
+          })),
         genre: work.genres?.map((g) => g.name),
         duration: minutesToISO8601Duration(work.duration),
         dateCreated: work.releaseYear?.toString(),
