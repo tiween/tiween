@@ -289,7 +289,11 @@
       "region": "Region",
       "city": "City",
       "allRegions": "All regions",
-      "allCities": "All cities"
+      "allCities": "All cities",
+      "venueFilter": "Filter by venue",
+      "allVenues": "All venues",
+      "searchVenue": "Search a venue",
+      "noVenueFound": "No venue found"
     }
   },
   "payment": {

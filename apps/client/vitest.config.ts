@@ -57,13 +57,22 @@ export default defineConfig({
     // Inline the React-consuming UI deps so Vite (not node's externalized
     // require) resolves their React through the single aliased copy above.
     server: {
-      deps: { inline: [/@testing-library\//, /@radix-ui\//, /react-day-picker/] },
+      deps: {
+        inline: [
+          /@testing-library\//,
+          /@radix-ui\//,
+          /react-day-picker/,
+          /cmdk/,
+          /@floating-ui\//,
+        ],
+      },
     },
     include: [
       "src/features/events/utils/**/*.test.ts",
       "src/features/events/filters/**/*.test.ts",
       "src/features/events/components/EventDateFilter/**/*.test.tsx",
       "src/features/events/components/EventLocationFilter/**/*.test.tsx",
+      "src/features/events/components/EventVenueFilter/**/*.test.tsx",
       "src/lib/strapi-api/**/*.test.ts",
     ],
   },

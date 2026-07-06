@@ -16,8 +16,13 @@ export default function EventsListingLoading() {
         </div>
 
         {/* Location filter (region + city selects) */}
-        <div className="mb-6 flex gap-2">
+        <div className="mb-3 flex gap-2">
           <Skeleton className="h-11 w-40 rounded-full" />
+          <Skeleton className="h-11 w-40 rounded-full" />
+        </div>
+
+        {/* Venue filter (searchable combobox trigger) */}
+        <div className="mb-6 flex gap-2">
           <Skeleton className="h-11 w-40 rounded-full" />
         </div>
 

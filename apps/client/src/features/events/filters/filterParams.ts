@@ -7,14 +7,14 @@
  * dependency-free (no `server-only`, no React) so it runs on the server RSC, in
  * the client island, and in unit tests alike.
  *
- * The `date` (Story 3.3) and `region` / `city` (Story 3.4) params are the
- * filters this mechanism *acts on*. `category` / `venue` are parsed and
+ * The `date` (Story 3.3), `region` / `city` (Story 3.4) and `venue` (Story 3.5)
+ * params are the filters this mechanism *acts on*. `category` is parsed and
  * preserved (round-tripped through the URL) but never used for filtering here —
- * they are reserved for the deferred/sibling stories.
+ * it is reserved for the deferred Story 3.2.
  *
- * `region` / `city` are opaque, locale-stable Strapi `documentId` tokens (NOT
- * localized slugs): any non-empty string is accepted and round-tripped so a
- * remembered/shared URL stays valid across FR/EN/AR.
+ * `region` / `city` / `venue` are opaque, locale-stable Strapi `documentId`
+ * tokens (NOT localized slugs): any non-empty string is accepted and
+ * round-tripped so a remembered/shared URL stays valid across FR/EN/AR.
  *
  * `date` grammar (single, extensible param):
  * - preset `today` | `tomorrow` | `weekend`
@@ -50,7 +50,7 @@ export interface EventFilters {
   region?: string
   /** Story 3.4 — city `documentId` (opaque, locale-stable), filtered on. */
   city?: string
-  /** Reserved for Story 3.5 (venue) — parsed & preserved, not filtered on. */
+  /** Story 3.5 — venue `documentId` (opaque, locale-stable), filtered on. */
   venue?: string
 }
 

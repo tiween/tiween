@@ -141,4 +141,30 @@ describe("parseEventFilters / serializeEventFilters", () => {
   it("serializes an empty filter set to an empty query", () => {
     expect(serializeEventFilters({}).toString()).toBe("")
   })
+
+  it("parses venue as an opaque non-empty documentId token (Story 3.5)", () => {
+    expect(parseEventFilters({ venue: "venue-1" })).toEqual({ venue: "venue-1" })
+  })
+
+  it("drops an empty/whitespace-preserving venue param", () => {
+    expect(parseEventFilters({ venue: "" })).toEqual({})
+  })
+
+  it("round-trips venue through the query string", () => {
+    const original = { venue: "venue-1" }
+    const query = serializeEventFilters(original).toString()
+    expect(query).toContain("venue=venue-1")
+    expect(parseEventFilters(new URLSearchParams(query))).toEqual(original)
+  })
+
+  it("preserves venue alongside date + location through a serialize round-trip", () => {
+    const next = {
+      date: "today",
+      region: "grand-tunis-1",
+      city: "tunis-1",
+      venue: "venue-1",
+    }
+    const query = serializeEventFilters(next).toString()
+    expect(parseEventFilters(new URLSearchParams(query))).toEqual(next)
+  })
 })

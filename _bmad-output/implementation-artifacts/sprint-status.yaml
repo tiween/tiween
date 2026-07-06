@@ -139,7 +139,7 @@ development_status:
   3-2-category-filtering: deferred
   3-3-date-range-filtering: done
   3-4-region-and-city-filtering: done
-  3-5-venue-filtering: backlog
+  3-5-venue-filtering: done
   3-6-keyword-search-with-algolia: backlog
   3-7-event-detail-page: backlog
   3-8-venue-location-on-map: backlog

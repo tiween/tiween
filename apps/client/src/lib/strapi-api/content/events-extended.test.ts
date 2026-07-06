@@ -253,6 +253,25 @@ describe("fetchEvents", () => {
     expect(params).not.toHaveProperty("region")
   })
 
+  it("forwards the venue param to the endpoint (Story 3.5)", async () => {
+    fetchAPI.mockResolvedValue(listResponse(1))
+    await fetchEvents({
+      locale: "fr",
+      venue: "venue-1",
+      sort: "startDateTime:asc",
+    })
+    const [path, params] = fetchAPI.mock.calls[0]
+    expect(path).toBe("/events-manager/events")
+    expect(params).toMatchObject({ venue: "venue-1" })
+  })
+
+  it("omits venue when it is not provided", async () => {
+    fetchAPI.mockResolvedValue(listResponse(1))
+    await fetchEvents({ locale: "fr" })
+    const [, params] = fetchAPI.mock.calls[0]
+    expect(params).not.toHaveProperty("venue")
+  })
+
   it("returns an empty slice (fail-soft) when the client throws", async () => {
     fetchAPI.mockRejectedValue(new Error("boom"))
     const spy = vi.spyOn(console, "error").mockImplementation(() => {})

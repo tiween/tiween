@@ -141,7 +141,68 @@ describe("events service.findEvents (unit)", () => {
     )
   })
 
-  it("applies no location filter when city/region are omitted", async () => {
+  it("applies a venue-only filter as venue.documentId (Story 3.5)", async () => {
+    const { strapi, api } = buildStrapi({ count: jest.fn(async () => 0) })
+    const service = eventsService({ strapi })
+
+    await service.findEvents({ page: 1, pageSize: 25, venue: "venue-1" })
+
+    expect(api.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        filters: expect.objectContaining({
+          venue: { documentId: "venue-1" },
+        }),
+      })
+    )
+  })
+
+  it("merges venue + city into one filters.venue object (venue AND location)", async () => {
+    const { strapi, api } = buildStrapi({ count: jest.fn(async () => 0) })
+    const service = eventsService({ strapi })
+
+    await service.findEvents({
+      page: 1,
+      pageSize: 25,
+      venue: "venue-1",
+      city: "city-1",
+    })
+
+    expect(api.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        filters: expect.objectContaining({
+          venue: {
+            documentId: "venue-1",
+            cityRef: { documentId: "city-1" },
+          },
+        }),
+      })
+    )
+  })
+
+  it("merges venue + region into one filters.venue object", async () => {
+    const { strapi, api } = buildStrapi({ count: jest.fn(async () => 0) })
+    const service = eventsService({ strapi })
+
+    await service.findEvents({
+      page: 1,
+      pageSize: 25,
+      venue: "venue-1",
+      region: "region-1",
+    })
+
+    expect(api.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        filters: expect.objectContaining({
+          venue: {
+            documentId: "venue-1",
+            cityRef: { region: { documentId: "region-1" } },
+          },
+        }),
+      })
+    )
+  })
+
+  it("applies no venue/location filter when venue/city/region are omitted", async () => {
     const { strapi, api } = buildStrapi({ count: jest.fn(async () => 0) })
     const service = eventsService({ strapi })
 

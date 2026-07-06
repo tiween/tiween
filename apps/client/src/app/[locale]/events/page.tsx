@@ -3,7 +3,10 @@ import { EventsListing } from "@/features/events/components"
 import { Locale } from "next-intl"
 import { getTranslations, setRequestLocale } from "next-intl/server"
 
-import type { EventsListingLabels } from "@/features/events/components"
+import type {
+  EventsListingLabels,
+  EventVenueOption,
+} from "@/features/events/components"
 import type { EventsSlice } from "@/lib/strapi-api/content/events-extended"
 import type { StrapiRegion } from "@/lib/strapi-api/content/geography"
 
@@ -13,6 +16,7 @@ import {
   fetchEvents,
 } from "@/lib/strapi-api/content/events-extended"
 import { getRegions } from "@/lib/strapi-api/content/geography"
+import { getVenuesForSelector } from "@/lib/strapi-api/content/venues"
 
 // Page-1 size for the MVP listing. Sized well above realistic per-date cinema
 // volume so a single window is effectively complete; true load-more/pagination
@@ -63,6 +67,13 @@ async function buildLabels(locale: Locale): Promise<EventsListingLabels> {
       allCities: tEvents("listing.allCities"),
       clear: tEvents("listing.clear"),
     },
+    venue: {
+      groupLabel: tEvents("listing.venueFilter"),
+      allVenues: tEvents("listing.allVenues"),
+      searchVenue: tEvents("listing.searchVenue"),
+      noVenueFound: tEvents("listing.noVenueFound"),
+      clear: tEvents("listing.clear"),
+    },
     card: {
       addToWatchlist: tEvents("addToWatchlist"),
       removeFromWatchlist: tEvents("removeFromWatchlist"),
@@ -105,6 +116,18 @@ export default async function EventsListingRoute({
     regions = []
   }
 
+  // Venues seed the venue filter combobox. Fail-soft: on any error the listing
+  // still renders (with the venue filter hidden) rather than 500ing the whole
+  // page — same contract as the location path. `getVenuesForSelector` is already
+  // fail-soft (returns []); the try/catch is belt-and-suspenders.
+  let venues: EventVenueOption[] = []
+  try {
+    venues = await getVenuesForSelector(locale)
+  } catch (error) {
+    console.error("[EventsListingRoute] Error fetching venues:", error)
+    venues = []
+  }
+
   let slice: EventsSlice = EMPTY_SLICE
   try {
     slice = await fetchEvents({
@@ -113,6 +136,7 @@ export default async function EventsListingRoute({
       endDate,
       city: filters.city,
       region: filters.region,
+      venue: filters.venue,
       sort: "startDateTime:asc",
       pageSize: LISTING_PAGE_SIZE,
     })
@@ -128,6 +152,7 @@ export default async function EventsListingRoute({
       locale={locale}
       events={slice.events}
       regions={regions}
+      venues={venues}
       activeFilters={filters}
       labels={labels}
     />

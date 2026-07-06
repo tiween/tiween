@@ -38,6 +38,8 @@ export interface FindEventsParams {
   city?: string
   /** Region `documentId` — filters via `venue.cityRef.region.documentId` (Story 3.4). */
   region?: string
+  /** Venue `documentId` — filters via `venue.documentId` (Story 3.5). */
+  venue?: string
   sort?: string
   locale?: string
 }
@@ -73,6 +75,7 @@ function buildFilters(params: {
   endDate?: string
   city?: string
   region?: string
+  venue?: string
 }): Record<string, unknown> {
   const filters: Record<string, unknown> = { category: MVP_CATEGORY }
 
@@ -96,16 +99,24 @@ function buildFilters(params: {
     filters.startDateTime = range
   }
 
-  // Location filter (Story 3.4): a nested relation filter on the event query —
-  // `venue.cityRef.documentId` (city) and/or `venue.cityRef.region.documentId`
-  // (region) — never a foreign-UID `strapi.documents()` call, per the
-  // architecture's cross-plugin rule (precedented by search.ts). Both may apply
-  // together (AND). Absent/empty values contribute no filter (all areas).
-  if (params.city || params.region) {
-    const cityRef: Record<string, unknown> = {}
-    if (params.city) cityRef.documentId = params.city
-    if (params.region) cityRef.region = { documentId: params.region }
-    filters.venue = { cityRef }
+  // Venue + location filter (Stories 3.4/3.5): one nested relation filter on the
+  // event query — never a foreign-UID `strapi.documents()` call, per the
+  // architecture's cross-plugin rule (precedented by search.ts). The venue axis
+  // (`venue.documentId`, Story 3.5) and the location axis (`venue.cityRef`
+  // [`.region`]`.documentId`, Story 3.4) both live under the SAME `filters.venue`
+  // object, so they must be merged into one object and assigned once — a second
+  // `filters.venue = {...}` would clobber the first. Any subset may apply (AND).
+  // Absent/empty values contribute no filter (all venues / all areas).
+  if (params.venue || params.city || params.region) {
+    const venue: Record<string, unknown> = {}
+    if (params.venue) venue.documentId = params.venue
+    if (params.city || params.region) {
+      const cityRef: Record<string, unknown> = {}
+      if (params.city) cityRef.documentId = params.city
+      if (params.region) cityRef.region = { documentId: params.region }
+      venue.cityRef = cityRef
+    }
+    filters.venue = venue
   }
 
   return filters

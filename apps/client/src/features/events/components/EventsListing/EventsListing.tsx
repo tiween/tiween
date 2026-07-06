@@ -10,6 +10,11 @@ import type {
   EventLocationRegion,
   LocationFilterValue,
 } from "../EventLocationFilter"
+import type {
+  EventVenueFilterLabels,
+  EventVenueOption,
+  VenueFilterValue,
+} from "../EventVenueFilter"
 import type { DateFilterValue, EventFilters } from "../../filters/filterParams"
 import type { StrapiEvent } from "../../types/strapi.types"
 import type { Locale } from "next-intl"
@@ -23,6 +28,7 @@ import { toEventCardEvent } from "../../utils"
 import { EventCard } from "../EventCard"
 import { EventDateFilter } from "../EventDateFilter"
 import { EventLocationFilter } from "../EventLocationFilter"
+import { EventVenueFilter } from "../EventVenueFilter"
 
 export interface EventsListingLabels {
   /** Page heading, e.g. "Événements". */
@@ -31,6 +37,7 @@ export interface EventsListingLabels {
   empty: string
   dateFilter: EventDateFilterLabels
   location: EventLocationFilterLabels
+  venue: EventVenueFilterLabels
   card: EventCardLabels
 }
 
@@ -40,6 +47,8 @@ export interface EventsListingProps {
   events: StrapiEvent[]
   /** Regions (with nested cities) seeding the location filter dropdowns. */
   regions: EventLocationRegion[]
+  /** Approved venues (name-sorted) seeding the venue filter combobox. */
+  venues: EventVenueOption[]
   /** The active, validated filter state parsed from the URL. */
   activeFilters: EventFilters
   labels: EventsListingLabels
@@ -49,13 +58,15 @@ export interface EventsListingProps {
  * Client island for the `/[locale]/events` listing. Renders the date filter +
  * a responsive `EventCard` grid from server-fetched props and owns the URL
  * writes: on filter change it serializes the filters and `router.push`es the
- * new query (`scroll: false`), letting the RSC re-fetch server-side. Reserved
- * `category`/`city`/`venue` params are preserved across date changes.
+ * new query (`scroll: false`), letting the RSC re-fetch server-side. The date,
+ * location (`region`/`city`) and `venue` filters all act; the reserved
+ * `category` param is merely preserved across changes.
  */
 export function EventsListing({
   locale,
   events,
   regions,
+  venues,
   activeFilters,
   labels,
 }: EventsListingProps) {
@@ -71,28 +82,28 @@ export function EventsListing({
     [activeFilters.region, activeFilters.city]
   )
 
-  const handleDateChange = React.useCallback(
-    (value: DateFilterValue) => {
-      const nextFilters: EventFilters = {
-        ...activeFilters,
-        date: serializeDateValue(value),
-      }
-      const query = serializeEventFilters(nextFilters).toString()
-      router.push(
-        query ? `/${locale}/events?${query}` : `/${locale}/events`,
-        { scroll: false }
-      )
-    },
-    [activeFilters, locale, router]
+  const venueValue = React.useMemo<VenueFilterValue>(
+    () => ({ venue: activeFilters.venue }),
+    [activeFilters.venue]
   )
 
-  const handleLocationChange = React.useCallback(
-    (value: LocationFilterValue, options?: { replace?: boolean }) => {
-      const nextFilters: EventFilters = {
-        ...activeFilters,
-        region: value.region,
-        city: value.city,
-      }
+  // A synchronously-updated mirror of the effective filters. The location and
+  // venue filters each restore-on-mount independently — separate child effects
+  // firing in the same commit (children before parents). If each handler built
+  // its next URL from the `activeFilters` prop (stale/empty on that first
+  // commit), the two `router.replace` calls would each omit the other's axis and
+  // the last one would clobber the first — silently dropping a remembered filter.
+  // Basing every change off this ref, updated as each handler runs, lets the
+  // concurrent restores compose into one coherent URL. The effect resyncs it to
+  // the URL-derived source of truth after each navigation settles.
+  const latestFiltersRef = React.useRef<EventFilters>(activeFilters)
+  React.useEffect(() => {
+    latestFiltersRef.current = activeFilters
+  }, [activeFilters])
+
+  const pushFilters = React.useCallback(
+    (nextFilters: EventFilters, options?: { replace?: boolean }) => {
+      latestFiltersRef.current = nextFilters
       const query = serializeEventFilters(nextFilters).toString()
       const url = query ? `/${locale}/events?${query}` : `/${locale}/events`
       // The mount-time restore asks for `replace` (no extra history entry); a
@@ -103,7 +114,41 @@ export function EventsListing({
         router.push(url, { scroll: false })
       }
     },
-    [activeFilters, locale, router]
+    [locale, router]
+  )
+
+  const handleDateChange = React.useCallback(
+    (value: DateFilterValue) => {
+      pushFilters({
+        ...latestFiltersRef.current,
+        date: serializeDateValue(value),
+      })
+    },
+    [pushFilters]
+  )
+
+  const handleLocationChange = React.useCallback(
+    (value: LocationFilterValue, options?: { replace?: boolean }) => {
+      pushFilters(
+        {
+          ...latestFiltersRef.current,
+          region: value.region,
+          city: value.city,
+        },
+        options
+      )
+    },
+    [pushFilters]
+  )
+
+  const handleVenueChange = React.useCallback(
+    (value: VenueFilterValue, options?: { replace?: boolean }) => {
+      pushFilters(
+        { ...latestFiltersRef.current, venue: value.venue },
+        options
+      )
+    },
+    [pushFilters]
   )
 
   const handleEventClick = React.useCallback(
@@ -139,6 +184,14 @@ export function EventsListing({
               value={locationValue}
               onChange={handleLocationChange}
               labels={labels.location}
+            />
+          </div>
+          <div className="no-scrollbar -mx-4 overflow-x-auto px-4">
+            <EventVenueFilter
+              venues={venues}
+              value={venueValue}
+              onChange={handleVenueChange}
+              labels={labels.venue}
             />
           </div>
         </div>

@@ -289,7 +289,11 @@
       "region": "الجهة",
       "city": "المدينة",
       "allRegions": "كل الجهات",
-      "allCities": "كل المدن"
+      "allCities": "كل المدن",
+      "venueFilter": "تصفية حسب القاعة",
+      "allVenues": "كل القاعات",
+      "searchVenue": "ابحث عن قاعة",
+      "noVenueFound": "لا توجد قاعة"
     }
   },
   "payment": {

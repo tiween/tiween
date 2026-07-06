@@ -289,7 +289,11 @@
       "region": "Région",
       "city": "Ville",
       "allRegions": "Toutes les régions",
-      "allCities": "Toutes les villes"
+      "allCities": "Toutes les villes",
+      "venueFilter": "Filtrer par salle",
+      "allVenues": "Toutes les salles",
+      "searchVenue": "Rechercher une salle",
+      "noVenueFound": "Aucune salle trouvée"
     }
   },
   "payment": {

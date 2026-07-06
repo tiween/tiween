@@ -190,6 +190,40 @@ describe("events controller.findEvents (unit)", () => {
     expect(arg.city).toBeUndefined()
   })
 
+  it("threads a valid venue param through to the service (Story 3.5)", async () => {
+    const { controller, service } = buildController()
+    const ctx = ctxWith({ query: { venue: "venue-1" } })
+
+    await controller.findEvents(ctx)
+
+    expect(ctx.badRequest).not.toHaveBeenCalled()
+    expect(service.findEvents).toHaveBeenCalledWith(
+      expect.objectContaining({ venue: "venue-1" })
+    )
+  })
+
+  it("ignores an empty venue param (no 400, no venue filter)", async () => {
+    const { controller, service } = buildController()
+    const ctx = ctxWith({ query: { venue: "" } })
+
+    await controller.findEvents(ctx)
+
+    expect(ctx.badRequest).not.toHaveBeenCalled()
+    const arg = service.findEvents.mock.calls[0][0]
+    expect(arg.venue).toBeUndefined()
+  })
+
+  it("ignores a whitespace-only venue param (trimmed to no filter, no 400)", async () => {
+    const { controller, service } = buildController()
+    const ctx = ctxWith({ query: { venue: "   " } })
+
+    await controller.findEvents(ctx)
+
+    expect(ctx.badRequest).not.toHaveBeenCalled()
+    const arg = service.findEvents.mock.calls[0][0]
+    expect(arg.venue).toBeUndefined()
+  })
+
   it("threads a valid locale through to the service", async () => {
     const { controller, service } = buildController()
     const ctx = ctxWith({ query: { locale: "ar" } })

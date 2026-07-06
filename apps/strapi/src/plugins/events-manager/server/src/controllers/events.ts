@@ -19,7 +19,8 @@ const MAX_PAGE_SIZE = 100
 const isoDatetime = z.string().datetime({ offset: true })
 
 /**
- * An opaque, locale-stable `documentId` filter value (Story 3.4 city/region).
+ * An opaque, locale-stable `documentId` filter value (Story 3.4 city/region,
+ * Story 3.5 venue).
  * An empty or whitespace-only string (`?region=`, `?region=%20`) is trimmed to
  * `undefined` so it is ignored — the I/O contract treats a blank location param
  * as "no location filter" (200), never a 400 — while a present value must be
@@ -64,6 +65,10 @@ const listQuerySchema = z
     // service. Absent/empty ⇒ no location filter (empty is stripped, not a 400).
     city: optionalDocumentId,
     region: optionalDocumentId,
+    // Venue filter (Story 3.5): an opaque, locale-stable `documentId` threaded
+    // into a `venue.documentId` relation filter, merged with city/region under
+    // the same `filters.venue` object. Absent/empty ⇒ no venue filter.
+    venue: optionalDocumentId,
     sort: z.enum(SORTABLE).optional(),
     locale: z.string().min(2).max(10).optional(),
   })
