@@ -4,9 +4,9 @@ type: "feature"
 created: "2026-07-06"
 status: "done"
 review_loop_iteration: 0
-followup_review_recommended: true
+followup_review_recommended: false
 baseline_revision: "0478ff8edfe688761466dc7ea0be354da53645c1"
-final_revision: "cfba5d25a4a59f3dd614c5edaebf385b54c93ea7"
+final_revision: "9e1dc8374ac9396d7c22df55ca00559fc3f18e89"
 sprint_key: "3-7-event-detail-page"
 depends_on: ["3-1-public-events-browse-api-and-data-foundation"]
 context:
@@ -117,6 +117,16 @@ warnings: ["oversized"]
   - Deferred (1): `EventDetailPageDesktop` / `EventDetailPageWithMap` still read the legacy `event.creativeWork` (which the new `DETAIL_POPULATE` no longer populates) — latent since the route renders neither; only type-patched for the `cast` shape change. Logged to `deferred-work.md`.
   - Rejected (12): `formatTime` ignores locale/timezone (uses the shared `dates.ts` helper; HH:mm Western numerals is project-compliant; the tz behavior is app-wide and unchanged from the prior `toLocaleTimeString` call, not this story's regression); showtimes grouped by UTC-date slice vs local display (pre-existing grouping pattern carried over, low near-midnight edge); `minPrice` can reflect a sold-out screening (pre-existing `getMinEventPrice`; low); sticky CTA active when every showtime is sold out (same gating as the prior implementation; the sold-out state is visible on each button); dead `ticketsAvailable`/`dateRange` labels (cosmetic dead plumbing); "event not found" title now generic-but-localized (acceptable trade-off over the old hardcoded French); `populate: DETAIL_POPULATE } as never` widens the cast (consistent with the established `findEvents … as never` precedent); one-film-per-event assumption in `getEventFilm` (spec-sanctioned by-design — the Block-If for mixed-movie events was not triggered by any evidence); related-events returns `[]` without a venue (spec by-design — same-venue-upcoming is the only real relation); undated-screening sort order (anomalous data — screenings carry `startDateTime`; low); duplicate director if the same person holds two directing credits (rare; low); dubbed-and-subtitled screening labelled `VOST` (reasonable nuance — subtitles present ⇒ VOST).
 
+### 2026-07-06 — Review pass (follow-up)
+
+- intent_gap: 0
+- bad_spec: 0
+- patch: 1: (high 0, medium 0, low 1)
+- defer: 5
+- reject: 16
+- addressed_findings:
+  - `[low]` `[patch]` **JSON-LD `subjectOf.actor` emitted empty-string names for unpopulated cast persons.** The Story-3.7 cast-shape migration made `subjectOf.actor: work.cast?.map((a) => ({ name: a.person?.name ?? "" }))` in `structured-data.ts` able to yield `{ "@type": "Person", name: "" }` when a cast entry's `person` is unpopulated — while the sibling `performers` loop 20 lines up already guards with `if (!actor?.name) return`. Added a matching `.filter((a) => a.person?.name)` before the map so malformed empty-name Person entries no longer appear in the Event structured data. Verified: client `structured-data.ts` is absent from the (large, pre-existing) `typecheck` error set both with and without the patch; `eventMappers` + `algolia/events` unit suites stay green (36/36).
+
 ## Design Notes
 
 **One event = one film, many screenings.** A `movie_screening` event points (via each `screening.movie`) at a single film; multiple screenings are its showtimes. So the detail "film" is `event.screenings[0].movie` and the showtime list is `event.screenings` sorted by `startDateTime`. The AC's "showtimes grouped by venue" collapses to one venue block (an event has exactly one `venue`, manyToOne) containing its screenings — cross-venue grouping is a list/aggregate concern, not a single-event detail. (Block only if seeded cinema events legitimately mix different movies across screenings.)
@@ -176,3 +186,14 @@ Status: done
 - Not exercised against a live Strapi + seed (not bootable here). The deep `DETAIL_POPULATE` and the real-schema mapper are covered only by mocked unit tests asserting the exact populate graph and field derivation. Recommend `yarn seed:fresh && yarn develop` + `curl '/api/events-manager/events/<documentId>'` (verify `screenings[].movie` cast/credits/poster and `venue.cityRef.region` populated) and a browser pass of `/fr/events/<id>` + `/ar/events/<id>` when an instance is available.
 - The showtime "begin purchase" navigation targets a ticketing route that does not exist until Epic 6 (by design).
 - `getEventFilm` assumes one film per `movie_screening` event (spec-sanctioned); if seed data mixes different movies across an event's screenings, the hero/cast reflect only the first — the escalation condition to revisit.
+
+### Follow-up review pass — 2026-07-06
+
+An independent follow-up review (Blind Hunter + Edge Case Hunter, no prior context) was run over the full `baseline..final` diff.
+
+- **Patched (1, low):** `structured-data.ts` `subjectOf.actor` now filters out cast entries whose `person` is unpopulated, so the Event JSON-LD no longer emits empty-string `Person` names (matching the guard the Story-3.7 change had already added to the sibling `performers` loop).
+- **Deferred (5):** sticky "Buy tickets" CTA scrolls to the first section (Synopsis) not Showtimes (pre-existing selector); CTA count/`minPrice` include sold-out screenings + no count pluralization; `stripMarkup` does not decode HTML entities (`&amp;` etc.); past screenings render as available/tappable (no date floor); related `EventSection` rendered with empty `seeAll`/`noEvents` labels. All appended to `deferred-work.md` under a new follow-up section (existing entries untouched).
+- **Rejected (16):** speculative (`as never` runtime-only populate risk, mixed-tz sort, price-without-documentId), spec-sanctioned by-design (one-film-per-event / double-bill escalation-gated, same-venue-upcoming related, 70mm/standard no badge, undefined-`ticketsAvailable`⇒available), intentional i18n (localized 404 title), consistent-existing-behavior (related cards use browse fallback, breadcrumb category slug), and very-low cosmetic edges (dead labels, RTL separator, undated-screening blank button, customRole-only director).
+- **No intent_gap, no bad_spec** — no spec amendment or implementation loopback; `review_loop_iteration` stayed 0.
+- **Verification (post-patch):** `eventMappers.test.ts` + `algolia/events.test.ts` → PASS 36/36; the patched `structured-data.ts` is absent from the client `typecheck` error set (a large, pre-existing repo baseline unrelated to this patch — confirmed by stash-diff). Strapi jest not run this pass (pre-existing `ts-node` env gap; patch is client-only).
+- **`followup_review_recommended` → false:** this pass produced a single localized, low-consequence fix — below the threshold for another independent review.
