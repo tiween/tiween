@@ -278,7 +278,14 @@
     "saved": "Enregistré",
     "save": "Enregistrer",
     "by": "de",
-    "home": "Accueil"
+    "home": "Accueil",
+    "listing": {
+      "title": "Événements",
+      "empty": "Aucun événement pour cette date",
+      "weekend": "Ce weekend",
+      "clear": "Effacer",
+      "dateFilter": "Filtrer par date"
+    }
   },
   "payment": {
     "title": "Paiement",

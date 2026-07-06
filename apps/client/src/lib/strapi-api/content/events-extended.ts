@@ -248,62 +248,124 @@ export async function getTrendingSlice(
 }
 
 // ---------------------------------------------------------------------------
-// Preset date-range helper (used by legacy homepage variants)
+// Date-range resolver (shared by the listing route + legacy homepage variants)
 // ---------------------------------------------------------------------------
 
+/** Start (00:00 Africa/Tunis) of an explicit calendar day as ISO UTC. */
+function tunisStartOfExplicitDay(y: number, m: number, d: number): string {
+  // UTC hour -1 === 23:00 the previous day === 00:00 Africa/Tunis (UTC+1).
+  return new Date(Date.UTC(y, m - 1, d, -1, 0, 0, 0)).toISOString()
+}
+
+/** End (23:59:59.999 Africa/Tunis) of an explicit calendar day as ISO UTC. */
+function tunisEndOfExplicitDay(y: number, m: number, d: number): string {
+  // UTC hour 22 === 23:00 Africa/Tunis; keep 59:59.999 for an inclusive bound.
+  return new Date(Date.UTC(y, m - 1, d, 22, 59, 59, 999)).toISOString()
+}
+
 /**
- * Map a preset/`YYYY-MM-DD` date filter to an ISO `startDateTime` range. Returns
- * an open upper-bounded "from now" window when no filter is provided.
+ * Parse a strict `YYYY-MM-DD` token into calendar parts, rejecting values that
+ * are syntactically shaped but not real dates (e.g. `2026-13-40`, `2026-02-30`).
+ * Returns `null` for anything invalid.
+ */
+function parseCalendarDay(token: string): [number, number, number] | null {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(token)) return null
+  const [y, m, d] = token.split("-").map(Number) as [number, number, number]
+  // Round-trip through UTC to reject overflowed month/day components.
+  const probe = new Date(Date.UTC(y, m - 1, d))
+  if (
+    probe.getUTCFullYear() !== y ||
+    probe.getUTCMonth() !== m - 1 ||
+    probe.getUTCDate() !== d
+  ) {
+    return null
+  }
+  return [y, m, d]
+}
+
+/** Africa/Tunis weekday (0=Sun … 6=Sat) of *today* relative to `now`. */
+function tunisWeekday(now: Date): number {
+  const [y, m, d] = tunisDateParts(now)
+  return new Date(Date.UTC(y, m - 1, d)).getUTCDay()
+}
+
+/**
+ * Resolve a `date` filter token to an ISO `startDateTime` window, using
+ * Africa/Tunis (fixed UTC+1, no DST) day boundaries so late-night screenings are
+ * never mis-bucketed by the host timezone.
+ *
+ * Accepted grammar:
+ * - preset `today` | `tomorrow` | `weekend` (and legacy `this-week`)
+ * - a single day `YYYY-MM-DD`
+ * - a custom range `YYYY-MM-DD..YYYY-MM-DD` (inclusive)
+ *
+ * Undefined, empty, malformed, or inverted (`end < start`) input yields an
+ * open-ended "upcoming" window (`startDate` = start of today, no upper bound) so
+ * the listing degrades to a sensible default instead of crashing.
  */
 export function buildDateRange(
   dateFilter?: DateFilterType,
   now: Date = new Date()
 ): { startDate?: string; endDate?: string } {
-  const base = new Date(now)
-  base.setHours(0, 0, 0, 0)
+  const openEnded = { startDate: startOfToday(now) }
 
-  const atEndOfDay = (d: Date) => {
-    const e = new Date(d)
-    e.setHours(23, 59, 59, 999)
-    return e.toISOString()
-  }
+  if (!dateFilter) return openEnded
 
   switch (dateFilter) {
-    case undefined:
-    case "":
-      return { startDate: now.toISOString() }
     case "today":
-      return { startDate: base.toISOString(), endDate: atEndOfDay(base) }
-    case "tomorrow": {
-      const t = new Date(base)
-      t.setDate(t.getDate() + 1)
-      return { startDate: t.toISOString(), endDate: atEndOfDay(t) }
-    }
-    case "this-week":
-      return { startDate: base.toISOString(), endDate: endOfDayInDays(7, now) }
-    case "weekend": {
-      const day = base.getDay()
-      const daysUntilSat = day === 6 ? 0 : (6 - day + 7) % 7
-      const sat = new Date(base)
-      sat.setDate(base.getDate() + daysUntilSat)
-      const sun = new Date(sat)
-      sun.setDate(sat.getDate() + 1)
-      return { startDate: sat.toISOString(), endDate: atEndOfDay(sun) }
-    }
-    default: {
-      if (/^\d{4}-\d{2}-\d{2}$/.test(dateFilter)) {
-        const parts = dateFilter.split("-")
-        const day = new Date(
-          Number(parts[0]),
-          Number(parts[1]) - 1,
-          Number(parts[2])
-        )
-        day.setHours(0, 0, 0, 0)
-        return { startDate: day.toISOString(), endDate: atEndOfDay(day) }
+      return { startDate: startOfToday(now), endDate: endOfToday(now) }
+    case "tomorrow":
+      return {
+        startDate: startOfDayInDays(1, now),
+        endDate: endOfDayInDays(1, now),
       }
-      return { startDate: now.toISOString() }
+    case "this-week":
+      // Legacy homepage preset — retained for back-compat.
+      return { startDate: startOfToday(now), endDate: endOfDayInDays(7, now) }
+    case "weekend": {
+      const dow = tunisWeekday(now)
+      // On Sunday the weekend is already underway (Saturday has passed) — show
+      // the remainder of the current weekend (today) rather than skipping a
+      // whole week to the next Saturday.
+      if (dow === 0) {
+        return { startDate: startOfToday(now), endDate: endOfToday(now) }
+      }
+      const daysUntilSat = dow === 6 ? 0 : 6 - dow
+      return {
+        startDate: startOfDayInDays(daysUntilSat, now),
+        endDate: endOfDayInDays(daysUntilSat + 1, now),
+      }
+    }
+    default:
+      break
+  }
+
+  // Custom range `YYYY-MM-DD..YYYY-MM-DD`.
+  if (dateFilter.includes("..")) {
+    const [rawStart, rawEnd, extra] = dateFilter.split("..")
+    if (extra !== undefined) return openEnded
+    const start = rawStart ? parseCalendarDay(rawStart) : null
+    const end = rawEnd ? parseCalendarDay(rawEnd) : null
+    if (!start || !end) return openEnded
+    const startIso = tunisStartOfExplicitDay(start[0], start[1], start[2])
+    const endIso = tunisEndOfExplicitDay(end[0], end[1], end[2])
+    // Inverted range → treat as no filter (default upcoming).
+    if (new Date(endIso).getTime() < new Date(startIso).getTime()) {
+      return openEnded
+    }
+    return { startDate: startIso, endDate: endIso }
+  }
+
+  // Single day `YYYY-MM-DD`.
+  const day = parseCalendarDay(dateFilter)
+  if (day) {
+    return {
+      startDate: tunisStartOfExplicitDay(day[0], day[1], day[2]),
+      endDate: tunisEndOfExplicitDay(day[0], day[1], day[2]),
     }
   }
+
+  return openEnded
 }
 
 // ---------------------------------------------------------------------------

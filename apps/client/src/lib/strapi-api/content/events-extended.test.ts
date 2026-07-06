@@ -108,6 +108,105 @@ describe("date-range helpers", () => {
   })
 })
 
+describe("buildDateRange (Story 3.3 — Tunis-aware + range-capable)", () => {
+  const now = new Date("2026-07-06T15:00:00.000Z")
+
+  const tunisDate = (iso: string) =>
+    new Intl.DateTimeFormat("en-CA", {
+      timeZone: "Africa/Tunis",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).format(new Date(iso))
+  const tunisTime = (iso: string) =>
+    new Intl.DateTimeFormat("en-GB", {
+      timeZone: "Africa/Tunis",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    }).format(new Date(iso))
+  const tunisWeekday = (iso: string) =>
+    new Intl.DateTimeFormat("en-US", {
+      timeZone: "Africa/Tunis",
+      weekday: "short",
+    }).format(new Date(iso))
+
+  it("today → today's Tunis start..end window", () => {
+    const r = buildDateRange("today", now)
+    expect(r.startDate).toBe(startOfToday(now))
+    expect(r.endDate).toBe(endOfToday(now))
+    expect(tunisTime(r.startDate!)).toBe("00:00")
+    expect(tunisTime(r.endDate!)).toBe("23:59")
+  })
+
+  it("tomorrow → next Tunis day start..end window", () => {
+    const r = buildDateRange("tomorrow", now)
+    expect(r.startDate).toBe(startOfDayInDays(1, now))
+    expect(r.endDate).toBe(endOfDayInDays(1, now))
+  })
+
+  it("weekend → upcoming Saturday 00:00 .. Sunday 23:59 (Tunis)", () => {
+    const r = buildDateRange("weekend", now)
+    expect(r.startDate).toBeDefined()
+    expect(r.endDate).toBeDefined()
+    expect(tunisWeekday(r.startDate!)).toBe("Sat")
+    expect(tunisWeekday(r.endDate!)).toBe("Sun")
+    expect(tunisTime(r.startDate!)).toBe("00:00")
+    expect(tunisTime(r.endDate!)).toBe("23:59")
+    expect(new Date(r.endDate!).getTime()).toBeGreaterThan(
+      new Date(r.startDate!).getTime()
+    )
+  })
+
+  it("weekend on a Sunday → the current Sunday (does not skip to next weekend)", () => {
+    // 2026-07-12 is a Sunday in Africa/Tunis; the weekend is already underway.
+    const sunday = new Date("2026-07-12T15:00:00.000Z")
+    const r = buildDateRange("weekend", sunday)
+    expect(r.startDate).toBe(startOfToday(sunday))
+    expect(r.endDate).toBe(endOfToday(sunday))
+    expect(tunisWeekday(r.startDate!)).toBe("Sun")
+    expect(tunisWeekday(r.endDate!)).toBe("Sun")
+    expect(tunisDate(r.startDate!)).toBe("2026-07-12")
+  })
+
+  it("single YYYY-MM-DD → that exact Tunis calendar day (independent of now)", () => {
+    const r = buildDateRange("2026-07-10", now)
+    expect(tunisDate(r.startDate!)).toBe("2026-07-10")
+    expect(tunisDate(r.endDate!)).toBe("2026-07-10")
+    expect(tunisTime(r.startDate!)).toBe("00:00")
+    expect(tunisTime(r.endDate!)).toBe("23:59")
+  })
+
+  it("range YYYY-MM-DD..YYYY-MM-DD → [start-of-first, end-of-last] (Tunis)", () => {
+    const r = buildDateRange("2026-07-10..2026-07-14", now)
+    expect(tunisDate(r.startDate!)).toBe("2026-07-10")
+    expect(tunisTime(r.startDate!)).toBe("00:00")
+    expect(tunisDate(r.endDate!)).toBe("2026-07-14")
+    expect(tunisTime(r.endDate!)).toBe("23:59")
+  })
+
+  it("inverted range → no filter (open-ended upcoming from start-of-today)", () => {
+    const r = buildDateRange("2026-07-14..2026-07-10", now)
+    expect(r.startDate).toBe(startOfToday(now))
+    expect(r.endDate).toBeUndefined()
+  })
+
+  it.each(["garbage", "2026-13-40", "2026-07-10..bad", "2026-07-10..", ""])(
+    "invalid input %j → open-ended upcoming",
+    (input) => {
+      const r = buildDateRange(input, now)
+      expect(r.startDate).toBe(startOfToday(now))
+      expect(r.endDate).toBeUndefined()
+    }
+  )
+
+  it("undefined → open-ended upcoming (lower bound only)", () => {
+    const r = buildDateRange(undefined, now)
+    expect(r.startDate).toBe(startOfToday(now))
+    expect(r.endDate).toBeUndefined()
+  })
+})
+
 describe("fetchEvents", () => {
   it("passes only defined, allowlisted flat query params", async () => {
     fetchAPI.mockResolvedValue(listResponse(1))

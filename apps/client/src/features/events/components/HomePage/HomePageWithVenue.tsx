@@ -513,7 +513,11 @@ export function HomePageWithVenue({
           "this-week",
           labels.thisWeekTitle,
           thisWeekCards,
-          buildSeeAllUrl(`/${locale}/events?date=this-week`)
+          // The listing `date` grammar has no "this-week" preset, and computing
+          // a range at render is timezone-unsafe + hydration-unstable, so the
+          // "See all" link opens the upcoming listing (sorted ascending, so
+          // this-week events lead) rather than a mis-scoped/mismatched window.
+          buildSeeAllUrl(`/${locale}/events`)
         )}
 
         {renderCuratedSection(

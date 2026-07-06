@@ -137,7 +137,7 @@ development_status:
   3-1-public-events-browse-api-and-data-foundation: done
   3-11-homepage-with-curated-event-listings: done
   3-2-category-filtering: deferred
-  3-3-date-range-filtering: backlog
+  3-3-date-range-filtering: done
   3-4-region-and-city-filtering: backlog
   3-5-venue-filtering: backlog
   3-6-keyword-search-with-algolia: backlog

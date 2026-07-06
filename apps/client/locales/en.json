@@ -278,7 +278,14 @@
     "saved": "Saved",
     "save": "Save",
     "by": "by",
-    "home": "Home"
+    "home": "Home",
+    "listing": {
+      "title": "Events",
+      "empty": "No events for this date",
+      "weekend": "This weekend",
+      "clear": "Clear",
+      "dateFilter": "Filter by date"
+    }
   },
   "payment": {
     "title": "Payment",
