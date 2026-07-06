@@ -6,6 +6,7 @@ status: "done"
 review_loop_iteration: 0
 followup_review_recommended: true
 baseline_revision: "0478ff8edfe688761466dc7ea0be354da53645c1"
+final_revision: "cfba5d25a4a59f3dd614c5edaebf385b54c93ea7"
 sprint_key: "3-7-event-detail-page"
 depends_on: ["3-1-public-events-browse-api-and-data-foundation"]
 context:
