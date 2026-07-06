@@ -272,6 +272,25 @@ describe("fetchEvents", () => {
     expect(params).not.toHaveProperty("venue")
   })
 
+  it("forwards the keyword q param to the endpoint (Story 3.6)", async () => {
+    fetchAPI.mockResolvedValue(listResponse(1))
+    await fetchEvents({
+      locale: "fr",
+      q: "inception",
+      sort: "startDateTime:asc",
+    })
+    const [path, params] = fetchAPI.mock.calls[0]
+    expect(path).toBe("/events-manager/events")
+    expect(params).toMatchObject({ q: "inception" })
+  })
+
+  it("omits q when it is not provided", async () => {
+    fetchAPI.mockResolvedValue(listResponse(1))
+    await fetchEvents({ locale: "fr" })
+    const [, params] = fetchAPI.mock.calls[0]
+    expect(params).not.toHaveProperty("q")
+  })
+
   it("returns an empty slice (fail-soft) when the client throws", async () => {
     fetchAPI.mockRejectedValue(new Error("boom"))
     const spy = vi.spyOn(console, "error").mockImplementation(() => {})

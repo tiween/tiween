@@ -18,9 +18,10 @@ function asLocale(locale?: string): Locale | undefined {
  * `startDateTime`), `sort` (`startDateTime|title` × `asc|desc`), `locale`.
  * Unknown params are stripped server-side; there is NO raw `filters`/`populate`
  * pass-through, and responses are the Strapi v5 shape (`{ data, meta }`) with no
- * transformation layer. Location (`city`/`region`, Story 3.4) and `venue`
- * (Story 3.5) filtering are supported via the typed params below; category
- * filtering remains out of scope (deferred Story 3.2).
+ * transformation layer. Location (`city`/`region`, Story 3.4), `venue`
+ * (Story 3.5), and keyword search (`q`, Story 3.6) filtering are supported via
+ * the typed params below; category filtering remains out of scope (deferred
+ * Story 3.2).
  *
  * Every fetcher is fail-soft: an upstream error resolves to an empty slice so
  * the homepage degrades gracefully and never becomes a cold empty page.
@@ -69,6 +70,8 @@ export interface EventQueryParams {
   region?: string
   /** Venue `documentId` — filters via `venue.documentId` (Story 3.5). */
   venue?: string
+  /** Keyword search term — matched across title/movie fields/venue name (Story 3.6). */
+  q?: string
   sort?: EventSort
 }
 
@@ -164,6 +167,7 @@ export async function fetchEvents(
     city,
     region,
     venue,
+    q,
     sort,
   } = params
 
@@ -181,6 +185,7 @@ export async function fetchEvents(
         ...(city ? { city } : {}),
         ...(region ? { region } : {}),
         ...(venue ? { venue } : {}),
+        ...(q ? { q } : {}),
         ...(sort ? { sort } : {}),
       },
       { next: { revalidate: REVALIDATE_SECONDS } }

@@ -224,6 +224,51 @@ describe("events controller.findEvents (unit)", () => {
     expect(arg.venue).toBeUndefined()
   })
 
+  it("threads a valid keyword q through to the service (Story 3.6)", async () => {
+    const { controller, service } = buildController()
+    const ctx = ctxWith({ query: { q: "inception" } })
+
+    await controller.findEvents(ctx)
+
+    expect(ctx.badRequest).not.toHaveBeenCalled()
+    expect(service.findEvents).toHaveBeenCalledWith(
+      expect.objectContaining({ q: "inception" })
+    )
+  })
+
+  it("trims a padded keyword q before forwarding it", async () => {
+    const { controller, service } = buildController()
+    const ctx = ctxWith({ query: { q: "  jazz  " } })
+
+    await controller.findEvents(ctx)
+
+    expect(ctx.badRequest).not.toHaveBeenCalled()
+    const arg = service.findEvents.mock.calls[0][0]
+    expect(arg.q).toBe("jazz")
+  })
+
+  it("ignores an empty keyword q (no 400, no keyword filter)", async () => {
+    const { controller, service } = buildController()
+    const ctx = ctxWith({ query: { q: "" } })
+
+    await controller.findEvents(ctx)
+
+    expect(ctx.badRequest).not.toHaveBeenCalled()
+    const arg = service.findEvents.mock.calls[0][0]
+    expect(arg.q).toBeUndefined()
+  })
+
+  it("ignores a whitespace-only keyword q (trimmed to no filter, no 400)", async () => {
+    const { controller, service } = buildController()
+    const ctx = ctxWith({ query: { q: "   " } })
+
+    await controller.findEvents(ctx)
+
+    expect(ctx.badRequest).not.toHaveBeenCalled()
+    const arg = service.findEvents.mock.calls[0][0]
+    expect(arg.q).toBeUndefined()
+  })
+
   it("threads a valid locale through to the service", async () => {
     const { controller, service } = buildController()
     const ctx = ctxWith({ query: { locale: "ar" } })

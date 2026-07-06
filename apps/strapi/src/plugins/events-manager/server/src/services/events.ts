@@ -40,6 +40,13 @@ export interface FindEventsParams {
   region?: string
   /** Venue `documentId` — filters via `venue.documentId` (Story 3.5). */
   venue?: string
+  /**
+   * Keyword search term (Story 3.6) — translated into a top-level `filters.$or`
+   * of `$containsi` clauses across the event title, its screenings' movie
+   * title/originalTitle/synopsis, and the venue name. AND-combines with the
+   * other filters. Absent/blank ⇒ no keyword filter.
+   */
+  q?: string
   sort?: string
   locale?: string
 }
@@ -76,6 +83,7 @@ function buildFilters(params: {
   city?: string
   region?: string
   venue?: string
+  q?: string
 }): Record<string, unknown> {
   const filters: Record<string, unknown> = { category: MVP_CATEGORY }
 
@@ -117,6 +125,24 @@ function buildFilters(params: {
       venue.cityRef = cityRef
     }
     filters.venue = venue
+  }
+
+  // Keyword search (Story 3.6): one top-level `$or` of case-insensitive
+  // substring matches across the event's real, populated relations — the event
+  // `title`, its screenings' `movie` (creative-work) title/originalTitle/
+  // synopsis, and the `venue` name. Assigned once as `filters.$or` so it
+  // AND-combines with `category`/`eventStatus`/`startDateTime`/`venue` above
+  // (never touching `filters.venue`). A relation filter on the event query —
+  // never a foreign-UID `strapi.documents()` call. Absent/blank ⇒ no keyword
+  // filter (the controller trims blank/whitespace to `undefined`).
+  if (params.q) {
+    filters.$or = [
+      { title: { $containsi: params.q } },
+      { screenings: { movie: { title: { $containsi: params.q } } } },
+      { screenings: { movie: { originalTitle: { $containsi: params.q } } } },
+      { screenings: { movie: { synopsis: { $containsi: params.q } } } },
+      { venue: { name: { $containsi: params.q } } },
+    ]
   }
 
   return filters

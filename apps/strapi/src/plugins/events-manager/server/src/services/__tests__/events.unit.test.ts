@@ -212,6 +212,62 @@ describe("events service.findEvents (unit)", () => {
     expect(call.filters).not.toHaveProperty("venue")
   })
 
+  it("builds a keyword $or across title/movie fields/venue name (Story 3.6)", async () => {
+    const { strapi, api } = buildStrapi({ count: jest.fn(async () => 0) })
+    const service = eventsService({ strapi })
+
+    await service.findEvents({ page: 1, pageSize: 25, q: "inception" })
+
+    const call = api.findMany.mock.calls[0][0]
+    expect(call.filters.$or).toEqual([
+      { title: { $containsi: "inception" } },
+      { screenings: { movie: { title: { $containsi: "inception" } } } },
+      { screenings: { movie: { originalTitle: { $containsi: "inception" } } } },
+      { screenings: { movie: { synopsis: { $containsi: "inception" } } } },
+      { venue: { name: { $containsi: "inception" } } },
+    ])
+  })
+
+  it("keyword $or coexists (AND) with venue/date filters without clobbering filters.venue", async () => {
+    const { strapi, api } = buildStrapi({ count: jest.fn(async () => 0) })
+    const service = eventsService({ strapi })
+
+    await service.findEvents({
+      page: 1,
+      pageSize: 25,
+      q: "jazz",
+      venue: "venue-1",
+      city: "city-1",
+      startDate: "2026-07-01T00:00:00.000Z",
+    })
+
+    const call = api.findMany.mock.calls[0][0]
+    // Keyword $or is present…
+    expect(Array.isArray(call.filters.$or)).toBe(true)
+    expect(call.filters.$or).toHaveLength(5)
+    // …and the venue relation filter is intact (not overwritten by $or).
+    expect(call.filters.venue).toEqual({
+      documentId: "venue-1",
+      cityRef: { documentId: "city-1" },
+    })
+    // …and the date filter still applies.
+    expect(call.filters.startDateTime).toEqual({
+      $gte: "2026-07-01T00:00:00.000Z",
+    })
+    // …and the MVP category scope is preserved.
+    expect(call.filters.category).toBe("movie_screening")
+  })
+
+  it("applies no keyword $or when q is omitted", async () => {
+    const { strapi, api } = buildStrapi({ count: jest.fn(async () => 0) })
+    const service = eventsService({ strapi })
+
+    await service.findEvents({ page: 1, pageSize: 25 })
+
+    const call = api.findMany.mock.calls[0][0]
+    expect(call.filters).not.toHaveProperty("$or")
+  })
+
   it("excludes cancelled events by default when no eventStatus is given", async () => {
     const { strapi, api } = buildStrapi({ count: jest.fn(async () => 0) })
     const service = eventsService({ strapi })

@@ -32,6 +32,18 @@ const optionalDocumentId = z.preprocess(
 )
 
 /**
+ * An optional free-text keyword search term (Story 3.6). Like
+ * `optionalDocumentId`, a blank or whitespace-only value (`?q=`, `?q=%20`) is
+ * trimmed to `undefined` so it is ignored — a blank keyword means "no keyword
+ * filter" (200), never a 400 and never a `$containsi:""` that matches
+ * everything. A present value is bounded (1..200 chars) to reject absurd input.
+ */
+const optionalKeyword = z.preprocess(
+  (v) => (typeof v === "string" ? v.trim() || undefined : v),
+  z.string().min(1).max(200).optional()
+)
+
+/**
  * Allowlisted `sort` values. The raw value is forwarded to the Document Service,
  * which throws on an unknown field/relation — that would surface as an uncaught
  * 500. Constraining to an enum means any other value is rejected as a 400
@@ -69,6 +81,10 @@ const listQuerySchema = z
     // into a `venue.documentId` relation filter, merged with city/region under
     // the same `filters.venue` object. Absent/empty ⇒ no venue filter.
     venue: optionalDocumentId,
+    // Keyword search (Story 3.6): a free-text term threaded into a top-level
+    // `filters.$or` of `$containsi` clauses by the service. Absent/blank ⇒ no
+    // keyword filter (blank is trimmed to undefined, not a 400).
+    q: optionalKeyword,
     sort: z.enum(SORTABLE).optional(),
     locale: z.string().min(2).max(10).optional(),
   })

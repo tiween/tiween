@@ -74,6 +74,7 @@ export default defineConfig({
       "src/features/events/components/EventLocationFilter/**/*.test.tsx",
       "src/features/events/components/EventVenueFilter/**/*.test.tsx",
       "src/lib/strapi-api/**/*.test.ts",
+      "src/lib/algolia/**/*.test.ts",
     ],
   },
 })
