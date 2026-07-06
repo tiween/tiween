@@ -34,6 +34,10 @@ export interface FindEventsParams {
   eventStatus?: EventStatus
   startDate?: string
   endDate?: string
+  /** City `documentId` — filters via `venue.cityRef.documentId` (Story 3.4). */
+  city?: string
+  /** Region `documentId` — filters via `venue.cityRef.region.documentId` (Story 3.4). */
+  region?: string
   sort?: string
   locale?: string
 }
@@ -67,6 +71,8 @@ function buildFilters(params: {
   eventStatus?: EventStatus
   startDate?: string
   endDate?: string
+  city?: string
+  region?: string
 }): Record<string, unknown> {
   const filters: Record<string, unknown> = { category: MVP_CATEGORY }
 
@@ -88,6 +94,18 @@ function buildFilters(params: {
   if (params.endDate) range.$lte = params.endDate
   if (Object.keys(range).length > 0) {
     filters.startDateTime = range
+  }
+
+  // Location filter (Story 3.4): a nested relation filter on the event query —
+  // `venue.cityRef.documentId` (city) and/or `venue.cityRef.region.documentId`
+  // (region) — never a foreign-UID `strapi.documents()` call, per the
+  // architecture's cross-plugin rule (precedented by search.ts). Both may apply
+  // together (AND). Absent/empty values contribute no filter (all areas).
+  if (params.city || params.region) {
+    const cityRef: Record<string, unknown> = {}
+    if (params.city) cityRef.documentId = params.city
+    if (params.region) cityRef.region = { documentId: params.region }
+    filters.venue = { cityRef }
   }
 
   return filters

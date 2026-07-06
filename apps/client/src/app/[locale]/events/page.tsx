@@ -5,12 +5,14 @@ import { getTranslations, setRequestLocale } from "next-intl/server"
 
 import type { EventsListingLabels } from "@/features/events/components"
 import type { EventsSlice } from "@/lib/strapi-api/content/events-extended"
+import type { StrapiRegion } from "@/lib/strapi-api/content/geography"
 
 import { parseEventFilters } from "@/features/events/filters/filterParams"
 import {
   buildDateRange,
   fetchEvents,
 } from "@/lib/strapi-api/content/events-extended"
+import { getRegions } from "@/lib/strapi-api/content/geography"
 
 // Page-1 size for the MVP listing. Sized well above realistic per-date cinema
 // volume so a single window is effectively complete; true load-more/pagination
@@ -53,6 +55,14 @@ async function buildLabels(locale: Locale): Promise<EventsListingLabels> {
       clear: tEvents("listing.clear"),
       groupLabel: tEvents("listing.dateFilter"),
     },
+    location: {
+      groupLabel: tEvents("listing.locationFilter"),
+      regionPlaceholder: tEvents("listing.region"),
+      cityPlaceholder: tEvents("listing.city"),
+      allRegions: tEvents("listing.allRegions"),
+      allCities: tEvents("listing.allCities"),
+      clear: tEvents("listing.clear"),
+    },
     card: {
       addToWatchlist: tEvents("addToWatchlist"),
       removeFromWatchlist: tEvents("removeFromWatchlist"),
@@ -83,12 +93,26 @@ export default async function EventsListingRoute({
   const filters = parseEventFilters(sp)
   const { startDate, endDate } = buildDateRange(filters.date)
 
+  // Geography seeds the location filter dropdowns. Fail-soft: on any error the
+  // listing still renders (with an empty/hidden location filter) rather than
+  // 500ing the whole page — same contract as the date/events path. `getRegions`
+  // is already fail-soft (returns []); the try/catch is belt-and-suspenders.
+  let regions: StrapiRegion[] = []
+  try {
+    regions = await getRegions(locale)
+  } catch (error) {
+    console.error("[EventsListingRoute] Error fetching regions:", error)
+    regions = []
+  }
+
   let slice: EventsSlice = EMPTY_SLICE
   try {
     slice = await fetchEvents({
       locale,
       startDate,
       endDate,
+      city: filters.city,
+      region: filters.region,
       sort: "startDateTime:asc",
       pageSize: LISTING_PAGE_SIZE,
     })
@@ -103,6 +127,7 @@ export default async function EventsListingRoute({
     <EventsListing
       locale={locale}
       events={slice.events}
+      regions={regions}
       activeFilters={filters}
       labels={labels}
     />

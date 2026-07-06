@@ -284,7 +284,12 @@
       "empty": "Aucun événement pour cette date",
       "weekend": "Ce weekend",
       "clear": "Effacer",
-      "dateFilter": "Filtrer par date"
+      "dateFilter": "Filtrer par date",
+      "locationFilter": "Filtrer par lieu",
+      "region": "Région",
+      "city": "Ville",
+      "allRegions": "Toutes les régions",
+      "allCities": "Toutes les villes"
     }
   },
   "payment": {

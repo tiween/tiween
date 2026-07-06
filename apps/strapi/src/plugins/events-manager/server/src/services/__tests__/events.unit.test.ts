@@ -86,6 +86,71 @@ describe("events service.findEvents (unit)", () => {
     )
   })
 
+  it("applies a city-only location filter as venue.cityRef.documentId", async () => {
+    const { strapi, api } = buildStrapi({ count: jest.fn(async () => 0) })
+    const service = eventsService({ strapi })
+
+    await service.findEvents({ page: 1, pageSize: 25, city: "city-1" })
+
+    expect(api.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        filters: expect.objectContaining({
+          venue: { cityRef: { documentId: "city-1" } },
+        }),
+      })
+    )
+  })
+
+  it("applies a region-only location filter as venue.cityRef.region.documentId", async () => {
+    const { strapi, api } = buildStrapi({ count: jest.fn(async () => 0) })
+    const service = eventsService({ strapi })
+
+    await service.findEvents({ page: 1, pageSize: 25, region: "region-1" })
+
+    expect(api.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        filters: expect.objectContaining({
+          venue: { cityRef: { region: { documentId: "region-1" } } },
+        }),
+      })
+    )
+  })
+
+  it("ANDs city + region into a single nested venue.cityRef filter", async () => {
+    const { strapi, api } = buildStrapi({ count: jest.fn(async () => 0) })
+    const service = eventsService({ strapi })
+
+    await service.findEvents({
+      page: 1,
+      pageSize: 25,
+      city: "city-1",
+      region: "region-1",
+    })
+
+    expect(api.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        filters: expect.objectContaining({
+          venue: {
+            cityRef: {
+              documentId: "city-1",
+              region: { documentId: "region-1" },
+            },
+          },
+        }),
+      })
+    )
+  })
+
+  it("applies no location filter when city/region are omitted", async () => {
+    const { strapi, api } = buildStrapi({ count: jest.fn(async () => 0) })
+    const service = eventsService({ strapi })
+
+    await service.findEvents({ page: 1, pageSize: 25 })
+
+    const call = api.findMany.mock.calls[0][0]
+    expect(call.filters).not.toHaveProperty("venue")
+  })
+
   it("excludes cancelled events by default when no eventStatus is given", async () => {
     const { strapi, api } = buildStrapi({ count: jest.fn(async () => 0) })
     const service = eventsService({ strapi })

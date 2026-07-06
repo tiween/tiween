@@ -5,6 +5,11 @@ import { useRouter } from "next/navigation"
 
 import type { EventCardLabels } from "../EventCard"
 import type { EventDateFilterLabels } from "../EventDateFilter"
+import type {
+  EventLocationFilterLabels,
+  EventLocationRegion,
+  LocationFilterValue,
+} from "../EventLocationFilter"
 import type { DateFilterValue, EventFilters } from "../../filters/filterParams"
 import type { StrapiEvent } from "../../types/strapi.types"
 import type { Locale } from "next-intl"
@@ -17,6 +22,7 @@ import {
 import { toEventCardEvent } from "../../utils"
 import { EventCard } from "../EventCard"
 import { EventDateFilter } from "../EventDateFilter"
+import { EventLocationFilter } from "../EventLocationFilter"
 
 export interface EventsListingLabels {
   /** Page heading, e.g. "Événements". */
@@ -24,6 +30,7 @@ export interface EventsListingLabels {
   /** Inline empty-state copy, e.g. "Aucun événement pour cette date". */
   empty: string
   dateFilter: EventDateFilterLabels
+  location: EventLocationFilterLabels
   card: EventCardLabels
 }
 
@@ -31,6 +38,8 @@ export interface EventsListingProps {
   locale: Locale
   /** Server-fetched, date-filtered, showtime-ordered events (Strapi v5 shape). */
   events: StrapiEvent[]
+  /** Regions (with nested cities) seeding the location filter dropdowns. */
+  regions: EventLocationRegion[]
   /** The active, validated filter state parsed from the URL. */
   activeFilters: EventFilters
   labels: EventsListingLabels
@@ -46,6 +55,7 @@ export interface EventsListingProps {
 export function EventsListing({
   locale,
   events,
+  regions,
   activeFilters,
   labels,
 }: EventsListingProps) {
@@ -54,6 +64,11 @@ export function EventsListing({
   const dateValue = React.useMemo<DateFilterValue>(
     () => parseDateValue(activeFilters.date),
     [activeFilters.date]
+  )
+
+  const locationValue = React.useMemo<LocationFilterValue>(
+    () => ({ region: activeFilters.region, city: activeFilters.city }),
+    [activeFilters.region, activeFilters.city]
   )
 
   const handleDateChange = React.useCallback(
@@ -67,6 +82,26 @@ export function EventsListing({
         query ? `/${locale}/events?${query}` : `/${locale}/events`,
         { scroll: false }
       )
+    },
+    [activeFilters, locale, router]
+  )
+
+  const handleLocationChange = React.useCallback(
+    (value: LocationFilterValue, options?: { replace?: boolean }) => {
+      const nextFilters: EventFilters = {
+        ...activeFilters,
+        region: value.region,
+        city: value.city,
+      }
+      const query = serializeEventFilters(nextFilters).toString()
+      const url = query ? `/${locale}/events?${query}` : `/${locale}/events`
+      // The mount-time restore asks for `replace` (no extra history entry); a
+      // user selection uses `push`.
+      if (options?.replace) {
+        router.replace(url, { scroll: false })
+      } else {
+        router.push(url, { scroll: false })
+      }
     },
     [activeFilters, locale, router]
   )
@@ -90,12 +125,20 @@ export function EventsListing({
           {labels.title}
         </h1>
 
-        <div className="mb-6">
+        <div className="mb-6 space-y-3">
           <div className="no-scrollbar -mx-4 overflow-x-auto px-4">
             <EventDateFilter
               value={dateValue}
               onChange={handleDateChange}
               labels={labels.dateFilter}
+            />
+          </div>
+          <div className="no-scrollbar -mx-4 overflow-x-auto px-4">
+            <EventLocationFilter
+              regions={regions}
+              value={locationValue}
+              onChange={handleLocationChange}
+              labels={labels.location}
             />
           </div>
         </div>

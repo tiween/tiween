@@ -151,6 +151,45 @@ describe("events controller.findEvents (unit)", () => {
     expect(ctx.badRequest).toHaveBeenCalledWith("INVALID_QUERY")
   })
 
+  it("threads valid city + region location params through to the service", async () => {
+    const { controller, service } = buildController()
+    const ctx = ctxWith({ query: { city: "city-1", region: "region-1" } })
+
+    await controller.findEvents(ctx)
+
+    expect(ctx.badRequest).not.toHaveBeenCalled()
+    expect(service.findEvents).toHaveBeenCalledWith(
+      expect.objectContaining({ city: "city-1", region: "region-1" })
+    )
+  })
+
+  it("ignores an empty location param (no 400, no location filter)", async () => {
+    const { controller, service } = buildController()
+    const ctx = ctxWith({ query: { region: "" } })
+
+    await controller.findEvents(ctx)
+
+    // Empty is stripped, not rejected: the request succeeds with no city/region.
+    expect(ctx.badRequest).not.toHaveBeenCalled()
+    const arg = service.findEvents.mock.calls[0][0]
+    expect(arg.region).toBeUndefined()
+    expect(arg.city).toBeUndefined()
+  })
+
+  it("ignores a whitespace-only location param (trimmed to no filter, no 400)", async () => {
+    const { controller, service } = buildController()
+    const ctx = ctxWith({ query: { region: "   " } })
+
+    await controller.findEvents(ctx)
+
+    // Whitespace-only trims to empty → stripped like "", not forwarded as a
+    // documentId that would silently match nothing.
+    expect(ctx.badRequest).not.toHaveBeenCalled()
+    const arg = service.findEvents.mock.calls[0][0]
+    expect(arg.region).toBeUndefined()
+    expect(arg.city).toBeUndefined()
+  })
+
   it("threads a valid locale through to the service", async () => {
     const { controller, service } = buildController()
     const ctx = ctxWith({ query: { locale: "ar" } })

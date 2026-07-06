@@ -284,7 +284,12 @@
       "empty": "لا توجد فعاليات في هذا التاريخ",
       "weekend": "نهاية الأسبوع",
       "clear": "مسح",
-      "dateFilter": "تصفية حسب التاريخ"
+      "dateFilter": "تصفية حسب التاريخ",
+      "locationFilter": "تصفية حسب الموقع",
+      "region": "الجهة",
+      "city": "المدينة",
+      "allRegions": "كل الجهات",
+      "allCities": "كل المدن"
     }
   },
   "payment": {

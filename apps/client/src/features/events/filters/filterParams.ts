@@ -7,9 +7,14 @@
  * dependency-free (no `server-only`, no React) so it runs on the server RSC, in
  * the client island, and in unit tests alike.
  *
- * The `date` param is the only filter this story *acts on*. `category` / `city`
- * / `venue` are parsed and preserved (round-tripped through the URL) but never
- * used for filtering here — they are reserved for the deferred/sibling stories.
+ * The `date` (Story 3.3) and `region` / `city` (Story 3.4) params are the
+ * filters this mechanism *acts on*. `category` / `venue` are parsed and
+ * preserved (round-tripped through the URL) but never used for filtering here —
+ * they are reserved for the deferred/sibling stories.
+ *
+ * `region` / `city` are opaque, locale-stable Strapi `documentId` tokens (NOT
+ * localized slugs): any non-empty string is accepted and round-tripped so a
+ * remembered/shared URL stays valid across FR/EN/AR.
  *
  * `date` grammar (single, extensible param):
  * - preset `today` | `tomorrow` | `weekend`
@@ -41,7 +46,9 @@ export interface EventFilters {
   date?: string
   /** Reserved for Story 3.2 (category) — parsed & preserved, not filtered on. */
   category?: string
-  /** Reserved for Story 3.4 (city) — parsed & preserved, not filtered on. */
+  /** Story 3.4 — region `documentId` (opaque, locale-stable), filtered on. */
+  region?: string
+  /** Story 3.4 — city `documentId` (opaque, locale-stable), filtered on. */
   city?: string
   /** Reserved for Story 3.5 (venue) — parsed & preserved, not filtered on. */
   venue?: string
@@ -148,17 +155,16 @@ function readReserved(
  */
 export function parseEventFilters(input: EventFiltersInput): EventFilters {
   const date = serializeDateValue(parseDateValue(readParam(input, "date")))
+  const category = readReserved(input, "category")
+  const region = readReserved(input, "region")
+  const city = readReserved(input, "city")
+  const venue = readReserved(input, "venue")
   return {
     ...(date ? { date } : {}),
-    ...(readReserved(input, "category")
-      ? { category: readReserved(input, "category") }
-      : {}),
-    ...(readReserved(input, "city")
-      ? { city: readReserved(input, "city") }
-      : {}),
-    ...(readReserved(input, "venue")
-      ? { venue: readReserved(input, "venue") }
-      : {}),
+    ...(category ? { category } : {}),
+    ...(region ? { region } : {}),
+    ...(city ? { city } : {}),
+    ...(venue ? { venue } : {}),
   }
 }
 
@@ -171,6 +177,7 @@ export function serializeEventFilters(filters: EventFilters): URLSearchParams {
   const params = new URLSearchParams()
   if (filters.date) params.set("date", filters.date)
   if (filters.category) params.set("category", filters.category)
+  if (filters.region) params.set("region", filters.region)
   if (filters.city) params.set("city", filters.city)
   if (filters.venue) params.set("venue", filters.venue)
   return params

@@ -284,7 +284,12 @@
       "empty": "No events for this date",
       "weekend": "This weekend",
       "clear": "Clear",
-      "dateFilter": "Filter by date"
+      "dateFilter": "Filter by date",
+      "locationFilter": "Filter by location",
+      "region": "Region",
+      "city": "City",
+      "allRegions": "All regions",
+      "allCities": "All cities"
     }
   },
   "payment": {

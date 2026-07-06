@@ -19,6 +19,18 @@ const MAX_PAGE_SIZE = 100
 const isoDatetime = z.string().datetime({ offset: true })
 
 /**
+ * An opaque, locale-stable `documentId` filter value (Story 3.4 city/region).
+ * An empty or whitespace-only string (`?region=`, `?region=%20`) is trimmed to
+ * `undefined` so it is ignored — the I/O contract treats a blank location param
+ * as "no location filter" (200), never a 400 — while a present value must be
+ * non-empty and is length-bounded (a documentId is short; reject absurd input).
+ */
+const optionalDocumentId = z.preprocess(
+  (v) => (typeof v === "string" ? v.trim() || undefined : v),
+  z.string().min(1).max(255).optional()
+)
+
+/**
  * Allowlisted `sort` values. The raw value is forwarded to the Document Service,
  * which throws on an unknown field/relation — that would surface as an uncaught
  * 500. Constraining to an enum means any other value is rejected as a 400
@@ -47,6 +59,11 @@ const listQuerySchema = z
       .optional(),
     startDate: isoDatetime.optional(),
     endDate: isoDatetime.optional(),
+    // Location filters (Story 3.4): opaque, locale-stable `documentId`s threaded
+    // into a nested `venue.cityRef[.region].documentId` relation filter by the
+    // service. Absent/empty ⇒ no location filter (empty is stripped, not a 400).
+    city: optionalDocumentId,
+    region: optionalDocumentId,
     sort: z.enum(SORTABLE).optional(),
     locale: z.string().min(2).max(10).optional(),
   })

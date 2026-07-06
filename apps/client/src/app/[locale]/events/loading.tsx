@@ -8,11 +8,17 @@ export default function EventsListingLoading() {
         {/* Title */}
         <Skeleton className="mb-4 h-9 w-48" />
 
-        {/* Filter chips */}
-        <div className="mb-6 flex gap-2">
+        {/* Date filter chips */}
+        <div className="mb-3 flex gap-2">
           {Array.from({ length: 4 }).map((_, i) => (
             <Skeleton key={i} className="h-11 w-28 rounded-full" />
           ))}
+        </div>
+
+        {/* Location filter (region + city selects) */}
+        <div className="mb-6 flex gap-2">
+          <Skeleton className="h-11 w-40 rounded-full" />
+          <Skeleton className="h-11 w-40 rounded-full" />
         </div>
 
         {/* Card grid */}

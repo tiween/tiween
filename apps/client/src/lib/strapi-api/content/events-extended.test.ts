@@ -232,6 +232,27 @@ describe("fetchEvents", () => {
     expect(params).not.toHaveProperty("endDate")
   })
 
+  it("forwards city + region location params to the endpoint", async () => {
+    fetchAPI.mockResolvedValue(listResponse(1))
+    await fetchEvents({
+      locale: "fr",
+      city: "city-1",
+      region: "region-1",
+      sort: "startDateTime:asc",
+    })
+    const [path, params] = fetchAPI.mock.calls[0]
+    expect(path).toBe("/events-manager/events")
+    expect(params).toMatchObject({ city: "city-1", region: "region-1" })
+  })
+
+  it("omits city/region when they are not provided", async () => {
+    fetchAPI.mockResolvedValue(listResponse(1))
+    await fetchEvents({ locale: "fr" })
+    const [, params] = fetchAPI.mock.calls[0]
+    expect(params).not.toHaveProperty("city")
+    expect(params).not.toHaveProperty("region")
+  })
+
   it("returns an empty slice (fail-soft) when the client throws", async () => {
     fetchAPI.mockRejectedValue(new Error("boom"))
     const spy = vi.spyOn(console, "error").mockImplementation(() => {})

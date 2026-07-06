@@ -62,6 +62,10 @@ export interface EventQueryParams {
   startDate?: string
   /** ISO datetime; upper bound on `startDateTime`. */
   endDate?: string
+  /** City `documentId` — filters via `venue.cityRef.documentId` (Story 3.4). */
+  city?: string
+  /** Region `documentId` — filters via `venue.cityRef.region.documentId` (Story 3.4). */
+  region?: string
   sort?: EventSort
 }
 
@@ -154,6 +158,8 @@ export async function fetchEvents(
     eventStatus,
     startDate,
     endDate,
+    city,
+    region,
     sort,
   } = params
 
@@ -168,6 +174,8 @@ export async function fetchEvents(
         ...(eventStatus ? { eventStatus } : {}),
         ...(startDate ? { startDate } : {}),
         ...(endDate ? { endDate } : {}),
+        ...(city ? { city } : {}),
+        ...(region ? { region } : {}),
         ...(sort ? { sort } : {}),
       },
       { next: { revalidate: REVALIDATE_SECONDS } }

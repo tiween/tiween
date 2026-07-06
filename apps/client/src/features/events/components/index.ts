@@ -68,5 +68,14 @@ export type {
   EventDateFilterLabels,
 } from "./EventDateFilter"
 
+export { EventLocationFilter } from "./EventLocationFilter"
+export type {
+  EventLocationFilterProps,
+  EventLocationFilterLabels,
+  EventLocationRegion,
+  EventLocationCity,
+  LocationFilterValue,
+} from "./EventLocationFilter"
+
 export { EventsListing } from "./EventsListing"
 export type { EventsListingProps, EventsListingLabels } from "./EventsListing"

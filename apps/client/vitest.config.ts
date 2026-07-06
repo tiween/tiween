@@ -63,6 +63,7 @@ export default defineConfig({
       "src/features/events/utils/**/*.test.ts",
       "src/features/events/filters/**/*.test.ts",
       "src/features/events/components/EventDateFilter/**/*.test.tsx",
+      "src/features/events/components/EventLocationFilter/**/*.test.tsx",
       "src/lib/strapi-api/**/*.test.ts",
     ],
   },

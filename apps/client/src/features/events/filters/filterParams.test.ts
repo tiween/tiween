@@ -65,15 +65,48 @@ describe("parseEventFilters / serializeEventFilters", () => {
     const filters = parseEventFilters({
       date: "weekend",
       category: "cinema",
+      region: "grand-tunis-1",
       city: "tunis-1",
       venue: "venue-1",
     })
     expect(filters).toEqual({
       date: "weekend",
       category: "cinema",
+      region: "grand-tunis-1",
       city: "tunis-1",
       venue: "venue-1",
     })
+  })
+
+  it("parses region + city as opaque non-empty documentId tokens", () => {
+    expect(
+      parseEventFilters({ region: "grand-tunis-1", city: "tunis-1" })
+    ).toEqual({ region: "grand-tunis-1", city: "tunis-1" })
+  })
+
+  it("drops empty region/city (treated as no location filter)", () => {
+    expect(parseEventFilters({ region: "", city: "" })).toEqual({})
+  })
+
+  it("accepts a region without a city and a city without a region", () => {
+    expect(parseEventFilters({ region: "grand-tunis-1" })).toEqual({
+      region: "grand-tunis-1",
+    })
+    expect(parseEventFilters({ city: "tunis-1" })).toEqual({ city: "tunis-1" })
+  })
+
+  it("round-trips region + city through the query string", () => {
+    const original = { region: "grand-tunis-1", city: "tunis-1" }
+    const query = serializeEventFilters(original).toString()
+    expect(query).toContain("region=grand-tunis-1")
+    expect(query).toContain("city=tunis-1")
+    expect(parseEventFilters(new URLSearchParams(query))).toEqual(original)
+  })
+
+  it("preserves region/city when the date changes (serialize round-trip)", () => {
+    const next = { date: "today", region: "grand-tunis-1", city: "tunis-1" }
+    const query = serializeEventFilters(next).toString()
+    expect(parseEventFilters(new URLSearchParams(query))).toEqual(next)
   })
 
   it("drops a malformed date but keeps reserved keys", () => {
