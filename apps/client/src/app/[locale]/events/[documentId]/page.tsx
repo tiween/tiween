@@ -1,9 +1,11 @@
 import { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { EventDetailPage } from "@/features/events/components"
-import { mapTypeToCategory } from "@/features/events/utils"
+import { getEventFilm, mapTypeToCategory } from "@/features/events/utils"
 import { Locale } from "next-intl"
-import { setRequestLocale } from "next-intl/server"
+import { getTranslations, setRequestLocale } from "next-intl/server"
+
+import type { EventDetailPageLabels } from "@/features/events/components"
 
 import { generateBreadcrumbJsonLd, generateEventJsonLd } from "@/lib/seo"
 import {
@@ -22,8 +24,17 @@ interface PageProps {
 // Base URL for structured data
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://tiween.tn"
 
+/** Strip HTML/markup tags from a richtext string for meta descriptions. */
+function stripMarkup(value: string): string {
+  return value
+    .replace(/<[^>]*>/g, "")
+    .replace(/\s+/g, " ")
+    .trim()
+}
+
 /**
- * Generate dynamic metadata for SEO
+ * Generate dynamic metadata for SEO — sourced from the real film
+ * (`screenings[0].movie`) with fallbacks to the event's own fields.
  */
 export async function generateMetadata({
   params,
@@ -32,18 +43,24 @@ export async function generateMetadata({
   const event = await getEventByDocumentId(documentId, locale)
 
   if (!event) {
+    const tErrors = await getTranslations({ locale, namespace: "errors" })
     return {
-      title: "Événement non trouvé | Tiween",
+      title: `${tErrors("notFound.title")} | Tiween`,
     }
   }
 
-  const work = event.creativeWork
-  const title = work?.title || event.title
-  const description =
-    work?.synopsis?.slice(0, 160) ||
-    `Découvrez ${title} sur Tiween - ${mapTypeToCategory(work?.type)}`
+  const film = getEventFilm(event)
+  const title = film?.title || event.title
+  const rawDescription = film?.synopsis || event.description || ""
+  const description = rawDescription
+    ? stripMarkup(rawDescription).slice(0, 160)
+    : undefined
 
-  const posterUrl = work?.poster?.formats?.large?.url || work?.poster?.url
+  const posterUrl =
+    film?.poster?.formats?.large?.url ||
+    film?.poster?.url ||
+    event.images?.[0]?.formats?.large?.url ||
+    event.images?.[0]?.url
 
   // Canonical URL
   const canonical = `${BASE_URL}/${locale}/events/${documentId}`
@@ -111,30 +128,53 @@ export default async function EventDetailRoute({ params }: PageProps) {
     notFound()
   }
 
-  // Fetch related events using event's venue and type for accurate matching
-  // This runs after event fetch since we need venue/type info
+  // Related = upcoming events at the same venue (real fields; excludes current).
   const relatedEvents = await getRelatedEventsByParams(
     {
       excludeDocumentId: documentId,
       venueDocumentId: event.venue?.documentId,
-      creativeWorkType: event.creativeWork?.type,
     },
     locale,
     4
   )
 
-  // Generate structured data
+  // Localized detail labels (next-intl — no hardcoded French in the page).
+  const t = await getTranslations({ locale, namespace: "events" })
+  const labels: EventDetailPageLabels = {
+    back: t("back"),
+    share: t("share"),
+    addToWatchlist: t("addToWatchlist"),
+    removeFromWatchlist: t("removeFromWatchlist"),
+    synopsis: t("synopsis"),
+    showMore: t("showMore"),
+    showLess: t("showLess"),
+    showtimes: t("showtimes"),
+    noShowtimes: t("noShowtimes"),
+    buyTickets: t("buyTickets"),
+    priceFrom: (price: string) => t("priceFrom", { price }),
+    ticketsAvailable: (count: number) => t("ticketsAvailable", { count }),
+    soldOut: t("soldOut"),
+    cast: t("cast"),
+    directors: t("directors"),
+    relatedEvents: t("relatedEvents"),
+    minutes: t("minutes"),
+    venue: t("venue"),
+    dateRange: t.raw("dateRange") as string,
+  }
+
+  // Generate structured data (dual-schema aware — kept as-is).
   const eventJsonLd = generateEventJsonLd(event, BASE_URL)
 
-  // Generate breadcrumb structured data
-  const categorySlug = event.creativeWork?.type || "events"
-  const categoryLabel = mapTypeToCategory(event.creativeWork?.type)
+  // Breadcrumb: real movie title/type.
+  const film = getEventFilm(event)
+  const categorySlug = film?.type || event.category || "events"
+  const categoryLabel = mapTypeToCategory(film?.type)
   const breadcrumbJsonLd = generateBreadcrumbJsonLd(
     [
-      { name: "Accueil", url: `/${locale}` },
+      { name: t("home"), url: `/${locale}` },
       { name: categoryLabel, url: `/${locale}?category=${categorySlug}` },
       {
-        name: event.creativeWork?.title || event.title,
+        name: film?.title || event.title,
         url: `/${locale}/events/${documentId}`,
       },
     ],
@@ -148,7 +188,11 @@ export default async function EventDetailRoute({ params }: PageProps) {
       <JsonLd data={breadcrumbJsonLd} />
 
       {/* Page Content */}
-      <EventDetailPage event={event} relatedEvents={relatedEvents} />
+      <EventDetailPage
+        event={event}
+        relatedEvents={relatedEvents}
+        labels={labels}
+      />
     </>
   )
 }

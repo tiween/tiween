@@ -335,6 +335,40 @@ describe("events service.findEvent (unit)", () => {
     expect(event).toEqual({ documentId: "e1", category: "movie_screening" })
   })
 
+  it("passes the deep DETAIL_POPULATE graph to findOne (Story 3.7)", async () => {
+    const { strapi, api } = buildStrapi({
+      findOne: jest.fn(async () => ({
+        documentId: "e1",
+        category: "movie_screening",
+      })),
+    })
+    const service = eventsService({ strapi })
+
+    await service.findEvent("e1")
+
+    const call = api.findOne.mock.calls[0][0]
+    // Deep populate reaches screenings.movie.{poster,backdrop,videos,genres,
+    // cast.person,cast.character,credits.person,credits.creditRole} — NOT the
+    // shallow browse `EVENT_POPULATE` (`screenings: true`).
+    const moviePopulate = call.populate.screenings.populate.movie.populate
+    expect(moviePopulate).toEqual(
+      expect.objectContaining({
+        poster: true,
+        backdrop: true,
+        videos: true,
+        genres: true,
+      })
+    )
+    expect(moviePopulate.cast.populate.person).toBeTruthy()
+    expect(moviePopulate.cast.populate.character).toBe(true)
+    expect(moviePopulate.credits.populate.person).toBeTruthy()
+    expect(moviePopulate.credits.populate.creditRole).toBe(true)
+    // Venue address block: cityRef.region + geo (for the future 3.8 map).
+    expect(call.populate.venue.populate.cityRef.populate.region).toBe(true)
+    expect(call.populate.venue.populate.geo).toBe(true)
+    expect(call.populate.images).toBe(true)
+  })
+
   it("threads locale into the Document Service call", async () => {
     const { strapi, api } = buildStrapi({
       findOne: jest.fn(async () => ({

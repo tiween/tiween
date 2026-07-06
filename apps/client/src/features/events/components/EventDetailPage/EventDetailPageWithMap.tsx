@@ -573,7 +573,7 @@ export function EventDetailPageWithMap({
               {labels.cast}
             </h2>
             <div className="no-scrollbar flex gap-3 overflow-x-auto">
-              {work.cast.map((person) => (
+              {work.cast.map(({ person }) => (
                 <div
                   key={person.slug}
                   className="flex w-20 shrink-0 flex-col items-center"

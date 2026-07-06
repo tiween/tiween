@@ -142,89 +142,12 @@ export const getEventByDocumentId = cache(async function getEventByDocumentId(
   locale: string
 ): Promise<StrapiEvent | null> {
   try {
+    // The detail endpoint (`GET /events-manager/events/:documentId`) ignores any
+    // client-sent `populate` — the backend `DETAIL_POPULATE` is the single source
+    // of truth for the deep detail graph (Story 3.7). Send only `locale`.
     const response = await PublicStrapiClient.fetchAPI(
       `/events-manager/events/${documentId}`,
-      {
-        locale,
-        populate: {
-          venue: {
-            fields: [
-              "name",
-              "slug",
-              "address",
-              "coordinates",
-              "phone",
-              "email",
-            ],
-            populate: {
-              city: {
-                fields: ["name", "slug"],
-                populate: {
-                  region: {
-                    fields: ["name", "slug"],
-                  },
-                },
-              },
-              images: {
-                fields: ["url", "alternativeText", "formats"],
-              },
-            },
-          },
-          creativeWork: {
-            fields: [
-              "title",
-              "originalTitle",
-              "slug",
-              "type",
-              "synopsis",
-              "duration",
-              "releaseYear",
-              "rating",
-              "language",
-              "country",
-            ],
-            populate: {
-              poster: {
-                fields: ["url", "alternativeText", "formats"],
-              },
-              backdrop: {
-                fields: ["url", "alternativeText", "formats"],
-              },
-              genres: {
-                fields: ["name", "slug"],
-              },
-              directors: {
-                fields: ["name", "slug", "photo"],
-                populate: {
-                  photo: {
-                    fields: ["url", "formats"],
-                  },
-                },
-              },
-              cast: {
-                fields: ["name", "slug", "photo"],
-                populate: {
-                  photo: {
-                    fields: ["url", "formats"],
-                  },
-                },
-              },
-            },
-          },
-          showtimes: {
-            fields: [
-              "time",
-              "format",
-              "language",
-              "subtitles",
-              "price",
-              "ticketsAvailable",
-              "ticketsSold",
-            ],
-            sort: ["time:asc"],
-          },
-        },
-      },
+      { locale },
       { next: { revalidate: 60 } }
     )
 
@@ -249,28 +172,27 @@ export interface RelatedEventsParams {
 }
 
 /**
- * Fetch related events by parameters (same venue or same creative work type)
- * This version accepts parameters directly instead of the full event object,
- * enabling parallel fetching with the main event query.
+ * Fetch related events for the detail page: upcoming events at the SAME venue,
+ * excluding the current event.
+ *
+ * Realigned to the real 3.1a public browse endpoint (Story 3.7), which exposes
+ * only flat, allowlisted query params (`venue`, `startDate`, `sort`, …) and
+ * ignores any client `filters`/`populate`. Same-venue-upcoming is therefore
+ * expressed as `venue=<documentId>` + `startDate=now` + `sort=startDateTime:asc`
+ * (the service already scopes to `status: published`, cinema-only). The current
+ * event is excluded client-side (the endpoint has no `$ne`), so we over-fetch by
+ * one and slice.
  */
 export async function getRelatedEventsByParams(
   params: RelatedEventsParams,
   locale: string,
   limit = 4
 ): Promise<StrapiEvent[]> {
-  const { excludeDocumentId, venueDocumentId, creativeWorkType } = params
+  const { excludeDocumentId, venueDocumentId } = params
 
-  // Build $or conditions based on available params
-  const orConditions: Record<string, unknown>[] = []
-  if (venueDocumentId) {
-    orConditions.push({ venue: { documentId: { $eq: venueDocumentId } } })
-  }
-  if (creativeWorkType) {
-    orConditions.push({ creativeWork: { type: { $eq: creativeWorkType } } })
-  }
-
-  // If no conditions, return empty (can't find related events)
-  if (orConditions.length === 0) {
+  // Same-venue is the only real relation the endpoint can filter on; without a
+  // venue there is nothing to relate to.
+  if (!venueDocumentId) {
     return []
   }
 
@@ -279,35 +201,20 @@ export async function getRelatedEventsByParams(
       "/events-manager/events",
       {
         locale,
-        filters: {
-          documentId: { $ne: excludeDocumentId },
-          status: { $in: ["scheduled", "active"] },
-          endDate: { $gte: new Date().toISOString().split("T")[0] },
-          $or: orConditions,
-        },
-        populate: {
-          venue: {
-            fields: ["name", "slug"],
-          },
-          creativeWork: {
-            fields: ["title", "slug", "type", "duration"],
-            populate: {
-              poster: {
-                fields: ["url", "formats"],
-              },
-            },
-          },
-        },
-        sort: ["startDate:asc"],
-        pagination: {
-          page: 1,
-          pageSize: limit,
-        },
+        venue: venueDocumentId,
+        startDate: new Date().toISOString(),
+        sort: "startDateTime:asc",
+        page: 1,
+        // Over-fetch by one so we can drop the current event and still fill `limit`.
+        pageSize: limit + 1,
       },
       { next: { revalidate: 300 } }
     )
 
-    return response.data || []
+    const events: StrapiEvent[] = response.data || []
+    return events
+      .filter((e) => e.documentId !== excludeDocumentId)
+      .slice(0, limit)
   } catch (error) {
     console.error(
       "[getRelatedEventsByParams] Error fetching related events:",

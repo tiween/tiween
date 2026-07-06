@@ -57,8 +57,8 @@ function buildEvent(overrides: Partial<StrapiEvent> = {}): StrapiEvent {
           synopsis: "<p>A thief who steals corporate secrets.</p>",
           directors: [{ id: 1, name: "Christopher Nolan", slug: "nolan" }],
           cast: [
-            { id: 2, name: "Leonardo DiCaprio", slug: "dicaprio" },
-            { id: 3, name: "Ellen Page", slug: "page" },
+            { person: { id: 2, name: "Leonardo DiCaprio", slug: "dicaprio" } },
+            { person: { id: 3, name: "Ellen Page", slug: "page" } },
           ],
         },
       },

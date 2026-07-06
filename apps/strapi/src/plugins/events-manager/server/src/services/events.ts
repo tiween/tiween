@@ -75,6 +75,52 @@ const EVENT_POPULATE = {
   images: true,
 } as const
 
+/**
+ * Deep populate for the single-event detail read (`findEvent`, Story 3.7).
+ *
+ * The browse list keeps `EVENT_POPULATE` shallow for performance across large
+ * result sets; only the single-event detail path pays for the deep graph a
+ * detail page needs: each screening's `movie` (creative-work) with its poster/
+ * backdrop/videos/genres and its cast/credit components (each resolving the
+ * `person` — with photo — and the `character`/`creditRole` edge), plus the
+ * venue's `cityRef.region` (address block) and `geo` (populated for the future
+ * 3.8 map). This is a relation populate through the event UID only — never a
+ * foreign-UID `strapi.documents()` call, per the cross-plugin rule.
+ */
+const DETAIL_POPULATE = {
+  images: true,
+  venue: {
+    populate: {
+      cityRef: { populate: { region: true } },
+      geo: true,
+    },
+  },
+  screenings: {
+    populate: {
+      movie: {
+        populate: {
+          poster: true,
+          backdrop: true,
+          videos: true,
+          genres: true,
+          cast: {
+            populate: {
+              person: { populate: { photo: true } },
+              character: true,
+            },
+          },
+          credits: {
+            populate: {
+              person: { populate: { photo: true } },
+              creditRole: true,
+            },
+          },
+        },
+      },
+    },
+  },
+} as const
+
 function buildFilters(params: {
   featured?: boolean
   eventStatus?: EventStatus
@@ -221,8 +267,8 @@ const eventsService = ({ strapi }: { strapi: Core.Strapi }) => ({
       documentId,
       status: "published",
       locale,
-      populate: EVENT_POPULATE,
-    })
+      populate: DETAIL_POPULATE,
+    } as never)
 
     if (!event || (event as { category?: string }).category !== MVP_CATEGORY) {
       return null

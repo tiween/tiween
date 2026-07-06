@@ -655,7 +655,7 @@ export function EventDetailPageDesktop({
                         {labels.cast}
                       </h3>
                       <div className="no-scrollbar flex gap-4 overflow-x-auto pb-2 lg:flex-wrap lg:overflow-visible">
-                        {work.cast.map((person) => (
+                        {work.cast.map(({ person }) => (
                           <div
                             key={person.slug}
                             className="flex w-20 shrink-0 flex-col items-center text-center lg:w-24"

@@ -270,7 +270,10 @@ export function generateEventJsonLd(
     })
   }
   if (work?.cast) {
-    work.cast.forEach((actor) => {
+    // Real cast entries carry the actor under `.person` (component graph edge).
+    work.cast.forEach((entry) => {
+      const actor = entry.person
+      if (!actor?.name) return
       performers.push({
         "@type": "Person",
         name: actor.name,
@@ -290,7 +293,7 @@ export function generateEventJsonLd(
         })),
         actor: work.cast?.map((a) => ({
           "@type": "Person" as const,
-          name: a.name,
+          name: a.person?.name ?? "",
         })),
         genre: work.genres?.map((g) => g.name),
         duration: minutesToISO8601Duration(work.duration),

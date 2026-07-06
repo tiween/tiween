@@ -141,7 +141,7 @@ development_status:
   3-4-region-and-city-filtering: done
   3-5-venue-filtering: done
   3-6-keyword-search-with-algolia: done
-  3-7-event-detail-page: backlog
+  3-7-event-detail-page: done
   3-8-venue-location-on-map: backlog
   3-9-geolocation-near-me-filtering: deferred
   3-10-share-event-details: backlog

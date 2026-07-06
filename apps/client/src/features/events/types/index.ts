@@ -11,4 +11,10 @@ export type {
   StrapiGenre,
   StrapiMedia,
   StrapiCity,
+  StrapiGeoPoint,
+  StrapiCharacter,
+  StrapiCastEntry,
+  StrapiCreditRole,
+  StrapiCreditEntry,
+  StrapiVideo,
 } from "./strapi.types"

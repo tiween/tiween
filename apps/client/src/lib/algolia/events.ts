@@ -18,11 +18,6 @@
  * (`content/search.ts`) falls back to the real Strapi `fetchEvents({ q })` path.
  */
 
-import { liteClient as algoliasearch } from "algoliasearch/lite"
-
-import type { EventCardEvent } from "@/features/events/types"
-import type { StrapiEvent } from "@/features/events/types/strapi.types"
-
 import {
   getEventPosterUrl,
   getEventStartDate,
@@ -30,6 +25,10 @@ import {
   getMinEventPrice,
   mapEventCategoryLabel,
 } from "@/features/events/utils"
+import { liteClient as algoliasearch } from "algoliasearch/lite"
+
+import type { EventCardEvent } from "@/features/events/types"
+import type { StrapiEvent } from "@/features/events/types/strapi.types"
 
 // Algolia client — only initialize if credentials are available.
 const appId = process.env.NEXT_PUBLIC_ALGOLIA_APP_ID
@@ -119,7 +118,9 @@ export function toAlgoliaEventRecord(
     startDateTime,
     ...(price !== undefined ? { price } : {}),
     currency: DEFAULT_CURRENCY,
-    castNames: uniqueNames(movies.flatMap((m) => m.cast?.map((p) => p.name) ?? [])),
+    castNames: uniqueNames(
+      movies.flatMap((m) => m.cast?.map((c) => c.person?.name ?? "") ?? [])
+    ),
     directorNames: uniqueNames(
       movies.flatMap((m) => m.directors?.map((p) => p.name) ?? [])
     ),

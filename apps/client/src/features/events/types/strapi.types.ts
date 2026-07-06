@@ -45,6 +45,15 @@ export interface StrapiCity {
 }
 
 /**
+ * Geo point component (`shared.geo-point`) on the venues plugin schema.
+ * Populated for the Story 3.8 map; the detail page renders text only.
+ */
+export interface StrapiGeoPoint {
+  latitude: number
+  longitude: number
+}
+
+/**
  * Venue data structure
  */
 export interface StrapiVenue {
@@ -63,6 +72,8 @@ export interface StrapiVenue {
   city?: StrapiCity
   /** Real geography relation on the venues plugin schema. */
   cityRef?: StrapiCity
+  /** Real `shared.geo-point` component ({ latitude, longitude }) — Story 3.8 map. */
+  geo?: StrapiGeoPoint
   images?: StrapiMedia[]
 }
 
@@ -77,7 +88,91 @@ export interface StrapiGenre {
 }
 
 /**
- * Creative work data structure
+ * Fictional character portrayed in a creative work (`creative-works.character`).
+ */
+export interface StrapiCharacter {
+  id?: number
+  documentId?: string
+  name: string
+  slug?: string
+}
+
+/**
+ * Cast component entry (`creative-works.cast`): an actor's portrayal of a
+ * character. The real schema stores `cast` as a repeatable component with a
+ * `person` relation (+ optional `character` and `billing`) — NOT a flat
+ * `StrapiPerson[]`.
+ */
+export interface StrapiCastEntry {
+  id?: number
+  person: StrapiPerson
+  character?: StrapiCharacter
+  billing?: number
+}
+
+/**
+ * Credit-role vocabulary (`creative-works.credit-role`). The `department`
+ * discriminates crew (directors are `department === "directing"`).
+ */
+export interface StrapiCreditRole {
+  id?: number
+  documentId?: string
+  name: string
+  slug: string
+  department?:
+    | "directing"
+    | "writing"
+    | "production"
+    | "camera"
+    | "editing"
+    | "sound"
+    | "music"
+    | "art"
+    | "costume-makeup"
+    | "lighting"
+    | "stage"
+    | "other"
+}
+
+/**
+ * Credit component entry (`creative-works.credit`): a crew member's contribution
+ * to a creative work. There is NO `directors` relation — directors are `credits`
+ * whose `creditRole.department === "directing"`.
+ */
+export interface StrapiCreditEntry {
+  id?: number
+  person: StrapiPerson
+  creditRole?: StrapiCreditRole
+  customRole?: string
+  billing?: number
+}
+
+/**
+ * Video component entry (`common.video`) on a creative work. A trailer is an
+ * entry with `videoType === "trailer"` (there is NO scalar `trailerUrl`).
+ */
+export interface StrapiVideo {
+  id?: number
+  url: string
+  videoType?:
+    | "trailer"
+    | "teaser"
+    | "clip"
+    | "featurette"
+    | "interview"
+    | "behind-the-scenes"
+    | "full-length"
+  type?: "FULL_LENGTH" | "TEASER" | "CLIP"
+}
+
+/**
+ * Creative work data structure.
+ *
+ * Aligned to the REAL creative-works plugin schema for the detail surface
+ * (Story 3.7): `synopsis`, `ageRating`, `videos`, and the component-based
+ * `cast`/`credits` graph. The legacy flat `directors?: StrapiPerson[]` is kept
+ * (deprecated) because other, unmigrated surfaces (shorts, SEO JSON-LD, the
+ * desktop/map detail variants) still read it.
  */
 export interface StrapiCreativeWork {
   id: number
@@ -86,17 +181,31 @@ export interface StrapiCreativeWork {
   originalTitle?: string
   slug: string
   type: "film" | "short-film" | "play" | "concert" | "exhibition"
+  /** Localized synopsis (richtext). Real schema field. */
   synopsis?: string
   duration?: number
   releaseYear?: number
   rating?: number
+  /** Classification (real schema enum). */
+  ageRating?: "TP" | "PG12" | "PG16" | "PG18"
   language?: string
   country?: string
   poster?: StrapiMedia
   backdrop?: StrapiMedia
   genres?: StrapiGenre[]
+  /** Real cast component graph (`cast[].person` + optional `character`). */
+  cast?: StrapiCastEntry[]
+  /** Real crew credits (`credits[]` with `creditRole.department`). */
+  credits?: StrapiCreditEntry[]
+  /** Real videos component (trailer = entry with `videoType === "trailer"`). */
+  videos?: StrapiVideo[]
+  /**
+   * @deprecated Legacy flat directors relation — the real schema has none
+   * (directors come from `credits` where `creditRole.department === "directing"`).
+   * Retained only for unmigrated surfaces (shorts, SEO JSON-LD, desktop/map
+   * detail variants).
+   */
   directors?: StrapiPerson[]
-  cast?: StrapiPerson[]
 }
 
 /**

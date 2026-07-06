@@ -6,6 +6,15 @@ export {
   getEventPosterUrl,
   getEventBackdropUrl,
   getEventVenueName,
+  getEventFilm,
   toEventCardEvent,
   toFilmHeroEvent,
+  toEventDetail,
+  deriveScreeningFormats,
+} from "./eventMappers"
+export type {
+  EventDetailData,
+  DetailPerson,
+  DetailShowtime,
+  DetailVenue,
 } from "./eventMappers"

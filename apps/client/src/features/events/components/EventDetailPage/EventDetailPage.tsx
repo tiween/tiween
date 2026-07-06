@@ -10,11 +10,7 @@ import {
   Calendar,
   ChevronDown,
   ChevronUp,
-  Clock,
-  Heart,
   MapPin,
-  Share2,
-  Star,
   Ticket,
 } from "lucide-react"
 import { useLocale } from "next-intl"
@@ -22,18 +18,13 @@ import { useLocale } from "next-intl"
 import type { EventCardEvent } from "../../types/event.types"
 import type { StrapiEvent } from "../../types/strapi.types"
 
-import { formatDate } from "@/lib/dates"
-import { cn } from "@/lib/utils"
-import { Badge } from "@/components/ui/badge"
+import { formatDate, formatTime } from "@/lib/dates"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 
-import { mapTypeToCategory } from "../../utils"
+import { toEventCardEvent, toEventDetail, toFilmHeroEvent } from "../../utils"
 import { EventSection } from "../EventSection"
-
-// Placeholder blur data URL for images
-const BLUR_DATA_URL =
-  "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAMCAgMCAgMDAwMEAwMEBQgFBQQEBQoHBwYIDAoMCwsKCwsNDhIQDQ4RDgsLEBYQERMUFRUVDA8XGBYUGBIUFRT/2wBDAQMEBAUEBQkFBQkUDQsNFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBT/wAARCAAIAAoDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAAYH/8QAIhAAAgEEAgIDAQAAAAAAAAAAAQIDAAQFESEGEhMxQVFh/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAZEQADAQEBAAAAAAAAAAAAAAABAgMAEUH/2gAMAwEAAhEDEQA/ANM4/wAix+TwGNvIZ4Xknt0kkiWVWeNmUEqw+iCexrxSlOhIqnAiYp//2Q=="
+import { FilmHero } from "../FilmHero"
 
 export interface EventDetailPageLabels {
   back: string
@@ -46,6 +37,7 @@ export interface EventDetailPageLabels {
   showtimes: string
   noShowtimes: string
   buyTickets: string
+  priceFrom: (price: string) => string
   ticketsAvailable: (count: number) => string
   soldOut: string
   cast: string
@@ -66,47 +58,40 @@ const defaultLabels: EventDetailPageLabels = {
   showLess: "Voir moins",
   showtimes: "Séances",
   noShowtimes: "Aucune séance disponible",
-  buyTickets: "Acheter des billets",
-  ticketsAvailable: (count) => `${count} billets disponibles`,
+  buyTickets: "Réserver des billets",
+  priceFrom: (price) => `À partir de ${price}`,
+  ticketsAvailable: (count) => `${count}`,
   soldOut: "Complet",
   cast: "Distribution",
-  directors: "Réalisation",
-  relatedEvents: "Vous aimerez aussi",
+  directors: "Mise en scène",
+  relatedEvents: "Vous pourriez aussi aimer...",
   minutes: "min",
   venue: "Lieu",
-  dateRange: "Du %start% au %end%",
+  dateRange: "Du {start} au {end}",
 }
 
 export interface EventDetailPageProps {
-  /** Event data */
+  /** Event data (real Story 3.1a schema, deep-populated) */
   event: StrapiEvent
   /** Related events */
   relatedEvents?: StrapiEvent[]
   /** Whether the event is in user's watchlist */
   isWatchlisted?: boolean
-  /** Localized labels */
+  /** Localized labels (threaded from the route via next-intl) */
   labels?: EventDetailPageLabels
 }
 
 /**
- * EventDetailPage - Full event detail view
+ * EventDetailPage — full event detail view for a published cinema event.
  *
- * Features:
- * - Full-bleed hero with backdrop image
- * - Synopsis with expand/collapse
- * - Showtimes grouped by date
- * - Cast & crew section
- * - Related events section
- * - Sticky buy tickets CTA
+ * Reads the REAL events-manager schema through the pure `toEventDetail` mapper
+ * (`screenings[0].movie` = the film, `screenings` = the showtimes, `venue` =
+ * the location). The hero is rendered by `FilmHero`; showtimes drive
+ * `ShowtimeButton` with its real `venueName`/`formats`/`status`/`onSelect` API;
+ * a showtime tap navigates to the ticketing entrypoint (Epic 6).
  *
- * @example
- * ```tsx
- * <EventDetailPage
- *   event={eventData}
- *   relatedEvents={related}
- *   isWatchlisted={false}
- * />
- * ```
+ * Resilient: an event with no movie / no screenings / no venue degrades to an
+ * event-image hero, a no-showtimes state, and omitted cast/crew — never a crash.
  */
 export function EventDetailPage({
   event,
@@ -120,205 +105,100 @@ export function EventDetailPage({
   const [watchlisted, setWatchlisted] = React.useState(isWatchlisted)
   const [synopsisExpanded, setSynopsisExpanded] = React.useState(false)
 
-  // Creative work data
-  const work = event.creativeWork
-  const category = mapTypeToCategory(work?.type)
+  const detail = React.useMemo(
+    () => toEventDetail(event, locale),
+    [event, locale]
+  )
+  const heroEvent = React.useMemo(
+    () => toFilmHeroEvent(event, locale),
+    [event, locale]
+  )
 
-  // Get backdrop or poster URL
-  const backdropUrl =
-    work?.backdrop?.url ||
-    work?.poster?.formats?.large?.url ||
-    work?.poster?.url
-
-  // Group showtimes by date
+  // Group the real showtimes by calendar day (from the ISO `startDateTime`).
   const showtimesByDate = React.useMemo(() => {
-    const grouped: Record<string, typeof event.showtimes> = {}
-    event.showtimes?.forEach((showtime) => {
-      const date = showtime.time.split("T")[0]
-      if (!grouped[date]) {
-        grouped[date] = []
-      }
-      grouped[date]!.push(showtime)
-    })
+    const grouped: Record<string, typeof detail.showtimes> = {}
+    for (const showtime of detail.showtimes) {
+      const date = showtime.time ? showtime.time.split("T")[0]! : ""
+      ;(grouped[date] ??= []).push(showtime)
+    }
     return grouped
-  }, [event.showtimes])
+  }, [detail])
 
-  // Handle back navigation
   const handleBack = () => {
     router.back()
   }
 
-  // Handle share
   const handleShare = async () => {
-    if (navigator.share) {
+    if (typeof navigator !== "undefined" && navigator.share) {
       try {
         await navigator.share({
-          title: work?.title || event.title,
-          text: work?.synopsis?.slice(0, 100),
+          title: detail.title,
+          text: detail.synopsis.slice(0, 100),
           url: window.location.href,
         })
       } catch {
-        // User cancelled or share failed
+        // User cancelled or share failed — no-op.
       }
     }
   }
 
-  // Handle watchlist toggle
   const handleWatchlist = () => {
+    // Local-only until auth (Epic 4) / watchlist persistence (Epic 5).
     setWatchlisted((prev) => !prev)
-    // TODO: Persist to backend when auth is implemented
   }
 
-  // Handle showtime selection
-  const handleShowtimeSelect = (showtimeId: string | number) => {
-    router.push(`/${locale}/tickets/${event.documentId}/${showtimeId}`)
+  const handleShowtimeSelect = (screeningId: string) => {
+    // Begin ticket purchase at the ticketing entrypoint (the flow is Epic 6).
+    router.push(`/${locale}/tickets/${event.documentId}/${screeningId}`)
   }
 
-  // Convert related events for EventSection
-  const relatedCards: EventCardEvent[] = relatedEvents.map((e) => ({
-    id: e.documentId,
-    title: e.creativeWork?.title || e.title,
-    posterUrl:
-      e.creativeWork?.poster?.formats?.medium?.url ||
-      e.creativeWork?.poster?.url,
-    category: mapTypeToCategory(e.creativeWork?.type),
-    venueName: e.venue?.name || "",
-    date: e.startDate,
-  }))
+  const relatedCards: EventCardEvent[] = relatedEvents.map((e) =>
+    toEventCardEvent(e, locale)
+  )
 
   // Synopsis truncation
-  const synopsis = work?.synopsis || ""
+  const synopsis = detail.synopsis
   const shouldTruncate = synopsis.length > 200
   const displaySynopsis =
     shouldTruncate && !synopsisExpanded
       ? synopsis.slice(0, 200) + "..."
       : synopsis
 
-  // Arrow icon based on RTL
   const BackArrow = isRTL ? ArrowRight : ArrowLeft
 
   return (
     <div className="bg-background min-h-screen pb-24">
-      {/* Hero Section */}
-      <div className="relative h-[350px] w-full md:h-[400px] lg:h-[450px]">
-        {/* Backdrop Image */}
-        {backdropUrl && (
-          <Image
-            src={backdropUrl}
-            alt=""
-            fill
-            sizes="100vw"
-            className="object-cover"
-            placeholder="blur"
-            blurDataURL={BLUR_DATA_URL}
-            priority
-          />
-        )}
-
-        {/* Gradient Overlay */}
-        <div
-          className="from-background via-background/80 absolute inset-0 bg-gradient-to-t to-transparent"
-          aria-hidden="true"
+      {/* Hero */}
+      <div className="relative">
+        <FilmHero
+          // A detail page is inherently one venue (shown in its own section
+          // below), so drop the browse-oriented venue-count badge.
+          event={{ ...heroEvent, venueCount: undefined }}
+          isWatchlisted={watchlisted}
+          onWatchlist={handleWatchlist}
+          onShare={handleShare}
+          labels={{
+            addToWatchlist: labels.addToWatchlist,
+            removeFromWatchlist: labels.removeFromWatchlist,
+            share: labels.share,
+            // Required by FilmHeroLabels but never rendered here (venueCount is
+            // undefined on the detail hero).
+            inVenues: (count) => String(count),
+            minutes: labels.minutes,
+          }}
         />
 
-        {/* Top Navigation */}
-        <div className="absolute inset-x-0 top-0 flex items-center justify-between p-4">
+        {/* Back control (direction-aware) overlaid at the top-start corner */}
+        <div className="absolute inset-x-0 top-0 flex items-center p-4">
           <Button
             variant="ghost"
             size="icon"
             onClick={handleBack}
-            className="h-10 w-10 rounded-full bg-black/50 text-white backdrop-blur-sm hover:bg-black/70"
+            className="h-11 w-11 rounded-full bg-black/50 text-white backdrop-blur-sm hover:bg-black/70"
             aria-label={labels.back}
           >
             <BackArrow className="h-5 w-5" />
           </Button>
-
-          <div className="flex gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleShare}
-              className="h-10 w-10 rounded-full bg-black/50 text-white backdrop-blur-sm hover:bg-black/70"
-              aria-label={labels.share}
-            >
-              <Share2 className="h-5 w-5" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleWatchlist}
-              className="h-10 w-10 rounded-full bg-black/50 text-white backdrop-blur-sm hover:bg-black/70"
-              aria-label={
-                watchlisted ? labels.removeFromWatchlist : labels.addToWatchlist
-              }
-              aria-pressed={watchlisted}
-            >
-              <Heart
-                className={cn(
-                  "h-5 w-5 transition-all",
-                  watchlisted ? "fill-primary text-primary" : "fill-transparent"
-                )}
-              />
-            </Button>
-          </div>
-        </div>
-
-        {/* Content - Bottom */}
-        <div className="absolute inset-x-0 bottom-0 p-4 md:p-6">
-          {/* Badges Row */}
-          <div className="mb-3 flex flex-wrap items-center gap-2">
-            <Badge variant="default">{category}</Badge>
-            {work?.genres?.map((genre) => (
-              <Badge key={genre.slug} variant="outline">
-                {genre.name}
-              </Badge>
-            ))}
-          </div>
-
-          {/* Title */}
-          <h1 className="font-display text-foreground mb-3 text-2xl md:text-3xl lg:text-4xl">
-            {work?.title || event.title}
-          </h1>
-
-          {/* Original Title */}
-          {work?.originalTitle && work.originalTitle !== work.title && (
-            <p className="text-muted-foreground mb-3 text-sm">
-              {work.originalTitle}
-            </p>
-          )}
-
-          {/* Metadata Row */}
-          <div className="text-muted-foreground flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
-            {work?.rating !== undefined && (
-              <div className="flex items-center gap-1">
-                <Star className="text-primary h-4 w-4 fill-current" />
-                <span className="font-medium">{work.rating.toFixed(1)}</span>
-              </div>
-            )}
-
-            {work?.duration !== undefined && (
-              <div className="flex items-center gap-1">
-                <Clock className="h-4 w-4" />
-                <span>
-                  {work.duration} {labels.minutes}
-                </span>
-              </div>
-            )}
-
-            {work?.releaseYear !== undefined && (
-              <div className="flex items-center gap-1">
-                <Calendar className="h-4 w-4" />
-                <span>{work.releaseYear}</span>
-              </div>
-            )}
-
-            {event.venue && (
-              <div className="flex items-center gap-1">
-                <MapPin className="h-4 w-4" />
-                <span>{event.venue.name}</span>
-              </div>
-            )}
-          </div>
         </div>
       </div>
 
@@ -359,38 +239,34 @@ export function EventDetailPage({
         <Separator className="my-6" />
 
         {/* Venue Section */}
-        {event.venue && (
+        {detail.venue && (
           <section className="mb-6">
             <h2 className="text-foreground mb-3 text-lg font-semibold">
               {labels.venue}
             </h2>
             <div className="bg-secondary rounded-lg p-4">
-              <p className="text-foreground font-medium">{event.venue.name}</p>
-              {event.venue.address && (
-                <p className="text-muted-foreground mt-1 text-sm">
-                  {event.venue.address}
-                </p>
-              )}
-              {event.venue.city && (
-                <p className="text-muted-foreground text-sm">
-                  {event.venue.city.name}
-                </p>
-              )}
+              <div className="flex items-start gap-2">
+                <MapPin className="text-muted-foreground mt-0.5 h-4 w-4 shrink-0" />
+                <div>
+                  <p className="text-foreground font-medium">
+                    {detail.venue.name}
+                  </p>
+                  {detail.venue.address && (
+                    <p className="text-muted-foreground mt-1 text-sm">
+                      {detail.venue.address}
+                    </p>
+                  )}
+                  {(detail.venue.city || detail.venue.region) && (
+                    <p className="text-muted-foreground text-sm">
+                      {[detail.venue.city, detail.venue.region]
+                        .filter(Boolean)
+                        .join(", ")}
+                    </p>
+                  )}
+                </div>
+              </div>
             </div>
           </section>
-        )}
-
-        {/* Date Range */}
-        {event.startDate && event.endDate && (
-          <div className="bg-secondary mb-6 rounded-lg p-4">
-            <div className="text-muted-foreground flex items-center gap-2 text-sm">
-              <Calendar className="h-4 w-4" />
-              <span>
-                Du {formatDate(event.startDate, locale)} au{" "}
-                {formatDate(event.endDate, locale)}
-              </span>
-            </div>
-          </div>
         )}
 
         <Separator className="my-6" />
@@ -401,41 +277,33 @@ export function EventDetailPage({
             {labels.showtimes}
           </h2>
 
-          {Object.keys(showtimesByDate).length > 0 ? (
+          {detail.showtimes.length > 0 ? (
             <div className="space-y-4">
               {Object.entries(showtimesByDate).map(([date, showtimes]) => (
-                <div key={date}>
-                  <p className="text-foreground mb-2 text-sm font-medium">
-                    {formatDate(date, locale)}
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {showtimes?.map((showtime) => {
-                      const time = new Date(showtime.time).toLocaleTimeString(
-                        locale === "ar"
-                          ? "ar-TN"
-                          : locale === "fr"
-                            ? "fr-TN"
-                            : "en-US",
-                        { hour: "2-digit", minute: "2-digit" }
-                      )
-                      const isSoldOut =
-                        showtime.ticketsAvailable !== undefined &&
-                        showtime.ticketsAvailable <= 0
-
-                      return (
-                        <ShowtimeButton
-                          key={showtime.documentId}
-                          time={time}
-                          price={showtime.price}
-                          currency="TND"
-                          format={showtime.format}
-                          isAvailable={!isSoldOut}
-                          onClick={() =>
-                            handleShowtimeSelect(showtime.documentId)
-                          }
-                        />
-                      )
-                    })}
+                <div key={date || "undated"}>
+                  {date && (
+                    <p className="text-foreground mb-2 flex items-center gap-2 text-sm font-medium">
+                      <Calendar className="h-4 w-4" />
+                      {formatDate(date, locale)}
+                    </p>
+                  )}
+                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                    {showtimes?.map((showtime) => (
+                      <ShowtimeButton
+                        key={showtime.id}
+                        time={formatTime(showtime.time, locale)}
+                        venueName={detail.venue?.name ?? ""}
+                        price={showtime.price}
+                        currency={detail.currency}
+                        formats={showtime.formats}
+                        status={showtime.status}
+                        onSelect={() => handleShowtimeSelect(showtime.id)}
+                        labels={{
+                          soldOut: labels.soldOut,
+                          selectShowtime: labels.buyTickets,
+                        }}
+                      />
+                    ))}
                   </div>
                 </div>
               ))}
@@ -447,59 +315,60 @@ export function EventDetailPage({
           )}
         </section>
 
-        <Separator className="my-6" />
-
         {/* Directors Section */}
-        {work?.directors && work.directors.length > 0 && (
-          <section className="mb-6">
-            <h2 className="text-foreground mb-3 text-lg font-semibold">
-              {labels.directors}
-            </h2>
-            <div className="flex flex-wrap gap-3">
-              {work.directors.map((person) => (
-                <div
-                  key={person.slug}
-                  className="bg-secondary flex items-center gap-3 rounded-lg p-3"
-                >
-                  {person.photo?.url ? (
-                    <Image
-                      src={person.photo.url}
-                      alt={person.name}
-                      width={40}
-                      height={40}
-                      className="rounded-full object-cover"
-                    />
-                  ) : (
-                    <div className="bg-muted flex h-10 w-10 items-center justify-center rounded-full">
-                      <span className="text-muted-foreground text-sm">
-                        {person.name.charAt(0)}
-                      </span>
-                    </div>
-                  )}
-                  <span className="text-foreground text-sm font-medium">
-                    {person.name}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </section>
+        {detail.directors.length > 0 && (
+          <>
+            <Separator className="my-6" />
+            <section className="mb-6">
+              <h2 className="text-foreground mb-3 text-lg font-semibold">
+                {labels.directors}
+              </h2>
+              <div className="flex flex-wrap gap-3">
+                {detail.directors.map((person, index) => (
+                  <div
+                    key={`${person.name}-${index}`}
+                    className="bg-secondary flex items-center gap-3 rounded-lg p-3"
+                  >
+                    {person.photoUrl ? (
+                      <Image
+                        src={person.photoUrl}
+                        alt={person.name}
+                        width={40}
+                        height={40}
+                        className="rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="bg-muted flex h-10 w-10 items-center justify-center rounded-full">
+                        <span className="text-muted-foreground text-sm">
+                          {person.name.charAt(0)}
+                        </span>
+                      </div>
+                    )}
+                    <span className="text-foreground text-sm font-medium">
+                      {person.name}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </section>
+          </>
         )}
 
         {/* Cast Section */}
-        {work?.cast && work.cast.length > 0 && (
+        {detail.cast.length > 0 && (
           <section className="mb-6">
             <h2 className="text-foreground mb-3 text-lg font-semibold">
               {labels.cast}
             </h2>
             <div className="no-scrollbar flex gap-3 overflow-x-auto">
-              {work.cast.map((person) => (
+              {detail.cast.map((person, index) => (
                 <div
-                  key={person.slug}
+                  key={`${person.name}-${index}`}
                   className="flex w-20 shrink-0 flex-col items-center"
                 >
-                  {person.photo?.url ? (
+                  {person.photoUrl ? (
                     <Image
-                      src={person.photo.url}
+                      src={person.photoUrl}
                       alt={person.name}
                       width={64}
                       height={64}
@@ -515,6 +384,11 @@ export function EventDetailPage({
                   <span className="text-foreground text-center text-xs">
                     {person.name}
                   </span>
+                  {person.role && (
+                    <span className="text-muted-foreground text-center text-[10px]">
+                      {person.role}
+                    </span>
+                  )}
                 </div>
               ))}
             </div>
@@ -537,24 +411,23 @@ export function EventDetailPage({
       )}
 
       {/* Sticky Buy Tickets CTA */}
-      {event.showtimes && event.showtimes.length > 0 && (
+      {detail.showtimes.length > 0 && (
         <div className="bg-background/95 fixed inset-x-0 bottom-0 border-t p-4 backdrop-blur-sm">
           <div className="mx-auto flex max-w-3xl items-center justify-between gap-4">
             <div>
               <p className="text-foreground text-sm font-medium">
-                {event.showtimes.length} séance
-                {event.showtimes.length > 1 ? "s" : ""}
+                {detail.showtimes.length} {labels.showtimes}
               </p>
-              <p className="text-muted-foreground text-xs">
-                À partir de{" "}
-                {Math.min(...event.showtimes.map((s) => s.price || 0))} TND
-              </p>
+              {detail.minPrice !== undefined && (
+                <p className="text-muted-foreground text-xs">
+                  {labels.priceFrom(`${detail.minPrice} ${detail.currency}`)}
+                </p>
+              )}
             </div>
             <Button
               size="lg"
               className="gap-2"
               onClick={() => {
-                // Scroll to showtimes section
                 document
                   .querySelector("section h2")
                   ?.scrollIntoView({ behavior: "smooth" })
