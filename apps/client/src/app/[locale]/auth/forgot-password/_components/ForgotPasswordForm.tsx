@@ -33,16 +33,21 @@ export function ForgotPasswordForm() {
     defaultValues: { email: "" },
   })
 
+  // Surface the SAME neutral "if an account exists…" copy regardless of the
+  // backend result, so the response never leaks whether the account exists.
+  const showNeutralConfirmation = () => {
+    toast({
+      variant: "default",
+      description: t("passwordChangeEmailSent"),
+    })
+    form.reset()
+    router.push("/auth/signin")
+  }
+
   const onSubmit = (data: z.infer<FormSchemaType>) =>
     forgotPasswordMutation.mutate(data, {
-      onSuccess: () => {
-        toast({
-          variant: "default",
-          description: t("passwordChangeEmailSent"),
-        })
-        form.reset()
-        router.push("/auth/signin")
-      },
+      onSuccess: showNeutralConfirmation,
+      onError: showNeutralConfirmation,
     })
 
   return (

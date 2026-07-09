@@ -23,11 +23,33 @@
  * Note: the user lifecycle (`src/lifeCycles/user.ts`) returns early for
  * self-registered `confirmed:true` users, so the welcome email must live here.
  */
+import { randomBytes } from "crypto"
+
+import { errors } from "@strapi/utils"
 import { z } from "zod"
 
 import type { Core } from "@strapi/strapi"
 
 import { validate } from "../../shared/validation"
+
+const { ValidationError } = errors
+
+/** Default reset-token time-to-live: 1 hour, in milliseconds. */
+const DEFAULT_RESET_TOKEN_TTL_MS = 3_600_000
+
+/**
+ * Resolve the reset-token TTL from `RESET_TOKEN_TTL_MS`, honoring it ONLY when
+ * it parses to a finite number greater than zero; otherwise the 1h default.
+ */
+function resolveResetTokenTtlMs(): number {
+  const raw = Number(process.env.RESET_TOKEN_TTL_MS)
+  // Upper bound guards against a value so large that `Date.now() + ttl` overflows
+  // the max representable Date (8.64e15 ms), which would store an Invalid Date and
+  // make the token effectively non-expiring.
+  return Number.isFinite(raw) && raw > 0 && raw <= 8.64e15
+    ? raw
+    : DEFAULT_RESET_TOKEN_TTL_MS
+}
 
 // `strapi` is the ambient global available inside Strapi controllers.
 declare const strapi: Core.Strapi
@@ -66,6 +88,15 @@ const registerSchema = z.object({
     .regex(/\d/, "PASSWORD_NO_DIGIT"),
 })
 
+/**
+ * Server-side reset-password schema. Reuses the SAME password policy as
+ * registration (8+ chars, upper, lower, digit, max 72) so the server is never
+ * weaker than the client. Each message is a STABLE error CODE, not prose.
+ */
+const resetPasswordSchema = z.object({
+  password: registerSchema.shape.password,
+})
+
 /** Escape a string for safe interpolation into HTML attribute/text content. */
 function escapeHtml(value: string): string {
   return value
@@ -95,6 +126,36 @@ export function buildWelcomeEmail(
     ar: {
       subject: "مرحباً بك في تيوين",
       html: `<h2>مرحباً${safeName ? ` ${safeName}` : ""}!</h2><p>تم إنشاء حسابك في تيوين بنجاح. اكتشف الآن الفعاليات القريبة منك.</p>`,
+    },
+  }
+
+  return content[locale]
+}
+
+/**
+ * Localized password-reset email content, keyed off the recipient's preferred
+ * language. The `url` is the CLIENT-hosted, single-use, time-limited reset link.
+ */
+export function buildResetPasswordEmail(
+  locale: SupportedLocale,
+  name: string,
+  url: string
+): { subject: string; html: string } {
+  const safeName = escapeHtml(name || "")
+  const safeUrl = escapeHtml(url)
+
+  const content: Record<SupportedLocale, { subject: string; html: string }> = {
+    fr: {
+      subject: "Réinitialisation de votre mot de passe Tiween",
+      html: `<h2>Réinitialisation du mot de passe</h2><p>Bonjour${safeName ? ` ${safeName}` : ""},</p><p>Vous avez demandé à réinitialiser votre mot de passe Tiween. Cliquez sur le lien ci-dessous pour choisir un nouveau mot de passe. Ce lien expire dans une heure.</p><p><a href="${safeUrl}" target="_blank">Réinitialiser mon mot de passe</a></p><p>Si vous n'êtes pas à l'origine de cette demande, vous pouvez ignorer cet e-mail.</p>`,
+    },
+    en: {
+      subject: "Reset your Tiween password",
+      html: `<h2>Password reset</h2><p>Hello${safeName ? ` ${safeName}` : ""},</p><p>You asked to reset your Tiween password. Click the link below to choose a new password. This link expires in one hour.</p><p><a href="${safeUrl}" target="_blank">Reset my password</a></p><p>If you did not request this, you can safely ignore this email.</p>`,
+    },
+    ar: {
+      subject: "إعادة تعيين كلمة مرور تيوين",
+      html: `<h2>إعادة تعيين كلمة المرور</h2><p>مرحباً${safeName ? ` ${safeName}` : ""},</p><p>لقد طلبت إعادة تعيين كلمة مرور تيوين الخاصة بك. انقر على الرابط أدناه لاختيار كلمة مرور جديدة. تنتهي صلاحية هذا الرابط خلال ساعة واحدة.</p><p><a href="${safeUrl}" target="_blank">إعادة تعيين كلمة المرور</a></p><p>إذا لم تكن أنت من قدّم هذا الطلب، يمكنك تجاهل هذا البريد الإلكتروني.</p>`,
     },
   }
 
@@ -139,6 +200,35 @@ export async function sendWelcomeEmail(
       ? normalizeLocale(requestLocale)
       : normalizeLocale(user.preferredLanguage)
   const { subject, html } = buildWelcomeEmail(locale, name)
+
+  await strapi.plugins["email"].services.email.send({
+    to: user.email,
+    subject,
+    html,
+  })
+}
+
+/**
+ * Send the localized password-reset email. Throws on failure — callers MUST wrap
+ * this in a try/catch so the forgot-password flow is never blocked (and never
+ * leaks whether the account exists) by an email-provider error.
+ */
+export async function sendPasswordResetEmail(
+  user: CreatedUser,
+  url: string,
+  requestLocale?: unknown
+): Promise<void> {
+  if (!user?.email) {
+    return
+  }
+
+  // Precedence: explicit request locale → user.preferredLanguage → "fr".
+  const locale =
+    requestLocale != null
+      ? normalizeLocale(requestLocale)
+      : normalizeLocale(user.preferredLanguage)
+  const name = user.firstName ?? ""
+  const { subject, html } = buildResetPasswordEmail(locale, name, url)
 
   await strapi.plugins["email"].services.email.send({
     to: user.email,
@@ -259,15 +349,45 @@ interface RegisterCtx {
   body?: unknown
 }
 
+interface ForgotPasswordCtx {
+  request: { body: Record<string, unknown> }
+  body?: unknown
+}
+
+interface ResetPasswordCtx {
+  request: { body: Record<string, unknown> }
+  body?: unknown
+}
+
 type RegisterController = (ctx: RegisterCtx) => Promise<unknown>
 type CallbackController = (ctx: CallbackCtx) => Promise<unknown>
+type ForgotPasswordController = (ctx: ForgotPasswordCtx) => Promise<unknown>
+type ResetPasswordController = (ctx: ResetPasswordCtx) => Promise<unknown>
+
+interface JwtPayload {
+  id?: number
+  iat?: number
+  exp?: number
+}
+
+interface JwtService {
+  verify: (token: string) => JwtPayload | Promise<JwtPayload>
+  issue?: (payload: object, options?: unknown) => string
+}
+
+type JwtServiceFactory = (deps: unknown) => JwtService
 
 interface UsersPermissionsPlugin {
   controllers: {
     auth: {
       register: RegisterController
       callback: CallbackController
+      forgotPassword: ForgotPasswordController
+      resetPassword: ResetPasswordController
     }
+  }
+  services: {
+    jwt: JwtServiceFactory
   }
 }
 
@@ -420,6 +540,238 @@ export default (plugin: UsersPermissionsPlugin): UsersPermissionsPlugin => {
       } catch (err) {
         strapi.log.error("[social-login] welcome email failed to send", err)
       }
+    }
+  }
+
+  // --- Story 4.3: forgot-password override -------------------------------------
+  //
+  // Replace the stock `POST /auth/forgot-password` so it:
+  //   - NEVER leaks whether the account exists: always responds `{ ok: true }`;
+  //   - SKIPS admin-`blocked` accounts silently (no token, no email);
+  //   - mints its OWN single-use token (`crypto.randomBytes(64)`) with an
+  //     expiry (`resetPasswordTokenExpiresAt = now + TTL`, 1h default);
+  //   - sends a localized AR/FR/EN reset email with the CLIENT-hosted
+  //     `?code=&email=` link, swallowing + logging any send error.
+  plugin.controllers.auth.forgotPassword = async (ctx: ForgotPasswordCtx) => {
+    const body = ctx.request.body ?? {}
+    const email = String(body.email ?? "")
+      .trim()
+      .toLowerCase()
+    const requestLocale = body.locale
+
+    if (email) {
+      try {
+        const user = await strapi.db
+          .query("plugin::users-permissions.user")
+          .findOne({ where: { email } })
+
+        // Skip non-existent AND admin-blocked accounts — a reset must never
+        // restore access an administrator revoked.
+        if (user && !user.blocked) {
+          const resetPasswordToken = randomBytes(64).toString("hex")
+          const expiresAt = new Date(Date.now() + resolveResetTokenTtlMs())
+
+          await strapi
+            .plugin("users-permissions")
+            .service("user")
+            .edit(user.id, {
+              resetPasswordToken,
+              resetPasswordTokenExpiresAt: expiresAt,
+            })
+
+          const baseUrl = process.env.CLIENT_RESET_PASSWORD_URL
+          if (!baseUrl) {
+            strapi.log.warn(
+              "CLIENT_RESET_PASSWORD_URL is not set. Password reset email will not be sent."
+            )
+          } else {
+            const url = `${baseUrl}?code=${resetPasswordToken}&email=${encodeURIComponent(
+              user.email
+            )}`
+            try {
+              await sendPasswordResetEmail(user, url, requestLocale)
+            } catch (err) {
+              strapi.log.error(
+                "[password-reset] reset email failed to send",
+                err
+              )
+            }
+          }
+        }
+      } catch (err) {
+        // A DB/service error must not leak account existence either.
+        strapi.log.error("[password-reset] forgotPassword failed", err)
+      }
+    }
+
+    ctx.body = { ok: true }
+  }
+
+  // --- Story 4.3: reset-password override --------------------------------------
+  //
+  // Wrap the stock `POST /auth/reset-password` to add expiry enforcement, the
+  // project password policy, stable error codes, and the `passwordChangedAt`
+  // session-invalidation boundary. The stock controller still performs the hash,
+  // single-use token clear, and JWT issue.
+  const originalResetPassword = plugin.controllers.auth.resetPassword
+
+  plugin.controllers.auth.resetPassword = async (ctx: ResetPasswordCtx) => {
+    const body = ctx.request.body ?? {}
+    const code = body.code != null ? String(body.code) : ""
+
+    // 1. Expiry check — ONLY when an expiry is set. Activation links minted by
+    //    `lifeCycles/user.ts` carry no expiry, so that flow is unaffected. The
+    //    boundary is `>=` so an exactly-expired token is rejected.
+    if (code) {
+      const tokenUser = await strapi.db
+        .query("plugin::users-permissions.user")
+        .findOne({
+          where: { resetPasswordToken: code },
+          select: ["id", "blocked", "resetPasswordTokenExpiresAt"],
+        })
+      // A blocked account must not complete a reset (symmetry with the
+      // blocked-skip in forgotPassword; login also rejects blocked users). Do not
+      // reveal the block — surface the generic invalid-token code.
+      if (tokenUser?.blocked) {
+        throw new ValidationError("RESET_TOKEN_INVALID", {
+          code: "RESET_TOKEN_INVALID",
+        })
+      }
+      if (tokenUser?.resetPasswordTokenExpiresAt) {
+        const expiresAt = new Date(
+          tokenUser.resetPasswordTokenExpiresAt
+        ).getTime()
+        if (Number.isFinite(expiresAt) && Date.now() >= expiresAt) {
+          throw new ValidationError("RESET_TOKEN_EXPIRED", {
+            code: "RESET_TOKEN_EXPIRED",
+          })
+        }
+      }
+    }
+
+    // 2. Enforce the project password policy (stable codes) BEFORE delegating.
+    validate(resetPasswordSchema, { password: body.password })
+
+    // 3. Delegate to stock: hash + single-use token clear + JWT issue → ctx.body.
+    //    An unknown/used code surfaces as a stock rejection → RESET_TOKEN_INVALID.
+    try {
+      await originalResetPassword(ctx)
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err)
+      // Stock throws "Incorrect code provided" for an unknown/used token — the
+      // only case that is genuinely an invalid link. Anything else (transient
+      // persistence/JWT-issue failure) must NOT be mislabeled as an invalid
+      // link; surface a distinct generic code and log the real cause.
+      if (/incorrect code/i.test(message)) {
+        throw new ValidationError("RESET_TOKEN_INVALID", {
+          code: "RESET_TOKEN_INVALID",
+        })
+      }
+      strapi.log.error("[password-reset] resetPassword delegation failed", err)
+      throw new ValidationError("RESET_FAILED", { code: "RESET_FAILED" })
+    }
+
+    // 4. Stamp `passwordChangedAt` to the freshly issued JWT's `iat` so the new
+    //    auto-login session survives while every older-second JWT is rejected by
+    //    the wrapped `jwt.verify`. If the issued body has no numeric `iat`, LOG
+    //    and skip — defaulting to `new Date()` would self-revoke the fresh token.
+    const responseBody = ctx.body as
+      | { jwt?: string; user?: { id?: number } }
+      | undefined
+    const issuedJwt = responseBody?.jwt
+    const userId = responseBody?.user?.id
+
+    if (issuedJwt && userId != null) {
+      let iat: number | undefined
+      try {
+        const payload = await strapi
+          .plugin("users-permissions")
+          .service("jwt")
+          .verify(issuedJwt)
+        iat = (payload as JwtPayload | undefined)?.iat
+      } catch (err) {
+        strapi.log.error(
+          "[password-reset] failed to verify freshly issued jwt",
+          err
+        )
+      }
+
+      if (typeof iat === "number") {
+        try {
+          await strapi
+            .plugin("users-permissions")
+            .service("user")
+            .edit(userId, {
+              passwordChangedAt: new Date(iat * 1000),
+              resetPasswordTokenExpiresAt: null,
+            })
+        } catch (err) {
+          strapi.log.error(
+            "[password-reset] failed to stamp passwordChangedAt",
+            err
+          )
+        }
+      } else {
+        strapi.log.error(
+          "[password-reset] issued jwt has no numeric iat; skipping passwordChangedAt stamp"
+        )
+      }
+    } else {
+      strapi.log.error(
+        "[password-reset] stock reset returned no jwt/user id; skipping passwordChangedAt stamp"
+      )
+    }
+  }
+
+  // --- Story 4.3: session invalidation via jwt.verify wrap ---------------------
+  //
+  // Wrap the users-permissions `jwt` SERVICE factory so the returned instance's
+  // `verify(token)` ALSO rejects tokens issued before the user's most recent
+  // password reset. The users-permissions auth strategy authenticates EVERY
+  // request via `getService("jwt").getToken(ctx)` → `this.verify(token)`, so
+  // mutating this same instance's `verify` is the correct universal enforcement
+  // point (a throw here surfaces as a standard 401). A global middleware cannot
+  // do this — its pre-`next()` code runs before `ctx.state.user` is populated.
+  const jwtFactory = plugin.services?.jwt
+  if (typeof jwtFactory === "function") {
+    plugin.services.jwt = (deps: unknown): JwtService => {
+      const service = jwtFactory(deps)
+      const originalVerify = service.verify.bind(service)
+      service.verify = async (token: string): Promise<JwtPayload> => {
+        const payload = await originalVerify(token)
+        const iat = payload?.iat
+        // Strict no-op unless we can identify the user and compare timestamps.
+        if (payload?.id != null && typeof iat === "number") {
+          try {
+            const user = await strapi.db
+              .query("plugin::users-permissions.user")
+              .findOne({
+                where: { id: payload.id },
+                select: ["id", "passwordChangedAt"],
+              })
+            if (user?.passwordChangedAt) {
+              const boundaryMs = new Date(user.passwordChangedAt).getTime()
+              // Guard against an unparseable stored value (NaN) — without this the
+              // `iat < NaN` comparison is always false and the check fails OPEN.
+              if (Number.isFinite(boundaryMs)) {
+                const boundarySec = Math.floor(boundaryMs / 1000)
+                if (iat < boundarySec) {
+                  throw new Error("Invalid token.")
+                }
+              }
+            }
+          } catch (err) {
+            // Re-throw our own revocation; swallow lookup errors (fail-open — the
+            // request already passed the stock verify, so never lock out on a DB
+            // hiccup or an un-reset user whose field is unset).
+            if (err instanceof Error && err.message === "Invalid token.") {
+              throw err
+            }
+          }
+        }
+        return payload
+      }
+      return service
     }
   }
 

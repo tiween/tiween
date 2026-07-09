@@ -249,7 +249,17 @@
       "description": "Choose a new password to use for logging in.",
       "submit": "Set password",
       "password": "New password",
-      "confirmPassword": "Confirm password"
+      "confirmPassword": "Confirm password",
+      "invalidLink": "This password reset link is invalid or incomplete. Please request a new one.",
+      "requestNewLink": "Request a new link",
+      "signingIn": "Signing you in...",
+      "manualSignInPrompt": "Please sign in with your new password.",
+      "errors": {
+        "RESET_TOKEN_EXPIRED": "This reset link has expired. Please request a new one.",
+        "RESET_TOKEN_INVALID": "This reset link is invalid or has already been used. Please request a new one.",
+        "weakPassword": "Your password does not meet the security requirements.",
+        "unexpectedError": "Something went wrong. Please try again later."
+      }
     },
     "forgotPassword": {
       "passwordChangeEmailSent": "An email with password reset instructions has been sent to you.",

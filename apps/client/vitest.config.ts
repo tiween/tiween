@@ -81,6 +81,9 @@ export default defineConfig({
       "src/app/**/register/_components/**/*.test.tsx",
       // Auth sign-in form with social login (Story 4.2).
       "src/app/**/signin/_components/**/*.test.tsx",
+      // Auth password-reset + forgot-password forms (Story 4.3).
+      "src/app/**/reset-password/_components/**/*.test.tsx",
+      "src/app/**/forgot-password/_components/**/*.test.tsx",
     ],
   },
 })

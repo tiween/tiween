@@ -249,7 +249,17 @@
       "description": "Choisissez un nouveau mot de passe.",
       "submit": "Définir le mot de passe",
       "password": "Nouveau mot de passe",
-      "confirmPassword": "Confirmer le mot de passe"
+      "confirmPassword": "Confirmer le mot de passe",
+      "invalidLink": "Ce lien de réinitialisation est invalide ou incomplet. Veuillez en demander un nouveau.",
+      "requestNewLink": "Demander un nouveau lien",
+      "signingIn": "Connexion en cours...",
+      "manualSignInPrompt": "Veuillez vous connecter avec votre nouveau mot de passe.",
+      "errors": {
+        "RESET_TOKEN_EXPIRED": "Ce lien de réinitialisation a expiré. Veuillez en demander un nouveau.",
+        "RESET_TOKEN_INVALID": "Ce lien de réinitialisation est invalide ou a déjà été utilisé. Veuillez en demander un nouveau.",
+        "weakPassword": "Votre mot de passe ne respecte pas les exigences de sécurité.",
+        "unexpectedError": "Une erreur est survenue. Veuillez réessayer plus tard."
+      }
     },
     "forgotPassword": {
       "passwordChangeEmailSent": "Un email avec les instructions de réinitialisation vous a été envoyé.",

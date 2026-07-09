@@ -151,7 +151,7 @@ development_status:
   epic-4: backlog
   4-1-email-and-password-registration: done
   4-2-social-login-with-google-and-facebook: done
-  4-3-password-reset-flow: backlog
+  4-3-password-reset-flow: done
   4-4-profile-management: backlog
   4-5-language-and-region-preferences: backlog
   4-6-guest-checkout-capability: backlog

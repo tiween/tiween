@@ -214,3 +214,33 @@
 - source_spec: `_bmad-output/implementation-artifacts/spec-4-2-social-login-with-google-and-facebook.md`
   summary: `fetchSocialProfile` calls the Google/Facebook profile endpoints with bare `fetch` and no timeout, so a slow or hung provider endpoint can stall the Strapi OAuth callback (and the upstream NextAuth `jwt` callback) indefinitely, past the AC's NFR-IN4 <10s budget.
   evidence: `strapi-server.ts` `fetchSocialProfile` does `await fetch(url, …)` for both Google userinfo and Facebook graph with no `AbortController`/`AbortSignal.timeout`; Node's global `fetch` has no default timeout. Runs on every trusted-provider login (including repeat logins). Best bundled with the already-deferred "redundant double provider-profile fetch per login" restructuring (the fetch path is slated for rework), adding a per-request timeout (e.g. `AbortSignal.timeout(8000)`) so a hung provider degrades to the empty-profile / delegate path instead of hanging the auth request. Low probability, medium consequence.
+
+## Deferred from: code review of spec-4-3-password-reset-flow.md (2026-07-09)
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-4-3-password-reset-flow.md`
+  summary: forgot-password has a timing-oracle account-enumeration side channel — the known-email branch awaits a DB write plus a full email-send round-trip before returning `{ok:true}`, while the unknown-email branch returns after a single `findOne`, so response latency distinguishes registered emails despite the identical body.
+  evidence: `apps/strapi/src/extensions/users-permissions/strapi-server.ts` forgotPassword wrap; the neutral body prevents content-based enumeration but not timing-based. Constant-time mitigation (fixed-delay / queue the send) is non-trivial and standard practice commonly accepts this; not story-critical.
+- source_spec: `_bmad-output/implementation-artifacts/spec-4-3-password-reset-flow.md`
+  summary: repo-wide open-redirect pattern — `callbackUrl` from the query string is assigned straight to `window.location.href` after auth in RegisterForm (Story 4.1) and other auth forms; only ResetPasswordForm is now guarded to internal paths.
+  evidence: `apps/client/src/app/[locale]/auth/register/_components/RegisterForm.tsx` (and siblings) use the same unguarded redirect. Fixing all auth forms is a cross-cutting hardening task beyond this story's scope.
+- source_spec: `_bmad-output/implementation-artifacts/spec-4-3-password-reset-flow.md`
+  summary: the backend→client reset error-code contract (`RESET_TOKEN_EXPIRED`/`RESET_TOKEN_INVALID` surfaced inside `error.message` for `raw.includes(...)` mapping) is only asserted against hand-crafted errors; no test exercises the real Strapi `ValidationError` serialization through `useUserMutations` end-to-end.
+  evidence: client test mocks the error shape; the mutation layer is out of the diff. A true assertion needs a booted Strapi + supertest (the default gate runs only unit tests). Mapping is sound by inspection but unverified across the boundary.
+- source_spec: `_bmad-output/implementation-artifacts/spec-4-3-password-reset-flow.md`
+  summary: JWT `iat` has whole-second granularity, so a pre-reset token issued in the same wall-clock second as the reset's new token is not revoked (up-to-~1s window).
+  evidence: inherent to JWT second-resolution `iat`; the boundary is stamped from the new token's own `iat` second. Closing it fully would require sub-second issued-at tracking. Narrow, accepted window.
+
+## Deferred from: code review of spec-4-3-password-reset-flow.md — pass 2 (2026-07-09)
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-4-3-password-reset-flow.md`
+  summary: session invalidation silently goes fully OPEN if users-permissions is switched to `jwtManagement: "refresh"` mode — stock `verify` then returns `{id}` with no `iat`, so both the `passwordChangedAt` stamp and the stale-token check become no-ops.
+  evidence: `apps/strapi/src/extensions/users-permissions/strapi-server.ts` gates both halves on `typeof iat === "number"`. The project runs the default `legacy-support` mode (`config/plugins.ts` sets only `jwt.expiresIn`), so it is safe today; this is a latent land-mine for a future refresh-token migration. A boot-time assert/warn when refresh mode is enabled would surface it.
+- source_spec: `_bmad-output/implementation-artifacts/spec-4-3-password-reset-flow.md`
+  summary: the wrapped `jwt.verify` adds one `findOne` user lookup to EVERY authenticated request (on top of the strategy's own `fetchAuthenticatedUser`), an app-wide throughput cost inherent to the stateless-JWT revocation approach.
+  evidence: `apps/strapi/src/extensions/users-permissions/strapi-server.ts` verify wrap; the lookup is a PK `findOne` selecting only `id,passwordChangedAt` (cheap, indexed) but doubles per-request user reads. Optimize only if auth traffic profiling shows it matters.
+
+## Deferred from: code review of spec-4-3-password-reset-flow.md — follow-up pass (2026-07-09)
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-4-3-password-reset-flow.md`
+  summary: the password-reset email never honors the current UI locale — `forgotPasswordMutation` posts only `{ email }` (no `locale`), so the server's `requestLocale` branch in `sendPasswordResetEmail` is dead and the language always resolves via `user.preferredLanguage` (defaulting to `fr` when unset), so a visitor on the AR/EN forgot-password page whose stored preference is unset/differs receives a French reset email.
+  evidence: `apps/client/src/hooks/useUser.ts` `forgotPasswordMutation` sends `{ email }` only (unlike `registerMutation`, which forwards `locale`); `apps/strapi/src/extensions/users-permissions/strapi-server.ts` `forgotPassword` reads `const requestLocale = body.locale` (always `undefined`) and passes it to `sendPasswordResetEmail`, which falls back to `preferredLanguage`. Not a regression — the email is still localized by stored preference and the reset works — so deferred rather than patched; the fix is to forward the active locale from the client mutation (mirroring register) and update the `ForgotPasswordForm` payload test.
