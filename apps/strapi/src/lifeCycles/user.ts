@@ -13,8 +13,41 @@ export const registerUserSubscriber = async ({
 
     async afterCreate(event) {
       await sendEmail(strapi, event)
+      await linkGuestOrdersForUser(strapi, event)
     },
   })
+}
+
+/**
+ * Back-fill any guest orders that match the newly-created user's email so a
+ * later account "inherits" prior guest purchases. Delegates to the ticketing
+ * plugin's authoritative `order.linkGuestOrders`.
+ *
+ * Error-isolated: a linking failure (or a missing/disabled ticketing plugin)
+ * must never break account creation or the welcome email — the error is
+ * swallowed and logged, never rethrown.
+ */
+export const linkGuestOrdersForUser = async (
+  strapi: Core.Strapi,
+  event: Event
+) => {
+  const { email, documentId } = event.result ?? {}
+
+  if (!email || !documentId) {
+    return
+  }
+
+  try {
+    const n = await strapi
+      .plugin("ticketing")
+      .service("order")
+      .linkGuestOrders(email, documentId)
+    if (n > 0) {
+      console.log(`Linked ${n} guest order(s) to ${email}.`)
+    }
+  } catch (err) {
+    console.error("Guest-order linking failed on user create:", err)
+  }
 }
 
 /**

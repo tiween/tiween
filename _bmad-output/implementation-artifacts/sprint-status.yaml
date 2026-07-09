@@ -154,7 +154,7 @@ development_status:
   4-3-password-reset-flow: done
   4-4-profile-management: done
   4-5-language-and-region-preferences: done
-  4-6-guest-checkout-capability: backlog
+  4-6-guest-checkout-capability: done
   epic-4-retrospective: optional
 
   # Epic 5: Watchlist & Personalization

@@ -141,6 +141,59 @@ const orderService = ({ strapi }: { strapi: Core.Strapi }) => ({
 
     return orders[0] || null
   },
+
+  /**
+   * Back-fill the `user` relation on guest orders when an account is created
+   * with the same email, so prior guest purchases become that user's history.
+   *
+   * Matches `guestEmail` case-insensitively (Document Service `$eqi`) and then
+   * re-checks exact case-insensitive equality in memory to defuse `$eqi`'s
+   * underlying `LIKE` wildcard semantics. Idempotent: only orders with no `user`
+   * are linked; already-linked orders are skipped and not re-counted.
+   * `guestEmail` is retained as an audit trail. Returns the number linked.
+   */
+  async linkGuestOrders(
+    email: string,
+    userDocumentId: string
+  ): Promise<number> {
+    if (!email || !userDocumentId) return 0
+
+    const normalized = email.trim().toLowerCase()
+    if (!normalized) return 0
+
+    const orders = await strapi.documents(ORDER_UID).findMany({
+      filters: { guestEmail: { $eqi: normalized } },
+      populate: ["user"],
+    })
+
+    let linked = 0
+    for (const order of orders as Array<{
+      documentId: string
+      user?: unknown
+      guestEmail?: unknown
+    }>) {
+      if (order.user) continue // idempotent: skip already-linked
+
+      // `$eqi` compiles to `LOWER(col) LIKE LOWER(?)` with no wildcard escaping,
+      // so `_`/`%` in an email (both valid in a local part) act as SQL
+      // wildcards. Enforce exact case-insensitive equality so we never link a
+      // different guest's orders (e.g. `john_doe@x` must not match `johnXdoe@x`).
+      if (
+        typeof order.guestEmail !== "string" ||
+        order.guestEmail.trim().toLowerCase() !== normalized
+      ) {
+        continue
+      }
+
+      await strapi.documents(ORDER_UID).update({
+        documentId: order.documentId,
+        data: { user: userDocumentId },
+      })
+      linked++
+    }
+
+    return linked
+  },
 })
 
 export default orderService
