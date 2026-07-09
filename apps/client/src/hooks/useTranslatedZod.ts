@@ -89,6 +89,16 @@ export function useTranslatedZod(zod: typeof z) {
             message = "custom.phoneNumber"
           } else if (issue.params?.type === "checkPassword") {
             message = "custom.password"
+          } else if (issue.params?.type === "nameRequired") {
+            message = "custom.nameRequired"
+          } else if (issue.params?.type === "passwordUppercase") {
+            message = "custom.passwordUppercase"
+          } else if (issue.params?.type === "passwordLowercase") {
+            message = "custom.passwordLowercase"
+          } else if (issue.params?.type === "passwordDigit") {
+            message = "custom.passwordDigit"
+          } else if (issue.params?.type === "passwordTooLong") {
+            message = "custom.passwordTooLong"
           }
           break
         default:

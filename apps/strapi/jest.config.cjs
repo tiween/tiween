@@ -1,5 +1,3 @@
-import type { Config } from "jest"
-
 /**
  * Jest config for the Strapi backend.
  *
@@ -9,14 +7,26 @@ import type { Config } from "jest"
  *   `tests/helpers/strapi` and exercise SQLite. They are kept separate so a
  *   boot/env failure cannot block the unit gate.
  *
- * Run a subset with: `yarn test --testPathPattern unit`
+ * The default `yarn test` run is the unit gate only (`*.unit.test.ts`) so a
+ * DB/boot/env failure in an integration suite can never block it. Run the
+ * boot-based integration suites (the `.service.test.ts` / `.controller.test.ts`
+ * files and `tests/app.test.js`) explicitly, with a live DB and `--runInBand`,
+ * by passing their paths or a `--testMatch` glob on the CLI.
+ *
+ * NOTE: this config is authored as CommonJS (`.cjs`) on purpose. A `.ts` Jest
+ * config requires `ts-node` (absent from this repo) to be parsed; `.cjs` needs
+ * no extra dependency while `ts-jest` still compiles the TypeScript test files.
  */
-const config: Config = {
+module.exports = {
   displayName: "server",
   rootDir: ".",
   testEnvironment: "node",
   preset: "ts-jest",
-  testMatch: ["**/*.test.ts", "**/*.test.js"],
+  // Default run = the unit gate only. Boot-based integration suites
+  // (`*.service.test.ts`, `*.controller.test.ts`, `tests/app.test.js`) need a
+  // live DB and clean serial state, so they are opt-in (see header) rather than
+  // part of the default run — this keeps `yarn test` deterministic in CI.
+  testMatch: ["**/*.unit.test.ts"],
   transform: {
     "^.+\\.tsx?$": [
       "ts-jest",
@@ -37,5 +47,3 @@ const config: Config = {
   moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node"],
   clearMocks: true,
 }
-
-export default config

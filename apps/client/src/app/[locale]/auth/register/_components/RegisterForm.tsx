@@ -5,14 +5,21 @@ import { useSearchParams } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Loader2 } from "lucide-react"
 import { signIn } from "next-auth/react"
-import { useTranslations } from "next-intl"
-import { useForm } from "react-hook-form"
+import { useLocale, useTranslations } from "next-intl"
+import { useForm, useWatch } from "react-hook-form"
 import * as z from "zod"
 
-import { PASSWORD_MIN_LENGTH } from "@/lib/constants"
+import {
+  PASSWORD_MAX_LENGTH,
+  PASSWORD_MIN_LENGTH,
+  PASSWORD_REQUIRE_DIGIT,
+  PASSWORD_REQUIRE_LOWERCASE,
+  PASSWORD_REQUIRE_UPPERCASE,
+} from "@/lib/constants"
 import { Link } from "@/lib/navigation"
 import { cn } from "@/lib/styles"
 import { useUserMutations } from "@/hooks/useUser"
+import { PasswordStrengthIndicator } from "@/features/auth/components/RegisterForm/PasswordStrength"
 import { AppField } from "@/components/forms/AppField"
 import { AppForm } from "@/components/forms/AppForm"
 import { Button, buttonVariants } from "@/components/ui/button"
@@ -32,6 +39,7 @@ const ENABLE_EMAIL_CONFIRMATION = false
 
 export function RegisterForm() {
   const t = useTranslations("auth.register")
+  const locale = useLocale()
   const { toast } = useToast()
   const searchParams = useSearchParams()
   const { registerMutation } = useUserMutations()
@@ -45,11 +53,26 @@ export function RegisterForm() {
     mode: "onBlur",
     reValidateMode: "onBlur",
     defaultValues: {
+      name: "",
       email: "",
       password: "",
       passwordConfirmation: "",
     },
   })
+
+  const passwordValue = useWatch({ control: form.control, name: "password" })
+
+  // The strength meter (getPasswordStrength) can report "strong" for a password
+  // this form actually rejects (e.g. no digit). Cap the displayed strength at
+  // "medium" whenever the enforced hard policy is not met, so the meter never
+  // contradicts the validation. Logic is kept local to this routed form.
+  const password = passwordValue ?? ""
+  const meetsHardPolicy =
+    password.length >= PASSWORD_MIN_LENGTH &&
+    password.length <= PASSWORD_MAX_LENGTH &&
+    (!PASSWORD_REQUIRE_UPPERCASE || /[A-Z]/.test(password)) &&
+    (!PASSWORD_REQUIRE_LOWERCASE || /[a-z]/.test(password)) &&
+    (!PASSWORD_REQUIRE_DIGIT || /\d/.test(password))
 
   async function onSubmit(values: z.infer<FormSchemaType>) {
     registerMutation.mutate(
@@ -57,6 +80,8 @@ export function RegisterForm() {
         username: values.email,
         email: values.email,
         password: values.password,
+        firstName: values.name.trim(),
+        locale,
       },
       {
         onSuccess: async () => {
@@ -157,13 +182,25 @@ export function RegisterForm() {
         </CardHeader>
         <CardContent>
           <AppForm form={form} onSubmit={onSubmit} id={registerFormName}>
+            <AppField name="name" type="text" required label={t("name")} />
             <AppField name="email" type="text" required label={t("email")} />
-            <AppField
-              name="password"
-              type="password"
-              required
-              label={t("password")}
-            />
+            <div className="space-y-2">
+              <AppField
+                name="password"
+                type="password"
+                required
+                label={t("password")}
+              />
+              <PasswordStrengthIndicator
+                password={password}
+                maxStrength={meetsHardPolicy ? undefined : "medium"}
+                labels={{
+                  weak: t("passwordStrength.weak"),
+                  medium: t("passwordStrength.medium"),
+                  strong: t("passwordStrength.strong"),
+                }}
+              />
+            </div>
             <AppField
               name="passwordConfirmation"
               type="password"
@@ -207,11 +244,52 @@ export function RegisterForm() {
 
 const RegisterFormSchema = z
   .object({
+    name: z.string(),
     email: z.string().email(),
     password: z.string().min(PASSWORD_MIN_LENGTH),
     passwordConfirmation: z.string().min(PASSWORD_MIN_LENGTH),
   })
   .superRefine((data, ctx) => {
+    if (!data.name.trim()) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        params: { type: "nameRequired" },
+        path: ["name"],
+      })
+    }
+
+    if (PASSWORD_REQUIRE_UPPERCASE && !/[A-Z]/.test(data.password)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        params: { type: "passwordUppercase" },
+        path: ["password"],
+      })
+    }
+
+    if (PASSWORD_REQUIRE_LOWERCASE && !/[a-z]/.test(data.password)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        params: { type: "passwordLowercase" },
+        path: ["password"],
+      })
+    }
+
+    if (PASSWORD_REQUIRE_DIGIT && !/\d/.test(data.password)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        params: { type: "passwordDigit" },
+        path: ["password"],
+      })
+    }
+
+    if (data.password.length > PASSWORD_MAX_LENGTH) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        params: { type: "passwordTooLong" },
+        path: ["password"],
+      })
+    }
+
     if (data.password !== data.passwordConfirmation) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,

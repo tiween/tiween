@@ -149,7 +149,7 @@ development_status:
 
   # Epic 4: User Authentication & Profiles
   epic-4: backlog
-  4-1-email-and-password-registration: backlog
+  4-1-email-and-password-registration: done
   4-2-social-login-with-google-and-facebook: backlog
   4-3-password-reset-flow: backlog
   4-4-profile-management: backlog

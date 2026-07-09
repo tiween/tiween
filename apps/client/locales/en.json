@@ -137,7 +137,12 @@
       "custom": {
         "password": "Passwords do not match",
         "passwordWithNumber": "String must contain at least 1 number",
-        "phoneNumber": "This field must contain 9 numbers"
+        "phoneNumber": "This field must contain 9 numbers",
+        "nameRequired": "Name is required",
+        "passwordUppercase": "Password must contain at least one uppercase letter",
+        "passwordLowercase": "Password must contain at least one lowercase letter",
+        "passwordDigit": "Password must contain at least one digit",
+        "passwordTooLong": "Password must not exceed 72 characters"
       }
     }
   },
@@ -190,9 +195,15 @@
       },
       "header": "Registration",
       "description": "Create an account to access the system.",
+      "name": "Full name",
       "email": "E-mail address",
       "password": "Create password",
       "checkPassword": "Confirm password",
+      "passwordStrength": {
+        "weak": "Weak",
+        "medium": "Medium",
+        "strong": "Strong"
+      },
       "submit": "Create account",
       "forgotPassword": "Already have an account? Sign in.",
       "checkEmail": "Follow instructions in your email to confirm your email address.",

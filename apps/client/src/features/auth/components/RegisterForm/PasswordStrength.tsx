@@ -31,6 +31,20 @@ export interface PasswordStrengthIndicatorProps {
   labels?: PasswordStrengthLabels
   /** Additional class names */
   className?: string
+  /**
+   * Optional ceiling for the displayed strength. The computed strength is
+   * clamped so it never exceeds this level. Callers use it to avoid showing
+   * "strong" for a password their own hard policy would reject. The shared
+   * `getPasswordStrength` calculation is left untouched.
+   */
+  maxStrength?: PasswordStrength
+}
+
+/** Ordering used to clamp the displayed strength against an optional ceiling. */
+const strengthRank: Record<PasswordStrength, number> = {
+  weak: 0,
+  medium: 1,
+  strong: 2,
 }
 
 /**
@@ -81,8 +95,13 @@ export function PasswordStrengthIndicator({
   password,
   labels = defaultLabels,
   className,
+  maxStrength,
 }: PasswordStrengthIndicatorProps) {
-  const strength = getPasswordStrength(password)
+  const computed = getPasswordStrength(password)
+  const strength: PasswordStrength =
+    maxStrength && strengthRank[computed] > strengthRank[maxStrength]
+      ? maxStrength
+      : computed
   const progress = strengthProgressMap[strength]
   const colorClass = strengthColorMap[strength]
   const textColorClass = strengthTextColorMap[strength]

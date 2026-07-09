@@ -76,6 +76,9 @@ export default defineConfig({
       "src/features/events/components/ShareDialog/**/*.test.tsx",
       "src/lib/strapi-api/**/*.test.ts",
       "src/lib/algolia/**/*.test.ts",
+      // Auth register form. `[locale]` in the path is a glob character class,
+      // so match via `**` rather than spelling the segment literally.
+      "src/app/**/register/_components/**/*.test.tsx",
     ],
   },
 })

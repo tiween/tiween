@@ -137,7 +137,12 @@
       "custom": {
         "password": "Les mots de passe ne correspondent pas",
         "passwordWithNumber": "Le mot de passe doit contenir au moins 1 chiffre",
-        "phoneNumber": "Ce champ doit contenir 9 chiffres"
+        "phoneNumber": "Ce champ doit contenir 9 chiffres",
+        "nameRequired": "Le nom est requis",
+        "passwordUppercase": "Le mot de passe doit contenir au moins une lettre majuscule",
+        "passwordLowercase": "Le mot de passe doit contenir au moins une lettre minuscule",
+        "passwordDigit": "Le mot de passe doit contenir au moins un chiffre",
+        "passwordTooLong": "Le mot de passe ne doit pas dépasser 72 caractères"
       }
     }
   },
@@ -190,9 +195,15 @@
       },
       "header": "Inscription",
       "description": "Créez un compte pour accéder au système.",
+      "name": "Nom complet",
       "email": "Adresse email",
       "password": "Créer un mot de passe",
       "checkPassword": "Confirmer le mot de passe",
+      "passwordStrength": {
+        "weak": "Faible",
+        "medium": "Moyen",
+        "strong": "Fort"
+      },
       "submit": "Créer le compte",
       "forgotPassword": "Vous avez déjà un compte ? Connectez-vous.",
       "checkEmail": "Suivez les instructions dans votre email pour confirmer votre adresse.",

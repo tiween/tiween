@@ -66,6 +66,8 @@ export function useUserMutations() {
       username: string
       email: string
       password: string
+      firstName: string
+      locale: string
     }) =>
       PrivateStrapiClient.fetchAPI(
         `/auth/local/register`,
