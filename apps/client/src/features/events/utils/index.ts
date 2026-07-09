@@ -24,3 +24,15 @@ export type {
   DirectionsPlatform,
   BuildDirectionsUrlOptions,
 } from "./directions"
+export {
+  buildEventShareUrl,
+  buildSocialShareLinks,
+  toAbsoluteMediaUrl,
+  shouldFallbackAfterShareError,
+} from "./share"
+export type {
+  BuildEventShareUrlOptions,
+  BuildSocialShareLinksOptions,
+  SocialShareLinks,
+  ToAbsoluteMediaUrlOptions,
+} from "./share"

@@ -252,6 +252,13 @@
   "events": {
     "back": "Retour",
     "share": "Partager",
+    "copyLink": "Copier le lien",
+    "linkCopied": "Lien copié",
+    "copyFailed": "Échec de la copie du lien",
+    "shareVia": "Partager via",
+    "shareOnWhatsapp": "Partager sur WhatsApp",
+    "shareOnFacebook": "Partager sur Facebook",
+    "shareOnTwitter": "Partager sur Twitter",
     "addToWatchlist": "Ajouter à la liste de suivi",
     "removeFromWatchlist": "Retirer de la liste de suivi",
     "priceFrom": "À partir de {price}",

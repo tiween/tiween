@@ -1,13 +1,18 @@
 import { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { EventDetailPage } from "@/features/events/components"
-import { getEventFilm, mapTypeToCategory } from "@/features/events/utils"
+import {
+  getEventFilm,
+  mapTypeToCategory,
+  toAbsoluteMediaUrl,
+} from "@/features/events/utils"
 import { Locale } from "next-intl"
 import { getTranslations, setRequestLocale } from "next-intl/server"
 
 import type { EventDetailPageLabels } from "@/features/events/components"
 
 import { generateBreadcrumbJsonLd, generateEventJsonLd } from "@/lib/seo"
+import { formatStrapiMediaUrl } from "@/lib/strapi-helpers"
 import {
   getEventByDocumentId,
   getRelatedEventsByParams,
@@ -62,6 +67,16 @@ export async function generateMetadata({
     event.images?.[0]?.formats?.large?.url ||
     event.images?.[0]?.url
 
+  // OG/Twitter image must be absolute so crawlers resolve it regardless of asset
+  // host: S3 URLs already start with http; local `/uploads/...` assets are made
+  // absolute via `formatStrapiMediaUrl` (→ `/api/asset/...`) + BASE_URL. Guard on
+  // truthiness so the existing no-image path (undefined) is preserved.
+  const formattedPoster = posterUrl ? formatStrapiMediaUrl(posterUrl) : undefined
+  const absolutePosterUrl =
+    typeof formattedPoster === "string"
+      ? toAbsoluteMediaUrl({ url: formattedPoster, baseUrl: BASE_URL })
+      : undefined
+
   // Canonical URL
   const canonical = `${BASE_URL}/${locale}/events/${documentId}`
 
@@ -83,10 +98,10 @@ export async function generateMetadata({
       url: canonical,
       siteName: "Tiween",
       locale: locale === "ar" ? "ar_TN" : locale === "fr" ? "fr_TN" : "en_US",
-      images: posterUrl
+      images: absolutePosterUrl
         ? [
             {
-              url: posterUrl,
+              url: absolutePosterUrl,
               width: 800,
               height: 1200,
               alt: title,
@@ -98,7 +113,7 @@ export async function generateMetadata({
       card: "summary_large_image",
       title: `${title} | Tiween`,
       description,
-      images: posterUrl ? [posterUrl] : undefined,
+      images: absolutePosterUrl ? [absolutePosterUrl] : undefined,
       site: "@tiween",
     },
     robots: {
@@ -162,6 +177,13 @@ export default async function EventDetailRoute({ params }: PageProps) {
     dateRange: t.raw("dateRange") as string,
     getDirections: t("getDirections"),
     mapLoading: t("mapLoading"),
+    copyLink: t("copyLink"),
+    linkCopied: t("linkCopied"),
+    copyFailed: t("copyFailed"),
+    shareVia: t("shareVia"),
+    shareOnWhatsapp: t("shareOnWhatsapp"),
+    shareOnFacebook: t("shareOnFacebook"),
+    shareOnTwitter: t("shareOnTwitter"),
   }
 
   // Generate structured data (dual-schema aware — kept as-is).

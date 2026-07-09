@@ -87,3 +87,6 @@ export type {
 
 export { EventsListing } from "./EventsListing"
 export type { EventsListingProps, EventsListingLabels } from "./EventsListing"
+
+export { ShareDialog } from "./ShareDialog"
+export type { ShareDialogProps, ShareDialogLabels } from "./ShareDialog"

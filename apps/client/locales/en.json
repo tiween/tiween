@@ -252,6 +252,13 @@
   "events": {
     "back": "Back",
     "share": "Share",
+    "copyLink": "Copy link",
+    "linkCopied": "Link copied",
+    "copyFailed": "Couldn't copy link",
+    "shareVia": "Share via",
+    "shareOnWhatsapp": "Share on WhatsApp",
+    "shareOnFacebook": "Share on Facebook",
+    "shareOnTwitter": "Share on Twitter",
     "addToWatchlist": "Add to watchlist",
     "removeFromWatchlist": "Remove from watchlist",
     "priceFrom": "From {price}",

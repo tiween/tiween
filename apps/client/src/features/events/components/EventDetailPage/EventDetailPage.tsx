@@ -26,7 +26,9 @@ import type { DirectionsPlatform } from "../../utils"
 
 import {
   buildDirectionsUrl,
+  buildEventShareUrl,
   platformFromUserAgent,
+  shouldFallbackAfterShareError,
   toEventCardEvent,
   toEventDetail,
   toFilmHeroEvent,
@@ -34,6 +36,7 @@ import {
 import { EventSection } from "../EventSection"
 import { FilmHero } from "../FilmHero"
 import { VenueMap } from "../Map"
+import { ShareDialog } from "../ShareDialog"
 
 /**
  * Best-effort platform hint for choosing the maps provider at the directions
@@ -67,6 +70,13 @@ export interface EventDetailPageLabels {
   dateRange: string
   getDirections: string
   mapLoading: string
+  copyLink: string
+  linkCopied: string
+  copyFailed: string
+  shareVia: string
+  shareOnWhatsapp: string
+  shareOnFacebook: string
+  shareOnTwitter: string
 }
 
 const defaultLabels: EventDetailPageLabels = {
@@ -91,6 +101,13 @@ const defaultLabels: EventDetailPageLabels = {
   dateRange: "Du {start} au {end}",
   getDirections: "Itinéraire",
   mapLoading: "Chargement de la carte...",
+  copyLink: "Copier le lien",
+  linkCopied: "Lien copié",
+  copyFailed: "Échec de la copie du lien",
+  shareVia: "Partager via",
+  shareOnWhatsapp: "Partager sur WhatsApp",
+  shareOnFacebook: "Partager sur Facebook",
+  shareOnTwitter: "Partager sur Twitter",
 }
 
 export interface EventDetailPageProps {
@@ -134,6 +151,7 @@ export function EventDetailPage({
   React.useEffect(() => {
     setDirectionsPlatform(detectDirectionsPlatform())
   }, [])
+  const [shareDialogOpen, setShareDialogOpen] = React.useState(false)
 
   const detail = React.useMemo(
     () => toEventDetail(event, locale),
@@ -154,21 +172,43 @@ export function EventDetailPage({
     return grouped
   }, [detail])
 
+  // Canonical, absolute share URL — NOT window.location.href (avoids leaking
+  // filter/query params). Mirrors generateMetadata's `canonical`.
+  const shareUrl = React.useMemo(
+    () =>
+      buildEventShareUrl({
+        baseUrl: process.env.NEXT_PUBLIC_SITE_URL || "https://tiween.tn",
+        locale,
+        documentId: detail.documentId,
+      }),
+    [locale, detail.documentId]
+  )
+
   const handleBack = () => {
     router.back()
   }
 
   const handleShare = async () => {
-    if (typeof navigator !== "undefined" && navigator.share) {
+    // Native Web Share when supported (its sheet covers WhatsApp/Facebook/
+    // Twitter on mobile); otherwise open the copy-to-clipboard fallback.
+    const canNativeShare =
+      typeof navigator !== "undefined" && typeof navigator.share === "function"
+    if (canNativeShare) {
       try {
         await navigator.share({
           title: detail.title,
           text: detail.synopsis.slice(0, 100),
-          url: window.location.href,
+          url: shareUrl,
         })
-      } catch {
-        // User cancelled or share failed — no-op.
+      } catch (error) {
+        // AbortError = user cancelled the native sheet: do nothing. Any other
+        // error means native share failed — fall back to the dialog.
+        if (shouldFallbackAfterShareError(error)) {
+          setShareDialogOpen(true)
+        }
       }
+    } else {
+      setShareDialogOpen(true)
     }
   }
 
@@ -505,6 +545,24 @@ export function EventDetailPage({
           </div>
         </div>
       )}
+
+      {/* Copy-to-clipboard + social deep-link fallback (opened programmatically
+          from the single FilmHero share button when Web Share is unavailable). */}
+      <ShareDialog
+        open={shareDialogOpen}
+        onOpenChange={setShareDialogOpen}
+        url={shareUrl}
+        title={detail.title}
+        labels={{
+          shareVia: labels.shareVia,
+          copyLink: labels.copyLink,
+          linkCopied: labels.linkCopied,
+          copyFailed: labels.copyFailed,
+          shareOnWhatsapp: labels.shareOnWhatsapp,
+          shareOnFacebook: labels.shareOnFacebook,
+          shareOnTwitter: labels.shareOnTwitter,
+        }}
+      />
     </div>
   )
 }
