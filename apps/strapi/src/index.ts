@@ -2,6 +2,7 @@ import type { Core } from "@strapi/strapi"
 
 import { ensureAdminUser } from "./bootstrap/admin-user"
 import { ensureI18nLocales } from "./bootstrap/i18n-locales"
+import { ensureSocialProviders } from "./bootstrap/social-providers"
 import { ensureVenueManagerRole } from "./bootstrap/venue-manager-role"
 import { registerAdminUserSubscriber } from "./lifeCycles/adminUser"
 import { registerUserSubscriber } from "./lifeCycles/user"
@@ -34,5 +35,9 @@ export default {
 
     // Ensure i18n locales exist (fr is the default, ar is required)
     await ensureI18nLocales({ strapi })
+
+    // Enable Google/Facebook in the users-permissions grant store (stock gates
+    // the OAuth callback on this; runs after the plugin's own initGrant seed)
+    await ensureSocialProviders({ strapi })
   },
 }

@@ -180,7 +180,11 @@
       "google": "Continuer avec Google",
       "facebook": "Continuer avec Facebook",
       "divider": "ou",
-      "error": "La connexion sociale a échoué"
+      "error": "La connexion sociale a échoué",
+      "errors": {
+        "oauth_error": "La connexion sociale a échoué. Veuillez réessayer.",
+        "different_provider": "Cet e-mail est déjà associé à une autre méthode de connexion. Veuillez vous connecter avec votre e-mail et votre mot de passe."
+      }
     },
     "register": {
       "status": {

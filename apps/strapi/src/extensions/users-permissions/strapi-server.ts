@@ -147,15 +147,128 @@ export async function sendWelcomeEmail(
   })
 }
 
+/**
+ * Providers whose email is verified by the provider itself, making email-based
+ * account linking safe. Only these get the linking + profile-enrichment
+ * treatment; every other provider (including `local`) delegates unchanged.
+ */
+export const TRUSTED_SOCIAL_PROVIDERS = new Set(["google", "facebook"])
+
+export interface SocialProfile {
+  email: string | null
+  /** Whether the provider itself asserts the email is verified — the only case in
+   *  which email-based linking into an existing account is safe. */
+  emailVerified: boolean
+  name: string | null
+  avatarUrl: string | null
+}
+
+const EMPTY_SOCIAL_PROFILE: SocialProfile = {
+  email: null,
+  emailVerified: false,
+  name: null,
+  avatarUrl: null,
+}
+
+/**
+ * Fetch the provider profile (display name + avatar) that the stock
+ * Google/Facebook connect only partially exposes (`{username,email}`).
+ *
+ * Uses the Node 22 global `fetch`. Never throws for the caller's benefit —
+ * returns nulls on any failure so login is never blocked by profile enrichment.
+ */
+export async function fetchSocialProfile(
+  provider: string,
+  accessToken: string
+): Promise<SocialProfile> {
+  try {
+    if (provider === "google") {
+      const res = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      })
+      if (!res.ok) {
+        return EMPTY_SOCIAL_PROFILE
+      }
+      const data = (await res.json()) as {
+        email?: string
+        email_verified?: boolean
+        name?: string
+        picture?: string
+      }
+      return {
+        email: data.email ?? null,
+        // Google returns `email_verified`; only a verified email may be linked.
+        emailVerified: data.email_verified === true,
+        name: data.name ?? null,
+        avatarUrl: data.picture ?? null,
+      }
+    }
+
+    if (provider === "facebook") {
+      const url = `https://graph.facebook.com/me?fields=name,email,picture&access_token=${encodeURIComponent(
+        accessToken
+      )}`
+      const res = await fetch(url)
+      if (!res.ok) {
+        return EMPTY_SOCIAL_PROFILE
+      }
+      const data = (await res.json()) as {
+        email?: string
+        name?: string
+        picture?: { data?: { url?: string } }
+      }
+      return {
+        email: data.email ?? null,
+        // Facebook only ever returns a verified email (it requires confirmation).
+        emailVerified: Boolean(data.email),
+        name: data.name ?? null,
+        avatarUrl: data.picture?.data?.url ?? null,
+      }
+    }
+  } catch (err) {
+    strapi.log.error("[social-login] failed to fetch provider profile", err)
+  }
+
+  return EMPTY_SOCIAL_PROFILE
+}
+
+interface CallbackCtx {
+  params: { provider?: string }
+  query: Record<string, unknown>
+  state?: { auth?: unknown }
+  body?: unknown
+}
+
+/**
+ * Sanitize a user for the response body, mirroring the stock callback
+ * controller's `sanitizeUser` (contentAPI output sanitizer with the request
+ * auth), so the linking branch returns the same shape as `ctx.send({jwt,user})`.
+ */
+async function sanitizeOutputUser(
+  user: Record<string, unknown>,
+  ctx: CallbackCtx
+): Promise<unknown> {
+  const userSchema = strapi.getModel("plugin::users-permissions.user")
+  return strapi.contentAPI.sanitize.output(user, userSchema, {
+    auth: ctx.state?.auth,
+  })
+}
+
 interface RegisterCtx {
   request: { body: Record<string, unknown> }
   body?: unknown
 }
 
 type RegisterController = (ctx: RegisterCtx) => Promise<unknown>
+type CallbackController = (ctx: CallbackCtx) => Promise<unknown>
 
 interface UsersPermissionsPlugin {
-  controllers: { auth: { register: RegisterController } }
+  controllers: {
+    auth: {
+      register: RegisterController
+      callback: CallbackController
+    }
+  }
 }
 
 export default (plugin: UsersPermissionsPlugin): UsersPermissionsPlugin => {
@@ -204,6 +317,108 @@ export default (plugin: UsersPermissionsPlugin): UsersPermissionsPlugin => {
         await sendWelcomeEmail(createdUser, input.name, requestLocale)
       } catch (err) {
         strapi.log.error("[register] welcome email failed to send", err)
+      }
+    }
+  }
+
+  // --- Story 4.2: social-login callback override -------------------------------
+  //
+  // Wrap the stock `GET /auth/:provider/callback` (a JSON endpoint returning
+  // `{jwt,user}`) so that, for TRUSTED social providers only:
+  //   1. A social login whose provider-verified email already exists under a
+  //      DIFFERENT provider is LINKED (signed into the same account) instead of
+  //      being rejected with "Email is already taken" — the existing user's
+  //      `provider` field is never overwritten.
+  //   2. A brand-new social account gets `firstName` + `avatarUrl` from the
+  //      provider and a non-blocking localized welcome email.
+  // Non-trusted providers and `local` delegate to the stock controller unchanged.
+  const originalCallback = plugin.controllers.auth.callback
+
+  plugin.controllers.auth.callback = async (ctx: CallbackCtx) => {
+    const provider = ctx.params.provider || "local"
+
+    if (!TRUSTED_SOCIAL_PROVIDERS.has(provider)) {
+      return originalCallback(ctx)
+    }
+
+    const token = String(
+      ctx.query.access_token ?? ctx.query.code ?? ctx.query.oauth_token ?? ""
+    )
+
+    // Fetch the richer provider profile (name + avatar) up front.
+    const profile = await fetchSocialProfile(provider, token)
+    const email = String(profile.email ?? "").toLowerCase()
+
+    const userService = strapi.plugin("users-permissions").service("user")
+
+    // Pre-lookup: does an account already exist for this verified email?
+    const preExisting = email
+      ? await strapi.db
+          .query("plugin::users-permissions.user")
+          .findOne({ where: { email } })
+      : null
+
+    try {
+      // Stock controller: create a new account OR repeat-login → sets ctx.body.
+      await originalCallback(ctx)
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err)
+      // LINK: an account already exists for this email under a different provider.
+      // Only link a PROVIDER-VERIFIED email (else this is an account-takeover vector).
+      // Re-query at catch time — not the pre-lookup — so a concurrent first-login
+      // race also links instead of surfacing a raw error.
+      if (email && profile.emailVerified && /already taken/i.test(message)) {
+        const linkTarget = await strapi.db
+          .query("plugin::users-permissions.user")
+          .findOne({ where: { email } })
+        // Never let the social path bypass an administrator block that the stock
+        // repeat-login path enforces. A blocked target falls through to `throw err`.
+        if (linkTarget && !linkTarget.blocked) {
+          // Sign into the SAME existing account. Do NOT clobber its provider.
+          ctx.body = {
+            jwt: strapi
+              .plugin("users-permissions")
+              .service("jwt")
+              .issue({ id: linkTarget.id }),
+            user: await sanitizeOutputUser(linkTarget, ctx),
+          }
+          return
+        }
+      }
+      throw err
+    }
+
+    // Brand-new account only. Requires BOTH that the pre-lookup found nothing AND
+    // that we actually resolved an email from the provider — without a fetched
+    // email we cannot distinguish a fresh account from a repeat login, so we skip
+    // enrichment rather than clobber an existing user's data / re-send the email.
+    const body = ctx.body as
+      | { user?: Record<string, unknown> & { id?: number } }
+      | undefined
+    const createdUser = body?.user
+
+    if (!preExisting && email && createdUser?.id != null) {
+      // Persist only the fields the provider actually supplied (no null overwrites).
+      const patch: { firstName?: string; avatarUrl?: string } = {}
+      if (profile.name) patch.firstName = profile.name
+      if (profile.avatarUrl) patch.avatarUrl = profile.avatarUrl
+
+      if (Object.keys(patch).length > 0) {
+        try {
+          await userService.edit(createdUser.id, patch)
+          Object.assign(createdUser, patch)
+        } catch (err) {
+          strapi.log.error("[social-login] failed to persist profile", err)
+        }
+      }
+
+      // Non-blocking welcome email — kept in its OWN try/catch so a profile-persist
+      // failure never suppresses it. No request locale on the OAuth callback, so it
+      // falls back to the user's preferredLanguage → "fr".
+      try {
+        await sendWelcomeEmail(createdUser, profile.name ?? "")
+      } catch (err) {
+        strapi.log.error("[social-login] welcome email failed to send", err)
       }
     }
   }

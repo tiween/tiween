@@ -180,7 +180,11 @@
       "google": "Continue with Google",
       "facebook": "Continue with Facebook",
       "divider": "or",
-      "error": "Social sign-in failed"
+      "error": "Social sign-in failed",
+      "errors": {
+        "oauth_error": "Social sign-in failed. Please try again.",
+        "different_provider": "This email is already registered with a different sign-in method. Please sign in with your email and password."
+      }
     },
     "register": {
       "status": {

@@ -2,9 +2,10 @@
 
 import * as React from "react"
 import { useSearchParams } from "next/navigation"
+import { SocialLogin } from "@/features/auth/components/SocialLogin"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Loader2 } from "lucide-react"
-import { signIn } from "next-auth/react"
+import { signIn, useSession } from "next-auth/react"
 import { useLocale, useTranslations } from "next-intl"
 import { useForm, useWatch } from "react-hook-form"
 import * as z from "zod"
@@ -37,16 +38,64 @@ import { useToast } from "@/components/ui/use-toast"
 // Local dev: https://api.tiween.localhost:1355/admin/settings/users-permissions/advanced-settings
 const ENABLE_EMAIL_CONFIRMATION = false
 
-export function RegisterForm() {
+export interface RegisterFormProps {
+  /** Enable Google OAuth button */
+  enableGoogle?: boolean
+  /** Enable Facebook OAuth button */
+  enableFacebook?: boolean
+}
+
+export function RegisterForm({
+  enableGoogle = false,
+  enableFacebook = false,
+}: RegisterFormProps = {}) {
   const t = useTranslations("auth.register")
+  const tSocial = useTranslations("auth.social")
   const locale = useLocale()
   const { toast } = useToast()
   const searchParams = useSearchParams()
   const { registerMutation } = useUserMutations()
+  const { data: session } = useSession()
   const [isAutoLoggingIn, setIsAutoLoggingIn] = React.useState(false)
+  const [loadingProvider, setLoadingProvider] = React.useState<
+    "google" | "facebook" | null
+  >(null)
 
   // Get callback URL from search params (or default to home)
   const callbackUrl = searchParams.get("callbackUrl") || "/"
+
+  const showSocialLogin = enableGoogle || enableFacebook
+
+  // Surface OAuth errors mapped by the NextAuth jwt callback onto
+  // `session.error` (`oauth_error` / `different_provider`). A one-shot ref keyed
+  // on the code prevents the sticky-in-JWT error from re-toasting on every re-render.
+  const shownErrorRef = React.useRef<string | null>(null)
+  React.useEffect(() => {
+    const error = session?.error
+    if (
+      (error === "oauth_error" || error === "different_provider") &&
+      shownErrorRef.current !== error
+    ) {
+      shownErrorRef.current = error
+      toast({
+        variant: "destructive",
+        description: tSocial(`errors.${error}`),
+      })
+    }
+  }, [session?.error, toast, tSocial])
+
+  async function handleOAuthSignIn(provider: "google" | "facebook") {
+    setLoadingProvider(provider)
+    try {
+      await signIn(provider, { callbackUrl })
+    } catch {
+      toast({
+        variant: "destructive",
+        description: tSocial("error"),
+      })
+      setLoadingProvider(null)
+    }
+  }
 
   const form = useForm<z.infer<FormSchemaType>>({
     resolver: zodResolver(RegisterFormSchema),
@@ -180,7 +229,21 @@ export function RegisterForm() {
           <CardTitle>{t("header")}</CardTitle>
           <CardDescription>{t("description")}</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
+          {showSocialLogin && (
+            <SocialLogin
+              onGoogleClick={() => handleOAuthSignIn("google")}
+              onFacebookClick={() => handleOAuthSignIn("facebook")}
+              isGoogleLoading={loadingProvider === "google"}
+              isFacebookLoading={loadingProvider === "facebook"}
+              disabled={registerMutation.isPending || loadingProvider !== null}
+              labels={{
+                google: tSocial("google"),
+                facebook: tSocial("facebook"),
+                divider: tSocial("divider"),
+              }}
+            />
+          )}
           <AppForm form={form} onSubmit={onSubmit} id={registerFormName}>
             <AppField name="name" type="text" required label={t("name")} />
             <AppField name="email" type="text" required label={t("email")} />

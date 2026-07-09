@@ -1,6 +1,8 @@
 import { Result } from "@tiween/admin"
 import { getServerSession } from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
+import FacebookProvider from "next-auth/providers/facebook"
+import GoogleProvider from "next-auth/providers/google"
 
 import type {
   GetServerSidePropsContext,
@@ -11,12 +13,38 @@ import type { NextAuthOptions } from "next-auth"
 
 import { PrivateStrapiClient } from "@/lib/strapi-api"
 
+/**
+ * OAuth providers are registered ONLY when their `*_CLIENT_ID` and
+ * `*_CLIENT_SECRET` env vars are both present. When absent, the provider is
+ * not registered and the frontend hides its button (email/password unaffected).
+ */
+const oauthProviders: NextAuthOptions["providers"] = []
+
+if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+  oauthProviders.push(
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    })
+  )
+}
+
+if (process.env.FACEBOOK_CLIENT_ID && process.env.FACEBOOK_CLIENT_SECRET) {
+  oauthProviders.push(
+    FacebookProvider({
+      clientId: process.env.FACEBOOK_CLIENT_ID,
+      clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
+    })
+  )
+}
+
 export const authOptions: NextAuthOptions = {
   session: {
     strategy: "jwt",
     maxAge: 2592000, // 30 days - synced with strapi
   },
   providers: [
+    ...oauthProviders,
     CredentialsProvider({
       name: "StrapiCredentials",
       credentials: {

@@ -4,7 +4,7 @@ import * as React from "react"
 import { useSearchParams } from "next/navigation"
 import { SocialLogin } from "@/features/auth/components/SocialLogin"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { signIn } from "next-auth/react"
+import { signIn, useSession } from "next-auth/react"
 import { useTranslations } from "next-intl"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
@@ -52,6 +52,26 @@ export function SignInFormWithSocial({
   const router = useRouter()
   const searchParams = useSearchParams()
   const callbackUrl = searchParams.get("callbackUrl") ?? "/"
+  const { data: session } = useSession()
+
+  // Surface OAuth errors mapped by the NextAuth jwt callback onto `session.error`
+  // (`oauth_error` / `different_provider`). A one-shot ref keyed on the code keeps
+  // the toast from re-firing when the effect re-runs (unstable toast/tSocial refs)
+  // while `session.error` — which is sticky in the JWT — stays set.
+  const shownErrorRef = React.useRef<string | null>(null)
+  React.useEffect(() => {
+    const error = session?.error
+    if (
+      (error === "oauth_error" || error === "different_provider") &&
+      shownErrorRef.current !== error
+    ) {
+      shownErrorRef.current = error
+      toast({
+        variant: "destructive",
+        description: tSocial(`errors.${error}`),
+      })
+    }
+  }, [session?.error, toast, tSocial])
 
   // Track which OAuth provider is loading
   const [loadingProvider, setLoadingProvider] = React.useState<

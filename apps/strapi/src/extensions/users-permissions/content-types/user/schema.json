@@ -74,6 +74,9 @@
       "multiple": false,
       "allowedTypes": ["images"]
     },
+    "avatarUrl": {
+      "type": "text"
+    },
     "firstName": {
       "type": "string"
     },

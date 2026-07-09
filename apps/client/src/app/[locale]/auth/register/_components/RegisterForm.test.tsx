@@ -15,6 +15,11 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import { RegisterForm } from "./RegisterForm"
 
 const mutateMock = vi.fn()
+const { signInMock, toastMock, sessionState } = vi.hoisted(() => ({
+  signInMock: vi.fn(),
+  toastMock: vi.fn(),
+  sessionState: { data: null as { error?: string } | null },
+}))
 
 // AppField/AppForm import general-helpers, which eagerly validates env.mjs and
 // rejects NODE_ENV=test. Stub the one helper they use so env is never imported.
@@ -35,7 +40,8 @@ vi.mock("next/navigation", () => ({
 }))
 
 vi.mock("next-auth/react", () => ({
-  signIn: vi.fn(),
+  signIn: (...args: unknown[]) => signInMock(...args),
+  useSession: () => sessionState,
 }))
 
 vi.mock("@/lib/navigation", () => ({
@@ -49,7 +55,7 @@ vi.mock("@/lib/navigation", () => ({
 }))
 
 vi.mock("@/components/ui/use-toast", () => ({
-  useToast: () => ({ toast: vi.fn() }),
+  useToast: () => ({ toast: toastMock }),
 }))
 
 vi.mock("@/hooks/useUser", () => ({
@@ -102,11 +108,67 @@ async function submit(user: ReturnType<typeof userEvent.setup>) {
 describe("routed RegisterForm", () => {
   beforeEach(() => {
     mutateMock.mockReset()
+    signInMock.mockReset()
+    toastMock.mockReset()
+    sessionState.data = null
   })
 
   it("renders the name field", () => {
     render(<RegisterForm />)
     expect(getInput("name")).toBeTruthy()
+  })
+
+  it("hides social buttons by default (no providers enabled)", () => {
+    render(<RegisterForm />)
+    expect(screen.queryByRole("button", { name: /google/i })).toBeNull()
+    expect(screen.queryByRole("button", { name: /facebook/i })).toBeNull()
+  })
+
+  it("renders both social buttons when enabled", () => {
+    render(<RegisterForm enableGoogle enableFacebook />)
+    expect(screen.getByRole("button", { name: /google/i })).toBeTruthy()
+    expect(screen.getByRole("button", { name: /facebook/i })).toBeTruthy()
+  })
+
+  it("wires the Google button to signIn('google', { callbackUrl })", async () => {
+    const user = userEvent.setup()
+    render(<RegisterForm enableGoogle enableFacebook />)
+
+    await user.click(screen.getByRole("button", { name: /google/i }))
+    expect(signInMock).toHaveBeenCalledWith("google", { callbackUrl: "/" })
+  })
+
+  it("wires the Facebook button to signIn('facebook', { callbackUrl })", async () => {
+    const user = userEvent.setup()
+    render(<RegisterForm enableGoogle enableFacebook />)
+
+    await user.click(screen.getByRole("button", { name: /facebook/i }))
+    expect(signInMock).toHaveBeenCalledWith("facebook", { callbackUrl: "/" })
+  })
+
+  it("toasts the mapped message when session.error is a social OAuth error", () => {
+    sessionState.data = { error: "different_provider" }
+    render(<RegisterForm enableGoogle enableFacebook />)
+
+    expect(toastMock).toHaveBeenCalledTimes(1)
+    expect(toastMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        variant: "destructive",
+        description: "errors.different_provider",
+      })
+    )
+  })
+
+  it("does not toast when there is no session error", () => {
+    sessionState.data = null
+    render(<RegisterForm enableGoogle enableFacebook />)
+    expect(toastMock).not.toHaveBeenCalled()
+  })
+
+  it("ignores unrelated session errors (e.g. invalid_strapi_token)", () => {
+    sessionState.data = { error: "invalid_strapi_token" }
+    render(<RegisterForm enableGoogle enableFacebook />)
+    expect(toastMock).not.toHaveBeenCalled()
   })
 
   it("blocks submit when the name is empty", async () => {

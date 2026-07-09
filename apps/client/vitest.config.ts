@@ -79,6 +79,8 @@ export default defineConfig({
       // Auth register form. `[locale]` in the path is a glob character class,
       // so match via `**` rather than spelling the segment literally.
       "src/app/**/register/_components/**/*.test.tsx",
+      // Auth sign-in form with social login (Story 4.2).
+      "src/app/**/signin/_components/**/*.test.tsx",
     ],
   },
 })
