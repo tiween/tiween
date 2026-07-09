@@ -8,6 +8,7 @@ interface AppUser extends DefaultSessionUser {
   userId?: number
   strapiJWT?: string
   blocked?: boolean
+  preferredLanguage?: "ar" | "fr" | "en"
 }
 
 export interface AppSession {
@@ -37,6 +38,7 @@ declare module "next-auth/jwt" {
     userId?: number
     strapiJWT?: string
     blocked?: boolean
+    preferredLanguage?: "ar" | "fr" | "en"
     error?: "invalid_strapi_token" | "different_provider" | "oauth_error"
   }
 }

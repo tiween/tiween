@@ -11,6 +11,7 @@ import { cn } from "@/lib/styles"
 import StrapiPreviewListener from "@/components/elementary/StrapiPreviewListener"
 import { TailwindIndicator } from "@/components/elementary/TailwindIndicator"
 import { ClientProviders } from "@/components/providers/ClientProviders"
+import { PreferenceSync } from "@/components/providers/PreferenceSync"
 import { ServerProviders } from "@/components/providers/ServerProviders"
 import TrackingScripts from "@/components/providers/TrackingScripts"
 import { Toaster } from "@/components/ui/toaster"
@@ -102,6 +103,7 @@ export default async function RootLayout({
         <ServerProviders>
           <StrapiPreviewListener />
           <ClientProviders>
+            <PreferenceSync />
             <div className="relative flex min-h-screen flex-col">
               {/* TODO: Add Tiween Navbar component */}
 

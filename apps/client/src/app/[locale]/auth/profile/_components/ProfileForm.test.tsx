@@ -43,17 +43,20 @@ vi.mock("@/components/ui/use-toast", () => ({
   useToast: () => ({ toast: toastMock }),
 }))
 
-const profileData = {
+const baseProfile = {
   id: 7,
   username: "Grace",
   email: "grace@example.com",
   preferredLanguage: "fr" as const,
-  defaultRegion: undefined,
+  defaultRegion: undefined as string | undefined,
   avatar: undefined,
 }
 
+// Mutable so a test can exercise the region read-back pre-fill (Story 4.5).
+let currentProfile: typeof baseProfile = baseProfile
+
 vi.mock("@/hooks/useUser", () => ({
-  useCurrentUser: () => ({ data: profileData }),
+  useCurrentUser: () => ({ data: currentProfile }),
   useUserMutations: () => ({
     updateProfileMutation: { mutate: updateMutate, isPending: false },
     uploadAvatarMutation: { mutateAsync: uploadMutateAsync, isPending: false },
@@ -94,6 +97,7 @@ describe("routed ProfileForm", () => {
     requestEmailMutate.mockReset()
     toastMock.mockReset()
     pushMock.mockReset()
+    currentProfile = baseProfile
   })
 
   it("saves only the whitelisted fields via PUT /users/me on a valid submit", async () => {
@@ -205,6 +209,38 @@ describe("routed ProfileForm", () => {
     expect(toastMock).toHaveBeenCalledWith(
       expect.objectContaining({ description: "changeEmail.emailSent" })
     )
+  })
+
+  it("reads back a saved region and still saves preferredLanguage/defaultRegion", async () => {
+    // A profile whose `defaultRegion` is a region `documentId` pre-fills the
+    // region select; saving must still carry the whitelisted preference fields.
+    currentProfile = { ...baseProfile, defaultRegion: "sfax-1" }
+    const u = userEvent.setup()
+    render(
+      <ProfileForm
+        locale="fr"
+        regions={[
+          { id: "grand-tunis-1", name: "Grand Tunis" },
+          { id: "sfax-1", name: "Sfax" },
+        ]}
+        user={user}
+      />
+    )
+
+    // The region <AppSelect> is rendered (pre-select control present) alongside
+    // the language select.
+    expect(screen.getAllByRole("combobox")).toHaveLength(2)
+
+    await save(u)
+
+    await waitFor(() => expect(updateMutate).toHaveBeenCalledTimes(1))
+    // The saved region flowed profile → form → payload (read-back proven) and
+    // the preference fields persist.
+    expect(updateMutate.mock.calls[0][0]).toEqual({
+      username: "Grace",
+      preferredLanguage: "fr",
+      defaultRegion: "sfax-1",
+    })
   })
 
   it("maps an EMAIL_TAKEN change-email error to its translated key", async () => {

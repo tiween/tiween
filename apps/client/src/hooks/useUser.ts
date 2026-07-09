@@ -46,6 +46,26 @@ interface UploadedFile {
 }
 
 /**
+ * Normalize the `defaultRegion` preference to its Strapi `documentId` string.
+ *
+ * `defaultRegion` is a `manyToOne` relation, so a populated `/users/me` response
+ * surfaces it as a region object. The profile region select and the events
+ * `region` URL param both key off the region `documentId`, so this flattens the
+ * relation (or an already-flattened string) to that id, or `undefined` when it
+ * is unset. It never leaks the raw relation object into `UserProfile`.
+ */
+export function extractRegionDocumentId(
+  defaultRegion: unknown
+): string | undefined {
+  if (typeof defaultRegion === "string") return defaultRegion || undefined
+  if (defaultRegion && typeof defaultRegion === "object") {
+    const id = (defaultRegion as { documentId?: unknown }).documentId
+    return typeof id === "string" ? id : undefined
+  }
+  return undefined
+}
+
+/**
  * Hook for fetching current user profile
  */
 export function useCurrentUser(enabled: boolean = true) {
@@ -54,11 +74,18 @@ export function useCurrentUser(enabled: boolean = true) {
     queryFn: async () => {
       const response = await PrivateStrapiClient.fetchAPI(
         "/users/me",
-        { populate: ["avatar"] },
+        { populate: ["avatar", "defaultRegion"] },
         { method: "GET" },
         { useProxy: true }
       )
-      return response as UserProfile
+      return {
+        ...(response as UserProfile),
+        // Flatten the populated region relation to its `documentId` (or
+        // `undefined`) so `UserProfile.defaultRegion` stays a plain string.
+        defaultRegion: extractRegionDocumentId(
+          (response as { defaultRegion?: unknown }).defaultRegion
+        ),
+      } as UserProfile
     },
     enabled,
     staleTime: 5 * 60 * 1000, // 5 minutes

@@ -225,6 +225,104 @@ describe("EventLocationFilter", () => {
     })
   })
 
+  describe("profile defaultRegion fallback (Story 4.5)", () => {
+    function renderWithDefault(
+      value: LocationFilterValue,
+      onChange: (v: LocationFilterValue, o?: { replace?: boolean }) => void,
+      defaultRegion: string | undefined,
+      regionData: EventLocationRegion[] = regions
+    ) {
+      return render(
+        <EventLocationFilter
+          regions={regionData}
+          value={value}
+          onChange={onChange}
+          labels={labels}
+          defaultRegion={defaultRegion}
+        />
+      )
+    }
+
+    it("seeds from defaultRegion when there is no URL or localStorage location", () => {
+      const onChange = vi.fn()
+      renderWithDefault({}, onChange, "sfax-1")
+      expect(onChange).toHaveBeenCalledWith(
+        { region: "sfax-1" },
+        { replace: true }
+      )
+    })
+
+    it("still seeds when defaultRegion arrives asynchronously after mount", () => {
+      // `defaultRegion` is fed from react-query (`useCurrentUser`) in
+      // `EventsListing`, so it is `undefined` on the first commit and resolves
+      // later. The one-shot restore must NOT be spent on the pending value.
+      const onChange = vi.fn()
+      const { rerender } = render(
+        <EventLocationFilter
+          regions={regions}
+          value={{}}
+          onChange={onChange}
+          labels={labels}
+          defaultRegion={undefined}
+        />
+      )
+      // Nothing to seed yet — the query has not resolved.
+      expect(onChange).not.toHaveBeenCalled()
+
+      // The user query resolves and the default region arrives.
+      rerender(
+        <EventLocationFilter
+          regions={regions}
+          value={{}}
+          onChange={onChange}
+          labels={labels}
+          defaultRegion="sfax-1"
+        />
+      )
+      expect(onChange).toHaveBeenCalledWith(
+        { region: "sfax-1" },
+        { replace: true }
+      )
+    })
+
+    it("does NOT write the defaultRegion fallback to localStorage", () => {
+      const onChange = vi.fn()
+      renderWithDefault({}, onChange, "sfax-1")
+      expect(window.localStorage.getItem(STORAGE_KEY)).toBeNull()
+    })
+
+    it("lets a URL location take precedence over defaultRegion", () => {
+      const onChange = vi.fn()
+      renderWithDefault({ region: "grand-tunis-1" }, onChange, "sfax-1")
+      expect(onChange).not.toHaveBeenCalled()
+    })
+
+    it("lets a saved localStorage location take precedence over defaultRegion", () => {
+      window.localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify({ region: "grand-tunis-1" })
+      )
+      const onChange = vi.fn()
+      renderWithDefault({}, onChange, "sfax-1")
+      expect(onChange).toHaveBeenCalledWith(
+        { region: "grand-tunis-1", city: undefined },
+        { replace: true }
+      )
+    })
+
+    it("drops a stale defaultRegion absent from the current regions (no seed)", () => {
+      const onChange = vi.fn()
+      renderWithDefault({}, onChange, "deleted-region-9")
+      expect(onChange).not.toHaveBeenCalled()
+    })
+
+    it("does not seed when geography is empty even with a defaultRegion", () => {
+      const onChange = vi.fn()
+      renderWithDefault({}, onChange, "sfax-1", [])
+      expect(onChange).not.toHaveBeenCalled()
+    })
+  })
+
   // NOTE: driving the radix Select portal open + option click is not exercised
   // here — jsdom does not implement the pointer-capture/positioning the Radix
   // listbox needs (the same limitation Story 3.3 documented for the calendar

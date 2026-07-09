@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { useRouter } from "next/navigation"
+import { useSession } from "next-auth/react"
 
 import type { EventCardLabels } from "../EventCard"
 import type { EventDateFilterLabels } from "../EventDateFilter"
@@ -18,6 +19,8 @@ import type {
 import type { DateFilterValue, EventFilters } from "../../filters/filterParams"
 import type { StrapiEvent } from "../../types/strapi.types"
 import type { Locale } from "next-intl"
+
+import { useCurrentUser } from "@/hooks/useUser"
 
 import {
   parseDateValue,
@@ -71,6 +74,13 @@ export function EventsListing({
   labels,
 }: EventsListingProps) {
   const router = useRouter()
+
+  // The signed-in user's stored default region seeds the location filter as its
+  // lowest-precedence restore-on-mount fallback (URL > localStorage > this).
+  // Gate on an authenticated session so anonymous visitors — the common case on
+  // this public listing — never fire a `/users/me` request that just 401s.
+  const { status } = useSession()
+  const { data: currentUser } = useCurrentUser(status === "authenticated")
 
   const dateValue = React.useMemo<DateFilterValue>(
     () => parseDateValue(activeFilters.date),
@@ -184,6 +194,7 @@ export function EventsListing({
               value={locationValue}
               onChange={handleLocationChange}
               labels={labels.location}
+              defaultRegion={currentUser?.defaultRegion}
             />
           </div>
           <div className="no-scrollbar -mx-4 overflow-x-auto px-4">

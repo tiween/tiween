@@ -65,6 +65,13 @@ export interface EventLocationFilterProps {
   ) => void
   /** Localized labels (no hardcoded copy in the component). */
   labels: EventLocationFilterLabels
+  /**
+   * The signed-in user's profile `defaultRegion` (a region `documentId`), used
+   * as the LOWEST-precedence restore-on-mount fallback: URL > localStorage >
+   * this. It is reconciled against `regions` (dropped if stale) and is NEVER
+   * persisted to localStorage — it is a server-side default, not a device choice.
+   */
+  defaultRegion?: string
   className?: string
 }
 
@@ -150,6 +157,7 @@ export function EventLocationFilter({
   value,
   onChange,
   labels,
+  defaultRegion,
   className,
 }: EventLocationFilterProps) {
   const restoredRef = React.useRef(false)
@@ -160,33 +168,55 @@ export function EventLocationFilter({
   // add a back-button entry.
   React.useEffect(() => {
     if (restoredRef.current) return
-    restoredRef.current = true
     // Fail-soft: with no geography loaded the control renders nothing (see the
     // `return null` below), so restoring here would filter the listing via a
     // hidden, unclearable control. Never seed the URL when there is no UI.
     if (regions.length === 0) return
-    if (value.region || value.city) return
-    const saved = readSavedLocation()
-    if (!saved) return
-    // Reconcile the saved location against the regions actually available: a
-    // remembered region/city that no longer exists (deleted, or absent for this
-    // locale) would filter the list while the control shows "all". Drop the
-    // stale parts; if nothing survives, clear storage so it stops resurrecting.
-    const region = regions.find((r) => r.documentId === saved.region)
-    const city = region?.cities?.find((c) => c.documentId === saved.city)
-    const next: LocationFilterValue = {
-      region: region?.documentId,
-      city: city?.documentId,
-    }
-    if (!next.region && !next.city) {
-      persistLocation(next)
+    // An active location already exists (from the URL, a prior restore, or a
+    // user selection): lock so a later commit never auto-restores/seeds over it
+    // — even after the user clears it back to "all".
+    if (value.region || value.city) {
+      restoredRef.current = true
       return
     }
-    if (next.region !== saved.region || next.city !== saved.city) {
-      persistLocation(next)
+    const saved = readSavedLocation()
+    if (saved) {
+      restoredRef.current = true
+      // Reconcile the saved location against the regions actually available: a
+      // remembered region/city that no longer exists (deleted, or absent for
+      // this locale) would filter the list while the control shows "all". Drop
+      // the stale parts; if nothing survives, clear storage so it stops
+      // resurrecting.
+      const region = regions.find((r) => r.documentId === saved.region)
+      const city = region?.cities?.find((c) => c.documentId === saved.city)
+      const next: LocationFilterValue = {
+        region: region?.documentId,
+        city: city?.documentId,
+      }
+      if (!next.region && !next.city) {
+        persistLocation(next)
+        return
+      }
+      if (next.region !== saved.region || next.city !== saved.city) {
+        persistLocation(next)
+      }
+      onChange(next, { replace: true })
+      return
     }
-    onChange(next, { replace: true })
-  }, [value, onChange, regions])
+    // No URL location and no remembered device location: fall back to the
+    // profile `defaultRegion` (lowest precedence). It arrives asynchronously
+    // (react-query, via `EventsListing`), so while it is still `undefined`
+    // DON'T lock — wait for it. Locking now would spend the one-shot restore
+    // before the value loads and the seed would never fire. Reconcile against
+    // the available regions (drop if stale); NEVER persist it to localStorage —
+    // it is a server-side default, not a device choice (persisting it would
+    // make it survive sign-out).
+    if (defaultRegion === undefined) return
+    restoredRef.current = true
+    const region = regions.find((r) => r.documentId === defaultRegion)
+    if (!region) return
+    onChange({ region: region.documentId }, { replace: true })
+  }, [value, onChange, regions, defaultRegion])
 
   const selectedRegion = React.useMemo(
     () => regions.find((r) => r.documentId === value.region),

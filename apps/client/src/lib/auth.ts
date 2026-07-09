@@ -169,6 +169,11 @@ export const authOptions: NextAuthOptions = {
           // API token is valid - update/reload user data or add more data
           token.name = fetchedUser.username
           token.blocked = fetchedUser.blocked ?? false
+          // Story 4.5: expose the stored language so PreferenceSync can apply it
+          // on login. Reuses this existing re-fetch — no second request.
+          token.preferredLanguage = (
+            fetchedUser as { preferredLanguage?: "ar" | "fr" | "en" }
+          ).preferredLanguage
         } catch {
           // API token is invalid - send error to client and user is logged out
           token.error = "invalid_strapi_token"
@@ -184,6 +189,7 @@ export const authOptions: NextAuthOptions = {
         session.strapiJWT = token.strapiJWT
         session.user.userId = token.userId
         session.user.blocked = token.blocked
+        session.user.preferredLanguage = token.preferredLanguage
       }
 
       return session
