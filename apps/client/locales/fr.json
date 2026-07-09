@@ -270,6 +270,8 @@
     "relatedEvents": "Vous pourriez aussi aimer...",
     "minutes": "min",
     "venue": "Lieu",
+    "getDirections": "Itinéraire",
+    "mapLoading": "Chargement de la carte…",
     "dateRange": "Du {start} au {end}",
     "chooseRepresentation": "Choisir une représentation",
     "photos": "Photos",

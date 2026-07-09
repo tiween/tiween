@@ -22,9 +22,28 @@ import { formatDate, formatTime } from "@/lib/dates"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 
-import { toEventCardEvent, toEventDetail, toFilmHeroEvent } from "../../utils"
+import type { DirectionsPlatform } from "../../utils"
+
+import {
+  buildDirectionsUrl,
+  platformFromUserAgent,
+  toEventCardEvent,
+  toEventDetail,
+  toFilmHeroEvent,
+} from "../../utils"
 import { EventSection } from "../EventSection"
 import { FilmHero } from "../FilmHero"
+import { VenueMap } from "../Map"
+
+/**
+ * Best-effort platform hint for choosing the maps provider at the directions
+ * call site. SSR-safe (returns "other" when `navigator` is undefined); Apple
+ * platforms (iOS/iPadOS/macOS) get an Apple Maps link, everything else Google.
+ */
+function detectDirectionsPlatform(): DirectionsPlatform {
+  if (typeof navigator === "undefined") return "other"
+  return platformFromUserAgent(`${navigator.userAgent} ${navigator.platform}`)
+}
 
 export interface EventDetailPageLabels {
   back: string
@@ -46,6 +65,8 @@ export interface EventDetailPageLabels {
   minutes: string
   venue: string
   dateRange: string
+  getDirections: string
+  mapLoading: string
 }
 
 const defaultLabels: EventDetailPageLabels = {
@@ -68,6 +89,8 @@ const defaultLabels: EventDetailPageLabels = {
   minutes: "min",
   venue: "Lieu",
   dateRange: "Du {start} au {end}",
+  getDirections: "Itinéraire",
+  mapLoading: "Chargement de la carte...",
 }
 
 export interface EventDetailPageProps {
@@ -104,6 +127,13 @@ export function EventDetailPage({
   const isRTL = locale === "ar"
   const [watchlisted, setWatchlisted] = React.useState(isWatchlisted)
   const [synopsisExpanded, setSynopsisExpanded] = React.useState(false)
+  // Resolve the maps platform after mount (navigator is client-only) so the
+  // initial SSR/hydration render defaults to Google, then upgrades on Apple.
+  const [directionsPlatform, setDirectionsPlatform] =
+    React.useState<DirectionsPlatform>("other")
+  React.useEffect(() => {
+    setDirectionsPlatform(detectDirectionsPlatform())
+  }, [])
 
   const detail = React.useMemo(
     () => toEventDetail(event, locale),
@@ -265,6 +295,42 @@ export function EventDetailPage({
                   )}
                 </div>
               </div>
+
+              {/* Interactive map + directions — only when the venue has finite
+                  coordinates; otherwise the address text above stands alone. */}
+              {detail.venue.latitude !== undefined &&
+                detail.venue.longitude !== undefined && (
+                  <div className="mt-4 space-y-3">
+                    <VenueMap
+                      venue={{
+                        documentId: detail.venue.documentId,
+                        name: detail.venue.name,
+                        address: detail.venue.address,
+                        city: detail.venue.city,
+                        latitude: detail.venue.latitude,
+                        longitude: detail.venue.longitude,
+                        type: "cinema",
+                      }}
+                      height="250px"
+                      loadingLabel={labels.mapLoading}
+                    />
+                    <a
+                      href={buildDirectionsUrl(
+                        {
+                          latitude: detail.venue.latitude,
+                          longitude: detail.venue.longitude,
+                        },
+                        { platform: directionsPlatform }
+                      )}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-primary inline-flex items-center gap-1.5 text-sm font-medium hover:underline"
+                    >
+                      <MapPin className="h-4 w-4" />
+                      {labels.getDirections}
+                    </a>
+                  </div>
+                )}
             </div>
           </section>
         )}

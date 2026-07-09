@@ -270,6 +270,8 @@
     "relatedEvents": "قد يعجبك أيضاً...",
     "minutes": "د",
     "venue": "المكان",
+    "getDirections": "الاتجاهات",
+    "mapLoading": "جارٍ تحميل الخريطة…",
     "dateRange": "من {start} إلى {end}",
     "chooseRepresentation": "اختر وقت العرض",
     "photos": "الصور",

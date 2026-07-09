@@ -19,8 +19,7 @@ import "leaflet/dist/leaflet.css"
 
 import type { MapConfig, VenueLocation, VenueType } from "./types"
 
-import { cn } from "@/lib/utils"
-
+import { buildDirectionsUrl } from "../../utils/directions"
 import { VENUE_TYPE_COLORS } from "./types"
 
 // Fix for Leaflet default marker icon issue in Next.js/Webpack
@@ -43,6 +42,8 @@ interface VenueMapClientProps {
   onVenueClick?: (venue: VenueLocation) => void
   selectedVenueId?: string
   showDirections?: boolean
+  /** Localized "Get directions" label for the popup link (French default). */
+  directionsLabel?: string
 }
 
 /**
@@ -83,21 +84,13 @@ function getTypeLabel(type?: VenueType): string {
   return labels[type] || "Lieu"
 }
 
-/**
- * Generate Google Maps directions URL
- */
-function getDirectionsUrl(venue: VenueLocation): string {
-  const destination = `${venue.latitude},${venue.longitude}`
-  return `https://www.google.com/maps/dir/?api=1&destination=${destination}`
-}
-
 export default function VenueMapClient({
   venues,
   center,
   config,
   onVenueClick,
-  selectedVenueId,
   showDirections,
+  directionsLabel = "Itinéraire",
 }: VenueMapClientProps) {
   const mapCenter: LatLngExpression = [center.latitude, center.longitude]
 
@@ -121,7 +114,6 @@ export default function VenueMapClient({
       {/* Venue Markers */}
       {venues.map((venue) => {
         const position: LatLngExpression = [venue.latitude, venue.longitude]
-        const isSelected = venue.documentId === selectedVenueId
 
         return (
           <Marker
@@ -137,6 +129,10 @@ export default function VenueMapClient({
                 {/* Venue Logo */}
                 {venue.logoUrl && (
                   <div className="flex justify-center pb-1">
+                    {/* Leaflet renders this popup outside React's tree; a plain
+                        <img> is correct here (next/image can't hydrate inside a
+                        Leaflet popup). */}
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={venue.logoUrl}
                       alt=""
@@ -175,12 +171,15 @@ export default function VenueMapClient({
                 {/* Directions Button */}
                 {showDirections && (
                   <a
-                    href={getDirectionsUrl(venue)}
+                    href={buildDirectionsUrl({
+                      latitude: venue.latitude,
+                      longitude: venue.longitude,
+                    })}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="mt-2 block rounded bg-blue-600 px-3 py-1.5 text-center text-xs font-medium text-white hover:bg-blue-700"
                   >
-                    Itinéraire
+                    {directionsLabel}
                   </a>
                 )}
               </div>

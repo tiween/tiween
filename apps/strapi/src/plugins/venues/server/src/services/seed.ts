@@ -11,6 +11,11 @@ interface SeedVenue {
   slug: string
   address: string
   capacity?: number
+  /** Real `shared.geo-point` coordinates for the Story 3.8 venue map. */
+  geo?: {
+    latitude: number
+    longitude: number
+  }
 }
 
 type CategoryId = string | number
@@ -40,48 +45,56 @@ const SEED_VENUES: SeedVenue[] = [
     slug: "cinematheque-tunisienne",
     address: "18 Rue Ibn Rachiq, Tunis",
     capacity: 300,
+    geo: { latitude: 36.8008, longitude: 10.1817 },
   },
   {
     name: "Théâtre Municipal de Tunis",
     slug: "theatre-municipal-tunis",
     address: "Avenue Habib Bourguiba, Tunis",
     capacity: 850,
+    geo: { latitude: 36.7996, longitude: 10.1837 },
   },
   {
     name: "Cité de la Culture",
     slug: "cite-de-la-culture",
     address: "Avenue Mohamed V, Tunis",
     capacity: 1800,
+    geo: { latitude: 36.8258, longitude: 10.1858 },
   },
   {
     name: "Institut Français de Tunisie",
     slug: "institut-francais-tunisie",
     address: "20-22 Avenue de Paris, Tunis",
     capacity: 250,
+    geo: { latitude: 36.8033, longitude: 10.1808 },
   },
   {
     name: "Cinéma Le Colisée",
     slug: "cinema-le-colisee",
     address: "Avenue Habib Bourguiba, Tunis",
     capacity: 400,
+    geo: { latitude: 36.8003, longitude: 10.1852 },
   },
   {
     name: "Espace El Teatro",
     slug: "espace-el-teatro",
     address: "Rue El Jazira, Tunis",
     capacity: 200,
+    geo: { latitude: 36.8021, longitude: 10.1795 },
   },
   {
     name: "Maison de la Culture Ibn Khaldoun",
     slug: "maison-culture-ibn-khaldoun",
     address: "Rue Ibn Khaldoun, Tunis",
     capacity: 350,
+    geo: { latitude: 36.8014, longitude: 10.1779 },
   },
   {
     name: "Acropolium de Carthage",
     slug: "acropolium-carthage",
     address: "Colline de Byrsa, Carthage",
     capacity: 500,
+    geo: { latitude: 36.8528, longitude: 10.3233 },
   },
 ]
 

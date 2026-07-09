@@ -18,3 +18,9 @@ export type {
   DetailShowtime,
   DetailVenue,
 } from "./eventMappers"
+export { buildDirectionsUrl, platformFromUserAgent } from "./directions"
+export type {
+  DirectionsCoords,
+  DirectionsPlatform,
+  BuildDirectionsUrlOptions,
+} from "./directions"

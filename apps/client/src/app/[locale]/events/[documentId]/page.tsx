@@ -160,6 +160,8 @@ export default async function EventDetailRoute({ params }: PageProps) {
     minutes: t("minutes"),
     venue: t("venue"),
     dateRange: t.raw("dateRange") as string,
+    getDirections: t("getDirections"),
+    mapLoading: t("mapLoading"),
   }
 
   // Generate structured data (dual-schema aware — kept as-is).

@@ -206,10 +206,16 @@ export interface DetailShowtime {
 
 /** Resolved venue block for the detail view. */
 export interface DetailVenue {
+  /** Venue `documentId` (stable key for the map marker / directions). */
+  documentId: string
   name: string
   address?: string
   city?: string
   region?: string
+  /** Latitude — set only when the venue `geo` carries finite coordinates. */
+  latitude?: number
+  /** Longitude — set only when the venue `geo` carries finite coordinates. */
+  longitude?: number
 }
 
 /**
@@ -386,15 +392,31 @@ export function toEventDetail(
   // Trailer: a `movie.videos[]` entry with `videoType === "trailer"`.
   const trailerUrl = film?.videos?.find((v) => v.videoType === "trailer")?.url
 
-  // Venue block: address + city (cityRef) + region (cityRef.region).
+  // Venue block: address + city (cityRef) + region (cityRef.region) + geo.
+  // Coordinates: accept only finite, in-range values (Strapi decimals may
+  // arrive as numeric strings, hence `Number(...)`); reject the null-island
+  // default `(0,0)` and out-of-range values so the map and the directions
+  // deep-link never point the user at the wrong place.
   const venueSource = event.venue
+  const lat = Number(venueSource?.geo?.latitude)
+  const lng = Number(venueSource?.geo?.longitude)
+  const hasCoords =
+    Number.isFinite(lat) &&
+    Number.isFinite(lng) &&
+    lat >= -90 &&
+    lat <= 90 &&
+    lng >= -180 &&
+    lng <= 180 &&
+    !(lat === 0 && lng === 0)
   const venue: DetailVenue | undefined = venueSource
     ? {
+        documentId: venueSource.documentId,
         name: venueSource.name,
         address: hasText(venueSource.address) ? venueSource.address : undefined,
         city: venueSource.cityRef?.name ?? venueSource.city?.name,
         region:
           venueSource.cityRef?.region?.name ?? venueSource.city?.region?.name,
+        ...(hasCoords ? { latitude: lat, longitude: lng } : {}),
       }
     : undefined
 

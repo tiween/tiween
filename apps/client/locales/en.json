@@ -270,6 +270,8 @@
     "relatedEvents": "You might also like...",
     "minutes": "min",
     "venue": "Venue",
+    "getDirections": "Get directions",
+    "mapLoading": "Loading map…",
     "dateRange": "From {start} to {end}",
     "chooseRepresentation": "Choose a showtime",
     "photos": "Photos",

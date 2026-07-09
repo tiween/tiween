@@ -9,17 +9,18 @@ import { cn } from "@/lib/utils"
 
 import { DEFAULT_MAP_CONFIG, TUNISIA_CENTER } from "./types"
 
-// Dynamically import the map implementation to avoid SSR issues
-// Leaflet requires window/document which don't exist on server
+const DEFAULT_LOADING_LABEL = "Chargement de la carte..."
+
+/**
+ * SSR-safe dynamic Leaflet island (module scope — never re-created in render).
+ * Leaflet needs `window`/`document` (absent on the server), so the client
+ * implementation loads via `ssr: false`. While the chunk loads this renders
+ * nothing; the localized loading placeholder below it (in `VenueMap`) shows
+ * through until the opaque map mounts on top.
+ */
 const MapImplementation = dynamic(() => import("./VenueMapClient"), {
   ssr: false,
-  loading: () => (
-    <div className="bg-muted flex h-full w-full items-center justify-center">
-      <div className="text-muted-foreground text-sm">
-        Chargement de la carte...
-      </div>
-    </div>
-  ),
+  loading: () => null,
 })
 
 export interface VenueMapProps {
@@ -39,6 +40,10 @@ export interface VenueMapProps {
   selectedVenueId?: string
   /** Whether to show a "Get directions" button */
   showDirections?: boolean
+  /** Localized "Get directions" label for the popup link (French default). */
+  directionsLabel?: string
+  /** Localized loading placeholder label (French default). */
+  loadingLabel?: string
 }
 
 /**
@@ -87,6 +92,8 @@ export function VenueMap({
   onVenueClick,
   selectedVenueId,
   showDirections = false,
+  directionsLabel,
+  loadingLabel = DEFAULT_LOADING_LABEL,
 }: VenueMapProps) {
   // Combine single venue with venues array
   const allVenues = React.useMemo(() => {
@@ -140,6 +147,15 @@ export function VenueMap({
       className={cn("relative w-full overflow-hidden rounded-lg", className)}
       style={{ height }}
     >
+      {/* Localized loading placeholder — visible while the Leaflet chunk loads;
+          the opaque map mounts on top of it once ready. `aria-hidden` so assistive
+          tech doesn't keep announcing "loading" after the map covers it. */}
+      <div
+        aria-hidden="true"
+        className="bg-muted absolute inset-0 flex items-center justify-center"
+      >
+        <div className="text-muted-foreground text-sm">{loadingLabel}</div>
+      </div>
       <MapImplementation
         venues={allVenues}
         center={center}
@@ -147,6 +163,7 @@ export function VenueMap({
         onVenueClick={onVenueClick}
         selectedVenueId={selectedVenueId}
         showDirections={showDirections}
+        directionsLabel={directionsLabel}
       />
     </div>
   )

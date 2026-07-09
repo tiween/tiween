@@ -400,13 +400,121 @@ describe("toEventDetail", () => {
     })
   })
 
-  it("resolves the venue address / city / region", () => {
+  it("resolves the venue documentId / address / city / region", () => {
     expect(toEventDetail(makeDetailEvent()).venue).toEqual({
+      documentId: "ven-1",
       name: "Le Rio",
       address: "12 Rue de Marseille",
       city: "Tunis",
       region: "Grand Tunis",
     })
+  })
+
+  it("maps venue.geo coordinates when both are finite numbers", () => {
+    const venue = toEventDetail(
+      makeDetailEvent({
+        venue: {
+          id: 10,
+          documentId: "ven-geo",
+          name: "Le Rio",
+          slug: "le-rio",
+          geo: { latitude: 36.8065, longitude: 10.1815 },
+        },
+      })
+    ).venue
+    expect(venue).toMatchObject({
+      documentId: "ven-geo",
+      latitude: 36.8065,
+      longitude: 10.1815,
+    })
+  })
+
+  it("omits coordinates when geo is absent", () => {
+    const venue = toEventDetail(makeDetailEvent()).venue
+    expect(venue?.latitude).toBeUndefined()
+    expect(venue?.longitude).toBeUndefined()
+  })
+
+  it("omits coordinates when geo is partial (only one coordinate present)", () => {
+    const venue = toEventDetail(
+      makeDetailEvent({
+        venue: {
+          id: 10,
+          documentId: "ven-1",
+          name: "Le Rio",
+          slug: "le-rio",
+          geo: { latitude: 36.8065 } as { latitude: number; longitude: number },
+        },
+      })
+    ).venue
+    expect(venue?.latitude).toBeUndefined()
+    expect(venue?.longitude).toBeUndefined()
+  })
+
+  it("omits coordinates when geo values are non-finite (NaN)", () => {
+    const venue = toEventDetail(
+      makeDetailEvent({
+        venue: {
+          id: 10,
+          documentId: "ven-1",
+          name: "Le Rio",
+          slug: "le-rio",
+          geo: { latitude: Number.NaN, longitude: Number.NaN },
+        },
+      })
+    ).venue
+    expect(venue?.latitude).toBeUndefined()
+    expect(venue?.longitude).toBeUndefined()
+  })
+
+  it("omits the null-island default (0,0) so the map never points at the ocean", () => {
+    const venue = toEventDetail(
+      makeDetailEvent({
+        venue: {
+          id: 10,
+          documentId: "ven-1",
+          name: "Le Rio",
+          slug: "le-rio",
+          geo: { latitude: 0, longitude: 0 },
+        },
+      })
+    ).venue
+    expect(venue?.latitude).toBeUndefined()
+    expect(venue?.longitude).toBeUndefined()
+  })
+
+  it("omits out-of-range coordinates (bad backend data)", () => {
+    const venue = toEventDetail(
+      makeDetailEvent({
+        venue: {
+          id: 10,
+          documentId: "ven-1",
+          name: "Le Rio",
+          slug: "le-rio",
+          geo: { latitude: 999, longitude: 10.18 },
+        },
+      })
+    ).venue
+    expect(venue?.latitude).toBeUndefined()
+    expect(venue?.longitude).toBeUndefined()
+  })
+
+  it("coerces numeric-string coordinates (Strapi decimals) to finite numbers", () => {
+    const venue = toEventDetail(
+      makeDetailEvent({
+        venue: {
+          id: 10,
+          documentId: "ven-1",
+          name: "Le Rio",
+          slug: "le-rio",
+          geo: { latitude: "36.8065", longitude: "10.1815" } as unknown as {
+            latitude: number
+            longitude: number
+          },
+        },
+      })
+    ).venue
+    expect(venue).toMatchObject({ latitude: 36.8065, longitude: 10.1815 })
   })
 
   it("degrades gracefully with no screenings (event-title fallback, empty sections)", () => {
