@@ -84,6 +84,9 @@ export default defineConfig({
       // Auth password-reset + forgot-password forms (Story 4.3).
       "src/app/**/reset-password/_components/**/*.test.tsx",
       "src/app/**/forgot-password/_components/**/*.test.tsx",
+      // Profile management + email-change confirmation (Story 4.4).
+      "src/app/**/profile/_components/**/*.test.tsx",
+      "src/app/**/change-email/_components/**/*.test.tsx",
     ],
   },
 })

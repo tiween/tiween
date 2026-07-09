@@ -1,26 +1,20 @@
 "use client"
 
-import * as React from "react"
 import { useRouter } from "next/navigation"
-import { ProfileForm } from "@/features/auth/components/ProfileForm"
 import { ArrowLeft, Key, LogOut } from "lucide-react"
 import { signOut } from "next-auth/react"
-
-import type {
-  Language,
-  ProfileFormData,
-  Region,
-} from "@/features/auth/components/ProfileForm"
+import { useTranslations } from "next-intl"
 
 import { cn } from "@/lib/utils"
-import { useCurrentUser, useUserMutations } from "@/hooks/useUser"
+import { useCurrentUser } from "@/hooks/useUser"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
-import { useToast } from "@/components/ui/use-toast"
+
+import { ProfileForm } from "./_components/ProfileForm"
 
 export interface ProfilePageClientProps {
   locale: string
-  regions: Region[]
+  regions: Array<{ id: string; name: string }>
   user: {
     id: number
     email: string
@@ -31,95 +25,26 @@ export interface ProfilePageClientProps {
 /**
  * ProfilePageClient - Profile management page
  *
- * Features:
- * - View and edit profile (name, avatar)
- * - Set language preference
- * - Set default region
- * - Change password link
- * - Sign out button
+ * Renders the routed, wired {@link ProfileForm} (name, avatar, language,
+ * region, and the verified email-change sub-form) plus the change-password and
+ * sign-out actions. All copy is localized via the `profile.*` next-intl
+ * namespace.
  */
 export function ProfilePageClient({
   locale,
   regions,
   user,
 }: ProfilePageClientProps) {
+  const t = useTranslations("profile")
   const router = useRouter()
-  const { toast } = useToast()
   const isRTL = locale === "ar"
 
-  // Fetch full user profile
-  const { data: profile, isLoading: isLoadingProfile } = useCurrentUser(true)
+  // Drive the loading skeleton; the form itself also reads this query.
+  const { isLoading: isLoadingProfile } = useCurrentUser(true)
 
-  // Mutations
-  const { updateProfileMutation, uploadAvatarMutation } = useUserMutations()
-
-  // Pending avatar file
-  const [pendingAvatar, setPendingAvatar] = React.useState<File | null>(null)
-
-  // Build initial form data
-  const initialData: ProfileFormData = React.useMemo(
-    () => ({
-      name: profile?.username || user.name,
-      email: profile?.email || user.email,
-      language: (profile?.preferredLanguage || locale) as Language,
-      region: profile?.defaultRegion,
-      avatarUrl: profile?.avatar?.url,
-    }),
-    [profile, user, locale]
-  )
-
-  // Handle form submit
-  const handleSubmit = async (data: ProfileFormData) => {
-    try {
-      // Upload avatar if changed
-      if (pendingAvatar) {
-        await uploadAvatarMutation.mutateAsync({
-          userId: user.id,
-          file: pendingAvatar,
-        })
-        setPendingAvatar(null)
-      }
-
-      // Update profile
-      await updateProfileMutation.mutateAsync({
-        userId: user.id,
-        data: {
-          username: data.name,
-          preferredLanguage: data.language,
-          defaultRegion: data.region,
-        },
-      })
-
-      toast({
-        title: "Profil mis à jour",
-        description: "Vos modifications ont été enregistrées.",
-      })
-
-      // If language changed, redirect to apply it
-      if (data.language !== locale) {
-        router.push(`/${data.language}/auth/profile`)
-      }
-    } catch (error) {
-      toast({
-        title: "Erreur",
-        description: "Une erreur est survenue lors de la mise à jour.",
-        variant: "destructive",
-      })
-    }
-  }
-
-  // Handle avatar change
-  const handleAvatarChange = (file: File) => {
-    setPendingAvatar(file)
-  }
-
-  // Handle sign out
   const handleSignOut = () => {
     signOut({ callbackUrl: `/${locale}` })
   }
-
-  const isUpdating =
-    updateProfileMutation.isPending || uploadAvatarMutation.isPending
 
   return (
     <div className="bg-background min-h-screen">
@@ -130,11 +55,13 @@ export function ProfilePageClient({
             variant="ghost"
             size="icon"
             onClick={() => router.back()}
-            aria-label="Retour"
+            aria-label={t("back")}
           >
             <ArrowLeft className={cn("h-5 w-5", isRTL && "rotate-180")} />
           </Button>
-          <h1 className="text-foreground text-lg font-semibold">Mon profil</h1>
+          <h1 className="text-foreground text-lg font-semibold">
+            {t("title")}
+          </h1>
         </div>
       </header>
 
@@ -144,13 +71,7 @@ export function ProfilePageClient({
           <ProfileFormSkeleton />
         ) : (
           <>
-            <ProfileForm
-              initialData={initialData}
-              onSubmit={handleSubmit}
-              onAvatarChange={handleAvatarChange}
-              isLoading={isUpdating}
-              regions={regions}
-            />
+            <ProfileForm locale={locale} regions={regions} user={user} />
 
             <Separator className="my-6" />
 
@@ -162,7 +83,7 @@ export function ProfilePageClient({
                 onClick={() => router.push(`/${locale}/auth/change-password`)}
               >
                 <Key className="h-4 w-4" />
-                Changer le mot de passe
+                {t("changePassword")}
               </Button>
 
               <Button
@@ -171,7 +92,7 @@ export function ProfilePageClient({
                 onClick={handleSignOut}
               >
                 <LogOut className="h-4 w-4" />
-                Se déconnecter
+                {t("signOut")}
               </Button>
             </div>
           </>

@@ -19,7 +19,15 @@ const ALLOWED_STRAPI_ENDPOINTS: Record<string, string[]> = {
     "api/auth/forgot-password",
     "api/auth/reset-password",
     "api/auth/change-password",
+    "api/auth/change-email",
+    "api/auth/confirm-email-change",
+    // Avatar upload (Story 4.4). The uploaded file is linked self-scoped via
+    // PUT api/users/me — never with a `ref`/`refId` on the upload itself.
+    "api/upload",
   ],
+  // Self-scoped profile update only. `api/users` is intentionally NOT listed —
+  // that would expose the stock `PUT api/users/:id` (arbitrary id + fields).
+  PUT: ["api/users/me"],
 }
 
 /**

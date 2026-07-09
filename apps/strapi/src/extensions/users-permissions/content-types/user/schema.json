@@ -51,6 +51,23 @@
       "configurable": false,
       "private": true
     },
+    "pendingEmail": {
+      "type": "email",
+      "configurable": false,
+      "private": true,
+      "searchable": false
+    },
+    "emailChangeToken": {
+      "type": "string",
+      "configurable": false,
+      "private": true,
+      "searchable": false
+    },
+    "emailChangeTokenExpiresAt": {
+      "type": "datetime",
+      "configurable": false,
+      "private": true
+    },
     "confirmationToken": {
       "type": "string",
       "configurable": false,

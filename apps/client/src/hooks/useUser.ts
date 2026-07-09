@@ -35,6 +35,14 @@ export interface UpdateProfileData {
   username?: string
   preferredLanguage?: "ar" | "fr" | "en"
   defaultRegion?: string
+  /** Uploaded avatar file id (from POST /upload), linked self-scoped by the API. */
+  avatar?: number
+}
+
+/** A single entry of Strapi's `POST /upload` response array. */
+interface UploadedFile {
+  id: number
+  url: string
 }
 
 /**
@@ -131,19 +139,16 @@ export function useUserMutations() {
   })
 
   /**
-   * Update user profile
-   * Uses PUT /api/users/:id endpoint
+   * Update the current user's profile.
+   *
+   * Uses the self-scoped `PUT /api/users/me` endpoint (never `PUT /users/:id`):
+   * the backend writes only the authenticated user's record and only the
+   * whitelisted fields. `avatar` is the id returned by `uploadAvatarMutation`.
    */
   const updateProfileMutation = useMutation({
-    mutationFn: async ({
-      userId,
-      data,
-    }: {
-      userId: number
-      data: UpdateProfileData
-    }) => {
+    mutationFn: async (data: UpdateProfileData) => {
       const response = await PrivateStrapiClient.fetchAPI(
-        `/users/${userId}`,
+        `/users/me`,
         undefined,
         {
           body: JSON.stringify(data),
@@ -160,16 +165,16 @@ export function useUserMutations() {
   })
 
   /**
-   * Upload avatar image
-   * Uses POST /api/upload endpoint with user link
+   * Upload an avatar image FILE ONLY (no `ref`/`refId`/`field`).
+   *
+   * Linking to the user is done separately by passing the returned file id into
+   * `updateProfileMutation` (self-scoped), so a user can never attach media to
+   * another user's entry. Returns the uploaded file id.
    */
   const uploadAvatarMutation = useMutation({
-    mutationFn: async ({ userId, file }: { userId: number; file: File }) => {
+    mutationFn: async ({ file }: { file: File }): Promise<number> => {
       const formData = new FormData()
       formData.append("files", file)
-      formData.append("ref", "plugin::users-permissions.user")
-      formData.append("refId", String(userId))
-      formData.append("field", "avatar")
 
       const response = await fetch("/api/private-proxy/upload", {
         method: "POST",
@@ -180,10 +185,50 @@ export function useUserMutations() {
         throw new Error("Failed to upload avatar")
       }
 
-      return response.json()
+      // Strapi's upload endpoint returns an array of uploaded files.
+      const uploaded = (await response.json()) as UploadedFile[]
+      const fileId = uploaded?.[0]?.id
+      if (fileId == null) {
+        throw new Error("Failed to upload avatar")
+      }
+      return fileId
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["user", "me"] })
+  })
+
+  /**
+   * Request a verified email change (Story 4.4).
+   *
+   * Stages a `pendingEmail` + single-use token server-side and emails the NEW
+   * address a confirmation link. The live email is unchanged until confirmed.
+   */
+  const requestEmailChangeMutation = useMutation({
+    mutationFn: (values: { email: string }) => {
+      return PrivateStrapiClient.fetchAPI(
+        `/auth/change-email`,
+        undefined,
+        {
+          body: JSON.stringify(values),
+          method: "POST",
+        },
+        { useProxy: true }
+      )
+    },
+  })
+
+  /**
+   * Confirm a staged email change from the emailed link (public endpoint).
+   */
+  const confirmEmailChangeMutation = useMutation({
+    mutationFn: (values: { code: string }) => {
+      return PublicStrapiClient.fetchAPI(
+        `/auth/confirm-email-change`,
+        undefined,
+        {
+          body: JSON.stringify(values),
+          method: "POST",
+        },
+        { useProxy: true }
+      )
     },
   })
 
@@ -194,5 +239,7 @@ export function useUserMutations() {
     resetPasswordMutation,
     updateProfileMutation,
     uploadAvatarMutation,
+    requestEmailChangeMutation,
+    confirmEmailChangeMutation,
   }
 }

@@ -51,6 +51,23 @@ function resolveResetTokenTtlMs(): number {
     : DEFAULT_RESET_TOKEN_TTL_MS
 }
 
+/**
+ * True when `err` looks like a unique-constraint violation, inspecting BOTH the
+ * message AND `err.details` — Strapi/DB drivers surface the "must be unique"
+ * signal in either place. Used to map such a failure to a stable code
+ * (`USERNAME_TAKEN` / `EMAIL_TAKEN`) instead of leaking a raw 500.
+ */
+function isUniqueViolation(err: unknown): boolean {
+  const message = err instanceof Error ? err.message : String(err)
+  let details = ""
+  try {
+    details = JSON.stringify((err as { details?: unknown })?.details ?? "")
+  } catch {
+    details = ""
+  }
+  return /unique|already taken|ER_DUP|duplicate/i.test(`${message} ${details}`)
+}
+
 // `strapi` is the ambient global available inside Strapi controllers.
 declare const strapi: Core.Strapi
 
@@ -95,6 +112,45 @@ const registerSchema = z.object({
  */
 const resetPasswordSchema = z.object({
   password: registerSchema.shape.password,
+})
+
+/**
+ * Server-side self-profile-update schema (`PUT /users/me`). Every field is
+ * OPTIONAL — a profile save may touch any subset — but each present value is
+ * validated. Display name maps to `username`; an empty/whitespace name is a
+ * stable `NAME_REQUIRED` code. `avatar`/`defaultRegion` are ID references linked
+ * self-scoped by the controller. No `email`/`role`/`confirmed`/token fields are
+ * accepted here (they are not in the schema and the controller never forwards
+ * them).
+ */
+const updateMeSchema = z.object({
+  username: z
+    .string({
+      required_error: "NAME_REQUIRED",
+      invalid_type_error: "NAME_REQUIRED",
+    })
+    .trim()
+    .min(1, { message: "NAME_REQUIRED" })
+    .optional(),
+  preferredLanguage: z.enum(["ar", "fr", "en"]).optional(),
+  // Relation reference: a Strapi documentId (string) or numeric id.
+  defaultRegion: z.union([z.string(), z.number()]).optional(),
+  // Uploaded media file id, linked self-scoped through this controller. A
+  // stable `INVALID_AVATAR` code (never Zod prose) is surfaced on a bad type.
+  avatar: z.number({ invalid_type_error: "INVALID_AVATAR" }).optional(),
+})
+
+/**
+ * Server-side change-email request schema. A stable `INVALID_EMAIL` code (never
+ * Zod prose) is surfaced to the client for translation.
+ */
+const changeEmailSchema = z.object({
+  email: z
+    .string({
+      required_error: "INVALID_EMAIL",
+      invalid_type_error: "INVALID_EMAIL",
+    })
+    .email("INVALID_EMAIL"),
 })
 
 /** Escape a string for safe interpolation into HTML attribute/text content. */
@@ -156,6 +212,37 @@ export function buildResetPasswordEmail(
     ar: {
       subject: "إعادة تعيين كلمة مرور تيوين",
       html: `<h2>إعادة تعيين كلمة المرور</h2><p>مرحباً${safeName ? ` ${safeName}` : ""},</p><p>لقد طلبت إعادة تعيين كلمة مرور تيوين الخاصة بك. انقر على الرابط أدناه لاختيار كلمة مرور جديدة. تنتهي صلاحية هذا الرابط خلال ساعة واحدة.</p><p><a href="${safeUrl}" target="_blank">إعادة تعيين كلمة المرور</a></p><p>إذا لم تكن أنت من قدّم هذا الطلب، يمكنك تجاهل هذا البريد الإلكتروني.</p>`,
+    },
+  }
+
+  return content[locale]
+}
+
+/**
+ * Localized change-email confirmation content, keyed off the recipient's
+ * preferred language. The `url` is the CLIENT-hosted, single-use, time-limited
+ * confirmation link and is sent to the NEW (pending) address, not the live one.
+ */
+export function buildEmailChangeEmail(
+  locale: SupportedLocale,
+  name: string,
+  url: string
+): { subject: string; html: string } {
+  const safeName = escapeHtml(name || "")
+  const safeUrl = escapeHtml(url)
+
+  const content: Record<SupportedLocale, { subject: string; html: string }> = {
+    fr: {
+      subject: "Confirmez votre nouvelle adresse e-mail Tiween",
+      html: `<h2>Confirmation d'adresse e-mail</h2><p>Bonjour${safeName ? ` ${safeName}` : ""},</p><p>Vous avez demandé à changer l'adresse e-mail de votre compte Tiween. Cliquez sur le lien ci-dessous pour confirmer cette nouvelle adresse. Ce lien expire dans une heure.</p><p><a href="${safeUrl}" target="_blank">Confirmer ma nouvelle adresse e-mail</a></p><p>Si vous n'êtes pas à l'origine de cette demande, vous pouvez ignorer cet e-mail.</p>`,
+    },
+    en: {
+      subject: "Confirm your new Tiween email address",
+      html: `<h2>Email address confirmation</h2><p>Hello${safeName ? ` ${safeName}` : ""},</p><p>You asked to change the email address on your Tiween account. Click the link below to confirm this new address. This link expires in one hour.</p><p><a href="${safeUrl}" target="_blank">Confirm my new email address</a></p><p>If you did not request this, you can safely ignore this email.</p>`,
+    },
+    ar: {
+      subject: "أكّد عنوان بريدك الإلكتروني الجديد في تيوين",
+      html: `<h2>تأكيد عنوان البريد الإلكتروني</h2><p>مرحباً${safeName ? ` ${safeName}` : ""},</p><p>لقد طلبت تغيير عنوان البريد الإلكتروني لحسابك في تيوين. انقر على الرابط أدناه لتأكيد هذا العنوان الجديد. تنتهي صلاحية هذا الرابط خلال ساعة واحدة.</p><p><a href="${safeUrl}" target="_blank">تأكيد عنوان بريدي الإلكتروني الجديد</a></p><p>إذا لم تكن أنت من قدّم هذا الطلب، يمكنك تجاهل هذا البريد الإلكتروني.</p>`,
     },
   }
 
@@ -232,6 +319,37 @@ export async function sendPasswordResetEmail(
 
   await strapi.plugins["email"].services.email.send({
     to: user.email,
+    subject,
+    html,
+  })
+}
+
+/**
+ * Send the localized change-email confirmation to the NEW (pending) address.
+ * Throws on failure — callers MUST wrap this in a try/catch so the change-email
+ * request is never blocked by an email-provider error (the token is already
+ * staged).
+ */
+export async function sendEmailChangeEmail(
+  user: CreatedUser,
+  pendingEmail: string,
+  url: string,
+  requestLocale?: unknown
+): Promise<void> {
+  if (!pendingEmail) {
+    return
+  }
+
+  // Precedence: explicit request locale → user.preferredLanguage → "fr".
+  const locale =
+    requestLocale != null
+      ? normalizeLocale(requestLocale)
+      : normalizeLocale(user?.preferredLanguage)
+  const name = user?.firstName ?? ""
+  const { subject, html } = buildEmailChangeEmail(locale, name, url)
+
+  await strapi.plugins["email"].services.email.send({
+    to: pendingEmail,
     subject,
     html,
   })
@@ -336,7 +454,7 @@ interface CallbackCtx {
  */
 async function sanitizeOutputUser(
   user: Record<string, unknown>,
-  ctx: CallbackCtx
+  ctx: { state?: { auth?: unknown } }
 ): Promise<unknown> {
   const userSchema = strapi.getModel("plugin::users-permissions.user")
   return strapi.contentAPI.sanitize.output(user, userSchema, {
@@ -359,10 +477,49 @@ interface ResetPasswordCtx {
   body?: unknown
 }
 
+/** Minimal shape of the authenticated user Strapi puts on `ctx.state.user`. */
+interface AuthedUser {
+  id?: number
+  email?: string
+  firstName?: string
+  preferredLanguage?: string
+}
+
+interface UpdateMeCtx {
+  state?: { user?: AuthedUser; auth?: unknown }
+  request: { body: Record<string, unknown> }
+  body?: unknown
+  unauthorized: (message?: string) => unknown
+}
+
+interface ChangeEmailCtx {
+  state?: { user?: AuthedUser }
+  request: { body: Record<string, unknown> }
+  body?: unknown
+  unauthorized: (message?: string) => unknown
+}
+
+interface ConfirmEmailChangeCtx {
+  request: { body: Record<string, unknown> }
+  body?: unknown
+}
+
 type RegisterController = (ctx: RegisterCtx) => Promise<unknown>
 type CallbackController = (ctx: CallbackCtx) => Promise<unknown>
 type ForgotPasswordController = (ctx: ForgotPasswordCtx) => Promise<unknown>
 type ResetPasswordController = (ctx: ResetPasswordCtx) => Promise<unknown>
+type UpdateMeController = (ctx: UpdateMeCtx) => Promise<unknown>
+type ChangeEmailController = (ctx: ChangeEmailCtx) => Promise<unknown>
+type ConfirmEmailChangeController = (
+  ctx: ConfirmEmailChangeCtx
+) => Promise<unknown>
+
+interface RouteConfig {
+  method: string
+  path: string
+  handler: string
+  config?: { prefix?: string; policies?: unknown[] }
+}
 
 interface JwtPayload {
   id?: number
@@ -384,11 +541,18 @@ interface UsersPermissionsPlugin {
       callback: CallbackController
       forgotPassword: ForgotPasswordController
       resetPassword: ResetPasswordController
+      changeEmail?: ChangeEmailController
+      confirmEmailChange?: ConfirmEmailChangeController
+    }
+    user?: {
+      updateMe?: UpdateMeController
+      [key: string]: unknown
     }
   }
   services: {
     jwt: JwtServiceFactory
   }
+  routes?: Record<string, { routes: RouteConfig[] }>
 }
 
 export default (plugin: UsersPermissionsPlugin): UsersPermissionsPlugin => {
@@ -773,6 +937,248 @@ export default (plugin: UsersPermissionsPlugin): UsersPermissionsPlugin => {
       }
       return service
     }
+  }
+
+  // --- Story 4.4: self-scoped profile update (`PUT /users/me`) -----------------
+  //
+  // Stock `PUT /users/:id` accepts an arbitrary path id AND an arbitrary body
+  // (including `email`, `role`, `confirmed`, `blocked`). Exposing it would be a
+  // privilege-escalation + email-verification-bypass hole. Instead this SELF-
+  // scoped controller ignores the path, writes ONLY `ctx.state.user.id`, and
+  // applies a fixed whitelist — no `email`/`role`/`confirmed`/token field is
+  // ever forwarded (they are not even in `updateMeSchema`).
+  if (!plugin.controllers.user) {
+    plugin.controllers.user = {}
+  }
+
+  plugin.controllers.user.updateMe = async (ctx: UpdateMeCtx) => {
+    const userId = ctx.state?.user?.id
+    if (!userId) {
+      return ctx.unauthorized()
+    }
+
+    const body = ctx.request.body ?? {}
+
+    // Validate ONLY the whitelisted fields; every other key is discarded here.
+    const parsed = validate(updateMeSchema, {
+      username: body.username,
+      preferredLanguage: body.preferredLanguage,
+      defaultRegion: body.defaultRegion,
+      avatar: body.avatar,
+    })
+
+    // Write only the fields the client actually provided (skip `undefined`) so a
+    // partial save never blanks an untouched field.
+    const data: Record<string, unknown> = {}
+    for (const key of [
+      "username",
+      "preferredLanguage",
+      "defaultRegion",
+      "avatar",
+    ] as const) {
+      if (parsed[key] !== undefined) {
+        data[key] = parsed[key]
+      }
+    }
+
+    try {
+      const updated = await strapi
+        .plugin("users-permissions")
+        .service("user")
+        .edit(userId, data)
+      ctx.body = await sanitizeOutputUser(updated, ctx)
+    } catch (err) {
+      // A username unique-constraint violation surfaces as a stable code.
+      if (isUniqueViolation(err)) {
+        throw new ValidationError("USERNAME_TAKEN", { code: "USERNAME_TAKEN" })
+      }
+      throw err
+    }
+  }
+
+  // --- Story 4.4: change-email request (`POST /auth/change-email`) -------------
+  //
+  // Authenticated. Mirrors the password-reset staging pattern: it only STAGES a
+  // `pendingEmail` + single-use, time-limited `emailChangeToken` and emails the
+  // NEW address a confirmation link; the live `email` is never touched here.
+  plugin.controllers.auth.changeEmail = async (ctx: ChangeEmailCtx) => {
+    const authUser = ctx.state?.user
+    if (!authUser?.id) {
+      return ctx.unauthorized()
+    }
+
+    const body = ctx.request.body ?? {}
+    const requestLocale = body.locale
+
+    const { email } = validate(changeEmailSchema, { email: body.email })
+    const normalizedEmail = email.trim().toLowerCase()
+    const currentEmail = String(authUser.email ?? "")
+      .trim()
+      .toLowerCase()
+
+    // Same-as-current is a no-op — reject before any staging.
+    if (normalizedEmail === currentEmail) {
+      throw new ValidationError("EMAIL_UNCHANGED", { code: "EMAIL_UNCHANGED" })
+    }
+
+    // Uniqueness: an email already registered to a (different) account is taken.
+    // Case-insensitive (`$eqi`) — local registration does not lowercase the
+    // stored email, so an exact match would miss a case-variant duplicate.
+    const existing = await strapi.db
+      .query("plugin::users-permissions.user")
+      .findOne({ where: { email: { $eqi: normalizedEmail } } })
+    if (existing) {
+      throw new ValidationError("EMAIL_TAKEN", { code: "EMAIL_TAKEN" })
+    }
+
+    const emailChangeToken = randomBytes(64).toString("hex")
+    const emailChangeTokenExpiresAt = new Date(
+      Date.now() + resolveResetTokenTtlMs()
+    )
+
+    await strapi.plugin("users-permissions").service("user").edit(authUser.id, {
+      pendingEmail: normalizedEmail,
+      emailChangeToken,
+      emailChangeTokenExpiresAt,
+    })
+
+    const baseUrl = process.env.CLIENT_EMAIL_CHANGE_URL
+    if (!baseUrl) {
+      strapi.log.warn(
+        "CLIENT_EMAIL_CHANGE_URL is not set. Email-change confirmation email will not be sent."
+      )
+    } else {
+      const url = `${baseUrl}?code=${emailChangeToken}&email=${encodeURIComponent(
+        normalizedEmail
+      )}`
+      try {
+        await sendEmailChangeEmail(
+          authUser,
+          normalizedEmail,
+          url,
+          requestLocale
+        )
+      } catch (err) {
+        strapi.log.error(
+          "[email-change] confirmation email failed to send",
+          err
+        )
+      }
+    }
+
+    ctx.body = { ok: true }
+  }
+
+  // --- Story 4.4: confirm email change (`POST /auth/confirm-email-change`) -----
+  //
+  // Public (clicked from the confirmation email). Validates the single-use,
+  // unexpired token, re-checks the pending address is still free, then swaps
+  // `email = pendingEmail` and clears the staging fields. Does NOT auto-login
+  // and does NOT stamp `passwordChangedAt` — an email change must not invalidate
+  // the active session.
+  plugin.controllers.auth.confirmEmailChange = async (
+    ctx: ConfirmEmailChangeCtx
+  ) => {
+    const body = ctx.request.body ?? {}
+    const code = body.code != null ? String(body.code) : ""
+
+    if (!code) {
+      throw new ValidationError("EMAIL_CHANGE_TOKEN_INVALID", {
+        code: "EMAIL_CHANGE_TOKEN_INVALID",
+      })
+    }
+
+    const user = await strapi.db
+      .query("plugin::users-permissions.user")
+      .findOne({ where: { emailChangeToken: code } })
+
+    // Unknown / already-used token.
+    if (!user) {
+      throw new ValidationError("EMAIL_CHANGE_TOKEN_INVALID", {
+        code: "EMAIL_CHANGE_TOKEN_INVALID",
+      })
+    }
+
+    // Expiry — `>=` boundary (an exactly-expired token is rejected). Unlike the
+    // reset flow (whose activation tokens legitimately carry no expiry), a
+    // change-email token is ALWAYS minted with an expiry, so a missing or
+    // unparseable value is anomalous and fails CLOSED (rejected), never open.
+    const expiresAt = user.emailChangeTokenExpiresAt
+      ? new Date(user.emailChangeTokenExpiresAt).getTime()
+      : NaN
+    if (!Number.isFinite(expiresAt) || Date.now() >= expiresAt) {
+      throw new ValidationError("EMAIL_CHANGE_TOKEN_EXPIRED", {
+        code: "EMAIL_CHANGE_TOKEN_EXPIRED",
+      })
+    }
+
+    const pendingEmail = String(user.pendingEmail ?? "")
+      .trim()
+      .toLowerCase()
+    // A token with no staged pending address is not actionable.
+    if (!pendingEmail) {
+      throw new ValidationError("EMAIL_CHANGE_TOKEN_INVALID", {
+        code: "EMAIL_CHANGE_TOKEN_INVALID",
+      })
+    }
+
+    // Someone else may have registered the pending address since it was staged
+    // (case-insensitive, matching the change-email uniqueness check).
+    const taken = await strapi.db
+      .query("plugin::users-permissions.user")
+      .findOne({ where: { email: { $eqi: pendingEmail } } })
+    if (taken && taken.id !== user.id) {
+      throw new ValidationError("EMAIL_TAKEN", { code: "EMAIL_TAKEN" })
+    }
+
+    try {
+      await strapi.plugin("users-permissions").service("user").edit(user.id, {
+        email: pendingEmail,
+        pendingEmail: null,
+        emailChangeToken: null,
+        emailChangeTokenExpiresAt: null,
+      })
+    } catch (err) {
+      // TOCTOU: the pending address may be claimed between the check above and
+      // this write — the DB unique constraint is the last line of defense. Map
+      // it to EMAIL_TAKEN instead of leaking an unmapped 500.
+      if (isUniqueViolation(err)) {
+        throw new ValidationError("EMAIL_TAKEN", { code: "EMAIL_TAKEN" })
+      }
+      throw err
+    }
+
+    ctx.body = { ok: true }
+  }
+
+  // --- Story 4.4: route registration ------------------------------------------
+  //
+  // `PUT /users/me` MUST be matched BEFORE the stock `PUT /users/:id`, so it is
+  // UNSHIFTED to the front (otherwise `me` is captured as `:id`). The two
+  // `/auth/*` routes are appended. Guarded so the mocked-plugin unit harnesses
+  // (which carry no `routes`) do not crash.
+  const contentApiRoutes = plugin.routes?.["content-api"]?.routes
+  if (Array.isArray(contentApiRoutes)) {
+    contentApiRoutes.unshift({
+      method: "PUT",
+      path: "/users/me",
+      handler: "user.updateMe",
+      config: { prefix: "", policies: [] },
+    })
+    contentApiRoutes.push(
+      {
+        method: "POST",
+        path: "/auth/change-email",
+        handler: "auth.changeEmail",
+        config: { prefix: "", policies: [] },
+      },
+      {
+        method: "POST",
+        path: "/auth/confirm-email-change",
+        handler: "auth.confirmEmailChange",
+        config: { prefix: "", policies: [] },
+      }
+    )
   }
 
   return plugin

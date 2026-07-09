@@ -564,5 +564,54 @@
       "museum": "Museums",
       "other": "Other"
     }
+  },
+  "profile": {
+    "title": "My profile",
+    "back": "Back",
+    "changePassword": "Change password",
+    "signOut": "Sign out",
+    "name": "Full name",
+    "namePlaceholder": "Your name",
+    "email": "Email",
+    "language": "Language",
+    "region": "Default region",
+    "regionPlaceholder": "Select a region",
+    "save": "Save",
+    "saving": "Saving...",
+    "avatar": {
+      "change": "Change",
+      "remove": "Remove",
+      "uploadHint": "JPG, PNG or GIF. Max 2MB."
+    },
+    "toast": {
+      "saveSuccess": "Your changes have been saved."
+    },
+    "changeEmail": {
+      "trigger": "Change email",
+      "description": "Enter your new email address. We'll send a confirmation link to it; your email changes only after you confirm.",
+      "newEmail": "New email",
+      "submit": "Send confirmation",
+      "cancel": "Cancel",
+      "emailSent": "A confirmation email has been sent to your new address.",
+      "confirm": {
+        "title": "Email change",
+        "loading": "Confirming your new email address...",
+        "successTitle": "Email address confirmed",
+        "successBody": "Your email address has been updated. Please sign in again to refresh your session.",
+        "signIn": "Sign in",
+        "invalidLink": "This confirmation link is invalid or incomplete.",
+        "backToProfile": "Back to profile"
+      }
+    },
+    "errors": {
+      "NAME_REQUIRED": "Please enter your name.",
+      "USERNAME_TAKEN": "This name is already taken. Please choose another.",
+      "INVALID_EMAIL": "Please enter a valid email address.",
+      "EMAIL_TAKEN": "This email address is already in use.",
+      "EMAIL_UNCHANGED": "This is already your current email address.",
+      "EMAIL_CHANGE_TOKEN_INVALID": "This confirmation link is invalid or has already been used.",
+      "EMAIL_CHANGE_TOKEN_EXPIRED": "This confirmation link has expired. Please request a new email change.",
+      "unexpectedError": "Something went wrong. Please try again later."
+    }
   }
 }

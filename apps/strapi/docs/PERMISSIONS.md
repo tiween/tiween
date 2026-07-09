@@ -60,6 +60,24 @@ Regular authenticated users (B2C customers) can manage their own data.
 
 For content marked "Own records only", the API automatically filters results to show only records belonging to the authenticated user.
 
+### Story 4.4 Profile-Management Grants (Users & Permissions Plugin)
+
+The profile-management endpoints are CUSTOM actions on the users-permissions
+plugin, not content-type CRUD. They are NOT seeded in code — an operator must
+enable each grant once via **Settings → Users & Permissions Plugin → Roles**
+(the same panel used for all other permissions):
+
+| Action                    | Plugin            | Enable on role    | Purpose                                                         |
+| ------------------------- | ----------------- | ----------------- | --------------------------------------------------------------- |
+| `Auth.confirmEmailChange` | Users-permissions | **Public**        | Confirm a staged email change from the emailed link.            |
+| `User.updateMe`           | Users-permissions | **Authenticated** | Self-scoped profile update (`username`/language/region/avatar). |
+| `Auth.changeEmail`        | Users-permissions | **Authenticated** | Request (stage) a verified email change.                        |
+| `Upload.upload`           | Upload            | **Authenticated** | Upload the avatar file (linked self-scoped through `updateMe`). |
+
+The stock `User.update` (`PUT /api/users/:id`) MUST remain disabled for the
+Authenticated role — it accepts an arbitrary id and arbitrary fields (including
+`email`/`role`/`confirmed`), which `updateMe` deliberately supersedes.
+
 ## Venue Manager Role Permissions
 
 Venue managers can manage their assigned venue and its events.
@@ -149,14 +167,20 @@ GET /api/regions
 GET /api/regions/:id
 GET /api/cities
 GET /api/cities/:id
+
+# Email-change confirmation (Story 4.4) — clicked from the confirmation email,
+# so it must be reachable WITHOUT a session.
+POST /api/auth/confirm-email-change  # users-permissions: Auth.confirmEmailChange
 ```
 
 ### Authenticated Endpoints (Requires JWT)
 
 ```
-# User Profile
-GET /api/users/me
-PUT /api/users/me
+# User Profile (Story 4.4)
+GET  /api/users/me                  # users-permissions: User.me
+PUT  /api/users/me                  # users-permissions: User.updateMe (self-scoped profile update)
+POST /api/auth/change-email         # users-permissions: Auth.changeEmail (stage a verified email change)
+POST /api/upload                    # upload plugin: Upload.upload (avatar file, uploaded then linked via updateMe)
 
 # Watchlist
 GET /api/user-watchlists

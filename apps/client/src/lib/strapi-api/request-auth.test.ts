@@ -1,0 +1,47 @@
+/**
+ * Tests for the private-proxy endpoint allowlist (Story 4.4 security boundary).
+ *
+ * `isStrapiEndpointAllowed` gates which Strapi paths the private proxy will
+ * forward. The Story-4.4 change adds a self-scoped `PUT api/users/me` and the
+ * avatar/email-change POSTs, and MUST NOT expose the stock `PUT api/users/:id`
+ * (arbitrary id + fields). These assertions fail if a regression widens the
+ * allowlist (e.g. adding `api/users`, which `startsWith` would let match
+ * `api/users/5`).
+ *
+ * The module pulls in `@/env.mjs`, `next-auth/react`, and `@/lib/auth` at load
+ * time (used only inside other exports); they are mocked so importing the pure
+ * matcher has no side effects.
+ */
+import { beforeEach, describe, expect, it, vi } from "vitest"
+
+vi.mock("@/env.mjs", () => ({ env: {} }))
+vi.mock("next-auth/react", () => ({ getSession: vi.fn() }))
+vi.mock("@/lib/auth", () => ({ getAuth: vi.fn() }))
+
+import { isStrapiEndpointAllowed } from "./request-auth"
+
+describe("isStrapiEndpointAllowed (Story 4.4 profile endpoints)", () => {
+  beforeEach(() => vi.clearAllMocks())
+
+  it("allows the self-scoped PUT api/users/me", () => {
+    expect(isStrapiEndpointAllowed("api/users/me", "PUT")).toBe(true)
+  })
+
+  it("does NOT expose the stock PUT api/users/:id (privilege-escalation guard)", () => {
+    expect(isStrapiEndpointAllowed("api/users/5", "PUT")).toBe(false)
+    expect(isStrapiEndpointAllowed("api/users", "PUT")).toBe(false)
+  })
+
+  it("allows the avatar upload and the two email-change POSTs", () => {
+    expect(isStrapiEndpointAllowed("api/upload", "POST")).toBe(true)
+    expect(isStrapiEndpointAllowed("api/auth/change-email", "POST")).toBe(true)
+    expect(
+      isStrapiEndpointAllowed("api/auth/confirm-email-change", "POST")
+    ).toBe(true)
+  })
+
+  it("does not allow the profile paths under the wrong method", () => {
+    expect(isStrapiEndpointAllowed("api/users/me", "DELETE")).toBe(false)
+    expect(isStrapiEndpointAllowed("api/upload", "PUT")).toBe(false)
+  })
+})
