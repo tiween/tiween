@@ -13,6 +13,7 @@ import type { RegionOption } from "../RegionCitySelector/RegionCitySelector"
 
 import { BottomNav } from "@/components/layout/BottomNav"
 import { Header } from "@/components/layout/Header"
+import { useUnreadNotificationCount } from "@/features/notifications/hooks/useNotifications"
 
 import { mapTypeToCategory } from "../../utils"
 import { CategoryTabs } from "../CategoryTabs"
@@ -32,6 +33,7 @@ export interface HomePageWithCityLabels {
     account: string
     navigation: string
     unscannedTickets: (count: number) => string
+    notifications: (count: number) => string
   }
   categoryTabs: {
     all: string
@@ -69,6 +71,7 @@ const defaultLabels: HomePageWithCityLabels = {
     account: "Compte",
     navigation: "Navigation principale",
     unscannedTickets: (count) => `${count} billets non scannés`,
+    notifications: (count) => `${count} notifications non lues`,
   },
   categoryTabs: {
     all: "Tout",
@@ -185,7 +188,6 @@ export function HomePageWithCity({
   featuredEvents,
   upcomingEvents,
   todayEvents,
-  totalUpcoming,
   regions,
   activeCategory = "all",
   activeDate,
@@ -196,6 +198,7 @@ export function HomePageWithCity({
   const searchParams = useSearchParams()
   const locale = useLocale()
   const [activeTab, setActiveTab] = React.useState<TabType>("home")
+  const { data: unreadNotifications } = useUnreadNotificationCount()
   const [heroIndex, setHeroIndex] = React.useState(0)
   const [watchlistedIds, setWatchlistedIds] = React.useState<
     Set<string | number>
@@ -467,6 +470,7 @@ export function HomePageWithCity({
 
       <BottomNav
         activeTab={activeTab}
+        accountBadgeCount={unreadNotifications ?? 0}
         onNavigate={handleNavigate}
         labels={labels.bottomNav}
       />

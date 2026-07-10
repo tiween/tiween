@@ -530,7 +530,8 @@
       "tickets": "التذاكر",
       "account": "الحساب",
       "navigation": "التنقل الرئيسي",
-      "unscannedTickets": "{count} تذاكر غير ممسوحة"
+      "unscannedTickets": "{count} تذاكر غير ممسوحة",
+      "notifications": "{count} إشعارات غير مقروءة"
     },
     "categoryTabs": {
       "all": "الكل",
@@ -612,6 +613,12 @@
       "EMAIL_CHANGE_TOKEN_INVALID": "رابط التأكيد هذا غير صالح أو تم استخدامه بالفعل.",
       "EMAIL_CHANGE_TOKEN_EXPIRED": "انتهت صلاحية رابط التأكيد هذا. يرجى طلب تغيير جديد للبريد الإلكتروني.",
       "unexpectedError": "حدث خطأ ما. يرجى المحاولة مرة أخرى لاحقًا."
+    },
+    "notifications": {
+      "title": "الإشعارات",
+      "viewAll": "عرض الإشعارات",
+      "emailLabel": "إشعارات البريد الإلكتروني",
+      "emailDescription": "احصل على بريد إلكتروني عند تغيّر موعد فعالية محفوظة."
     }
   },
   "watchlist": {
@@ -650,5 +657,22 @@
       "music": "موسيقى",
       "exhibitions": "معارض"
     }
+  },
+  "notifications": {
+    "title": "الإشعارات",
+    "back": "رجوع",
+    "unread": "غير مقروء",
+    "changeType": {
+      "showtime_changed": "تغيّر موعد {title}",
+      "cancelled": "تم إلغاء {title}",
+      "postponed": "تم تأجيل {title}",
+      "rescheduled": "تمت إعادة جدولة {title}"
+    },
+    "wasScheduledFor": "كان مقرراً في {time}",
+    "newTimeToBeConfirmed": "موعد جديد سيتم تأكيده",
+    "emptyTitle": "لا توجد إشعارات",
+    "emptyDescription": "سيتم إعلامك هنا عندما يتغيّر موعد فعالية في قائمة متابعتك.",
+    "emptyAction": "اكتشف الفعاليات",
+    "error": "تعذّر تحميل إشعاراتك. حاول مرة أخرى."
   }
 }

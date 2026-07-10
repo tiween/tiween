@@ -13,6 +13,7 @@ const arabicLabels: BottomNavLabels = {
   account: "الحساب",
   navigation: "التنقل الرئيسي",
   unscannedTickets: (count) => `${count} تذاكر غير ممسوحة`,
+  notifications: (count) => `${count} إشعارات غير مقروءة`,
 }
 
 const meta: Meta<typeof BottomNav> = {

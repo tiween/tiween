@@ -133,6 +133,10 @@ const updateMeSchema = z.object({
     .min(1, { message: "NAME_REQUIRED" })
     .optional(),
   preferredLanguage: z.enum(["ar", "fr", "en"]).optional(),
+  // Global email-notifications preference (Story 5.6). Governs schedule-change
+  // email delivery; in-app notifications are gated separately by the per-item
+  // watchlist `notifyChanges`.
+  emailNotificationsEnabled: z.boolean().optional(),
   // Relation reference: a Strapi documentId (string) or numeric id.
   defaultRegion: z.union([z.string(), z.number()]).optional(),
   // Uploaded media file id, linked self-scoped through this controller. A
@@ -963,6 +967,7 @@ export default (plugin: UsersPermissionsPlugin): UsersPermissionsPlugin => {
     const parsed = validate(updateMeSchema, {
       username: body.username,
       preferredLanguage: body.preferredLanguage,
+      emailNotificationsEnabled: body.emailNotificationsEnabled,
       defaultRegion: body.defaultRegion,
       avatar: body.avatar,
     })
@@ -973,6 +978,7 @@ export default (plugin: UsersPermissionsPlugin): UsersPermissionsPlugin => {
     for (const key of [
       "username",
       "preferredLanguage",
+      "emailNotificationsEnabled",
       "defaultRegion",
       "avatar",
     ] as const) {

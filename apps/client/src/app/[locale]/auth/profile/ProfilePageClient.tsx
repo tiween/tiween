@@ -1,7 +1,7 @@
 "use client"
 
 import { useRouter } from "next/navigation"
-import { ArrowLeft, Key, LogOut } from "lucide-react"
+import { ArrowLeft, Bell, Key, LogOut } from "lucide-react"
 import { signOut } from "next-auth/react"
 import { useTranslations } from "next-intl"
 
@@ -10,6 +10,7 @@ import { useCurrentUser } from "@/hooks/useUser"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 
+import { NotificationPreferences } from "./_components/NotificationPreferences"
 import { ProfileForm } from "./_components/ProfileForm"
 import { WatchlistSyncStatus } from "./_components/WatchlistSyncStatus"
 
@@ -81,8 +82,22 @@ export function ProfilePageClient({
 
             <Separator className="my-6" />
 
+            {/* Email-notifications preference (Story 5.6) */}
+            <NotificationPreferences />
+
+            <Separator className="my-6" />
+
             {/* Additional Actions */}
             <div className="space-y-3">
+              <Button
+                variant="outline"
+                className="w-full justify-start gap-2"
+                onClick={() => router.push(`/${locale}/auth/notifications`)}
+              >
+                <Bell className="h-4 w-4" />
+                {t("notifications.viewAll")}
+              </Button>
+
               <Button
                 variant="outline"
                 className="w-full justify-start gap-2"

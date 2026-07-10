@@ -25,6 +25,7 @@ export interface BottomNavLabels {
   account: string
   navigation: string
   unscannedTickets: (count: number) => string
+  notifications: (count: number) => string
 }
 
 const defaultLabels: BottomNavLabels = {
@@ -34,6 +35,7 @@ const defaultLabels: BottomNavLabels = {
   account: "Compte",
   navigation: "Navigation principale",
   unscannedTickets: (count) => `${count} billets non scannés`,
+  notifications: (count) => `${count} notifications non lues`,
 }
 
 export interface BottomNavProps {
@@ -41,6 +43,8 @@ export interface BottomNavProps {
   activeTab: TabType
   /** Number of unscanned tickets to show as badge */
   ticketCount?: number
+  /** Number of unread notifications to show as a badge on the Account tab */
+  accountBadgeCount?: number
   /** Called when a tab is tapped */
   onNavigate: (tab: TabType) => void
   /** Additional class names */
@@ -52,6 +56,7 @@ export interface BottomNavProps {
 export function BottomNav({
   activeTab,
   ticketCount = 0,
+  accountBadgeCount = 0,
   onNavigate,
   className,
   labels = defaultLabels,
@@ -81,7 +86,19 @@ export function BottomNav({
           const { icon: Icon } = tabIcons[tabId]
           const label = labels[tabId]
           const isActive = activeTab === tabId
-          const showBadge = tabId === "tickets" && ticketCount > 0
+          // Per-tab badge: unscanned tickets on `tickets`, unread notifications
+          // on `account`. Both cap at "99+".
+          const badgeCount =
+            tabId === "tickets"
+              ? ticketCount
+              : tabId === "account"
+                ? accountBadgeCount
+                : 0
+          const badgeLabel =
+            tabId === "tickets"
+              ? labels.unscannedTickets(ticketCount)
+              : labels.notifications(accountBadgeCount)
+          const showBadge = badgeCount > 0
 
           return (
             <button
@@ -122,7 +139,7 @@ export function BottomNav({
                 {label}
               </span>
 
-              {/* Badge for ticket count */}
+              {/* Badge (unscanned tickets or unread notifications) */}
               {showBadge && (
                 <span
                   className={cn(
@@ -131,9 +148,9 @@ export function BottomNav({
                     "bg-destructive rounded-full px-1.5",
                     "text-destructive-foreground text-xs font-bold"
                   )}
-                  aria-label={labels.unscannedTickets(ticketCount)}
+                  aria-label={badgeLabel}
                 >
-                  {ticketCount > 99 ? "99+" : ticketCount}
+                  {badgeCount > 99 ? "99+" : badgeCount}
                 </span>
               )}
             </button>

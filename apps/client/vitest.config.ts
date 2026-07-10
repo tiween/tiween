@@ -74,6 +74,8 @@ export default defineConfig({
       "src/features/events/utils/**/*.test.ts",
       // Watchlist add/sync hooks (Story 5.1).
       "src/features/events/hooks/**/*.test.ts",
+      // Notification data-layer hooks (Story 5.6).
+      "src/features/notifications/**/*.test.ts",
       // EventCard disabled-heart + tooltip (Story 5.4).
       "src/features/events/components/EventCard/**/*.test.tsx",
       // formatRelativeTime (Story 5.4).
@@ -110,6 +112,11 @@ export default defineConfig({
       // at the `profile/` root, not `_components/`, so it needs its own glob.
       "src/app/**/profile/**/*.test.tsx",
       "src/app/**/change-email/_components/**/*.test.tsx",
+      // Notifications page + item components (Story 5.6). `[locale]` is a glob
+      // char-class, so match the segment via `**`.
+      "src/app/**/notifications/**/*.test.tsx",
+      // BottomNav account-tab badge (Story 5.6).
+      "src/components/layout/**/*.test.tsx",
     ],
   },
 })

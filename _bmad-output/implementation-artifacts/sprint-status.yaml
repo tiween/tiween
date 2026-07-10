@@ -164,7 +164,7 @@ development_status:
   5-3-view-watchlist-page: done
   5-4-offline-watchlist-access: done
   5-5-watchlist-sync-across-devices: done
-  5-6-schedule-change-notifications: backlog
+  5-6-schedule-change-notifications: done
   epic-5-retrospective: optional
 
   # Epic 6: B2C Ticketing & Purchases

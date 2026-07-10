@@ -39,6 +39,12 @@ vi.mock("./_components/WatchlistSyncStatus", () => ({
   WatchlistSyncStatus: () => <div data-testid="watchlist-sync-sentinel" />,
 }))
 
+vi.mock("./_components/NotificationPreferences", () => ({
+  NotificationPreferences: () => (
+    <div data-testid="notification-preferences-sentinel" />
+  ),
+}))
+
 import { ProfilePageClient } from "./ProfilePageClient"
 
 const user = { id: 7, email: "grace@example.com", name: "Grace" }
@@ -58,5 +64,13 @@ describe("ProfilePageClient", () => {
     render(<ProfilePageClient locale="fr" regions={[]} user={user} />)
 
     expect(screen.getByTestId("profile-form-sentinel")).toBeInTheDocument()
+  })
+
+  it("mounts the NotificationPreferences section (Story 5.6)", () => {
+    render(<ProfilePageClient locale="fr" regions={[]} user={user} />)
+
+    expect(
+      screen.getByTestId("notification-preferences-sentinel")
+    ).toBeInTheDocument()
   })
 })

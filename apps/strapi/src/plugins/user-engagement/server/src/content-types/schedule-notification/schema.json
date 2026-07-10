@@ -1,0 +1,43 @@
+{
+  "kind": "collectionType",
+  "collectionName": "schedule_notifications",
+  "info": {
+    "singularName": "schedule-notification",
+    "pluralName": "schedule-notifications",
+    "displayName": "Schedule Notification",
+    "description": "In-app notification snapshot for a watchlisted event's schedule change"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "user": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "changeType": {
+      "type": "enumeration",
+      "enum": ["showtime_changed", "cancelled", "postponed", "rescheduled"]
+    },
+    "oldDateTime": {
+      "type": "datetime"
+    },
+    "newDateTime": {
+      "type": "datetime"
+    },
+    "eventTitle": {
+      "type": "string"
+    },
+    "eventDocumentId": {
+      "type": "string"
+    },
+    "creativeWorkDocumentId": {
+      "type": "string"
+    },
+    "read": {
+      "type": "boolean",
+      "default": false
+    }
+  }
+}

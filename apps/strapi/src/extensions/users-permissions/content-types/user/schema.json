@@ -96,6 +96,10 @@
       "enum": ["ar", "fr", "en"],
       "default": "fr"
     },
+    "emailNotificationsEnabled": {
+      "type": "boolean",
+      "default": true
+    },
     "avatar": {
       "type": "media",
       "multiple": false,

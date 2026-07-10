@@ -12,6 +12,7 @@ import type { FilmHeroEvent } from "../FilmHero"
 
 import { BottomNav } from "@/components/layout/BottomNav"
 import { Header } from "@/components/layout/Header"
+import { useUnreadNotificationCount } from "@/features/notifications/hooks/useNotifications"
 
 import { mapTypeToCategory } from "../../utils"
 import { CategoryTabs } from "../CategoryTabs"
@@ -30,6 +31,7 @@ export interface HomePageLabels {
     account: string
     navigation: string
     unscannedTickets: (count: number) => string
+    notifications: (count: number) => string
   }
   categoryTabs: {
     all: string
@@ -62,6 +64,7 @@ const defaultLabels: HomePageLabels = {
     account: "Compte",
     navigation: "Navigation principale",
     unscannedTickets: (count) => `${count} billets non scannés`,
+    notifications: (count) => `${count} notifications non lues`,
   },
   categoryTabs: {
     all: "Tout",
@@ -195,7 +198,6 @@ export function HomePage({
   featuredEvents,
   upcomingEvents,
   todayEvents,
-  totalUpcoming,
   activeCategory = "all",
   activeDate,
   labels = defaultLabels,
@@ -205,6 +207,7 @@ export function HomePage({
   const locale = useLocale()
   const [activeTab, setActiveTab] = React.useState<TabType>("home")
   const [heroIndex, setHeroIndex] = React.useState(0)
+  const { data: unreadNotifications } = useUnreadNotificationCount()
   const [watchlistedIds, setWatchlistedIds] = React.useState<
     Set<string | number>
   >(new Set())
@@ -483,6 +486,7 @@ export function HomePage({
       {/* Bottom Navigation */}
       <BottomNav
         activeTab={activeTab}
+        accountBadgeCount={unreadNotifications ?? 0}
         onNavigate={handleNavigate}
         labels={labels.bottomNav}
       />

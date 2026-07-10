@@ -16,6 +16,8 @@ export interface UserProfile {
   confirmed: boolean
   blocked: boolean
   preferredLanguage?: "ar" | "fr" | "en"
+  /** Global schedule-change email preference (Story 5.6); defaults to true. */
+  emailNotificationsEnabled?: boolean
   defaultRegion?: string
   avatar?: {
     url: string
@@ -34,6 +36,8 @@ export interface UserProfile {
 export interface UpdateProfileData {
   username?: string
   preferredLanguage?: "ar" | "fr" | "en"
+  /** Global schedule-change email preference (Story 5.6). */
+  emailNotificationsEnabled?: boolean
   defaultRegion?: string
   /** Uploaded avatar file id (from POST /upload), linked self-scoped by the API. */
   avatar?: number

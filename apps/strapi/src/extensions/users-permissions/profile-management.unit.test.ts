@@ -204,6 +204,29 @@ describe("users-permissions user.updateMe (self-scoped, unit)", () => {
     expect(h.userEdit).toHaveBeenCalledWith(7, { username: "grace" })
   })
 
+  it("persists emailNotificationsEnabled:false (and still strips forbidden fields)", async () => {
+    const h = buildHarness()
+    const ctx = makeCtx(
+      {
+        emailNotificationsEnabled: false,
+        email: "attacker@example.com",
+        role: 1,
+        confirmed: true,
+      },
+      { id: 7, email: "grace@example.com" }
+    )
+
+    await h.updateMe(ctx)
+
+    expect(h.userEdit).toHaveBeenCalledWith(7, {
+      emailNotificationsEnabled: false,
+    })
+    const patch = h.userEdit.mock.calls[0][1]
+    expect(patch).not.toHaveProperty("email")
+    expect(patch).not.toHaveProperty("role")
+    expect(patch).not.toHaveProperty("confirmed")
+  })
+
   it("writes only the provided fields (a partial save never blanks untouched ones)", async () => {
     const h = buildHarness()
     const ctx = makeCtx(

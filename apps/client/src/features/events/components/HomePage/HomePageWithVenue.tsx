@@ -11,6 +11,7 @@ import type { RegionOption } from "../RegionCitySelector/RegionCitySelector"
 import type { VenueOption } from "../VenueSelector/VenueSelector"
 
 import { BottomNav } from "@/components/layout/BottomNav"
+import { useUnreadNotificationCount } from "@/features/notifications/hooks/useNotifications"
 import { DesktopNav } from "@/components/layout/DesktopNav"
 import { Footer } from "@/components/layout/Footer"
 import { Header } from "@/components/layout/Header"
@@ -41,6 +42,7 @@ export interface HomePageWithVenueLabels {
     account: string
     navigation: string
     unscannedTickets: (count: number) => string
+    notifications: (count: number) => string
   }
   categoryTabs: {
     all: string
@@ -90,6 +92,7 @@ const defaultLabels: HomePageWithVenueLabels = {
     account: "Compte",
     navigation: "Navigation principale",
     unscannedTickets: (count) => `${count} billets non scannés`,
+    notifications: (count) => `${count} notifications non lues`,
   },
   categoryTabs: {
     all: "Tout",
@@ -201,6 +204,7 @@ export function HomePageWithVenue({
   const searchParams = useSearchParams()
   const locale = useLocale()
   const [activeTab, setActiveTab] = React.useState<TabType>("home")
+  const { data: unreadNotifications } = useUnreadNotificationCount()
   const [heroIndex, setHeroIndex] = React.useState(0)
   const [watchlistedIds, setWatchlistedIds] = React.useState<
     Set<string | number>
@@ -535,6 +539,7 @@ export function HomePageWithVenue({
       {/* Mobile Bottom Navigation */}
       <BottomNav
         activeTab={activeTab}
+        accountBadgeCount={unreadNotifications ?? 0}
         onNavigate={handleNavigate}
         labels={labels.bottomNav}
       />

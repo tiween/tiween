@@ -15,6 +15,9 @@ const ALLOWED_STRAPI_ENDPOINTS: Record<string, string[]> = {
     // Watchlist reads (Story 5.1). `startsWith` covers the list root and the
     // per-item `check/:id` probe. Every watchlist route is JWT-self-scoped.
     "api/user-engagement/watchlist",
+    // Notification reads (Story 5.6). `startsWith` covers the list root and the
+    // `unread-count` probe. Every notification route is JWT-self-scoped.
+    "api/user-engagement/notifications",
   ],
   POST: [
     "api/subscribers",
@@ -35,7 +38,9 @@ const ALLOWED_STRAPI_ENDPOINTS: Record<string, string[]> = {
   ],
   // Self-scoped profile update only. `api/users` is intentionally NOT listed —
   // that would expose the stock `PUT api/users/:id` (arbitrary id + fields).
-  PUT: ["api/users/me"],
+  // Notification mark-all-read (Story 5.6) — `startsWith` covers
+  // `.../notifications/read-all`; JWT-self-scoped.
+  PUT: ["api/users/me", "api/user-engagement/notifications"],
   // Watchlist hard remove (Story 5.2). `startsWith` covers
   // `.../watchlist/:creativeWorkId`. Every watchlist route is JWT-self-scoped,
   // so a user can only ever DELETE their own row. No other DELETE is allowed.

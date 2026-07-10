@@ -530,7 +530,8 @@
       "tickets": "Billets",
       "account": "Compte",
       "navigation": "Navigation principale",
-      "unscannedTickets": "{count} billets non scannés"
+      "unscannedTickets": "{count} billets non scannés",
+      "notifications": "{count} notifications non lues"
     },
     "categoryTabs": {
       "all": "Tout",
@@ -612,6 +613,12 @@
       "EMAIL_CHANGE_TOKEN_INVALID": "Ce lien de confirmation est invalide ou a déjà été utilisé.",
       "EMAIL_CHANGE_TOKEN_EXPIRED": "Ce lien de confirmation a expiré. Veuillez demander un nouveau changement d'e-mail.",
       "unexpectedError": "Une erreur est survenue. Veuillez réessayer plus tard."
+    },
+    "notifications": {
+      "title": "Notifications",
+      "viewAll": "Voir les notifications",
+      "emailLabel": "Notifications par e-mail",
+      "emailDescription": "Recevez un e-mail lorsque l'horaire d'un événement enregistré change."
     }
   },
   "watchlist": {
@@ -650,5 +657,22 @@
       "music": "Musique",
       "exhibitions": "Expositions"
     }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "back": "Retour",
+    "unread": "Non lu",
+    "changeType": {
+      "showtime_changed": "L'horaire de {title} a changé",
+      "cancelled": "{title} a été annulé",
+      "postponed": "{title} a été reporté",
+      "rescheduled": "{title} a été reprogrammé"
+    },
+    "wasScheduledFor": "Prévu initialement le {time}",
+    "newTimeToBeConfirmed": "Nouvelle date à confirmer",
+    "emptyTitle": "Aucune notification",
+    "emptyDescription": "Vous serez averti ici lorsque l'horaire d'un événement de votre watchlist change.",
+    "emptyAction": "Découvrir des événements",
+    "error": "Impossible de charger vos notifications. Réessayez."
   }
 }
