@@ -79,7 +79,7 @@ export function formatDateRange(
  */
 export function formatTime(
   time: string | Date | undefined,
-  locale?: string
+  _locale?: string
 ): string {
   if (!time) return ""
   return dayjs(time).format(TIME_FORMAT)
@@ -113,6 +113,57 @@ export function isToday(date: string | Date): boolean {
  */
 export function isPast(date: string | Date): boolean {
   return dayjs(date).isBefore(dayjs(), "day")
+}
+
+/**
+ * Format an ISO timestamp as a localized relative time (e.g. "il y a 5 minutes",
+ * "5 minutes ago") for the offline "last synced X ago" line (Story 5.4).
+ *
+ * Built on `Intl.RelativeTimeFormat` and picks the largest sensible unit
+ * (minute/hour/day). Forces a Latin-numeral locale for `ar` (mirrors
+ * `formatDate`'s `d.locale("fr")` rule) so Arabic renders Western numerals per
+ * Tunisian convention — never Arabic-Indic digits.
+ *
+ * `now` is injectable (default `new Date()`) so bucketing is deterministically
+ * unit-testable. An unparseable / null / undefined `iso` yields `""`.
+ */
+export function formatRelativeTime(
+  iso: string | null | undefined,
+  locale: string,
+  now: Date = new Date()
+): string {
+  if (!iso) return ""
+
+  const then = new Date(iso)
+  if (Number.isNaN(then.getTime())) return ""
+
+  // Arabic keeps its own wording but MUST use Western (Latin) numerals per
+  // Tunisian convention — force the `latn` numbering system via the Unicode
+  // extension rather than swapping to French words (which would print "il y a…"
+  // inside an Arabic sentence).
+  const resolvedLocale = locale === "ar" ? "ar-u-nu-latn" : locale
+  const rtf = new Intl.RelativeTimeFormat(resolvedLocale, { numeric: "auto" })
+
+  // A "last synced" time is always in the past; clamp future skew (a fast client
+  // clock) to 0 so the banner never reads "synced in the future".
+  const diffMs = Math.min(0, then.getTime() - now.getTime())
+  const diffSeconds = Math.round(diffMs / 1000)
+  const absSeconds = Math.abs(diffSeconds)
+
+  const minute = 60
+  const hour = 60 * minute
+  const day = 24 * hour
+
+  if (absSeconds < minute) {
+    return rtf.format(diffSeconds, "second")
+  }
+  if (absSeconds < hour) {
+    return rtf.format(Math.round(diffSeconds / minute), "minute")
+  }
+  if (absSeconds < day) {
+    return rtf.format(Math.round(diffSeconds / hour), "hour")
+  }
+  return rtf.format(Math.round(diffSeconds / day), "day")
 }
 
 /**

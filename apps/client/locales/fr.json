@@ -633,6 +633,11 @@
     "noneInCategory": "Aucun événement dans cette catégorie",
     "loading": "Chargement...",
     "retry": "Réessayer",
+    "offlineIndicator": "Hors ligne",
+    "lastSynced": "Dernière synchronisation {time}",
+    "offlineActionDisabled": "Indisponible hors ligne",
+    "offlineEmptyTitle": "Watchlist indisponible hors ligne",
+    "offlineEmptyDescription": "Connectez-vous à Internet pour afficher votre watchlist.",
     "categories": {
       "all": "Tout",
       "cinema": "Cinéma",

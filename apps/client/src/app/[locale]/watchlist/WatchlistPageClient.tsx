@@ -11,21 +11,20 @@ import {
   type CategoryType,
 } from "@/features/events/components/CategoryTabs"
 import { useRemoveFromWatchlist } from "@/features/events/hooks/useRemoveFromWatchlist"
-import {
-  useWatchlist,
-  watchlistKeys,
-} from "@/features/events/hooks/useWatchlist"
+import { useOfflineWatchlist } from "@/features/events/hooks/useOfflineWatchlist"
+import { watchlistKeys } from "@/features/events/hooks/useWatchlist"
 import { mapTypeToCategory } from "@/features/events/utils/categoryMapper"
 import {
   filterByCategory,
   partitionWatchlist,
 } from "@/features/events/utils/watchlistView"
 import { useQueryClient } from "@tanstack/react-query"
-import { AlertCircle, Heart, RefreshCw } from "lucide-react"
+import { AlertCircle, Heart, RefreshCw, WifiOff } from "lucide-react"
 import { useTranslations } from "next-intl"
 
 import type { WatchlistItem } from "@/features/events/hooks/useWatchlist"
 
+import { formatRelativeTime } from "@/lib/dates"
 import { useRouter } from "@/lib/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -47,19 +46,32 @@ const TYPE_TO_CATEGORY: Record<string, CategoryType> = {
 }
 
 /**
- * Client component for the watchlist page (Story 5.3).
+ * Client component for the watchlist page (Stories 5.3 + 5.4).
  *
- * Reads the enriched watchlist (`useWatchlist`), filters by category and splits
- * into Upcoming / Past sections (`watchlistView`), and renders each saved item
- * as a `WatchlistCard` that removes via the shared `useRemoveFromWatchlist`
- * (toast + Undo). Covers all four async states; copy resolves from the
- * `watchlist` i18n namespace.
+ * Reads the offline-durable watchlist (`useOfflineWatchlist`), filters by
+ * category and splits into Upcoming / Past sections (`watchlistView`), and
+ * renders each saved item as a `WatchlistCard` that removes via the shared
+ * `useRemoveFromWatchlist` (toast + Undo) while online.
+ *
+ * When offline (Story 5.4): a previously-cached list still renders as a success
+ * view with an offline banner ("Offline" + "Last synced X ago"); an offline user
+ * with no snapshot sees the `EmptyState offline` variant; and each card's heart is
+ * disabled with a tooltip (read-only — no enqueue, no toast). All Story 5.3 online
+ * behavior is preserved. Copy resolves from the `watchlist` i18n namespace.
  */
-export function WatchlistPageClient(_props: WatchlistPageClientProps) {
+export function WatchlistPageClient({ locale }: WatchlistPageClientProps) {
   const t = useTranslations("watchlist")
   const te = useTranslations("events")
   const router = useRouter()
-  const { data: watchlist, isLoading, isError, refetch } = useWatchlist()
+  const {
+    items: rawItems,
+    syncedAt,
+    isOffline,
+    isFromCache,
+    isLoading,
+    isError,
+    refetch,
+  } = useOfflineWatchlist()
 
   const [activeCategory, setActiveCategory] =
     React.useState<CategoryType>("all")
@@ -81,8 +93,9 @@ export function WatchlistPageClient(_props: WatchlistPageClientProps) {
       addToWatchlist: te("addToWatchlist"),
       removeFromWatchlist: te("removeFromWatchlist"),
       priceFrom: (price: string) => te("priceFrom", { price }),
+      watchlistDisabledHint: t("offlineActionDisabled"),
     }),
-    [te]
+    [te, t]
   )
 
   // Loading state — skeleton grid.
@@ -99,7 +112,8 @@ export function WatchlistPageClient(_props: WatchlistPageClientProps) {
     )
   }
 
-  // Error state — retry.
+  // Error state — retry. Only reached when ONLINE with no cache (offline is a
+  // fallback, not an error — `useOfflineWatchlist` gates `isError` accordingly).
   if (isError) {
     return (
       <div className="container mx-auto max-w-6xl px-4 py-8">
@@ -124,10 +138,26 @@ export function WatchlistPageClient(_props: WatchlistPageClientProps) {
 
   // Skip dangling rows whose creative-work was deleted (backend returns
   // `creativeWork: null`) — they are not renderable and would crash the card.
-  const items = (watchlist ?? []).filter((item) => item.creativeWork != null)
+  const items = rawItems.filter((item) => item.creativeWork != null)
 
-  // Empty state (nothing saved at all) — encouraging EmptyState + discovery CTA.
+  // Empty state. Offline + no cached snapshot → the offline indicator itself. A
+  // synced-but-empty list (isFromCache) is genuinely empty, not "unavailable",
+  // so it falls through to the encouraging empty state below.
   if (items.length === 0) {
+    if (isOffline && !isFromCache) {
+      return (
+        <div className="container mx-auto max-w-6xl px-4 py-8">
+          <PageHeader title={t("title")} subtitle={t("subtitle")} />
+          <EmptyState
+            variant="offline"
+            title={t("offlineEmptyTitle")}
+            description={t("offlineEmptyDescription")}
+          />
+        </div>
+      )
+    }
+
+    // Online + nothing saved — encouraging EmptyState + discovery CTA.
     return (
       <div className="container mx-auto max-w-6xl px-4 py-8">
         <PageHeader title={t("title")} subtitle={t("subtitle")} />
@@ -155,6 +185,19 @@ export function WatchlistPageClient(_props: WatchlistPageClientProps) {
         count={items.length}
       />
 
+      {isOffline && (
+        <OfflineBanner
+          indicator={t("offlineIndicator")}
+          lastSynced={
+            syncedAt
+              ? t("lastSynced", {
+                  time: formatRelativeTime(syncedAt, locale),
+                })
+              : null
+          }
+        />
+      )}
+
       <CategoryTabs
         activeCategory={activeCategory}
         onCategoryChange={setActiveCategory}
@@ -176,6 +219,7 @@ export function WatchlistPageClient(_props: WatchlistPageClientProps) {
                   item={item}
                   labels={cardLabels}
                   categoryLabels={categoryLabels}
+                  isOffline={isOffline}
                 />
               ))}
             </WatchlistSection>
@@ -189,10 +233,39 @@ export function WatchlistPageClient(_props: WatchlistPageClientProps) {
                   item={item}
                   labels={cardLabels}
                   categoryLabels={categoryLabels}
+                  isOffline={isOffline}
                 />
               ))}
             </WatchlistSection>
           )}
+        </>
+      )}
+    </div>
+  )
+}
+
+/**
+ * Inline offline banner (Story 5.4): a Wi-Fi-off indicator + a localized
+ * "Last synced X ago" line (Western numerals in Arabic via `formatRelativeTime`).
+ */
+function OfflineBanner({
+  indicator,
+  lastSynced,
+}: {
+  indicator: string
+  lastSynced: string | null
+}) {
+  return (
+    <div
+      role="status"
+      className="border-border bg-muted/50 text-muted-foreground mb-6 flex items-center gap-3 rounded-lg border px-4 py-3 text-sm"
+    >
+      <WifiOff className="h-4 w-4 shrink-0" aria-hidden="true" />
+      <span className="font-medium">{indicator}</span>
+      {lastSynced && (
+        <>
+          <span aria-hidden="true">•</span>
+          <span>{lastSynced}</span>
         </>
       )}
     </div>
@@ -207,15 +280,21 @@ export function WatchlistPageClient(_props: WatchlistPageClientProps) {
  * `useRemoveFromWatchlist` guard does not read `undefined` and silently no-op
  * the first tap (and the heart renders filled). Because hooks can't run inside
  * `.map`, this is a real component (one hook instance per row is fine).
+ *
+ * When offline (Story 5.4), the row is read-only: the heart is disabled (with a
+ * tooltip) and `onWatchlist` is omitted so a tap does nothing — no enqueue, no
+ * toast. `useRemoveFromWatchlist` itself is untouched.
  */
 function WatchlistCard({
   item,
   labels,
   categoryLabels,
+  isOffline,
 }: {
   item: WatchlistItem
   labels: EventCardLabels
   categoryLabels: CategoryLabels
+  isOffline: boolean
 }) {
   const router = useRouter()
   const queryClient = useQueryClient()
@@ -250,7 +329,8 @@ function WatchlistCard({
       }}
       variant="default"
       isWatchlisted
-      onWatchlist={remove}
+      onWatchlist={isOffline ? undefined : remove}
+      watchlistDisabled={isOffline}
       onClick={() => router.push(`/events/${creativeWorkId}`)}
       labels={labels}
     />

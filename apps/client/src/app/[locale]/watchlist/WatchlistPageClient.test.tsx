@@ -10,21 +10,32 @@
  * first tap).
  */
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-import { render, screen, within } from "@testing-library/react"
+import { fireEvent, render, screen, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import * as React from "react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import type { WatchlistItem } from "@/features/events/hooks/useWatchlist"
 
-const { useWatchlistMock, removeMock, pushMock } = vi.hoisted(() => ({
-  useWatchlistMock: vi.fn(),
-  removeMock: vi.fn(),
-  pushMock: vi.fn(),
+const { useOfflineWatchlistMock, removeMock, pushMock, formatRelativeTimeMock } =
+  vi.hoisted(() => ({
+    useOfflineWatchlistMock: vi.fn(),
+    removeMock: vi.fn(),
+    pushMock: vi.fn(),
+    formatRelativeTimeMock: vi.fn(() => ""),
+  }))
+
+// Surface the `{time}` value for the `lastSynced` message (the real message is
+// "Last synced {time}") so the banner's formatted value is actually asserted;
+// every other key still echoes bare (the mock has no real message templates).
+vi.mock("next-intl", () => ({
+  useTranslations:
+    () => (key: string, values?: Record<string, unknown>) =>
+      key === "lastSynced" && values ? `lastSynced ${values.time}` : key,
 }))
 
-vi.mock("next-intl", () => ({
-  useTranslations: () => (key: string) => key,
+vi.mock("@/lib/dates", () => ({
+  formatRelativeTime: (...args: unknown[]) => formatRelativeTimeMock(...args),
 }))
 
 vi.mock("@/lib/navigation", () => ({
@@ -47,8 +58,13 @@ vi.mock("next/image", () => ({
   },
 }))
 
+vi.mock("@/features/events/hooks/useOfflineWatchlist", () => ({
+  useOfflineWatchlist: useOfflineWatchlistMock,
+}))
+
+// The page still imports `watchlistKeys` from useWatchlist (for the per-card
+// check-cache seed); keep that export mocked without a real query.
 vi.mock("@/features/events/hooks/useWatchlist", () => ({
-  useWatchlist: useWatchlistMock,
   watchlistKeys: {
     all: ["watchlist"],
     list: () => ["watchlist", "list"],
@@ -99,9 +115,31 @@ function renderPage(client: QueryClient) {
   )
 }
 
+// Bridge the Story 5.3 online tests (which set `data`) onto the Story 5.4
+// `useOfflineWatchlist` shape (which exposes `items`): a `data` array maps to
+// `items`, defaulting to an online, loaded, no-error view.
 function setWatchlist(value: Partial<Record<string, unknown>>) {
-  useWatchlistMock.mockReturnValue({
-    data: undefined,
+  const { data, ...rest } = value
+  useOfflineWatchlistMock.mockReturnValue({
+    items: (data as WatchlistItem[] | undefined) ?? [],
+    syncedAt: null,
+    isOffline: false,
+    isFromCache: false,
+    isLoading: false,
+    isError: false,
+    refetch: vi.fn(),
+    ...rest,
+  })
+}
+
+// Set the offline view directly (Story 5.4): the hook exposes `items` from the
+// durable snapshot, `isOffline: true`, and a `syncedAt`.
+function setOffline(value: Partial<Record<string, unknown>>) {
+  useOfflineWatchlistMock.mockReturnValue({
+    items: [],
+    syncedAt: null,
+    isOffline: true,
+    isFromCache: false,
     isLoading: false,
     isError: false,
     refetch: vi.fn(),
@@ -355,6 +393,88 @@ describe("WatchlistPageClient", () => {
     // row's own documentId would deep-link to the wrong id and ship green.
     await user.click(screen.getByText("Title D"))
     expect(pushMock).toHaveBeenCalledWith("/events/cw-D")
+  })
+})
+
+describe("WatchlistPageClient — offline (Story 5.4)", () => {
+  it("renders cached items with an offline banner + last-synced line", () => {
+    formatRelativeTimeMock.mockReturnValue("5 MINUTES AGO")
+    setOffline({
+      items: [makeItem("D", { next: "2026-07-15T12:00:00.000Z" })],
+      syncedAt: "2026-07-10T09:00:00.000Z",
+      isFromCache: true,
+    })
+
+    renderPage(new QueryClient())
+
+    // The cached card renders as a success view (not an error/blank screen).
+    expect(screen.getByText("Title D")).toBeTruthy()
+    // Offline indicator (key echoed by the next-intl mock).
+    expect(screen.getByText("offlineIndicator")).toBeTruthy()
+    // The formatted "last synced" value is actually wired through to the banner:
+    // syncedAt → formatRelativeTime(iso, locale) → interpolated `lastSynced`.
+    expect(formatRelativeTimeMock).toHaveBeenCalledWith(
+      "2026-07-10T09:00:00.000Z",
+      "fr"
+    )
+    expect(screen.getByText(/5 MINUTES AGO/)).toBeTruthy()
+  })
+
+  it("disables each card heart offline; a tap does not call remove", () => {
+    setOffline({
+      items: [makeItem("D", { next: "2026-07-15T12:00:00.000Z" })],
+      syncedAt: "2026-07-10T09:00:00.000Z",
+      isFromCache: true,
+    })
+
+    renderPage(new QueryClient())
+
+    const heart = screen.getByRole("button", { name: "removeFromWatchlist" })
+    expect(heart).toHaveAttribute("aria-disabled", "true")
+    // The disabled hint is reachable.
+    expect(screen.getByTitle("offlineActionDisabled")).toBeTruthy()
+
+    fireEvent.click(heart)
+    expect(removeMock).not.toHaveBeenCalled()
+  })
+
+  it("shows the offline EmptyState when offline with no cached items", () => {
+    setOffline({ items: [], syncedAt: null })
+
+    renderPage(new QueryClient())
+
+    expect(screen.getByText("offlineEmptyTitle")).toBeTruthy()
+    expect(screen.getByText("offlineEmptyDescription")).toBeTruthy()
+    // Not the "nothing saved" (online) empty state.
+    expect(screen.queryByText("emptyDescription")).toBeNull()
+  })
+
+  it("clears the banner and re-enables hearts once back online", () => {
+    setWatchlist({
+      data: [makeItem("D", { next: "2026-07-15T12:00:00.000Z" })],
+    })
+
+    renderPage(new QueryClient())
+
+    // No offline banner while online.
+    expect(screen.queryByText("offlineIndicator")).toBeNull()
+    const heart = screen.getByRole("button", { name: "removeFromWatchlist" })
+    expect(heart).toHaveAttribute("aria-disabled", "false")
+  })
+
+  it("shows the encouraging empty state (not 'unavailable offline') for a synced-empty watchlist", () => {
+    // Synced a genuinely-empty watchlist online, then went offline: the snapshot
+    // exists (isFromCache) but has no items — this is empty, not unavailable.
+    setOffline({
+      items: [],
+      isFromCache: true,
+      syncedAt: "2026-07-10T09:00:00.000Z",
+    })
+
+    renderPage(new QueryClient())
+
+    expect(screen.getByText("emptyDescription")).toBeTruthy()
+    expect(screen.queryByText("offlineEmptyTitle")).toBeNull()
   })
 })
 

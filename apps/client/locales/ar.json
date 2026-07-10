@@ -633,6 +633,11 @@
     "noneInCategory": "لا توجد أحداث في هذه الفئة",
     "loading": "جارٍ التحميل...",
     "retry": "إعادة المحاولة",
+    "offlineIndicator": "غير متصل",
+    "lastSynced": "آخر مزامنة {time}",
+    "offlineActionDisabled": "غير متاح دون اتصال",
+    "offlineEmptyTitle": "قائمة المتابعة غير متاحة دون اتصال",
+    "offlineEmptyDescription": "اتصل بالإنترنت لعرض قائمة المتابعة الخاصة بك.",
     "categories": {
       "all": "الكل",
       "cinema": "سينما",

@@ -56,7 +56,9 @@ describe("EventCard", () => {
 
     it("renders price when provided", () => {
       render(<EventCard event={mockEvent} />)
-      expect(screen.getByText(/25/)).toBeInTheDocument()
+      // Match the price specifically ("À partir de 25,000 DT"); a bare /25/ also
+      // matches the date "2025" and would be ambiguous.
+      expect(screen.getByText(/25,000/)).toBeInTheDocument()
     })
 
     it("does not render price when not provided", () => {
@@ -184,6 +186,65 @@ describe("EventCard", () => {
       const image = screen.getByRole("img")
       expect(image).toHaveAttribute("alt", mockEvent.title)
     })
+  })
+})
+
+// Story 5.4 — the additive `watchlistDisabled` read-only affordance.
+describe("EventCard watchlistDisabled (Story 5.4)", () => {
+  const disabledLabels = {
+    addToWatchlist: "Add",
+    removeFromWatchlist: "Remove",
+    priceFrom: (price: string) => `From ${price}`,
+    watchlistDisabledHint: "Unavailable offline",
+  }
+
+  it("renders a disabled heart whose click does not call onWatchlist", () => {
+    const onWatchlist = vi.fn()
+    render(
+      <EventCard
+        event={mockEvent}
+        onWatchlist={onWatchlist}
+        watchlistDisabled
+        labels={disabledLabels}
+      />
+    )
+
+    const heart = screen.getByRole("button", { name: "Add" })
+    // `aria-disabled` (not the native `disabled` attribute) so the control stays
+    // focusable and the Radix tooltip can open on hover/keyboard focus.
+    expect(heart).toHaveAttribute("aria-disabled", "true")
+    expect(heart).not.toBeDisabled()
+
+    // A click on the disabled control is a no-op (no add/remove, no queue).
+    fireEvent.click(heart)
+    expect(onWatchlist).not.toHaveBeenCalled()
+  })
+
+  it("exposes the disabled hint so the tooltip content is reachable", () => {
+    render(
+      <EventCard event={mockEvent} watchlistDisabled labels={disabledLabels} />
+    )
+
+    expect(screen.getByTitle("Unavailable offline")).toBeInTheDocument()
+  })
+
+  it("keeps the default enabled behavior when the prop is omitted", () => {
+    const onWatchlist = vi.fn()
+    render(
+      <EventCard
+        event={mockEvent}
+        onWatchlist={onWatchlist}
+        labels={disabledLabels}
+      />
+    )
+
+    const heart = screen.getByRole("button", { name: "Add" })
+    expect(heart).toHaveAttribute("aria-disabled", "false")
+    expect(heart).not.toBeDisabled()
+
+    fireEvent.click(heart)
+    expect(onWatchlist).toHaveBeenCalledTimes(1)
+    expect(screen.queryByTitle("Unavailable offline")).not.toBeInTheDocument()
   })
 })
 

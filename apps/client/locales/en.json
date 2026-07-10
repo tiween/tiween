@@ -633,6 +633,11 @@
     "noneInCategory": "No events in this category",
     "loading": "Loading...",
     "retry": "Retry",
+    "offlineIndicator": "Offline",
+    "lastSynced": "Last synced {time}",
+    "offlineActionDisabled": "Unavailable offline",
+    "offlineEmptyTitle": "Watchlist unavailable offline",
+    "offlineEmptyDescription": "Connect to the internet to view your watchlist.",
     "categories": {
       "all": "All",
       "cinema": "Cinema",

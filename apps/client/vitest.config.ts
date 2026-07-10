@@ -54,6 +54,9 @@ export default defineConfig({
   test: {
     environment: "jsdom",
     globals: true,
+    // Registers @testing-library/jest-dom matchers (toBeInTheDocument,
+    // toBeDisabled, …). Additive-only; native matchers are unaffected.
+    setupFiles: ["./test/setup.ts"],
     // Inline the React-consuming UI deps so Vite (not node's externalized
     // require) resolves their React through the single aliased copy above.
     server: {
@@ -71,6 +74,10 @@ export default defineConfig({
       "src/features/events/utils/**/*.test.ts",
       // Watchlist add/sync hooks (Story 5.1).
       "src/features/events/hooks/**/*.test.ts",
+      // EventCard disabled-heart + tooltip (Story 5.4).
+      "src/features/events/components/EventCard/**/*.test.tsx",
+      // formatRelativeTime (Story 5.4).
+      "src/lib/dates.test.ts",
       // FilmHero disabled/pulse behavior (Story 5.1).
       "src/features/events/components/FilmHero/**/*.test.tsx",
       // EventDetailPage toggle wiring + in-flight guard (Story 5.2).

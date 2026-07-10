@@ -8,6 +8,12 @@ import type { EventCardEvent, EventCardVariant } from "../../types/event.types"
 
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 import { EventCardSkeleton } from "./EventCardSkeleton"
 
@@ -19,6 +25,8 @@ export interface EventCardLabels {
   addToWatchlist: string
   removeFromWatchlist: string
   priceFrom: (price: string) => string
+  /** Tooltip shown when the watchlist control is disabled (e.g. offline). */
+  watchlistDisabledHint?: string
 }
 
 const defaultLabels: EventCardLabels = {
@@ -38,6 +46,8 @@ export interface EventCardProps {
   isLoading?: boolean
   /** Called when watchlist button is clicked */
   onWatchlist?: () => void
+  /** Whether the watchlist control is disabled (e.g. read-only while offline) */
+  watchlistDisabled?: boolean
   /** Called when the card is clicked */
   onClick?: () => void
   /** Additional class names */
@@ -106,6 +116,7 @@ export function EventCard({
   isWatchlisted = false,
   isLoading = false,
   onWatchlist,
+  watchlistDisabled = false,
   onClick,
   className,
   labels = defaultLabels,
@@ -116,12 +127,60 @@ export function EventCard({
   // Handle watchlist click without triggering card click
   const handleWatchlistClick = (e: React.MouseEvent) => {
     e.stopPropagation()
+    // Read-only affordance (e.g. offline): a tap does nothing.
+    if (watchlistDisabled) return
     onWatchlist?.()
   }
 
   if (isLoading) {
     return <EventCardSkeleton variant={variant} className={className} />
   }
+
+  const disabledHint = labels.watchlistDisabledHint
+
+  const watchlistButton = (
+    <button
+      type="button"
+      onClick={handleWatchlistClick}
+      // Use `aria-disabled` (not the native `disabled` attribute) so the control
+      // stays focusable/hoverable — a natively-disabled button suppresses the
+      // hover/focus the Radix tooltip needs and drops out of the tab order. The
+      // click handler no-ops the action instead. `title` is a native fallback.
+      aria-disabled={watchlistDisabled}
+      title={watchlistDisabled ? disabledHint : undefined}
+      aria-label={
+        isWatchlisted ? labels.removeFromWatchlist : labels.addToWatchlist
+      }
+      aria-pressed={isWatchlisted}
+      className={cn(
+        // Position - RTL aware using logical properties
+        "absolute end-2 top-2",
+        // Size - minimum 44x44px touch target
+        "flex h-11 w-11 items-center justify-center",
+        // Background
+        "rounded-full bg-black/50 backdrop-blur-sm",
+        // Transition for smooth state changes
+        "transition-all duration-200",
+        // Hover state
+        "hover:bg-black/70",
+        // Focus styles
+        "focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none",
+        // Active state animation
+        "active:scale-95",
+        // Disabled (read-only offline) affordance
+        watchlistDisabled && "cursor-not-allowed opacity-50"
+      )}
+    >
+      <Heart
+        className={cn(
+          "h-5 w-5 transition-all duration-200",
+          isWatchlisted
+            ? "fill-primary text-primary"
+            : "fill-transparent text-white"
+        )}
+      />
+    </button>
+  )
 
   return (
     <article
@@ -159,39 +218,16 @@ export function EventCard({
         </div>
 
         {/* Watchlist Button - positioned top-right */}
-        <button
-          type="button"
-          onClick={handleWatchlistClick}
-          aria-label={
-            isWatchlisted ? labels.removeFromWatchlist : labels.addToWatchlist
-          }
-          aria-pressed={isWatchlisted}
-          className={cn(
-            // Position - RTL aware using logical properties
-            "absolute end-2 top-2",
-            // Size - minimum 44x44px touch target
-            "flex h-11 w-11 items-center justify-center",
-            // Background
-            "rounded-full bg-black/50 backdrop-blur-sm",
-            // Transition for smooth state changes
-            "transition-all duration-200",
-            // Hover state
-            "hover:bg-black/70",
-            // Focus styles
-            "focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none",
-            // Active state animation
-            "active:scale-95"
-          )}
-        >
-          <Heart
-            className={cn(
-              "h-5 w-5 transition-all duration-200",
-              isWatchlisted
-                ? "fill-primary text-primary"
-                : "fill-transparent text-white"
-            )}
-          />
-        </button>
+        {watchlistDisabled && disabledHint ? (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>{watchlistButton}</TooltipTrigger>
+              <TooltipContent>{disabledHint}</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        ) : (
+          watchlistButton
+        )}
       </div>
 
       {/* Content */}

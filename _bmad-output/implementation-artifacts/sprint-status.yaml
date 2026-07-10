@@ -162,7 +162,7 @@ development_status:
   5-1-add-event-to-watchlist: done
   5-2-remove-event-from-watchlist: done
   5-3-view-watchlist-page: done
-  5-4-offline-watchlist-access: backlog
+  5-4-offline-watchlist-access: done
   5-5-watchlist-sync-across-devices: backlog
   5-6-schedule-change-notifications: backlog
   epic-5-retrospective: optional
