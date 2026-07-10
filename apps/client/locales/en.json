@@ -613,5 +613,11 @@
       "EMAIL_CHANGE_TOKEN_EXPIRED": "This confirmation link has expired. Please request a new email change.",
       "unexpectedError": "Something went wrong. Please try again later."
     }
+  },
+  "watchlist": {
+    "addSuccess": "Added to your watchlist",
+    "queued": "Saved — it will sync once you're back online",
+    "loginRequired": "Sign in to save this event",
+    "error": "Something went wrong. Please try again."
   }
 }

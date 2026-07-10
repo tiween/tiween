@@ -12,6 +12,9 @@ const ALLOWED_STRAPI_ENDPOINTS: Record<string, string[]> = {
     "api/auth/local",
     // Allow specific providers callbacks if needed
     // "api/auth/[provider]/callback",
+    // Watchlist reads (Story 5.1). `startsWith` covers the list root and the
+    // per-item `check/:id` probe. Every watchlist route is JWT-self-scoped.
+    "api/user-engagement/watchlist",
   ],
   POST: [
     "api/subscribers",
@@ -24,6 +27,11 @@ const ALLOWED_STRAPI_ENDPOINTS: Record<string, string[]> = {
     // Avatar upload (Story 4.4). The uploaded file is linked self-scoped via
     // PUT api/users/me — never with a `ref`/`refId` on the upload itself.
     "api/upload",
+    // Watchlist add (Story 5.1). NOTE: this `startsWith` prefix also reaches
+    // `.../watchlist/toggle` (which can remove) — acceptable because every
+    // watchlist route is JWT-self-scoped and no Story 5.1 UI path invokes
+    // toggle. Hard remove (DELETE) stays blocked until Story 5.2.
+    "api/user-engagement/watchlist",
   ],
   // Self-scoped profile update only. `api/users` is intentionally NOT listed —
   // that would expose the stock `PUT api/users/:id` (arbitrary id + fields).

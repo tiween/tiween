@@ -52,6 +52,12 @@ export interface FilmHeroProps {
   isWatchlisted?: boolean
   /** Called when watchlist button is clicked */
   onWatchlist?: () => void
+  /**
+   * Disables the watchlist control (e.g. the event has no film / creative-work
+   * to save). A disabled control is non-interactive and announces no actionable
+   * add/remove label.
+   */
+  watchlistDisabled?: boolean
   /** Called when share button is clicked */
   onShare?: () => void
   /** Aspect ratio mode: "portrait" (4:5 mobile), "landscape" (16:9 desktop), "auto" (responsive) */
@@ -107,6 +113,7 @@ export function FilmHero({
   event,
   isWatchlisted = false,
   onWatchlist,
+  watchlistDisabled = false,
   onShare,
   aspectMode = "auto",
   className,
@@ -114,9 +121,30 @@ export function FilmHero({
 }: FilmHeroProps) {
   const badgeVariant = categoryVariants[event.category] || "secondary"
 
+  // Pulse ONLY on a user-initiated add, never on the async `useWatchlistCheck`
+  // hydration (which flips `isWatchlisted` false→true on page load for an
+  // already-saved event). `justClickedRef` is set on click and consumed when the
+  // false→true transition fires, so the "just added" pulse reflects a real tap.
+  const [showPulse, setShowPulse] = React.useState(false)
+  const prevWatchlisted = React.useRef(isWatchlisted)
+  const justClickedRef = React.useRef(false)
+
+  React.useEffect(() => {
+    const wasWatchlisted = prevWatchlisted.current
+    prevWatchlisted.current = isWatchlisted
+    if (isWatchlisted && !wasWatchlisted && justClickedRef.current) {
+      justClickedRef.current = false
+      setShowPulse(true)
+      const timer = setTimeout(() => setShowPulse(false), 300)
+      return () => clearTimeout(timer)
+    }
+  }, [isWatchlisted])
+
   // Handle button clicks without bubbling
   const handleWatchlistClick = (e: React.MouseEvent) => {
     e.stopPropagation()
+    if (watchlistDisabled) return
+    justClickedRef.current = true
     onWatchlist?.()
   }
 
@@ -200,10 +228,17 @@ export function FilmHero({
         <button
           type="button"
           onClick={handleWatchlistClick}
+          disabled={watchlistDisabled}
+          aria-disabled={watchlistDisabled}
+          // No actionable add/remove label when disabled (nothing to save).
           aria-label={
-            isWatchlisted ? labels.removeFromWatchlist : labels.addToWatchlist
+            watchlistDisabled
+              ? undefined
+              : isWatchlisted
+                ? labels.removeFromWatchlist
+                : labels.addToWatchlist
           }
-          aria-pressed={isWatchlisted}
+          aria-pressed={watchlistDisabled ? undefined : isWatchlisted}
           className={cn(
             // Size - minimum 44x44px touch target
             "flex h-11 w-11 items-center justify-center",
@@ -216,7 +251,11 @@ export function FilmHero({
             // Focus styles
             "focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none",
             // Active state
-            "active:scale-95"
+            "active:scale-95",
+            // Disabled affordance
+            watchlistDisabled && "cursor-not-allowed opacity-50 hover:bg-black/50",
+            // Pulse only on a user-initiated add (see justClickedRef above)
+            showPulse && "animate-watchlist-pulse"
           )}
         >
           <Heart

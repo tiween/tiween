@@ -4,6 +4,7 @@ import type { StrapiCreativeWork, StrapiEvent } from "../types/strapi.types"
 
 import {
   deriveScreeningFormats,
+  getEventFilm,
   getEventPosterUrl,
   getEventStartDate,
   getEventVenueName,
@@ -42,6 +43,37 @@ function makeEvent(partial: Partial<StrapiEvent> = {}): StrapiEvent {
     ...partial,
   }
 }
+
+describe("getEventFilm", () => {
+  it("returns the film documentId for an event whose screening carries a movie", () => {
+    const film: StrapiCreativeWork = {
+      id: 500,
+      documentId: "cw-le-voyage",
+      title: "Le Voyage",
+      type: "movie",
+    }
+    const event = makeEvent({
+      screenings: [
+        { id: 100, price: 12, ticketsAvailable: 40, ticketsSold: 60 },
+        {
+          id: 101,
+          price: 9,
+          ticketsAvailable: 20,
+          ticketsSold: 5,
+          movie: film,
+        },
+      ],
+    })
+
+    expect(getEventFilm(event)?.documentId).toBe("cw-le-voyage")
+  })
+
+  it("returns undefined for a filmless event (no screening carries a movie)", () => {
+    // The default makeEvent screenings have no `movie` populated (browse shape).
+    expect(getEventFilm(makeEvent())).toBeUndefined()
+    expect(getEventFilm(makeEvent({ screenings: [] }))).toBeUndefined()
+  })
+})
 
 describe("mapEventCategoryLabel", () => {
   it("maps the real category enum to a display label", () => {

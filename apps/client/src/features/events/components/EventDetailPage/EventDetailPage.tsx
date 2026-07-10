@@ -24,9 +24,11 @@ import { Separator } from "@/components/ui/separator"
 
 import type { DirectionsPlatform } from "../../utils"
 
+import { useAddToWatchlist } from "../../hooks/useAddToWatchlist"
 import {
   buildDirectionsUrl,
   buildEventShareUrl,
+  getEventFilm,
   platformFromUserAgent,
   shouldFallbackAfterShareError,
   toEventCardEvent,
@@ -115,8 +117,6 @@ export interface EventDetailPageProps {
   event: StrapiEvent
   /** Related events */
   relatedEvents?: StrapiEvent[]
-  /** Whether the event is in user's watchlist */
-  isWatchlisted?: boolean
   /** Localized labels (threaded from the route via next-intl) */
   labels?: EventDetailPageLabels
 }
@@ -136,13 +136,16 @@ export interface EventDetailPageProps {
 export function EventDetailPage({
   event,
   relatedEvents = [],
-  isWatchlisted = false,
   labels = defaultLabels,
 }: EventDetailPageProps) {
   const router = useRouter()
   const locale = useLocale()
   const isRTL = locale === "ar"
-  const [watchlisted, setWatchlisted] = React.useState(isWatchlisted)
+  // Watchlist state is now server-backed (Story 5.1): the creative-work id comes
+  // from the event's film (`screenings[0].movie`). `canWatchlist` is false when
+  // the event has no film id, which disables the heart.
+  const { isWatchlisted, add: handleWatchlist, canWatchlist } =
+    useAddToWatchlist(getEventFilm(event)?.documentId)
   const [synopsisExpanded, setSynopsisExpanded] = React.useState(false)
   // Resolve the maps platform after mount (navigator is client-only) so the
   // initial SSR/hydration render defaults to Google, then upgrades on Apple.
@@ -212,11 +215,6 @@ export function EventDetailPage({
     }
   }
 
-  const handleWatchlist = () => {
-    // Local-only until auth (Epic 4) / watchlist persistence (Epic 5).
-    setWatchlisted((prev) => !prev)
-  }
-
   const handleShowtimeSelect = (screeningId: string) => {
     // Begin ticket purchase at the ticketing entrypoint (the flow is Epic 6).
     router.push(`/${locale}/tickets/${event.documentId}/${screeningId}`)
@@ -244,8 +242,9 @@ export function EventDetailPage({
           // A detail page is inherently one venue (shown in its own section
           // below), so drop the browse-oriented venue-count badge.
           event={{ ...heroEvent, venueCount: undefined }}
-          isWatchlisted={watchlisted}
+          isWatchlisted={isWatchlisted}
           onWatchlist={handleWatchlist}
+          watchlistDisabled={!canWatchlist}
           onShare={handleShare}
           labels={{
             addToWatchlist: labels.addToWatchlist,

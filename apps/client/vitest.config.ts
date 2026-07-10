@@ -69,6 +69,10 @@ export default defineConfig({
     },
     include: [
       "src/features/events/utils/**/*.test.ts",
+      // Watchlist add/sync hooks (Story 5.1).
+      "src/features/events/hooks/**/*.test.ts",
+      // FilmHero disabled/pulse behavior (Story 5.1).
+      "src/features/events/components/FilmHero/**/*.test.tsx",
       "src/features/events/filters/**/*.test.ts",
       "src/features/events/components/EventDateFilter/**/*.test.tsx",
       "src/features/events/components/EventLocationFilter/**/*.test.tsx",

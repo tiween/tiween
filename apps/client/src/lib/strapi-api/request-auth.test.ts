@@ -45,3 +45,28 @@ describe("isStrapiEndpointAllowed (Story 4.4 profile endpoints)", () => {
     expect(isStrapiEndpointAllowed("api/upload", "PUT")).toBe(false)
   })
 })
+
+describe("isStrapiEndpointAllowed (Story 5.1 watchlist endpoints)", () => {
+  beforeEach(() => vi.clearAllMocks())
+
+  it("allows the watchlist GET (list + check/:id via startsWith)", () => {
+    expect(
+      isStrapiEndpointAllowed("api/user-engagement/watchlist", "GET")
+    ).toBe(true)
+    expect(
+      isStrapiEndpointAllowed("api/user-engagement/watchlist/check/cw-1", "GET")
+    ).toBe(true)
+  })
+
+  it("allows the watchlist POST (add + toggle via startsWith)", () => {
+    expect(
+      isStrapiEndpointAllowed("api/user-engagement/watchlist", "POST")
+    ).toBe(true)
+  })
+
+  it("keeps the watchlist DELETE (hard remove) blocked until Story 5.2", () => {
+    expect(
+      isStrapiEndpointAllowed("api/user-engagement/watchlist/cw-1", "DELETE")
+    ).toBe(false)
+  })
+})

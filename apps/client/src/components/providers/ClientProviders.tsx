@@ -6,6 +6,7 @@ import { SessionProvider, signOut, useSession } from "next-auth/react"
 import { ThemeProvider } from "next-themes"
 import { z } from "zod"
 
+import { useWatchlistSync } from "@/features/events/hooks/useWatchlistSync"
 import { setupLibraries } from "@/lib/general-helpers"
 import { useTranslatedZod } from "@/hooks/useTranslatedZod"
 
@@ -31,12 +32,23 @@ export function ClientProviders({
           forcedTheme="light"
         >
           <QueryClientProvider client={queryClient}>
+            {/* Auth-gated, per-user offline pending-add drain (Story 5.1). Sits
+                inside QueryClientProvider (react-query) and SessionProvider
+                (NextAuth), so `useSession` + mutations resolve regardless of
+                route. */}
+            <WatchlistSyncMount />
             {children}
           </QueryClientProvider>
         </ThemeProvider>
       </TokenProvider>
     </SessionProvider>
   )
+}
+
+/** Mounts the app-wide watchlist reconnect drain (renders nothing). */
+function WatchlistSyncMount() {
+  useWatchlistSync()
+  return null
 }
 
 function TokenProvider({ children }: { readonly children: React.ReactNode }) {
