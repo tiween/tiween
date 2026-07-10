@@ -1,4 +1,5 @@
 import type { Core } from "@strapi/strapi"
+import type { TicketTierOut } from "./ticket-tiers"
 
 const PLUGIN_ID = "events-manager"
 const EVENT_UID = `plugin::${PLUGIN_ID}.event` as const
@@ -21,6 +22,19 @@ interface SubEventInventory {
   documentId: string
   ticketsSold: number
   ticketsAvailable: number
+}
+
+/**
+ * Ownership + pricing context for a sub-event, returned to ticketing checkout
+ * (Story 6.3). `eventId` is the parent event documentId used for the
+ * sub-event↔event ownership guard; `tiers` is the authoritative price/type
+ * catalog for server-trusted pricing.
+ */
+export interface SubEventCheckoutContext {
+  subEventId: string
+  kind: SubEventKind
+  eventId: string | null
+  tiers: TicketTierOut[]
 }
 
 /** Per-creative-work screening enrichment returned by findScreeningInfoByMovies. */
@@ -112,6 +126,42 @@ const publicApiService = ({ strapi }: { strapi: Core.Strapi }) => ({
       status: "published",
       data: { ticketsSold: nextSold },
     })
+  },
+
+  /**
+   * Resolve a sub-event's checkout context (Story 6.3): the parent event id
+   * (for the ownership guard) plus its authoritative ticket tiers (for
+   * server-trusted pricing). Reuses the plugin's own `ticket-tiers` read for
+   * the catalog and reads the sub-event's `event` relation for ownership — all
+   * within events-manager (no foreign UID). Returns `null` when no published
+   * sub-event of the given kind matches.
+   */
+  async getSubEventContext(
+    subEventId: string,
+    kind: SubEventKind
+  ): Promise<SubEventCheckoutContext | null> {
+    const tiersResult = await strapi
+      .plugin(PLUGIN_ID)
+      .service("ticket-tiers")
+      .findSubEventTicketTiers(subEventId, kind)
+
+    if (!tiersResult) {
+      return null
+    }
+
+    const uid = SUB_EVENT_UIDS[kind]
+    const subEvent = (await strapi.documents(uid).findOne({
+      documentId: subEventId,
+      status: "published",
+      populate: { event: { fields: ["documentId"] } },
+    } as never)) as { event?: { documentId?: string } | null } | null
+
+    return {
+      subEventId,
+      kind,
+      eventId: subEvent?.event?.documentId ?? null,
+      tiers: tiersResult.tiers,
+    }
   },
 
   /**

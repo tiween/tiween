@@ -165,7 +165,11 @@ development_status:
   5-4-offline-watchlist-access: done
   5-5-watchlist-sync-across-devices: done
   5-6-schedule-change-notifications: done
-  epic-5-retrospective: optional
+  # 5-7 / 5-8: watchlist-hardening stories promoted from the Epic 5 retrospective
+  # (epic-5-retro-2026-07-10.md). Critical-path — should run before Epic 6 ticketing.
+  5-7-watchlist-atomic-dedupe: ready-for-dev
+  5-8-user-scoped-watchlist-cache: ready-for-dev
+  epic-5-retrospective: done
 
   # Epic 6: B2C Ticketing & Purchases
   epic-6: backlog
@@ -225,3 +229,34 @@ development_status:
   10-7-install-prompts: backlog
   10-8-offline-status-indicators: backlog
   epic-10-retrospective: optional
+
+last_updated: 2026-07-10
+
+# Action items from retrospectives. See epic-{N}-retro-{date}.md for full context.
+action_items:
+  - epic: 5
+    action: "CRITICAL PATH: Add unique (user, creativeWork) constraint + atomic upsert on the watchlist add path; establishes the oversell-proof atomic-write pattern Epic 6 ticketing inherits."
+    owner: "Dev"
+    status: specced
+    story: "5-7-watchlist-atomic-dedupe"
+  - epic: 5
+    action: "CRITICAL PATH: Replace the non-user-scoped react-query key ['watchlist','list'] with a user-scoped key + logout clear; closes cross-user/shared-device watchlist persistence."
+    owner: "Dev"
+    status: specced
+    story: "5-8-user-scoped-watchlist-cache"
+  - epic: 5
+    action: "CRITICAL PATH: Refresh project-context.md to match the codebase (Next.js 16.1, Brevo email provider, react-query) before Epic 6 dev agents run."
+    owner: "Dev"
+    status: done
+  - epic: 5
+    action: "Add an i18n Western-numeral guard (shared formatter or lint rule) so the Arabic ar-u-nu-latn bug cannot recur (seen in 5.4 and 5.5)."
+    owner: "Dev"
+    status: open
+  - epic: 5
+    action: "Add a repo-hygiene CI guard rejecting non-UTF-8 / control-byte source files (a binary email source in 5.6 hid from two review passes)."
+    owner: "Dev"
+    status: open
+  - epic: 5
+    action: "Decide and adopt a lightweight integration-seam test tier for wiring/mount-site verification (EventDetailPage heart, BottomNav badge mounts)."
+    owner: "Dev"
+    status: open

@@ -1,0 +1,16 @@
+{
+  "name": "payments",
+  "version": "1.0.0",
+  "description": "Konnect payment gateway integration (Anti-Corruption Layer) for Tiween",
+  "license": "MIT",
+  "strapi": {
+    "displayName": "Payments",
+    "name": "payments",
+    "description": "Integrate with the Konnect Network API for hosted payments",
+    "kind": "plugin",
+    "required": false
+  },
+  "peerDependencies": {
+    "@strapi/strapi": "^5.0.0"
+  }
+}

@@ -1,7 +1,7 @@
 ---
 project_name: "tiween"
 user_name: "Ayoub"
-date: "2025-12-26"
+date: "2026-07-10"
 sections_completed: ["all"]
 status: "complete"
 ---
@@ -16,14 +16,14 @@ _This file contains critical rules and patterns that AI agents must follow when 
 
 | Category           | Technology           | Version     | Notes                                     |
 | ------------------ | -------------------- | ----------- | ----------------------------------------- |
-| **Frontend**       | Next.js (App Router) | 15.x        | Use RSC by default                        |
+| **Frontend**       | Next.js (App Router) | 16.x        | Turbopack; React 19; use RSC by default   |
 | **Backend**        | Strapi               | v5.x        | Document Service API (not Entity Service) |
 | **Language**       | TypeScript           | strict mode | No `any` types                            |
 | **Styling**        | Tailwind CSS         | v4          | Use `@theme` directive                    |
 | **Components**     | shadcn/ui            | latest      | Copy model, not npm package               |
 | **State (client)** | Zustand              | latest      | With devtools + persist                   |
-| **State (server)** | SWR                  | latest      | For Strapi data fetching                  |
-| **Auth**           | NextAuth.js          | latest      | JWT strategy                              |
+| **State (server)** | TanStack Query       | v5          | react-query; for Strapi data fetching     |
+| **Auth**           | NextAuth.js          | v4          | JWT strategy                              |
 | **i18n**           | next-intl            | latest      | AR/FR/EN locales                          |
 | **PWA**            | Serwist              | latest      | next-pwa successor                        |
 | **Testing**        | Vitest + Playwright  | latest      | Co-located tests                          |
@@ -86,12 +86,16 @@ export const useXxxStore = create<XxxStore>()(
 )
 ```
 
-**SWR Hooks:**
+**TanStack Query (react-query) Hooks:**
 
 ```typescript
-// ALWAYS use array keys for cache invalidation
-const { data } = useSWR(["events", filters], fetcher)
+// ALWAYS use array query keys for cache invalidation
+const { data } = useQuery({ queryKey: ["events", filters], queryFn: fetcher })
 ```
+
+Note: use **user-scoped query keys** for per-user data (e.g. `["watchlist", "list", userId]`),
+never a shared singleton key — a bare `["watchlist","list"]` leaks one user's data across
+accounts on a shared device. Clear the cache on logout.
 
 ### Error Handling Rules
 
@@ -198,13 +202,13 @@ apps/client/src/
 
 ## External Service Integration
 
-| Service      | Usage     | Integration Point              |
-| ------------ | --------- | ------------------------------ |
-| **Konnect**  | Payments  | `lib/api/konnect.ts` + webhook |
-| **Algolia**  | Search    | `lib/api/algolia.ts`           |
-| **ImageKit** | Media CDN | Strapi upload provider         |
-| **Resend**   | Email     | Strapi email plugin            |
-| **Sentry**   | Errors    | Both apps configured           |
+| Service      | Usage     | Integration Point                                          |
+| ------------ | --------- | ---------------------------------------------------------- |
+| **Konnect**  | Payments  | `lib/api/konnect.ts` + webhook                             |
+| **Algolia**  | Search    | `lib/api/algolia.ts`                                       |
+| **ImageKit** | Media CDN | Strapi upload provider                                     |
+| **Brevo**    | Email     | Strapi email plugin (`@ayhid/strapi-provider-email-brevo`) |
+| **Sentry**   | Errors    | Both apps configured                                       |
 
 ---
 

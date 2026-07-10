@@ -109,7 +109,12 @@
       "Bash(rm -rf apps/strapi/dist apps/strapi/.strapi)",
       "Bash(awk '/export interface PluginVenuesVenue/,/^}/' types/generated/contentTypes.d.ts)",
       "Bash(asdf install *)",
-      "Bash(bmad-loop resume *)"
+      "Bash(bmad-loop resume *)",
+      "Bash(grep -h '\"next\"' apps/client/package.json)",
+      "Bash(grep -hE '\"react\"|\"react-dom\"' apps/client/package.json)",
+      "Bash(grep -hiE '\"\\(swr|zustand|@tanstack/react-query|react-query|jotai|next-intl|next-auth\\)\"' apps/client/package.json)",
+      "Bash(grep -rhiE 'strapi-provider-email|resend|brevo' apps/strapi/package.json)",
+      "Bash(grep -hiE '\"\\(algoliasearch|@algolia|meilisearch\\)\"' apps/client/package.json apps/strapi/package.json)"
     ]
   },
   "enabledMcpjsonServers": [

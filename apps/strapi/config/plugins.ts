@@ -123,6 +123,14 @@ export default ({ env }) => {
       resolve: "./src/plugins/ticketing",
     },
 
+    // Payments plugin - Konnect payment gateway ACL (Story 6.3, arch D5).
+    // Owns no content types; ticketing calls it via payments.public-api.
+    // Depends on nothing (R5).
+    payments: {
+      enabled: true,
+      resolve: "./src/plugins/payments",
+    },
+
     // User Engagement plugin - watchlists (depends on creative-works)
     "user-engagement": {
       enabled: true,

@@ -1,11 +1,31 @@
 import type { Core } from "@strapi/strapi"
 
 import { validate } from "../../../../../shared/validation"
-import { createOrderSchema } from "../validation/order"
+import { checkoutSchema, createOrderSchema } from "../validation/order"
 
 const PLUGIN_ID = "ticketing"
 const ORDER_UID = `plugin::${PLUGIN_ID}.ticket-order`
 const TICKET_UID = `plugin::${PLUGIN_ID}.ticket`
+
+/** Error code: sub-event does not belong to the event, or price/type mismatch. */
+export const INVALID_ORDER = "INVALID_ORDER"
+/** Error code: Konnect init failed / timed out (order rolled back to failed). */
+export const KONNECT_UNAVAILABLE = "KONNECT_UNAVAILABLE"
+
+/** Terminal payment states reconciliation must not re-apply. */
+const TERMINAL_STATUSES = new Set(["paid", "failed", "refunded"])
+
+/** Client app base URL for building same-origin redirect result URLs. */
+const CLIENT_BASE_URL = (
+  process.env.KONNECT_CLIENT_URL ||
+  process.env.CLIENT_URL ||
+  "http://localhost:3000"
+).replace(/\/$/, "")
+
+/** Attach a stable error CODE to a thrown Error (mirrors adjustInventory). */
+function codedError(message: string, code: string): Error {
+  return Object.assign(new Error(message), { code })
+}
 
 /** Sub-event kind accepted by the events-manager public-api facade. */
 type SubEventKind = "screening" | "performance"
@@ -128,6 +148,212 @@ const orderService = ({ strapi }: { strapi: Core.Strapi }) => ({
       documentId: orderId,
       data: updateData,
     })
+  },
+
+  /**
+   * Full checkout Unit of Work (Story 6.3).
+   *
+   * 1. Validate + server-trust pricing: re-derive each ticket's price/type
+   *    against the authoritative events-manager tiers and enforce the
+   *    sub-event↔event ownership guard (`INVALID_ORDER`).
+   * 2. `createOrder` (reserves inventory atomically, writes a `pending` order).
+   * 3. `payments.public-api.initPayment` (R3 — the only ticketing→payments
+   *    edge) → `{ payUrl, paymentRef }`; persist `paymentReference` +
+   *    `paymentMethod`.
+   * 4. On init failure/timeout: release the reserved inventory exactly once and
+   *    mark the order `failed`, then rethrow `KONNECT_UNAVAILABLE`.
+   *
+   * `userId` is taken only from the (already server-validated) `input.userId`
+   * the controller derived from the JWT — never trusted from the raw body.
+   */
+  async initCheckout(input: unknown): Promise<{
+    orderNumber: string
+    payUrl: string
+  }> {
+    const data = validate(checkoutSchema, input)
+
+    const subEvent: SubEvent = data.screeningId
+      ? { kind: "screening", documentId: data.screeningId }
+      : { kind: "performance", documentId: data.performanceId as string }
+
+    const eventsApi = strapi.plugin("events-manager").service("public-api")
+
+    // (1) Ownership guard + server-trusted pricing.
+    const context = await eventsApi.getSubEventContext(
+      subEvent.documentId,
+      subEvent.kind
+    )
+    if (!context || context.eventId !== data.eventId) {
+      throw codedError(
+        "Sub-event does not belong to the given event",
+        INVALID_ORDER
+      )
+    }
+    for (const ticket of data.tickets) {
+      const tier = context.tiers.find(
+        (t: { type: string; price: number }) => t.type === ticket.type
+      )
+      if (!tier || tier.price !== ticket.price) {
+        throw codedError(
+          `Ticket price/type mismatch for "${ticket.type}"`,
+          INVALID_ORDER
+        )
+      }
+    }
+
+    // (2) Reserve inventory + write the pending order (existing Unit of Work).
+    const guestName = data.userId
+      ? undefined
+      : `${data.firstName} ${data.lastName}`.trim()
+    const { order } = await this.createOrder({
+      userId: data.userId,
+      guestEmail: data.userId ? undefined : data.email,
+      guestName,
+      eventId: data.eventId,
+      screeningId: data.screeningId,
+      performanceId: data.performanceId,
+      tickets: data.tickets,
+    })
+
+    // (3) Initialize the hosted Konnect payment (only ticketing→payments edge).
+    const locale = data.locale ?? "fr"
+    const resultPath = `${CLIENT_BASE_URL}/${locale}/tickets/${data.eventId}/${subEvent.documentId}/payment/result`
+    const orderRef = encodeURIComponent(order.orderNumber)
+
+    try {
+      const { payUrl, paymentRef } = await strapi
+        .plugin("payments")
+        .service("public-api")
+        .initPayment({
+          orderNumber: order.orderNumber,
+          amountTND: order.totalAmount,
+          currency: order.currency,
+          methods: [data.paymentMethod],
+          customer: {
+            firstName: data.firstName,
+            lastName: data.lastName,
+            email: data.email,
+            phone: data.phone,
+          },
+          successUrl: `${resultPath}?order=${orderRef}&status=success`,
+          failUrl: `${resultPath}?order=${orderRef}&status=fail`,
+        })
+
+      // Persist the Konnect reference + chosen method (order stays `pending`).
+      await strapi.documents(ORDER_UID).update({
+        documentId: order.documentId,
+        data: {
+          paymentReference: paymentRef,
+          paymentMethod: data.paymentMethod,
+        },
+      })
+
+      return { orderNumber: order.orderNumber, payUrl }
+    } catch (err) {
+      // (4) Compensate: release the reservation once, mark the order failed.
+      await this.releaseInventory(subEvent, data.tickets.length)
+      try {
+        await this.updatePaymentStatus(order.documentId, "failed")
+      } catch (markErr) {
+        strapi.log.error(
+          `[ticketing] failed to mark order ${order.orderNumber} failed: ${(markErr as Error)?.message}`
+        )
+      }
+      strapi.log.error(
+        `[ticketing] Konnect init failed for order ${order.orderNumber}: ${(err as Error)?.message}`
+      )
+      throw codedError("Payment gateway is unavailable", KONNECT_UNAVAILABLE)
+    }
+  },
+
+  /**
+   * Idempotent gateway reconciliation (Story 6.3), shared by the webhook
+   * backstop and the client-triggered confirm.
+   *
+   * Skips orders already in a terminal state (paid/failed/refunded) so a
+   * repeated webhook + confirm never double-applies. Otherwise re-queries the
+   * AUTHORITATIVE Konnect status via `payments.public-api.getPaymentStatus`
+   * (never trusts a webhook body) and, on:
+   *  - `paid`   → sets `paid` + `purchasedAt`;
+   *  - `failed` → sets `failed` and releases the reserved inventory exactly once;
+   *  - `pending`→ leaves the order untouched.
+   */
+  async reconcileFromGateway(orderNumber: string): Promise<{
+    orderNumber: string
+    status: string
+    changed: boolean
+  }> {
+    const order = await this.findByOrderNumber(orderNumber)
+    if (!order) {
+      return { orderNumber, status: "not_found", changed: false }
+    }
+
+    // Idempotency: never re-apply a terminal state.
+    if (TERMINAL_STATUSES.has(order.paymentStatus)) {
+      return { orderNumber, status: order.paymentStatus, changed: false }
+    }
+    if (!order.paymentReference) {
+      return { orderNumber, status: order.paymentStatus, changed: false }
+    }
+
+    const { status } = await strapi
+      .plugin("payments")
+      .service("public-api")
+      .getPaymentStatus(order.paymentReference)
+
+    if (status === "paid") {
+      await this.updatePaymentStatus(
+        order.documentId,
+        "paid",
+        order.paymentReference
+      )
+      return { orderNumber, status: "paid", changed: true }
+    }
+
+    if (status === "failed") {
+      await this.updatePaymentStatus(order.documentId, "failed")
+      const subEvent = this.resolveSubEventFromOrder(order)
+      if (subEvent) {
+        const qty = Array.isArray(order.tickets) ? order.tickets.length : 0
+        await this.releaseInventory(subEvent, qty)
+      }
+      return { orderNumber, status: "failed", changed: true }
+    }
+
+    return { orderNumber, status: "pending", changed: false }
+  },
+
+  /**
+   * Release reserved inventory for a sub-event by `qty` (negative delta).
+   * A no-op when `qty <= 0`. Failures are logged, not thrown, so a compensation
+   * path can still mark the order failed.
+   */
+  async releaseInventory(subEvent: SubEvent, qty: number): Promise<void> {
+    if (!qty || qty <= 0) return
+    try {
+      await strapi
+        .plugin("events-manager")
+        .service("public-api")
+        .adjustInventory(subEvent.documentId, subEvent.kind, -qty)
+    } catch (err) {
+      strapi.log.error(
+        `[ticketing] failed to release inventory for ${subEvent.kind} ${subEvent.documentId}: ${(err as Error)?.message}`
+      )
+    }
+  },
+
+  /** Resolve the sub-event a (populated) order targets, or null. */
+  resolveSubEventFromOrder(order: {
+    screening?: { documentId?: string } | null
+    performance?: { documentId?: string } | null
+  }): SubEvent | null {
+    if (order.screening?.documentId) {
+      return { kind: "screening", documentId: order.screening.documentId }
+    }
+    if (order.performance?.documentId) {
+      return { kind: "performance", documentId: order.performance.documentId }
+    }
+    return null
   },
 
   /**
