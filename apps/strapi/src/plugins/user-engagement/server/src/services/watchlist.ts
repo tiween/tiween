@@ -52,13 +52,58 @@ const watchlistService = ({ strapi }: { strapi: Core.Strapi }) => ({
   },
 
   /**
-   * Get user's watchlist
+   * Get user's watchlist, enriched with each saved creative-work's next/last
+   * screening date + venue (Story 5.3).
+   *
+   * The enrichment is the first sanctioned `user-engagement -> events-manager`
+   * cross-plugin edge: it reaches events-manager ONLY through the named
+   * `public-api` facade (`strapi.plugin("events-manager").service("public-api")`)
+   * — never a foreign-UID Document Service call from here. Wrapped in try/catch
+   * so an events-manager fault degrades gracefully: the list still returns
+   * (rows with all-null enrichment) instead of a 500.
    */
   async getUserWatchlist(userId: string) {
-    return strapi.documents(WATCHLIST_UID).findMany({
+    const rows = await strapi.documents(WATCHLIST_UID).findMany({
       filters: { user: { documentId: userId } } as any,
       populate: ["creativeWork"],
       sort: { addedAt: "desc" },
+    })
+
+    const ids = rows
+      .map((row: any) => row.creativeWork?.documentId)
+      .filter(Boolean) as string[]
+
+    let enrichment: Record<
+      string,
+      {
+        nextScreeningDate: string | null
+        lastScreeningDate: string | null
+        venueName: string | null
+      }
+    > = {}
+
+    if (ids.length > 0) {
+      try {
+        enrichment = await strapi
+          .plugin("events-manager")
+          .service("public-api")
+          .findScreeningInfoByMovies(ids, new Date().toISOString())
+      } catch (error) {
+        strapi.log.error(
+          `[user-engagement] watchlist enrichment failed: ${error}`
+        )
+        enrichment = {}
+      }
+    }
+
+    return rows.map((row: any) => {
+      const info = enrichment[row.creativeWork?.documentId] ?? {}
+      return {
+        ...row,
+        nextScreeningDate: info.nextScreeningDate ?? null,
+        lastScreeningDate: info.lastScreeningDate ?? null,
+        venueName: info.venueName ?? null,
+      }
     })
   },
 

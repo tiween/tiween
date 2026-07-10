@@ -148,3 +148,168 @@ describe("public-api.adjustInventory (unit)", () => {
     ).rejects.toThrow(/non-zero integer/)
   })
 })
+
+/**
+ * Unit tests for the Story 5.3 cross-plugin enrichment
+ * `findScreeningInfoByMovies` (mocked Strapi).
+ *
+ * The method runs ONE event-side query (`screenings.movie.documentId $in`) and
+ * folds each matched screening's `movie.documentId` into a record tracking the
+ * earliest upcoming (`>= now`) and latest past (`< now`) event, attributing the
+ * chosen event's venue. `now` is an argument (not read internally) so bucketing
+ * is deterministic. We lock:
+ *  - empty ids short-circuits to `{}` without hitting the Document Service
+ *  - mixed past/future events → earliest-future `nextScreeningDate`, latest-past
+ *    `lastScreeningDate`, and `venueName` from the upcoming event
+ *  - a past-only movie → `next=null`, `last=<latest past>`, venue from that past
+ *  - an id with no events is absent from the record
+ *  - one event referencing two saved movies keys BOTH
+ */
+interface EnrichDocApiMock {
+  findMany: jest.Mock
+}
+
+const NOW = "2026-07-10T00:00:00.000Z"
+const iso = (isoStr: string) => isoStr
+
+function buildEnrichStrapi(events: unknown[]) {
+  const docApi: EnrichDocApiMock = {
+    findMany: jest.fn(async () => events),
+  }
+  const strapi: any = {
+    documents: jest.fn(() => docApi),
+  }
+  return { strapi, docApi }
+}
+
+describe("public-api.findScreeningInfoByMovies (unit)", () => {
+  it("returns {} and does NOT hit the Document Service for empty ids", async () => {
+    const { strapi, docApi } = buildEnrichStrapi([])
+    const service = publicApiService({ strapi })
+
+    const result = await service.findScreeningInfoByMovies([], NOW)
+
+    expect(result).toEqual({})
+    expect(docApi.findMany).not.toHaveBeenCalled()
+  })
+
+  it("queries published events by screenings.movie.documentId $in", async () => {
+    const { strapi, docApi } = buildEnrichStrapi([])
+    const service = publicApiService({ strapi })
+
+    await service.findScreeningInfoByMovies(["A", "B"], NOW)
+
+    expect(strapi.documents).toHaveBeenCalledWith(
+      "plugin::events-manager.event"
+    )
+    expect(docApi.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        status: "published",
+        filters: {
+          screenings: { movie: { documentId: { $in: ["A", "B"] } } },
+        },
+        sort: "startDateTime:asc",
+      })
+    )
+  })
+
+  it("picks earliest-future next, latest-past last, and the upcoming venue", async () => {
+    const events = [
+      {
+        startDateTime: iso("2026-07-08T00:00:00.000Z"), // now-2d
+        venue: { name: "Past Venue" },
+        screenings: [{ movie: { documentId: "A" } }],
+      },
+      {
+        startDateTime: iso("2026-07-13T00:00:00.000Z"), // now+3d
+        venue: { name: "Next Venue" },
+        screenings: [{ movie: { documentId: "A" } }],
+      },
+      {
+        startDateTime: iso("2026-07-20T00:00:00.000Z"), // now+10d
+        venue: { name: "Later Venue" },
+        screenings: [{ movie: { documentId: "A" } }],
+      },
+    ]
+    const { strapi } = buildEnrichStrapi(events)
+    const service = publicApiService({ strapi })
+
+    const result = await service.findScreeningInfoByMovies(["A"], NOW)
+
+    expect(result.A).toEqual({
+      nextScreeningDate: "2026-07-13T00:00:00.000Z",
+      lastScreeningDate: "2026-07-08T00:00:00.000Z",
+      venueName: "Next Venue",
+    })
+  })
+
+  it("a past-only movie yields next=null and last=<latest past> with the past venue", async () => {
+    const events = [
+      {
+        startDateTime: iso("2026-07-01T00:00:00.000Z"),
+        venue: { name: "Older Venue" },
+        screenings: [{ movie: { documentId: "B" } }],
+      },
+      {
+        startDateTime: iso("2026-07-05T00:00:00.000Z"), // now-5d, latest past
+        venue: { name: "Recent Past Venue" },
+        screenings: [{ movie: { documentId: "B" } }],
+      },
+    ]
+    const { strapi } = buildEnrichStrapi(events)
+    const service = publicApiService({ strapi })
+
+    const result = await service.findScreeningInfoByMovies(["B"], NOW)
+
+    expect(result.B).toEqual({
+      nextScreeningDate: null,
+      lastScreeningDate: "2026-07-05T00:00:00.000Z",
+      venueName: "Recent Past Venue",
+    })
+  })
+
+  it("omits an id that has no matching event", async () => {
+    const events = [
+      {
+        startDateTime: iso("2026-07-13T00:00:00.000Z"),
+        venue: { name: "Venue A" },
+        screenings: [{ movie: { documentId: "A" } }],
+      },
+    ]
+    const { strapi } = buildEnrichStrapi(events)
+    const service = publicApiService({ strapi })
+
+    const result = await service.findScreeningInfoByMovies(["A", "C"], NOW)
+
+    expect(result.A).toBeDefined()
+    expect(result.C).toBeUndefined()
+  })
+
+  it("keys BOTH movies when one event's screenings reference two saved ids", async () => {
+    const events = [
+      {
+        startDateTime: iso("2026-07-11T00:00:00.000Z"), // now+1d
+        venue: { name: "Shared Venue" },
+        screenings: [
+          { movie: { documentId: "X" } },
+          { movie: { documentId: "Y" } },
+        ],
+      },
+    ]
+    const { strapi } = buildEnrichStrapi(events)
+    const service = publicApiService({ strapi })
+
+    const result = await service.findScreeningInfoByMovies(["X", "Y"], NOW)
+
+    expect(result.X).toEqual({
+      nextScreeningDate: "2026-07-11T00:00:00.000Z",
+      lastScreeningDate: null,
+      venueName: "Shared Venue",
+    })
+    expect(result.Y).toEqual({
+      nextScreeningDate: "2026-07-11T00:00:00.000Z",
+      lastScreeningDate: null,
+      venueName: "Shared Venue",
+    })
+  })
+})

@@ -25,6 +25,15 @@ export interface WatchlistItem {
     }
   }
   addedAt: string
+  /**
+   * Server-side screening enrichment (Story 5.3). Read-only join data merged by
+   * `getUserWatchlist`; never stored on the watchlist row. All nullable — a
+   * saved work with no scheduled events (or a transient events-manager fault)
+   * yields all-null.
+   */
+  nextScreeningDate?: string | null
+  lastScreeningDate?: string | null
+  venueName?: string | null
 }
 
 /**
@@ -50,7 +59,7 @@ export const watchlistKeys = {
  * ```
  */
 export function useWatchlist() {
-  const { data: session, status } = useSession()
+  const { status } = useSession()
   const isAuthenticated = status === "authenticated"
 
   return useQuery({
@@ -86,7 +95,7 @@ export function useWatchlist() {
  * ```
  */
 export function useWatchlistCheck(creativeWorkId: string | undefined) {
-  const { data: session, status } = useSession()
+  const { status } = useSession()
   const isAuthenticated = status === "authenticated"
 
   return useQuery({
@@ -238,7 +247,7 @@ export function useWatchlistMutations() {
  * ```
  */
 export function useWatchlistToggle(creativeWorkId: string | undefined) {
-  const { data: session, status } = useSession()
+  const { status } = useSession()
   const isAuthenticated = status === "authenticated"
 
   const { data: checkData, isLoading: isCheckLoading } =

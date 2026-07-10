@@ -36,22 +36,6 @@ export default async function WatchlistPage({ params }: PageProps) {
     redirect(`/${locale}/auth/signin?callbackUrl=/${locale}/watchlist`)
   }
 
-  const t = await getTranslations({ locale, namespace: "watchlist" })
-
-  const labels = {
-    title: t("title"),
-    subtitle: t("subtitle"),
-    emptyTitle: t("empty.title"),
-    emptyDescription: t("empty.description"),
-    emptyAction: t("empty.action"),
-    removeFromWatchlist: t("removeFromWatchlist"),
-    addToWatchlist: t("addToWatchlist"),
-    priceFrom: (price: string) => t("priceFrom", { price }),
-    browseEvents: t("browseEvents"),
-    loading: t("loading"),
-    error: t("error"),
-    retry: t("retry"),
-  }
-
-  return <WatchlistPageClient labels={labels} locale={locale} />
+  // The client component owns its copy via `useTranslations("watchlist")`.
+  return <WatchlistPageClient locale={locale} />
 }

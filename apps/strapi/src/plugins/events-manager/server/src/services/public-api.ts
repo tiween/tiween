@@ -1,6 +1,7 @@
 import type { Core } from "@strapi/strapi"
 
 const PLUGIN_ID = "events-manager"
+const EVENT_UID = `plugin::${PLUGIN_ID}.event` as const
 
 /**
  * UID map for ticketed sub-events. Keyed by the `kind` discriminator the
@@ -20,6 +21,22 @@ interface SubEventInventory {
   documentId: string
   ticketsSold: number
   ticketsAvailable: number
+}
+
+/** Per-creative-work screening enrichment returned by findScreeningInfoByMovies. */
+export interface ScreeningInfo {
+  nextScreeningDate: string | null
+  lastScreeningDate: string | null
+  venueName: string | null
+}
+
+/** Minimal shape of an enrichment event read (venue + screenings.movie populated). */
+interface EnrichmentEvent {
+  startDateTime?: string | null
+  venue?: { name?: string | null } | null
+  screenings?: Array<{
+    movie?: { documentId?: string | null } | null
+  } | null> | null
 }
 
 /**
@@ -95,6 +112,95 @@ const publicApiService = ({ strapi }: { strapi: Core.Strapi }) => ({
       status: "published",
       data: { ticketsSold: nextSold },
     })
+  },
+
+  /**
+   * Cross-plugin enrichment (Story 5.3): for a set of saved creative-work
+   * documentIds, return each one's soonest-upcoming and most-recent-past
+   * screening date (+ the venue of the chosen event).
+   *
+   * Queried from the EVENT side — a nested `screenings.movie.documentId $in`
+   * relation filter (mirroring the proven `screenings.movie` filter in
+   * `events.ts`) — so the event UID stays owned inside events-manager and
+   * user-engagement never issues a foreign-UID Document Service call. The
+   * caller (`user-engagement.getUserWatchlist`) reaches this ONLY through
+   * `strapi.plugin("events-manager").service("public-api")`.
+   *
+   * `now` is passed in (not read here) so the upcoming/past bucketing is
+   * deterministically unit-testable. Only PUBLISHED events are considered.
+   *
+   * For each referenced saved id we track the earliest event with
+   * `startDateTime >= now` (→ `nextScreeningDate` + that event's venue) and the
+   * latest event with `startDateTime < now` (→ `lastScreeningDate`, contributing
+   * the venue only when there is no upcoming event). A single event's
+   * `screenings` can reference several saved movies, so the event is attributed
+   * to every referenced id. An id with no matching published event is absent
+   * from the returned record (the service merges it to all-null enrichment).
+   */
+  async findScreeningInfoByMovies(
+    creativeWorkIds: string[],
+    now: string
+  ): Promise<Record<string, ScreeningInfo>> {
+    if (creativeWorkIds.length === 0) {
+      return {}
+    }
+
+    const events = (await strapi.documents(EVENT_UID).findMany({
+      status: "published",
+      filters: {
+        screenings: { movie: { documentId: { $in: creativeWorkIds } } },
+      },
+      populate: {
+        venue: true,
+        screenings: { populate: { movie: true } },
+      },
+      sort: "startDateTime:asc",
+    } as never)) as EnrichmentEvent[]
+
+    // Bucket/order by parsed instant, not by raw string: a `startDateTime` stored
+    // with a timezone offset or differing sub-second precision would sort/bucket
+    // wrong under a lexicographic compare. `now` is parsed once. A Set makes the
+    // membership check O(1) per screening.
+    const idSet = new Set(creativeWorkIds)
+    const nowTs = Date.parse(now)
+    const out: Record<string, ScreeningInfo> = {}
+
+    for (const ev of events) {
+      const when = ev.startDateTime
+      const whenTs = when ? Date.parse(when) : NaN
+      if (Number.isNaN(whenTs)) continue
+      const upcoming = whenTs >= nowTs
+      const venueName = ev.venue?.name ?? null
+
+      for (const screening of ev.screenings ?? []) {
+        const id = screening?.movie?.documentId
+        if (!id || !idSet.has(id)) continue
+
+        const cur = (out[id] ??= {
+          nextScreeningDate: null,
+          lastScreeningDate: null,
+          venueName: null,
+        })
+
+        if (upcoming) {
+          if (
+            !cur.nextScreeningDate ||
+            whenTs < Date.parse(cur.nextScreeningDate)
+          ) {
+            cur.nextScreeningDate = when
+            cur.venueName = venueName
+          }
+        } else if (
+          !cur.lastScreeningDate ||
+          whenTs > Date.parse(cur.lastScreeningDate)
+        ) {
+          cur.lastScreeningDate = when
+          if (!cur.nextScreeningDate) cur.venueName = venueName
+        }
+      }
+    }
+
+    return out
   },
 })
 

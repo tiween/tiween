@@ -4,98 +4,92 @@ import * as React from "react"
 import {
   EventCard,
   EventCardSkeleton,
+  type EventCardLabels,
 } from "@/features/events/components/EventCard"
 import {
+  CategoryTabs,
+  type CategoryType,
+} from "@/features/events/components/CategoryTabs"
+import { useRemoveFromWatchlist } from "@/features/events/hooks/useRemoveFromWatchlist"
+import {
   useWatchlist,
-  useWatchlistMutations,
+  watchlistKeys,
 } from "@/features/events/hooks/useWatchlist"
-import { AlertCircle, Film, Heart, Loader2, RefreshCw } from "lucide-react"
+import { mapTypeToCategory } from "@/features/events/utils/categoryMapper"
+import {
+  filterByCategory,
+  partitionWatchlist,
+} from "@/features/events/utils/watchlistView"
+import { useQueryClient } from "@tanstack/react-query"
+import { AlertCircle, Heart, RefreshCw } from "lucide-react"
+import { useTranslations } from "next-intl"
 
 import type { WatchlistItem } from "@/features/events/hooks/useWatchlist"
 
-import { Link, useRouter } from "@/lib/navigation"
-import { cn } from "@/lib/utils"
+import { useRouter } from "@/lib/navigation"
 import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-
-/**
- * Labels for watchlist page
- */
-export interface WatchlistPageLabels {
-  title: string
-  subtitle: string
-  emptyTitle: string
-  emptyDescription: string
-  emptyAction: string
-  removeFromWatchlist: string
-  addToWatchlist: string
-  priceFrom: (price: string) => string
-  browseEvents: string
-  loading: string
-  error: string
-  retry: string
-}
-
-const defaultLabels: WatchlistPageLabels = {
-  title: "Ma liste de suivi",
-  subtitle: "Les événements que vous avez mis de côté",
-  emptyTitle: "Votre liste est vide",
-  emptyDescription:
-    "Ajoutez des événements à votre liste de suivi pour les retrouver facilement.",
-  emptyAction: "Découvrir les événements",
-  removeFromWatchlist: "Retirer de la liste",
-  addToWatchlist: "Ajouter à la liste",
-  priceFrom: (price: string) => `À partir de ${price}`,
-  browseEvents: "Parcourir les événements",
-  loading: "Chargement...",
-  error: "Une erreur est survenue",
-  retry: "Réessayer",
-}
+import { Card, CardContent } from "@/components/ui/card"
+import { EmptyState } from "@/components/common/EmptyState"
 
 export interface WatchlistPageClientProps {
-  labels?: WatchlistPageLabels
   locale: string
 }
 
+type CategoryLabels = Record<CategoryType, string>
+
+/** Creative-work `type` -> UI category, for resolving a localized card badge. */
+const TYPE_TO_CATEGORY: Record<string, CategoryType> = {
+  film: "cinema",
+  "short-film": "shorts",
+  play: "theater",
+  concert: "music",
+  exhibition: "exhibitions",
+}
+
 /**
- * Client component for the watchlist page
+ * Client component for the watchlist page (Story 5.3).
  *
- * Features:
- * - Displays user's saved events in a grid
- * - Remove from watchlist functionality
- * - Empty state with CTA
- * - Loading and error states
+ * Reads the enriched watchlist (`useWatchlist`), filters by category and splits
+ * into Upcoming / Past sections (`watchlistView`), and renders each saved item
+ * as a `WatchlistCard` that removes via the shared `useRemoveFromWatchlist`
+ * (toast + Undo). Covers all four async states; copy resolves from the
+ * `watchlist` i18n namespace.
  */
-export function WatchlistPageClient({
-  labels = defaultLabels,
-  locale,
-}: WatchlistPageClientProps) {
+export function WatchlistPageClient(_props: WatchlistPageClientProps) {
+  const t = useTranslations("watchlist")
+  const te = useTranslations("events")
   const router = useRouter()
   const { data: watchlist, isLoading, isError, refetch } = useWatchlist()
-  const { removeMutation } = useWatchlistMutations()
 
-  // Handle remove from watchlist
-  const handleRemove = (creativeWorkId: string) => {
-    removeMutation.mutate(creativeWorkId)
-  }
+  const [activeCategory, setActiveCategory] =
+    React.useState<CategoryType>("all")
 
-  // Navigate to event detail page
-  const handleEventClick = (item: WatchlistItem) => {
-    // Navigate using the creative work's documentId
-    router.push(`/events/${item.creativeWork.documentId}`)
-  }
+  const categoryLabels: CategoryLabels = React.useMemo(
+    () => ({
+      all: t("categories.all"),
+      cinema: t("categories.cinema"),
+      theater: t("categories.theater"),
+      shorts: t("categories.shorts"),
+      music: t("categories.music"),
+      exhibitions: t("categories.exhibitions"),
+    }),
+    [t]
+  )
 
-  // Loading state
+  const cardLabels: EventCardLabels = React.useMemo(
+    () => ({
+      addToWatchlist: te("addToWatchlist"),
+      removeFromWatchlist: te("removeFromWatchlist"),
+      priceFrom: (price: string) => te("priceFrom", { price }),
+    }),
+    [te]
+  )
+
+  // Loading state — skeleton grid.
   if (isLoading) {
     return (
       <div className="container mx-auto max-w-6xl px-4 py-8">
-        <PageHeader title={labels.title} subtitle={labels.subtitle} />
+        <PageHeader title={t("title")} subtitle={t("subtitle")} />
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           {Array.from({ length: 8 }).map((_, i) => (
             <EventCardSkeleton key={i} variant="default" />
@@ -105,22 +99,22 @@ export function WatchlistPageClient({
     )
   }
 
-  // Error state
+  // Error state — retry.
   if (isError) {
     return (
       <div className="container mx-auto max-w-6xl px-4 py-8">
-        <PageHeader title={labels.title} subtitle={labels.subtitle} />
+        <PageHeader title={t("title")} subtitle={t("subtitle")} />
         <Card className="mx-auto max-w-md">
           <CardContent className="flex flex-col items-center py-12 text-center">
             <AlertCircle className="text-destructive mb-4 h-12 w-12" />
-            <h3 className="text-lg font-semibold">{labels.error}</h3>
+            <h3 className="text-lg font-semibold">{t("error")}</h3>
             <Button
               variant="outline"
               className="mt-4"
               onClick={() => refetch()}
             >
               <RefreshCw className="me-2 h-4 w-4" />
-              {labels.retry}
+              {t("retry")}
             </Button>
           </CardContent>
         </Card>
@@ -128,74 +122,163 @@ export function WatchlistPageClient({
     )
   }
 
-  // Empty state
-  if (!watchlist || watchlist.length === 0) {
+  // Skip dangling rows whose creative-work was deleted (backend returns
+  // `creativeWork: null`) — they are not renderable and would crash the card.
+  const items = (watchlist ?? []).filter((item) => item.creativeWork != null)
+
+  // Empty state (nothing saved at all) — encouraging EmptyState + discovery CTA.
+  if (items.length === 0) {
     return (
       <div className="container mx-auto max-w-6xl px-4 py-8">
-        <PageHeader title={labels.title} subtitle={labels.subtitle} />
-        <Card className="mx-auto max-w-md">
-          <CardContent className="flex flex-col items-center py-12 text-center">
-            <div className="bg-muted mb-4 rounded-full p-4">
-              <Heart className="text-muted-foreground h-12 w-12" />
-            </div>
-            <h3 className="text-lg font-semibold">{labels.emptyTitle}</h3>
-            <p className="text-muted-foreground mt-2 max-w-xs">
-              {labels.emptyDescription}
-            </p>
-            <Button asChild className="mt-6">
-              <Link href="/">
-                <Film className="me-2 h-4 w-4" />
-                {labels.emptyAction}
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
+        <PageHeader title={t("title")} subtitle={t("subtitle")} />
+        <EmptyState
+          variant="emptyWatchlist"
+          title={t("emptyTitle")}
+          description={t("emptyDescription")}
+          primaryAction={{
+            label: t("emptyAction"),
+            onClick: () => router.push("/"),
+          }}
+        />
       </div>
     )
   }
 
-  // Watchlist grid
+  const filtered = filterByCategory(items, activeCategory)
+  const { upcoming, past } = partitionWatchlist(filtered)
+
   return (
     <div className="container mx-auto max-w-6xl px-4 py-8">
       <PageHeader
-        title={labels.title}
-        subtitle={labels.subtitle}
-        count={watchlist.length}
+        title={t("title")}
+        subtitle={t("subtitle")}
+        count={items.length}
       />
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-        {watchlist.map((item) => (
-          <EventCard
-            key={item.documentId}
-            event={{
-              id: item.creativeWork.documentId,
-              title: item.creativeWork.title,
-              posterUrl:
-                item.creativeWork.poster?.formats?.small?.url ||
-                item.creativeWork.poster?.url ||
-                "/images/placeholder-poster.jpg",
-              category: item.creativeWork.type || "Événement",
-              venueName: "", // Not available from watchlist API
-              date: item.addedAt, // Using addedAt as placeholder
-            }}
-            variant="default"
-            isWatchlisted={true}
-            onWatchlist={() => handleRemove(item.creativeWork.documentId)}
-            onClick={() => handleEventClick(item)}
-            labels={{
-              addToWatchlist: labels.addToWatchlist,
-              removeFromWatchlist: labels.removeFromWatchlist,
-              priceFrom: labels.priceFrom,
-            }}
-          />
-        ))}
-      </div>
+      <CategoryTabs
+        activeCategory={activeCategory}
+        onCategoryChange={setActiveCategory}
+        labels={categoryLabels}
+        className="mb-6"
+      />
+
+      {filtered.length === 0 ? (
+        <p className="text-muted-foreground py-12 text-center text-sm">
+          {t("noneInCategory")}
+        </p>
+      ) : (
+        <>
+          {upcoming.length > 0 && (
+            <WatchlistSection title={t("upcomingTitle")}>
+              {upcoming.map((item) => (
+                <WatchlistCard
+                  key={item.documentId}
+                  item={item}
+                  labels={cardLabels}
+                  categoryLabels={categoryLabels}
+                />
+              ))}
+            </WatchlistSection>
+          )}
+
+          {past.length > 0 && (
+            <WatchlistSection title={t("pastTitle")}>
+              {past.map((item) => (
+                <WatchlistCard
+                  key={item.documentId}
+                  item={item}
+                  labels={cardLabels}
+                  categoryLabels={categoryLabels}
+                />
+              ))}
+            </WatchlistSection>
+          )}
+        </>
+      )}
     </div>
   )
 }
 
 /**
- * Page header component
+ * A single watchlist row.
+ *
+ * Seeds `watchlistKeys.check(id)` to `{ isInWatchlist: true }` on mount — every
+ * listed item is, by definition, watchlisted — so the shared
+ * `useRemoveFromWatchlist` guard does not read `undefined` and silently no-op
+ * the first tap (and the heart renders filled). Because hooks can't run inside
+ * `.map`, this is a real component (one hook instance per row is fine).
+ */
+function WatchlistCard({
+  item,
+  labels,
+  categoryLabels,
+}: {
+  item: WatchlistItem
+  labels: EventCardLabels
+  categoryLabels: CategoryLabels
+}) {
+  const router = useRouter()
+  const queryClient = useQueryClient()
+  const creativeWorkId = item.creativeWork.documentId
+  const { remove } = useRemoveFromWatchlist(creativeWorkId)
+
+  // Localized category badge: creative-work type -> UI category -> localized
+  // label; fall back to the (French) display map for an unmapped type.
+  const uiCategory = TYPE_TO_CATEGORY[item.creativeWork.type ?? ""]
+  const category = uiCategory
+    ? categoryLabels[uiCategory]
+    : mapTypeToCategory(item.creativeWork.type)
+
+  React.useEffect(() => {
+    queryClient.setQueryData(watchlistKeys.check(creativeWorkId), {
+      isInWatchlist: true,
+    })
+  }, [queryClient, creativeWorkId])
+
+  return (
+    <EventCard
+      event={{
+        id: creativeWorkId,
+        title: item.creativeWork.title,
+        posterUrl:
+          item.creativeWork.poster?.formats?.small?.url ||
+          item.creativeWork.poster?.url ||
+          "/images/placeholder-poster.jpg",
+        category,
+        venueName: item.venueName ?? "",
+        date: item.nextScreeningDate ?? item.lastScreeningDate ?? "",
+      }}
+      variant="default"
+      isWatchlisted
+      onWatchlist={remove}
+      onClick={() => router.push(`/events/${creativeWorkId}`)}
+      labels={labels}
+    />
+  )
+}
+
+/**
+ * A titled grid section (Upcoming / Past).
+ */
+function WatchlistSection({
+  title,
+  children,
+}: {
+  title: string
+  children: React.ReactNode
+}) {
+  return (
+    <section className="mb-10">
+      <h2 className="mb-4 text-xl font-semibold">{title}</h2>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+        {children}
+      </div>
+    </section>
+  )
+}
+
+/**
+ * Page header component.
  */
 function PageHeader({
   title,

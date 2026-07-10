@@ -620,6 +620,26 @@
     "undo": "Undo",
     "queued": "Saved — it will sync once you're back online",
     "loginRequired": "Sign in to save this event",
-    "error": "Something went wrong. Please try again."
+    "error": "Something went wrong. Please try again.",
+    "pageTitle": "My watchlist",
+    "pageDescription": "Find all the events you've saved.",
+    "title": "My watchlist",
+    "subtitle": "The events you've set aside",
+    "upcomingTitle": "Upcoming",
+    "pastTitle": "Past",
+    "emptyTitle": "Your watchlist is empty",
+    "emptyDescription": "Add events to your watchlist to easily find them here.",
+    "emptyAction": "Discover events",
+    "noneInCategory": "No events in this category",
+    "loading": "Loading...",
+    "retry": "Retry",
+    "categories": {
+      "all": "All",
+      "cinema": "Cinema",
+      "theater": "Theater",
+      "shorts": "Short films",
+      "music": "Music",
+      "exhibitions": "Exhibitions"
+    }
   }
 }

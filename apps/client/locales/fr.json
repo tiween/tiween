@@ -620,6 +620,26 @@
     "undo": "Annuler",
     "queued": "Enregistré — la synchronisation se fera une fois en ligne",
     "loginRequired": "Connectez-vous pour enregistrer cet événement",
-    "error": "Une erreur est survenue. Veuillez réessayer."
+    "error": "Une erreur est survenue. Veuillez réessayer.",
+    "pageTitle": "Ma watchlist",
+    "pageDescription": "Retrouvez tous les événements que vous avez enregistrés.",
+    "title": "Ma watchlist",
+    "subtitle": "Les événements que vous avez mis de côté",
+    "upcomingTitle": "À venir",
+    "pastTitle": "Passés",
+    "emptyTitle": "Votre watchlist est vide",
+    "emptyDescription": "Ajoutez des événements à votre watchlist pour les retrouver facilement ici.",
+    "emptyAction": "Découvrir les événements",
+    "noneInCategory": "Aucun événement dans cette catégorie",
+    "loading": "Chargement...",
+    "retry": "Réessayer",
+    "categories": {
+      "all": "Tout",
+      "cinema": "Cinéma",
+      "theater": "Théâtre",
+      "shorts": "Courts-métrages",
+      "music": "Musique",
+      "exhibitions": "Expositions"
+    }
   }
 }

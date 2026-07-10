@@ -75,6 +75,9 @@ export default defineConfig({
       "src/features/events/components/FilmHero/**/*.test.tsx",
       // EventDetailPage toggle wiring + in-flight guard (Story 5.2).
       "src/features/events/components/EventDetailPage/**/*.test.tsx",
+      // Watchlist page composition + seed-then-remove wiring (Story 5.3).
+      // `[locale]` is a glob char-class, so match the segment via `**`.
+      "src/app/**/watchlist/**/*.test.tsx",
       "src/features/events/filters/**/*.test.ts",
       "src/features/events/components/EventDateFilter/**/*.test.tsx",
       "src/features/events/components/EventLocationFilter/**/*.test.tsx",
