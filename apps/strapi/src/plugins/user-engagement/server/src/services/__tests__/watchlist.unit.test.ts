@@ -245,6 +245,115 @@ describe("watchlist.getUserWatchlist (unit)", () => {
   })
 })
 
+/**
+ * Story 5.5 — cross-device conflict resolution is last-write-wins, delivered by
+ * the server's arrival-order idempotent semantics (NOT a new backend feature).
+ * The watchlist is a set-membership model, so the final state is fully
+ * determined by whichever add/remove the server processes LAST. These cases lock
+ * that convergence over a stateful `strapi.documents()` harness whose `findMany`
+ * reflects the mutations `create`/`delete` have already applied — so a *sequence*
+ * of ops (as either device's write would arrive at the server) converges
+ * correctly. Membership is keyed by `(user, creativeWork)` so the harness also
+ * honors per-user scoping (a regression there would surface here, not hide).
+ */
+interface StatefulDocApiMock {
+  findMany: jest.Mock
+  create: jest.Mock
+  delete: jest.Mock
+}
+
+function membershipKey(userId: string, creativeWorkId: string) {
+  return `${userId}::${creativeWorkId}`
+}
+
+function buildStatefulStrapi() {
+  // Current set membership, keyed by `(user, creativeWork)` → row documentId.
+  const rows = new Map<string, string>()
+  let seq = 0
+
+  const docApi: StatefulDocApiMock = {
+    findMany: jest.fn(async ({ filters }: any) => {
+      const key = membershipKey(
+        filters?.user?.documentId,
+        filters?.creativeWork?.documentId
+      )
+      const rowId = rows.get(key)
+      return rowId ? [{ documentId: rowId }] : []
+    }),
+    create: jest.fn(async ({ data }: any) => {
+      const rowId = `wl-${(seq += 1)}`
+      rows.set(membershipKey(data.user, data.creativeWork), rowId)
+      return { documentId: rowId }
+    }),
+    delete: jest.fn(async ({ documentId }: { documentId: string }) => {
+      for (const [key, rowId] of rows.entries()) {
+        if (rowId === documentId) {
+          rows.delete(key)
+          break
+        }
+      }
+      return { documentId }
+    }),
+  }
+  const strapi: any = { documents: jest.fn(() => docApi) }
+  return { strapi, docApi, rows }
+}
+
+describe("watchlist LWW convergence (Story 5.5, unit)", () => {
+  it("add(X) then remove(X) ⇒ final membership is ABSENT (last write wins)", async () => {
+    const { strapi, docApi, rows } = buildStatefulStrapi()
+    const service = watchlistService({ strapi })
+
+    await service.add("user-1", "cw-1")
+    const removed = await service.remove("user-1", "cw-1")
+
+    expect(removed).toBe(true)
+    expect(docApi.delete).toHaveBeenCalledTimes(1)
+    expect(rows.has(membershipKey("user-1", "cw-1"))).toBe(false)
+    expect(await service.isInWatchlist("user-1", "cw-1")).toBe(false)
+  })
+
+  it("remove(X) then add(X) ⇒ final membership is PRESENT (last write wins)", async () => {
+    const { strapi, docApi, rows } = buildStatefulStrapi()
+    const service = watchlistService({ strapi })
+
+    const removed = await service.remove("user-1", "cw-1")
+    await service.add("user-1", "cw-1")
+
+    // remove-of-absent is idempotent (no delete, false); the later add creates.
+    expect(removed).toBe(false)
+    expect(docApi.delete).not.toHaveBeenCalled()
+    expect(docApi.create).toHaveBeenCalledTimes(1)
+    expect(rows.has(membershipKey("user-1", "cw-1"))).toBe(true)
+    expect(await service.isInWatchlist("user-1", "cw-1")).toBe(true)
+  })
+
+  it("add(X) then add(X) ⇒ dedupe yields a SINGLE row (no duplicate)", async () => {
+    const { strapi, docApi, rows } = buildStatefulStrapi()
+    const service = watchlistService({ strapi })
+
+    await service.add("user-1", "cw-1")
+    await service.add("user-1", "cw-1")
+
+    // Second add reads the existing row and does NOT create a second.
+    expect(docApi.create).toHaveBeenCalledTimes(1)
+    expect(rows.size).toBe(1)
+  })
+
+  it("scopes membership per user — user A's add is invisible to user B", async () => {
+    const { strapi } = buildStatefulStrapi()
+    const service = watchlistService({ strapi })
+
+    await service.add("user-A", "cw-1")
+
+    expect(await service.isInWatchlist("user-A", "cw-1")).toBe(true)
+    expect(await service.isInWatchlist("user-B", "cw-1")).toBe(false)
+    // Removing for B is a no-op; A's membership is untouched.
+    expect(await service.remove("user-B", "cw-1")).toBe(false)
+    expect(await service.isInWatchlist("user-A", "cw-1")).toBe(true)
+  })
+})
+
 describe("watchlist.toggle (unit)", () => {
   it("delegates to remove (deletes the row) when the item is present", async () => {
     const { strapi, docApi } = buildStrapi([{ documentId: "wl-existing" }])

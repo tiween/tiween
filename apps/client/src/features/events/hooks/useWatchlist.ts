@@ -37,6 +37,24 @@ export interface WatchlistItem {
 }
 
 /**
+ * Cross-device sync poll cadence (Story 5.5). The `/watchlist` list query polls
+ * at this interval while online so an add/remove on another device converges
+ * within ~5 seconds. react-query pauses the poll in a hidden tab
+ * (`refetchIntervalInBackground: false`) and offline.
+ */
+export const WATCHLIST_POLL_MS = 5000
+
+/**
+ * Pure, unit-testable poll gate: poll every {@link WATCHLIST_POLL_MS} ms when
+ * online, and `false` (no polling) when offline. Kept as a standalone helper so
+ * the gating logic — the testable core of the "within 5s" AC — is verifiable
+ * without mounting the query.
+ */
+export function watchlistRefetchInterval(online: boolean): number | false {
+  return online ? WATCHLIST_POLL_MS : false
+}
+
+/**
  * Query key factory for watchlist queries
  */
 export const watchlistKeys = {
@@ -82,6 +100,16 @@ export function useWatchlist() {
     enabled: isAuthenticated,
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 30 * 60 * 1000, // 30 minutes
+    // Cross-device sync (Story 5.5): poll every 5s while online so another
+    // device's add/remove converges within ~5s. Gated on `navigator.onLine`
+    // (no polling offline) and paused in hidden tabs; complemented by
+    // react-query's refetch-on-reconnect.
+    refetchInterval: () =>
+      watchlistRefetchInterval(
+        typeof navigator !== "undefined" ? navigator.onLine : true
+      ),
+    refetchIntervalInBackground: false,
+    refetchOnReconnect: true,
   })
 }
 

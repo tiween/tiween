@@ -638,6 +638,10 @@
     "offlineActionDisabled": "Indisponible hors ligne",
     "offlineEmptyTitle": "Watchlist indisponible hors ligne",
     "offlineEmptyDescription": "Connectez-vous à Internet pour afficher votre watchlist.",
+    "syncStatusTitle": "Synchronisation de la watchlist",
+    "syncStatusOnline": "En ligne",
+    "neverSynced": "Jamais synchronisée",
+    "pendingChanges": "{count, plural, one {{display} changement en attente de synchronisation} other {{display} changements en attente de synchronisation}}",
     "categories": {
       "all": "Tout",
       "cinema": "Cinéma",

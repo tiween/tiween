@@ -638,6 +638,10 @@
     "offlineActionDisabled": "غير متاح دون اتصال",
     "offlineEmptyTitle": "قائمة المتابعة غير متاحة دون اتصال",
     "offlineEmptyDescription": "اتصل بالإنترنت لعرض قائمة المتابعة الخاصة بك.",
+    "syncStatusTitle": "مزامنة قائمة المتابعة",
+    "syncStatusOnline": "متصل",
+    "neverSynced": "لم تتم المزامنة بعد",
+    "pendingChanges": "{count, plural, one {{display} تغيير في انتظار المزامنة} other {{display} تغييرات في انتظار المزامنة}}",
     "categories": {
       "all": "الكل",
       "cinema": "سينما",

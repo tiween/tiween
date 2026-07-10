@@ -638,6 +638,10 @@
     "offlineActionDisabled": "Unavailable offline",
     "offlineEmptyTitle": "Watchlist unavailable offline",
     "offlineEmptyDescription": "Connect to the internet to view your watchlist.",
+    "syncStatusTitle": "Watchlist sync",
+    "syncStatusOnline": "Online",
+    "neverSynced": "Never synced",
+    "pendingChanges": "{count, plural, one {{display} change pending sync} other {{display} changes pending sync}}",
     "categories": {
       "all": "All",
       "cinema": "Cinema",

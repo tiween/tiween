@@ -106,6 +106,9 @@ export default defineConfig({
       "src/app/**/forgot-password/_components/**/*.test.tsx",
       // Profile management + email-change confirmation (Story 4.4).
       "src/app/**/profile/_components/**/*.test.tsx",
+      // Profile page composition — sync section mount (Story 5.5). The test sits
+      // at the `profile/` root, not `_components/`, so it needs its own glob.
+      "src/app/**/profile/**/*.test.tsx",
       "src/app/**/change-email/_components/**/*.test.tsx",
     ],
   },

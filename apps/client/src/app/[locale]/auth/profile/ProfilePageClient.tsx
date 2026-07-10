@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 
 import { ProfileForm } from "./_components/ProfileForm"
+import { WatchlistSyncStatus } from "./_components/WatchlistSyncStatus"
 
 export interface ProfilePageClientProps {
   locale: string
@@ -72,6 +73,11 @@ export function ProfilePageClient({
         ) : (
           <>
             <ProfileForm locale={locale} regions={regions} user={user} />
+
+            <Separator className="my-6" />
+
+            {/* Watchlist sync status (Story 5.5) */}
+            <WatchlistSyncStatus />
 
             <Separator className="my-6" />
 
