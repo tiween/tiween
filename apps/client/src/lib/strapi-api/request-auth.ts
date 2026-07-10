@@ -36,6 +36,10 @@ const ALLOWED_STRAPI_ENDPOINTS: Record<string, string[]> = {
   // Self-scoped profile update only. `api/users` is intentionally NOT listed —
   // that would expose the stock `PUT api/users/:id` (arbitrary id + fields).
   PUT: ["api/users/me"],
+  // Watchlist hard remove (Story 5.2). `startsWith` covers
+  // `.../watchlist/:creativeWorkId`. Every watchlist route is JWT-self-scoped,
+  // so a user can only ever DELETE their own row. No other DELETE is allowed.
+  DELETE: ["api/user-engagement/watchlist"],
 }
 
 /**

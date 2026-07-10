@@ -73,6 +73,8 @@ export default defineConfig({
       "src/features/events/hooks/**/*.test.ts",
       // FilmHero disabled/pulse behavior (Story 5.1).
       "src/features/events/components/FilmHero/**/*.test.tsx",
+      // EventDetailPage toggle wiring + in-flight guard (Story 5.2).
+      "src/features/events/components/EventDetailPage/**/*.test.tsx",
       "src/features/events/filters/**/*.test.ts",
       "src/features/events/components/EventDateFilter/**/*.test.tsx",
       "src/features/events/components/EventLocationFilter/**/*.test.tsx",

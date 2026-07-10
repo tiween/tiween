@@ -12,15 +12,19 @@ import { act, renderHook, waitFor } from "@testing-library/react"
 import * as React from "react"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
-const { useSessionMock, mutateAsyncMock } = vi.hoisted(() => ({
-  useSessionMock: vi.fn(),
-  mutateAsyncMock: vi.fn(),
-}))
+const { useSessionMock, mutateAsyncMock, removeMutateAsyncMock } = vi.hoisted(
+  () => ({
+    useSessionMock: vi.fn(),
+    mutateAsyncMock: vi.fn(),
+    removeMutateAsyncMock: vi.fn(),
+  })
+)
 
 vi.mock("next-auth/react", () => ({ useSession: useSessionMock }))
 vi.mock("./useWatchlist", () => ({
   useWatchlistMutations: () => ({
     addMutation: { mutateAsync: mutateAsyncMock },
+    removeMutation: { mutateAsync: removeMutateAsyncMock },
   }),
   watchlistKeys: {
     all: ["watchlist"],
@@ -32,7 +36,9 @@ vi.mock("./useWatchlist", () => ({
 import { useWatchlistSync } from "./useWatchlistSync"
 import {
   enqueueAdd,
+  enqueueOp,
   getPendingAdds,
+  getPendingOps,
   MAX_DRAIN_ATTEMPTS,
   pendingAddKey,
 } from "../utils/watchlistQueue"
@@ -65,6 +71,7 @@ beforeEach(() => {
   vi.clearAllMocks()
   window.localStorage.clear()
   mutateAsyncMock.mockResolvedValue({})
+  removeMutateAsyncMock.mockResolvedValue({})
   setOnline(true)
 })
 
@@ -175,5 +182,68 @@ describe("useWatchlistSync — reconnect drain", () => {
     await waitFor(() => expect(getPendingAdds(7)).toEqual([]))
     // User 9's queue is untouched.
     expect(getPendingAdds(9)).toHaveLength(1)
+  })
+})
+
+describe("useWatchlistSync — kind-aware drain (Story 5.2)", () => {
+  it("replays a queued 'remove' op via removeMutation and removes it on success", async () => {
+    setOnline(false)
+    enqueueOp(7, "remove", "cw-rm")
+    authed(7)
+
+    const { invalidateSpy } = renderSync()
+    setOnline(true)
+    act(() => window.dispatchEvent(new Event("online")))
+
+    await waitFor(() =>
+      expect(removeMutateAsyncMock).toHaveBeenCalledWith("cw-rm")
+    )
+    expect(mutateAsyncMock).not.toHaveBeenCalled() // not the add mutation
+    await waitFor(() => expect(getPendingOps(7)).toEqual([]))
+    expect(invalidateSpy).toHaveBeenCalledWith({
+      queryKey: ["watchlist", "list"],
+    })
+  })
+
+  it("dispatches a mixed add+remove queue to the matching mutation by kind", async () => {
+    setOnline(false)
+    enqueueOp(7, "add", "cw-add")
+    enqueueOp(7, "remove", "cw-rm")
+    authed(7)
+
+    renderSync()
+    setOnline(true)
+    act(() => window.dispatchEvent(new Event("online")))
+
+    await waitFor(() => expect(mutateAsyncMock).toHaveBeenCalledWith("cw-add"))
+    await waitFor(() =>
+      expect(removeMutateAsyncMock).toHaveBeenCalledWith("cw-rm")
+    )
+    await waitFor(() => expect(getPendingOps(7)).toEqual([]))
+  })
+
+  it("bumps a failing 'remove' replay and drops it after MAX_DRAIN_ATTEMPTS", async () => {
+    setOnline(false)
+    // Seed a remove op already at the last allowed attempt count.
+    window.localStorage.setItem(
+      pendingAddKey(7),
+      JSON.stringify([
+        {
+          kind: "remove",
+          creativeWorkId: "cw-poison",
+          addedAt: "2026-07-10T00:00:00.000Z",
+          attempts: MAX_DRAIN_ATTEMPTS - 1,
+        },
+      ])
+    )
+    removeMutateAsyncMock.mockRejectedValue(new Error("gone"))
+    authed(7)
+
+    renderSync()
+    setOnline(true)
+    act(() => window.dispatchEvent(new Event("online")))
+
+    await waitFor(() => expect(removeMutateAsyncMock).toHaveBeenCalled())
+    await waitFor(() => expect(getPendingOps(7)).toEqual([]))
   })
 })

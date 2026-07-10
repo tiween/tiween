@@ -6,28 +6,30 @@ import { useSession } from "next-auth/react"
 
 import {
   bumpAttempt,
-  getPendingAdds,
-  removePendingAdd,
+  getPendingOps,
+  removePendingOp,
 } from "../utils/watchlistQueue"
 
 import { useWatchlistMutations, watchlistKeys } from "./useWatchlist"
 
 /**
- * App-wide reconnect drain for the offline pending-**add** queue (Story 5.1).
+ * App-wide reconnect drain for the offline pending-op queue (Story 5.1 add,
+ * generalized in Story 5.2 to replay removes too).
  *
  * Auth-gated and per-user: the drain no-ops unless `status === "authenticated"`
- * and operates ONLY on the current user's queue (`getPendingAdds(userId)`), so a
- * queued add can never replay under a different account on a shared browser.
+ * and operates ONLY on the current user's queue (`getPendingOps(userId)`), so a
+ * queued op can never replay under a different account on a shared browser.
  *
  * On the window `online` event and once on mount while already online, it
- * replays each queued add via the add mutation: a success removes the op; a
- * failure bumps its attempt counter (which self-drops the op after
- * `MAX_DRAIN_ATTEMPTS`, so a poison entry cannot retry forever). Any success
- * invalidates the watchlist `list()` query. Re-entrancy is guarded by a ref.
+ * dispatches each queued op by `kind` (`add`→`addMutation`, `remove`→
+ * `removeMutation`): a success removes the op; a failure bumps its attempt
+ * counter (which self-drops the op after `MAX_DRAIN_ATTEMPTS`, so a poison entry
+ * cannot retry forever). Any success invalidates the watchlist `list()` query.
+ * Re-entrancy is guarded by a ref.
  */
 export function useWatchlistSync(): void {
   const { data: session, status } = useSession()
-  const { addMutation } = useWatchlistMutations()
+  const { addMutation, removeMutation } = useWatchlistMutations()
   const queryClient = useQueryClient()
 
   const userId = session?.user?.userId
@@ -48,10 +50,13 @@ export function useWatchlistSync(): void {
       let anySuccess = false
       // Re-read per iteration is unnecessary — a fixed snapshot is fine because
       // remove/bump mutate storage in place and we never revisit an id here.
-      for (const op of getPendingAdds(userId)) {
+      for (const op of getPendingOps(userId)) {
         try {
-          await addMutation.mutateAsync(op.creativeWorkId)
-          removePendingAdd(userId, op.creativeWorkId)
+          // Dispatch by kind: an offline add replays as a POST, an offline
+          // remove as a DELETE — under the current (authenticated) user only.
+          const mutation = op.kind === "remove" ? removeMutation : addMutation
+          await mutation.mutateAsync(op.creativeWorkId)
+          removePendingOp(userId, op.creativeWorkId)
           anySuccess = true
         } catch {
           bumpAttempt(userId, op.creativeWorkId)

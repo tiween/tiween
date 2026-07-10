@@ -160,7 +160,7 @@ development_status:
   # Epic 5: Watchlist & Personalization
   epic-5: backlog
   5-1-add-event-to-watchlist: done
-  5-2-remove-event-from-watchlist: backlog
+  5-2-remove-event-from-watchlist: done
   5-3-view-watchlist-page: backlog
   5-4-offline-watchlist-access: backlog
   5-5-watchlist-sync-across-devices: backlog

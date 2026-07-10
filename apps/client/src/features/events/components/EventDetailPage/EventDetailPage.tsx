@@ -25,6 +25,7 @@ import { Separator } from "@/components/ui/separator"
 import type { DirectionsPlatform } from "../../utils"
 
 import { useAddToWatchlist } from "../../hooks/useAddToWatchlist"
+import { useRemoveFromWatchlist } from "../../hooks/useRemoveFromWatchlist"
 import {
   buildDirectionsUrl,
   buildEventShareUrl,
@@ -141,11 +142,19 @@ export function EventDetailPage({
   const router = useRouter()
   const locale = useLocale()
   const isRTL = locale === "ar"
-  // Watchlist state is now server-backed (Story 5.1): the creative-work id comes
-  // from the event's film (`screenings[0].movie`). `canWatchlist` is false when
-  // the event has no film id, which disables the heart.
-  const { isWatchlisted, add: handleWatchlist, canWatchlist } =
-    useAddToWatchlist(getEventFilm(event)?.documentId)
+  // Watchlist state is server-backed: the creative-work id comes from the
+  // event's film (`screenings[0].movie`). `canWatchlist` is false when the event
+  // has no film id, which disables the heart. The heart is a TOGGLE (Story 5.2):
+  // a filled heart removes, an empty heart adds — resolved at the wire below.
+  const creativeWorkId = getEventFilm(event)?.documentId
+  const {
+    isWatchlisted,
+    add,
+    canWatchlist,
+    isPending: addIsPending,
+  } = useAddToWatchlist(creativeWorkId)
+  const { remove, isPending: removeIsPending } =
+    useRemoveFromWatchlist(creativeWorkId)
   const [synopsisExpanded, setSynopsisExpanded] = React.useState(false)
   // Resolve the maps platform after mount (navigator is client-only) so the
   // initial SSR/hydration render defaults to Google, then upgrades on Apple.
@@ -243,8 +252,13 @@ export function EventDetailPage({
           // below), so drop the browse-oriented venue-count badge.
           event={{ ...heroEvent, venueCount: undefined }}
           isWatchlisted={isWatchlisted}
-          onWatchlist={handleWatchlist}
-          watchlistDisabled={!canWatchlist}
+          // Toggle: filled heart removes, empty heart adds (Story 5.2).
+          onWatchlist={isWatchlisted ? remove : add}
+          // In-flight guard: disable the heart while EITHER mutation is pending
+          // so a rapid double-tap can't race a DELETE and a POST at the same row
+          // (add/remove are separate mutation instances — neither self-guards the
+          // other). Without this the second tap fires the OPPOSITE op.
+          watchlistDisabled={!canWatchlist || addIsPending || removeIsPending}
           onShare={handleShare}
           labels={{
             addToWatchlist: labels.addToWatchlist,

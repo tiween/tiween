@@ -616,6 +616,8 @@
   },
   "watchlist": {
     "addSuccess": "Added to your watchlist",
+    "removeSuccess": "Removed from your watchlist",
+    "undo": "Undo",
     "queued": "Saved — it will sync once you're back online",
     "loginRequired": "Sign in to save this event",
     "error": "Something went wrong. Please try again."

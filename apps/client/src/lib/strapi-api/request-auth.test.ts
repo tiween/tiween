@@ -64,9 +64,15 @@ describe("isStrapiEndpointAllowed (Story 5.1 watchlist endpoints)", () => {
     ).toBe(true)
   })
 
-  it("keeps the watchlist DELETE (hard remove) blocked until Story 5.2", () => {
+  it("allows the watchlist DELETE (hard remove, Story 5.2) via startsWith", () => {
     expect(
-      isStrapiEndpointAllowed("api/user-engagement/watchlist/cw-1", "DELETE")
+      isStrapiEndpointAllowed("api/user-engagement/watchlist/abc", "DELETE")
+    ).toBe(true)
+  })
+
+  it("does NOT open DELETE for a non-watchlist endpoint", () => {
+    expect(
+      isStrapiEndpointAllowed("api/events-manager/events", "DELETE")
     ).toBe(false)
   })
 })

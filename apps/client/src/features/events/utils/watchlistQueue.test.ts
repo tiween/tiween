@@ -12,11 +12,14 @@ import {
   bumpAttempt,
   clearPendingAdds,
   enqueueAdd,
+  enqueueOp,
   getPendingAdds,
+  getPendingOps,
   MAX_DRAIN_ATTEMPTS,
   MAX_QUEUE_SIZE,
   pendingAddKey,
   removePendingAdd,
+  removePendingOp,
 } from "./watchlistQueue"
 
 afterEach(() => {
@@ -180,5 +183,99 @@ describe("watchlistQueue — re-enqueue resets the retry budget", () => {
     expect(enqueueAdd("u", "cw-1")).toBe(true)
     expect(getPendingAdds("u")).toHaveLength(1)
     expect(getPendingAdds("u")[0]!.attempts).toBe(0)
+  })
+})
+
+/* --------------------------------------------------------------------------
+ * Story 5.2 — generalized `kind`-carrying ops + last-write-wins reconciliation.
+ * ------------------------------------------------------------------------ */
+
+describe("watchlistQueue — enqueueOp (Story 5.2 kind)", () => {
+  it("round-trips a remove op with kind:'remove'", () => {
+    expect(enqueueOp("u", "remove", "cw-1")).toBe(true)
+    const [op] = getPendingOps("u")
+    expect(op).toMatchObject({ creativeWorkId: "cw-1", kind: "remove", attempts: 0 })
+    expect(typeof op!.addedAt).toBe("string")
+  })
+
+  it("round-trips an add op with kind:'add'", () => {
+    enqueueOp("u", "add", "cw-1")
+    expect(getPendingOps("u")[0]!.kind).toBe("add")
+  })
+
+  it("returns false when the storage write throws (no silent success)", () => {
+    const spy = vi
+      .spyOn(Storage.prototype, "setItem")
+      .mockImplementation(() => {
+        throw new DOMException("QuotaExceededError")
+      })
+    expect(enqueueOp("u", "remove", "cw-1")).toBe(false)
+    spy.mockRestore()
+    expect(getPendingOps("u")).toEqual([])
+  })
+
+  it("removes a single op via removePendingOp", () => {
+    enqueueOp("u", "remove", "cw-1")
+    enqueueOp("u", "add", "cw-2")
+    removePendingOp("u", "cw-1")
+    expect(getPendingOps("u").map((o) => o.creativeWorkId)).toEqual(["cw-2"])
+  })
+})
+
+describe("watchlistQueue — last-write-wins reconciliation", () => {
+  it("replaces an existing op for the same id with the opposite kind (one op)", () => {
+    enqueueOp("u", "add", "cw-1")
+    enqueueOp("u", "remove", "cw-1")
+
+    const ops = getPendingOps("u")
+    expect(ops).toHaveLength(1)
+    expect(ops[0]).toMatchObject({ creativeWorkId: "cw-1", kind: "remove" })
+  })
+
+  it("resets attempts to 0 when reconciling the same id", () => {
+    enqueueOp("u", "remove", "cw-1")
+    for (let i = 1; i < MAX_DRAIN_ATTEMPTS - 1; i++) bumpAttempt("u", "cw-1")
+    expect(getPendingOps("u")[0]!.attempts).toBe(MAX_DRAIN_ATTEMPTS - 2)
+
+    // The opposite intent replaces it with a fresh retry budget.
+    expect(enqueueOp("u", "add", "cw-1")).toBe(true)
+    const ops = getPendingOps("u")
+    expect(ops).toHaveLength(1)
+    expect(ops[0]).toMatchObject({ kind: "add", attempts: 0 })
+  })
+})
+
+describe("watchlistQueue — 5.1 backward compat", () => {
+  it("normalizes a legacy op with no `kind` to kind:'add'", () => {
+    window.localStorage.setItem(
+      pendingAddKey("u"),
+      JSON.stringify([
+        { creativeWorkId: "cw-legacy", addedAt: "2026-07-10", attempts: 0 },
+      ])
+    )
+    const [op] = getPendingOps("u")
+    expect(op).toMatchObject({ creativeWorkId: "cw-legacy", kind: "add" })
+  })
+
+  it("drops an op with an unknown/corrupt `kind` (no silent coercion to add)", () => {
+    window.localStorage.setItem(
+      pendingAddKey("u"),
+      JSON.stringify([
+        // A corrupted remove (case variant) must NOT replay as an add.
+        { kind: "Remove", creativeWorkId: "cw-bad", addedAt: "2026-07-10", attempts: 0 },
+        { kind: "remove", creativeWorkId: "cw-ok", addedAt: "2026-07-10", attempts: 0 },
+      ])
+    )
+    const ops = getPendingOps("u")
+    expect(ops).toHaveLength(1)
+    expect(ops[0]).toMatchObject({ creativeWorkId: "cw-ok", kind: "remove" })
+  })
+
+  it("enqueueAdd compat wrapper still enqueues an add op", () => {
+    expect(enqueueAdd("u", "cw-1")).toBe(true)
+    const [op] = getPendingOps("u")
+    expect(op).toMatchObject({ creativeWorkId: "cw-1", kind: "add" })
+    // ...and it is visible through the legacy read alias too.
+    expect(getPendingAdds("u").map((o) => o.creativeWorkId)).toEqual(["cw-1"])
   })
 })

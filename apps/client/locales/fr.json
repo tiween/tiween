@@ -616,6 +616,8 @@
   },
   "watchlist": {
     "addSuccess": "Ajouté à la watchlist",
+    "removeSuccess": "Retiré de la watchlist",
+    "undo": "Annuler",
     "queued": "Enregistré — la synchronisation se fera une fois en ligne",
     "loginRequired": "Connectez-vous pour enregistrer cet événement",
     "error": "Une erreur est survenue. Veuillez réessayer."
