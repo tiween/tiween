@@ -345,7 +345,17 @@
     "errorTitle": "Could not load tickets",
     "errorDescription": "Something went wrong. Please try again.",
     "retry": "Retry",
-    "loading": "Loading tickets"
+    "loading": "Loading tickets",
+    "quantity": "Quantity",
+    "decrease": "Decrease quantity",
+    "increase": "Increase quantity",
+    "subtotal": "Subtotal",
+    "serviceFee": "Service fee",
+    "total": "Total",
+    "continue": "Continue",
+    "orderLimitReached": "You can select at most {max} tickets per order.",
+    "paymentComingTitle": "Payment coming soon",
+    "paymentComingDescription": "Secure payment arrives in the next step (6.3). Your selection is saved."
   },
   "payment": {
     "title": "Payment",

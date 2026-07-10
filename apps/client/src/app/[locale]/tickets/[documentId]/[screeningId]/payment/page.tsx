@@ -5,7 +5,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server"
 import { getEventByDocumentId } from "@/lib/strapi-api/content/server"
 import { formatShowtimeLabel } from "@/features/tickets/utils/formatShowtimeLabel"
 
-import { TicketTypesSection } from "./TicketTypesSection"
+import { PaymentStepPreview } from "./PaymentStepPreview"
 
 interface PageProps {
   params: Promise<{
@@ -16,23 +16,19 @@ interface PageProps {
 }
 
 /**
- * Ticket-selection route (Stories 6.1 + 6.2):
- * `/[locale]/tickets/[documentId]/[screeningId]`.
+ * Payment-step placeholder route (Story 6.2):
+ * `/[locale]/tickets/[documentId]/[screeningId]/payment`.
  *
- * A React Server Component: it reads the event for header/summary context
- * (title, showtime label), builds localized header text via `getTranslations`,
- * and renders the client `TicketTypesSection` which fetches the sub-event's
- * tiers and owns the loading / error / empty states plus the interactive
- * quantity selection (Story 6.2). Payment (Story 6.3) is still out of scope —
- * Continue lands on a labelled placeholder route.
+ * A React Server Component that renders header context and the client
+ * `PaymentStepPreview`, which recaps the persisted selection. This is a minimal
+ * placeholder that kills the dead Continue link — Story 6.3 replaces it with the
+ * real Konnect payment step. No payment logic lives here.
  */
-export default async function TicketsPage({ params }: PageProps) {
+export default async function PaymentPage({ params }: PageProps) {
   const { locale, documentId, screeningId } = await params
 
-  // Enable static rendering for this locale segment.
   setRequestLocale(locale)
 
-  // Event provides header context; a missing/unpublished event is a 404.
   const event = await getEventByDocumentId(documentId, locale)
   if (!event) {
     notFound()
@@ -48,17 +44,15 @@ export default async function TicketsPage({ params }: PageProps) {
       <div className="mx-auto max-w-2xl px-4 py-6">
         <header className="mb-6">
           <h1 className="text-foreground text-2xl font-bold">
-            {t("pageTitle")}
+            {t("paymentComingTitle")}
           </h1>
           {event.title && (
             <p className="text-muted-foreground mt-1 text-sm">{event.title}</p>
           )}
         </header>
 
-        <TicketTypesSection
+        <PaymentStepPreview
           screeningId={screeningId}
-          documentId={documentId}
-          locale={locale}
           eventTitle={event.title ?? ""}
           showtimeLabel={showtimeLabel}
         />

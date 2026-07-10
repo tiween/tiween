@@ -6,12 +6,7 @@ import { Minus, Plus } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 
-/**
- * Format currency with French/Tunisian conventions (comma separator)
- */
-function formatCurrency(amount: number, currency: string = "DT"): string {
-  return `${amount.toFixed(2).replace(".", ",")} ${currency}`
-}
+import { formatPrice } from "../../utils/formatPrice"
 
 /**
  * Localized labels for QuantitySelector
@@ -39,7 +34,7 @@ export interface QuantitySelectorProps {
   ticketType: string
   /** Price per ticket */
   unitPrice: number
-  /** Currency symbol */
+  /** Currency code from the tiers response (e.g. "TND"); mapped to a symbol. */
   currency?: string
   /** Called when quantity changes */
   onChange: (quantity: number) => void
@@ -80,7 +75,7 @@ export function QuantitySelector({
   max = 10,
   ticketType,
   unitPrice,
-  currency = "DT",
+  currency = "TND",
   onChange,
   labels = defaultLabels,
   className,
@@ -112,7 +107,7 @@ export function QuantitySelector({
       <div className="flex flex-col gap-1">
         <span className="text-foreground font-medium">{ticketType}</span>
         <span className="text-muted-foreground text-sm">
-          {formatCurrency(unitPrice, currency)}
+          {formatPrice(unitPrice, currency)}
         </span>
       </div>
 

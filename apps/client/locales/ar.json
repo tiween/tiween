@@ -345,7 +345,17 @@
     "errorTitle": "تعذّر تحميل التذاكر",
     "errorDescription": "حدث خطأ. يرجى المحاولة مرة أخرى.",
     "retry": "إعادة المحاولة",
-    "loading": "جارٍ تحميل التذاكر"
+    "loading": "جارٍ تحميل التذاكر",
+    "quantity": "الكمية",
+    "decrease": "إنقاص الكمية",
+    "increase": "زيادة الكمية",
+    "subtotal": "المجموع الفرعي",
+    "serviceFee": "رسوم الخدمة",
+    "total": "المجموع",
+    "continue": "متابعة",
+    "orderLimitReached": "يمكنك اختيار {max} تذاكر كحدّ أقصى لكل طلب.",
+    "paymentComingTitle": "الدفع قريبًا",
+    "paymentComingDescription": "الدفع الآمن يأتي في الخطوة التالية (6.3). تمّ حفظ اختيارك."
   },
   "payment": {
     "title": "الدفع",

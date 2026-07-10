@@ -345,7 +345,17 @@
     "errorTitle": "Impossible de charger les billets",
     "errorDescription": "Une erreur est survenue. Veuillez réessayer.",
     "retry": "Réessayer",
-    "loading": "Chargement des billets"
+    "loading": "Chargement des billets",
+    "quantity": "Quantité",
+    "decrease": "Diminuer la quantité",
+    "increase": "Augmenter la quantité",
+    "subtotal": "Sous-total",
+    "serviceFee": "Frais de service",
+    "total": "Total",
+    "continue": "Continuer",
+    "orderLimitReached": "Vous pouvez sélectionner {max} billets au maximum par commande.",
+    "paymentComingTitle": "Paiement bientôt disponible",
+    "paymentComingDescription": "Le paiement sécurisé arrive dans la prochaine étape (6.3). Votre sélection est enregistrée."
   },
   "payment": {
     "title": "Paiement",

@@ -5,12 +5,7 @@ import * as React from "react"
 import { cn } from "@/lib/utils"
 import { Separator } from "@/components/ui/separator"
 
-/**
- * Format currency with French/Tunisian conventions (comma separator)
- */
-function formatCurrency(amount: number, currency: string = "DT"): string {
-  return `${amount.toFixed(2).replace(".", ",")} ${currency}`
-}
+import { formatPrice } from "../../utils/formatPrice"
 
 /**
  * Single line item in the order
@@ -48,7 +43,7 @@ export interface OrderSummaryProps {
   items: OrderLineItem[]
   /** Optional service fee */
   serviceFee?: number
-  /** Currency symbol */
+  /** Currency code from the tiers response (e.g. "TND"); mapped to a symbol. */
   currency?: string
   /** Localized labels */
   labels?: OrderSummaryLabels
@@ -85,7 +80,7 @@ export function OrderSummary({
   showtime,
   items,
   serviceFee,
-  currency = "DT",
+  currency = "TND",
   labels = defaultLabels,
   className,
 }: OrderSummaryProps) {
@@ -134,7 +129,7 @@ export function OrderSummary({
                 {item.ticketType} × {item.quantity}
               </span>
               <span className="text-foreground font-medium">
-                {formatCurrency(lineTotal, currency)}
+                {formatPrice(lineTotal, currency)}
               </span>
             </div>
           )
@@ -147,7 +142,7 @@ export function OrderSummary({
       <div className="flex items-center justify-between gap-2 text-sm">
         <span className="text-muted-foreground">{labels.subtotal}</span>
         <span className="text-foreground">
-          {formatCurrency(subtotal, currency)}
+          {formatPrice(subtotal, currency)}
         </span>
       </div>
 
@@ -156,7 +151,7 @@ export function OrderSummary({
         <div className="mt-2 flex items-center justify-between gap-2 text-sm">
           <span className="text-muted-foreground">{labels.serviceFee}</span>
           <span className="text-foreground">
-            {formatCurrency(serviceFee, currency)}
+            {formatPrice(serviceFee, currency)}
           </span>
         </div>
       )}
@@ -169,7 +164,7 @@ export function OrderSummary({
           {labels.total}
         </span>
         <span className="text-primary text-xl font-bold">
-          {formatCurrency(total, currency)}
+          {formatPrice(total, currency)}
         </span>
       </div>
     </div>
