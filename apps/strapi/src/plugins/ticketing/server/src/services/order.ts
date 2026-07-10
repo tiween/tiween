@@ -212,7 +212,10 @@ const orderService = ({ strapi }: { strapi: Core.Strapi }) => ({
       eventId: data.eventId,
       screeningId: data.screeningId,
       performanceId: data.performanceId,
-      tickets: data.tickets,
+      tickets: data.tickets.map((t) => ({
+        type: t.type as string,
+        price: t.price as number,
+      })),
     })
 
     // (3) Initialize the hosted Konnect payment (only ticketing→payments edge).
@@ -270,13 +273,22 @@ const orderService = ({ strapi }: { strapi: Core.Strapi }) => ({
    * Idempotent gateway reconciliation (Story 6.3), shared by the webhook
    * backstop and the client-triggered confirm.
    *
-   * Skips orders already in a terminal state (paid/failed/refunded) so a
-   * repeated webhook + confirm never double-applies. Otherwise re-queries the
-   * AUTHORITATIVE Konnect status via `payments.public-api.getPaymentStatus`
-   * (never trusts a webhook body) and, on:
-   *  - `paid`   → sets `paid` + `purchasedAt`;
-   *  - `failed` → sets `failed` and releases the reserved inventory exactly once;
+   * Skips orders already in a terminal state (paid/failed/refunded). For a
+   * still-`pending` order it re-queries the AUTHORITATIVE Konnect status via
+   * `payments.public-api.getPaymentStatus` (never trusts a webhook body) OUTSIDE
+   * any transaction, then claims the terminal transition with an ATOMIC
+   * conditional UPDATE that only matches a still-`pending` row (compare-and-set).
+   * Because a webhook and the client confirm can race — both reading `pending`
+   * — the CAS is what makes the transition exactly-once: only the caller whose
+   * `updateMany` reports `count === 1` "won"; a `count === 0` loser returns
+   * `changed: false` and does NOT touch inventory. On:
+   *  - `paid`   → CAS to `paid` + `purchasedAt` (winner only);
+   *  - `failed` → CAS to `failed`, then the winner releases inventory once;
    *  - `pending`→ leaves the order untouched.
+   *
+   * Before a `paid` CAS the collected amount and order id reported by Konnect
+   * are cross-checked (when present) against the order so a mismatched charge is
+   * never settled as paid.
    */
   async reconcileFromGateway(orderNumber: string): Promise<{
     orderNumber: string
@@ -296,22 +308,60 @@ const orderService = ({ strapi }: { strapi: Core.Strapi }) => ({
       return { orderNumber, status: order.paymentStatus, changed: false }
     }
 
-    const { status } = await strapi
+    // Authoritative re-query — a network call, kept OUTSIDE any transaction.
+    const gw = await strapi
       .plugin("payments")
       .service("public-api")
       .getPaymentStatus(order.paymentReference)
 
-    if (status === "paid") {
-      await this.updatePaymentStatus(
-        order.documentId,
-        "paid",
-        order.paymentReference
-      )
+    if (gw.status === "pending") {
+      return { orderNumber, status: "pending", changed: false }
+    }
+
+    if (gw.status === "paid") {
+      // Defense-in-depth: never settle `paid` when Konnect reports a different
+      // collected amount or order id than we expect. Only enforced when the
+      // gateway actually returns the value (a null field still settles).
+      const expectedMillimes = Math.round(order.totalAmount * 1000)
+      if (gw.amount != null && gw.amount !== expectedMillimes) {
+        strapi.log.error(
+          `[ticketing] amount mismatch for order ${orderNumber}: gateway=${gw.amount} expected=${expectedMillimes} millimes — NOT marking paid`
+        )
+        return { orderNumber, status: "pending", changed: false }
+      }
+      if (gw.orderId != null && gw.orderId !== order.orderNumber) {
+        strapi.log.error(
+          `[ticketing] orderId mismatch for order ${orderNumber}: gateway=${gw.orderId} — NOT marking paid`
+        )
+        return { orderNumber, status: "pending", changed: false }
+      }
+
+      // Atomically claim the transition: only a still-`pending` row matches.
+      const res = await strapi.db.query(ORDER_UID).updateMany({
+        where: { documentId: order.documentId, paymentStatus: "pending" },
+        data: {
+          paymentStatus: "paid",
+          paymentReference: order.paymentReference,
+          purchasedAt: new Date(),
+        },
+      })
+      if (res.count !== 1) {
+        // Lost the race — another reconcile already transitioned this order.
+        return { orderNumber, status: gw.status, changed: false }
+      }
       return { orderNumber, status: "paid", changed: true }
     }
 
-    if (status === "failed") {
-      await this.updatePaymentStatus(order.documentId, "failed")
+    if (gw.status === "failed") {
+      // Atomically claim the transition (compare-and-set on `pending`).
+      const res = await strapi.db.query(ORDER_UID).updateMany({
+        where: { documentId: order.documentId, paymentStatus: "pending" },
+        data: { paymentStatus: "failed" },
+      })
+      if (res.count !== 1) {
+        // Lost the race — do NOT release inventory a second time.
+        return { orderNumber, status: gw.status, changed: false }
+      }
       const subEvent = this.resolveSubEventFromOrder(order)
       if (subEvent) {
         const qty = Array.isArray(order.tickets) ? order.tickets.length : 0
@@ -320,7 +370,7 @@ const orderService = ({ strapi }: { strapi: Core.Strapi }) => ({
       return { orderNumber, status: "failed", changed: true }
     }
 
-    return { orderNumber, status: "pending", changed: false }
+    return { orderNumber, status: gw.status, changed: false }
   },
 
   /**

@@ -35,6 +35,8 @@ export interface InitPaymentResult {
 export interface PaymentStatusResult {
   status: InternalPaymentStatus
   orderId: string | null
+  /** Collected amount in millimes, when Konnect reports it (else null). */
+  amount: number | null
   paymentRef: string
 }
 
@@ -124,6 +126,18 @@ const publicApiService = ({ strapi }: { strapi: Core.Strapi }) => {
         "TND"
       ) as string
 
+      // Guard: the amount is scaled to millimes for `currencyToken` (TND, ×1000).
+      // Reject any order whose currency differs so we never silently misprice a
+      // non-TND amount. A matching or absent currency proceeds unchanged.
+      if (
+        params.currency &&
+        params.currency.toUpperCase() !== currencyToken.toUpperCase()
+      ) {
+        throw Object.assign(new Error("Currency not supported"), {
+          code: "INVALID_ORDER",
+        })
+      }
+
       return konnectClient().initPayment({
         amountMillimes: tndToMillimes(params.amountTND),
         token: currencyToken,
@@ -150,6 +164,7 @@ const publicApiService = ({ strapi }: { strapi: Core.Strapi }) => {
       return {
         status: statusMapping().toInternalStatus(details.status),
         orderId: details.orderId,
+        amount: details.amount,
         paymentRef,
       }
     },

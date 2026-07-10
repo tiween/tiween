@@ -14,14 +14,19 @@ const STATUS_BY_CODE: Record<string, number> = {
  */
 function respondError(ctx: any, err: any): void {
   const code: string | undefined = err?.details?.code ?? err?.code
-  const status = (code && STATUS_BY_CODE[code]) || 500
+  const mappedStatus = code ? STATUS_BY_CODE[code] : undefined
+  const status = mappedStatus ?? 500
   ctx.status = status
   ctx.body = {
     error: {
       status,
-      name: err?.name ?? "CheckoutError",
-      message: err?.message ?? "Checkout failed",
-      details: { code: code ?? "INTERNAL_ERROR" },
+      name: "CheckoutError",
+      // Never echo an internal exception message — it can leak stack/DB/query
+      // detail. The client translates `error.details.code`, not this prose, so
+      // a static message is safe for both mapped and unmapped errors.
+      message: "Checkout failed",
+      // Only surface a recognized code; anything unmapped is an internal 500.
+      details: { code: mappedStatus ? code : "INTERNAL_ERROR" },
     },
   }
 }

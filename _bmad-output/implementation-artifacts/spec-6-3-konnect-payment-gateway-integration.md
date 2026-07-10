@@ -2,10 +2,10 @@
 title: "Story 6.3: Konnect Payment Gateway Integration"
 type: "feature"
 created: "2026-07-10"
-status: "in-progress"
+status: "done"
 baseline_revision: "3f528bda69a323c46e80d12060a1492f3488c3c5"
 review_loop_iteration: 0
-followup_review_recommended: false
+followup_review_recommended: true
 context:
   - "{project-root}/_bmad-output/project-context.md"
   - "{project-root}/_bmad-output/implementation-artifacts/epic-6-context.md"
@@ -88,23 +88,23 @@ warnings: [oversized]
 
 **Execution:**
 
-- [ ] `apps/strapi/src/plugins/payments/**` -- scaffold the ACL plugin (package.json, strapi-server.js, strapi-admin.js, admin stub + `translations/{en,fr,ar}.json`, `server/src/index.ts` with no contentTypes, `config/index.ts` with default+validator).
-- [ ] `.../payments/server/src/services/konnect-client.ts` -- `initPayment`/`getPaymentDetails` against the Konnect Network API (x-api-key, millimes conversion, ~4.5s AbortController), mapped errors.
-- [ ] `.../payments/server/src/services/status-mapping.ts` -- Konnect status → `pending|paid|failed`.
-- [ ] `.../payments/server/src/services/public-api.ts` -- facade `initPayment` (builds success/fail/webhook URLs from config) + `getPaymentStatus`; export as `"public-api"` service key.
-- [ ] `.../payments/server/src/controllers/webhook.ts` + `routes/content-api.ts` -- public `POST /konnect/webhook`: re-query Konnect, optional secret check, emit `payments.payment.resolved`, 200; no ticketing import.
-- [ ] `apps/strapi/config/plugins.ts` -- register `payments`.
-- [ ] `.../ticketing/server/src/services/order.ts` -- add `initCheckout` + `reconcileFromGateway` (+ ownership guard) reusing `createOrder`/`updatePaymentStatus`; release inventory on failure via `adjustInventory(subEventId, kind, -qty)`.
-- [ ] `.../ticketing/server/src/controllers/order.ts` + `routes/content-api.ts` -- `POST /orders` (initCheckout, guest-capable, JWT-derived userId) and `POST /orders/:orderNumber/confirm` (reconcile).
-- [ ] `.../ticketing/server/src/validation/order.ts` -- extend schema with `paymentMethod`; server-trusted pricing per Design Notes.
-- [ ] `.../ticketing/server/src/bootstrap.ts` -- subscribe to `payments.payment.resolved` → `reconcileFromGateway`.
-- [ ] `.../ticketing/server/src/services/__tests__/*` -- unit-test the I/O matrix (initCheckout happy/init-failure-release/sold-out, reconcile paid/failed-release/idempotent, ownership guard); mock `strapi.plugin("payments").service("public-api")` and `adjustInventory`.
-- [ ] `apps/client/src/lib/strapi-api/request-auth.ts` -- allow-list the new order POST/confirm/GET endpoints.
-- [ ] `apps/client/.../payment/page.tsx` + `PaymentStep.tsx` -- real payment step (method + guest contact → POST /orders → redirect to payUrl); reuse `PaymentMethodSelector`, `GuestCheckoutForm`, `OrderSummary`, `useGuestCheckout`; store-gated recap.
-- [ ] `apps/client/src/features/tickets/hooks/useCreateOrder.ts` + `useOrderStatus.ts` -- checkout POST + status confirm/poll via `PublicStrapiClient`.
-- [ ] `apps/client/.../payment/result/page.tsx` (+ client child) -- minimal status-driven success / error+retry; `clear()` store on success.
-- [ ] `apps/client/locales/{fr,ar,en}.json` -- `ticketing` keys: `payNow`, `paymentMethod`, `redirecting`, `paymentSuccessTitle`, `paymentPendingTitle`, `paymentFailedTitle`, `paymentFailedDescription`, `retryPayment`, `viewOrder`, `guestContactTitle`, and error codes (`KONNECT_UNAVAILABLE`, `TICKET_SOLD_OUT`, `INVALID_ORDER`, `VALIDATION_FAILED`). Western numerals in `ar.json`.
-- [ ] Co-locate frontend tests for `PaymentStep`, result page, and the new hooks (mock the API client + store).
+- [x] `apps/strapi/src/plugins/payments/**` -- scaffold the ACL plugin (package.json, strapi-server.js, strapi-admin.js, admin stub + `translations/{en,fr,ar}.json`, `server/src/index.ts` with no contentTypes, `config/index.ts` with default+validator).
+- [x] `.../payments/server/src/services/konnect-client.ts` -- `initPayment`/`getPaymentDetails` against the Konnect Network API (x-api-key, millimes conversion, ~4.5s AbortController), mapped errors.
+- [x] `.../payments/server/src/services/status-mapping.ts` -- Konnect status → `pending|paid|failed`.
+- [x] `.../payments/server/src/services/public-api.ts` -- facade `initPayment` (builds success/fail/webhook URLs from config) + `getPaymentStatus`; export as `"public-api"` service key.
+- [x] `.../payments/server/src/controllers/webhook.ts` + `routes/content-api.ts` -- public `POST /konnect/webhook`: re-query Konnect, optional secret check, emit `payments.payment.resolved`, 200; no ticketing import.
+- [x] `apps/strapi/config/plugins.ts` -- register `payments`.
+- [x] `.../ticketing/server/src/services/order.ts` -- add `initCheckout` + `reconcileFromGateway` (+ ownership guard) reusing `createOrder`/`updatePaymentStatus`; release inventory on failure via `adjustInventory(subEventId, kind, -qty)`.
+- [x] `.../ticketing/server/src/controllers/order.ts` + `routes/content-api.ts` -- `POST /orders` (initCheckout, guest-capable, JWT-derived userId) and `POST /orders/:orderNumber/confirm` (reconcile).
+- [x] `.../ticketing/server/src/validation/order.ts` -- extend schema with `paymentMethod`; server-trusted pricing per Design Notes.
+- [x] `.../ticketing/server/src/bootstrap.ts` -- subscribe to `payments.payment.resolved` → `reconcileFromGateway`.
+- [x] `.../ticketing/server/src/services/__tests__/*` -- unit-test the I/O matrix (initCheckout happy/init-failure-release/sold-out, reconcile paid/failed-release/idempotent, ownership guard); mock `strapi.plugin("payments").service("public-api")` and `adjustInventory`.
+- [x] `apps/client/src/lib/strapi-api/request-auth.ts` -- allow-list the new order POST/confirm/GET endpoints.
+- [x] `apps/client/.../payment/page.tsx` + `PaymentStep.tsx` -- real payment step (method + guest contact → POST /orders → redirect to payUrl); reuse `PaymentMethodSelector`, `GuestCheckoutForm`, `OrderSummary`, `useGuestCheckout`; store-gated recap.
+- [x] `apps/client/src/features/tickets/hooks/useCreateOrder.ts` + `useOrderStatus.ts` -- checkout POST + status confirm/poll via `PublicStrapiClient`.
+- [x] `apps/client/.../payment/result/page.tsx` (+ client child) -- minimal status-driven success / error+retry; `clear()` store on success.
+- [x] `apps/client/locales/{fr,ar,en}.json` -- `ticketing` keys: `payNow`, `paymentMethod`, `redirecting`, `paymentSuccessTitle`, `paymentPendingTitle`, `paymentFailedTitle`, `paymentFailedDescription`, `retryPayment`, `viewOrder`, `guestContactTitle`, and error codes (`KONNECT_UNAVAILABLE`, `TICKET_SOLD_OUT`, `INVALID_ORDER`, `VALIDATION_FAILED`). Western numerals in `ar.json`.
+- [x] Co-locate frontend tests for `PaymentStep`, result page, and the new hooks (mock the API client + store).
 
 **Acceptance Criteria:**
 
@@ -122,6 +122,27 @@ warnings: [oversized]
 ## Review Triage Log
 
 <!-- Append-only. Populated by step-04 on every review pass. -->
+
+### 2026-07-10 — Review pass
+
+- intent_gap: 0
+- bad_spec: 0
+- patch: 11: (high 2, medium 4, low 5)
+- defer: 5: (high 0, medium 3, low 2)
+- reject: 5: (high 0, medium 0, low 5)
+- addressed_findings:
+  - `[high]` `[patch]` `reconcileFromGateway` used a non-transactional stale-read terminal guard, so a racing webhook + client-confirm could both release reserved inventory (double-release → oversell/availability corruption). Fixed: terminal transition now claims via an atomic conditional query-builder update (`updateMany WHERE paymentStatus="pending"`); only the `count===1` winner releases inventory / sets paid+purchasedAt. Added idempotency (already-`failed`) and lost-race (`count===0`, no release) tests.
+  - `[high]` `[patch]` The result page mapped a thrown confirm (network error) and a missing `?order` param to the same "Payment failed — you were not charged" + repay-retry view — a double-charge trap for a buyer whose payment actually succeeded but whose confirm errored. Fixed: added a neutral `verifying` state (confirm-throw / missing-order / not_found / refunded / unknown → neutral "we're confirming, do not pay again", store NOT cleared, no repay button); only a definitive `failed` keeps the repay path. Added confirm-rejected and pending tests.
+  - `[medium]` `[patch]` Reconcile marked orders `paid` on gateway status alone, ignoring the collected amount/orderId the client already fetches. Fixed: `getPaymentStatus` now surfaces `amount`; reconcile cross-checks `amount === Math.round(totalAmount*1000)` and `orderId === orderNumber` (when non-null) before the paid CAS, else logs a discrepancy and stays pending. Added amount-mismatch test.
+  - `[medium]` `[patch]` The `GET api/ticketing/orders` proxy allow-list entry (added by 6.3, unused — the result page only calls the POST confirm) exposed full guest PII (email/name/tickets) by order-number enumeration through the public proxy. Fixed: removed the dead GET entry (POST retained).
+  - `[medium]` `[patch]` The Konnect webhook controller (verify-then-emit; the "never trust the webhook body" security property) had no test. Fixed: added `webhook.unit.test.ts` (missing-ref no-op, secret-mismatch 401 no-emit, valid-ref re-query + emit authoritative shape, re-query-throw still 200 no-emit).
+  - `[medium]` `[patch]` The ticketing bootstrap `payments.payment.resolved` eventHub subscription (the entire webhook→ticketing hop) was unexercised. Fixed: added `bootstrap.unit.test.ts` asserting the captured handler calls `reconcileFromGateway(payload.orderId)` and no-ops on missing orderId.
+  - `[low]` `[patch]` `respondError` echoed the internal exception `message` to the client. Fixed: static `"Checkout failed"` message; only recognized `details.code` surfaced (else `INTERNAL_ERROR`/500). Added a controller error-envelope contract test (guards the `extractErrorCode` client contract too).
+  - `[low]` `[patch]` The "select a method" validation alert rendered the section label (`t("paymentMethod")`). Fixed: added `selectMethodError` key (fr/ar/en) and rendered it.
+  - `[low]` `[patch]` `initPayment` ignored `params.currency` and always ×1000-scaled with the TND token. Fixed: throws `INVALID_ORDER` on a currency/token mismatch (guards a future non-TND 100× overcharge). Added tests.
+  - `[low]` `[patch]` PaymentStep's empty-cart submit was a silent no-op. Fixed: renders a minimal empty state + link back to selection (`emptyCartTitle`/`emptyCartDescription`, fr/ar/en).
+  - `[low]` `[patch]` The `INVALID_ORDER` unknown-ticket-type (`!tier`) branch was untested (only price-mismatch was). Fixed: added the missing case.
+- notes: Parallel Blind Hunter + Edge Case Hunter + Verification Gap pass over the full baseline diff. Dependency direction (payments imports no ticketing; webhook decouples via eventHub), open-redirect same-origin guard, server-trusted pricing, and server-side-only API keys were reviewed and confirmed sound. Five deferrals recorded in the ledger (abandoned/lost-webhook inventory leak — spec-deferred; no server-side checkout idempotency key; pre-existing unfiltered-PII on the direct Strapi `GET /orders/:orderNumber` route; unauthenticated/unthrottled confirm+webhook with optional secret; webhook backstop drops events when Konnect echoes `orderId=null`). Rejected 5 low-value/low-likelihood items (init-4xx→generic "gateway unavailable" message; timeout-wiring redundant test; symmetric performance-branch coverage; init-failure double-fault compensation; assorted nits).
 
 ## Design Notes
 
@@ -145,3 +166,43 @@ warnings: [oversized]
 **Manual checks:**
 
 - With `KONNECT_*` env set to sandbox creds: open the payment step, pick a method + enter guest email, confirm → redirected to a Konnect `payUrl`; complete a sandbox payment → webhook + result page show `paid`; force a failure → order `failed`, inventory released, retry returns to the payment step. Confirm `POST /api/payments/konnect/webhook` re-queries Konnect and is idempotent on replay.
+
+## Auto Run Result
+
+Status: done
+
+### Summary
+
+Stood up the dedicated `payments` Anti-Corruption-Layer plugin (Konnect Network API; no content types; `konnect-client` + `status-mapping` + `public-api` services; config+validator; public `/api/payments/konnect/webhook` route verified by re-querying Konnect) and wired the ticketing funnel into it. Ticketing gained a guest-capable `POST /orders` checkout (`initCheckout`: server-trusted pricing + sub-event↔event ownership guard → `createOrder` reserves inventory + writes a `pending` order → `payments.public-api.initPayment` → persist `paymentReference` → return `{ orderNumber, payUrl }`) and an idempotent, atomically-guarded `reconcileFromGateway` (client `POST /orders/:orderNumber/confirm` + a decoupled `strapi.eventHub` webhook backstop) that marks `paid`/`failed` exactly once and releases reserved inventory on failure. The frontend placeholder was replaced by a real payment step (method selection + guest contact → redirect to the hosted `payUrl`) and a status-driven result page; `payments` never imports `ticketing` (R5), and the graph stays acyclic.
+
+### Files changed
+
+- `apps/strapi/src/plugins/payments/**` — NEW ACL plugin: `package.json`, `strapi-server.js`, `strapi-admin.js`, `admin/src/index.tsx` + `translations/{en,fr,ar}.json`, `server/src/index.ts` (no contentTypes), `config/index.ts` (default+validator warns on missing `KONNECT_API_KEY`/`KONNECT_WALLET_ID`), `services/{konnect-client,status-mapping,public-api,index}.ts`, `controllers/{webhook,index}.ts`, `routes/{content-api,index}.ts`, `__tests__/{konnect-client,public-api,status-mapping}.unit.test.ts` + `controllers/__tests__/webhook.unit.test.ts`.
+- `apps/strapi/config/plugins.ts` — register `payments`. `apps/strapi/.env.example` — document `KONNECT_*`.
+- `apps/strapi/src/plugins/events-manager/server/src/services/public-api.ts` — `getSubEventContext` facade (ownership + trusted-pricing source; R3/R4 compliant).
+- `apps/strapi/src/plugins/ticketing/server/src/services/order.ts` — `initCheckout`, `reconcileFromGateway` (atomic CAS transition + release-once), `releaseInventory`; `controllers/order.ts` (`create`/`confirm`, hardened `respondError`); `routes/content-api.ts`; `validation/order.ts` (`checkoutSchema`); `bootstrap.ts` (eventHub subscribe); `__tests__/order-checkout.unit.test.ts`, `__tests__/bootstrap.unit.test.ts`, `controllers/__tests__/order.unit.test.ts`.
+- `apps/client/src/app/[locale]/tickets/[documentId]/[screeningId]/payment/` — `page.tsx` (real step), `PaymentStep.tsx` (+ test), `result/{page.tsx,ResultView.tsx}` (+ test); removed `PaymentStepPreview.*`.
+- `apps/client/src/features/tickets/hooks/{useCreateOrder,useOrderStatus}.ts` (+ tests, `index.ts`); `utils/extractErrorCode.ts` (+ test).
+- `apps/client/src/lib/strapi-api/request-auth.ts` — allow-list `POST api/ticketing/orders` (unused PII-leaking GET entry removed in review).
+- `apps/client/locales/{fr,ar,en}.json` — `ticketing` payment keys (methods/statuses/errors/guest/verifying/empty-cart; Western numerals in `ar`).
+
+### Review findings breakdown
+
+- Patches applied (11 — high 2, medium 4, low 5): reconcile exactly-once atomic CAS (double-release fix); result-page `verifying` state (double-charge-trap fix); paid-amount/orderId verification; removal of the unused PII-leaking GET proxy allow-list entry; webhook-controller and bootstrap-subscription test coverage; `respondError` no-message-leak + contract test; real "select a method" error; `initPayment` currency guard; empty-cart feedback; unknown-ticket-type test.
+- Deferred (5 — medium 3, low 2): abandoned/lost-webhook inventory leak (no reservation-expiry sweep — spec-deferred); no server-side checkout idempotency key; pre-existing unfiltered guest PII on the direct Strapi `GET /orders/:orderNumber`; unauthenticated/unthrottled confirm+webhook with optional secret; webhook backstop drops events on Konnect `orderId=null`. (See deferred-work ledger `review of 6-3-... (2026-07-10)`.)
+- Rejected (5, low): init-4xx→generic "gateway unavailable" message; redundant timeout-wiring test; symmetric performance-branch coverage; init-failure double-fault compensation; assorted nits.
+
+### Verification
+
+- `apps/strapi`: `yarn test src/plugins/payments src/plugins/ticketing` → **9 suites / 54 tests pass** (konnect-client, public-api, status-mapping, webhook, order-checkout, bootstrap, order controller, order.unit, order-link-guest). Strapi typecheck: 0 errors in payments/ticketing (9 pre-existing baseline errors in untouched `user-engagement`). Boot verified: `payments` registers, validator warns (not throws) when Konnect env unset.
+- `apps/client`: `vitest run src/features/tickets src/app/**/tickets` → **14 files / 74 tests pass**. `tsc --noEmit` → 64 total errors = unchanged pre-existing baseline (0 new; the 2 `PaymentForm/paymentSchema.ts` errors are pre-existing untouched).
+
+### Residual risks
+
+- End-to-end against a live Konnect sandbox was not run (no credentials in-env); correctness is proven by unit tests with mocked HTTP/eventHub — the manual sandbox check above remains outstanding for a human.
+- Reserved inventory can be held by abandoned checkouts until a reconciliation runs (no expiry sweep — deferred).
+- `reconcileFromGateway`'s exactly-once guard relies on a conditional `updateMany WHERE paymentStatus="pending"` being atomic at the DB; correct for the single-row transition, but the underlying `adjustInventory` remains the pre-existing non-atomic read-modify-write for cross-order oversell (out of scope, unchanged).
+
+### Follow-up review recommendation
+
+`true` — the review pass made high-severity, behavior-changing fixes to money/inventory/redirect paths across several backend and frontend files (atomic reconcile CAS, paid-amount verification, result-page state machine, PII allow-list removal). An independent follow-up over the committed diff is warranted.

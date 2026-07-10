@@ -38,6 +38,10 @@ const ALLOWED_STRAPI_ENDPOINTS: Record<string, string[]> = {
     // watchlist route is JWT-self-scoped and no Story 5.1 UI path invokes
     // toggle. Hard remove (DELETE) stays blocked until Story 5.2.
     "api/user-engagement/watchlist",
+    // Checkout: create order + init Konnect payment, and the idempotent
+    // reconciliation confirm (Story 6.3). `startsWith` covers both
+    // `.../orders` and `.../orders/:orderNumber/confirm`.
+    "api/ticketing/orders",
   ],
   // Self-scoped profile update only. `api/users` is intentionally NOT listed —
   // that would expose the stock `PUT api/users/:id` (arbitrary id + fields).

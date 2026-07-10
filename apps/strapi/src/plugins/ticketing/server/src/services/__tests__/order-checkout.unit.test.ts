@@ -19,6 +19,8 @@ interface DepOverrides {
   getPaymentStatus?: jest.Mock
   documentCreate?: jest.Mock
   documentUpdate?: jest.Mock
+  /** Mock for the atomic `strapi.db.query(ORDER_UID).updateMany` CAS. */
+  updateMany?: jest.Mock
   findManyResult?: unknown[]
 }
 
@@ -58,6 +60,8 @@ function buildStrapi(deps: DepOverrides = {}) {
     }))
   const documentUpdate = deps.documentUpdate ?? jest.fn(async () => ({}))
   const documentFindMany = jest.fn(async () => deps.findManyResult ?? [])
+  // Atomic compare-and-set on the pending row; default = winner (count 1).
+  const updateMany = deps.updateMany ?? jest.fn(async () => ({ count: 1 }))
 
   const eventsPublicApi = { getSubEventContext, adjustInventory }
   const paymentsPublicApi = { initPayment, getPaymentStatus }
@@ -85,6 +89,7 @@ function buildStrapi(deps: DepOverrides = {}) {
       transaction: jest.fn(async (cb: (ctx: { trx: unknown }) => unknown) =>
         cb({ trx: {} })
       ),
+      query: jest.fn(() => ({ updateMany })),
     },
   }
 
@@ -96,6 +101,7 @@ function buildStrapi(deps: DepOverrides = {}) {
     getPaymentStatus,
     documentCreate,
     documentUpdate,
+    updateMany,
   }
 }
 
@@ -249,6 +255,26 @@ describe("order.initCheckout (unit)", () => {
     expect(deps.initPayment).not.toHaveBeenCalled()
   })
 
+  it("unknown ticket type (not among the sub-event tiers) is rejected (INVALID_ORDER)", async () => {
+    const deps = buildStrapi()
+    const service = orderService({ strapi: deps.strapi })
+
+    // "reduced" is a valid enum value but not one of the returned tiers
+    // (standard/vip), so no `tier` matches → INVALID_ORDER (the `!tier` branch).
+    const unknownType = {
+      ...checkoutInput,
+      tickets: [{ type: "reduced", price: 10 }],
+    }
+
+    await expect(
+      service.initCheckout(unknownType as any)
+    ).rejects.toMatchObject({
+      code: INVALID_ORDER,
+    })
+    expect(deps.adjustInventory).not.toHaveBeenCalled()
+    expect(deps.initPayment).not.toHaveBeenCalled()
+  })
+
   it("missing guest identity (no email) is rejected before any write", async () => {
     const deps = buildStrapi()
     const service = orderService({ strapi: deps.strapi })
@@ -269,6 +295,7 @@ function pendingOrder(overrides: Record<string, unknown> = {}) {
     orderNumber: "TW-1",
     paymentStatus: "pending",
     paymentReference: "ref-1",
+    totalAmount: 35,
     screening: { documentId: "screening-1" },
     tickets: [{}, {}],
     ...overrides,
@@ -276,10 +303,15 @@ function pendingOrder(overrides: Record<string, unknown> = {}) {
 }
 
 describe("order.reconcileFromGateway (unit)", () => {
-  it("paid: sets paid + purchasedAt, no inventory release", async () => {
+  it("paid: CAS-transitions to paid + purchasedAt, no inventory release", async () => {
     const deps = buildStrapi({
       findManyResult: [pendingOrder()],
-      getPaymentStatus: jest.fn(async () => ({ status: "paid" })),
+      // 35 TND → 35000 millimes; matching amount + orderId.
+      getPaymentStatus: jest.fn(async () => ({
+        status: "paid",
+        amount: 35000,
+        orderId: "TW-1",
+      })),
     })
     const service = orderService({ strapi: deps.strapi })
 
@@ -290,15 +322,41 @@ describe("order.reconcileFromGateway (unit)", () => {
       status: "paid",
       changed: true,
     })
-    expect(deps.documentUpdate).toHaveBeenCalledWith(
+    // Terminal transition claimed via the atomic conditional UPDATE.
+    expect(deps.updateMany).toHaveBeenCalledWith(
       expect.objectContaining({
+        where: { documentId: "order-doc-1", paymentStatus: "pending" },
         data: expect.objectContaining({ paymentStatus: "paid" }),
       })
     )
     expect(deps.adjustInventory).not.toHaveBeenCalled()
   })
 
-  it("failed: marks failed and releases reserved inventory exactly once", async () => {
+  it("paid but amount mismatched: NOT marked paid, returns pending", async () => {
+    const deps = buildStrapi({
+      findManyResult: [pendingOrder()],
+      // Konnect reports a collected amount that does not match the order total.
+      getPaymentStatus: jest.fn(async () => ({
+        status: "paid",
+        amount: 99999,
+        orderId: "TW-1",
+      })),
+    })
+    const service = orderService({ strapi: deps.strapi })
+
+    const result = await service.reconcileFromGateway("TW-1")
+
+    expect(result).toEqual({
+      orderNumber: "TW-1",
+      status: "pending",
+      changed: false,
+    })
+    // Must never claim the paid transition on a mismatched charge.
+    expect(deps.updateMany).not.toHaveBeenCalled()
+    expect(deps.adjustInventory).not.toHaveBeenCalled()
+  })
+
+  it("failed: CAS-transitions to failed and releases inventory exactly once", async () => {
     const deps = buildStrapi({
       findManyResult: [pendingOrder()],
       getPaymentStatus: jest.fn(async () => ({ status: "failed" })),
@@ -312,6 +370,12 @@ describe("order.reconcileFromGateway (unit)", () => {
       status: "failed",
       changed: true,
     })
+    expect(deps.updateMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { documentId: "order-doc-1", paymentStatus: "pending" },
+        data: { paymentStatus: "failed" },
+      })
+    )
     expect(deps.adjustInventory).toHaveBeenCalledTimes(1)
     expect(deps.adjustInventory).toHaveBeenCalledWith(
       "screening-1",
@@ -320,7 +384,27 @@ describe("order.reconcileFromGateway (unit)", () => {
     )
   })
 
-  it("idempotent: an already-paid order is untouched (no re-query, no release)", async () => {
+  it("lost race on failed: CAS count 0 → no inventory release", async () => {
+    const deps = buildStrapi({
+      findManyResult: [pendingOrder()],
+      getPaymentStatus: jest.fn(async () => ({ status: "failed" })),
+      // Another reconcile already transitioned this order.
+      updateMany: jest.fn(async () => ({ count: 0 })),
+    })
+    const service = orderService({ strapi: deps.strapi })
+
+    const result = await service.reconcileFromGateway("TW-1")
+
+    expect(result).toEqual({
+      orderNumber: "TW-1",
+      status: "failed",
+      changed: false,
+    })
+    // The CAS loser must NOT release inventory (avoid double-release).
+    expect(deps.adjustInventory).not.toHaveBeenCalled()
+  })
+
+  it("idempotent: an already-paid order is untouched (no re-query, no CAS)", async () => {
     const deps = buildStrapi({
       findManyResult: [pendingOrder({ paymentStatus: "paid" })],
     })
@@ -334,7 +418,25 @@ describe("order.reconcileFromGateway (unit)", () => {
       changed: false,
     })
     expect(deps.getPaymentStatus).not.toHaveBeenCalled()
-    expect(deps.documentUpdate).not.toHaveBeenCalled()
+    expect(deps.updateMany).not.toHaveBeenCalled()
+    expect(deps.adjustInventory).not.toHaveBeenCalled()
+  })
+
+  it("idempotent: an already-failed order is untouched (no re-query, no CAS, no release)", async () => {
+    const deps = buildStrapi({
+      findManyResult: [pendingOrder({ paymentStatus: "failed" })],
+    })
+    const service = orderService({ strapi: deps.strapi })
+
+    const result = await service.reconcileFromGateway("TW-1")
+
+    expect(result).toEqual({
+      orderNumber: "TW-1",
+      status: "failed",
+      changed: false,
+    })
+    expect(deps.getPaymentStatus).not.toHaveBeenCalled()
+    expect(deps.updateMany).not.toHaveBeenCalled()
     expect(deps.adjustInventory).not.toHaveBeenCalled()
   })
 
@@ -352,7 +454,7 @@ describe("order.reconcileFromGateway (unit)", () => {
       status: "pending",
       changed: false,
     })
-    expect(deps.documentUpdate).not.toHaveBeenCalled()
+    expect(deps.updateMany).not.toHaveBeenCalled()
     expect(deps.adjustInventory).not.toHaveBeenCalled()
   })
 

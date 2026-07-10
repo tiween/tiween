@@ -132,7 +132,45 @@ describe("public-api.getPaymentStatus", () => {
     expect(result).toEqual({
       status: "paid",
       orderId: "TW-1",
+      amount: 70000,
       paymentRef: "ref-1",
     })
+  })
+})
+
+describe("public-api.initPayment currency guard", () => {
+  it("throws INVALID_ORDER when the order currency does not match the config token", async () => {
+    const deps = buildStrapi()
+    const service = publicApiService({ strapi: deps.strapi })
+
+    await expect(
+      service.initPayment({
+        orderNumber: "TW-1",
+        amountTND: 10,
+        currency: "EUR",
+        methods: ["card"],
+        customer: { firstName: "A", lastName: "B", email: "a@b.co" },
+      })
+    ).rejects.toMatchObject({ code: "INVALID_ORDER" })
+
+    // Must never scale a non-TND amount by 1000 through to Konnect.
+    expect(deps.initPayment).not.toHaveBeenCalled()
+  })
+
+  it("initializes when the currency matches (case-insensitively)", async () => {
+    const deps = buildStrapi()
+    const service = publicApiService({ strapi: deps.strapi })
+
+    await service.initPayment({
+      orderNumber: "TW-1",
+      amountTND: 10,
+      currency: "tnd",
+      methods: ["card"],
+      customer: { firstName: "A", lastName: "B", email: "a@b.co" },
+    })
+
+    expect(deps.initPayment).toHaveBeenCalledWith(
+      expect.objectContaining({ amountMillimes: 10000, token: "TND" })
+    )
   })
 })

@@ -49,20 +49,17 @@ const baseOrderShape = {
   tickets: z.array(ticketInputSchema).min(1),
 }
 
-/** Exactly one of screeningId / performanceId (XOR). */
-const xorRefine = [
-  (data: { screeningId?: string; performanceId?: string }) =>
-    (data.screeningId === undefined) !== (data.performanceId === undefined),
-  {
-    message:
-      "Exactly one of screeningId or performanceId must be provided (XOR)",
-    path: ["screeningId"],
-  },
-] as const
-
 export const createOrderSchema = z
   .object(baseOrderShape)
-  .refine(xorRefine[0], xorRefine[1])
+  .refine(
+    (data) =>
+      (data.screeningId === undefined) !== (data.performanceId === undefined),
+    {
+      message:
+        "Exactly one of screeningId or performanceId must be provided (XOR)",
+      path: ["screeningId"],
+    }
+  )
 
 export type CreateOrderInput = z.infer<typeof createOrderSchema>
 
@@ -82,6 +79,14 @@ export const checkoutSchema = z
     phone: z.string().min(1).optional(),
     locale: z.enum(["fr", "ar", "en"]).optional(),
   })
-  .refine(xorRefine[0], xorRefine[1])
+  .refine(
+    (data) =>
+      (data.screeningId === undefined) !== (data.performanceId === undefined),
+    {
+      message:
+        "Exactly one of screeningId or performanceId must be provided (XOR)",
+      path: ["screeningId"],
+    }
+  )
 
 export type CheckoutInput = z.infer<typeof checkoutSchema>
