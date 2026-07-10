@@ -36,6 +36,11 @@
       "type": "integer",
       "default": 0
     },
+    "ticketTiers": {
+      "type": "component",
+      "repeatable": true,
+      "component": "ticketing.ticket-tier"
+    },
     "event": {
       "type": "relation",
       "relation": "manyToOne",

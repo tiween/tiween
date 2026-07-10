@@ -1,0 +1,33 @@
+{
+  "collectionName": "components_ticketing_ticket_tiers",
+  "info": {
+    "displayName": "Ticket Tier",
+    "icon": "ticket",
+    "description": "A priced ticket type (Plein tarif / Tarif reduit / VIP) with its own inventory for a sub-event (Story 6.1, read-only display source)"
+  },
+  "options": {},
+  "attributes": {
+    "type": {
+      "type": "enumeration",
+      "enum": ["standard", "reduced", "vip"],
+      "required": true
+    },
+    "price": {
+      "type": "decimal",
+      "required": true,
+      "default": 0
+    },
+    "ticketsAvailable": {
+      "type": "integer",
+      "required": true,
+      "default": 0
+    },
+    "ticketsSold": {
+      "type": "integer",
+      "default": 0
+    },
+    "restrictionNote": {
+      "type": "string"
+    }
+  }
+}

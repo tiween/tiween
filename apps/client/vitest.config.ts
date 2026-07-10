@@ -117,6 +117,13 @@ export default defineConfig({
       "src/app/**/notifications/**/*.test.tsx",
       // BottomNav account-tab badge (Story 5.6).
       "src/components/layout/**/*.test.tsx",
+      // Ticket types + prices: formatPrice util, useTicketTiers hook,
+      // TicketTypeList component (Story 6.1).
+      "src/features/tickets/**/*.test.ts",
+      "src/features/tickets/**/*.test.tsx",
+      // Tickets route client child — TicketTypesSection state routing
+      // (Story 6.1). `[locale]` etc. are glob char-classes, so match via `**`.
+      "src/app/**/tickets/**/*.test.tsx",
     ],
   },
 })

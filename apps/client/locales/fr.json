@@ -330,6 +330,23 @@
       "noVenueFound": "Aucune salle trouvée"
     }
   },
+  "ticketing": {
+    "pageTitle": "Choisir vos billets",
+    "types": {
+      "standard": "Plein tarif",
+      "reduced": "Tarif réduit",
+      "vip": "VIP"
+    },
+    "remaining": "{count, plural, one {# restant} other {# restants}}",
+    "soldOut": "Complet",
+    "restrictionPrefix": "Restriction :",
+    "emptyTitle": "Aucun billet disponible",
+    "emptyDescription": "Les billets pour cette séance ne sont pas encore en vente.",
+    "errorTitle": "Impossible de charger les billets",
+    "errorDescription": "Une erreur est survenue. Veuillez réessayer.",
+    "retry": "Réessayer",
+    "loading": "Chargement des billets"
+  },
   "payment": {
     "title": "Paiement",
     "selectMethod": "Choisir un mode de paiement",

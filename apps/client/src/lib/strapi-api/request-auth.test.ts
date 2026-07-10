@@ -76,3 +76,31 @@ describe("isStrapiEndpointAllowed (Story 5.1 watchlist endpoints)", () => {
     ).toBe(false)
   })
 })
+
+describe("isStrapiEndpointAllowed (Story 6.1 ticket-tiers endpoint)", () => {
+  beforeEach(() => vi.clearAllMocks())
+
+  it("allows the public ticket-tiers GET (via startsWith on the showtimes prefix)", () => {
+    expect(
+      isStrapiEndpointAllowed(
+        "api/events-manager/showtimes/sc-1/ticket-tiers",
+        "GET"
+      )
+    ).toBe(true)
+  })
+
+  it("does NOT open the showtimes prefix for write methods", () => {
+    expect(
+      isStrapiEndpointAllowed(
+        "api/events-manager/showtimes/sc-1/ticket-tiers",
+        "POST"
+      )
+    ).toBe(false)
+    expect(
+      isStrapiEndpointAllowed(
+        "api/events-manager/showtimes/sc-1/ticket-tiers",
+        "DELETE"
+      )
+    ).toBe(false)
+  })
+})

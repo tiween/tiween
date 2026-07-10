@@ -169,7 +169,7 @@ development_status:
 
   # Epic 6: B2C Ticketing & Purchases
   epic-6: backlog
-  6-1-view-ticket-types-and-prices: backlog
+  6-1-view-ticket-types-and-prices: done
   6-2-select-ticket-quantity: backlog
   6-3-konnect-payment-gateway-integration: backlog
   6-4-qr-code-ticket-generation: backlog

@@ -430,15 +430,46 @@ async function seedEvents(strapi: any): Promise<SeedResult> {
       const subEventStart = new Date(startDate)
       subEventStart.setUTCHours(subEventHours[j], 0, 0, 0)
 
+      const basePrice = randomInt(15, 35)
+      const baseAvailable = randomInt(50, 150)
+
+      // Tiered pricing catalog (Story 6.1). Additive display source of truth;
+      // the legacy single `price`/`ticketsAvailable`/`ticketsSold` below is left
+      // untouched. Realistic mix: three distinct prices, the `reduced` tier
+      // carrying a restriction note, and the `vip` tier deliberately sold out
+      // (ticketsSold >= ticketsAvailable) so the sold-out UI state is testable.
+      const ticketTiers = [
+        {
+          type: "standard",
+          price: basePrice,
+          ticketsAvailable: baseAvailable,
+          ticketsSold: randomInt(5, 40),
+        },
+        {
+          type: "reduced",
+          price: Math.max(1, basePrice - 5),
+          ticketsAvailable: Math.round(baseAvailable / 2),
+          ticketsSold: randomInt(2, 20),
+          restrictionNote: "sur justificatif",
+        },
+        {
+          type: "vip",
+          price: basePrice + 20,
+          ticketsAvailable: 10,
+          ticketsSold: 10,
+        },
+      ]
+
       const commonData = {
         order: 1,
         startDateTime: subEventStart.toISOString(),
         audioLanguage: "ar",
-        price: randomInt(15, 35),
-        ticketsAvailable: randomInt(50, 150),
+        price: basePrice,
+        ticketsAvailable: baseAvailable,
         // Non-zero floor so the trending slice (ranked by sum(ticketsSold))
         // is always exercisable against seeded data (Story 3.1a).
         ticketsSold: randomInt(5, 40),
+        ticketTiers,
         event: event.documentId,
       }
 

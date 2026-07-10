@@ -18,6 +18,9 @@ const ALLOWED_STRAPI_ENDPOINTS: Record<string, string[]> = {
     // Notification reads (Story 5.6). `startsWith` covers the list root and the
     // `unread-count` probe. Every notification route is JWT-self-scoped.
     "api/user-engagement/notifications",
+    // Public ticket-tiers read for a sub-event (Story 6.1). `startsWith` covers
+    // `.../showtimes/:documentId/ticket-tiers`. Public, read-only presentation.
+    "api/events-manager/showtimes",
   ],
   POST: [
     "api/subscribers",

@@ -330,6 +330,23 @@
       "noVenueFound": "لا توجد قاعة"
     }
   },
+  "ticketing": {
+    "pageTitle": "اختيار التذاكر",
+    "types": {
+      "standard": "التعرفة الكاملة",
+      "reduced": "تعرفة مخفّضة",
+      "vip": "VIP"
+    },
+    "remaining": "{count} متبقّي",
+    "soldOut": "مكتمل",
+    "restrictionPrefix": "شرط:",
+    "emptyTitle": "لا تتوفّر تذاكر",
+    "emptyDescription": "لم تُطرح تذاكر هذا العرض للبيع بعد.",
+    "errorTitle": "تعذّر تحميل التذاكر",
+    "errorDescription": "حدث خطأ. يرجى المحاولة مرة أخرى.",
+    "retry": "إعادة المحاولة",
+    "loading": "جارٍ تحميل التذاكر"
+  },
   "payment": {
     "title": "الدفع",
     "selectMethod": "اختر طريقة الدفع",

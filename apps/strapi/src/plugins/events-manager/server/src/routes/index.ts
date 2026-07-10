@@ -32,6 +32,18 @@ export default {
           auth: false,
         },
       },
+      // Public ticket-tiers read for a sub-event (Story 6.1). A distinct
+      // `/showtimes/*` prefix, so no ordering conflict with the `/events/*`
+      // routes above.
+      {
+        method: "GET",
+        path: "/showtimes/:documentId/ticket-tiers",
+        handler: "ticket-tiers.findTicketTiers",
+        config: {
+          policies: [],
+          auth: false,
+        },
+      },
     ],
   },
   admin: {

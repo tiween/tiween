@@ -79,3 +79,9 @@ export type {
   Showtime as TicketingShowtime,
   MovieInfo,
 } from "./TicketingPageDesktop"
+
+export { TicketTypeList } from "./TicketTypeList"
+export type {
+  TicketTypeListProps,
+  TicketTypeListLabels,
+} from "./TicketTypeList"
