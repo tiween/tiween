@@ -49,7 +49,8 @@ status: open
 origin: migrated from legacy ledger ("Resolved + re-scoped 2026-06-15 (Ayoub: ticketing ships post-GTM)"), 2026-07-12
 location: n/a
 reason: draftAndPublish double-count — RESOLVED.
-status: open
+status: done 2026-07-12
+resolution: already resolved: adjustInventory reads and writes with status:'published' on both sides (apps/strapi/src/plugins/events-manager/server/src/services/public-api.ts:99-128), so the live row is the sole target and no draft/published double-count occurs. Fixed in commit 7bb47b8 (inventory via Document Service).
 
 ### DW-8: Concurrency NOT handled
 
@@ -210,14 +211,16 @@ status: open
 origin: migrated from legacy ledger ("Deferred from: 3-7-event-detail-page (2026-07-06)"), 2026-07-12
 location: n/a
 reason: The interactive venue map is NOT rendered on the detail page — the venue block shows address/city/region text only. `venue.geo` ({ latitude, longitude }) IS now deep-populated by `DETAIL_POPULATE` and typed (`StrapiGeoPoint`) so the map can consume it, but the map itself is Story 3.8.
-status: open
+status: done 2026-07-12
+resolution: already resolved: The interactive venue map now renders: apps/client/.../EventDetailPage/EventDetailPage.tsx:354-386 renders <VenueMap> plus a directions link, gated on venue lat/lng. Landed in Story 3.8 (commit c1f364f).
 
 ### DW-31: Watchlist persistence and the ticket purchase flow are NOT built
 
 origin: migrated from legacy ledger ("Deferred from: 3-7-event-detail-page (2026-07-06)"), 2026-07-12
 location: n/a
 reason: Watchlist persistence and the ticket purchase flow are NOT built — the watchlist toggle stays local `useState`, and a showtime tap only navigates to the ticketing entrypoint (`/{locale}/tickets/{eventDocumentId}/{screeningDocumentId}`).
-status: open
+status: done 2026-07-12
+resolution: already resolved: Watchlist is now server-backed via useAddToWatchlist/useRemoveFromWatchlist (EventDetailPage.tsx:150-157, Epic 5), and a showtime tap navigates to the real ticketing entrypoint /{locale}/tickets/{eventId}/{screeningId} (EventDetailPage.tsx:227-230); Epic 6 Konnect checkout has landed (commits c94f41b/811fb81). The detail page's local-useState watchlist is gone.
 
 ### DW-32: The `EventDetailPageDesktop` and `EventDetailPageWithMap` variants still read the legacy `event.creativeWork` relation and will render…
 
@@ -308,7 +311,8 @@ status: open
 origin: migrated from legacy ledger ("Deferred from: 4-1-email-and-password-registration (2026-07-09)"), 2026-07-12
 location: apps/strapi/package.json
 reason: The Strapi test suite cannot boot via `cd apps/strapi && yarn test` — Jest fails to parse `jest.config.ts` because `ts-node` is not installed anywhere in the repo (it is absent from `apps/strapi/package.json` and from `yarn.lock`). This is pre-existing (reproduces on baseline `2a88d19`, unrelated to Story 4.1) and blocks the entire backend suite (2b-16, 2c-4, and 4.1's new `register.unit.test.ts`).
-status: open
+status: done 2026-07-12
+resolution: already resolved: jest.config.ts was renamed to jest.config.cjs (commit f4bb4d7, the 4.1 finalize commit) fixing the ts-node parse failure; running `cd apps/strapi && yarn test` now boots 29 suites / 306 tests green, including register.unit.test.ts and social-login.unit.test.ts.
 
 ### DW-45: The Strapi boot-based integration suites (`*.service.test.ts`, `event-manager.controller.test.ts`, `tests/app.test.js`) are excluded…
 
