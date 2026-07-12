@@ -1,492 +1,899 @@
 # Deferred Work
 
-## Deferred from: code review of 2b-16-events-manager-plugin-test-coverage.md (2026-06-08)
+### DW-1: Missing validation for date/time strings in service [apps/strapi/src/plugins/events-manager/server/src/services/event-manager.ts]
 
-- ~~Missing validation for date/time strings in service [apps/strapi/src/plugins/events-manager/server/src/services/event-manager.ts] — invalid inputs currently lead to 500 errors.~~ **RESOLVED 2026-06-11** — up-front validation of dates/time/price/ticketsAvailable in `createBulkShowtimes` (no partial writes), clear error messages surfaced as 400 by the controller; 9 unit tests added.
-- ~~Missing bounds check for ticket inventory [apps/strapi/src/plugins/events-manager/server/src/services/event-manager.ts] — allows negative values (overselling).~~ **RESOLVED 2026-06-11** — `updateTicketInventory` enforces non-negative integers and `ticketsSold ≤ ticketsAvailable` (including against already-sold tickets when only capacity changes); 7 unit tests added.
+origin: migrated from legacy ledger ("Deferred from: code review of 2b-16-events-manager-plugin-test-coverage.md (2026-06-08)"), 2026-07-12
+location: apps/strapi/src/plugins/events-manager/server/src/services/event-manager.ts
+reason: Missing validation for date/time strings in service [apps/strapi/src/plugins/events-manager/server/src/services/event-manager.ts] — invalid inputs currently lead to 500 errors.
+status: done 2026-06-11
+resolution: Up-front validation of dates/time/price/ticketsAvailable added in `createBulkShowtimes` (no partial writes); clear error messages surfaced as 400 by the controller; 9 unit tests added.
 
-## Deferred from: code review of event-manager validation fixes (2026-06-11)
+### DW-2: Missing bounds check for ticket inventory [apps/strapi/src/plugins/events-manager/server/src/services/event-manager.ts]
 
-- TOCTOU race in `updateTicketInventory` [apps/strapi/src/plugins/events-manager/server/src/services/event-manager.ts] — the read-then-update window allows a concurrent purchase to bump `ticketsSold` past the validated capacity. The service guard catches operator mistakes, not races. Follow-up: add a PostgreSQL `CHECK (tickets_sold <= tickets_available)` constraint via a Strapi database migration so the RDBMS is the final enforcer. Relevant when Epic 6 (B2C ticketing) makes concurrent purchases real.
+origin: migrated from legacy ledger ("Deferred from: code review of 2b-16-events-manager-plugin-test-coverage.md (2026-06-08)"), 2026-07-12
+location: apps/strapi/src/plugins/events-manager/server/src/services/event-manager.ts
+reason: Missing bounds check for ticket inventory [apps/strapi/src/plugins/events-manager/server/src/services/event-manager.ts] — allows negative values (overselling).
+status: done 2026-06-11
+resolution: `updateTicketInventory` enforces non-negative integers and `ticketsSold <= ticketsAvailable` (including against already-sold tickets when only capacity changes); 7 unit tests added.
 
-## Deferred from: code review of 2c-4-ticketing-unit-of-work (2026-06-15)
+### DW-3: TOCTOU race in `updateTicketInventory` [apps/strapi/src/plugins/events-manager/server/src/services/event-manager.ts]
 
-- Transaction threading of order/ticket Document Service writes rests on Strapi v5 AsyncLocalStorage auto-join (verified documented-correct; execution proof is the skipped integration test). Re-confirm when integration suite boots.
-- Integration test `order.service.test.ts` is `describe.skip` due to pre-existing `db.config.connection` env failure blocking all integration suites. When un-skipped, add a `status: published` screening fixture so the inventory path is exercised against a real published row.
-- Refund path (delta<0) in adjustInventory: no upper bound / idempotency, shares TICKET_SOLD_OUT code. No refund caller wired yet (Epic 6) — give a distinct code when implemented.
+origin: migrated from legacy ledger ("Deferred from: code review of event-manager validation fixes (2026-06-11)"), 2026-07-12
+location: apps/strapi/src/plugins/events-manager/server/src/services/event-manager.ts
+reason: TOCTOU race in `updateTicketInventory` [apps/strapi/src/plugins/events-manager/server/src/services/event-manager.ts] — the read-then-update window allows a concurrent purchase to bump `ticketsSold` past the validated capacity. The service guard catches operator mistakes, not races. Follow-up: add a PostgreSQL `CHECK (tickets_sold <= tickets_available)` constraint via a Strapi database migration so the RDBMS is the final enforcer. Relevant when Epic 6 (B2C ticketing) makes concurrent purchases real.
+status: open
 
-### Resolved + re-scoped 2026-06-15 (Ayoub: ticketing ships post-GTM)
+### DW-4: Transaction threading of order/ticket Document Service writes rests on Strapi v5 AsyncLocalStorage auto-join (verified…
 
-- **draftAndPublish double-count — RESOLVED.** `adjustInventory` was rewritten from a raw-knex atomic UPDATE to a Document Service read-modify-write that reads/writes `status: "published"`, so it operates on the single live row (no draft+published double-count). Raw SQL removed entirely (per Ayoub's "never do plain SQL queries" rule). Unit tests rewritten against the Document Service mock (8 tests, green).
-- **Concurrency NOT handled — deferred to Epic 6 (DEadline: before ticketing goes live).** The rewrite is a plain read-modify-write: two concurrent buyers can both read the same `ticketsSold`, both pass the JS capacity check, and both write — overselling the last seat. Acceptable for now because ticketing is not on the path to first production. Before Epic 6 ships B2C ticketing, add a concurrency-safe reservation. Preferred: a PostgreSQL `CHECK (tickets_sold <= tickets_available)` constraint via a Strapi DB migration (the RDBMS becomes the final enforcer; catch the violation → throw `TICKET_SOLD_OUT`). Alternatives considered: row lock (`FOR UPDATE`), optimistic version field. Code carries an inline "CONCURRENCY NOT HANDLED (deferred to Epic 6)" comment pointing here.
+origin: migrated from legacy ledger ("Deferred from: code review of 2c-4-ticketing-unit-of-work (2026-06-15)"), 2026-07-12
+location: n/a
+reason: Transaction threading of order/ticket Document Service writes rests on Strapi v5 AsyncLocalStorage auto-join (verified documented-correct; execution proof is the skipped integration test). Re-confirm when integration suite boots.
+status: open
 
-## Deferred from: code review of 2c-1-extract-venues-plugin (2026-06-20)
+### DW-5: Integration test `order.service.test.ts` is `describe.skip` due to pre-existing `db.config.connection` env failure blocking all…
 
-- **entity-properties component namespace is a 2C.5 tripwire.** The venue `properties` field references component UID `entity-properties.property-value` (`apps/strapi/src/components/entity-properties/property-value.json`). This is a component _category_, not the plugin, so it does NOT break boot — but story 2C.5 plans to "remove entity-properties entirely." If that deletion includes the `src/components/entity-properties/` directory, the venue `properties` field breaks at boot (unresolved component UID). Before 2C.5 deletes the plugin, rename/relocate the component category (e.g. to `venues.property-value`) and update all referencing schemas + generated types, or explicitly keep the `src/components/entity-properties/` directory.
+origin: migrated from legacy ledger ("Deferred from: code review of 2c-4-ticketing-unit-of-work (2026-06-15)"), 2026-07-12
+location: n/a
+reason: Integration test `order.service.test.ts` is `describe.skip` due to pre-existing `db.config.connection` env failure blocking all integration suites. When un-skipped, add a `status: published` screening fixture so the inventory path is exercised against a real published row.
+status: open
 
-## Deferred from: 2c-3-catalog-move-into-creative-works (2026-06-16)
+### DW-6: Refund path (delta<0) in adjustInventory: no upper bound / idempotency, shares TICKET_SOLD_OUT code. No refund caller wired yet (Epic 6)
 
-- **events-manager admin WorkForm is stale against the new catalog model.** 2C.3 reworked the `creative-works.credit` component from a self-contained enum shape (`role` enum + `character` string + `customRole` + `billing`) to a relation-based shape (`person` → `credit-role`, plus `customRole`/`billing`), and added a new relation-based `cast[]` component (`person` → `character`). The events-manager admin form still maps the OLD enum shape:
-  - `admin/src/components/WorkForm/schema.ts` — `workFromApi`/`workToApiPayload` map `credits[].role`/`credits[].character`(string)/`credits[].customRole`; no `cast[]` mapping; `videos[].type` (not `videoType`).
-  - `admin/src/components/WorkForm/CreditsEditor.tsx` + `Catalog/options.ts` — enum role options.
-    This is the **admin UI rebuild the 2C.3 sequencing note explicitly defers to AFTER the schema lands** (per OpenSpec retirement ledger). It does NOT break the gates — `admin/src` is compiled by the Vite admin build, not by `strapi ts:generate-types` (which passed with 0 errors) or the unit suite (50 green). Rebuild the WorkForm against the post-consolidation component shapes (relation `credit-role`/`character` pickers, separate cast vs credits editors, `videoType` enum) as a dedicated admin story.
-- **`common.video` carries both `type` (legacy FULL_LENGTH/TEASER/CLIP) and `videoType` (new trailer/teaser/clip/…) enums.** 2C.3 added `videoType` additively to avoid breaking the admin/client that still read `type`. When the admin WorkForm + client `contribute` flow are rebuilt, migrate them to `videoType` and drop the legacy `type` field.
+origin: migrated from legacy ledger ("Deferred from: code review of 2c-4-ticketing-unit-of-work (2026-06-15)"), 2026-07-12
+location: n/a
+reason: Refund path (delta<0) in adjustInventory: no upper bound / idempotency, shares TICKET_SOLD_OUT code. No refund caller wired yet (Epic 6) — give a distinct code when implemented.
+status: open
 
-## Deferred from: code review of 2c-3-catalog-move-into-creative-works (2026-06-16)
+### DW-7: draftAndPublish double-count
 
-- **`credit-role` content-type lacks integrity guards.** `credit-role/schema.json` has a plain `uid` slug with no uniqueness beyond auto-dedupe, and `department` is optional+nullable. Since `credit.creditRole` is a required relation, the credit graph can point at semantically ambiguous role rows (e.g. two "Director" rows in different departments). Add a uniqueness/required constraint before the WorkForm rebuild populates the vocabulary.
-- **Seed `index.ts` writes phantom fields to creative-work (pre-existing at baseline 54c092c).** `scripts/seeds/index.ts:307-308` writes `directors:` and `trailer:` to the creative-work `create()`, but those attributes don't exist on the schema (Strapi silently drops them); the seed also never populates the new `cast[]`/`credits[]` components. Reconcile the seed to the consolidated model when seeds are next touched.
-- **`cast` component billing semantics.** `cast.json` `billing` defaults to 99 with no max and `character` is optional, so multiple unbilled cast members collapse to billing 99 with no sort tiebreak. Revisit if/when billing is used for cast ordering in the directory UI.
+origin: migrated from legacy ledger ("Resolved + re-scoped 2026-06-15 (Ayoub: ticketing ships post-GTM)"), 2026-07-12
+location: n/a
+reason: draftAndPublish double-count — RESOLVED.
+status: open
 
-## Deferred from: code review of 2d-1-extend-venue-schema-to-rich-model (2026-06-18)
+### DW-8: Concurrency NOT handled
 
-- **`website` venue field is a plain `string` with no URL validation** [apps/strapi/src/plugins/venues/server/src/content-types/venue/schema.json]. A compromised/malicious venue manager can store `javascript:...` or a phishing URL. If the B2C frontend renders it as an `<a href>` unsanitized, it's a stored-XSS / open-redirect vector. `email` correctly uses `type: "email"`; `website` should be a validated URL or sanitized at render. Real fix is sanitize-at-render in the client; schema-wide concern, not a 2D.1 blocker.
-- **Dev super-admin seeder swallows all errors** [apps/strapi/src/bootstrap/admin-user.ts:78-81]. The catch-all downgrades any seed failure to `strapi.log.error` and returns non-fatal, so a genuinely broken seed is invisible in normal operation and the "fresh DB immediately usable" promise quietly fails. Tied to the open seeder-scope decision (whether the seeder belongs in 2D.1 at all).
+origin: migrated from legacy ledger ("Resolved + re-scoped 2026-06-15 (Ayoub: ticketing ships post-GTM)"), 2026-07-12
+location: n/a
+reason: Concurrency NOT handled — deferred to Epic 6 (DEadline: before ticketing goes live).
+status: open
 
-## Deferred from: code review of 2d-1 — jest .tsx test infrastructure gap (2026-06-18)
+### DW-9: entity-properties component namespace is a 2C.5 tripwire
 
-- **`.tsx` admin component tests never run in jest.** `apps/strapi/jest.config.ts` has `testMatch: ["**/*.test.ts", "**/*.test.js"]` — `.tsx` is excluded, so `VenueCard.test.tsx` (and any future admin component test) is silently skipped by the runner. Forcing it via `--testMatch='**/*.test.tsx'` fails with `SyntaxError: Unexpected token '<'` (JSX not transformed on that path despite the `^.+\.tsx?$` transform entry). Two-part fix for a dedicated infra story: (1) add `**/*.test.tsx` to `testMatch`, (2) make ts-jest transform JSX for those tests (jsx/tsconfig wiring). Surfaced during 2D.1 because the venue interface change touched `VenueCard.test.tsx`; the fixture was migrated to `cityRef` and is type-correct (green under `tsc --noEmit`), but cannot be executed until the runner is fixed. NOT a 2D.1 regression — the test was already unreachable before this change.
+origin: migrated from legacy ledger ("Deferred from: code review of 2c-1-extract-venues-plugin (2026-06-20)"), 2026-07-12
+location: n/a
+reason: entity-properties component namespace is a 2C.5 tripwire.
+status: open
 
-## Deferred from: code review of 3-1-public-events-browse-api-and-data-foundation (2026-07-05)
+### DW-10: events-manager admin WorkForm is stale against the new catalog model
 
-- source_spec: `_bmad-output/implementation-artifacts/spec-3-1-public-events-browse-api-and-data-foundation.md`
-  summary: The public events endpoints blanket-populate screenings/venue, exposing internal `ticketsSold`/`ticketsAvailable` (raw per-screening sales) and full venue records to unauthenticated callers.
-  evidence: `events-manager/server/src/services/events.ts` uses `EVENT_POPULATE = { venue: true, screenings: true, images: true }` (relations populated with all fields) on `auth: false` routes; the sibling `public-api` facade deliberately selects `fields: ["ticketsSold","ticketsAvailable"]` for internal use only. Correct public field projection depends on the 3.1b frontend data contract (which of price/availability/sold-out the UI actually needs), so it is deferred to be resolved together with 3.1b rather than guessed here.
-- source_spec: `_bmad-output/implementation-artifacts/spec-3-1-public-events-browse-api-and-data-foundation.md`
-  summary: Trending ranking is an in-JS cap-then-rank over up to 500 fully-populated upcoming events on an uncached, unauthenticated, unrate-limited endpoint — it can miss a top seller beyond the cap at scale and is a resource-exhaustion surface.
-  evidence: `findTrending` in `events.ts` fetches `limit: TRENDING_FETCH_CAP = 500`, populates every screening/venue, then sorts in memory; beyond 500 upcoming cinema events the true #1 by `sum(ticketsSold)` can sit at row 501+ and be excluded, and `meta.pagination.total` reports the capped count. Harmless at MVP seed volume; the proper long-term fix is a DB-side rollup (denormalized `totalTicketsSold` on the event, refreshed on inventory change) plus short-TTL caching, which is an architectural change beyond this story.
-- source_spec: `_bmad-output/implementation-artifacts/spec-3-11-homepage-with-curated-event-listings.md`
-  summary: The homepage category/date/region/venue selectors render and mutate the URL but do not filter the four curated slices — they are visually interactive yet inert.
-  evidence: `app/[locale]/page.tsx` fetches the featured/tonight/this-week/trending slices with locale only; `HomePageWithVenue`'s `handleCategoryChange`/`handleDateChange`/`handleCityChange`/`handleVenueChange` call `router.push` but nothing re-queries on those params. This is by scope — filtering is owned by Stories 3.2 (category, deferred), 3.3 (date), 3.4 (region/city), 3.5 (venue). Surfaced by review as a UX trap (controls that appear to do nothing); should be resolved when the filter stories land, not by this frontend-wiring story.
+origin: migrated from legacy ledger ("Deferred from: 2c-3-catalog-move-into-creative-works (2026-06-16)"), 2026-07-12
+location: n/a
+reason: events-manager admin WorkForm is stale against the new catalog model.
+status: open
 
-## Deferred from: follow-up code review of 3-11-homepage-with-curated-event-listings (2026-07-06)
+### DW-11: `common.video` carries both `type` (legacy FULL_LENGTH/TEASER/CLIP) and `videoType` (new trailer/teaser/clip/…) enums
 
-- source_spec: `_bmad-output/implementation-artifacts/spec-3-11-homepage-with-curated-event-listings.md`
-  summary: `StrapiEvent.startDate`/`endDate`/`status` are declared non-optional even though the Story 3.1a public browse API never returns them, giving unmigrated consumers false compile-time safety.
-  evidence: `features/events/types/strapi.types.ts` (~L199-208) keeps `startDate: string`, `endDate: string`, `status: "draft"|...|"cancelled"` as required (comment: "The public browse API no longer returns these"). Any not-yet-migrated surface (event detail, search, watchlist) that reads `event.startDate.split(...)` or `switch(event.status)` on a browse-sourced object compiles cleanly but hits `undefined` at runtime. The homepage does not read them, so this story left them required to avoid cascading `tsc` breakage across other features; making them optional is the correct fix but belongs to the per-surface migration stories (it will surface, and require fixing, real call sites elsewhere).
-- source_spec: `_bmad-output/implementation-artifacts/spec-3-11-homepage-with-curated-event-listings.md`
-  summary: The 3.1a public browse populate is too shallow for the homepage to render movie-level hero metadata or a complete JSON-LD `location`, so the flagship hero shows only a title/badge and event structured data omits city/region.
-  evidence: The 3.1a `EVENT_POPULATE` is `{ venue: true, screenings: true, images: true }` — `screenings.movie`/`creativeWork` is not populated, so `toFilmHeroEvent` maps `genres`/`rating`/`duration`/`year` to `undefined` (`eventMappers.ts`), and `venue` is shallow so `venue.cityRef`/`region` are absent, degrading `structured-data.ts` `location` to a bare street string (no `addressLocality`/`addressRegion`). Per this story's boundaries a missing populate is a 3.1a gap to escalate, not to patch in the frontend. Fix belongs to 3.1a: deepen the public populate (`screenings.movie` with poster/genres/rating/runtime; `venue.cityRef.region`) — ideally via an explicit public field projection so it doesn't also re-widen the internal-field exposure already deferred under story 3-1.
-
-## Deferred from: code review of 3-3-date-range-filtering (2026-07-06)
-
-- source_spec: `_bmad-output/implementation-artifacts/spec-3-3-date-range-filtering.md`
-  summary: The `/[locale]/events` listing renders only the first page (`LISTING_PAGE_SIZE = 60`) with no load-more/pagination control and no total-count signal, so events beyond the cap in a busy date window are unreachable and the truncation is silent.
-  evidence: `app/[locale]/events/page.tsx` fetches `fetchEvents({ ..., pageSize: LISTING_PAGE_SIZE })` (page 1 only) and never reads `slice.meta.pagination.total`/`pageCount`; `EventsListing` renders the returned array with no "load more" affordance or "showing N of M" count. Harmless at MVP cinema volume (a single date window is very unlikely to exceed 60 screenings, and results sort `startDateTime:asc`), but a real gap at scale. The AC does not require pagination; the page-size was raised from 24→60 as a cheap mitigation. Proper fix (owned by a follow-on discovery-UX story, and shared with the sibling filter stories 3.4/3.5): read `page` from the URL and add an accessible load-more/pagination control plus a result count.
-
-- source_spec: `_bmad-output/implementation-artifacts/spec-3-5-venue-filtering.md`
-  summary: The events venue picker offers venues that can never match an MVP (cinema-only) event — non-cinema venue types, venues outside the active region/city, and a mislabeled "All venues" trigger for a URL-supplied venue beyond the 100-row `getVenuesForSelector` cap — all of which dead-end to an unexplained empty listing.
-  evidence: `getVenuesForSelector(locale)` returns all approved venue types name-sorted (pageSize 100) with no cinema-type/region scoping and no popularity signal; the events query is hard-scoped to `movie_screening` and ANDs `venue.documentId` with `venue.cityRef`, so a non-cinema or out-of-region venue yields zero events. Empty is graceful (I/O-matrix-consistent) so not a correctness bug, but the true fixes (scope the selector to cinema-hosting venue types, narrow options by the active city/region, paginate/reconcile venues beyond the cap, and give the trigger a non-"All venues" label when an active venue is out of the loaded list) need product decisions and/or the same backend popularity/event-count signal 3.5 deferred. Low impact at MVP venue counts.
-
-## Deferred from: follow-up code review of 3-5-venue-filtering (2026-07-06)
-
-- source_spec: `_bmad-output/implementation-artifacts/spec-3-5-venue-filtering.md`
-  summary: Two same-named venues (e.g. a chain with locations in different cities) are indistinguishable in the venue combobox because each `CommandItem` renders only `venue.name`, with no city/context to disambiguate.
-  evidence: `EventVenueFilter.tsx` renders `{venue.name}` per option and the trigger shows `selectedVenue.name`; the picker fetches `city`/`cityRef` context via `getVenuesForSelector` but discards it (the scalar `city` field is likely always `undefined` since venue location lives on the `cityRef` relation, not a scalar). If the MVP cinema data contains two approved venues sharing a name, the user sees two identical rows and cannot tell them apart until after selecting (only the active-check disambiguates). A proper fix renders a secondary line (city/region) per option, which needs `getVenuesForSelector` to populate/return the venue's `cityRef` name — a small backend-projection + UI change, distinct from the venue-list-scoping/cap dead-ends already deferred above. Low impact while venue names are unique in the seeded MVP set.
-
-## Deferred from: 3-6-keyword-search-with-algolia (2026-07-06)
-
-- source_spec: `_bmad-output/implementation-artifacts/spec-3-6-keyword-search-with-algolia.md`
-  summary: The Algolia **indexing pipeline** that populates the `tiween_events` index is not built — search runs on the read side only, gated by `isAlgoliaConfigured()`, and falls back to the real Strapi `fetchEvents({ q })` path when Algolia is unconfigured (the state of this environment, and of the sibling `tiween_shorts` directory which likewise ships with no committed indexer).
-  evidence: `lib/algolia/events.ts` delivers `toAlgoliaEventRecord` (the record shape a future job would emit) + `searchEventsWithAlgolia` (read side), but there is no Strapi lifecycle hook / admin-key sync job / committed indexer writing to `tiween_events`. Standing up the pipeline is an ops/deployment concern requiring Algolia **admin** credentials that cannot be provisioned unattended, exactly as `tiween_shorts` was scoped. Until it lands, keyword search is served by the Strapi `$containsi` `$or` fallback (correct, but substring-only — not typo-tolerant; true fuzzy matching activates only once the index is populated). Per the story's `Never` boundary this indexing work is explicitly out of scope for 3.6.
-- source_spec: `_bmad-output/implementation-artifacts/spec-3-6-keyword-search-with-algolia.md`
-  summary: Multi-entity search ("events, creative works, venues, people") is delivered as **searchable attributes on the event record**, not as distinct per-entity result cards/sections (a venue card, a person card) — a fuzzy match on a film/venue/person name surfaces the owning event rather than a dedicated entity result.
-  evidence: `AlgoliaEventRecord` in `lib/algolia/events.ts` embeds `workTitle`/`synopsis`/`venueName`/`castNames`/`directorNames` (mirroring the `shorts.ts` embedded-`directors` precedent), and the Strapi fallback `$or` matches the same relations, so all four entity kinds are searchable but resolve to event cards. Distinct entity result types need multi-index Algolia plus the not-yet-built creative-work/venue detail pages (Stories 3.7/3.8); deferred until those land. No correctness impact at MVP — every match is reachable via its event.
-
-## Deferred from: code review of 3-6-keyword-search-with-algolia (2026-07-06)
-
-- source_spec: `_bmad-output/implementation-artifacts/spec-3-6-keyword-search-with-algolia.md`
-  summary: The Algolia read path diverges from the Strapi path in several ways that only bite once the `tiween_events` index is populated — the search-time `locale` is not applied to the Algolia query, the card category label is frozen at index-time locale, load-more can mix Algolia and Strapi result sets across pages, and a genuine "zero hits" is indistinguishable from an empty/missing index (both fall through to Strapi).
-  evidence: `lib/algolia/events.ts` `searchEventsWithAlgolia` destructures only `{ page, hitsPerPage }` (the `locale` option is dead) and `AlgoliaEventRecord` carries no locale/city/venue facet attributes; `toCardEvent` copies `record.category` verbatim (localized by the indexer, not the searcher). In `content/search.ts` the Algolia branch returns early only when `events.length > 0`, so a page beyond Algolia's hit count falls through and appends an unrelated Strapi page (different order/paging), and every legitimate no-result costs a second round-trip. All of these are latent while Algolia is unconfigured (this environment always uses the filter-honoring, upcoming-floored Strapi path) and are inseparable from the deferred `tiween_events` indexing pipeline, which must define the record's facetable/locale attributes and a per-query backend-pinning pagination strategy. The highest-severity divergence (city/venue filters silently ignored on the Algolia path) was NOT deferred — it was patched in this pass by skipping Algolia whenever a location filter is active, so the "keyword AND filters" contract always holds.
-
-## Deferred from: 3-7-event-detail-page (2026-07-06)
-
-- source_spec: `_bmad-output/implementation-artifacts/spec-3-7-event-detail-page.md`
-  summary: Slug-canonical (human-readable) event URLs are NOT built — the detail route stays keyed on `documentId` (`/{locale}/events/{documentId}`), which is already stable and shareable.
-  evidence: Every navigation call site (`HomePage*`, `EventsListing`, `EventGrid`, `EventSection`, related-events) and the existing route resolve on `documentId`, and there is no by-slug backend route on the events-manager content-api. Adding a by-slug service + route + rewiring all call sites is disproportionate and reversible; per the story's `Never` boundary it is explicitly out of scope. The `documentId` URL already satisfies the "shareable URL" AC.
-- source_spec: `_bmad-output/implementation-artifacts/spec-3-7-event-detail-page.md`
-  summary: The interactive venue map is NOT rendered on the detail page — the venue block shows address/city/region text only. `venue.geo` ({ latitude, longitude }) IS now deep-populated by `DETAIL_POPULATE` and typed (`StrapiGeoPoint`) so the map can consume it, but the map itself is Story 3.8.
-  evidence: `EventDetailPage` renders `detail.venue.{name,address,city,region}` text; `venue.geo` is populated and threaded through the types but intentionally unused here. Building the Leaflet/Mapbox map is Story 3.8.
-- source_spec: `_bmad-output/implementation-artifacts/spec-3-7-event-detail-page.md`
-  summary: Watchlist persistence and the ticket purchase flow are NOT built — the watchlist toggle stays local `useState`, and a showtime tap only navigates to the ticketing entrypoint (`/{locale}/tickets/{eventDocumentId}/{screeningDocumentId}`).
-  evidence: Auth is Epic 4, watchlist persistence Epic 5, and the purchase flow Epic 6; `EventDetailPage.handleWatchlist` mutates local state only and `handleShowtimeSelect` calls `router.push` toward the (not-yet-built) ticketing route.
-
-- source_spec: `_bmad-output/implementation-artifacts/spec-3-7-event-detail-page.md`
-  summary: The `EventDetailPageDesktop` and `EventDetailPageWithMap` variants still read the legacy `event.creativeWork` relation and will render an empty hero/synopsis/cast against the real `DETAIL_POPULATE` (`screenings[0].movie`) schema if ever wired into a route.
-  evidence: Both components were only type-patched for the `cast` component-shape change during Story 3.7; the route renders `EventDetailPage` (migrated), not these variants, so the breakage is latent but real — `DETAIL_POPULATE` populates `screenings.movie`, never `creativeWork`, so `work = event.creativeWork` resolves to undefined.
-
-## Deferred from: follow-up code review of 3-7-event-detail-page (2026-07-06)
-
-- source_spec: `_bmad-output/implementation-artifacts/spec-3-7-event-detail-page.md`
-  summary: The sticky "Buy tickets" CTA scrolls to the first `<section>` on the page (Synopsis), not to the Showtimes section it advertises.
-  evidence: `EventDetailPage.tsx` CTA `onClick` runs `document.querySelector("section h2")?.scrollIntoView(...)`, which matches the first section (Synopsis, rendered before Venue and Showtimes). The selector is pre-existing (this Story 3.7 diff only removed the stale `// Scroll to showtimes section` comment, leaving the selector unchanged), so it is not a 3.7 regression — but it is a real UX defect: tapping the primary CTA never reveals the showtimes list. Fix: give the showtimes `<section>` a stable `id` (e.g. `id="showtimes"`) and scroll to it by id.
-- source_spec: `_bmad-output/implementation-artifacts/spec-3-7-event-detail-page.md`
-  summary: The sticky-CTA screening count and "from" price include sold-out screenings, and the count label is never singularized ("1 Séances").
-  evidence: `EventDetailPage.tsx` renders `{detail.showtimes.length} {labels.showtimes}` (always the plural label) and `labels.priceFrom(detail.minPrice)`, where `detail.showtimes` counts sold-out screenings and `detail.minPrice` (via `getMinEventPrice`, which does not filter by availability) can quote a sold-out cheaper screening's price — so e.g. "3 Séances / À partir de 12 TND" while that 12 TND screening is unbuyable. Low impact, but the count/price should reflect only available screenings and use an ICU-plural count. `getMinEventPrice` is a shared browse helper, so the availability filter belongs in the detail mapper, not the helper.
-- source_spec: `_bmad-output/implementation-artifacts/spec-3-7-event-detail-page.md`
-  summary: `stripMarkup` strips HTML tags but does not decode HTML entities, so a richtext synopsis containing `&amp;`/`&#39;`/`&nbsp;` renders those literal entities in both the on-page synopsis and the SEO meta description.
-  evidence: `eventMappers.ts` `stripMarkup` (and the duplicated copy in `app/[locale]/events/[documentId]/page.tsx`) applies `.replace(/<[^>]*>/g, "")` + whitespace-collapse only; the unit tests assume tag-only HTML richtext (`"<p>A dream heist.</p>"`). Strapi HTML richtext commonly contains entities, which would surface as garbled text (e.g. "Tom &amp; Jerry"). A minimal common-entity decode after tag-stripping fixes it; deferred rather than patched to avoid over-scoping the mapper and because it needs confirmation of the richtext storage format (HTML vs markdown).
-- source_spec: `_bmad-output/implementation-artifacts/spec-3-7-event-detail-page.md`
-  summary: Neither `DETAIL_POPULATE` nor the `toEventDetail` mapper filters past screenings, so a published event carrying elapsed screenings renders them as available and tappable into the ticketing entrypoint.
-  evidence: `DETAIL_POPULATE` (events-manager `events.ts`) populates all `screenings` with no date filter, and `toEventDetail` (`eventMappers.ts`) derives `status` purely from `ticketsAvailable` (never from `startDateTime` vs now). A screening whose `startDateTime` is in the past still maps to `status: "available"`. This mirrors the pre-3.7 unfiltered-showtimes behavior and is backend-owned (screening time-scoping), so it is not a 3.7 regression; the correct fix is a date floor on the detail screenings (backend populate filter or mapper guard).
-- source_spec: `_bmad-output/implementation-artifacts/spec-3-7-event-detail-page.md`
-  summary: The related-events `EventSection` on the detail page is rendered with empty-string `seeAll`/`noEvents` labels, so any "see all" affordance or empty-state text in that section renders blank instead of localized copy.
-  evidence: `EventDetailPage.tsx` passes `labels={{ seeAll: "", noEvents: "" }}` to `<EventSection>` (pre-existing wiring, unchanged by this diff). The route already has an `events` next-intl translator in scope, so the fix is to add `seeAll`/`noEvents` keys and thread them through the `EventDetailPageLabels` bundle. Low impact (the related rail only renders when related cards exist).
-
-## Deferred from: 3-8-venue-location-on-map (2026-07-09)
-
-- source_spec: `_bmad-output/implementation-artifacts/spec-3-8-venue-location-on-map.md`
-  summary: The "nearby public transport (if available)" facet of the venue-location AC is NOT rendered — the venue schema has no transit field, so the conditional AC resolves to nothing to show and is omitted by design.
-  evidence: `apps/strapi/src/plugins/venues/server/src/content-types/venue/schema.json` has no `publicTransport`/transit attribute, and `DetailVenue`/`toEventDetail` (`apps/client/src/features/events/utils/eventMappers.ts`) carry no transit data. Per the story's `Never` boundary, inventing a field, scraping transit data, or hardcoding transit text was out of scope. Future fix: add an optional `venue.publicTransport` field (e.g. a repeatable component of nearby stops/lines) on the venues plugin schema + regenerate types, then thread it into the detail venue block. Low impact — the AC is explicitly conditional ("if available").
-- source_spec: `_bmad-output/implementation-artifacts/spec-3-8-venue-location-on-map.md`
-  summary: The Leaflet marker icons are fetched from the external `unpkg.com` CDN, so the venue marker breaks if unpkg is unreachable/blocked, and it is an uncontrolled third-party request now shipped to users.
-  evidence: `apps/client/src/features/events/components/Map/VenueMapClient.tsx` builds the default marker `Icon` from `https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon*.png` + `marker-shadow.png` (pre-existing scaffolding, first put in front of users by Story 3.8). Fix: import the marker/shadow PNGs from the bundled `leaflet/dist/images/*` package assets (or self-host them) so the marker has no runtime CDN dependency. Reliability/privacy; low-medium.
-- source_spec: `_bmad-output/implementation-artifacts/spec-3-8-venue-location-on-map.md`
-  summary: The `EventDetailPage` venue-map render wiring (coords gate branches, the directions `href` pointing at the venue's own lat/lng, and the localized label threading) has no render test — only the underlying `buildDirectionsUrl`/`toEventDetail` helpers are unit-tested in isolation.
-  evidence: no test file references `EventDetailPage`, and `apps/client/vitest.config.ts`'s explicit `test.include` allowlist does not cover `components/EventDetailPage/**`, so a co-located render test would not run without a config change. A regression (inverted gate, swapped lat/lng in the `VenueMap venue` prop, dropped platform hint, unthreaded `getDirections`) would ship green. Fix: add `components/EventDetailPage/**` to the vitest `include`, then a jsdom render test (mock `../Map` `VenueMap`) asserting the gate branches, the `href` coords, and the labels.
-- source_spec: `_bmad-output/implementation-artifacts/spec-3-8-venue-location-on-map.md`
-  summary: `seed.unit.test.ts` asserts only `create` call counts, not that the new venue `geo` payload is actually written, so dropping `geo` from the seed (or a component-name mismatch that makes Strapi silently discard it) would not fail any test.
-  evidence: `apps/strapi/src/plugins/venues/server/src/services/__tests__/seed.unit.test.ts` mocks `strapi.documents(...).create` as a `jest.fn` and checks invocation counts only; it never inspects the `data` payload passed to `create`. The map feature's observability on a fresh seed depends on `geo` being persisted. Fix: assert the venue-create `data` includes `geo: { latitude, longitude }` for a seeded venue. Dev-seed only; low consequence.
-
-- source_spec: `_bmad-output/implementation-artifacts/spec-3-10-share-event-details.md`
-  summary: Add a jsdom render test for EventDetailPage's share wiring (native-vs-fallback branch, shareUrl call-site using the canonical URL not window.location.href, and end-to-end label threading into ShareDialog), which requires adding the EventDetailPage component dir to the vitest `include` allowlist.
-  evidence: Story 3.10 unit-tested the pure share helpers (buildEventShareUrl, buildSocialShareLinks, toAbsoluteMediaUrl, shouldFallbackAfterShareError) and the isolated ShareDialog, but the EventDetailPage integration (which flag/URL/label reaches navigator.share and ShareDialog) has no test and its dir is absent from vitest `include` (verified in vitest.config.ts) — a label swap or a revert to window.location.href would pass all current tests.
-
-## Deferred from: 4-1-email-and-password-registration (2026-07-09)
-
-- source_spec: `_bmad-output/implementation-artifacts/spec-4-1-email-and-password-registration.md`
-  summary: Redis-backed rate limiting for the authentication endpoints (NFR-S8 / Epic 4 constraint "max ~10 attempts/minute") is NOT implemented — registration, login, change-password, forgot-password, and reset-password remain unthrottled, so credential-stuffing and registration-spam are unmitigated.
-  evidence: Epic 4 context requires rate-limiting auth endpoints via the centralized Redis store, but Story 4.1's `strapi-server.ts` register override and the client register flow add no throttle, and no Redis limiter middleware is wired on any `/api/auth/*` route. Rate limiting is a cross-cutting auth-epic concern that must be applied ONCE across ALL auth endpoints (register + the four `useUserMutations` flows in `apps/client/src/hooks/useUser.ts`, plus NextAuth credentials sign-in) with a shared Redis policy and consistent stable error code — implementing it per-endpoint inside 4.1 would fragment the policy. It is explicitly out of scope for 4.1 (spec `Never` boundary) and should land as a dedicated auth-hardening story (with Redis provisioned) that instruments every auth route uniformly.
-- source_spec: `_bmad-output/implementation-artifacts/spec-4-1-email-and-password-registration.md`
-  summary: The Strapi test suite cannot boot via `cd apps/strapi && yarn test` — Jest fails to parse `jest.config.ts` because `ts-node` is not installed anywhere in the repo (it is absent from `apps/strapi/package.json` and from `yarn.lock`). This is pre-existing (reproduces on baseline `2a88d19`, unrelated to Story 4.1) and blocks the entire backend suite (2b-16, 2c-4, and 4.1's new `register.unit.test.ts`).
-  evidence: `apps/strapi/jest.config.ts` is a TypeScript config using `preset: "ts-jest"`; Jest requires `ts-node` to load a `.ts` config file. `ts-jest@^29` is a devDependency but `ts-node` is not. Running `yarn test` yields `Error: Jest: 'ts-node' is required for the TypeScript configuration files`. The naive fix (`yarn workspace @tiween/admin add -D ts-node`) was attempted and REVERTED because in this hoisted single-`node_modules` workspace it perturbed root dependency resolution (pulled `react@18.3.1`/`react-dom@18.3.1` into the tree) and broke the client's React 19 Vitest env ("multiple copies of react"). Story 4.1's `register.unit.test.ts` was therefore verified to pass 7/7 via an equivalent JS jest config (`preset: ts-jest`, `diagnostics:false`, `isolatedModules:true`) run with `npx jest --config`. Proper fix: either (a) add `ts-node` as a devDependency with a resolution that does not disturb the client's React 19 (verify `yarn test` in both apps after), or (b) convert `apps/strapi/jest.config.ts` to `jest.config.js`/`.cjs` so no `ts-node` is needed to parse it (`ts-jest` still compiles the test files). Option (b) is lower-risk and repo-local. **UPDATE 2026-07-09 (4.1 review):** RESOLVED the boot blocker via option (b) — `apps/strapi/jest.config.ts` was converted to `jest.config.cjs` and its default `testMatch` narrowed to the `*.unit.test.ts` gate (integration suites opt-in), so `yarn test` now boots and runs 9 unit suites / 114 tests deterministically with no DB. The remaining sub-item below (integration suites needing a live DB + serial state) is unchanged.
-- source_spec: `_bmad-output/implementation-artifacts/spec-4-1-email-and-password-registration.md`
-  summary: The Strapi boot-based integration suites (`*.service.test.ts`, `event-manager.controller.test.ts`, `tests/app.test.js`) are excluded from the default `yarn test` (unit gate) because they fail without a live Postgres DB and a clean serial SQLite state — running them in parallel yields `table strapi_migrations already exists` / `database is locked`.
-  evidence: With the config fix above, `yarn test` runs only `*.unit.test.ts`. Running the boot suites (`--testMatch` on the integration globs) against the default parallel runner and a stale `.tmp` SQLite DB produces migration-collision and lock errors (observed 2026-07-09); this is the same pre-existing env-flakiness already noted for 2c-4 (`order.service.test.ts` is `describe.skip`). Fix: give the integration suites an isolated, freshly-migrated DB per run (unique `.tmp` path or a provisioned Postgres) and run them with `--runInBand`, then wire a separate `test:integration` script + CI job so they gain real signal without blocking the unit gate.
-- source_spec: `_bmad-output/implementation-artifacts/spec-4-1-email-and-password-registration.md`
-  summary: The client register `onError` handler only translates the duplicate-email case (a brittle English substring match on `"already taken"`); any other server-origin validation rejection (stable codes like `INVALID_EMAIL`, `PASSWORD_TOO_SHORT`, `NAME_REQUIRED`) falls through to a generic "unexpected error" toast instead of a translated message.
-  evidence: `apps/client/src/app/[locale]/auth/register/_components/RegisterForm.tsx` `onError` keys on `error.message?.includes("already taken")`. Client-side Zod validation shields real browser users (submit is blocked before the request), so user impact is low, but the story's own boundary ("server codes translatable via next-intl") is only partially met, and a client/server rule drift or a non-browser request surfaces an untranslated generic error. Fix: parse the server `details`/`issues[].message` stable codes and map them to the `auth.register`/`errors.zodValidation.custom.*` keys, and key the duplicate-email branch on a stable machine code rather than the localized English phrase.
-- source_spec: `_bmad-output/implementation-artifacts/spec-4-1-email-and-password-registration.md`
-  summary: `firstName` persistence + the welcome email depend on the Strapi register controller returning `{ user: { id } }`, and the auto-login + `callbackUrl` redirect is the core happy-path AC — but both are only exercised against hand-rolled mocks; no integration/contract test pins the real controller response shape or the client redirect.
-  evidence: `register.unit.test.ts` supplies its own `originalRegister` that sets `ctx.body = { jwt, user: { id: 42, ... } }`, so the whole `if (createdUser?.id != null)` block (persist + email) silently no-ops if the real shape differs (e.g. after a Strapi upgrade) with a green suite; and `RegisterForm.test.tsx` mocks `registerMutation.mutate` as a bare `vi.fn()` that never invokes `onSuccess`, so `signIn("credentials")` + `window.location.href = callbackUrl` are never asserted. Fix: add a booted-Strapi integration test hitting `POST /api/auth/local/register` (asserting `user.id`, `firstName` persisted, role `authenticated`, JWT returned) and a client test whose `mutate` mock invokes `onSuccess` to assert the `signIn` call + redirect target (and the `signIn` failure toast branch). Depends on the integration-DB fix above.
-- source_spec: `_bmad-output/implementation-artifacts/spec-4-1-email-and-password-registration.md`
-  summary: Email/username are stored case-sensitively, so registering `Alice@x.com` and then `alice@x.com` can create two distinct accounts (username uniqueness and the u-p `unique_email` check are case-sensitive).
-  evidence: The register override keeps `username = email` verbatim and adds no case normalization; Strapi's default `unique_email` compares as stored. Two case-variant addresses pass both uniqueness checks and create separate accounts, which then collide/confuse at login. Deferred rather than patched because normalizing email to lowercase must be done consistently with the login identifier-matching path (NextAuth `CredentialsProvider` → `/auth/local`) to avoid locking users out — verify that end-to-end before normalizing. Fix: lowercase-normalize the email (and derived username) on registration AND on the login identifier lookup.
-- source_spec: `_bmad-output/implementation-artifacts/spec-4-1-email-and-password-registration.md`
-  summary: The password mixed-case rule uses ASCII-only `/[A-Z]/` and `/[a-z]/` on both client and server, so a password composed solely of non-ASCII letters (accented Latin, Cyrillic, etc.) plus a digit is rejected as "missing uppercase/lowercase".
-  evidence: `RegisterForm.tsx` and `strapi-server.ts` `registerSchema` both test `/[A-Z]/`/`/[a-z]/`. For a Tunisian AR/FR audience, accented-only French passwords (e.g. `Éà…`) would fail the case check. Low impact (users typically include ASCII), and "mixed case = ASCII case" is a defensible reading of the AC, so deferred. Fix if desired: switch to Unicode property escapes `\p{Lu}`/`\p{Ll}` with the `u` flag on both sides (kept in lockstep).
-
-## Deferred from: follow-up code review of 4-1-email-and-password-registration (2026-07-09)
-
-- source_spec: `_bmad-output/implementation-artifacts/spec-4-1-email-and-password-registration.md`
-  summary: The registration auto-login guarantee rests on `email_confirmation:false` and `default_role:authenticated`, but neither is pinned in versioned `apps/strapi/config/plugins.ts` — the `users-permissions` block there only sets `jwt.expiresIn`, so these advanced settings default to Strapi's implicit behavior / unversioned admin (config-sync is `enabled:false`) state.
-  evidence: `apps/strapi/config/plugins.ts` `users-permissions` config has no `register.allowedFields`/`advanced.email_confirmation`/`advanced.default_role` keys (only the documentation plugin references the string `"users-permissions"`), yet the spec Code Map claimed plugins.ts configures `email_confirmation:false` + `default_role:authenticated` and the client hard-codes `ENABLE_EMAIL_CONFIRMATION = false` with no runtime check. A fresh environment or a toggled admin setting silently turns email confirmation on (breaking auto-login → the core happy-path AC) or changes the assigned role, and the mock-only unit tests never boot the real plugin so nothing catches it. This is a pre-existing infra/config gap surfaced by 4.1 (not introduced by this diff). Fix: pin `advanced.email_confirmation: false` and `advanced.default_role: 'authenticated'` in versioned config (or add a boot-time assertion), so the auto-login contract cannot regress via unversioned admin state.
-- source_spec: `_bmad-output/implementation-artifacts/spec-4-1-email-and-password-registration.md`
-  summary: The pre-existing `src/features/auth/**` unit tests (`PasswordStrength.test.tsx`, `registerSchema.test.ts`, `LoginForm.test.tsx`, `loginSchema.test.ts`) match no glob in the vitest `include` allowlist so they never run in CI, and the new `useTranslatedZod` custom-code branches (`nameRequired`/`passwordUppercase`/`passwordLowercase`/`passwordDigit`/`passwordTooLong`) have no running test — so the localized validation-message mapping can regress to generic/blank Zod defaults with a green pipeline.
-  evidence: `apps/client/vitest.config.ts` `test.include` is an allowlist enumerating specific `features/events/**` + `lib/**` + the newly-added `src/app/**/register/_components/**` paths; `features/auth/**` is absent, so those dormant suites (including the `maxStrength`-unaware `PasswordStrength.test.tsx`) never execute. `useTranslatedZod` (`apps/client/src/hooks/useTranslatedZod.ts:92-100`) is installed globally via `z.setErrorMap` in `ClientProviders`, but no test feeds a custom issue and asserts the produced `custom.*` key, and `RegisterForm.test.tsx` mocks `next-intl` to echo keys so it never renders the mapped message text. (The strength-meter clamp itself IS now covered by the follow-up-review patch that added a `maxStrength` clamp assertion to the running `RegisterForm.test.tsx`.) Fix: add `src/features/auth/**/*.test.{ts,tsx}` to the vitest `include` (and update `PasswordStrength.test.tsx` to cover `maxStrength`), plus a `useTranslatedZod` unit test asserting each `params.type` code maps to its `custom.*` key. Low impact — the mapping works today; this is a verification-durability gap, and enabling the dormant dir should be done in a focused pass in case any predate-current-code suite is red.
-- source_spec: `_bmad-output/implementation-artifacts/spec-4-2-social-login-with-google-and-facebook.md`
-  summary: The Strapi `ensureSocialProviders` bootstrap enables the google/facebook `grant` entries unconditionally, so `GET /auth/:provider/callback` is live in every environment even where social login is meant to be off and no client OAuth credentials exist.
-  evidence: `apps/strapi/src/bootstrap/social-providers.ts` always sets `enabled: true` (creds are optional and, for the server-to-server `access_token` flow, unused). Practical risk is low — the endpoint only permits self-service sign-in with the caller's own provider-verified email (and 4.2 now enforces `email_verified` before linking) — but it diverges from the "only when configured" gating the client uses. Fix: gate Strapi enablement behind an explicit env flag (e.g. `SOCIAL_LOGIN_ENABLED` or presence of the provider creds) so environments with social disabled don't expose the callback.
-- source_spec: `_bmad-output/implementation-artifacts/spec-4-2-social-login-with-google-and-facebook.md`
-  summary: Each trusted social login makes two upstream provider profile calls — `fetchSocialProfile` in the callback wrapper plus the stock `connect`'s own `getProfile` — doubling latency and provider rate-limit consumption per login.
-  evidence: `apps/strapi/src/extensions/users-permissions/strapi-server.ts` calls `fetchSocialProfile(provider, token)` before delegating to `originalCallback`, which independently fetches the profile via grant/connect. Within the <10s NFR today, but wasteful. Fix: restructure to fetch once (e.g. fully own the trusted-provider connect, or thread the fetched profile into the stock path).
-- source_spec: `_bmad-output/implementation-artifacts/spec-4-2-social-login-with-google-and-facebook.md`
-  summary: Cross-provider account linking looks up the existing user with a lowercased email against a case-sensitive column, so an account stored with mixed-case email won't be found and linking silently falls back to the raw "Email is already taken" error.
-  evidence: `strapi-server.ts` linking branch queries `findOne({ where: { email } })` with `email = profile.email.toLowerCase()`; Postgres default collation is case-sensitive. This is the same case-sensitivity coupling already deferred for 4.1's duplicate-account risk. Fix: normalize stored emails to lowercase (register + social) or use a case-insensitive filter (``) for the linking lookup.
-- source_spec: `_bmad-output/implementation-artifacts/spec-4-2-social-login-with-google-and-facebook.md`
-  summary: New social sign-ups always receive a French welcome email — no request locale is available at the OAuth callback and a brand-new user has no `preferredLanguage` yet — so AR/EN users who register via Google/Facebook get a FR email.
-  evidence: `strapi-server.ts` calls `sendWelcomeEmail(createdUser, profile.name ?? "")` with no locale → `normalizeLocale` falls back to `"fr"`. The browser `Accept-Language` / app `[locale]` is available at signIn time but is discarded (NextAuth doesn't thread it into the Strapi callback URL). Fix: thread the active locale through the NextAuth OAuth call into the Strapi callback (e.g. a state/query param) and resolve the welcome-email locale from it.
-- source_spec: `_bmad-output/implementation-artifacts/spec-4-2-social-login-with-google-and-facebook.md`
-  summary: The NextAuth env-gated OAuth provider registration in `apps/client/src/lib/auth.ts` has no running test, and the page-level `enableGoogle`/`enableFacebook` flags use an independent copy of the same env expression, so a divergence (button shown but provider unregistered, or vice-versa) is unverified.
-  evidence: No client test imports `lib/auth`; the button-visibility tests take `enableGoogle` as a prop and never exercise the module's `process.env.*_CLIENT_ID && *_CLIENT_SECRET` gating. Fix: a unit test that sets/clears the four env vars, re-imports the module (`vi.resetModules`), and asserts which provider ids appear in `authOptions.providers`.
-- source_spec: `_bmad-output/implementation-artifacts/spec-4-2-social-login-with-google-and-facebook.md`
-  summary: `avatarUrl` persistence (and the new `avatarUrl` schema attribute) is only asserted against a mocked user service — no running test exercises the real Strapi write, so deleting the schema attribute would not fail the default unit gate even though the value would silently never persist.
-  evidence: `social-login.unit.test.ts` asserts `userEdit` (a jest mock) was called with `{ firstName, avatarUrl }`; integration/boot suites are opt-in (`testMatch` = `*.unit.test.ts`). Consistent with 4.1's deferred integration-DB gap. Fix: cover the real register/callback response shape + `avatarUrl` persistence in an opt-in integration suite.
-
-## Deferred from: follow-up code review of 4-2-social-login-with-google-and-facebook (2026-07-09)
-
-- source_spec: `_bmad-output/implementation-artifacts/spec-4-2-social-login-with-google-and-facebook.md`
-  summary: Facebook `emailVerified` is inferred from mere email presence (`Boolean(data.email)`), so a Facebook account whose email is NOT provider-verified could be auto-linked into an existing local/Google account with the same email — an account-takeover vector into the victim's account. HIGH severity — flagged independently by two reviewers.
-  evidence: `apps/strapi/src/extensions/users-permissions/strapi-server.ts` `fetchSocialProfile` Facebook branch sets `emailVerified: Boolean(data.email)` (comment "Facebook only ever returns a verified email"), and the callback linking branch signs the caller into a pre-existing account whenever `email && profile.emailVerified && /already taken/i`. Facebook's Graph API `email` is not guaranteed to be a provider-verified/owned address in all account states (a well-known "Sign in with Facebook" pitfall); Google's `email_verified` is trustworthy, Facebook's presence-based inference is not. This stems from the explicit intent-contract premise ("Google and Facebook both return verified emails, which is what makes email-linking safe here"), so it is a product/security risk-acceptance decision to re-validate with a human — NOT a silent code patch against the frozen intent. Options: require an explicit Facebook verification signal, drop Facebook from the trusted-linking set (Google-only auto-link), or gate Facebook linking behind a confirmation step. The prior 4.2 pass encoded "Facebook always-verified" as accepted design; this follow-up escalates it given the account-takeover framing.
-- source_spec: `_bmad-output/implementation-artifacts/spec-4-2-social-login-with-google-and-facebook.md`
-  summary: The cross-provider linking branch guards only `!linkTarget.blocked`, not `linkTarget.confirmed`, so it drops the confirmed-account gate that stock repeat-login enforces. Zero impact today (email confirmation is off), but latent if confirmation is ever enabled.
-  evidence: `strapi-server.ts` link branch: `if (linkTarget && !linkTarget.blocked) { … issue jwt … }` — no `confirmed` check. Stock users-permissions login rejects `confirmed === false`. With `ENABLE_EMAIL_CONFIRMATION = false` (client) / `email_confirmation:false` (server) all accounts are `confirmed:true`, so no current exposure. Deferred rather than reflexively patched because the correct behavior is genuinely ambiguous: a provider-VERIFIED email arguably satisfies (or exceeds) the pending email-confirmation requirement, so blindly adding `&& linkTarget.confirmed` could wrongly block a legitimate owner — this needs a product decision, ideally resolved together with whether/when email confirmation is enabled.
-- source_spec: `_bmad-output/implementation-artifacts/spec-4-2-social-login-with-google-and-facebook.md`
-  summary: `fetchSocialProfile` calls the Google/Facebook profile endpoints with bare `fetch` and no timeout, so a slow or hung provider endpoint can stall the Strapi OAuth callback (and the upstream NextAuth `jwt` callback) indefinitely, past the AC's NFR-IN4 <10s budget.
-  evidence: `strapi-server.ts` `fetchSocialProfile` does `await fetch(url, …)` for both Google userinfo and Facebook graph with no `AbortController`/`AbortSignal.timeout`; Node's global `fetch` has no default timeout. Runs on every trusted-provider login (including repeat logins). Best bundled with the already-deferred "redundant double provider-profile fetch per login" restructuring (the fetch path is slated for rework), adding a per-request timeout (e.g. `AbortSignal.timeout(8000)`) so a hung provider degrades to the empty-profile / delegate path instead of hanging the auth request. Low probability, medium consequence.
-
-## Deferred from: code review of spec-4-3-password-reset-flow.md (2026-07-09)
-
-- source_spec: `_bmad-output/implementation-artifacts/spec-4-3-password-reset-flow.md`
-  summary: forgot-password has a timing-oracle account-enumeration side channel — the known-email branch awaits a DB write plus a full email-send round-trip before returning `{ok:true}`, while the unknown-email branch returns after a single `findOne`, so response latency distinguishes registered emails despite the identical body.
-  evidence: `apps/strapi/src/extensions/users-permissions/strapi-server.ts` forgotPassword wrap; the neutral body prevents content-based enumeration but not timing-based. Constant-time mitigation (fixed-delay / queue the send) is non-trivial and standard practice commonly accepts this; not story-critical.
-- source_spec: `_bmad-output/implementation-artifacts/spec-4-3-password-reset-flow.md`
-  summary: repo-wide open-redirect pattern — `callbackUrl` from the query string is assigned straight to `window.location.href` after auth in RegisterForm (Story 4.1) and other auth forms; only ResetPasswordForm is now guarded to internal paths.
-  evidence: `apps/client/src/app/[locale]/auth/register/_components/RegisterForm.tsx` (and siblings) use the same unguarded redirect. Fixing all auth forms is a cross-cutting hardening task beyond this story's scope.
-- source_spec: `_bmad-output/implementation-artifacts/spec-4-3-password-reset-flow.md`
-  summary: the backend→client reset error-code contract (`RESET_TOKEN_EXPIRED`/`RESET_TOKEN_INVALID` surfaced inside `error.message` for `raw.includes(...)` mapping) is only asserted against hand-crafted errors; no test exercises the real Strapi `ValidationError` serialization through `useUserMutations` end-to-end.
-  evidence: client test mocks the error shape; the mutation layer is out of the diff. A true assertion needs a booted Strapi + supertest (the default gate runs only unit tests). Mapping is sound by inspection but unverified across the boundary.
-- source_spec: `_bmad-output/implementation-artifacts/spec-4-3-password-reset-flow.md`
-  summary: JWT `iat` has whole-second granularity, so a pre-reset token issued in the same wall-clock second as the reset's new token is not revoked (up-to-~1s window).
-  evidence: inherent to JWT second-resolution `iat`; the boundary is stamped from the new token's own `iat` second. Closing it fully would require sub-second issued-at tracking. Narrow, accepted window.
-
-## Deferred from: code review of spec-4-3-password-reset-flow.md — pass 2 (2026-07-09)
-
-- source_spec: `_bmad-output/implementation-artifacts/spec-4-3-password-reset-flow.md`
-  summary: session invalidation silently goes fully OPEN if users-permissions is switched to `jwtManagement: "refresh"` mode — stock `verify` then returns `{id}` with no `iat`, so both the `passwordChangedAt` stamp and the stale-token check become no-ops.
-  evidence: `apps/strapi/src/extensions/users-permissions/strapi-server.ts` gates both halves on `typeof iat === "number"`. The project runs the default `legacy-support` mode (`config/plugins.ts` sets only `jwt.expiresIn`), so it is safe today; this is a latent land-mine for a future refresh-token migration. A boot-time assert/warn when refresh mode is enabled would surface it.
-- source_spec: `_bmad-output/implementation-artifacts/spec-4-3-password-reset-flow.md`
-  summary: the wrapped `jwt.verify` adds one `findOne` user lookup to EVERY authenticated request (on top of the strategy's own `fetchAuthenticatedUser`), an app-wide throughput cost inherent to the stateless-JWT revocation approach.
-  evidence: `apps/strapi/src/extensions/users-permissions/strapi-server.ts` verify wrap; the lookup is a PK `findOne` selecting only `id,passwordChangedAt` (cheap, indexed) but doubles per-request user reads. Optimize only if auth traffic profiling shows it matters.
-
-## Deferred from: code review of spec-4-3-password-reset-flow.md — follow-up pass (2026-07-09)
-
-- source_spec: `_bmad-output/implementation-artifacts/spec-4-3-password-reset-flow.md`
-  summary: the password-reset email never honors the current UI locale — `forgotPasswordMutation` posts only `{ email }` (no `locale`), so the server's `requestLocale` branch in `sendPasswordResetEmail` is dead and the language always resolves via `user.preferredLanguage` (defaulting to `fr` when unset), so a visitor on the AR/EN forgot-password page whose stored preference is unset/differs receives a French reset email.
-  evidence: `apps/client/src/hooks/useUser.ts` `forgotPasswordMutation` sends `{ email }` only (unlike `registerMutation`, which forwards `locale`); `apps/strapi/src/extensions/users-permissions/strapi-server.ts` `forgotPassword` reads `const requestLocale = body.locale` (always `undefined`) and passes it to `sendPasswordResetEmail`, which falls back to `preferredLanguage`. Not a regression — the email is still localized by stored preference and the reset works — so deferred rather than patched; the fix is to forward the active locale from the client mutation (mirroring register) and update the `ForgotPasswordForm` payload test.
-
-## Deferred from: 4-4-profile-management (2026-07-09)
-
-- source_spec: `_bmad-output/implementation-artifacts/spec-4-4-profile-management.md`
-  summary: The new Story 4.4 authenticated write endpoints (`PUT /users/me`, `POST /auth/change-email`, `POST /auth/confirm-email-change`) are unthrottled, extending the epic-wide auth rate-limiting gap (already recorded under 4.1) to the profile-management surface — change-email in particular can be used to spam arbitrary addresses with confirmation emails, and confirm-email-change is a public token-guessing surface.
-  evidence: Per the 4.4 spec `Never` boundary ("do not build a rate-limiting subsystem — epic-wide deferred NFR"), the `strapi-server.ts` `updateMe`/`changeEmail`/`confirmEmailChange` controllers add no Redis throttle, and no limiter middleware is wired on the new `/api/auth/change-email` / `/api/auth/confirm-email-change` / `PUT /api/users/me` routes. This is the SAME cross-cutting concern captured in the 4.1 deferral ("a dedicated auth-hardening story that instruments every auth route uniformly with a shared Redis policy") — the fix must include these three endpoints (send-throttle change-email per user/IP; attempt-throttle confirm-email-change per IP). Out of scope for 4.4; folds into the planned auth-hardening story.
-  summary_2: The backend→client contract for the new profile/email error codes (`USERNAME_TAKEN`, `EMAIL_TAKEN`, `EMAIL_UNCHANGED`, `EMAIL_CHANGE_TOKEN_EXPIRED`, `EMAIL_CHANGE_TOKEN_INVALID`, `INVALID_EMAIL`) is asserted only against hand-crafted `Error` shapes in the vitest suites and mocked-Strapi Jest harness; no booted-Strapi integration test exercises the real `ValidationError` serialization through `useUserMutations` for `PUT /users/me` / `change-email` / `confirm-email-change`, nor the real avatar upload→`updateMe` link round-trip.
-  evidence: `profile-management.unit.test.ts` uses a mock Strapi (no DB/boot), and `ProfileForm.test.tsx` / `ConfirmEmailChange.test.tsx` feed `new Error(JSON.stringify(appError))` fixtures; the default `yarn test` gate runs only `*.unit.test.ts` (integration suites are opt-in and blocked by the pre-existing integration-DB gap recorded under 4.1). Same class of verification gap already deferred for 4.1/4.3 — resolve together with the integration-DB fix.
-
-## Deferred from: code review of spec-4-4-profile-management.md (2026-07-09)
-
-- source_spec: `_bmad-output/implementation-artifacts/spec-4-4-profile-management.md`
-  summary: An email change is confirmed without ever notifying the OLD email address, so a session-hijack that swaps the account email is invisible and unrecoverable to the legitimate owner.
-  evidence: `apps/strapi/src/extensions/users-permissions/strapi-server.ts` `confirmEmailChange` swaps `email = pendingEmail` and clears staging but sends no "your email was changed" alert to the previous address. Standard account-security hardening (alert-old-address, optional undo window) is out of the 4.4 AC scope; fold into the auth-hardening story alongside the rate-limiting work.
-- source_spec: `_bmad-output/implementation-artifacts/spec-4-4-profile-management.md`
-  summary: `POST /api/upload` is allow-listed by path only, so the private proxy forwards any authenticated upload body (not just the avatar `files`-only shape), and Strapi's upload controller also handles file-replacement-by-id — the boundary rests entirely on the operator granting `Upload.upload` but NOT `Upload.update`.
-  evidence: `apps/client/src/lib/strapi-api/request-auth.ts` adds `api/upload` under POST with a `startsWith` match and no body constraint; `PERMISSIONS.md` documents the grant, but a mis-grant of `Upload.update` would let an authenticated user overwrite arbitrary media. A dedicated self-scoped avatar endpoint (upload + link in one authorized controller) would remove the shared-endpoint surface. Out of scope for 4.4.
-- source_spec: `_bmad-output/implementation-artifacts/spec-4-4-profile-management.md`
-  summary: A user cannot REMOVE an already-saved avatar — the `AvatarUpload` "Remove" control only clears a not-yet-uploaded pending selection; there is no path to unset a linked avatar (the form never sends a clear and `updateMeSchema.avatar` is `z.number().optional()`, which cannot carry `null`).
-  evidence: `apps/client/.../auth/profile/_components/ProfileForm.tsx` `onRemove={() => setPendingAvatar(null)}`; `updateMe` skips `undefined` keys so omitting `avatar` keeps the old value. Avatar removal is not in the 4.4 AC ("upload or change my avatar"); supporting it needs end-to-end `avatar: null` clear (schema nullable + form + controller). Deferred as a scoped enhancement.
-- source_spec: `_bmad-output/implementation-artifacts/spec-4-4-profile-management.md`
-  summary: `POST /auth/change-email` is an account-enumeration oracle for authenticated users — a distinct `EMAIL_TAKEN` code for an address registered to another account (vs `{ ok: true }` for a free one) lets any logged-in user probe which emails exist.
-  evidence: `apps/strapi/src/extensions/users-permissions/strapi-server.ts` `changeEmail` throws `EMAIL_TAKEN` on a different-user match. Consistent with the existing stock register "email already taken" leak; a neutral-response redesign trades UX clarity for enumeration resistance. Same hardening tier as the 4.3 forgot-password timing oracle; fold into the auth-hardening story.
-- source_spec: `_bmad-output/implementation-artifacts/spec-4-4-profile-management.md`
-  summary: A failed profile save AFTER a successful avatar upload orphans the uploaded media file, and a retry re-uploads (another orphan) rather than reusing the already-uploaded id.
-  evidence: `apps/client/.../auth/profile/_components/ProfileForm.tsx` `onSubmit` uploads first, threads the id into `updateProfileMutation`, and clears `pendingAvatar` only in `onSuccess`; an `updateMe` failure leaves the file unlinked with no cleanup, and the next Save re-uploads. Low blast radius (dangling media); a proper fix caches the uploaded id across retries and/or GCs unlinked uploads. Deferred.
-- source_spec: `_bmad-output/implementation-artifacts/spec-4-4-profile-management.md`
-  summary: The email-change confirmation email ignores the active UI locale — the client `requestEmailChangeMutation` posts only `{ email }`, so the server's `requestLocale` branch is dead and the language always resolves via stored `preferredLanguage` (default `fr`).
-  evidence: `apps/client/src/hooks/useUser.ts` `requestEmailChangeMutation` sends `{ email }` only (unlike `registerMutation`, which forwards `locale`); `strapi-server.ts` `changeEmail` reads `body.locale` (always undefined). Identical class to the already-deferred 4.3 reset-email-locale item; forward the active locale from the client mutation and resolve both together. Not a regression (email still localized by preference).
-  summary_2: The avatar upload mutationFn itself (file-only `FormData` with no `ref`/`refId`/`field`, `[0].id` response parse) has no unit test — `ProfileForm.test.tsx` mocks `uploadAvatarMutation.mutateAsync` to resolve an id directly, so a regression re-adding an upload `ref` (the spec "Never" clause) or misreading the response shape would fail no test.
-  evidence: `apps/client/src/hooks/useUser.ts` `uploadAvatarMutation` builds the FormData and calls raw `fetch('/api/private-proxy/upload')`; testing it requires `renderHook` + a mocked `global.fetch` under a `QueryClientProvider`. Defense-in-depth exists (proxy allowlist limits to `api/upload`; `updateMe` is the sanctioned linkage), so deferred as a test-coverage gap rather than a defect.
-  summary_3: No integration/e2e test proves `PUT /api/users/me` is actually authenticated and self-scoped by the live users-permissions strategy (that the strategy populates `ctx.state.user` and invokes `user.updateMe`) — unit tests inject `ctx.state.user` directly, and the route grant is manual (`PERMISSIONS.md`, not seeded in code).
-  evidence: `strapi-server.ts` `updateMe` self-scope security depends on the real auth strategy + an operator enabling the `User.updateMe` grant; the default `yarn test` gate is unit-only (integration suites blocked by the pre-existing integration-DB gap recorded under 4.1). Same integration-verification class already deferred for 4.1/4.3.
-- source_spec: `_bmad-output/implementation-artifacts/spec-4-4-profile-management.md`
-  summary: The proxy allowlist matcher `isStrapiEndpointAllowed` uses `path.startsWith(endpoint)`, so the newly-added `api/upload` (POST) and `api/users/me` (PUT) entries also match prefixed variants (e.g. `api/upload/files/1`, `api/users/mexyz`) rather than the exact path — a widening the `request-auth.test.ts` exact-string cases do not catch.
-  evidence: `apps/client/src/lib/strapi-api/request-auth.ts` compares with `startsWith`; the practical blast radius is small (Strapi's upload POST is a single `/upload` route and `/users/me<suffix>` is not a real route), but a segment-boundary or exact match would make the boundary match the test's intent. Pre-existing matcher behavior surfaced by this story's new entries; deferred as a hardening cleanup for the proxy allowlist.
-- source_spec: `_bmad-output/implementation-artifacts/spec-4-4-profile-management.md`
-  summary: Three `ProfileForm` branches are untested — the post-save language-change redirect (`router.push(\`/${values.language}/auth/profile\`)`when the selected language differs from the active locale), the avatar-upload-failure abort (toast`unexpectedError`and return without saving), and the`defaultRegion`client payload path (tests render with`regions={[]}`, so the region field never mounts).
-evidence: `apps/client/.../auth/profile/\_components/ProfileForm.tsx`; `ProfileForm.test.tsx`always renders`locale="fr"`with language`"fr"`(redirect branch never entered), only drives the avatar-upload success path, and passes`regions={[]}`. A locale-switch regression, a partial save on upload failure, or a broken region payload would fail no test. Low-consequence UI branches; deferred as a test-coverage gap.
-- source_spec: `_bmad-output/implementation-artifacts/spec-4-5-language-and-region-preferences.md`
-  summary: A stale `localStorage` location (a remembered region that no longer exists for the current locale) suppresses the profile `defaultRegion` seed for one `/events` visit — the restore-on-mount reconciles the saved location to empty, clears storage, and returns without falling through to the profile default.
-  evidence: `apps/client/src/features/events/components/EventLocationFilter/EventLocationFilter.tsx` restore effect: in the `saved` branch, `if (!next.region && !next.city) { persistLocation(next); return }` clears the stale entry but does not consult `defaultRegion`. Self-heals on the next visit (storage was cleared), so the miss is one-time and low-consequence; deferred rather than adding fall-through complexity to the well-tested saved-restore path.
-- source_spec: `_bmad-output/implementation-artifacts/spec-4-5-language-and-region-preferences.md`
-  summary: The NextAuth `session`/`jwt` callback that exposes `session.user.preferredLanguage` (the sole producer of the field `PreferenceSync` consumes) has no direct unit test — `PreferenceSync.test.tsx` injects the session value, so a regression that stops populating it (renamed/removed field) would ship green.
-  evidence: `apps/client/src/lib/auth.ts` callbacks are untested in the repo (no `auth.ts` callback test exists; `request-auth.test.ts` covers only the allowlist). The change is a two-line field passthrough from the existing `/users/me` re-fetch; a dedicated test needs a next-auth + `PrivateStrapiClient` + env harness the repo does not yet have. Deferred as a verification gap (same integration-harness class deferred for 4.1/4.3/4.4).
-- source_spec: `_bmad-output/implementation-artifacts/spec-4-5-language-and-region-preferences.md`
-  summary: The `EventsListing` → `useCurrentUser` → `EventLocationFilter` wiring (reads `currentUser.defaultRegion`, threads it as the `defaultRegion` prop, gated on `useSession` auth) has no integration test — `EventLocationFilter.test.tsx` supplies the prop directly, and there is no `EventsListing` test file, so disconnecting the seam would not fail any test.
-  evidence: `apps/client/src/features/events/components/EventsListing/EventsListing.tsx:79-83,193`; no `EventsListing.test.tsx` exists and it requires a large label/props fixture to render. The seam is a visible one-line prop wire; deferred as a test-coverage gap. (The async-arrival behavior it depends on IS now unit-tested in `EventLocationFilter.test.tsx`.)
-- source_spec: `_bmad-output/implementation-artifacts/spec-4-5-language-and-region-preferences.md`
-  summary: Nothing pins that `<PreferenceSync />` is actually mounted in the `[locale]` layout — the component is unit-tested standalone, so deleting its mount would silently disable login-time language application with a green suite.
-  evidence: `apps/client/src/app/[locale]/layout.tsx:106`; the repo has no layout tests (`find src/app -name "layout*.test.*"` is empty). Best closed by an app-shell/e2e check rather than a unit test; deferred consistent with the repo's no-layout-test convention.
-- source_spec: `_bmad-output/implementation-artifacts/spec-4-6-guest-checkout-capability.md`
-  summary: (HIGH) Guest-order linking runs on every user `afterCreate` with no proof of email ownership — when Epic 6 lands guest orders, an attacker who registers a victim's email would inherit the victim's guest purchases (guestName, paymentReference, tickets), instantly usable if email confirmation is disabled (the Strapi default). Gate linking on verified ownership: trigger it on the email-confirmation event (or an `afterUpdate` confirmed-transition) rather than raw `afterCreate`, and re-evaluate for admin-panel/seed-created users.
-  evidence: `apps/strapi/src/lifeCycles/user.ts` `afterCreate` → `linkGuestOrdersForUser`; `sendEmail` in the same file notes `/auth/local/register` sets `confirmed:true` by default. Not reachable today (no exposed guest-order creation path — Epic 6 unbuilt), so deferred to Epic 6 where the checkout flow + the platform's email-confirmation policy are decided; must be resolved before guest-order creation ships.
-- source_spec: `_bmad-output/implementation-artifacts/spec-4-6-guest-checkout-capability.md`
-  summary: `linkGuestOrders` links guest orders of ANY `paymentStatus` (including `pending`/`failed`) — an abandoned/failed guest checkout would surface in the account's "my orders" as a real purchase. Restrict linking to the appropriate status(es) (likely `paid`) once Epic 6 defines the order lifecycle and purchase-history view.
-  evidence: `apps/strapi/src/plugins/ticketing/server/src/services/order.ts` `linkGuestOrders` filters only on `guestEmail`. Product decision coupled to Epic 6.9 (purchase history) and the order status model; no orders exist today.
-- source_spec: `_bmad-output/implementation-artifacts/spec-4-6-guest-checkout-capability.md`
-  summary: The per-order link updates run sequentially outside any transaction and the lifecycle swallows errors, so a mid-batch DB failure leaves the remaining matching orders permanently unlinked with no retry (afterCreate is one-shot) — silent partial linking. Wrap the batch in `strapi.db.transaction` and/or add per-order try/catch, and expose an idempotent re-run/backfill entry point.
-  evidence: `apps/strapi/src/plugins/ticketing/server/src/services/order.ts` loop; `apps/strapi/src/lifeCycles/user.ts` try/catch swallows. Robustness hardening relevant only at real order volume (Epic 6); the method is already idempotent so a re-run recovers.
-- source_spec: `_bmad-output/implementation-artifacts/spec-4-6-guest-checkout-capability.md`
-  summary: `guestEmail` is persisted raw by `createOrder` (`guestEmail: data.guestEmail`) but the linker normalizes the read side (trim+lowercase); a guest order stored with surrounding whitespace would never match and never link. Normalize `guestEmail` on write (in `createOrder`/validation) so read/write normalization agree — which also lets linking use `$eq` on a normalized column instead of the `LIKE`-based `$eqi`.
-  evidence: `apps/strapi/src/plugins/ticketing/server/src/services/order.ts` `createOrder` writes raw `guestEmail`. Belongs to the order-creation flow owned by Epic 6; the read-side wildcard risk itself was patched in this story.
-- source_spec: `_bmad-output/implementation-artifacts/spec-4-6-guest-checkout-capability.md`
-  summary: (LOW) No DB index on `ticket_orders.guestEmail`; every account creation now runs a filtered scan over that column. Add an index once the orders table grows.
-  evidence: `.../content-types/ticket-order/schema.json` declares `guestEmail` as a plain `email` attribute with no index. Negligible today (empty orders table); revisit with Epic 6 volume.
-- source_spec: `_bmad-output/implementation-artifacts/spec-4-6-guest-checkout-capability.md`
-  summary: The new linking behavior is verified only by mocked unit tests — the real `$eqi` filter semantics, the Strapi v5 relation-write shape (`data: { user: documentId }`), and the `afterCreate` `event.result` wiring are never exercised by a booted-Strapi test (the sole integration suite `order.service.test.ts` is `describe.skip` and does not cover this). A silent runtime no-op (nothing links) would pass the green unit gate. Add boot-based integration coverage (seed a guest order, create a matching user, assert the order's `user` relation populates, incl. a mixed-case email) — fold into the existing skipped suite's un-skip follow-up.
-  evidence: `order-link-guest.unit.test.ts` / `user.unit.test.ts` assert only mock call-args; `apps/strapi/src/plugins/ticketing/server/src/services/__tests__/order.service.test.ts:29` is skipped. `$eqi` (LIKE) and the `documentId` `event.result` shape are corroborated by existing in-repo usage (`strapi-server.ts` email `$eqi`; sibling `sendEmail` reads `event.result.documentId`), lowering but not eliminating the risk.
-
-## Deferred from: code review of 5-1-add-event-to-watchlist (2026-07-10)
-
-- source_spec: `_bmad-output/implementation-artifacts/spec-5-1-add-event-to-watchlist.md`
-  summary: The `EventDetailPageDesktop` and `EventDetailPageWithMap` variants still use the local-only `useState(isWatchlisted)` toggle that Story 5.1 replaced on the mobile `EventDetailPage`, so their heart would not persist if either variant were ever routed.
-  evidence: `EventDetailPageDesktop.tsx` (~L135/L194) and `EventDetailPageWithMap.tsx` (~L155) retain the `const [watchlisted, setWatchlisted] = React.useState(isWatchlisted)` stub. Neither is rendered by the live route (`app/[locale]/events/[documentId]/page.tsx` renders only `EventDetailPage`), so the defect is latent — surfacing only when a desktop/map variant is switched on. Out of scope for 5.1 (which targets the "viewing an event" mobile detail surface); should be rewired to `useAddToWatchlist` when those variants go live.
-
-## Deferred from: follow-up code review of 5-1-add-event-to-watchlist (2026-07-10, pass 2)
-
-- source_spec: `_bmad-output/implementation-artifacts/spec-5-1-add-event-to-watchlist.md`
-  summary: On reconnect the resumed `useWatchlistCheck` GET can complete after the drain's `check` invalidation and overwrite the optimistic `isInWatchlist:true` with the server's still-`false`, briefly emptying a heart for an add that IS now persisted (self-heals after staleTime/navigation).
-  evidence: `useAddToWatchlist` offline branch sets `queryClient.setQueryData(check(id), {isInWatchlist:true})` while `useWatchlist.addMutation` has only `onSuccess` invalidation (no `onMutate`); the resumed check query and the drain race on `online`. Transient/self-healing, not data loss; robust coordination (pin optimistic until drain confirms) belongs to the cross-device sync story (5.5).
-- source_spec: `_bmad-output/implementation-artifacts/spec-5-1-add-event-to-watchlist.md`
-  summary: An offline add is not reflected after an offline page reload — the filled-heart state lives only in the react-query cache (lost on reload) and is never hydrated from the persisted pending-add queue.
-  evidence: `useAddToWatchlist` writes optimistic state via `setQueryData`; nothing reads `getPendingAdds(userId)` to seed `useWatchlistCheck` after a reload while still offline. Belongs to Story 5.4 (offline watchlist access / cached state + last-synced), which owns offline read hydration.
-- source_spec: `_bmad-output/implementation-artifacts/spec-5-1-add-event-to-watchlist.md`
-  summary: The proxy allow-list matcher `isStrapiEndpointAllowed` uses `path.startsWith(endpoint)` with no path-segment boundary, so the new `api/user-engagement/watchlist` POST entry also reaches `/watchlist/toggle` (which can REMOVE) and any future prefix-sibling route; DELETE remains blocked but the "no removal in 5.1" boundary is not truly enforced.
-  evidence: `request-auth.ts` `ALLOWED_STRAPI_ENDPOINTS[method].some((e) => path.startsWith(e))` — shared by ALL entries (e.g. `api/users/me` already matches `api/users/me...`), so this is a pre-existing matcher design, not introduced by 5.1. Real fix (`path === e || path.startsWith(e + "/")`) touches the shared Story-4 auth path and should be done deliberately across all entries. Impact is bounded: every watchlist route is JWT-self-scoped and no 5.1 UI path invokes toggle.
-- source_spec: `_bmad-output/implementation-artifacts/spec-5-1-add-event-to-watchlist.md`
-  summary: When `watchlistDisabled` (an event with no resolvable creative-work), the FilmHero heart button renders with `aria-label={undefined}`, so screen readers announce an unnamed icon-only "button" (WCAG 4.1.2).
-  evidence: `FilmHero.tsx` intentionally drops the actionable add/remove label when disabled but supplies no replacement name; the disabled state is near-unreachable for the MVP cinema catalog (every `movie_screening` event has a film via `getEventFilm`). A static "watchlist unavailable" label (new i18n key) resolves it when filmless events become real.
-- source_spec: `_bmad-output/implementation-artifacts/spec-5-1-add-event-to-watchlist.md`
-  summary: The core Story 5.1 integration seam — `EventDetailPage` passing `getEventFilm(event)?.documentId` and `watchlistDisabled={!canWatchlist}` into the heart — has no test; a regression passing `event.documentId` (wrong entity) or dropping the disabled gate would ship green.
-  evidence: `getEventFilm` (eventMappers), `useAddToWatchlist`, and `FilmHero` are each unit-tested in isolation, but no test renders `EventDetailPage` (it is not in `vitest.config.ts` `include` and has no test file). A focused component test mocking `useAddToWatchlist` and asserting the id/`watchlistDisabled` wiring would close it; deferred because `EventDetailPage` carries heavy deps and the wiring was manually verified for this pass.
-
-- source_spec: `_bmad-output/implementation-artifacts/spec-5-2-remove-event-from-watchlist.md`
-  summary: Watchlist reconnect drain iterates a fixed snapshot and removes replayed ops by id only; a mid-drain network flap plus a concurrent opposite-kind enqueue for an id still in the snapshot can drop the user's fresh op.
-  evidence: `useWatchlistSync.ts` loops `getPendingOps(userId)` once and calls `removePendingOp(userId, op.creativeWorkId)` on success (by id, kind-agnostic). Under 5.1 (add-only, idempotent) this was safe; with 5.2's mixed add/remove kinds, a success on a stale snapshot op can delete a freshly-queued opposite-intent op for the same id. Very narrow timing (offline flap during an `await mutateAsync` + concurrent enqueue). Fix: re-read the op before removal and only drop it if the stored kind still matches.
-
-## Deferred from: code review of 5-3-view-watchlist-page (2026-07-10)
-
-- source_spec: `_bmad-output/implementation-artifacts/spec-5-3-view-watchlist-page.md`
-  summary: The watchlist page renders one `WatchlistCard` per saved item, each calling `useRemoveFromWatchlist` → `useWatchlistCheck(id)` (enabled while authenticated), so an N-item watchlist fires N proxied `GET /user-engagement/watchlist/check/:id` requests on load; the per-card mount-time `setQueryData` seed runs after the query observer subscribes, so it cannot pre-empt the fetch.
-  evidence: `WatchlistPageClient.tsx` `WatchlistCard` uses `useRemoveFromWatchlist(creativeWorkId)`; that hook (5.2) internally calls `useWatchlistCheck` (`useWatchlist.ts:88`, `enabled: isAuthenticated && !!creativeWorkId`). Functionally correct (each check returns `{isInWatchlist:true}`, consistent) but a load-time perf regression on the mobile-first target. Fix: pre-seed all visible `watchlistKeys.check(id)` caches in the PARENT render (so each child query mounts with fresh cached data within `staleTime` and skips the fetch), or add an `initialData`/`enabled` escape to `useWatchlistCheck`. Not fixed in-story because the fetch-suppression timing can only be verified by an integration test the current mocked component suite does not provide.
-- source_spec: `_bmad-output/implementation-artifacts/spec-5-3-view-watchlist-page.md`
-  summary: Watchlist cards render the placeholder poster because `getUserWatchlist` populates only `["creativeWork"]` (no `creativeWork.poster`), and the watchlist controller ignores `ctx.query`, so the client `useWatchlist` populate list (`creativeWork.poster.formats`) is inert.
-  evidence: `apps/strapi/.../user-engagement/server/src/services/watchlist.ts` `getUserWatchlist` `populate: ["creativeWork"]`; `controllers/watchlist.ts` `list` calls the service with no populate from `ctx.query`. Pre-existing (5.1/5.2 had the same populate) and the 5.3 spec deliberately kept it minimal. Fix: add `"creativeWork.poster"` (+ `formats`) to the service populate (and update the enrichment/`WatchlistItem` poster expectations), or have the controller honor a safe populate allow-list.
-- source_spec: `_bmad-output/implementation-artifacts/spec-5-3-view-watchlist-page.md`
-  summary: The remove-with-undo card-exit ANIMATION and wiring the shared undo affordance were scope-trimmed from the watchlist page; the card already leaves the list on refetch, but the epic UX calls for an animated exit.
-  evidence: `WatchlistPageClient.tsx` removes via `useRemoveFromWatchlist` (toast+Undo) then list invalidation; no exit animation. Recorded as 5.3's surface by spec-5-2 (which deferred it here). Polish, not an AC.
-- source_spec: `_bmad-output/implementation-artifacts/spec-5-3-view-watchlist-page.md`
-  summary: The watchlist page has no navigation entry point — BottomNav's "account" tab routes to a non-existent `/account`, and nothing links to `/watchlist`; the page is only reachable by direct URL.
-  evidence: No `app/[locale]/account` route exists; `HomePage.handleNavigate` pushes `/account` for the account tab; grep finds no `/watchlist` link. The "reached via the Account tab" UX belongs to an account-hub story (Epic 4/9), not this view story.
-
-## Deferred from: follow-up code review of 5-3-view-watchlist-page (2026-07-10)
-
-- source_spec: `_bmad-output/implementation-artifacts/spec-5-3-view-watchlist-page.md`
-  summary: Screening enrichment is film-only — the facade queries `screenings.movie` but never the sibling `performances.play` relation, so a watchlisted `play` (a first-class `creative-work.type`) never gets a next/last date or venue, always shows a blank meta line, and can never move into the "Past" section.
-  evidence: `events-manager/.../services/public-api.ts` `findScreeningInfoByMovies` filters only `screenings.movie.documentId $in`, but the event schema has TWO scheduling relations — `screenings` (→ `screening.movie` → creative-work) AND `performances` (→ `performance.play` → creative-work) — and the `type` enum is `["film","play","short-film"]`. The film-only query is frozen by the intent-contract (its Boundaries/Design Notes hardcode `screenings.movie`) and is not reachable in the MVP, which `events.ts` hard-scopes to `MVP_CATEGORY = "movie_screening"` (cinema only). So this is a latent gap, not a live regression: it activates when theater/`performances` events ship. Fix (with theater events): also query `performances.play.documentId $in`, fold both relations into the same per-creative-work bucketing, and cover plays in the facade unit tests.
-- source_spec: `_bmad-output/implementation-artifacts/spec-5-3-view-watchlist-page.md`
-  summary: The (pass-1) localized category badge passes a translated label string to `EventCard`, whose `categoryVariants` color map is keyed on the French display strings, so in ar/en every badge misses the lookup and falls back to the `secondary` variant (fr still matches, so it looked fine in the default locale).
-  evidence: `WatchlistPageClient.tsx` `WatchlistCard` resolves `category = categoryLabels[uiCategory]` (localized, e.g. ar "سينما", en "Cinema"/"Short films") and passes it as `event.category`; `EventCard.tsx` computes `badgeVariant = categoryVariants[event.category] || "secondary"` where `categoryVariants` keys are "Cinéma"/"Courts-métrages"/… So localizing the label (the pass-1 i18n fix) severed the color mapping for non-fr locales — cosmetic only (badge color, not text). Fix: drive the badge variant off the stable `CategoryType` (or the creative-work `type`) rather than the localized display string — e.g. have `EventCard` accept a `categoryVariant`/`categoryKey` prop, or key `categoryVariants` on `CategoryType`. Low, cosmetic; touches the shared `EventCard` contract so deferred rather than patched in-story.
-
-- source_spec: `_bmad-output/implementation-artifacts/spec-5-4-offline-watchlist-access.md`
-  summary: Offline watchlist read is gated on `useSession()` resolving, which needs the network (or the Serwist SW) — on a full COLD offline reload the session may not resolve, so `userId` is undefined and the user falls through to the offline EmptyState instead of their cached list.
-  evidence: `useOfflineWatchlist.ts` reads the snapshot only when `userId = session.user.userId` is available; `SessionProvider` has no server-seeded session and `/api/auth/session` is NetworkOnly in `sw.ts`. The in-scope model (app already running, connection drops, client-side nav) works because the session is already resolved; the cold-reload edge is out of Story 5.4's scope (SW dependency was explicitly excluded) and needs a product decision on an offline-durable last-user id vs. relaxed offline auth (shared-device tradeoff).
-- source_spec: `_bmad-output/implementation-artifacts/spec-5-4-offline-watchlist-access.md`
-  summary: Durable cross-user snapshot persistence — on a same-tab user switch (A signs out, B signs in without a hard reload), the module-level `QueryClient` still holds A's stale `["watchlist","list"]` data, so the persist effect can write A's rows under B's cache key.
-  evidence: `useWatchlist`'s query key is not user-scoped and the `QueryClient` is a module singleton (`ClientProviders.tsx`), so B's `userId` can flip before the refetch resolves while `query.data` is still A's. The transient in-memory version of this (B briefly SEEING A's list) pre-exists in Story 5.3; 5.4 adds durability. Proper fix is a user-scoped watchlist query key (`["watchlist","list",userId]`), a 5.3-owned hook change better done with the 5.5 sync work.
-- source_spec: `_bmad-output/implementation-artifacts/spec-5-4-offline-watchlist-access.md`
-  summary: The per-user watchlist snapshot (and the Story 5.1 pending-op queue) are never cleared on logout, so a user's saved-events list persists in `localStorage` on a shared/public device after sign-out.
-  evidence: `clearWatchlistCache` exists but has no production caller; no logout-flow hook wipes `tiween:watchlist:cache:<userId>`. Consistent with the existing un-cleared `tiween:watchlist:pending-add:<userId>` queue from 5.1/5.2; needs a sign-out hook to clear both.
-
-## Deferred from: follow-up code review of 5-5-watchlist-sync-across-devices (2026-07-10)
-
-- source_spec: `_bmad-output/implementation-artifacts/spec-5-5-watchlist-sync-across-devices.md`
-  summary: The watchlist `add` dedupe is non-atomic (read-before-write with no unique DB constraint), so two near-simultaneous cross-device adds of the same `(user, creativeWork)` can both observe an empty `findMany` and both `create`, yielding duplicate rows — the exact concurrent scenario Story 5.5 is about is unverified.
-  evidence: `apps/strapi/.../user-engagement/server/src/services/watchlist.ts` `add` does `findMany` → if present return existing, else `create`, with no unique `(user, creativeWork)` constraint on the content type. Pre-existing since Story 5.1; 5.5 only added LWW-convergence UNIT tests over a serialized in-memory `Map` mock (`watchlist.unit.test.ts` `buildStatefulStrapi`) that awaits each op to completion, so it can never reproduce the interleaving (both reads returning empty before either create). Real consequence: a duplicate membership row (set-semantics still reads `isInWatchlist === true`, but `remove` may delete only one row, and row counts drift). Fix: add a DB-level unique index on `(user, creativeWork)` (idempotent create-or-ignore) and/or an integration test with a real/db-backed `documents()` harness exercising a concurrent double-add. Deferred (not caused by this story; needs a schema/production change 5.5's intent-contract forbids).
-
-- source_spec: `_bmad-output/implementation-artifacts/spec-5-6-schedule-change-notifications.md`
-  summary: Bulk `updateMany` / non-scalar-`where` event schedule edits are not detected by the Story 5.6 lifecycle subscriber, so schedule changes made via bulk tooling or data import notify no watcher.
-  evidence: The events-manager `bootstrap.ts` subscriber reads `event.params.where.id` and bails when it is not a scalar id; the admin UI edits single entries (covered), but any bulk update or import path resolves zero/one snapshot and skips the fan-out with no error.
-
-## Deferred from: follow-up code review (pass 3) of 5-6-schedule-change-notifications (2026-07-10)
-
-- source*spec: `_bmad-output/implementation-artifacts/spec-5-6-schedule-change-notifications.md`
-  summary: A `postponed`→`scheduled` or `rescheduled`→`scheduled` reinstatement that also moves the time still emits a `showtime_changed` notification, whereas the spec's "status **unchanged** but startDateTime changed ⇒ showtime_changed" precondition would read as `null` — the pass-2 reinstatement guard only covers `cancelled`.
-  evidence: `apps/strapi/src/plugins/user-engagement/server/src/services/notification.ts` `deriveScheduleChange` guards only `oldStatus === "cancelled" ⇒ null` before the showtime-fallthrough; a `postponed→scheduled`/`rescheduled→scheduled` transition (status changed, not INTO cancelled/postponed/rescheduled) with `oldStart !== newStart` falls through and returns `showtime_changed`. Derivation tests pin `cancelled→scheduled ⇒ null` but leave `postponed/rescheduled→scheduled` untested. Deferred rather than patched because the desired product behavior is genuinely ambiguous: notifying a watcher that a postponed event now has a confirmed new time is arguably \_desirable*, so suppressing it (to match the literal spec) is a product decision, not a mechanical fix. Low impact (uncommon admin transition; the notification produced is accurate, not harmful). Fix (if suppression is chosen): add `oldStatus === newStatus` to the showtime branch; else amend the spec derivation to cover recovery-with-new-time explicitly.
-- source_spec: `_bmad-output/implementation-artifacts/spec-5-6-schedule-change-notifications.md`
-  summary: The Account-tab unread-badge wiring at the three `HomePage*` mount sites (the only places the badge is surfaced to users — the AC deliverable) has no test, so a broken/dropped `accountBadgeCount` prop would ship green.
-  evidence: `HomePage.tsx`/`HomePageWithCity.tsx`/`HomePageWithVenue.tsx` thread `useUnreadNotificationCount()` into `<BottomNav accountBadgeCount=…>`, but the only tests referencing `accountBadgeCount`/`useUnreadNotificationCount` are `BottomNav.test.tsx` (prop injected directly) and `useNotifications.test.ts` (hook in isolation); none of the three `HomePage*` components has a co-located test, and `apps/client/vitest.config.ts`'s `include` allowlist would need `features/events/components/HomePage/**` added to run one. Dropping the prop (or destructuring the hook wrong → always `0`) renders no badge on any real page while every suite stays green. Non-trivial because `HomePage*` mount heavy dependencies. Fix: add `HomePage/**` to the vitest `include` and a render test (mock `useUnreadNotificationCount` → N>0) asserting the account-tab badge appears, plus a 0-count no-badge case.
-- source_spec: `_bmad-output/implementation-artifacts/spec-5-6-schedule-change-notifications.md`
-  summary: The fan-out idempotency probe keys on exact `oldDateTime`/`newDateTime` **string** equality across a DB round-trip, so if Strapi normalizes the stored `datetime` column differently from the incoming ISO snapshot the probe misses and a duplicate in-app notification + duplicate email slip through on the ordinary multi-fire (per-locale / draft→published) path.
-  evidence: `notification.ts` `notifyScheduleChange` filters `schedule-notification` by `oldDateTime: change.oldDateTime` / `newDateTime: change.newDateTime` (raw ISO strings) to dedupe repeat `afterUpdate` fires; the unit harness's mock `findMany` compares the exact strings it stored, so a real datetime-filter/column normalization mismatch (ms precision, `+00:00` vs `Z`) is never exercised. Unverifiable without a live DB. Fix: dedupe on a stable derived key (e.g. a stored `dedupeKey` hash of `event|changeType|old|new`) or a unique DB index, rather than on datetime-column string equality.
-
-## Deferred from: 6-1-view-ticket-types-and-prices (2026-07-10)
-
-- source_spec: `_bmad-output/implementation-artifacts/spec-6-1-view-ticket-types-and-prices.md`
-  summary: Per-tier inventory (`ticketing.ticket-tier.ticketsAvailable`/`ticketsSold`) is a display-only additive model and is NOT reconciled with the atomic purchase write path — the sub-event's legacy single `price`/`ticketsAvailable`/`ticketsSold` and `events-manager.public-api.adjustInventory` remain the only inventory the order flow reads/writes, so tier-level availability is not decremented on purchase.
-  evidence: Story 6.1 added the `ticketTiers` component to `screening`/`performance` schemas and a read-only service (`events-manager/.../services/ticket-tiers.ts`) that computes `remaining`/`soldOut` from the component fields, but the intent-contract froze this as READ-ONLY (never touch `adjustInventory`/`order.createOrder`). The purchase Unit of Work (`ticketing/.../services/order.ts`) still adjusts the sub-event's single inventory counter, unaware of tiers. Fix (Stories 6.2/6.3): decide whether per-tier inventory becomes the source of truth (and route `adjustInventory` through a tier-aware conditional UPDATE preserving the no-oversell concurrency floor) or whether tiers are a pure pricing catalog over one shared pool; then wire selection (6.2) and payment (6.3) to write the chosen counter atomically.
-
-- source_spec: `_bmad-output/implementation-artifacts/spec-6-1-view-ticket-types-and-prices.md`
-  summary: The TND price formatter is now re-implemented in four places — the new shared `features/tickets/utils/formatPrice.ts` and the three pre-existing inline `.toFixed(2).replace(".", ",")` copies in `OrderSummary.tsx`, `QuantitySelector` (desktop prototypes), and the desktop ticketing prototypes.
-  evidence: Story 6.1 introduced `formatPrice(amount, currency = "TND") => "15,00 DT"` and consumes it in `TicketTypeList`, but deliberately left the existing components untouched to keep the pass's blast radius contained (per the spec Design Notes). `OrderSummary.tsx` still defines a local `formatCurrency(amount, currency = "DT")`. Fix: refactor `OrderSummary`/`QuantitySelector`/desktop-prototypes to import the shared `formatPrice`, deleting the inline copies (note the `TND`→`DT` symbol mapping the shared util already handles), and update their tests/stories accordingly.
-
-## Deferred from: code review of 6-1-view-ticket-types-and-prices (2026-07-10)
-
-- source*spec: `_bmad-output/implementation-artifacts/spec-6-1-view-ticket-types-and-prices.md`
-  summary: A permanent `404 SUB_EVENT_NOT_FOUND` (unpublished/deleted/invalid sub-event id) is rendered by `TicketTypesSection` as a generic retryable error state, so the Retry button re-fetches and 404s forever (after react-query's 3 default retries), instead of a distinct not-found state.
-  evidence: `apps/client/src/app/[locale]/tickets/[documentId]/[screeningId]/TicketTypesSection.tsx` branches only on `isError || !data` → retryable `EmptyState`; it never inspects the thrown error's `status`. The RSC page 404s only on a missing \_event* documentId, never the _sub-event_ id. Deferred rather than patched because NO query hook in the repo (watchlist, notifications) distinguishes error status — introducing error-message JSON parsing here would be an inconsistent, brittle one-off; the thrown error carries status only inside a `JSON.stringify`'d `Error.message` (`lib/strapi-api/base.ts`). Fix (repo-wide or with 6.2/6.3 error hardening): add a shared status extractor, set react-query `retry` to skip 4xx, and show a non-retryable not-found state for 404.
-
-- source_spec: `_bmad-output/implementation-artifacts/spec-6-1-view-ticket-types-and-prices.md`
-  summary: The tickets page does not verify that `[screeningId]` belongs to `[documentId]` (the event), so a hand-crafted/stale URL `/tickets/<eventA>/<sub-event-of-eventB>` returns 200 and renders event A's header above event B's ticket tiers — incoherent context in a purchase funnel.
-  evidence: `page.tsx` fetches the event by `documentId` for the header; `TicketTypesSection` fetches tiers by `screeningId` via the `/showtimes/:documentId/ticket-tiers` endpoint, which validates only the sub-event id (`controllers/ticket-tiers.ts`, `services/ticket-tiers.ts`) with no parent-event ownership check. Read-only, so no data corruption, and the normal tap-a-showtime flow always produces a matching pair. Fix (naturally with 6.2/6.3, which thread both ids through checkout): scope the tier read by both the event and sub-event documentIds (or populate + assert the sub-event's parent `event` === `documentId`), returning 404 on mismatch.
-
-- source_spec: `_bmad-output/implementation-artifacts/spec-6-1-view-ticket-types-and-prices.md`
-  summary: The public, unauthenticated ticket-tiers endpoint discloses each tier's exact `ticketsSold` and `ticketsAvailable`, though the UI only consumes the derived `remaining`/`soldOut` — leaking precise per-showtime sell-through to anonymous scrapers.
-  evidence: `services/ticket-tiers.ts` `TicketTierOut` returns raw `ticketsAvailable`/`ticketsSold` alongside `remaining`/`soldOut`, and the route is `auth: false` (`routes/index.ts`). The spec's I/O matrix sanctioned this shape (and the service test asserts it), so it is not a spec deviation, but a least-privilege public read has no functional need for absolute counts. Fix (if sales figures are deemed confidential): drop `ticketsSold`/`ticketsAvailable` from the public payload, returning only `remaining`/`soldOut` (+ `price`/`restrictionNote`), and update the spec I/O matrix + service test accordingly.
-
-- source_spec: `_bmad-output/implementation-artifacts/spec-6-1-view-ticket-types-and-prices.md`
-  summary: The seeded ticket tiers (the story's required "at least one sold-out tier" + `reduced` tier `restrictionNote: "sur justificatif"`) have no test assertions, so a regression dropping the sold-out/restriction seed data would surface only in the manual re-seed-and-hit check, never in `yarn test`.
-  evidence: `apps/strapi/scripts/seeds/index.ts` `seedEvents` hardcodes 3 tiers per sub-event (vip 10/10 sold-out, reduced restriction), but `services/__tests__/seed.unit.test.ts` has no `ticketTiers`/`restrictionNote`/`soldOut` coverage. Low impact (seed is dev-only fixture data). Fix: extend the seed unit test to assert each seeded sub-event carries three tiers with the sold-out and restriction shapes the story depends on.
-
-## Deferred from: follow-up code review of 6-1-view-ticket-types-and-prices (2026-07-10)
-
-- source*spec: `_bmad-output/implementation-artifacts/spec-6-1-view-ticket-types-and-prices.md`
-  summary: A tier's `restrictionNote` is stored as a raw free-text string and rendered verbatim, so a French seed value ("sur justificatif") shows untranslated to EN and AR visitors — producing a French phrase inside an otherwise Arabic/RTL line while every other tier string (type labels, "remaining", "sold out", the restriction \_prefix*) is localized.
-  evidence: `ticketing.ticket-tier.json` types `restrictionNote` as a plain `string`; `services/ticket-tiers.ts` passes it through untouched; `TicketTypeList.tsx` renders `{restrictionPrefix} {tier.restrictionNote}` where only the prefix comes from next-intl. The spec I/O matrix explicitly sanctioned "verbatim" display, so this is not a spec deviation, but it yields mixed-language output for non-French locales. Fix (needs a product decision): either constrain `restrictionNote` to a small enum of known restrictions mapped to i18n keys (like the `type` enum), or accept mixed-language display and document it. Low-medium impact — only affects tiers that carry a note, and only in EN/AR.
-
-- source_spec: `_bmad-output/implementation-artifacts/spec-6-1-view-ticket-types-and-prices.md`
-  summary: The tickets page's error branch renders a passive `EmptyState` (`variant="custom"`) with no `role="alert"` / live region, so a screen-reader user is never notified that the ticket-tier load failed — the error is conveyed only visually.
-  evidence: `TicketTypesSection.tsx` `if (isError || !data)` returns `<EmptyState variant="custom" title={t("errorTitle")} ... />`; `EmptyState` is a static content component with no assertive live region, and the spec Code Map's `ErrorBoundary` is not used here. Distinct from the already-deferred 404-retry-loop entry (which is about status-based routing of the retry, not a11y announcement). Fix: give the error branch an assertive live region / dedicated error component (e.g. `role="alert"`), ideally shared with other query-error surfaces. Low impact — sighted users see the error and Retry.
-
-- source_spec: `_bmad-output/implementation-artifacts/spec-6-1-view-ticket-types-and-prices.md`
-  summary: The public-proxy allowlist entry `api/events-manager/showtimes` is matched by `startsWith`, so it opens the entire `showtimes/*` GET namespace to unauthenticated callers — any GET route added under `showtimes` later (even one intended to require auth) would be silently auto-exposed.
-  evidence: `apps/client/src/lib/strapi-api/request-auth.ts` lists `"api/events-manager/showtimes"` in `ALLOWED_STRAPI_ENDPOINTS.GET` and `isStrapiEndpointAllowed` matches via `path.startsWith(endpoint)`; today the only such route is `.../showtimes/:documentId/ticket-tiers` (correctly public), so there is no current exposure, but the prefix is broader than the single intended endpoint. The path carries a dynamic `:documentId` segment, so pinning it to the `.../ticket-tiers` suffix needs a regex/segment matcher rather than a trivial `startsWith` edit (hence deferred, not patched). Fix: tighten the matcher (or the entry) to the specific `ticket-tiers` suffix, and add a guard test asserting a sibling `showtimes/:id/<other>` GET is NOT auto-allowed. Low impact until a second `showtimes` GET route exists.
-
-- source_spec: `_bmad-output/implementation-artifacts/spec-6-2-select-ticket-quantity.md`
-  summary: The selection store never re-clamps a persisted/refetched quantity down to a tier's current `remaining`, so if inventory drops after a quantity is stored the OrderSummary/subtotal can display more tickets than are actually available for that tier.
-  evidence: `ticketSelectionStore.setQuantity` clamps only to `MAX_TICKETS_PER_TYPE` and per-order remaining; `remaining` is enforced solely by the live `+` button `max` in `TicketSelectionList`, not on rehydrate/refetch. Story 6.2 deliberately keeps selection read-only against inventory (intent-contract "Never"); this is the display-side counterpart of the per-tier inventory reconciliation already deferred to Story 6.3.
-
-- source_spec: `_bmad-output/implementation-artifacts/spec-6-2-select-ticket-quantity.md`
-  summary: Ticket-funnel navigation uses raw `next/navigation` `useRouter` with a hand-built `/${locale}/...` path instead of the app's locale-aware next-intl router, so on the default locale (`fr`, `localePrefix: "as-needed"`) the redundant prefix triggers a canonicalizing redirect hop.
-  evidence: `TicketTypesSection.handleContinue` mirrors the pre-existing `EventDetailPage.tsx:229` idiom (spec-directed). It is an app-wide pattern (EventDetailPage navigates into the funnel the same way), so it should be migrated consistently to `lib/navigation.ts`'s `createNavigation` router rather than patched at one call site.
-
-- source_spec: `_bmad-output/implementation-artifacts/spec-6-2-select-ticket-quantity.md`
-  summary: The `ticket-selection-storage` Zustand `persist` has no `version`/`migrate`, no `partialize`, and no `skipHydration`, so the selection (including `subEventId`) lingers in localStorage across unrelated sessions with no migration path if `quantities`/`TicketTierType` ever change shape.
-  evidence: `ticketSelectionStore.ts` wraps state in `persist(..., { name: "ticket-selection-storage" })` with defaults only. `hydrateFor` resets on sub-event change and consumers now gate reads on `subEventId === screeningId`, so this is hygiene/robustness, not a live correctness bug.
-
-- source_spec: `_bmad-output/implementation-artifacts/spec-6-2-select-ticket-quantity.md`
-  summary: The tickets and payment routes do not verify that `[screeningId]` belongs to `[documentId]`; a mismatched/stale URL renders a blank showtime label and empty event title rather than a 404.
-  evidence: `page.tsx`/`payment/page.tsx` look up the screening via `event.screenings?.find(...)` and fall back to empty strings (`showtimeLabel = ""`, `eventTitle ?? ""`) instead of `notFound()`. This extends the existing Story 6.1 deferral (tier read not scoped by both event + sub-event documentIds) and is naturally resolved when Story 6.3 threads both ids through checkout.
-
-- source_spec: `_bmad-output/implementation-artifacts/spec-6-2-select-ticket-quantity.md`
-  summary: `formatPrice` hard-codes `toFixed(2)`, so a TND price carrying millimes (3 decimal places, e.g. 12.750) is truncated/mis-rounded in displayed unit prices and totals.
-  evidence: `features/tickets/utils/formatPrice.ts` formats with two decimals regardless of the currency's minor-unit precision. This is the pre-existing Story 6.1 formatter behavior (unchanged by 6.2); TND's real minor unit is the millime (3 decimals).
-
-## Deferred from: follow-up code review of 6-2-select-ticket-quantity (2026-07-10)
-
-- source_spec: `_bmad-output/implementation-artifacts/spec-6-2-select-ticket-quantity.md`
-  summary: The store's `setQuantity` order-capacity accounting (`otherTotal`) sums quantities on ALL persisted tiers including ones that are now sold-out/absent, while the UI derives `orderRemainingCapacity` from filtered (non-sold-out) priced items — so a persisted same-screening cart whose tier later goes sold-out silently no-ops another tier's `+` button (dead increment) even though the UI enables it.
-  evidence: `ticketSelectionStore.ts` `setQuantity` computes `otherTotal` by reducing over every entry in `state.quantities`, then clamps to `MAX_TICKETS_PER_ORDER - otherTotal`; `TicketTypesSection.tsx` computes `orderRemainingCapacity = MAX_TICKETS_PER_ORDER - selectedCount` where `selectedCount` comes from `items` that `.filter((tier) => !tier.soldOut …)`, and `TicketSelectionList` sets each `+` `max = min(MAX_TICKETS_PER_TYPE, tier.remaining, quantity + orderRemainingCapacity)`. With a persisted phantom (e.g. `vip:3` on a now-sold-out vip), the UI shows capacity for another tier up to 10 but the store clamps every click back to 7 → dead button. Subtotal/count exclude the phantom (correct — no over-sell, no wrong money), so this is a UX desync, not a data bug, and only in the stale-inventory state. A proper fix prunes phantom quantities against live tier inventory — the same per-tier inventory reconciliation already deferred to Story 6.3 — and the store deliberately holds no tier data, so it cannot prune itself without that data. Distinct from the already-deferred "displays more tickets than a tier's remaining" entry (that is over-remaining display of one tier; this is another tier's increment silently dying).
-- source_spec: `_bmad-output/implementation-artifacts/spec-6-2-select-ticket-quantity.md`
-  summary: The order-summary showtime label is resolved server-side from `event.screenings?.find((s) => s.documentId === screeningId)` only, so a valid `performance`-kind sub-event yields a blank showtime — and the authoritative `startDateTime` that already lives in the client `TicketTiersResponse` is ignored.
-  evidence: `page.tsx` and `payment/page.tsx` both do `const screening = event.screenings?.find((s) => s.documentId === screeningId)` then `formatShowtimeLabel(screening?.startDateTime, locale)`, but `SubEventKind` includes `"performance"` (`features/tickets/types.ts`) and the client `Event` model exposes only `screenings` (no `performances` array anywhere in `apps/client/src`), so a performance sub-event is never found → `formatShowtimeLabel(undefined, …)` returns the empty-string fallback. Meanwhile `TicketTiersResponse.startDateTime` (fetched client-side in `TicketTypesSection`/`PaymentStepPreview` via `useTicketTiers`) is the authoritative, kind-agnostic source. No live impact today because performance sub-events are not yet plumbed through the client Event model; the robust fix (compute the label client-side from `data.startDateTime`, dropping the server `screenings`-only lookup and the `showtimeLabel` prop) is a cross-file refactor touching both route pages, `TicketTypesSection`, `PaymentStepPreview`, and their tests. Distinct from the already-deferred screeningId↔documentId ownership/404 entry (that is a cross-event mismatched URL; this is a correct URL for a non-screening sub-event kind).
-
-## review of 6-3-konnect-payment-gateway-integration (2026-07-10)
-
-- source_spec: `_bmad-output/implementation-artifacts/spec-6-3-konnect-payment-gateway-integration.md`
-  summary: (MEDIUM) Reserved inventory leaks permanently when a checkout's single Konnect webhook delivery is lost/errored AND the buyer never lands on the result page (abandoned tab) — there is no reservation-expiry sweep, so `ticketsSold` stays reserved forever, eroding real availability.
-  evidence: `createOrder` reserves inventory at order creation (`paymentStatus: "pending"`); reconciliation only runs via the webhook (`payments/.../controllers/webhook.ts`, which 200-acks even on error so Konnect won't retry) or the client `POST /orders/:orderNumber/confirm` (only fires if the browser reaches `/payment/result`). Story 6.3's intent-contract explicitly deferred an abandoned-cart reservation-expiry sweep ("Do NOT add an abandoned-cart reservation-expiry sweep (defer)"). Fix: a scheduled job that, for `pending` orders older than the Konnect `lifespan`, re-queries `payments.public-api.getPaymentStatus` and releases inventory on non-paid (or a Redis-backed checkout reservation with TTL, FR64 territory).
-
-- source_spec: `_bmad-output/implementation-artifacts/spec-6-3-konnect-payment-gateway-integration.md`
-  summary: (MEDIUM) `POST /ticketing/orders` has no server-side idempotency key — a retried checkout POST (lost response, double tap past the client `isSubmitting` guard) mints a second order + second inventory reservation + second Konnect pay link for the same selection.
-  evidence: `ticketing/.../services/order.ts` `initCheckout` generates a fresh `orderNumber` and reserves inventory on every call; the only dedup is the client-side `isSubmitting` flag in `PaymentStep.tsx`. The stuck second reservation compounds the abandoned-cart leak above. Fix: accept a client-supplied idempotency key (or hash of {userId/guestEmail, subEventId, tickets}) and return the existing order + payUrl on replay within a window.
-
-- source_spec: `_bmad-output/implementation-artifacts/spec-6-3-konnect-payment-gateway-integration.md`
-  summary: (MEDIUM) The pre-existing public `GET /api/ticketing/orders/:orderNumber` (content-api, `auth: []`) returns the full order — `guestEmail`, `guestName`, `user`, `tickets` — with no field filtering; the order number is a low-entropy bearer capability (`TW-<base36 ts>-<4 base36 rand>`), so PII is harvestable by enumeration by anyone hitting Strapi directly.
-  evidence: `ticketing/.../controllers/order.ts` `findByOrderNumber` returns `order` verbatim from `services/order.ts findByOrderNumber` (populates tickets/event/user). The route predates Story 6.3 (6.3 only briefly added — and this review removed — the Next-proxy allow-list entry). Guest access is unauthenticated by design (the order number IS the capability), so the fix is PII minimization (return only what the result/receipt view needs) and/or higher-entropy order references, not blanket auth.
-
-- source_spec: `_bmad-output/implementation-artifacts/spec-6-3-konnect-payment-gateway-integration.md`
-  summary: (LOW) `POST /orders/:orderNumber/confirm` and `POST /payments/konnect/webhook` are unauthenticated and unthrottled; the webhook shared-secret is only enforced when `KONNECT_WEBHOOK_SECRET` is configured — enabling order-status enumeration via confirm and outbound-Konnect request amplification via webhook flooding.
-  evidence: `ticketing/.../routes/content-api.ts` confirm route (`policies: []`) and `payments/.../routes/content-api.ts` webhook (`auth: false`); the webhook controller only checks the token when a secret is set. Idempotency limits state damage but the info leak + amplification vectors remain. Fix: Redis rate-limiting (the project already uses Redis for rate limiting) on both routes and make the webhook secret mandatory in credentialed deployments.
-
-- source_spec: `_bmad-output/implementation-artifacts/spec-6-3-konnect-payment-gateway-integration.md`
-  summary: (LOW) The webhook→ticketing reconciliation backstop silently drops the event when Konnect echoes `payment.orderId = null` — the ticketing bootstrap handler no-ops on a missing `orderId`, so that order only ever settles via the client confirm.
-  evidence: `payments/.../controllers/webhook.ts` emits `{ orderId, status, paymentRef }` from the re-queried details (`getPaymentDetails` defaults `orderId` to `null`); `ticketing/.../bootstrap.ts` guards empty `orderId` and returns. Our order stores `paymentReference === paymentRef`, so the fix is a `findByPaymentReference` fallback (reconcile by `paymentRef` when `orderId` is absent). No live impact expected since we send `orderId` and Konnect echoes it.
+origin: migrated from legacy ledger ("Deferred from: 2c-3-catalog-move-into-creative-works (2026-06-16)"), 2026-07-12
+location: n/a
+reason: `common.video` carries both `type` (legacy FULL_LENGTH/TEASER/CLIP) and `videoType` (new trailer/teaser/clip/…) enums.
+status: open
+
+### DW-12: `credit-role` content-type lacks integrity guards
+
+origin: migrated from legacy ledger ("Deferred from: code review of 2c-3-catalog-move-into-creative-works (2026-06-16)"), 2026-07-12
+location: n/a
+reason: `credit-role` content-type lacks integrity guards.
+status: open
+
+### DW-13: Seed `index.ts` writes phantom fields to creative-work (pre-existing at baseline 54c092c)
+
+origin: migrated from legacy ledger ("Deferred from: code review of 2c-3-catalog-move-into-creative-works (2026-06-16)"), 2026-07-12
+location: n/a
+reason: Seed `index.ts` writes phantom fields to creative-work (pre-existing at baseline 54c092c).
+status: open
+
+### DW-14: `cast` component billing semantics
+
+origin: migrated from legacy ledger ("Deferred from: code review of 2c-3-catalog-move-into-creative-works (2026-06-16)"), 2026-07-12
+location: n/a
+reason: `cast` component billing semantics.
+status: open
+
+### DW-15: `website` venue field is a plain `string` with no URL validation
+
+origin: migrated from legacy ledger ("Deferred from: code review of 2d-1-extend-venue-schema-to-rich-model (2026-06-18)"), 2026-07-12
+location: n/a
+reason: `website` venue field is a plain `string` with no URL validation
+status: open
+
+### DW-16: Dev super-admin seeder swallows all errors
+
+origin: migrated from legacy ledger ("Deferred from: code review of 2d-1-extend-venue-schema-to-rich-model (2026-06-18)"), 2026-07-12
+location: n/a
+reason: Dev super-admin seeder swallows all errors
+status: open
+
+### DW-17: `.tsx` admin component tests never run in jest
+
+origin: migrated from legacy ledger ("Deferred from: code review of 2d-1 — jest .tsx test infrastructure gap (2026-06-18)"), 2026-07-12
+location: n/a
+reason: `.tsx` admin component tests never run in jest.
+status: open
+
+### DW-18: The public events endpoints blanket-populate screenings/venue, exposing internal `ticketsSold`/`ticketsAvailable` (raw per-screening…
+
+origin: migrated from legacy ledger ("Deferred from: code review of 3-1-public-events-browse-api-and-data-foundation (2026-07-05)"), 2026-07-12
+location: n/a
+reason: The public events endpoints blanket-populate screenings/venue, exposing internal `ticketsSold`/`ticketsAvailable` (raw per-screening sales) and full venue records to unauthenticated callers.
+status: open
+
+### DW-19: Trending ranking is an in-JS cap-then-rank over up to 500 fully-populated upcoming events on an uncached, unauthenticated,…
+
+origin: migrated from legacy ledger ("Deferred from: code review of 3-1-public-events-browse-api-and-data-foundation (2026-07-05)"), 2026-07-12
+location: n/a
+reason: Trending ranking is an in-JS cap-then-rank over up to 500 fully-populated upcoming events on an uncached, unauthenticated, unrate-limited endpoint — it can miss a top seller beyond the cap at scale and is a resource-exhaustion surface.
+status: open
+
+### DW-20: The homepage category/date/region/venue selectors render and mutate the URL but do not filter the four curated slices
+
+origin: migrated from legacy ledger ("Deferred from: code review of 3-1-public-events-browse-api-and-data-foundation (2026-07-05)"), 2026-07-12
+location: n/a
+reason: The homepage category/date/region/venue selectors render and mutate the URL but do not filter the four curated slices — they are visually interactive yet inert.
+status: open
+
+### DW-21: `StrapiEvent.startDate`/`endDate`/`status` are declared non-optional even though the Story 3.1a public browse API never returns them,…
+
+origin: migrated from legacy ledger ("Deferred from: follow-up code review of 3-11-homepage-with-curated-event-listings (2026-07-06)"), 2026-07-12
+location: n/a
+reason: `StrapiEvent.startDate`/`endDate`/`status` are declared non-optional even though the Story 3.1a public browse API never returns them, giving unmigrated consumers false compile-time safety.
+status: open
+
+### DW-22: The 3.1a public browse populate is too shallow for the homepage to render movie-level hero metadata or a complete JSON-LD `location`, so…
+
+origin: migrated from legacy ledger ("Deferred from: follow-up code review of 3-11-homepage-with-curated-event-listings (2026-07-06)"), 2026-07-12
+location: n/a
+reason: The 3.1a public browse populate is too shallow for the homepage to render movie-level hero metadata or a complete JSON-LD `location`, so the flagship hero shows only a title/badge and event structured data omits city/region.
+status: open
+
+### DW-23: The `/[locale]/events` listing renders only the first page (`LISTING_PAGE_SIZE = 60`) with no load-more/pagination control and no…
+
+origin: migrated from legacy ledger ("Deferred from: code review of 3-3-date-range-filtering (2026-07-06)"), 2026-07-12
+location: n/a
+reason: The `/[locale]/events` listing renders only the first page (`LISTING_PAGE_SIZE = 60`) with no load-more/pagination control and no total-count signal, so events beyond the cap in a busy date window are unreachable and the truncation is silent.
+status: open
+
+### DW-24: The events venue picker offers venues that can never match an MVP (cinema-only) event
+
+origin: migrated from legacy ledger ("Deferred from: code review of 3-3-date-range-filtering (2026-07-06)"), 2026-07-12
+location: n/a
+reason: The events venue picker offers venues that can never match an MVP (cinema-only) event — non-cinema venue types, venues outside the active region/city, and a mislabeled "All venues" trigger for a URL-supplied venue beyond the 100-row `getVenuesForSelector` cap — all of which dead-end to an unexplained empty listing.
+status: open
+
+### DW-25: Two same-named venues (e.g
+
+origin: migrated from legacy ledger ("Deferred from: follow-up code review of 3-5-venue-filtering (2026-07-06)"), 2026-07-12
+location: n/a
+reason: Two same-named venues (e.g. a chain with locations in different cities) are indistinguishable in the venue combobox because each `CommandItem` renders only `venue.name`, with no city/context to disambiguate.
+status: open
+
+### DW-26: The Algolia indexing pipeline that populates the `tiween_events` index is not built
+
+origin: migrated from legacy ledger ("Deferred from: 3-6-keyword-search-with-algolia (2026-07-06)"), 2026-07-12
+location: n/a
+reason: The Algolia indexing pipeline that populates the `tiween_events` index is not built — search runs on the read side only, gated by `isAlgoliaConfigured()`, and falls back to the real Strapi `fetchEvents({ q })` path when Algolia is unconfigured (the state of this environment, and of the sibling `tiween_shorts` directory which likewise ships with no committed indexer).
+status: open
+
+### DW-27: Multi-entity search ("events, creative works, venues, people") is delivered as searchable attributes on the event record, not as…
+
+origin: migrated from legacy ledger ("Deferred from: 3-6-keyword-search-with-algolia (2026-07-06)"), 2026-07-12
+location: n/a
+reason: Multi-entity search ("events, creative works, venues, people") is delivered as searchable attributes on the event record, not as distinct per-entity result cards/sections (a venue card, a person card) — a fuzzy match on a film/venue/person name surfaces the owning event rather than a dedicated entity result.
+status: open
+
+### DW-28: The Algolia read path diverges from the Strapi path in several ways that only bite once the `tiween_events` index is populated
+
+origin: migrated from legacy ledger ("Deferred from: code review of 3-6-keyword-search-with-algolia (2026-07-06)"), 2026-07-12
+location: n/a
+reason: The Algolia read path diverges from the Strapi path in several ways that only bite once the `tiween_events` index is populated — the search-time `locale` is not applied to the Algolia query, the card category label is frozen at index-time locale, load-more can mix Algolia and Strapi result sets across pages, and a genuine "zero hits" is indistinguishable from an empty/missing index (both fall through to Strapi).
+status: open
+
+### DW-29: Slug-canonical (human-readable) event URLs are NOT built
+
+origin: migrated from legacy ledger ("Deferred from: 3-7-event-detail-page (2026-07-06)"), 2026-07-12
+location: n/a
+reason: Slug-canonical (human-readable) event URLs are NOT built — the detail route stays keyed on `documentId` (`/{locale}/events/{documentId}`), which is already stable and shareable.
+status: open
+
+### DW-30: The interactive venue map is NOT rendered on the detail page
+
+origin: migrated from legacy ledger ("Deferred from: 3-7-event-detail-page (2026-07-06)"), 2026-07-12
+location: n/a
+reason: The interactive venue map is NOT rendered on the detail page — the venue block shows address/city/region text only. `venue.geo` ({ latitude, longitude }) IS now deep-populated by `DETAIL_POPULATE` and typed (`StrapiGeoPoint`) so the map can consume it, but the map itself is Story 3.8.
+status: open
+
+### DW-31: Watchlist persistence and the ticket purchase flow are NOT built
+
+origin: migrated from legacy ledger ("Deferred from: 3-7-event-detail-page (2026-07-06)"), 2026-07-12
+location: n/a
+reason: Watchlist persistence and the ticket purchase flow are NOT built — the watchlist toggle stays local `useState`, and a showtime tap only navigates to the ticketing entrypoint (`/{locale}/tickets/{eventDocumentId}/{screeningDocumentId}`).
+status: open
+
+### DW-32: The `EventDetailPageDesktop` and `EventDetailPageWithMap` variants still read the legacy `event.creativeWork` relation and will render…
+
+origin: migrated from legacy ledger ("Deferred from: 3-7-event-detail-page (2026-07-06)"), 2026-07-12
+location: n/a
+reason: The `EventDetailPageDesktop` and `EventDetailPageWithMap` variants still read the legacy `event.creativeWork` relation and will render an empty hero/synopsis/cast against the real `DETAIL_POPULATE` (`screenings[0].movie`) schema if ever wired into a route.
+status: open
+
+### DW-33: The sticky "Buy tickets" CTA scrolls to the first `<section>` on the page (Synopsis), not to the Showtimes section it advertises
+
+origin: migrated from legacy ledger ("Deferred from: follow-up code review of 3-7-event-detail-page (2026-07-06)"), 2026-07-12
+location: n/a
+reason: The sticky "Buy tickets" CTA scrolls to the first `<section>` on the page (Synopsis), not to the Showtimes section it advertises.
+status: open
+
+### DW-34: The sticky-CTA screening count and "from" price include sold-out screenings, and the count label is never singularized ("1 Séances")
+
+origin: migrated from legacy ledger ("Deferred from: follow-up code review of 3-7-event-detail-page (2026-07-06)"), 2026-07-12
+location: n/a
+reason: The sticky-CTA screening count and "from" price include sold-out screenings, and the count label is never singularized ("1 Séances").
+status: open
+
+### DW-35: `stripMarkup` strips HTML tags but does not decode HTML entities, so a richtext synopsis containing `&amp;`/`&#39;`/`&nbsp;` renders…
+
+origin: migrated from legacy ledger ("Deferred from: follow-up code review of 3-7-event-detail-page (2026-07-06)"), 2026-07-12
+location: n/a
+reason: `stripMarkup` strips HTML tags but does not decode HTML entities, so a richtext synopsis containing `&amp;`/`&#39;`/`&nbsp;` renders those literal entities in both the on-page synopsis and the SEO meta description.
+status: open
+
+### DW-36: Neither `DETAIL_POPULATE` nor the `toEventDetail` mapper filters past screenings, so a published event carrying elapsed screenings…
+
+origin: migrated from legacy ledger ("Deferred from: follow-up code review of 3-7-event-detail-page (2026-07-06)"), 2026-07-12
+location: n/a
+reason: Neither `DETAIL_POPULATE` nor the `toEventDetail` mapper filters past screenings, so a published event carrying elapsed screenings renders them as available and tappable into the ticketing entrypoint.
+status: open
+
+### DW-37: The related-events `EventSection` on the detail page is rendered with empty-string `seeAll`/`noEvents` labels, so any "see all"…
+
+origin: migrated from legacy ledger ("Deferred from: follow-up code review of 3-7-event-detail-page (2026-07-06)"), 2026-07-12
+location: n/a
+reason: The related-events `EventSection` on the detail page is rendered with empty-string `seeAll`/`noEvents` labels, so any "see all" affordance or empty-state text in that section renders blank instead of localized copy.
+status: open
+
+### DW-38: The "nearby public transport (if available)" facet of the venue-location AC is NOT rendered
+
+origin: migrated from legacy ledger ("Deferred from: 3-8-venue-location-on-map (2026-07-09)"), 2026-07-12
+location: n/a
+reason: The "nearby public transport (if available)" facet of the venue-location AC is NOT rendered — the venue schema has no transit field, so the conditional AC resolves to nothing to show and is omitted by design.
+status: open
+
+### DW-39: The Leaflet marker icons are fetched from the external `unpkg.com` CDN, so the venue marker breaks if unpkg is unreachable/blocked, and…
+
+origin: migrated from legacy ledger ("Deferred from: 3-8-venue-location-on-map (2026-07-09)"), 2026-07-12
+location: n/a
+reason: The Leaflet marker icons are fetched from the external `unpkg.com` CDN, so the venue marker breaks if unpkg is unreachable/blocked, and it is an uncontrolled third-party request now shipped to users.
+status: open
+
+### DW-40: The `EventDetailPage` venue-map render wiring (coords gate branches, the directions `href` pointing at the venue's own lat/lng, and the…
+
+origin: migrated from legacy ledger ("Deferred from: 3-8-venue-location-on-map (2026-07-09)"), 2026-07-12
+location: n/a
+reason: The `EventDetailPage` venue-map render wiring (coords gate branches, the directions `href` pointing at the venue's own lat/lng, and the localized label threading) has no render test — only the underlying `buildDirectionsUrl`/`toEventDetail` helpers are unit-tested in isolation.
+status: open
+
+### DW-41: `seed.unit.test.ts` asserts only `create` call counts, not that the new venue `geo` payload is actually written, so dropping `geo` from…
+
+origin: migrated from legacy ledger ("Deferred from: 3-8-venue-location-on-map (2026-07-09)"), 2026-07-12
+location: n/a
+reason: `seed.unit.test.ts` asserts only `create` call counts, not that the new venue `geo` payload is actually written, so dropping `geo` from the seed (or a component-name mismatch that makes Strapi silently discard it) would not fail any test.
+status: open
+
+### DW-42: Add a jsdom render test for EventDetailPage's share wiring (native-vs-fallback branch, shareUrl call-site using the canonical URL not…
+
+origin: migrated from legacy ledger ("Deferred from: 3-8-venue-location-on-map (2026-07-09)"), 2026-07-12
+location: n/a
+reason: Add a jsdom render test for EventDetailPage's share wiring (native-vs-fallback branch, shareUrl call-site using the canonical URL not window.location.href, and end-to-end label threading into ShareDialog), which requires adding the EventDetailPage component dir to the vitest `include` allowlist.
+status: open
+
+### DW-43: Redis-backed rate limiting for the authentication endpoints (NFR-S8 / Epic 4 constraint "max ~10 attempts/minute") is NOT implemented
+
+origin: migrated from legacy ledger ("Deferred from: 4-1-email-and-password-registration (2026-07-09)"), 2026-07-12
+location: n/a
+reason: Redis-backed rate limiting for the authentication endpoints (NFR-S8 / Epic 4 constraint "max ~10 attempts/minute") is NOT implemented — registration, login, change-password, forgot-password, and reset-password remain unthrottled, so credential-stuffing and registration-spam are unmitigated.
+status: open
+
+### DW-44: The Strapi test suite cannot boot via `cd apps/strapi && yarn test`
+
+origin: migrated from legacy ledger ("Deferred from: 4-1-email-and-password-registration (2026-07-09)"), 2026-07-12
+location: apps/strapi/package.json
+reason: The Strapi test suite cannot boot via `cd apps/strapi && yarn test` — Jest fails to parse `jest.config.ts` because `ts-node` is not installed anywhere in the repo (it is absent from `apps/strapi/package.json` and from `yarn.lock`). This is pre-existing (reproduces on baseline `2a88d19`, unrelated to Story 4.1) and blocks the entire backend suite (2b-16, 2c-4, and 4.1's new `register.unit.test.ts`).
+status: open
+
+### DW-45: The Strapi boot-based integration suites (`*.service.test.ts`, `event-manager.controller.test.ts`, `tests/app.test.js`) are excluded…
+
+origin: migrated from legacy ledger ("Deferred from: 4-1-email-and-password-registration (2026-07-09)"), 2026-07-12
+location: tests/app.test.js
+reason: The Strapi boot-based integration suites (`*.service.test.ts`, `event-manager.controller.test.ts`, `tests/app.test.js`) are excluded from the default `yarn test` (unit gate) because they fail without a live Postgres DB and a clean serial SQLite state — running them in parallel yields `table strapi_migrations already exists` / `database is locked`.
+status: open
+
+### DW-46: The client register `onError` handler only translates the duplicate-email case (a brittle English substring match on `"already taken"`);…
+
+origin: migrated from legacy ledger ("Deferred from: 4-1-email-and-password-registration (2026-07-09)"), 2026-07-12
+location: n/a
+reason: The client register `onError` handler only translates the duplicate-email case (a brittle English substring match on `"already taken"`); any other server-origin validation rejection (stable codes like `INVALID_EMAIL`, `PASSWORD_TOO_SHORT`, `NAME_REQUIRED`) falls through to a generic "unexpected error" toast instead of a translated message.
+status: open
+
+### DW-47: `firstName` persistence + the welcome email depend on the Strapi register controller returning `{ user: { id } }`, and the auto-login +…
+
+origin: migrated from legacy ledger ("Deferred from: 4-1-email-and-password-registration (2026-07-09)"), 2026-07-12
+location: n/a
+reason: `firstName` persistence + the welcome email depend on the Strapi register controller returning `{ user: { id } }`, and the auto-login + `callbackUrl` redirect is the core happy-path AC — but both are only exercised against hand-rolled mocks; no integration/contract test pins the real controller response shape or the client redirect.
+status: open
+
+### DW-48: Email/username are stored case-sensitively, so registering `Alice@x.com` and then `alice@x.com` can create two distinct accounts…
+
+origin: migrated from legacy ledger ("Deferred from: 4-1-email-and-password-registration (2026-07-09)"), 2026-07-12
+location: n/a
+reason: Email/username are stored case-sensitively, so registering `Alice@x.com` and then `alice@x.com` can create two distinct accounts (username uniqueness and the u-p `unique_email` check are case-sensitive).
+status: open
+
+### DW-49: The password mixed-case rule uses ASCII-only `/[A-Z]/` and `/[a-z]/` on both client and server, so a password composed solely of…
+
+origin: migrated from legacy ledger ("Deferred from: 4-1-email-and-password-registration (2026-07-09)"), 2026-07-12
+location: n/a
+reason: The password mixed-case rule uses ASCII-only `/[A-Z]/` and `/[a-z]/` on both client and server, so a password composed solely of non-ASCII letters (accented Latin, Cyrillic, etc.) plus a digit is rejected as "missing uppercase/lowercase".
+status: open
+
+### DW-50: The registration auto-login guarantee rests on `email_confirmation:false` and `default_role:authenticated`, but neither is pinned in…
+
+origin: migrated from legacy ledger ("Deferred from: follow-up code review of 4-1-email-and-password-registration (2026-07-09)"), 2026-07-12
+location: apps/strapi/config/plugins.ts
+reason: The registration auto-login guarantee rests on `email_confirmation:false` and `default_role:authenticated`, but neither is pinned in versioned `apps/strapi/config/plugins.ts` — the `users-permissions` block there only sets `jwt.expiresIn`, so these advanced settings default to Strapi's implicit behavior / unversioned admin (config-sync is `enabled:false`) state.
+status: open
+
+### DW-51: The pre-existing `src/features/auth/` unit tests (`PasswordStrength.test.tsx`, `registerSchema.test.ts`, `LoginForm.test.tsx`,…
+
+origin: migrated from legacy ledger ("Deferred from: follow-up code review of 4-1-email-and-password-registration (2026-07-09)"), 2026-07-12
+location: n/a
+reason: The pre-existing `src/features/auth/` unit tests (`PasswordStrength.test.tsx`, `registerSchema.test.ts`, `LoginForm.test.tsx`, `loginSchema.test.ts`) match no glob in the vitest `include` allowlist so they never run in CI, and the new `useTranslatedZod` custom-code branches (`nameRequired`/`passwordUppercase`/`passwordLowercase`/`passwordDigit`/`passwordTooLong`) have no running test — so the localized validation-message mapping can regress to generic/blank Zod defaults with a green pipeline.
+status: open
+
+### DW-52: The Strapi `ensureSocialProviders` bootstrap enables the google/facebook `grant` entries unconditionally, so `GET…
+
+origin: migrated from legacy ledger ("Deferred from: follow-up code review of 4-1-email-and-password-registration (2026-07-09)"), 2026-07-12
+location: n/a
+reason: The Strapi `ensureSocialProviders` bootstrap enables the google/facebook `grant` entries unconditionally, so `GET /auth/:provider/callback` is live in every environment even where social login is meant to be off and no client OAuth credentials exist.
+status: open
+
+### DW-53: Each trusted social login makes two upstream provider profile calls
+
+origin: migrated from legacy ledger ("Deferred from: follow-up code review of 4-1-email-and-password-registration (2026-07-09)"), 2026-07-12
+location: n/a
+reason: Each trusted social login makes two upstream provider profile calls — `fetchSocialProfile` in the callback wrapper plus the stock `connect`'s own `getProfile` — doubling latency and provider rate-limit consumption per login.
+status: open
+
+### DW-54: Cross-provider account linking looks up the existing user with a lowercased email against a case-sensitive column, so an account stored…
+
+origin: migrated from legacy ledger ("Deferred from: follow-up code review of 4-1-email-and-password-registration (2026-07-09)"), 2026-07-12
+location: n/a
+reason: Cross-provider account linking looks up the existing user with a lowercased email against a case-sensitive column, so an account stored with mixed-case email won't be found and linking silently falls back to the raw "Email is already taken" error.
+status: open
+
+### DW-55: New social sign-ups always receive a French welcome email
+
+origin: migrated from legacy ledger ("Deferred from: follow-up code review of 4-1-email-and-password-registration (2026-07-09)"), 2026-07-12
+location: n/a
+reason: New social sign-ups always receive a French welcome email — no request locale is available at the OAuth callback and a brand-new user has no `preferredLanguage` yet — so AR/EN users who register via Google/Facebook get a FR email.
+status: open
+
+### DW-56: The NextAuth env-gated OAuth provider registration in `apps/client/src/lib/auth.ts` has no running test, and the page-level…
+
+origin: migrated from legacy ledger ("Deferred from: follow-up code review of 4-1-email-and-password-registration (2026-07-09)"), 2026-07-12
+location: apps/client/src/lib/auth.ts
+reason: The NextAuth env-gated OAuth provider registration in `apps/client/src/lib/auth.ts` has no running test, and the page-level `enableGoogle`/`enableFacebook` flags use an independent copy of the same env expression, so a divergence (button shown but provider unregistered, or vice-versa) is unverified.
+status: open
+
+### DW-57: `avatarUrl` persistence (and the new `avatarUrl` schema attribute) is only asserted against a mocked user service
+
+origin: migrated from legacy ledger ("Deferred from: follow-up code review of 4-1-email-and-password-registration (2026-07-09)"), 2026-07-12
+location: n/a
+reason: `avatarUrl` persistence (and the new `avatarUrl` schema attribute) is only asserted against a mocked user service — no running test exercises the real Strapi write, so deleting the schema attribute would not fail the default unit gate even though the value would silently never persist.
+status: open
+
+### DW-58: Facebook `emailVerified` is inferred from mere email presence (`Boolean(data.email)`), so a Facebook account whose email is NOT…
+
+origin: migrated from legacy ledger ("Deferred from: follow-up code review of 4-2-social-login-with-google-and-facebook (2026-07-09)"), 2026-07-12
+location: n/a
+reason: Facebook `emailVerified` is inferred from mere email presence (`Boolean(data.email)`), so a Facebook account whose email is NOT provider-verified could be auto-linked into an existing local/Google account with the same email — an account-takeover vector into the victim's account. HIGH severity — flagged independently by two reviewers.
+status: open
+
+### DW-59: The cross-provider linking branch guards only `!linkTarget.blocked`, not `linkTarget.confirmed`, so it drops the confirmed-account gate…
+
+origin: migrated from legacy ledger ("Deferred from: follow-up code review of 4-2-social-login-with-google-and-facebook (2026-07-09)"), 2026-07-12
+location: n/a
+reason: The cross-provider linking branch guards only `!linkTarget.blocked`, not `linkTarget.confirmed`, so it drops the confirmed-account gate that stock repeat-login enforces. Zero impact today (email confirmation is off), but latent if confirmation is ever enabled.
+status: open
+
+### DW-60: `fetchSocialProfile` calls the Google/Facebook profile endpoints with bare `fetch` and no timeout, so a slow or hung provider endpoint…
+
+origin: migrated from legacy ledger ("Deferred from: follow-up code review of 4-2-social-login-with-google-and-facebook (2026-07-09)"), 2026-07-12
+location: n/a
+reason: `fetchSocialProfile` calls the Google/Facebook profile endpoints with bare `fetch` and no timeout, so a slow or hung provider endpoint can stall the Strapi OAuth callback (and the upstream NextAuth `jwt` callback) indefinitely, past the AC's NFR-IN4 <10s budget.
+status: open
+
+### DW-61: forgot-password has a timing-oracle account-enumeration side channel
+
+origin: migrated from legacy ledger ("Deferred from: code review of spec-4-3-password-reset-flow.md (2026-07-09)"), 2026-07-12
+location: n/a
+reason: forgot-password has a timing-oracle account-enumeration side channel — the known-email branch awaits a DB write plus a full email-send round-trip before returning `{ok:true}`, while the unknown-email branch returns after a single `findOne`, so response latency distinguishes registered emails despite the identical body.
+status: open
+
+### DW-62: repo-wide open-redirect pattern
+
+origin: migrated from legacy ledger ("Deferred from: code review of spec-4-3-password-reset-flow.md (2026-07-09)"), 2026-07-12
+location: n/a
+reason: repo-wide open-redirect pattern — `callbackUrl` from the query string is assigned straight to `window.location.href` after auth in RegisterForm (Story 4.1) and other auth forms; only ResetPasswordForm is now guarded to internal paths.
+status: open
+
+### DW-63: the backend→client reset error-code contract (`RESET_TOKEN_EXPIRED`/`RESET_TOKEN_INVALID` surfaced inside `error.message` for…
+
+origin: migrated from legacy ledger ("Deferred from: code review of spec-4-3-password-reset-flow.md (2026-07-09)"), 2026-07-12
+location: n/a
+reason: the backend→client reset error-code contract (`RESET_TOKEN_EXPIRED`/`RESET_TOKEN_INVALID` surfaced inside `error.message` for `raw.includes(...)` mapping) is only asserted against hand-crafted errors; no test exercises the real Strapi `ValidationError` serialization through `useUserMutations` end-to-end.
+status: open
+
+### DW-64: JWT `iat` has whole-second granularity, so a pre-reset token issued in the same wall-clock second as the reset's new token is not…
+
+origin: migrated from legacy ledger ("Deferred from: code review of spec-4-3-password-reset-flow.md (2026-07-09)"), 2026-07-12
+location: n/a
+reason: JWT `iat` has whole-second granularity, so a pre-reset token issued in the same wall-clock second as the reset's new token is not revoked (up-to-~1s window).
+status: open
+
+### DW-65: session invalidation silently goes fully OPEN if users-permissions is switched to `jwtManagement: "refresh"` mode
+
+origin: migrated from legacy ledger ("Deferred from: code review of spec-4-3-password-reset-flow.md — pass 2 (2026-07-09)"), 2026-07-12
+location: n/a
+reason: session invalidation silently goes fully OPEN if users-permissions is switched to `jwtManagement: "refresh"` mode — stock `verify` then returns `{id}` with no `iat`, so both the `passwordChangedAt` stamp and the stale-token check become no-ops.
+status: open
+
+### DW-66: the wrapped `jwt.verify` adds one `findOne` user lookup to EVERY authenticated request (on top of the strategy's own…
+
+origin: migrated from legacy ledger ("Deferred from: code review of spec-4-3-password-reset-flow.md — pass 2 (2026-07-09)"), 2026-07-12
+location: n/a
+reason: the wrapped `jwt.verify` adds one `findOne` user lookup to EVERY authenticated request (on top of the strategy's own `fetchAuthenticatedUser`), an app-wide throughput cost inherent to the stateless-JWT revocation approach.
+status: open
+
+### DW-67: the password-reset email never honors the current UI locale
+
+origin: migrated from legacy ledger ("Deferred from: code review of spec-4-3-password-reset-flow.md — follow-up pass (2026-07-09)"), 2026-07-12
+location: n/a
+reason: the password-reset email never honors the current UI locale — `forgotPasswordMutation` posts only `{ email }` (no `locale`), so the server's `requestLocale` branch in `sendPasswordResetEmail` is dead and the language always resolves via `user.preferredLanguage` (defaulting to `fr` when unset), so a visitor on the AR/EN forgot-password page whose stored preference is unset/differs receives a French reset email.
+status: open
+
+### DW-68: The new Story 4.4 authenticated write endpoints (`PUT /users/me`, `POST /auth/change-email`, `POST /auth/confirm-email-change`) are…
+
+origin: migrated from legacy ledger ("Deferred from: 4-4-profile-management (2026-07-09)"), 2026-07-12
+location: n/a
+reason: The new Story 4.4 authenticated write endpoints (`PUT /users/me`, `POST /auth/change-email`, `POST /auth/confirm-email-change`) are unthrottled, extending the epic-wide auth rate-limiting gap (already recorded under 4.1) to the profile-management surface — change-email in particular can be used to spam arbitrary addresses with confirmation emails, and confirm-email-change is a public token-guessing surface.
+status: open
+
+### DW-69: An email change is confirmed without ever notifying the OLD email address, so a session-hijack that swaps the account email is invisible…
+
+origin: migrated from legacy ledger ("Deferred from: code review of spec-4-4-profile-management.md (2026-07-09)"), 2026-07-12
+location: n/a
+reason: An email change is confirmed without ever notifying the OLD email address, so a session-hijack that swaps the account email is invisible and unrecoverable to the legitimate owner.
+status: open
+
+### DW-70: `POST /api/upload` is allow-listed by path only, so the private proxy forwards any authenticated upload body (not just the avatar…
+
+origin: migrated from legacy ledger ("Deferred from: code review of spec-4-4-profile-management.md (2026-07-09)"), 2026-07-12
+location: n/a
+reason: `POST /api/upload` is allow-listed by path only, so the private proxy forwards any authenticated upload body (not just the avatar `files`-only shape), and Strapi's upload controller also handles file-replacement-by-id — the boundary rests entirely on the operator granting `Upload.upload` but NOT `Upload.update`.
+status: open
+
+### DW-71: A user cannot REMOVE an already-saved avatar
+
+origin: migrated from legacy ledger ("Deferred from: code review of spec-4-4-profile-management.md (2026-07-09)"), 2026-07-12
+location: n/a
+reason: A user cannot REMOVE an already-saved avatar — the `AvatarUpload` "Remove" control only clears a not-yet-uploaded pending selection; there is no path to unset a linked avatar (the form never sends a clear and `updateMeSchema.avatar` is `z.number().optional()`, which cannot carry `null`).
+status: open
+
+### DW-72: `POST /auth/change-email` is an account-enumeration oracle for authenticated users
+
+origin: migrated from legacy ledger ("Deferred from: code review of spec-4-4-profile-management.md (2026-07-09)"), 2026-07-12
+location: n/a
+reason: `POST /auth/change-email` is an account-enumeration oracle for authenticated users — a distinct `EMAIL_TAKEN` code for an address registered to another account (vs `{ ok: true }` for a free one) lets any logged-in user probe which emails exist.
+status: open
+
+### DW-73: A failed profile save AFTER a successful avatar upload orphans the uploaded media file, and a retry re-uploads (another orphan) rather…
+
+origin: migrated from legacy ledger ("Deferred from: code review of spec-4-4-profile-management.md (2026-07-09)"), 2026-07-12
+location: n/a
+reason: A failed profile save AFTER a successful avatar upload orphans the uploaded media file, and a retry re-uploads (another orphan) rather than reusing the already-uploaded id.
+status: open
+
+### DW-74: The email-change confirmation email ignores the active UI locale
+
+origin: migrated from legacy ledger ("Deferred from: code review of spec-4-4-profile-management.md (2026-07-09)"), 2026-07-12
+location: n/a
+reason: The email-change confirmation email ignores the active UI locale — the client `requestEmailChangeMutation` posts only `{ email }`, so the server's `requestLocale` branch is dead and the language always resolves via stored `preferredLanguage` (default `fr`).
+status: open
+
+### DW-75: The proxy allowlist matcher `isStrapiEndpointAllowed` uses `path.startsWith(endpoint)`, so the newly-added `api/upload` (POST) and…
+
+origin: migrated from legacy ledger ("Deferred from: code review of spec-4-4-profile-management.md (2026-07-09)"), 2026-07-12
+location: n/a
+reason: The proxy allowlist matcher `isStrapiEndpointAllowed` uses `path.startsWith(endpoint)`, so the newly-added `api/upload` (POST) and `api/users/me` (PUT) entries also match prefixed variants (e.g. `api/upload/files/1`, `api/users/mexyz`) rather than the exact path — a widening the `request-auth.test.ts` exact-string cases do not catch.
+status: open
+
+### DW-76: Three `ProfileForm` branches are untested
+
+origin: migrated from legacy ledger ("Deferred from: code review of spec-4-4-profile-management.md (2026-07-09)"), 2026-07-12
+location: n/a
+reason: Three `ProfileForm` branches are untested — the post-save language-change redirect (`router.push(\`/${values.language}/auth/profile\`)`when the selected language differs from the active locale), the avatar-upload-failure abort (toast`unexpectedError`and return without saving), and the`defaultRegion`client payload path (tests render with`regions={[]}`, so the region field never mounts).
+status: open
+
+### DW-77: A stale `localStorage` location (a remembered region that no longer exists for the current locale) suppresses the profile…
+
+origin: migrated from legacy ledger ("Deferred from: code review of spec-4-4-profile-management.md (2026-07-09)"), 2026-07-12
+location: n/a
+reason: A stale `localStorage` location (a remembered region that no longer exists for the current locale) suppresses the profile `defaultRegion` seed for one `/events` visit — the restore-on-mount reconciles the saved location to empty, clears storage, and returns without falling through to the profile default.
+status: open
+
+### DW-78: The NextAuth `session`/`jwt` callback that exposes `session.user.preferredLanguage` (the sole producer of the field `PreferenceSync`…
+
+origin: migrated from legacy ledger ("Deferred from: code review of spec-4-4-profile-management.md (2026-07-09)"), 2026-07-12
+location: n/a
+reason: The NextAuth `session`/`jwt` callback that exposes `session.user.preferredLanguage` (the sole producer of the field `PreferenceSync` consumes) has no direct unit test — `PreferenceSync.test.tsx` injects the session value, so a regression that stops populating it (renamed/removed field) would ship green.
+status: open
+
+### DW-79: The `EventsListing` → `useCurrentUser` → `EventLocationFilter` wiring (reads `currentUser.defaultRegion`, threads it as the…
+
+origin: migrated from legacy ledger ("Deferred from: code review of spec-4-4-profile-management.md (2026-07-09)"), 2026-07-12
+location: n/a
+reason: The `EventsListing` → `useCurrentUser` → `EventLocationFilter` wiring (reads `currentUser.defaultRegion`, threads it as the `defaultRegion` prop, gated on `useSession` auth) has no integration test — `EventLocationFilter.test.tsx` supplies the prop directly, and there is no `EventsListing` test file, so disconnecting the seam would not fail any test.
+status: open
+
+### DW-80: Nothing pins that `<PreferenceSync />` is actually mounted in the `[locale]` layout
+
+origin: migrated from legacy ledger ("Deferred from: code review of spec-4-4-profile-management.md (2026-07-09)"), 2026-07-12
+location: n/a
+reason: Nothing pins that `<PreferenceSync />` is actually mounted in the `[locale]` layout — the component is unit-tested standalone, so deleting its mount would silently disable login-time language application with a green suite.
+status: open
+
+### DW-81: Guest-order linking runs on every user `afterCreate` with no proof of email ownership
+
+origin: migrated from legacy ledger ("Deferred from: code review of spec-4-4-profile-management.md (2026-07-09)"), 2026-07-12
+location: n/a
+reason: (HIGH) Guest-order linking runs on every user `afterCreate` with no proof of email ownership — when Epic 6 lands guest orders, an attacker who registers a victim's email would inherit the victim's guest purchases (guestName, paymentReference, tickets), instantly usable if email confirmation is disabled (the Strapi default). Gate linking on verified ownership: trigger it on the email-confirmation event (or an `afterUpdate` confirmed-transition) rather than raw `afterCreate`, and re-evaluate for admin-panel/seed-created users.
+status: open
+
+### DW-82: `linkGuestOrders` links guest orders of ANY `paymentStatus` (including `pending`/`failed`)
+
+origin: migrated from legacy ledger ("Deferred from: code review of spec-4-4-profile-management.md (2026-07-09)"), 2026-07-12
+location: n/a
+reason: `linkGuestOrders` links guest orders of ANY `paymentStatus` (including `pending`/`failed`) — an abandoned/failed guest checkout would surface in the account's "my orders" as a real purchase. Restrict linking to the appropriate status(es) (likely `paid`) once Epic 6 defines the order lifecycle and purchase-history view.
+status: open
+
+### DW-83: The per-order link updates run sequentially outside any transaction and the lifecycle swallows errors, so a mid-batch DB failure leaves…
+
+origin: migrated from legacy ledger ("Deferred from: code review of spec-4-4-profile-management.md (2026-07-09)"), 2026-07-12
+location: n/a
+reason: The per-order link updates run sequentially outside any transaction and the lifecycle swallows errors, so a mid-batch DB failure leaves the remaining matching orders permanently unlinked with no retry (afterCreate is one-shot) — silent partial linking. Wrap the batch in `strapi.db.transaction` and/or add per-order try/catch, and expose an idempotent re-run/backfill entry point.
+status: open
+
+### DW-84: `guestEmail` is persisted raw by `createOrder` (`guestEmail: data.guestEmail`) but the linker normalizes the read side (trim+lowercase);…
+
+origin: migrated from legacy ledger ("Deferred from: code review of spec-4-4-profile-management.md (2026-07-09)"), 2026-07-12
+location: n/a
+reason: `guestEmail` is persisted raw by `createOrder` (`guestEmail: data.guestEmail`) but the linker normalizes the read side (trim+lowercase); a guest order stored with surrounding whitespace would never match and never link. Normalize `guestEmail` on write (in `createOrder`/validation) so read/write normalization agree — which also lets linking use `$eq` on a normalized column instead of the `LIKE`-based `$eqi`.
+status: open
+
+### DW-85: No DB index on `ticket_orders.guestEmail`; every account creation now runs a filtered scan over that column
+
+origin: migrated from legacy ledger ("Deferred from: code review of spec-4-4-profile-management.md (2026-07-09)"), 2026-07-12
+location: n/a
+reason: (LOW) No DB index on `ticket_orders.guestEmail`; every account creation now runs a filtered scan over that column. Add an index once the orders table grows.
+status: open
+
+### DW-86: The new linking behavior is verified only by mocked unit tests
+
+origin: migrated from legacy ledger ("Deferred from: code review of spec-4-4-profile-management.md (2026-07-09)"), 2026-07-12
+location: n/a
+reason: The new linking behavior is verified only by mocked unit tests — the real `$eqi` filter semantics, the Strapi v5 relation-write shape (`data: { user: documentId }`), and the `afterCreate` `event.result` wiring are never exercised by a booted-Strapi test (the sole integration suite `order.service.test.ts` is `describe.skip` and does not cover this). A silent runtime no-op (nothing links) would pass the green unit gate. Add boot-based integration coverage (seed a guest order, create a matching user, assert the order's `user` relation populates, incl. a mixed-case email) — fold into the existing skipped suite's un-skip follow-up.
+status: open
+
+### DW-87: The `EventDetailPageDesktop` and `EventDetailPageWithMap` variants still use the local-only `useState(isWatchlisted)` toggle that Story…
+
+origin: migrated from legacy ledger ("Deferred from: code review of 5-1-add-event-to-watchlist (2026-07-10)"), 2026-07-12
+location: n/a
+reason: The `EventDetailPageDesktop` and `EventDetailPageWithMap` variants still use the local-only `useState(isWatchlisted)` toggle that Story 5.1 replaced on the mobile `EventDetailPage`, so their heart would not persist if either variant were ever routed.
+status: open
+
+### DW-88: On reconnect the resumed `useWatchlistCheck` GET can complete after the drain's `check` invalidation and overwrite the optimistic…
+
+origin: migrated from legacy ledger ("Deferred from: follow-up code review of 5-1-add-event-to-watchlist (2026-07-10, pass 2)"), 2026-07-12
+location: n/a
+reason: On reconnect the resumed `useWatchlistCheck` GET can complete after the drain's `check` invalidation and overwrite the optimistic `isInWatchlist:true` with the server's still-`false`, briefly emptying a heart for an add that IS now persisted (self-heals after staleTime/navigation).
+status: open
+
+### DW-89: An offline add is not reflected after an offline page reload
+
+origin: migrated from legacy ledger ("Deferred from: follow-up code review of 5-1-add-event-to-watchlist (2026-07-10, pass 2)"), 2026-07-12
+location: n/a
+reason: An offline add is not reflected after an offline page reload — the filled-heart state lives only in the react-query cache (lost on reload) and is never hydrated from the persisted pending-add queue.
+status: open
+
+### DW-90: The proxy allow-list matcher `isStrapiEndpointAllowed` uses `path.startsWith(endpoint)` with no path-segment boundary, so the new…
+
+origin: migrated from legacy ledger ("Deferred from: follow-up code review of 5-1-add-event-to-watchlist (2026-07-10, pass 2)"), 2026-07-12
+location: n/a
+reason: The proxy allow-list matcher `isStrapiEndpointAllowed` uses `path.startsWith(endpoint)` with no path-segment boundary, so the new `api/user-engagement/watchlist` POST entry also reaches `/watchlist/toggle` (which can REMOVE) and any future prefix-sibling route; DELETE remains blocked but the "no removal in 5.1" boundary is not truly enforced.
+status: open
+
+### DW-91: When `watchlistDisabled` (an event with no resolvable creative-work), the FilmHero heart button renders with `aria-label={undefined}`,…
+
+origin: migrated from legacy ledger ("Deferred from: follow-up code review of 5-1-add-event-to-watchlist (2026-07-10, pass 2)"), 2026-07-12
+location: n/a
+reason: When `watchlistDisabled` (an event with no resolvable creative-work), the FilmHero heart button renders with `aria-label={undefined}`, so screen readers announce an unnamed icon-only "button" (WCAG 4.1.2).
+status: open
+
+### DW-92: The core Story 5.1 integration seam
+
+origin: migrated from legacy ledger ("Deferred from: follow-up code review of 5-1-add-event-to-watchlist (2026-07-10, pass 2)"), 2026-07-12
+location: n/a
+reason: The core Story 5.1 integration seam — `EventDetailPage` passing `getEventFilm(event)?.documentId` and `watchlistDisabled={!canWatchlist}` into the heart — has no test; a regression passing `event.documentId` (wrong entity) or dropping the disabled gate would ship green.
+status: open
+
+### DW-93: Watchlist reconnect drain iterates a fixed snapshot and removes replayed ops by id only; a mid-drain network flap plus a concurrent…
+
+origin: migrated from legacy ledger ("Deferred from: follow-up code review of 5-1-add-event-to-watchlist (2026-07-10, pass 2)"), 2026-07-12
+location: n/a
+reason: Watchlist reconnect drain iterates a fixed snapshot and removes replayed ops by id only; a mid-drain network flap plus a concurrent opposite-kind enqueue for an id still in the snapshot can drop the user's fresh op.
+status: open
+
+### DW-94: The watchlist page renders one `WatchlistCard` per saved item, each calling `useRemoveFromWatchlist` → `useWatchlistCheck(id)` (enabled…
+
+origin: migrated from legacy ledger ("Deferred from: code review of 5-3-view-watchlist-page (2026-07-10)"), 2026-07-12
+location: n/a
+reason: The watchlist page renders one `WatchlistCard` per saved item, each calling `useRemoveFromWatchlist` → `useWatchlistCheck(id)` (enabled while authenticated), so an N-item watchlist fires N proxied `GET /user-engagement/watchlist/check/:id` requests on load; the per-card mount-time `setQueryData` seed runs after the query observer subscribes, so it cannot pre-empt the fetch.
+status: open
+
+### DW-95: Watchlist cards render the placeholder poster because `getUserWatchlist` populates only `["creativeWork"]` (no `creativeWork.poster`),…
+
+origin: migrated from legacy ledger ("Deferred from: code review of 5-3-view-watchlist-page (2026-07-10)"), 2026-07-12
+location: n/a
+reason: Watchlist cards render the placeholder poster because `getUserWatchlist` populates only `["creativeWork"]` (no `creativeWork.poster`), and the watchlist controller ignores `ctx.query`, so the client `useWatchlist` populate list (`creativeWork.poster.formats`) is inert.
+status: open
+
+### DW-96: The remove-with-undo card-exit ANIMATION and wiring the shared undo affordance were scope-trimmed from the watchlist page; the card…
+
+origin: migrated from legacy ledger ("Deferred from: code review of 5-3-view-watchlist-page (2026-07-10)"), 2026-07-12
+location: n/a
+reason: The remove-with-undo card-exit ANIMATION and wiring the shared undo affordance were scope-trimmed from the watchlist page; the card already leaves the list on refetch, but the epic UX calls for an animated exit.
+status: open
+
+### DW-97: The watchlist page has no navigation entry point
+
+origin: migrated from legacy ledger ("Deferred from: code review of 5-3-view-watchlist-page (2026-07-10)"), 2026-07-12
+location: n/a
+reason: The watchlist page has no navigation entry point — BottomNav's "account" tab routes to a non-existent `/account`, and nothing links to `/watchlist`; the page is only reachable by direct URL.
+status: open
+
+### DW-98: Screening enrichment is film-only
+
+origin: migrated from legacy ledger ("Deferred from: follow-up code review of 5-3-view-watchlist-page (2026-07-10)"), 2026-07-12
+location: n/a
+reason: Screening enrichment is film-only — the facade queries `screenings.movie` but never the sibling `performances.play` relation, so a watchlisted `play` (a first-class `creative-work.type`) never gets a next/last date or venue, always shows a blank meta line, and can never move into the "Past" section.
+status: open
+
+### DW-99: The (pass-1) localized category badge passes a translated label string to `EventCard`, whose `categoryVariants` color map is keyed on…
+
+origin: migrated from legacy ledger ("Deferred from: follow-up code review of 5-3-view-watchlist-page (2026-07-10)"), 2026-07-12
+location: n/a
+reason: The (pass-1) localized category badge passes a translated label string to `EventCard`, whose `categoryVariants` color map is keyed on the French display strings, so in ar/en every badge misses the lookup and falls back to the `secondary` variant (fr still matches, so it looked fine in the default locale).
+status: open
+
+### DW-100: Offline watchlist read is gated on `useSession()` resolving, which needs the network (or the Serwist SW)
+
+origin: migrated from legacy ledger ("Deferred from: follow-up code review of 5-3-view-watchlist-page (2026-07-10)"), 2026-07-12
+location: n/a
+reason: Offline watchlist read is gated on `useSession()` resolving, which needs the network (or the Serwist SW) — on a full COLD offline reload the session may not resolve, so `userId` is undefined and the user falls through to the offline EmptyState instead of their cached list.
+status: open
+
+### DW-101: Durable cross-user snapshot persistence
+
+origin: migrated from legacy ledger ("Deferred from: follow-up code review of 5-3-view-watchlist-page (2026-07-10)"), 2026-07-12
+location: n/a
+reason: Durable cross-user snapshot persistence — on a same-tab user switch (A signs out, B signs in without a hard reload), the module-level `QueryClient` still holds A's stale `["watchlist","list"]` data, so the persist effect can write A's rows under B's cache key.
+status: open
+
+### DW-102: The per-user watchlist snapshot (and the Story 5.1 pending-op queue) are never cleared on logout, so a user's saved-events list persists…
+
+origin: migrated from legacy ledger ("Deferred from: follow-up code review of 5-3-view-watchlist-page (2026-07-10)"), 2026-07-12
+location: n/a
+reason: The per-user watchlist snapshot (and the Story 5.1 pending-op queue) are never cleared on logout, so a user's saved-events list persists in `localStorage` on a shared/public device after sign-out.
+status: open
+
+### DW-103: The watchlist `add` dedupe is non-atomic (read-before-write with no unique DB constraint), so two near-simultaneous cross-device adds of…
+
+origin: migrated from legacy ledger ("Deferred from: follow-up code review of 5-5-watchlist-sync-across-devices (2026-07-10)"), 2026-07-12
+location: n/a
+reason: The watchlist `add` dedupe is non-atomic (read-before-write with no unique DB constraint), so two near-simultaneous cross-device adds of the same `(user, creativeWork)` can both observe an empty `findMany` and both `create`, yielding duplicate rows — the exact concurrent scenario Story 5.5 is about is unverified.
+status: open
+
+### DW-104: Bulk `updateMany` / non-scalar-`where` event schedule edits are not detected by the Story 5.6 lifecycle subscriber, so schedule changes…
+
+origin: migrated from legacy ledger ("Deferred from: follow-up code review of 5-5-watchlist-sync-across-devices (2026-07-10)"), 2026-07-12
+location: n/a
+reason: Bulk `updateMany` / non-scalar-`where` event schedule edits are not detected by the Story 5.6 lifecycle subscriber, so schedule changes made via bulk tooling or data import notify no watcher.
+status: open
+
+### DW-105: source\*spec: `_bmad-output/implementation-artifacts/spec-5-6-schedule-change-notifications.md`
+
+origin: migrated from legacy ledger ("Deferred from: follow-up code review (pass 3) of 5-6-schedule-change-notifications (2026-07-10)"), 2026-07-12
+location: \_bmad-output/implementation-artifacts/spec-5-6-schedule-change-notifications.md
+reason: source\*spec: `_bmad-output/implementation-artifacts/spec-5-6-schedule-change-notifications.md`
+status: open
+
+### DW-106: The Account-tab unread-badge wiring at the three `HomePage*` mount sites (the only places the badge is surfaced to users
+
+origin: migrated from legacy ledger ("Deferred from: follow-up code review (pass 3) of 5-6-schedule-change-notifications (2026-07-10)"), 2026-07-12
+location: n/a
+reason: The Account-tab unread-badge wiring at the three `HomePage*` mount sites (the only places the badge is surfaced to users — the AC deliverable) has no test, so a broken/dropped `accountBadgeCount` prop would ship green.
+status: open
+
+### DW-107: The fan-out idempotency probe keys on exact `oldDateTime`/`newDateTime` string equality across a DB round-trip, so if Strapi normalizes…
+
+origin: migrated from legacy ledger ("Deferred from: follow-up code review (pass 3) of 5-6-schedule-change-notifications (2026-07-10)"), 2026-07-12
+location: n/a
+reason: The fan-out idempotency probe keys on exact `oldDateTime`/`newDateTime` string equality across a DB round-trip, so if Strapi normalizes the stored `datetime` column differently from the incoming ISO snapshot the probe misses and a duplicate in-app notification + duplicate email slip through on the ordinary multi-fire (per-locale / draft→published) path.
+status: open
+
+### DW-108: Per-tier inventory (`ticketing.ticket-tier.ticketsAvailable`/`ticketsSold`) is a display-only additive model and is NOT reconciled with…
+
+origin: migrated from legacy ledger ("Deferred from: 6-1-view-ticket-types-and-prices (2026-07-10)"), 2026-07-12
+location: n/a
+reason: Per-tier inventory (`ticketing.ticket-tier.ticketsAvailable`/`ticketsSold`) is a display-only additive model and is NOT reconciled with the atomic purchase write path — the sub-event's legacy single `price`/`ticketsAvailable`/`ticketsSold` and `events-manager.public-api.adjustInventory` remain the only inventory the order flow reads/writes, so tier-level availability is not decremented on purchase.
+status: open
+
+### DW-109: The TND price formatter is now re-implemented in four places
+
+origin: migrated from legacy ledger ("Deferred from: 6-1-view-ticket-types-and-prices (2026-07-10)"), 2026-07-12
+location: features/tickets/utils/formatPrice.ts
+reason: The TND price formatter is now re-implemented in four places — the new shared `features/tickets/utils/formatPrice.ts` and the three pre-existing inline `.toFixed(2).replace(".", ",")` copies in `OrderSummary.tsx`, `QuantitySelector` (desktop prototypes), and the desktop ticketing prototypes.
+status: open
+
+### DW-110: source\*spec: `_bmad-output/implementation-artifacts/spec-6-1-view-ticket-types-and-prices.md`
+
+origin: migrated from legacy ledger ("Deferred from: code review of 6-1-view-ticket-types-and-prices (2026-07-10)"), 2026-07-12
+location: \_bmad-output/implementation-artifacts/spec-6-1-view-ticket-types-and-prices.md
+reason: source\*spec: `_bmad-output/implementation-artifacts/spec-6-1-view-ticket-types-and-prices.md`
+status: open
+
+### DW-111: The tickets page does not verify that `[screeningId]` belongs to `[documentId]` (the event), so a hand-crafted/stale URL…
+
+origin: migrated from legacy ledger ("Deferred from: code review of 6-1-view-ticket-types-and-prices (2026-07-10)"), 2026-07-12
+location: n/a
+reason: The tickets page does not verify that `[screeningId]` belongs to `[documentId]` (the event), so a hand-crafted/stale URL `/tickets/<eventA>/<sub-event-of-eventB>` returns 200 and renders event A's header above event B's ticket tiers — incoherent context in a purchase funnel.
+status: open
+
+### DW-112: The public, unauthenticated ticket-tiers endpoint discloses each tier's exact `ticketsSold` and `ticketsAvailable`, though the UI only…
+
+origin: migrated from legacy ledger ("Deferred from: code review of 6-1-view-ticket-types-and-prices (2026-07-10)"), 2026-07-12
+location: n/a
+reason: The public, unauthenticated ticket-tiers endpoint discloses each tier's exact `ticketsSold` and `ticketsAvailable`, though the UI only consumes the derived `remaining`/`soldOut` — leaking precise per-showtime sell-through to anonymous scrapers.
+status: open
+
+### DW-113: The seeded ticket tiers (the story's required "at least one sold-out tier" + `reduced` tier `restrictionNote: "sur justificatif"`) have…
+
+origin: migrated from legacy ledger ("Deferred from: code review of 6-1-view-ticket-types-and-prices (2026-07-10)"), 2026-07-12
+location: n/a
+reason: The seeded ticket tiers (the story's required "at least one sold-out tier" + `reduced` tier `restrictionNote: "sur justificatif"`) have no test assertions, so a regression dropping the sold-out/restriction seed data would surface only in the manual re-seed-and-hit check, never in `yarn test`.
+status: open
+
+### DW-114: source\*spec: `_bmad-output/implementation-artifacts/spec-6-1-view-ticket-types-and-prices.md`
+
+origin: migrated from legacy ledger ("Deferred from: follow-up code review of 6-1-view-ticket-types-and-prices (2026-07-10)"), 2026-07-12
+location: \_bmad-output/implementation-artifacts/spec-6-1-view-ticket-types-and-prices.md
+reason: source\*spec: `_bmad-output/implementation-artifacts/spec-6-1-view-ticket-types-and-prices.md`
+status: open
+
+### DW-115: The tickets page's error branch renders a passive `EmptyState` (`variant="custom"`) with no `role="alert"` / live region, so a…
+
+origin: migrated from legacy ledger ("Deferred from: follow-up code review of 6-1-view-ticket-types-and-prices (2026-07-10)"), 2026-07-12
+location: n/a
+reason: The tickets page's error branch renders a passive `EmptyState` (`variant="custom"`) with no `role="alert"` / live region, so a screen-reader user is never notified that the ticket-tier load failed — the error is conveyed only visually.
+status: open
+
+### DW-116: The public-proxy allowlist entry `api/events-manager/showtimes` is matched by `startsWith`, so it opens the entire `showtimes/*` GET…
+
+origin: migrated from legacy ledger ("Deferred from: follow-up code review of 6-1-view-ticket-types-and-prices (2026-07-10)"), 2026-07-12
+location: n/a
+reason: The public-proxy allowlist entry `api/events-manager/showtimes` is matched by `startsWith`, so it opens the entire `showtimes/*` GET namespace to unauthenticated callers — any GET route added under `showtimes` later (even one intended to require auth) would be silently auto-exposed.
+status: open
+
+### DW-117: The selection store never re-clamps a persisted/refetched quantity down to a tier's current `remaining`, so if inventory drops after a…
+
+origin: migrated from legacy ledger ("Deferred from: follow-up code review of 6-1-view-ticket-types-and-prices (2026-07-10)"), 2026-07-12
+location: n/a
+reason: The selection store never re-clamps a persisted/refetched quantity down to a tier's current `remaining`, so if inventory drops after a quantity is stored the OrderSummary/subtotal can display more tickets than are actually available for that tier.
+status: open
+
+### DW-118: Ticket-funnel navigation uses raw `next/navigation` `useRouter` with a hand-built `/${locale}/...` path instead of the app's…
+
+origin: migrated from legacy ledger ("Deferred from: follow-up code review of 6-1-view-ticket-types-and-prices (2026-07-10)"), 2026-07-12
+location: n/a
+reason: Ticket-funnel navigation uses raw `next/navigation` `useRouter` with a hand-built `/${locale}/...` path instead of the app's locale-aware next-intl router, so on the default locale (`fr`, `localePrefix: "as-needed"`) the redundant prefix triggers a canonicalizing redirect hop.
+status: open
+
+### DW-119: The `ticket-selection-storage` Zustand `persist` has no `version`/`migrate`, no `partialize`, and no `skipHydration`, so the selection…
+
+origin: migrated from legacy ledger ("Deferred from: follow-up code review of 6-1-view-ticket-types-and-prices (2026-07-10)"), 2026-07-12
+location: n/a
+reason: The `ticket-selection-storage` Zustand `persist` has no `version`/`migrate`, no `partialize`, and no `skipHydration`, so the selection (including `subEventId`) lingers in localStorage across unrelated sessions with no migration path if `quantities`/`TicketTierType` ever change shape.
+status: open
+
+### DW-120: The tickets and payment routes do not verify that `[screeningId]` belongs to `[documentId]`; a mismatched/stale URL renders a blank…
+
+origin: migrated from legacy ledger ("Deferred from: follow-up code review of 6-1-view-ticket-types-and-prices (2026-07-10)"), 2026-07-12
+location: n/a
+reason: The tickets and payment routes do not verify that `[screeningId]` belongs to `[documentId]`; a mismatched/stale URL renders a blank showtime label and empty event title rather than a 404.
+status: open
+
+### DW-121: `formatPrice` hard-codes `toFixed(2)`, so a TND price carrying millimes (3 decimal places, e.g
+
+origin: migrated from legacy ledger ("Deferred from: follow-up code review of 6-1-view-ticket-types-and-prices (2026-07-10)"), 2026-07-12
+location: n/a
+reason: `formatPrice` hard-codes `toFixed(2)`, so a TND price carrying millimes (3 decimal places, e.g. 12.750) is truncated/mis-rounded in displayed unit prices and totals.
+status: open
+
+### DW-122: The store's `setQuantity` order-capacity accounting (`otherTotal`) sums quantities on ALL persisted tiers including ones that are now…
+
+origin: migrated from legacy ledger ("Deferred from: follow-up code review of 6-2-select-ticket-quantity (2026-07-10)"), 2026-07-12
+location: n/a
+reason: The store's `setQuantity` order-capacity accounting (`otherTotal`) sums quantities on ALL persisted tiers including ones that are now sold-out/absent, while the UI derives `orderRemainingCapacity` from filtered (non-sold-out) priced items — so a persisted same-screening cart whose tier later goes sold-out silently no-ops another tier's `+` button (dead increment) even though the UI enables it.
+status: open
+
+### DW-123: The order-summary showtime label is resolved server-side from `event.screenings?.find((s) => s.documentId === screeningId)` only, so a…
+
+origin: migrated from legacy ledger ("Deferred from: follow-up code review of 6-2-select-ticket-quantity (2026-07-10)"), 2026-07-12
+location: n/a
+reason: The order-summary showtime label is resolved server-side from `event.screenings?.find((s) => s.documentId === screeningId)` only, so a valid `performance`-kind sub-event yields a blank showtime — and the authoritative `startDateTime` that already lives in the client `TicketTiersResponse` is ignored.
+status: open
+
+### DW-124: Reserved inventory leaks permanently when a checkout's single Konnect webhook delivery is lost/errored AND the buyer never lands on the…
+
+origin: migrated from legacy ledger ("review of 6-3-konnect-payment-gateway-integration (2026-07-10)"), 2026-07-12
+location: n/a
+reason: (MEDIUM) Reserved inventory leaks permanently when a checkout's single Konnect webhook delivery is lost/errored AND the buyer never lands on the result page (abandoned tab) — there is no reservation-expiry sweep, so `ticketsSold` stays reserved forever, eroding real availability.
+status: open
+
+### DW-125: `POST /ticketing/orders` has no server-side idempotency key
+
+origin: migrated from legacy ledger ("review of 6-3-konnect-payment-gateway-integration (2026-07-10)"), 2026-07-12
+location: n/a
+reason: (MEDIUM) `POST /ticketing/orders` has no server-side idempotency key — a retried checkout POST (lost response, double tap past the client `isSubmitting` guard) mints a second order + second inventory reservation + second Konnect pay link for the same selection.
+status: open
+
+### DW-126: The pre-existing public `GET /api/ticketing/orders/:orderNumber` (content-api, `auth: []`) returns the full order
+
+origin: migrated from legacy ledger ("review of 6-3-konnect-payment-gateway-integration (2026-07-10)"), 2026-07-12
+location: n/a
+reason: (MEDIUM) The pre-existing public `GET /api/ticketing/orders/:orderNumber` (content-api, `auth: []`) returns the full order — `guestEmail`, `guestName`, `user`, `tickets` — with no field filtering; the order number is a low-entropy bearer capability (`TW-<base36 ts>-<4 base36 rand>`), so PII is harvestable by enumeration by anyone hitting Strapi directly.
+status: open
+
+### DW-127: `POST /orders/:orderNumber/confirm` and `POST /payments/konnect/webhook` are unauthenticated and unthrottled; the webhook shared-secret…
+
+origin: migrated from legacy ledger ("review of 6-3-konnect-payment-gateway-integration (2026-07-10)"), 2026-07-12
+location: n/a
+reason: (LOW) `POST /orders/:orderNumber/confirm` and `POST /payments/konnect/webhook` are unauthenticated and unthrottled; the webhook shared-secret is only enforced when `KONNECT_WEBHOOK_SECRET` is configured — enabling order-status enumeration via confirm and outbound-Konnect request amplification via webhook flooding.
+status: open
+
+### DW-128: The webhook→ticketing reconciliation backstop silently drops the event when Konnect echoes `payment.orderId = null`
+
+origin: migrated from legacy ledger ("review of 6-3-konnect-payment-gateway-integration (2026-07-10)"), 2026-07-12
+location: n/a
+reason: (LOW) The webhook→ticketing reconciliation backstop silently drops the event when Konnect echoes `payment.orderId = null` — the ticketing bootstrap handler no-ops on a missing `orderId`, so that order only ever settles via the client confirm.
+status: open
