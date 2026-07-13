@@ -27,7 +27,12 @@ function buildStrapi(docApi: Partial<DocApiMock>) {
     count: jest.fn(async () => 0),
     ...docApi,
   }
-  const strapi: any = { documents: jest.fn(() => api) }
+  const strapi: any = {
+    documents: jest.fn(() => api),
+    // DW-19: findTrending logs a warn when the fetch hits TRENDING_FETCH_CAP.
+    // Every service build gets a real logger mock so that path never throws.
+    log: { warn: jest.fn(), info: jest.fn(), error: jest.fn() },
+  }
   return { strapi, api }
 }
 
@@ -605,5 +610,82 @@ describe("events service.findTrending (unit)", () => {
       "mid",
       "zeta",
     ])
+  })
+
+  // --- DW-19: response cache + cap-hit observability ---
+
+  it("warm cache: a 2nd call with the same key does not re-fetch and returns the same result", async () => {
+    const rows = [
+      { documentId: "high", screenings: [{ ticketsSold: 40 }] },
+      { documentId: "low", screenings: [{ ticketsSold: 1 }] },
+    ]
+    const findMany = jest.fn(async () => rows)
+    const { strapi } = buildStrapi({ findMany })
+    const service = eventsService({ strapi })
+
+    const first = await service.findTrending({ page: 1, pageSize: 25 })
+    const second = await service.findTrending({ page: 1, pageSize: 25 })
+
+    // Within-TTL hit ⇒ the Document Service findMany runs exactly once.
+    expect(findMany).toHaveBeenCalledTimes(1)
+    expect(second).toBe(first)
+    expect(second.data.map((e: any) => e.documentId)).toEqual(["high", "low"])
+  })
+
+  it("distinct keys (page/pageSize) each trigger their own fetch", async () => {
+    const findMany = jest.fn(async () => [
+      { documentId: "a", screenings: [{ ticketsSold: 5 }] },
+    ])
+    const { strapi } = buildStrapi({ findMany })
+    const service = eventsService({ strapi })
+
+    await service.findTrending({ page: 1, pageSize: 25 })
+    await service.findTrending({ page: 2, pageSize: 25 })
+    await service.findTrending({ page: 1, pageSize: 10 })
+
+    // Three distinct locale|page|pageSize keys ⇒ three separate computes.
+    expect(findMany).toHaveBeenCalledTimes(3)
+  })
+
+  it("keys the cache by locale: two locales for the same page do not collide", async () => {
+    const findMany = jest.fn(async () => [
+      { documentId: "a", screenings: [{ ticketsSold: 5 }] },
+    ])
+    const { strapi } = buildStrapi({ findMany })
+    const service = eventsService({ strapi })
+
+    await service.findTrending({ page: 1, pageSize: 25, locale: "fr" })
+    await service.findTrending({ page: 1, pageSize: 25, locale: "ar" })
+
+    // Same page/pageSize but distinct locales ⇒ separate computes (no cross-locale
+    // cache bleed).
+    expect(findMany).toHaveBeenCalledTimes(2)
+  })
+
+  it("logs a warn when the fetch returns TRENDING_FETCH_CAP (500) rows", async () => {
+    const rows = Array.from({ length: 500 }, (_, i) => ({
+      documentId: `e${i}`,
+      screenings: [{ ticketsSold: i }],
+    }))
+    const { strapi } = buildStrapi({ findMany: jest.fn(async () => rows) })
+    const service = eventsService({ strapi })
+
+    const result = await service.findTrending({ page: 1, pageSize: 25 })
+
+    expect(strapi.log.warn).toHaveBeenCalledTimes(1)
+    expect(strapi.log.warn).toHaveBeenCalledWith(expect.stringContaining("500"))
+    // A valid ranked result is still returned.
+    expect(result.meta.pagination.total).toBe(500)
+    expect(result.data).toHaveLength(25)
+  })
+
+  it("does not warn when the fetch is below the cap", async () => {
+    const rows = [{ documentId: "a", screenings: [{ ticketsSold: 1 }] }]
+    const { strapi } = buildStrapi({ findMany: jest.fn(async () => rows) })
+    const service = eventsService({ strapi })
+
+    await service.findTrending({ page: 1, pageSize: 25 })
+
+    expect(strapi.log.warn).not.toHaveBeenCalled()
   })
 })

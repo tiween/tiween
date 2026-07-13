@@ -137,7 +137,8 @@ resolution: resolved by sweep bundle dw-public-inventory-leak-sanitization
 origin: migrated from legacy ledger ("Deferred from: code review of 3-1-public-events-browse-api-and-data-foundation (2026-07-05)"), 2026-07-12
 location: n/a
 reason: Trending ranking is an in-JS cap-then-rank over up to 500 fully-populated upcoming events on an uncached, unauthenticated, unrate-limited endpoint — it can miss a top seller beyond the cap at scale and is a resource-exhaustion surface.
-status: open
+status: done 2026-07-13
+resolution: resolved by sweep bundle dw-trending-ranking-scalability
 
 ### DW-20: The homepage category/date/region/venue selectors render and mutate the URL but do not filter the four curated slices
 

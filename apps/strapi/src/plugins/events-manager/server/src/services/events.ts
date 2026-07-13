@@ -1,5 +1,7 @@
 import type { Core } from "@strapi/strapi"
 
+import { createTrendingCache } from "../utils/trending-cache"
+
 /**
  * Public read service for the events-manager plugin (Story 3.1a).
  *
@@ -20,6 +22,15 @@ export const MVP_CATEGORY = "movie_screening" as const
 
 /** Upper bound on rows fetched for in-JS trending aggregation (see findTrending). */
 const TRENDING_FETCH_CAP = 500
+
+/**
+ * TTL for the trending response cache (DW-19). Tens of seconds on purpose: long
+ * enough to collapse a burst of identical requests onto one expensive
+ * fetch+rank, short enough that trending never goes visibly stale. Reusing a
+ * slightly-stale `startDateTime >= now` window within this window is the
+ * intended stopgap tradeoff (hence `now` is excluded from the cache key).
+ */
+const TRENDING_CACHE_TTL_MS = 30_000
 
 export type EventStatus =
   | "scheduled"
@@ -240,133 +251,173 @@ function sumTicketsSold(event: {
   )
 }
 
-const eventsService = ({ strapi }: { strapi: Core.Strapi }) => ({
-  /**
-   * List published cinema events with pagination, filtering and populate.
-   * Only published rows (`status: "published"`), MVP category `movie_screening`.
-   */
-  async findEvents(params: FindEventsParams): Promise<ListResult> {
-    const { page, pageSize, sort, locale } = params
-    const filters = buildFilters(params)
+const eventsService = ({ strapi }: { strapi: Core.Strapi }) => {
+  // DW-19: one cache instance per service. Strapi memoizes the plugin service, so
+  // this closure (and its cache) persists across requests in prod; each unit test
+  // builds a fresh service ⇒ no cache state leaks between tests. Keyed by
+  // `locale|page|pageSize`, never the per-request `now`.
+  const trendingCache = createTrendingCache<ListResult>({
+    ttlMs: TRENDING_CACHE_TTL_MS,
+  })
 
-    // `sort` is constrained to a controller-side allowlist (z.enum) before it
-    // reaches here, so an arbitrary/invalid field can never hit the Document
-    // Service (which would otherwise throw → 500). The Document Service query
-    // types derive field names from the generated registry, which is excluded
-    // from this project's tsc compilation, so the params objects are still cast
-    // (mirroring the existing `count` cast style).
-    const [data, total] = await Promise.all([
-      strapi.documents(EVENT_UID).findMany({
+  return {
+    /**
+     * List published cinema events with pagination, filtering and populate.
+     * Only published rows (`status: "published"`), MVP category `movie_screening`.
+     */
+    async findEvents(params: FindEventsParams): Promise<ListResult> {
+      const { page, pageSize, sort, locale } = params
+      const filters = buildFilters(params)
+
+      // `sort` is constrained to a controller-side allowlist (z.enum) before it
+      // reaches here, so an arbitrary/invalid field can never hit the Document
+      // Service (which would otherwise throw → 500). The Document Service query
+      // types derive field names from the generated registry, which is excluded
+      // from this project's tsc compilation, so the params objects are still cast
+      // (mirroring the existing `count` cast style).
+      const [data, total] = await Promise.all([
+        strapi.documents(EVENT_UID).findMany({
+          status: "published",
+          locale,
+          filters,
+          sort: sort ?? "startDateTime:asc",
+          populate: EVENT_POPULATE,
+          start: (page - 1) * pageSize,
+          limit: pageSize,
+        } as never),
+        strapi.documents(EVENT_UID).count({
+          status: "published",
+          locale,
+          filters,
+        } as never),
+      ])
+
+      return {
+        data,
+        meta: {
+          pagination: {
+            page,
+            pageSize,
+            pageCount: pageCountOf(total, pageSize),
+            total,
+          },
+        },
+      }
+    },
+
+    /**
+     * Fetch a single published cinema event by documentId (null when absent).
+     *
+     * Document Service `findOne` cannot filter by field, so the MVP cinema scope
+     * (`category = movie_screening`) is enforced after the fetch: a non-cinema
+     * event is treated as not-found, keeping the detail endpoint consistent with
+     * the list endpoint (both are cinema-only).
+     */
+    async findEvent(documentId: string, locale?: string) {
+      const event = await strapi.documents(EVENT_UID).findOne({
+        documentId,
         status: "published",
         locale,
-        filters,
-        sort: sort ?? "startDateTime:asc",
-        populate: EVENT_POPULATE,
-        start: (page - 1) * pageSize,
-        limit: pageSize,
-      } as never),
-      strapi.documents(EVENT_UID).count({
-        status: "published",
-        locale,
-        filters,
-      } as never),
-    ])
+        populate: DETAIL_POPULATE,
+      } as never)
 
-    return {
-      data,
-      meta: {
-        pagination: {
-          page,
-          pageSize,
-          pageCount: pageCountOf(total, pageSize),
-          total,
-        },
-      },
-    }
-  },
+      if (
+        !event ||
+        (event as { category?: string }).category !== MVP_CATEGORY
+      ) {
+        return null
+      }
 
-  /**
-   * Fetch a single published cinema event by documentId (null when absent).
-   *
-   * Document Service `findOne` cannot filter by field, so the MVP cinema scope
-   * (`category = movie_screening`) is enforced after the fetch: a non-cinema
-   * event is treated as not-found, keeping the detail endpoint consistent with
-   * the list endpoint (both are cinema-only).
-   */
-  async findEvent(documentId: string, locale?: string) {
-    const event = await strapi.documents(EVENT_UID).findOne({
-      documentId,
-      status: "published",
-      locale,
-      populate: DETAIL_POPULATE,
-    } as never)
+      return event
+    },
 
-    if (!event || (event as { category?: string }).category !== MVP_CATEGORY) {
-      return null
-    }
+    /**
+     * Trending = upcoming published cinema events ranked by
+     * `sum(screening.ticketsSold)` desc.
+     *
+     * Strapi REST/Document Service cannot sort by a related aggregate, so we fetch
+     * the upcoming window with screenings populated, sum in JS, sort desc, then
+     * paginate. Events with no screenings sum to 0 (kept, ranked last).
+     *
+     * The fetch is bounded by `TRENDING_FETCH_CAP` and ordered by `startDateTime`
+     * so the window is deterministic (the cap truncates the *furthest-out* events,
+     * not an arbitrary set). Cancelled events are excluded — a cancelled show is
+     * not "trending". Ties on summed sales are broken by `documentId` so
+     * pagination is stable across requests. NOTE: at large scale the cap-then-rank
+     * approach can miss a top seller beyond the cap; a DB-side rollup is the
+     * proper long-term fix (see deferred-work.md).
+     *
+     * DW-19: the whole fetch+rank+paginate body is wrapped in a short-TTL,
+     * single-flight cache keyed by `locale|page|pageSize` (never the per-request
+     * `now`). A warm key returns without touching the Document Service; concurrent
+     * cold-key callers collapse onto one compute. This is the primary
+     * exhaustion mitigation (a per-IP rate limit is the secondary one on the route).
+     */
+    async findTrending(params: TrendingParams): Promise<ListResult> {
+      const { page, pageSize, locale } = params
 
-    return event
-  },
+      // `encodeURIComponent(locale)` keeps the `|` field separator un-collidable:
+      // a crafted locale can never bleed into the page/pageSize fields of the key.
+      const cacheKey = `${encodeURIComponent(locale ?? "")}|${page}|${pageSize}`
 
-  /**
-   * Trending = upcoming published cinema events ranked by
-   * `sum(screening.ticketsSold)` desc.
-   *
-   * Strapi REST/Document Service cannot sort by a related aggregate, so we fetch
-   * the upcoming window with screenings populated, sum in JS, sort desc, then
-   * paginate. Events with no screenings sum to 0 (kept, ranked last).
-   *
-   * The fetch is bounded by `TRENDING_FETCH_CAP` and ordered by `startDateTime`
-   * so the window is deterministic (the cap truncates the *furthest-out* events,
-   * not an arbitrary set). Cancelled events are excluded — a cancelled show is
-   * not "trending". Ties on summed sales are broken by `documentId` so
-   * pagination is stable across requests. NOTE: at large scale the cap-then-rank
-   * approach can miss a top seller beyond the cap; a DB-side rollup is the
-   * proper long-term fix (see deferred-work.md).
-   */
-  async findTrending(params: TrendingParams): Promise<ListResult> {
-    const { page, pageSize, locale } = params
-    const now = new Date().toISOString()
+      return trendingCache.getOrCompute(cacheKey, async () => {
+        // `now` is per-compute (deliberately excluded from the cache key): within a
+        // TTL we intentionally reuse a slightly-stale upcoming window.
+        const now = new Date().toISOString()
 
-    const events = await strapi.documents(EVENT_UID).findMany({
-      status: "published",
-      locale,
-      filters: {
-        category: MVP_CATEGORY,
-        eventStatus: { $ne: "cancelled" },
-        startDateTime: { $gte: now },
-      },
-      sort: "startDateTime:asc",
-      populate: EVENT_POPULATE,
-      limit: TRENDING_FETCH_CAP,
-    } as never)
+        const events = await strapi.documents(EVENT_UID).findMany({
+          status: "published",
+          locale,
+          filters: {
+            category: MVP_CATEGORY,
+            eventStatus: { $ne: "cancelled" },
+            startDateTime: { $gte: now },
+          },
+          sort: "startDateTime:asc",
+          populate: EVENT_POPULATE,
+          limit: TRENDING_FETCH_CAP,
+        } as never)
 
-    const ranked = [...events].sort((a, b) => {
-      const diff = sumTicketsSold(b as never) - sumTicketsSold(a as never)
-      if (diff !== 0) return diff
-      // Stable secondary key so equal-sales events keep a fixed order across
-      // requests (otherwise they could duplicate/skip across page boundaries).
-      const aId = String((a as { documentId?: string }).documentId ?? "")
-      const bId = String((b as { documentId?: string }).documentId ?? "")
-      return aId.localeCompare(bId)
-    })
+        // Observability for the silent-truncation risk: when the fetch fills the
+        // cap, a top seller beyond it may be dropped. Surface it so operators can
+        // see the stopgap straining — the durable DB-side rollup (deferred) is the
+        // real fix.
+        if (events.length >= TRENDING_FETCH_CAP) {
+          strapi.log.warn(
+            `[events-manager] findTrending hit TRENDING_FETCH_CAP (${TRENDING_FETCH_CAP}) rows; ` +
+              `top sellers beyond the cap may be dropped. The DW-19 durable DB-side ` +
+              `aggregate rollup (sort by materialized ticketsSold total) is the fix.`
+          )
+        }
 
-    const total = ranked.length
-    const start = (page - 1) * pageSize
-    const data = ranked.slice(start, start + pageSize)
+        const ranked = [...events].sort((a, b) => {
+          const diff = sumTicketsSold(b as never) - sumTicketsSold(a as never)
+          if (diff !== 0) return diff
+          // Stable secondary key so equal-sales events keep a fixed order across
+          // requests (otherwise they could duplicate/skip across page boundaries).
+          const aId = String((a as { documentId?: string }).documentId ?? "")
+          const bId = String((b as { documentId?: string }).documentId ?? "")
+          return aId.localeCompare(bId)
+        })
 
-    return {
-      data,
-      meta: {
-        pagination: {
-          page,
-          pageSize,
-          pageCount: pageCountOf(total, pageSize),
-          total,
-        },
-      },
-    }
-  },
-})
+        const total = ranked.length
+        const start = (page - 1) * pageSize
+        const data = ranked.slice(start, start + pageSize)
+
+        return {
+          data,
+          meta: {
+            pagination: {
+              page,
+              pageSize,
+              pageCount: pageCountOf(total, pageSize),
+              total,
+            },
+          },
+        }
+      })
+    },
+  }
+}
 
 export default eventsService

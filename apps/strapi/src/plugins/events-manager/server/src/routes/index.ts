@@ -21,6 +21,16 @@ export default {
         config: {
           policies: [],
           auth: false,
+          // DW-19: per-IP fixed-window limiter on the trending route ONLY (the
+          // uncached/unauthenticated resource-exhaustion surface). Generous
+          // 100/min so the single Next.js SSR caller is never throttled while
+          // crude direct abuse of the public route stays bounded.
+          middlewares: [
+            {
+              name: "plugin::events-manager.trending-rate-limit",
+              config: { max: 100, windowMs: 60000 },
+            },
+          ],
         },
       },
       {
