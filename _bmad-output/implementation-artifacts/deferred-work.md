@@ -83,7 +83,9 @@ status: open
 origin: migrated from legacy ledger ("Deferred from: 2c-3-catalog-move-into-creative-works (2026-06-16)"), 2026-07-12
 location: n/a
 reason: `common.video` carries both `type` (legacy FULL_LENGTH/TEASER/CLIP) and `videoType` (new trailer/teaser/clip/…) enums.
-status: open
+status: done 2026-07-13
+resolution: closed by human decision: Accept the dual-enum as intentional and document which is authoritative for which consumer.
+decision: 2026-07-13 Keep both (document the split) — Accept the dual-enum as intentional and document which is authoritative for which consumer.
 
 ### DW-12: `credit-role` content-type lacks integrity guards
 
