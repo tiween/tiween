@@ -15,7 +15,7 @@ import { BottomNav } from "@/components/layout/BottomNav"
 import { Header } from "@/components/layout/Header"
 import { useUnreadNotificationCount } from "@/features/notifications/hooks/useNotifications"
 
-import { mapTypeToCategory } from "../../utils"
+import { getEventStartDate, mapTypeToCategory } from "../../utils"
 import { CategoryTabs } from "../CategoryTabs"
 import { DateSelector } from "../DateSelector"
 import { EventSection } from "../EventSection"
@@ -135,7 +135,7 @@ function toEventCardEvent(event: StrapiEvent): EventCardEvent {
       event.creativeWork?.poster?.url,
     category: mapTypeToCategory(event.creativeWork?.type),
     venueName: event.venue?.name || "",
-    date: event.startDate,
+    date: getEventStartDate(event),
     price: minPrice,
     currency: "TND",
   }

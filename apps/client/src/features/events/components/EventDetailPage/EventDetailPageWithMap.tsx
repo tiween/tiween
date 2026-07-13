@@ -41,7 +41,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 
-import { mapTypeToCategory } from "../../utils"
+import { getEventStartDate, mapTypeToCategory } from "../../utils"
 import { EventSection } from "../EventSection"
 import { VenueMap } from "../Map"
 
@@ -231,7 +231,7 @@ export function EventDetailPageWithMap({
       e.creativeWork?.poster?.url,
     category: mapTypeToCategory(e.creativeWork?.type),
     venueName: e.venue?.name || "",
-    date: e.startDate,
+    date: getEventStartDate(e),
   }))
 
   // Synopsis truncation

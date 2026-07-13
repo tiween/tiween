@@ -301,16 +301,17 @@ export interface StrapiEvent {
   locale: string
   venue?: StrapiVenue
 
-  // Legacy fields (kept required to preserve back-compat with surfaces — event
-  // detail, search, watchlist — that migrate under their own stories). The
-  // public browse API no longer returns these; new homepage code reads the
-  // real fields above.
+  // Legacy fields (now OPTIONAL because the Story 3.1a public browse API never
+  // returns them). Consumers must treat these as possibly-absent — the real
+  // fields above (`startDateTime`/`endDateTime`/`eventStatus`) are the source of
+  // truth. Retained (deprecated) only for surfaces — event detail, search,
+  // watchlist — that migrate under their own stories.
   /** @deprecated Legacy — use `startDateTime`. */
-  startDate: string
+  startDate?: string
   /** @deprecated Legacy — use `endDateTime`. */
-  endDate: string
+  endDate?: string
   /** @deprecated Legacy — use `eventStatus`. */
-  status: "draft" | "scheduled" | "active" | "completed" | "cancelled"
+  status?: "draft" | "scheduled" | "active" | "completed" | "cancelled"
   /** @deprecated Legacy — the movie now lives on `screening.movie`. */
   creativeWork?: StrapiCreativeWork
   /** @deprecated Legacy — use `screenings`. */
