@@ -10,10 +10,11 @@ import publicApiService from "../public-api"
  *  - it targets the physical table, scoped to `document_id` + `published_at`
  *  - a sale applies the in-SQL guard `tickets_sold + ? <= tickets_available`
  *    and writes `tickets_sold = tickets_sold + delta` (relative, via knex.raw)
- *  - the loser of a race (guarded UPDATE matches 0 rows) throws TICKET_SOLD_OUT
+ *  - the loser of a sale race (guarded UPDATE matches 0 rows) throws
+ *    TICKET_SOLD_OUT; a rejected refund (delta < 0) throws INVENTORY_UNDERFLOW
  *  - a refund (delta < 0) uses the `tickets_sold + ? >= 0` guard
- *  - 0 rows with no published row present → "not found"; with one present →
- *    TICKET_SOLD_OUT
+ *  - 0 rows with no published row present → "not found"; with one present the
+ *    code is chosen by delta sign (TICKET_SOLD_OUT vs INVENTORY_UNDERFLOW)
  *  - unknown kind / zero delta are rejected before any DB access
  *  - the write binds to the caller's ambient transaction when one is active,
  *    else the base connection
@@ -147,13 +148,13 @@ describe("public-api.adjustInventory (unit)", () => {
     )
   })
 
-  it("throws TICKET_SOLD_OUT when a refund would drive sold below zero (affected 0)", async () => {
+  it("throws INVENTORY_UNDERFLOW when a refund would drive sold below zero (affected 0)", async () => {
     const { strapi } = buildStrapi({ affected: 0, exists: { id: 1 } })
     const service = publicApiService({ strapi })
 
     await expect(
       service.adjustInventory("screening-1", "screening", -1)
-    ).rejects.toMatchObject({ code: "TICKET_SOLD_OUT" })
+    ).rejects.toMatchObject({ code: "INVENTORY_UNDERFLOW" })
   })
 
   it("throws /not found/ when no published row exists (affected 0, probe empty)", async () => {

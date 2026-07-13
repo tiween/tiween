@@ -43,7 +43,8 @@ status: open
 origin: migrated from legacy ledger ("Deferred from: code review of 2c-4-ticketing-unit-of-work (2026-06-15)"), 2026-07-12
 location: n/a
 reason: Refund path (delta<0) in adjustInventory: no upper bound / idempotency, shares TICKET_SOLD_OUT code. No refund caller wired yet (Epic 6) — give a distinct code when implemented.
-status: open
+status: done 2026-07-13
+resolution: resolved by sweep bundle dw-inventory-service-hardening
 
 ### DW-7: draftAndPublish double-count
 

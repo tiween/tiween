@@ -28,6 +28,9 @@ export type SubEventKind = keyof typeof SUB_EVENT_UIDS
 /** Error code thrown when a sale would exceed remaining capacity. */
 export const TICKET_SOLD_OUT = "TICKET_SOLD_OUT"
 
+/** Error code thrown when a refund/release would drive `ticketsSold` below zero. */
+export const INVENTORY_UNDERFLOW = "INVENTORY_UNDERFLOW"
+
 /**
  * Ownership + pricing context for a sub-event, returned to ticketing checkout
  * (Story 6.3). `eventId` is the parent event documentId used for the
@@ -79,9 +82,12 @@ const publicApiService = ({ strapi }: { strapi: Core.Strapi }) => ({
    *                     : tickets_sold + :delta >= 0)`.
    * The guard and the write are one statement, so the DB serializes the row:
    * two buyers who each individually fit but together overflow capacity cannot
-   * both win — the loser matches 0 rows (→ `TICKET_SOLD_OUT`). There is no
-   * read-then-write window. Scoped to `published_at IS NOT NULL` so the
-   * draftAndPublish document is never double-counted.
+   * both win — the loser matches 0 rows. When the guarded UPDATE matches 0 rows
+   * on an existing published row the thrown code is selected by delta sign: a
+   * sale that lost the capacity guard (`delta > 0`) → `TICKET_SOLD_OUT`; a
+   * refund/release rejected by the floor (`delta < 0`) → `INVENTORY_UNDERFLOW`.
+   * There is no read-then-write window. Scoped to `published_at IS NOT NULL` so
+   * the draftAndPublish document is never double-counted.
    *
    * Raw knex does NOT auto-enlist in the ambient AsyncLocalStorage transaction
    * the way the Document Service does, so we bind explicitly: the caller's
@@ -141,11 +147,17 @@ const publicApiService = ({ strapi }: { strapi: Core.Strapi }) => ({
       if (!exists) {
         throw new Error(`Sub-event ${subEventId} (${kind}) not found`)
       }
+      // Row exists, so the guard rejected the write. The delta sign that
+      // selected the guard also selects the code and message: a sale (delta > 0)
+      // lost the capacity guard; a refund/release (delta < 0) hit the zero floor.
+      const isSale = delta > 0
       throw Object.assign(
         new Error(
-          `Sub-event ${subEventId} sold out / invalid adjustment (requested ${delta})`
+          isSale
+            ? `Sub-event ${subEventId} sold out (requested +${delta})`
+            : `Sub-event ${subEventId} refund underflow (requested ${delta})`
         ),
-        { code: TICKET_SOLD_OUT }
+        { code: isSale ? TICKET_SOLD_OUT : INVENTORY_UNDERFLOW }
       )
     }
   },
