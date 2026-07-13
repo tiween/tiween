@@ -1,0 +1,11 @@
+{
+  "DW-9": {
+    "answered_at": "2026-07-13",
+    "bundle_name": "",
+    "effect": "build",
+    "intent": "Rename the component category to venues.property-value, update the venue schema ref, and add a component-table migration so the venue.properties relation survives the eventual entity-properties plugin deletion.",
+    "key": "2",
+    "label": "Relocate now",
+    "resolution": ""
+  }
+}

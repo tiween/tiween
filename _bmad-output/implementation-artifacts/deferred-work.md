@@ -68,6 +68,7 @@ origin: migrated from legacy ledger ("Deferred from: code review of 2c-1-extract
 location: n/a
 reason: entity-properties component namespace is a 2C.5 tripwire.
 status: open
+decision: 2026-07-13 Relocate now — Rename the component category to venues.property-value, update the venue schema ref, and add a component-table migration so the venue.properties relation survives the eventual entity-properties plugin deletion.
 decision: 2026-07-13 Defer to Story 2C.5
 
 ### DW-10: events-manager admin WorkForm is stale against the new catalog model
