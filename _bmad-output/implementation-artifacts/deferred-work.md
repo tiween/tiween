@@ -67,6 +67,7 @@ origin: migrated from legacy ledger ("Deferred from: code review of 2c-1-extract
 location: n/a
 reason: entity-properties component namespace is a 2C.5 tripwire.
 status: open
+decision: 2026-07-13 Defer to Story 2C.5
 
 ### DW-10: events-manager admin WorkForm is stale against the new catalog model
 
@@ -146,13 +147,15 @@ origin: migrated from legacy ledger ("Deferred from: code review of 3-1-public-e
 location: n/a
 reason: The homepage category/date/region/venue selectors render and mutate the URL but do not filter the four curated slices — they are visually interactive yet inert.
 status: open
+decision: 2026-07-13 Deep-link to /events — Make the selectors navigate to /events with the chosen category/date/region/venue filters, reusing the working /events filter path rather than re-deriving the curated slices.
 
 ### DW-21: `StrapiEvent.startDate`/`endDate`/`status` are declared non-optional even though the Story 3.1a public browse API never returns them,…
 
 origin: migrated from legacy ledger ("Deferred from: follow-up code review of 3-11-homepage-with-curated-event-listings (2026-07-06)"), 2026-07-12
 location: n/a
 reason: `StrapiEvent.startDate`/`endDate`/`status` are declared non-optional even though the Story 3.1a public browse API never returns them, giving unmigrated consumers false compile-time safety.
-status: open
+status: done 2026-07-13
+resolution: resolved by sweep bundle dw-strapi-event-optional-legacy-fields
 
 ### DW-22: The 3.1a public browse populate is too shallow for the homepage to render movie-level hero metadata or a complete JSON-LD `location`, so…
 
@@ -189,6 +192,7 @@ origin: migrated from legacy ledger ("Deferred from: 3-6-keyword-search-with-alg
 location: n/a
 reason: The Algolia indexing pipeline that populates the `tiween_events` index is not built — search runs on the read side only, gated by `isAlgoliaConfigured()`, and falls back to the real Strapi `fetchEvents({ q })` path when Algolia is unconfigured (the state of this environment, and of the sibling `tiween_shorts` directory which likewise ships with no committed indexer).
 status: open
+decision: 2026-07-13 Build the Algolia indexer — Build the Strapi-side indexing pipeline (lifecycle hook or scheduled/CLI job) that populates tiween_events and tiween_shorts via the existing mapper, and provision the Algolia admin credentials + index configuration.
 
 ### DW-27: Multi-entity search ("events, creative works, venues, people") is delivered as searchable attributes on the event record, not as…
 
@@ -196,6 +200,7 @@ origin: migrated from legacy ledger ("Deferred from: 3-6-keyword-search-with-alg
 location: n/a
 reason: Multi-entity search ("events, creative works, venues, people") is delivered as searchable attributes on the event record, not as distinct per-entity result cards/sections (a venue card, a person card) — a fuzzy match on a film/venue/person name surfaces the owning event rather than a dedicated entity result.
 status: open
+decision: 2026-07-13 Build per-entity cards — Add per-entity Algolia indices plus dedicated venue/person result cards and their entity detail pages.
 
 ### DW-28: The Algolia read path diverges from the Strapi path in several ways that only bite once the `tiween_events` index is populated
 
@@ -232,7 +237,9 @@ resolution: already resolved: Watchlist is now server-backed via useAddToWatchli
 origin: migrated from legacy ledger ("Deferred from: 3-7-event-detail-page (2026-07-06)"), 2026-07-12
 location: n/a
 reason: The `EventDetailPageDesktop` and `EventDetailPageWithMap` variants still read the legacy `event.creativeWork` relation and will render an empty hero/synopsis/cast against the real `DETAIL_POPULATE` (`screenings[0].movie`) schema if ever wired into a route.
-status: open
+status: done 2026-07-13
+resolution: closed by human decision: Remove both unrouted variant components; the stale legacy-relation read and local watchlist toggle (DW-87) go with them.
+decision: 2026-07-13 Delete the variants — Remove both unrouted variant components; the stale legacy-relation read and local watchlist toggle (DW-87) go with them.
 
 ### DW-33: The sticky "Buy tickets" CTA scrolls to the first `<section>` on the page (Synopsis), not to the Showtimes section it advertises
 
@@ -310,6 +317,7 @@ origin: migrated from legacy ledger ("Deferred from: 4-1-email-and-password-regi
 location: n/a
 reason: Redis-backed rate limiting for the authentication endpoints (NFR-S8 / Epic 4 constraint "max ~10 attempts/minute") is NOT implemented — registration, login, change-password, forgot-password, and reset-password remain unthrottled, so credential-stuffing and registration-spam are unmitigated.
 status: open
+decision: 2026-07-13 Provision Redis + build — Provision Redis and build distributed rate limiting across all auth and profile-management endpoints per NFR-S8 (also covering the DW-68 profile endpoints and the DW-127 confirm/webhook throttle).
 
 ### DW-44: The Strapi test suite cannot boot via `cd apps/strapi && yarn test`
 
@@ -346,6 +354,7 @@ origin: migrated from legacy ledger ("Deferred from: 4-1-email-and-password-regi
 location: n/a
 reason: Email/username are stored case-sensitively, so registering `Alice@x.com` and then `alice@x.com` can create two distinct accounts (username uniqueness and the u-p `unique_email` check are case-sensitive).
 status: open
+decision: 2026-07-13 Make identity case-insensitive — Normalize email/username to lowercase on write, add a case-insensitive unique constraint, and run a backfill migration; align the login and social-link lookups accordingly.
 
 ### DW-49: The password mixed-case rule uses ASCII-only `/[A-Z]/` and `/[a-z]/` on both client and server, so a password composed solely of…
 
@@ -395,6 +404,7 @@ origin: migrated from legacy ledger ("Deferred from: follow-up code review of 4-
 location: n/a
 reason: New social sign-ups always receive a French welcome email — no request locale is available at the OAuth callback and a brand-new user has no `preferredLanguage` yet — so AR/EN users who register via Google/Facebook get a FR email.
 status: open
+decision: 2026-07-13 Thread locale via OAuth state — Carry the UI locale through the NextAuth OAuth state parameter into the Strapi callback so the social welcome email is localized.
 
 ### DW-56: The NextAuth env-gated OAuth provider registration in `apps/client/src/lib/auth.ts` has no running test, and the page-level…
 
@@ -500,6 +510,7 @@ origin: migrated from legacy ledger ("Deferred from: code review of spec-4-4-pro
 location: n/a
 reason: `POST /api/upload` is allow-listed by path only, so the private proxy forwards any authenticated upload body (not just the avatar `files`-only shape), and Strapi's upload controller also handles file-replacement-by-id — the boundary rests entirely on the operator granting `Upload.upload` but NOT `Upload.update`.
 status: open
+decision: 2026-07-13 Constrain the proxy — Restrict the proxy to the avatar files-only upload shape and/or explicitly block the replace-by-id route at the proxy, rather than relying solely on Strapi permission config.
 
 ### DW-71: A user cannot REMOVE an already-saved avatar
 
@@ -514,6 +525,7 @@ origin: migrated from legacy ledger ("Deferred from: code review of spec-4-4-pro
 location: n/a
 reason: `POST /auth/change-email` is an account-enumeration oracle for authenticated users — a distinct `EMAIL_TAKEN` code for an address registered to another account (vs `{ ok: true }` for a free one) lets any logged-in user probe which emails exist.
 status: open
+decision: 2026-07-13 Return uniform response — Return a uniform {ok:true} from change-email and surface any address conflict only via the confirmation step, removing the enumeration signal.
 
 ### DW-73: A failed profile save AFTER a successful avatar upload orphans the uploaded media file, and a retry re-uploads (another orphan) rather…
 
@@ -577,6 +589,7 @@ origin: migrated from legacy ledger ("Deferred from: code review of spec-4-4-pro
 location: n/a
 reason: (HIGH) Guest-order linking runs on every user `afterCreate` with no proof of email ownership — when Epic 6 lands guest orders, an attacker who registers a victim's email would inherit the victim's guest purchases (guestName, paymentReference, tickets), instantly usable if email confirmation is disabled (the Strapi default). Gate linking on verified ownership: trigger it on the email-confirmation event (or an `afterUpdate` confirmed-transition) rather than raw `afterCreate`, and re-evaluate for admin-panel/seed-created users.
 status: open
+decision: 2026-07-13 Gate on verified-email event — Move the linking trigger from raw afterCreate to the email-confirmation / afterUpdate confirmed-transition, and handle admin-panel/seed-created users, so orders link only after ownership is proven.
 
 ### DW-82: `linkGuestOrders` links guest orders of ANY `paymentStatus` (including `pending`/`failed`)
 
@@ -766,6 +779,7 @@ origin: migrated from legacy ledger ("Deferred from: 6-1-view-ticket-types-and-p
 location: n/a
 reason: Per-tier inventory (`ticketing.ticket-tier.ticketsAvailable`/`ticketsSold`) is a display-only additive model and is NOT reconciled with the atomic purchase write path — the sub-event's legacy single `price`/`ticketsAvailable`/`ticketsSold` and `events-manager.public-api.adjustInventory` remain the only inventory the order flow reads/writes, so tier-level availability is not decremented on purchase.
 status: open
+decision: 2026-07-13 Derive tiers from sub-event — Keep sub-event inventory authoritative and derive/display tier availability from it, dropping the independent additive tier counts — avoids a second concurrent-write surface (pairs with inventory-service-hardening).
 
 ### DW-109: The TND price formatter is now re-implemented in four places
 

@@ -2,8 +2,9 @@
 title: "DW-21: Make StrapiEvent legacy startDate/endDate/status optional"
 type: "refactor"
 created: "2026-07-13"
-status: "in-review"
+status: "done"
 baseline_revision: "834cfb4471db23a141cc61d32e79ad24febfbaae"
+final_revision: "7914f16c46d9ac6bf0f6964b8cb91940b27d1910"
 review_loop_iteration: 0
 followup_review_recommended: false # no review-driven code changes this pass; localized type-honesty refactor
 context: []
@@ -28,12 +29,12 @@ warnings: []
 
 ## I/O & Edge-Case Matrix
 
-| Scenario | Input / State | Expected Output / Behavior | Error Handling |
-| -------- | ------------- | -------------------------- | -------------- |
+| Scenario                              | Input / State                                                 | Expected Output / Behavior                                            | Error Handling    |
+| ------------------------------------- | ------------------------------------------------------------- | --------------------------------------------------------------------- | ----------------- |
 | Browse-slice event (no legacy fields) | `StrapiEvent` with `startDateTime` set, `startDate` undefined | `getEventStartDate` returns `startDateTime`; card `date` is populated | No error expected |
-| Legacy event (only legacy fields) | `startDate` set, `startDateTime` undefined | `getEventStartDate` returns `startDate` | No error expected |
-| Neither present | both undefined | `getEventStartDate` returns `""`; card renders empty date, no crash | No error expected |
-| Detail date range | `event.startDate && event.endDate` both undefined | Existing truthy guard skips the date-range block (unchanged) | No error expected |
+| Legacy event (only legacy fields)     | `startDate` set, `startDateTime` undefined                    | `getEventStartDate` returns `startDate`                               | No error expected |
+| Neither present                       | both undefined                                                | `getEventStartDate` returns `""`; card renders empty date, no crash   | No error expected |
+| Detail date range                     | `event.startDate && event.endDate` both undefined             | Existing truthy guard skips the date-range block (unchanged)          | No error expected |
 
 </intent-contract>
 
@@ -94,7 +95,7 @@ _No bad_spec loopback occurred. Empty._
 
 All three reviewers (Blind Hunter, Edge Case Hunter, Verification Gap) confirmed the touched
 lines are correct and type-safe (`tsc` error count 64→64, zero new errors introduced). No finding
-faulted the change itself; every substantive finding concerns the *broader* schema migration that
+faulted the change itself; every substantive finding concerns the _broader_ schema migration that
 DW-21 explicitly scopes out ("surfaces — event detail, search, watchlist — that migrate under
 their own stories"). Deferred items are recorded under `## Auto Run Result` for the orchestrator
 to ingest — the invocation directive forbids editing the deferred-work ledger directly.
