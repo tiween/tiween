@@ -1,4 +1,5 @@
 import type { Core } from "@strapi/strapi"
+import type { Knex } from "knex"
 import type { TicketTierOut } from "./ticket-tiers"
 
 const PLUGIN_ID = "events-manager"
@@ -13,16 +14,19 @@ const SUB_EVENT_UIDS = {
   performance: `plugin::${PLUGIN_ID}.performance`,
 } as const
 
+/**
+ * Physical table name for each ticketed sub-event kind. Used by the guarded
+ * atomic inventory UPDATE, which runs raw knex against the table directly.
+ */
+const SUB_EVENT_TABLES = {
+  screening: "screenings",
+  performance: "performances",
+} as const
+
 export type SubEventKind = keyof typeof SUB_EVENT_UIDS
 
 /** Error code thrown when a sale would exceed remaining capacity. */
 export const TICKET_SOLD_OUT = "TICKET_SOLD_OUT"
-
-interface SubEventInventory {
-  documentId: string
-  ticketsSold: number
-  ticketsAvailable: number
-}
 
 /**
  * Ownership + pricing context for a sub-event, returned to ticketing checkout
@@ -65,23 +69,31 @@ const publicApiService = ({ strapi }: { strapi: Core.Strapi }) => ({
    * Adjust a sub-event's sold-ticket count.
    *
    * `delta > 0` is a sale (capacity-guarded); `delta < 0` is a refund/cancel
-   * (no upper guard, but never drives `ticketsSold` below zero).
+   * (guarded so it never drives `ticketsSold` below zero).
    *
-   * Goes through the Document Service API only — no raw SQL. `status: "published"`
-   * targets the published row of the draftAndPublish document, so the read and
-   * write both operate on the live version (no draft/published double-count).
+   * Concurrency-safe by construction: a single guarded, *relative* atomic
+   * increment on the PUBLISHED row —
+   *   `UPDATE <table> SET tickets_sold = tickets_sold + :delta
+   *    WHERE document_id = :id AND published_at IS NOT NULL
+   *      AND (delta > 0 ? tickets_sold + :delta <= tickets_available
+   *                     : tickets_sold + :delta >= 0)`.
+   * The guard and the write are one statement, so the DB serializes the row:
+   * two buyers who each individually fit but together overflow capacity cannot
+   * both win — the loser matches 0 rows (→ `TICKET_SOLD_OUT`). There is no
+   * read-then-write window. Scoped to `published_at IS NOT NULL` so the
+   * draftAndPublish document is never double-counted.
    *
-   * Runs inside the caller's `strapi.db.transaction(...)`: Document Service
-   * writes auto-enlist in the ambient transaction via AsyncLocalStorage, so the
-   * inventory change rolls back together with the order/ticket writes.
+   * Raw knex does NOT auto-enlist in the ambient AsyncLocalStorage transaction
+   * the way the Document Service does, so we bind explicitly: the caller's
+   * ambient trx when present (`strapi.db.transaction().get()`), else the base
+   * connection. Inside `createOrder`'s `strapi.db.transaction(...)` this makes
+   * the inventory change roll back together with the order/ticket writes.
    *
-   * ── CONCURRENCY NOT HANDLED (deferred to Epic 6) ───────────────────────────
-   * This is a plain read-modify-write: two concurrent buyers can both read the
-   * same `ticketsSold` and both pass the guard, overselling the last seat. That
-   * is acceptable for now — ticketing is not on the path to first production
-   * (ships post-GTM). A concurrency-safe reservation (DB CHECK constraint,
-   * row lock, or optimistic version field) is an Epic 6 concern. See
-   * deferred-work.md.
+   * A PostgreSQL `CHECK (tickets_sold <= tickets_available)` constraint on both
+   * ticketed sub-event tables (ensured by the events-manager plugin bootstrap,
+   * `ensureInventoryCheckConstraint`) is the final RDBMS enforcer: any other
+   * write path that would oversell is rejected by the database and its
+   * transaction rolls back.
    */
   async adjustInventory(
     subEventId: string,
@@ -96,36 +108,46 @@ const publicApiService = ({ strapi }: { strapi: Core.Strapi }) => ({
       throw new Error(`adjustInventory delta must be a non-zero integer`)
     }
 
-    const subEvent = (await strapi.documents(uid).findOne({
-      documentId: subEventId,
-      status: "published",
-      fields: ["ticketsSold", "ticketsAvailable"],
-    })) as SubEventInventory | null
+    const table = SUB_EVENT_TABLES[kind]
+    // Raw knex does not auto-enlist in the ambient ALS transaction; bind
+    // explicitly. `transaction()` (with no callback) resolves to the ambient
+    // trx WITHOUT opening a new one when already nested; `.get()` yields the
+    // underlying knex bound to it.
+    const knex: Knex = strapi.db.inTransaction()
+      ? (await strapi.db.transaction()).get()
+      : strapi.db.connection
 
-    if (!subEvent) {
-      throw new Error(`Sub-event ${subEventId} (${kind}) not found`)
+    const query = knex(table)
+      .where("document_id", subEventId)
+      .whereNotNull("published_at")
+
+    if (delta > 0) {
+      query.andWhereRaw("tickets_sold + ? <= tickets_available", [delta])
+    } else {
+      query.andWhereRaw("tickets_sold + ? >= 0", [delta])
     }
 
-    const nextSold = subEvent.ticketsSold + delta
-
-    if (delta > 0 && nextSold > subEvent.ticketsAvailable) {
-      throw Object.assign(
-        new Error(`Sub-event ${subEventId} is sold out (requested ${delta})`),
-        { code: TICKET_SOLD_OUT }
-      )
-    }
-    if (delta < 0 && nextSold < 0) {
-      throw Object.assign(
-        new Error(`Cannot reduce sold count for ${subEventId} by ${-delta}`),
-        { code: TICKET_SOLD_OUT }
-      )
-    }
-
-    await strapi.documents(uid).update({
-      documentId: subEventId,
-      status: "published",
-      data: { ticketsSold: nextSold },
+    const affected = await query.update({
+      tickets_sold: knex.raw("tickets_sold + ?", [delta]),
     })
+
+    if (affected === 0) {
+      // Disambiguate a missing published row from a guard rejection (sold out /
+      // would go negative). Probe existence on the published row only.
+      const exists = await knex(table)
+        .where("document_id", subEventId)
+        .whereNotNull("published_at")
+        .first("id")
+      if (!exists) {
+        throw new Error(`Sub-event ${subEventId} (${kind}) not found`)
+      }
+      throw Object.assign(
+        new Error(
+          `Sub-event ${subEventId} sold out / invalid adjustment (requested ${delta})`
+        ),
+        { code: TICKET_SOLD_OUT }
+      )
+    }
   },
 
   /**

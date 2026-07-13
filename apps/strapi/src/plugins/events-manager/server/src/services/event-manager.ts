@@ -248,7 +248,10 @@ const eventManagerService = ({ strapi }: { strapi: Core.Strapi }) => ({
 
     // Check-then-act: a concurrent purchase can bump ticketsSold between this
     // read and the update below. The guard catches operator mistakes, not races —
-    // a DB-level CHECK (ticketsSold <= ticketsAvailable) remains the final enforcer.
+    // the DB-level CHECK (ticketsSold <= ticketsAvailable), ensured by the
+    // events-manager plugin bootstrap (`ensureInventoryCheckConstraint`) on
+    // `screenings`/`performances`, is the final enforcer: any write that would
+    // oversell is rejected by the database and its transaction rolls back.
     const subEvent = await strapi.documents(uid).findOne({
       documentId: subEventId,
     })

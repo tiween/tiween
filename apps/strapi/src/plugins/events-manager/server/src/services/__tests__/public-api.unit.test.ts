@@ -3,149 +3,220 @@ import publicApiService from "../public-api"
 /**
  * Unit tests for events-manager `public-api.adjustInventory` (mocked Strapi).
  *
- * adjustInventory is a Document Service read-modify-write (no raw SQL). We assert
- * its load-bearing invariants:
- *  - it reads the PUBLISHED row (status: "published") of the draftAndPublish doc
- *  - a sale that fits writes ticketsSold = current + delta
- *  - a sale that exceeds capacity throws TICKET_SOLD_OUT and does NOT write
- *  - a refund (delta < 0) decrements, floored at zero
- *  - unknown kind / zero delta / missing document are rejected
+ * adjustInventory is now a single guarded, *relative* atomic increment on the
+ * PUBLISHED sub-event row (raw knex), not a Document Service read-modify-write.
+ * We assert its load-bearing invariants against a mocked knex query-builder
+ * chain (`where`/`whereNotNull`/`andWhereRaw`/`update`/`first`):
+ *  - it targets the physical table, scoped to `document_id` + `published_at`
+ *  - a sale applies the in-SQL guard `tickets_sold + ? <= tickets_available`
+ *    and writes `tickets_sold = tickets_sold + delta` (relative, via knex.raw)
+ *  - the loser of a race (guarded UPDATE matches 0 rows) throws TICKET_SOLD_OUT
+ *  - a refund (delta < 0) uses the `tickets_sold + ? >= 0` guard
+ *  - 0 rows with no published row present → "not found"; with one present →
+ *    TICKET_SOLD_OUT
+ *  - unknown kind / zero delta are rejected before any DB access
+ *  - the write binds to the caller's ambient transaction when one is active,
+ *    else the base connection
  *
- * Concurrency is intentionally NOT covered — it is deferred to Epic 6
- * (read-modify-write is racy by design for now; see deferred-work.md).
+ * The atomic write means concurrency is now a contract, not a deferral: the
+ * guard and the write are one statement, so an oversell simply matches 0 rows.
  */
 
-interface DocApiMock {
-  findOne: jest.Mock
+interface QbMock {
+  where: jest.Mock
+  whereNotNull: jest.Mock
+  andWhereRaw: jest.Mock
   update: jest.Mock
+  first: jest.Mock
 }
 
-function buildStrapi(
-  doc: { ticketsSold: number; ticketsAvailable: number } | null
-) {
-  const docApi: DocApiMock = {
-    findOne: jest.fn(async () =>
-      doc ? { documentId: "screening-1", ...doc } : null
-    ),
-    update: jest.fn(async () => ({ documentId: "screening-1" })),
+interface KnexMock {
+  knex: jest.Mock & { raw: jest.Mock }
+  qb: QbMock
+}
+
+function buildKnex(affected: number, exists: unknown): KnexMock {
+  const qb: any = {
+    where: jest.fn(() => qb),
+    whereNotNull: jest.fn(() => qb),
+    andWhereRaw: jest.fn(() => qb),
+    update: jest.fn(async () => affected),
+    first: jest.fn(async () => exists),
   }
+  const knex: any = jest.fn(() => qb)
+  knex.raw = jest.fn((sql: string, bindings: unknown[]) => ({
+    __raw: sql,
+    bindings,
+  }))
+  return { knex, qb }
+}
+
+/**
+ * Two DISTINCT knex mocks (one for `db.connection`, one for the ambient trx
+ * returned by `db.transaction().get()`) so a test can prove WHICH one the write
+ * bound to. `active` is the builder adjustInventory will actually drive given
+ * `inTransaction`.
+ */
+function buildStrapi({
+  affected = 1,
+  exists = { id: 1 },
+  inTransaction = false,
+}: { affected?: number; exists?: unknown; inTransaction?: boolean } = {}) {
+  const conn = buildKnex(affected, exists)
+  const trx = buildKnex(affected, exists)
 
   const strapi: any = {
-    documents: jest.fn(() => docApi),
+    db: {
+      inTransaction: jest.fn(() => inTransaction),
+      connection: conn.knex,
+      // `adjustInventory` awaits this then calls `.get()`; awaiting a plain
+      // object is a no-op, so a sync-returning mock is fine.
+      transaction: jest.fn(() => ({ get: () => trx.knex })),
+    },
   }
 
-  return { strapi, docApi }
+  const active = inTransaction ? trx : conn
+  return { strapi, conn, trx, knex: active.knex, qb: active.qb }
 }
 
 describe("public-api.adjustInventory (unit)", () => {
-  it("reads the published row and writes current + delta on a fitting sale", async () => {
-    const { strapi, docApi } = buildStrapi({
-      ticketsSold: 3,
-      ticketsAvailable: 10,
-    })
-    const service = publicApiService({ strapi })
-
-    await service.adjustInventory("screening-1", "screening", 2)
-
-    expect(strapi.documents).toHaveBeenCalledWith(
-      "plugin::events-manager.screening"
-    )
-    expect(docApi.findOne).toHaveBeenCalledWith(
-      expect.objectContaining({
-        documentId: "screening-1",
-        status: "published",
-      })
-    )
-    expect(docApi.update).toHaveBeenCalledWith(
-      expect.objectContaining({
-        documentId: "screening-1",
-        status: "published",
-        data: { ticketsSold: 5 },
-      })
-    )
-  })
-
-  it("throws TICKET_SOLD_OUT and does not write when the sale exceeds capacity", async () => {
-    const { strapi, docApi } = buildStrapi({
-      ticketsSold: 9,
-      ticketsAvailable: 10,
-    })
-    const service = publicApiService({ strapi })
-
-    await expect(
-      service.adjustInventory("screening-1", "screening", 2)
-    ).rejects.toMatchObject({ code: "TICKET_SOLD_OUT" })
-    expect(docApi.update).not.toHaveBeenCalled()
-  })
-
-  it("allows a sale that exactly fills remaining capacity", async () => {
-    const { strapi, docApi } = buildStrapi({
-      ticketsSold: 8,
-      ticketsAvailable: 10,
-    })
+  it("runs one guarded relative increment on the published row for a fitting sale", async () => {
+    const { strapi, knex, qb } = buildStrapi({ affected: 1 })
     const service = publicApiService({ strapi })
 
     await expect(
       service.adjustInventory("screening-1", "screening", 2)
     ).resolves.toBeUndefined()
-    expect(docApi.update).toHaveBeenCalledWith(
-      expect.objectContaining({ data: { ticketsSold: 10 } })
+
+    expect(knex).toHaveBeenCalledWith("screenings")
+    expect(qb.where).toHaveBeenCalledWith("document_id", "screening-1")
+    expect(qb.whereNotNull).toHaveBeenCalledWith("published_at")
+    expect(qb.andWhereRaw).toHaveBeenCalledWith(
+      "tickets_sold + ? <= tickets_available",
+      [2]
     )
+    expect(knex.raw).toHaveBeenCalledWith("tickets_sold + ?", [2])
+    expect(qb.update).toHaveBeenCalledWith({
+      tickets_sold: { __raw: "tickets_sold + ?", bindings: [2] },
+    })
+    // Guard passed (affected > 0): no existence probe.
+    expect(qb.first).not.toHaveBeenCalled()
   })
 
-  it("refund (delta < 0) decrements sold count", async () => {
-    const { strapi, docApi } = buildStrapi({
-      ticketsSold: 4,
-      ticketsAvailable: 10,
-    })
+  it("resolves when the sale exactly fills capacity (affected 1)", async () => {
+    const { strapi, qb } = buildStrapi({ affected: 1 })
+    const service = publicApiService({ strapi })
+
+    await expect(
+      service.adjustInventory("performance-1", "performance", 2)
+    ).resolves.toBeUndefined()
+    expect(qb.update).toHaveBeenCalled()
+  })
+
+  it("targets the performances table for the performance kind", async () => {
+    const { strapi, knex } = buildStrapi({ affected: 1 })
+    const service = publicApiService({ strapi })
+
+    await service.adjustInventory("performance-1", "performance", 1)
+
+    expect(knex).toHaveBeenCalledWith("performances")
+  })
+
+  it("throws TICKET_SOLD_OUT when the guarded UPDATE matches 0 rows (oversell)", async () => {
+    const { strapi, qb } = buildStrapi({ affected: 0, exists: { id: 1 } })
+    const service = publicApiService({ strapi })
+
+    await expect(
+      service.adjustInventory("screening-1", "screening", 2)
+    ).rejects.toMatchObject({ code: "TICKET_SOLD_OUT" })
+    // The guard is in-SQL: the UPDATE ran, then the existence probe disambiguated.
+    expect(qb.update).toHaveBeenCalled()
+    expect(qb.first).toHaveBeenCalled()
+  })
+
+  it("uses the >= 0 guard and resolves for a valid refund (delta < 0)", async () => {
+    const { strapi, qb } = buildStrapi({ affected: 1 })
     const service = publicApiService({ strapi })
 
     await service.adjustInventory("screening-1", "screening", -1)
 
-    expect(docApi.update).toHaveBeenCalledWith(
-      expect.objectContaining({ data: { ticketsSold: 3 } })
+    expect(qb.andWhereRaw).toHaveBeenCalledWith("tickets_sold + ? >= 0", [-1])
+    expect(qb.andWhereRaw).not.toHaveBeenCalledWith(
+      "tickets_sold + ? <= tickets_available",
+      expect.anything()
     )
   })
 
-  it("refund cannot drive sold count below zero", async () => {
-    const { strapi, docApi } = buildStrapi({
-      ticketsSold: 0,
-      ticketsAvailable: 10,
-    })
+  it("throws TICKET_SOLD_OUT when a refund would drive sold below zero (affected 0)", async () => {
+    const { strapi } = buildStrapi({ affected: 0, exists: { id: 1 } })
     const service = publicApiService({ strapi })
 
     await expect(
       service.adjustInventory("screening-1", "screening", -1)
     ).rejects.toMatchObject({ code: "TICKET_SOLD_OUT" })
-    expect(docApi.update).not.toHaveBeenCalled()
   })
 
-  it("throws when the sub-event document does not exist", async () => {
-    const { strapi, docApi } = buildStrapi(null)
+  it("throws /not found/ when no published row exists (affected 0, probe empty)", async () => {
+    const { strapi, qb } = buildStrapi({ affected: 0, exists: null })
     const service = publicApiService({ strapi })
 
     await expect(
       service.adjustInventory("missing", "screening", 1)
     ).rejects.toThrow(/not found/)
-    expect(docApi.update).not.toHaveBeenCalled()
+    expect(qb.first).toHaveBeenCalled()
   })
 
-  it("rejects an unknown sub-event kind", async () => {
-    const { strapi } = buildStrapi({ ticketsSold: 0, ticketsAvailable: 10 })
+  it("rejects an unknown sub-event kind before touching the DB", async () => {
+    const { strapi, conn, trx } = buildStrapi()
     const service = publicApiService({ strapi })
 
     await expect(
       service.adjustInventory("x", "balloon" as any, 1)
     ).rejects.toThrow(/Unknown sub-event kind/)
+    expect(conn.knex).not.toHaveBeenCalled()
+    expect(trx.knex).not.toHaveBeenCalled()
+    expect(strapi.db.inTransaction).not.toHaveBeenCalled()
   })
 
-  it("rejects a zero delta", async () => {
-    const { strapi } = buildStrapi({ ticketsSold: 0, ticketsAvailable: 10 })
+  it("rejects a zero delta before touching the DB", async () => {
+    const { strapi, conn } = buildStrapi()
     const service = publicApiService({ strapi })
 
     await expect(
       service.adjustInventory("screening-1", "screening", 0)
     ).rejects.toThrow(/non-zero integer/)
+    expect(conn.knex).not.toHaveBeenCalled()
+  })
+
+  it("binds to the ambient transaction when inTransaction() is true", async () => {
+    const { strapi, conn, trx } = buildStrapi({
+      affected: 1,
+      inTransaction: true,
+    })
+    const service = publicApiService({ strapi })
+
+    await service.adjustInventory("screening-1", "screening", 1)
+
+    expect(strapi.db.transaction).toHaveBeenCalled()
+    // The trx builder ran the write; the base connection was never used.
+    expect(trx.qb.update).toHaveBeenCalled()
+    expect(conn.qb.update).not.toHaveBeenCalled()
+    expect(conn.knex).not.toHaveBeenCalled()
+  })
+
+  it("binds to the base connection when inTransaction() is false", async () => {
+    const { strapi, conn, trx } = buildStrapi({
+      affected: 1,
+      inTransaction: false,
+    })
+    const service = publicApiService({ strapi })
+
+    await service.adjustInventory("screening-1", "screening", 1)
+
+    expect(strapi.db.transaction).not.toHaveBeenCalled()
+    expect(conn.qb.update).toHaveBeenCalled()
+    expect(trx.qb.update).not.toHaveBeenCalled()
+    expect(trx.knex).not.toHaveBeenCalled()
   })
 })
 

@@ -21,7 +21,8 @@ resolution: `updateTicketInventory` enforces non-negative integers and `ticketsS
 origin: migrated from legacy ledger ("Deferred from: code review of event-manager validation fixes (2026-06-11)"), 2026-07-12
 location: apps/strapi/src/plugins/events-manager/server/src/services/event-manager.ts
 reason: TOCTOU race in `updateTicketInventory` [apps/strapi/src/plugins/events-manager/server/src/services/event-manager.ts] — the read-then-update window allows a concurrent purchase to bump `ticketsSold` past the validated capacity. The service guard catches operator mistakes, not races. Follow-up: add a PostgreSQL `CHECK (tickets_sold <= tickets_available)` constraint via a Strapi database migration so the RDBMS is the final enforcer. Relevant when Epic 6 (B2C ticketing) makes concurrent purchases real.
-status: open
+status: done 2026-07-13
+resolution: resolved by sweep bundle dw-inventory-oversell-concurrency
 
 ### DW-4: Transaction threading of order/ticket Document Service writes rests on Strapi v5 AsyncLocalStorage auto-join (verified…
 
@@ -57,7 +58,8 @@ resolution: already resolved: adjustInventory reads and writes with status:'publ
 origin: migrated from legacy ledger ("Resolved + re-scoped 2026-06-15 (Ayoub: ticketing ships post-GTM)"), 2026-07-12
 location: n/a
 reason: Concurrency NOT handled — deferred to Epic 6 (DEadline: before ticketing goes live).
-status: open
+status: done 2026-07-13
+resolution: resolved by sweep bundle dw-inventory-oversell-concurrency
 
 ### DW-9: entity-properties component namespace is a 2C.5 tripwire
 
@@ -900,4 +902,11 @@ status: open
 origin: migrated from legacy ledger ("review of 6-3-konnect-payment-gateway-integration (2026-07-10)"), 2026-07-12
 location: n/a
 reason: (LOW) The webhook→ticketing reconciliation backstop silently drops the event when Konnect echoes `payment.orderId = null` — the ticketing bootstrap handler no-ops on a missing `orderId`, so that order only ever settles via the client confirm.
+status: open
+
+### DW-129: The concurrency-safe inventory rewrite (adjustInventory raw-SQL increment + bootstrap CHECK constraint) has no DB-backed test — real column/table names, CHECK enforcement, trx rollback, and the oversell race are all mock-only
+
+origin: follow-up review of spec-inventory-oversell-concurrency.md (2026-07-13)
+location: apps/strapi/src/plugins/events-manager/server/src/services/public-api.ts, apps/strapi/src/plugins/events-manager/server/src/bootstrap.ts
+reason: (MEDIUM) `adjustInventory` was rewritten from a name-mapped Document Service call to raw knex against hardcoded physical names (`screenings`/`performances`, `document_id`, `published_at`, `tickets_sold`, `tickets_available`) plus `strapi.db.transaction().get()`, and the oversell backstop is a `bootstrap()`-installed Postgres `CHECK (tickets_sold <= tickets_available) NOT VALID`. Every test for both surfaces mocks knex/`raw`/`hasTable` and asserts the implementation's own string literals against a mock authored to match them — tautological. Nothing exercises a real (or in-memory) Postgres, so none of the load-bearing claims are verified: (a) the physical table/column names actually resolve and the guarded UPDATE mutates the right row; (b) the `NOT VALID` CHECK actually rejects an oversell write and rolls back the enclosing order transaction; (c) two concurrent transactions racing the last seat cannot both win (the headline "concurrency is now a contract" claim); (d) `ensureInventoryCheckConstraint`'s DDL is accepted by real Postgres and its `EXCEPTION WHEN duplicate_object` idempotency holds on a second boot. A schema/API drift (Strapi upgrade, `collectionName`/`columnName` rename) or a DDL that never installs (the catch is non-fatal by design) would break 100% of ticket purchases or leave the backstop silently absent — with a fully green suite. The generic "integration suites don't boot in this env" is already tracked (DW-5, DW-45); this entry pins the specific coverage this change needs: a booted-Postgres test that (1) seeds a published sub-event, runs a fitting sale + an oversell + a refund and asserts persisted `tickets_sold` and the `TICKET_SOLD_OUT` throw; (2) asserts an oversell write is rejected by the CHECK; (3) asserts a concurrent two-transaction race yields at most `ticketsAvailable` sold. Confirmed independently by all three review agents (Blind Hunter, Edge Case Hunter, Verification Gap). `followup_review_recommended` on the source spec was set for this reason.
 status: open

@@ -80,8 +80,8 @@ const orderService = ({ strapi }: { strapi: Core.Strapi }) => ({
 
     return strapi.db.transaction(async () => {
       // (b) Reserve capacity. Throws TICKET_SOLD_OUT (rolls back the whole tx)
-      // when the request exceeds remaining seats. The facade's Document Service
-      // write auto-enlists in this transaction via AsyncLocalStorage.
+      // when the request exceeds remaining seats. The facade performs a guarded
+      // atomic increment via raw knex bound explicitly to this transaction.
       await publicApi.adjustInventory(
         subEvent.documentId,
         subEvent.kind,
