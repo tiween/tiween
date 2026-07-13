@@ -315,6 +315,52 @@ describe("events service.findEvents (unit)", () => {
       meta: { pagination: { page: 1, pageSize: 25, pageCount: 0, total: 0 } },
     })
   })
+
+  it("passes the deepened card/hero populate reaching screenings.movie.{poster,backdrop,genres} + venue.cityRef.region (DW-22)", async () => {
+    const { strapi, api } = buildStrapi({ count: jest.fn(async () => 0) })
+    const service = eventsService({ strapi })
+
+    await service.findEvents({ page: 1, pageSize: 25 })
+
+    const call = api.findMany.mock.calls[0][0]
+    // Movie (creative-work) hero metadata for `toFilmHeroEvent` — poster/
+    // backdrop/genres, NOT the deep detail graph (no cast/credits/videos).
+    expect(call.populate.screenings.populate.movie.populate).toEqual(
+      expect.objectContaining({
+        poster: true,
+        backdrop: true,
+        genres: true,
+      })
+    )
+    // Venue city/region for `generateEventJsonLd` location.address.
+    expect(call.populate.venue.populate.cityRef.populate.region).toBe(true)
+    expect(call.populate.images).toBe(true)
+  })
+
+  it("returns browse rows untransformed when a screening lacks movie or a venue lacks region (DW-22 passthrough)", async () => {
+    // The deepened populate only *requests* the movie/region graph; a row whose
+    // screening carries no `movie` (or whose venue has no `region`) must pass
+    // through the service unchanged — the frontend mappers guard absence.
+    const rows = [
+      { documentId: "no-movie", screenings: [{ ticketsSold: 3 }], venue: {} },
+      {
+        documentId: "no-region",
+        screenings: [{ ticketsSold: 1, movie: { documentId: "m1" } }],
+        venue: { cityRef: { name: "Tunis" } },
+      },
+    ]
+    const { strapi } = buildStrapi({
+      findMany: jest.fn(async () => rows),
+      count: jest.fn(async () => rows.length),
+    })
+    const service = eventsService({ strapi })
+
+    const result = await service.findEvents({ page: 1, pageSize: 25 })
+
+    // No transformation layer: the rows are returned exactly as Strapi yields.
+    expect(result.data).toBe(rows)
+    expect(result.data).toEqual(rows)
+  })
 })
 
 describe("events service.findEvent (unit)", () => {
@@ -485,6 +531,62 @@ describe("events service.findTrending (unit)", () => {
       pageCount: 2,
       total: 3,
     })
+  })
+
+  it("passes the same deepened card/hero populate as browse (DW-22)", async () => {
+    const { strapi, api } = buildStrapi({ findMany: jest.fn(async () => []) })
+    const service = eventsService({ strapi })
+
+    await service.findTrending({ page: 1, pageSize: 25 })
+
+    const call = api.findMany.mock.calls[0][0]
+    expect(call.populate.screenings.populate.movie.populate).toEqual(
+      expect.objectContaining({
+        poster: true,
+        backdrop: true,
+        genres: true,
+      })
+    )
+    expect(call.populate.venue.populate.cityRef.populate.region).toBe(true)
+    expect(call.populate.images).toBe(true)
+  })
+
+  it("still ranks by sum(screening.ticketsSold) desc with the deepened movie graph present (DW-22 regression guard)", async () => {
+    // Same ranking scenario as above, but each screening now also carries a
+    // populated `movie` object (the deepened populate) — proving the deeper
+    // graph does not disturb the scalar `ticketsSold` sum/ranking.
+    const rows = [
+      {
+        documentId: "low",
+        screenings: [
+          { ticketsSold: 1, movie: { documentId: "m1", genres: [] } },
+          { ticketsSold: 2, movie: { documentId: "m2", genres: [] } },
+        ],
+      }, // 3
+      {
+        documentId: "high",
+        screenings: [
+          { ticketsSold: 40, movie: { documentId: "m3", genres: [] } },
+          { ticketsSold: 5, movie: { documentId: "m4", genres: [] } },
+        ],
+      }, // 45
+      {
+        documentId: "mid",
+        screenings: [{ ticketsSold: 20, movie: { documentId: "m5" } }],
+      }, // 20
+    ]
+    const { strapi } = buildStrapi({ findMany: jest.fn(async () => rows) })
+    const service = eventsService({ strapi })
+
+    const result = await service.findTrending({ page: 1, pageSize: 25 })
+
+    expect(result.data.map((e: any) => e.documentId)).toEqual([
+      "high",
+      "mid",
+      "low",
+    ])
+    // Rows are returned untransformed — the populated movie survives intact.
+    expect((result.data[0] as any).screenings[0].movie.documentId).toBe("m3")
   })
 
   it("breaks ties on equal sums by documentId for stable ordering", async () => {

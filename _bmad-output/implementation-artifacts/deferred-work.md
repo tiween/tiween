@@ -157,7 +157,8 @@ status: open
 origin: migrated from legacy ledger ("Deferred from: follow-up code review of 3-11-homepage-with-curated-event-listings (2026-07-06)"), 2026-07-12
 location: n/a
 reason: The 3.1a public browse populate is too shallow for the homepage to render movie-level hero metadata or a complete JSON-LD `location`, so the flagship hero shows only a title/badge and event structured data omits city/region.
-status: open
+status: done 2026-07-13
+resolution: resolved by sweep bundle dw-browse-populate-hero-metadata
 
 ### DW-23: The `/[locale]/events` listing renders only the first page (`LISTING_PAGE_SIZE = 60`) with no load-more/pagination control and no…
 

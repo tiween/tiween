@@ -69,10 +69,41 @@ export interface ListResult {
   meta: { pagination: Pagination }
 }
 
+/**
+ * Card/hero browse populate for the list + trending reads (`findEvents`,
+ * `findTrending`).
+ *
+ * Bounded to what the homepage curated slices need: each screening's `movie`
+ * (creative-work) with its `poster`/`backdrop`/`genres` (so `toFilmHeroEvent`
+ * can render the flagship hero — title/backdrop/poster/genres/year/duration)
+ * and the venue's `cityRef.region` (so `generateEventJsonLd` emits a complete
+ * `location.address` city/region). A relation populate through the event UID
+ * only — never a foreign-UID `strapi.documents()` call, per the cross-plugin
+ * rule.
+ *
+ * Deliberately distinct from and lighter than the deep `DETAIL_POPULATE`: it
+ * omits `cast`/`credits`/`videos` (and each person's photo) so browse reads stay
+ * bounded across large result sets. That deep graph is used ONLY by the
+ * single-event `findEvent` detail read.
+ */
 const EVENT_POPULATE = {
-  venue: true,
-  screenings: true,
   images: true,
+  venue: {
+    populate: {
+      cityRef: { populate: { region: true } },
+    },
+  },
+  screenings: {
+    populate: {
+      movie: {
+        populate: {
+          poster: true,
+          backdrop: true,
+          genres: true,
+        },
+      },
+    },
+  },
 } as const
 
 /**
