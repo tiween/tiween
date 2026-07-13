@@ -2,6 +2,8 @@ import { z } from "zod"
 
 import type { Core } from "@strapi/strapi"
 
+import { sanitizeTicketTiersResult } from "../utils/sanitize-public"
+
 /**
  * Public read controller for a sub-event's ticket tiers (Story 6.1).
  *
@@ -47,7 +49,7 @@ const ticketTiersController = ({ strapi }: { strapi: Core.Strapi }) => ({
       return ctx.notFound("SUB_EVENT_NOT_FOUND")
     }
 
-    ctx.body = { data: result, meta: {} }
+    ctx.body = { data: sanitizeTicketTiersResult(result), meta: {} }
   },
 })
 

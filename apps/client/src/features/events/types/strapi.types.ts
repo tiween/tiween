@@ -245,8 +245,8 @@ export interface StrapiScreening {
   audioLanguage?: string
   subtitleLanguage?: string
   price?: number
-  ticketsAvailable?: number
-  ticketsSold?: number
+  /** Derived server-side: true when the showtime is fully sold. */
+  soldOut?: boolean
   movie?: StrapiCreativeWork
 }
 

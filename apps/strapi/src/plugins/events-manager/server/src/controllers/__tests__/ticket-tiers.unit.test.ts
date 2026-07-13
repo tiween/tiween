@@ -59,6 +59,38 @@ describe("ticket-tiers controller.findTicketTiers (unit)", () => {
     expect(ctx.notFound).not.toHaveBeenCalled()
   })
 
+  it("sanitizes the body: strips each tier's raw counts, keeps remaining/soldOut", async () => {
+    const result = {
+      subEventId: "sc1",
+      kind: "screening",
+      startDateTime: null,
+      currency: "TND",
+      tiers: [
+        {
+          type: "standard",
+          price: 15,
+          ticketsAvailable: 100,
+          ticketsSold: 100,
+          remaining: 0,
+          soldOut: true,
+          restrictionNote: null,
+        },
+      ],
+    }
+    const { controller } = buildController(jest.fn(async () => result))
+    const ctx = ctxWith({ params: { documentId: "sc1" } })
+
+    await controller.findTicketTiers(ctx)
+
+    const tier = ctx.body.data.tiers[0]
+    expect(tier).not.toHaveProperty("ticketsAvailable")
+    expect(tier).not.toHaveProperty("ticketsSold")
+    expect(tier.remaining).toBe(0)
+    expect(tier.soldOut).toBe(true)
+    expect(tier.price).toBe(15)
+    expect(ctx.body.data.currency).toBe("TND")
+  })
+
   it("passes a valid ?kind through to the service", async () => {
     const { controller, service } = buildController()
     const ctx = ctxWith({

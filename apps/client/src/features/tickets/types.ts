@@ -17,9 +17,7 @@ export interface TicketTier {
   type: TicketTierType
   /** Unit price in the response `currency`. */
   price: number
-  ticketsAvailable: number
-  ticketsSold: number
-  /** `max(0, ticketsAvailable - ticketsSold)`. */
+  /** Server-computed remaining capacity. */
   remaining: number
   /** `true` when `remaining <= 0` — rendered disabled and non-selectable. */
   soldOut: boolean

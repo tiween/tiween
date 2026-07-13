@@ -2,6 +2,11 @@ import { z } from "zod"
 
 import type { Core } from "@strapi/strapi"
 
+import {
+  sanitizeEventsListResult,
+  sanitizePublicEvent,
+} from "../utils/sanitize-public"
+
 /**
  * Public read controllers for the events-manager plugin (Story 3.1a).
  *
@@ -131,7 +136,7 @@ const eventsController = ({ strapi }: { strapi: Core.Strapi }) => ({
       .service("events")
       .findEvents(parsed.data)
 
-    ctx.body = result
+    ctx.body = sanitizeEventsListResult(result)
   },
 
   /**
@@ -149,7 +154,7 @@ const eventsController = ({ strapi }: { strapi: Core.Strapi }) => ({
       .service("events")
       .findTrending(parsed.data)
 
-    ctx.body = result
+    ctx.body = sanitizeEventsListResult(result)
   },
 
   /**
@@ -172,7 +177,7 @@ const eventsController = ({ strapi }: { strapi: Core.Strapi }) => ({
       return ctx.notFound("EVENT_NOT_FOUND")
     }
 
-    ctx.body = { data: event, meta: {} }
+    ctx.body = { data: sanitizePublicEvent(event), meta: {} }
   },
 })
 

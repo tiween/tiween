@@ -19,8 +19,6 @@ const tiers: TicketTier[] = [
   {
     type: "standard",
     price: 15,
-    ticketsAvailable: 100,
-    ticketsSold: 88,
     remaining: 12,
     soldOut: false,
     restrictionNote: null,
@@ -28,8 +26,6 @@ const tiers: TicketTier[] = [
   {
     type: "reduced",
     price: 10,
-    ticketsAvailable: 50,
-    ticketsSold: 5,
     remaining: 45,
     soldOut: false,
     restrictionNote: "sur justificatif",
@@ -37,8 +33,6 @@ const tiers: TicketTier[] = [
   {
     type: "vip",
     price: 40,
-    ticketsAvailable: 10,
-    ticketsSold: 10,
     remaining: 0,
     soldOut: true,
     restrictionNote: null,

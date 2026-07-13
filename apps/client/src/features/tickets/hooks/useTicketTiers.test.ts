@@ -74,8 +74,6 @@ describe("useTicketTiers", () => {
         {
           type: "standard",
           price: 15,
-          ticketsAvailable: 100,
-          ticketsSold: 30,
           remaining: 70,
           soldOut: false,
           restrictionNote: null,

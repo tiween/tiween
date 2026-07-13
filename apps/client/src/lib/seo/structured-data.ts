@@ -219,11 +219,13 @@ export function generateEventJsonLd(
     .map((s) => s.price)
     .filter((p): p is number => typeof p === "number")
   const minPrice = prices.length > 0 ? Math.min(...prices) : undefined
-  // Unknown inventory (missing `ticketsAvailable`) is treated as available —
-  // absence of data is not evidence of a sell-out. Only an explicit 0 across
-  // every priced screening marks the event SoldOut.
+  // Availability is driven by the server-derived `soldOut` boolean (the raw
+  // per-showtime counts are no longer exposed). A screening is available when
+  // `!soldOut`; unknown inventory (`soldOut` absent — e.g. legacy showtimes) is
+  // treated as available. Only an explicit sold-out across every priced
+  // screening marks the event SoldOut.
   const hasInventory = priced.some(
-    (s) => s.ticketsAvailable === undefined || s.ticketsAvailable > 0
+    (s) => !(s as { soldOut?: boolean }).soldOut
   )
 
   // Build offer(s)

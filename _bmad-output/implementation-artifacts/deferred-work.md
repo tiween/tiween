@@ -129,7 +129,8 @@ status: open
 origin: migrated from legacy ledger ("Deferred from: code review of 3-1-public-events-browse-api-and-data-foundation (2026-07-05)"), 2026-07-12
 location: n/a
 reason: The public events endpoints blanket-populate screenings/venue, exposing internal `ticketsSold`/`ticketsAvailable` (raw per-screening sales) and full venue records to unauthenticated callers.
-status: open
+status: done 2026-07-13
+resolution: resolved by sweep bundle dw-public-inventory-leak-sanitization
 
 ### DW-19: Trending ranking is an in-JS cap-then-rank over up to 500 fully-populated upcoming events on an uncached, unauthenticated,…
 
@@ -791,7 +792,8 @@ status: open
 origin: migrated from legacy ledger ("Deferred from: code review of 6-1-view-ticket-types-and-prices (2026-07-10)"), 2026-07-12
 location: n/a
 reason: The public, unauthenticated ticket-tiers endpoint discloses each tier's exact `ticketsSold` and `ticketsAvailable`, though the UI only consumes the derived `remaining`/`soldOut` — leaking precise per-showtime sell-through to anonymous scrapers.
-status: open
+status: done 2026-07-13
+resolution: resolved by sweep bundle dw-public-inventory-leak-sanitization
 
 ### DW-113: The seeded ticket tiers (the story's required "at least one sold-out tier" + `reduced` tier `restrictionNote: "sur justificatif"`) have…
 
@@ -910,4 +912,11 @@ status: open
 origin: follow-up review of spec-inventory-oversell-concurrency.md (2026-07-13)
 location: apps/strapi/src/plugins/events-manager/server/src/services/public-api.ts, apps/strapi/src/plugins/events-manager/server/src/bootstrap.ts
 reason: (MEDIUM) `adjustInventory` was rewritten from a name-mapped Document Service call to raw knex against hardcoded physical names (`screenings`/`performances`, `document_id`, `published_at`, `tickets_sold`, `tickets_available`) plus `strapi.db.transaction().get()`, and the oversell backstop is a `bootstrap()`-installed Postgres `CHECK (tickets_sold <= tickets_available) NOT VALID`. Every test for both surfaces mocks knex/`raw`/`hasTable` and asserts the implementation's own string literals against a mock authored to match them — tautological. Nothing exercises a real (or in-memory) Postgres, so none of the load-bearing claims are verified: (a) the physical table/column names actually resolve and the guarded UPDATE mutates the right row; (b) the `NOT VALID` CHECK actually rejects an oversell write and rolls back the enclosing order transaction; (c) two concurrent transactions racing the last seat cannot both win (the headline "concurrency is now a contract" claim); (d) `ensureInventoryCheckConstraint`'s DDL is accepted by real Postgres and its `EXCEPTION WHEN duplicate_object` idempotency holds on a second boot. A schema/API drift (Strapi upgrade, `collectionName`/`columnName` rename) or a DDL that never installs (the catch is non-fatal by design) would break 100% of ticket purchases or leave the backstop silently absent — with a fully green suite. The generic "integration suites don't boot in this env" is already tracked (DW-5, DW-45); this entry pins the specific coverage this change needs: a booted-Postgres test that (1) seeds a published sub-event, runs a fitting sale + an oversell + a refund and asserts persisted `tickets_sold` and the `TICKET_SOLD_OUT` throw; (2) asserts an oversell write is rejected by the CHECK; (3) asserts a concurrent two-transaction race yields at most `ticketsAvailable` sold. Confirmed independently by all three review agents (Blind Hunter, Edge Case Hunter, Verification Gap). `followup_review_recommended` on the source spec was set for this reason.
+status: open
+
+### DW-130: The public events sanitizer is not fail-closed against the `eventGroup` relation — a future populate through it would re-leak raw per-showtime inventory
+
+origin: follow-up review of spec-public-inventory-leak-sanitization.md (2026-07-13)
+location: apps/strapi/src/plugins/events-manager/server/src/utils/sanitize-public.ts
+reason: (LOW) `sanitizePublicEvent` recurses only into `venue`, `screenings`, and `performances`. The event content-type also has an `eventGroup` relation (`content-types/event/schema.json`) to another event whose `screenings`/`performances` carry raw `ticketsSold`/`ticketsAvailable`. `eventGroup` is spread through untouched (`clone = { ...raw }`), so if any future populate path pulls it (with its nested events/screenings), those raw counts and venue-internal fields re-leak on the public `/events`, `/events/trending`, and `/events/:documentId` responses. Not currently reachable — `eventGroup` is absent from both `EVENT_POPULATE` and `DETAIL_POPULATE` — so this is latent, not an active leak. It is called out because the sanitizer's own docstring claims it is "fail-closed... follows the schema, not whatever the current controller populate happens to include," and the prior review pass hardened the sibling `performances` relation and the embedded `ticketTiers[]` component on exactly this reasoning; `eventGroup` is the one inventory-bearing relation left uncovered. A proper fix needs a design decision (recurse `sanitizePublicEvent` into `eventGroup` — with a recursion/self-reference guard — vs. strip it from public bodies), which is why it is deferred rather than patched now. Surfaced by Blind Hunter and Edge Case Hunter.
 status: open

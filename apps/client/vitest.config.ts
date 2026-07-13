@@ -94,6 +94,8 @@ export default defineConfig({
       "src/features/events/components/ShareDialog/**/*.test.tsx",
       "src/lib/strapi-api/**/*.test.ts",
       "src/lib/algolia/**/*.test.ts",
+      // SEO JSON-LD structured data (offer availability from `soldOut`).
+      "src/lib/seo/**/*.test.ts",
       // Region read-back helper (Story 4.5).
       "src/hooks/**/*.test.ts",
       // Language-preference sync provider (Story 4.5).

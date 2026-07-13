@@ -28,8 +28,8 @@ function makeEvent(partial: Partial<StrapiEvent> = {}): StrapiEvent {
     featured: false,
     venue: { id: 10, documentId: "ven-1", name: "Le Rio", slug: "le-rio" },
     screenings: [
-      { id: 100, price: 12, ticketsAvailable: 40, ticketsSold: 60 },
-      { id: 101, price: 9, ticketsAvailable: 0, ticketsSold: 120 },
+      { id: 100, price: 12 },
+      { id: 101, price: 9 },
     ],
     images: [
       {
@@ -54,12 +54,10 @@ describe("getEventFilm", () => {
     }
     const event = makeEvent({
       screenings: [
-        { id: 100, price: 12, ticketsAvailable: 40, ticketsSold: 60 },
+        { id: 100, price: 12 },
         {
           id: 101,
           price: 9,
-          ticketsAvailable: 20,
-          ticketsSold: 5,
           movie: film,
         },
       ],
@@ -312,8 +310,7 @@ function makeDetailEvent(partial: Partial<StrapiEvent> = {}): StrapiEvent {
         videoFormat: "threeD",
         subtitleLanguage: "ar",
         price: 14,
-        ticketsAvailable: 0,
-        ticketsSold: 200,
+        soldOut: true,
         movie: MOVIE,
       },
       {
@@ -323,8 +320,7 @@ function makeDetailEvent(partial: Partial<StrapiEvent> = {}): StrapiEvent {
         videoFormat: "standard",
         audioLanguage: "fr",
         price: 12,
-        ticketsAvailable: 30,
-        ticketsSold: 10,
+        soldOut: false,
         movie: MOVIE,
       },
     ],
@@ -424,7 +420,7 @@ describe("toEventDetail", () => {
       status: "available",
       price: 12,
     })
-    // Late: 3D + ar subtitles → [3D, VOST], sold-out (ticketsAvailable 0).
+    // Late: 3D + ar subtitles → [3D, VOST], sold-out (soldOut: true).
     expect(detail.showtimes[1]).toMatchObject({
       id: "scr-late",
       formats: ["3D", "VOST"],
@@ -569,7 +565,6 @@ describe("toEventDetail", () => {
             documentId: "scr-x",
             startDateTime: "2026-07-06T18:00:00.000Z",
             price: 10,
-            ticketsAvailable: 5,
           },
         ],
       })

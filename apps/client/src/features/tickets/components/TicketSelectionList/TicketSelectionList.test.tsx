@@ -27,8 +27,6 @@ const labels: TicketSelectionListLabels = {
 function tier(overrides: Partial<TicketTier> & Pick<TicketTier, "type">): TicketTier {
   return {
     price: 15,
-    ticketsAvailable: 100,
-    ticketsSold: 0,
     remaining: 100,
     soldOut: false,
     restrictionNote: null,

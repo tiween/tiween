@@ -364,10 +364,7 @@ export function toEventDetail(
       time: s.startDateTime ?? "",
       price: typeof s.price === "number" ? s.price : undefined,
       formats: deriveScreeningFormats(s),
-      status:
-        typeof s.ticketsAvailable === "number" && s.ticketsAvailable <= 0
-          ? ("sold-out" as const)
-          : ("available" as const),
+      status: s.soldOut ? ("sold-out" as const) : ("available" as const),
     }))
     .sort((a, b) => a.time.localeCompare(b.time))
 

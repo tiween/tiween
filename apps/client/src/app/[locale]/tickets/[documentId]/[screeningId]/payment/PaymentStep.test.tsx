@@ -81,8 +81,6 @@ const tiers = [
   {
     type: "standard",
     price: 10,
-    ticketsAvailable: 100,
-    ticketsSold: 0,
     remaining: 50,
     soldOut: false,
     restrictionNote: null,
@@ -90,8 +88,6 @@ const tiers = [
   {
     type: "vip",
     price: 40,
-    ticketsAvailable: 10,
-    ticketsSold: 10,
     remaining: 0,
     soldOut: true,
     restrictionNote: null,

@@ -59,6 +59,49 @@ describe("events controller.findEvents (unit)", () => {
     expect(ctx.badRequest).not.toHaveBeenCalled()
   })
 
+  it("sanitizes the body: strips screening raw counts + venue-internal fields, adds soldOut", async () => {
+    const result = {
+      data: [
+        {
+          documentId: "e1",
+          venue: {
+            documentId: "v1",
+            name: "Le Rio",
+            email: "admin@rio.tn",
+            capacity: 300,
+            status: "approved",
+          },
+          screenings: [
+            {
+              documentId: "s1",
+              price: 12,
+              ticketsAvailable: 40,
+              ticketsSold: 40,
+            },
+          ],
+        },
+      ],
+      meta: { pagination: { page: 1, pageSize: 25, pageCount: 1, total: 1 } },
+    }
+    const { controller } = buildController({
+      findEvents: jest.fn(async () => result),
+    })
+    const ctx = ctxWith({ query: {} })
+
+    await controller.findEvents(ctx)
+
+    const event = ctx.body.data[0]
+    expect(event.venue).not.toHaveProperty("email")
+    expect(event.venue).not.toHaveProperty("capacity")
+    expect(event.venue).not.toHaveProperty("status")
+    expect(event.venue.name).toBe("Le Rio")
+    const screening = event.screenings[0]
+    expect(screening).not.toHaveProperty("ticketsSold")
+    expect(screening).not.toHaveProperty("ticketsAvailable")
+    expect(screening.soldOut).toBe(true)
+    expect(ctx.body.meta).toEqual(result.meta)
+  })
+
   it("400s with INVALID_QUERY on a non-numeric page (never a 500)", async () => {
     const { controller, service } = buildController()
     const ctx = ctxWith({ query: { page: "abc" } })
@@ -300,6 +343,49 @@ describe("events controller.findTrending (unit)", () => {
     expect(ctx.body).toEqual(result)
   })
 
+  it("sanitizes the body: strips screening raw counts + venue-internal fields, adds soldOut", async () => {
+    const result = {
+      data: [
+        {
+          documentId: "t1",
+          venue: {
+            documentId: "v1",
+            name: "Le Rio",
+            email: "admin@rio.tn",
+            capacity: 300,
+            status: "approved",
+          },
+          screenings: [
+            {
+              documentId: "s1",
+              price: 12,
+              ticketsAvailable: 40,
+              ticketsSold: 40,
+            },
+          ],
+        },
+      ],
+      meta: { pagination: { page: 1, pageSize: 25, pageCount: 1, total: 1 } },
+    }
+    const { controller } = buildController({
+      findTrending: jest.fn(async () => result),
+    })
+    const ctx = ctxWith({ query: {} })
+
+    await controller.findTrending(ctx)
+
+    const event = ctx.body.data[0]
+    expect(event.venue).not.toHaveProperty("email")
+    expect(event.venue).not.toHaveProperty("capacity")
+    expect(event.venue).not.toHaveProperty("status")
+    expect(event.venue.name).toBe("Le Rio")
+    const screening = event.screenings[0]
+    expect(screening).not.toHaveProperty("ticketsSold")
+    expect(screening).not.toHaveProperty("ticketsAvailable")
+    expect(screening.soldOut).toBe(true)
+    expect(ctx.body.meta).toEqual(result.meta)
+  })
+
   it("400s with INVALID_QUERY on an invalid trending page", async () => {
     const { controller } = buildController()
     const ctx = ctxWith({ query: { page: "-1" } })
@@ -321,6 +407,38 @@ describe("events controller.findEvent (unit)", () => {
 
     expect(ctx.body).toEqual({ data: { documentId: "e1" }, meta: {} })
     expect(ctx.notFound).not.toHaveBeenCalled()
+  })
+
+  it("sanitizes the detail body: strips venue-internal fields + screening raw counts", async () => {
+    const { controller } = buildController({
+      findEvent: jest.fn(async () => ({
+        documentId: "e1",
+        venue: {
+          documentId: "v1",
+          name: "Le Rio",
+          email: "x@y.tn",
+          capacity: 200,
+        },
+        screenings: [
+          {
+            documentId: "s1",
+            price: 10,
+            ticketsAvailable: 50,
+            ticketsSold: 10,
+          },
+        ],
+      })),
+    })
+    const ctx = ctxWith({ params: { documentId: "e1" } })
+
+    await controller.findEvent(ctx)
+
+    expect(ctx.body.data.venue).not.toHaveProperty("email")
+    expect(ctx.body.data.venue).not.toHaveProperty("capacity")
+    const screening = ctx.body.data.screenings[0]
+    expect(screening).not.toHaveProperty("ticketsSold")
+    expect(screening).not.toHaveProperty("ticketsAvailable")
+    expect(screening.soldOut).toBe(false)
   })
 
   it("returns EVENT_NOT_FOUND when the event is absent", async () => {
