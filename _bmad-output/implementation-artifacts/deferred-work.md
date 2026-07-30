@@ -28,14 +28,14 @@ resolution: resolved by sweep bundle dw-inventory-oversell-concurrency
 
 origin: migrated from legacy ledger ("Deferred from: code review of 2c-4-ticketing-unit-of-work (2026-06-15)"), 2026-07-12
 location: n/a
-reason: Transaction threading of order/ticket Document Service writes rests on Strapi v5 AsyncLocalStorage auto-join (verified documented-correct; execution proof is the skipped integration test). Re-confirm when integration suite boots.
+reason: Transaction threading of order/ticket Document Service writes rests on Strapi v5 AsyncLocalStorage auto-join (verified documented-correct; execution proof is the skipped integration test). Re-confirm when integration suite boots. BLOCKED (2026-07-31) — do not re-attempt until story 4.7 lands: Strapi does not boot. The users-permissions extension assigns its auth overrides onto the exported `auth` FACTORY function, so `auth.changeEmail`/`auth.confirmEmailChange` never resolve and their routes hard-fail boot. Escalated by bmad-loop run 20260712-090054-5834; see `4-7-fix-users-permissions-auth-controller-factory-wiring.md`.
 status: open
 
 ### DW-5: Integration test `order.service.test.ts` is `describe.skip` due to pre-existing `db.config.connection` env failure blocking all…
 
 origin: migrated from legacy ledger ("Deferred from: code review of 2c-4-ticketing-unit-of-work (2026-06-15)"), 2026-07-12
 location: n/a
-reason: Integration test `order.service.test.ts` is `describe.skip` due to pre-existing `db.config.connection` env failure blocking all integration suites. When un-skipped, add a `status: published` screening fixture so the inventory path is exercised against a real published row.
+reason: Integration test `order.service.test.ts` is `describe.skip` due to pre-existing `db.config.connection` env failure blocking all integration suites. When un-skipped, add a `status: published` screening fixture so the inventory path is exercised against a real published row. BLOCKED (2026-07-31) — do not re-attempt until story 4.7 lands: the `db.config.connection` failure is not the whole story. Strapi does not boot at all, because the users-permissions extension assigns its auth overrides onto the exported `auth` FACTORY function, so the change-email routes hard-fail boot. Two further harness defects are folded into 4.7 Task 4: `tests/helpers/strapi.ts` boots from a prebuilt `dist/` that silently goes stale (`strapi build` sets `noEmitOnError: true` and 9 unrelated TS errors in `src/plugins/user-engagement/` mean it emits nothing), and `setupStrapi()` throws before `cleanupStrapi()` runs, leaking DB-pool handles. Escalated by bmad-loop run 20260712-090054-5834; see `4-7-fix-users-permissions-auth-controller-factory-wiring.md`.
 status: open
 
 ### DW-6: Refund path (delta<0) in adjustInventory: no upper bound / idempotency, shares TICKET_SOLD_OUT code. No refund caller wired yet (Epic 6)
@@ -629,7 +629,7 @@ status: open
 
 origin: migrated from legacy ledger ("Deferred from: code review of spec-4-4-profile-management.md (2026-07-09)"), 2026-07-12
 location: n/a
-reason: The new linking behavior is verified only by mocked unit tests — the real `$eqi` filter semantics, the Strapi v5 relation-write shape (`data: { user: documentId }`), and the `afterCreate` `event.result` wiring are never exercised by a booted-Strapi test (the sole integration suite `order.service.test.ts` is `describe.skip` and does not cover this). A silent runtime no-op (nothing links) would pass the green unit gate. Add boot-based integration coverage (seed a guest order, create a matching user, assert the order's `user` relation populates, incl. a mixed-case email) — fold into the existing skipped suite's un-skip follow-up.
+reason: The new linking behavior is verified only by mocked unit tests — the real `$eqi` filter semantics, the Strapi v5 relation-write shape (`data: { user: documentId }`), and the `afterCreate` `event.result` wiring are never exercised by a booted-Strapi test (the sole integration suite `order.service.test.ts` is `describe.skip` and does not cover this). A silent runtime no-op (nothing links) would pass the green unit gate. Add boot-based integration coverage (seed a guest order, create a matching user, assert the order's `user` relation populates, incl. a mixed-case email) — fold into the existing skipped suite's un-skip follow-up. BLOCKED (2026-07-31) — do not re-attempt until story 4.7 lands: Strapi does not boot (users-permissions auth overrides assigned onto the exported `auth` FACTORY function; the change-email routes hard-fail boot). Note this entry's own warning proved literally true of the auth layer — all six Epic-4 auth handlers are silent runtime no-ops behind a green unit gate, because the four auth unit tests build their plugin double as a plain object and never instantiate the factory. Escalated by bmad-loop run 20260712-090054-5834; see `4-7-fix-users-permissions-auth-controller-factory-wiring.md`.
 status: open
 
 ### DW-87: The `EventDetailPageDesktop` and `EventDetailPageWithMap` variants still use the local-only `useState(isWatchlisted)` toggle that Story…
