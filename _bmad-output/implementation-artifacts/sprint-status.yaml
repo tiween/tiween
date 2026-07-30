@@ -51,6 +51,17 @@ development_status:
   1-7-setup-serwist-pwa-configuration: review
   1-8-configure-docker-and-dokploy-deployment: review
   1-9-setup-ci-cd-pipeline-with-github-actions: review
+  # 1-10 .. 1-13: ESLint enforcement & lint-coverage hardening, added from
+  # sprint-change-proposal-2026-07-14.md (Correct Course). Root cause: the
+  # eslint-plugin-only-warn starter leftover in all 3 shared presets downgrades
+  # every rule to a warning, so turbo lint / CI (no --max-warnings) cannot fail
+  # and the pre-commit hook is the sole, whole-file gate (forced DW-21's
+  # --no-verify). Measured: 266 client warnings / 0 errors. Backend unlinted.
+  # Sequencing: 1-10 gates 1-12. 1-12 / 1-13 close open Epic 5 retro action items.
+  1-10-restore-client-eslint-enforcement: ready-for-dev
+  1-11-bring-strapi-backend-under-lint: ready-for-dev
+  1-12-i18n-western-numeral-lint-guard: backlog
+  1-13-repo-hygiene-encoding-ci-guard: backlog
   epic-1-retrospective: optional
 
   # Epic 2A: Component Library & Design System (PARALLEL TRACK A)
@@ -230,7 +241,7 @@ development_status:
   10-8-offline-status-indicators: backlog
   epic-10-retrospective: optional
 
-last_updated: 2026-07-10
+last_updated: 2026-07-14
 
 # Action items from retrospectives. See epic-{N}-retro-{date}.md for full context.
 action_items:
@@ -251,11 +262,15 @@ action_items:
   - epic: 5
     action: "Add an i18n Western-numeral guard (shared formatter or lint rule) so the Arabic ar-u-nu-latn bug cannot recur (seen in 5.4 and 5.5)."
     owner: "Dev"
-    status: open
+    status: specced
+    story: "1-12-i18n-western-numeral-lint-guard"
+    note: "Specced in sprint-change-proposal-2026-07-14.md; depends on 1-10 (real enforcement)."
   - epic: 5
     action: "Add a repo-hygiene CI guard rejecting non-UTF-8 / control-byte source files (a binary email source in 5.6 hid from two review passes)."
     owner: "Dev"
-    status: open
+    status: specced
+    story: "1-13-repo-hygiene-encoding-ci-guard"
+    note: "Specced in sprint-change-proposal-2026-07-14.md."
   - epic: 5
     action: "Decide and adopt a lightweight integration-seam test tier for wiring/mount-site verification (EventDetailPage heart, BottomNav badge mounts)."
     owner: "Dev"

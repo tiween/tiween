@@ -114,7 +114,9 @@
       "Bash(grep -hE '\"react\"|\"react-dom\"' apps/client/package.json)",
       "Bash(grep -hiE '\"\\(swr|zustand|@tanstack/react-query|react-query|jotai|next-intl|next-auth\\)\"' apps/client/package.json)",
       "Bash(grep -rhiE 'strapi-provider-email|resend|brevo' apps/strapi/package.json)",
-      "Bash(grep -hiE '\"\\(algoliasearch|@algolia|meilisearch\\)\"' apps/client/package.json apps/strapi/package.json)"
+      "Bash(grep -hiE '\"\\(algoliasearch|@algolia|meilisearch\\)\"' apps/client/package.json apps/strapi/package.json)",
+      "Bash(node -e \"const p=require\\('./package.json'\\); console.log\\(JSON.stringify\\({scripts_lint:p.scripts&&p.scripts.lint,'lint-staged':p['lint-staged']},null,2\\)\\)\")",
+      "WebFetch(domain:turborepo.dev)"
     ]
   },
   "enabledMcpjsonServers": [
