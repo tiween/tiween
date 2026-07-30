@@ -73,6 +73,7 @@ RALPH_PRD/
 .playwright-mcp/
 .bmad-loop/runs/
 .bmad-loop/cache/
+.bmad-loop/archive/
 
 # CodeGraph index (generated)
 .codegraph/

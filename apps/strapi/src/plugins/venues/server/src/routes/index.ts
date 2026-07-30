@@ -12,6 +12,17 @@ export default {
           auth: false,
         },
       },
+      // Venue picker feed. MUST stay before `/venues/:documentId`, otherwise
+      // the literal `selector` segment is swallowed by the id route.
+      {
+        method: "GET",
+        path: "/venues/selector",
+        handler: "venue.findVenuesForSelector",
+        config: {
+          policies: [],
+          auth: false,
+        },
+      },
       {
         method: "GET",
         path: "/venues/:documentId",

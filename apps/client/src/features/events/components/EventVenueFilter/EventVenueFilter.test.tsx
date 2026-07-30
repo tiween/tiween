@@ -39,6 +39,7 @@ const labels: EventVenueFilterLabels = {
   allVenues: "Toutes les salles",
   searchVenue: "Rechercher une salle",
   noVenueFound: "Aucune salle trouvée",
+  truncatedHint: "Affinez votre recherche",
   clear: "Effacer",
 }
 
@@ -53,7 +54,8 @@ const STORAGE_KEY = "tiween.events.venue"
 function renderFilter(
   value: VenueFilterValue,
   onChange: (v: VenueFilterValue, o?: { replace?: boolean }) => void = vi.fn(),
-  venueData: EventVenueOption[] = venues
+  venueData: EventVenueOption[] = venues,
+  extra: { truncated?: boolean; scoped?: boolean } = {}
 ) {
   return render(
     <EventVenueFilter
@@ -61,6 +63,8 @@ function renderFilter(
       value={value}
       onChange={onChange}
       labels={labels}
+      truncated={extra.truncated}
+      scoped={extra.scoped}
     />
   )
 }
@@ -181,6 +185,89 @@ describe("EventVenueFilter", () => {
     })
   })
 
+  describe("city disambiguation (DW-25)", () => {
+    // Opaque, Strapi-shaped documentIds ON PURPOSE: cmdk scores the item `value`
+    // (the documentId) alongside `keywords`, so readable ids like `pathe-sfax`
+    // would let the city-search test below pass through the id even if the
+    // `keywords={[name, city]}` wiring were reverted. These ids share no
+    // subsequence with "sfax"/"tunis", so only the keywords can match.
+    const sameName: EventVenueOption[] = [
+      {
+        documentId: "vd0197b6c3e0",
+        name: "Pathé",
+        type: "cinema",
+        city: "Tunis",
+      },
+      {
+        documentId: "vd0298d7c4e1",
+        name: "Pathé",
+        type: "cinema",
+        city: "Sfax",
+      },
+      { documentId: "vd0399e8c5e2", name: "Salle sans ville", type: "cinema" },
+    ]
+
+    it("renders each row's city beside the name", () => {
+      renderFilter({}, vi.fn(), sameName)
+      fireEvent.click(
+        screen.getByRole("combobox", { name: "Filtrer par salle" })
+      )
+      expect(screen.getAllByText("Pathé")).toHaveLength(2)
+      expect(screen.getByText("Tunis")).toBeTruthy()
+      expect(screen.getByText("Sfax")).toBeTruthy()
+    })
+
+    it("renders the name only (no empty separator) when a venue has no city", () => {
+      renderFilter({}, vi.fn(), sameName)
+      fireEvent.click(
+        screen.getByRole("combobox", { name: "Filtrer par salle" })
+      )
+      const row = screen.getByText("Salle sans ville").closest("[cmdk-item]")
+      expect(row).toBeTruthy()
+      expect(row?.textContent).toBe("Salle sans ville")
+    })
+
+    it("shows the selected venue's city in the trigger (text + accessible name)", () => {
+      renderFilter({ venue: "vd0298d7c4e1" }, vi.fn(), sameName)
+      const trigger = screen.getByRole("combobox", { name: /Filtrer par salle/ })
+      expect(trigger.textContent).toContain("Pathé")
+      expect(trigger.textContent).toContain("Sfax")
+      expect(trigger.getAttribute("aria-label")).toContain("Sfax")
+    })
+
+    it("narrows the list by a typed city name (city is a search keyword)", () => {
+      renderFilter({}, vi.fn(), sameName)
+      fireEvent.click(
+        screen.getByRole("combobox", { name: "Filtrer par salle" })
+      )
+      const input = screen.getByPlaceholderText("Rechercher une salle")
+      fireEvent.change(input, { target: { value: "sfax" } })
+      expect(screen.getByText("Sfax")).toBeTruthy()
+      expect(screen.queryByText("Tunis")).toBeNull()
+      expect(screen.getAllByText("Pathé")).toHaveLength(1)
+    })
+  })
+
+  describe("truncation hint", () => {
+    it("renders the localized hint after the options when truncated", () => {
+      renderFilter({}, vi.fn(), venues, { truncated: true })
+      fireEvent.click(
+        screen.getByRole("combobox", { name: "Filtrer par salle" })
+      )
+      expect(screen.getByText("Affinez votre recherche")).toBeTruthy()
+      // The list stays usable.
+      expect(screen.getByText("Le Colisée")).toBeTruthy()
+    })
+
+    it("does not render the hint when the list is complete", () => {
+      renderFilter({}, vi.fn(), venues)
+      fireEvent.click(
+        screen.getByRole("combobox", { name: "Filtrer par salle" })
+      )
+      expect(screen.queryByText("Affinez votre recherche")).toBeNull()
+    })
+  })
+
   describe("localStorage restore-on-mount", () => {
     it("restores a saved venue into the URL when the filter is empty", () => {
       window.localStorage.setItem(
@@ -241,6 +328,22 @@ describe("EventVenueFilter", () => {
       expect(onChange).not.toHaveBeenCalled()
       // …and the stale value is purged so it stops resurrecting.
       expect(window.localStorage.getItem(STORAGE_KEY)).toBeNull()
+    })
+
+    it("KEEPS a saved venue absent from a SCOPED list (out of scope ≠ deleted)", () => {
+      window.localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify({ venue: "other-region-venue" })
+      )
+      const onChange = vi.fn()
+      renderFilter({}, onChange, venues, { scoped: true })
+      // Not restorable under the current scope…
+      expect(onChange).not.toHaveBeenCalled()
+      // …but preserved, so a later visit whose list does contain it restores it
+      // (the in-session restore stays latched by design).
+      expect(window.localStorage.getItem(STORAGE_KEY)).toBe(
+        JSON.stringify({ venue: "other-region-venue" })
+      )
     })
   })
 

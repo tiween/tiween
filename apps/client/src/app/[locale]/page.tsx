@@ -4,6 +4,7 @@ import { Locale } from "next-intl"
 import { getTranslations, setRequestLocale } from "next-intl/server"
 
 import type { CategoryType } from "@/features/events/components/CategoryTabs"
+import type { VenueOption } from "@/features/events/components/VenueSelector/VenueSelector"
 import type { HomePageWithVenueLabels } from "@/features/events/components/HomePage/HomePageWithVenue"
 import type { StrapiEvent } from "@/features/events/types"
 
@@ -173,16 +174,38 @@ export default async function HomePageRoute({
   // Fetch the four curated slices + selector data in parallel. Each fetcher is
   // fail-soft (empty slice on upstream error), so one failing slice never 500s
   // the whole page.
-  const [labels, regions, venues, featured, tonight, thisWeek, trending] =
-    await Promise.all([
-      buildLabels(locale),
-      getRegions(locale),
-      getVenuesForSelector(locale, cityDocumentId),
-      getFeaturedSlice(locale),
-      getTonightSlice(locale),
-      getThisWeekSlice(locale),
-      getTrendingSlice(locale),
-    ])
+  const [
+    labels,
+    regions,
+    venuesResult,
+    featured,
+    tonight,
+    thisWeek,
+    trending,
+  ] = await Promise.all([
+    buildLabels(locale),
+    getRegions(locale),
+    // Cinema-scoped (the MVP catalogue), narrowed by the active city, with the
+    // active URL venue force-included so it is always labelable (DW-24).
+    getVenuesForSelector(locale, {
+      type: "cinema",
+      cityDocumentId,
+      includeDocumentId: venueDocumentId,
+    }),
+    getFeaturedSlice(locale),
+    getTonightSlice(locale),
+    getThisWeekSlice(locale),
+    getTrendingSlice(locale),
+  ])
+  // `VenueSelector` types each option's `type` as required, but the venue schema
+  // does not — and `VenueSelector` already buckets a missing type under "other"
+  // internally. Map rather than filter: dropping an untyped venue would discard
+  // the very venue the server force-included for the active URL selection,
+  // leaving the trigger showing "all venues" while the page stays filtered.
+  const venues: VenueOption[] = venuesResult.venues.map((v) => ({
+    ...v,
+    type: v.type ?? "other",
+  }))
 
   const eventsJsonLd = buildEventsJsonLd([
     featured.events,

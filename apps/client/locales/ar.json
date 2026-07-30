@@ -327,7 +327,8 @@
       "venueFilter": "تصفية حسب القاعة",
       "allVenues": "كل القاعات",
       "searchVenue": "ابحث عن قاعة",
-      "noVenueFound": "لا توجد قاعة"
+      "noVenueFound": "لا توجد قاعة",
+      "venuesTruncated": "لا تظهر جميع القاعات. يمكنك تضييق القائمة حسب الجهة أو المدينة."
     }
   },
   "ticketing": {

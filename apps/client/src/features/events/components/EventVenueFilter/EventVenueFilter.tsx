@@ -24,7 +24,11 @@ export interface EventVenueOption {
   name: string
   /** Venue type (e.g. "cinema") — not rendered, kept for parity with the source. */
   type?: string
-  /** Denormalized city name — not rendered, kept for parity with the source. */
+  /**
+   * Denormalized city name (from the venue's `cityRef`). Rendered beside the
+   * name so same-named venues in different cities are distinguishable (DW-25),
+   * and used as a search keyword. Absent when the venue has no city.
+   */
   city?: string
 }
 
@@ -45,6 +49,11 @@ export interface EventVenueFilterLabels {
   searchVenue: string
   /** Empty-state copy when the search matches nothing (e.g. "Aucune salle trouvée"). */
   noVenueFound: string
+  /**
+   * Shown after the options when the catalogue is larger than the fetched page
+   * (e.g. "Toutes les salles ne sont pas affichées. Affinez votre recherche.").
+   */
+  truncatedHint?: string
   /** "Effacer" — clears the active venue (reuses the shared listing clear label). */
   clear: string
 }
@@ -62,6 +71,17 @@ export interface EventVenueFilterProps {
   onChange: (value: VenueFilterValue, options?: { replace?: boolean }) => void
   /** Localized labels (no hardcoded copy in the component). */
   labels: EventVenueFilterLabels
+  /**
+   * True when the catalogue is larger than `venues` (the server reported a
+   * `total` above the fetched page) — renders the "refine your search" hint.
+   */
+  truncated?: boolean
+  /**
+   * True when `venues` was narrowed server-side (by region/city/type). A saved
+   * venue missing from a SCOPED list means "outside the current scope", not
+   * "deleted", so the restore is skipped WITHOUT purging localStorage.
+   */
+  scoped?: boolean
   className?: string
 }
 
@@ -135,6 +155,8 @@ export function EventVenueFilter({
   value,
   onChange,
   labels,
+  truncated = false,
+  scoped = false,
   className,
 }: EventVenueFilterProps) {
   const [open, setOpen] = React.useState(false)
@@ -157,14 +179,19 @@ export function EventVenueFilter({
     // Reconcile the saved venue against the venues actually available: a
     // remembered venue that no longer exists (deleted, or absent for this
     // locale) would filter the list while the control shows "all venues". Drop
-    // it and purge storage so it stops resurrecting.
+    // it and purge storage so it stops resurrecting — but ONLY when the list is
+    // unscoped. On a scoped list (narrowed by region/city/type) absence means
+    // "outside the current scope", not "deleted": skip the restore and KEEP the
+    // saved value, so a LATER visit whose list does contain it still restores it.
+    // (Within a session the restore stays latched by design — see the ref guard
+    // above — so widening the scope does not re-apply the filter under the user.)
     const match = venues.find((v) => v.documentId === saved)
     if (!match) {
-      persistVenue({})
+      if (!scoped) persistVenue({})
       return
     }
     onChange({ venue: match.documentId }, { replace: true })
-  }, [value, onChange, venues])
+  }, [value, onChange, venues, scoped])
 
   const selectedVenue = React.useMemo(
     () => venues.find((v) => v.documentId === value.venue),
@@ -202,7 +229,9 @@ export function EventVenueFilter({
             // the sibling location Select conveys its value the same way).
             aria-label={
               selectedVenue
-                ? `${labels.groupLabel}: ${selectedVenue.name}`
+                ? `${labels.groupLabel}: ${selectedVenue.name}${
+                    selectedVenue.city ? ` — ${selectedVenue.city}` : ""
+                  }`
                 : labels.groupLabel
             }
             data-active={active}
@@ -212,6 +241,15 @@ export function EventVenueFilter({
             <span className="truncate">
               {selectedVenue ? selectedVenue.name : labels.allVenues}
             </span>
+            {selectedVenue?.city ? (
+              // Proper noun — rendered as stored, never translated. Visually
+              // subordinate, and OUTSIDE the truncating span: it is the only
+              // thing distinguishing two same-named venues (DW-25), so a long
+              // venue name must clip before the city does.
+              <span className="text-muted-foreground shrink-0 font-normal">
+                {selectedVenue.city}
+              </span>
+            ) : null}
             <ChevronsUpDown
               className="ms-auto size-4 shrink-0 opacity-50"
               aria-hidden="true"
@@ -246,7 +284,11 @@ export function EventVenueFilter({
                   <CommandItem
                     key={venue.documentId}
                     value={venue.documentId}
-                    keywords={[venue.name]}
+                    // The city joins the search keywords so typing a city name
+                    // narrows the list (DW-25).
+                    keywords={
+                      venue.city ? [venue.name, venue.city] : [venue.name]
+                    }
                     onSelect={() => handleSelect(venue.documentId)}
                     className="min-h-11"
                   >
@@ -259,11 +301,30 @@ export function EventVenueFilter({
                       )}
                       aria-hidden="true"
                     />
-                    {venue.name}
+                    <span>{venue.name}</span>
+                    {venue.city ? (
+                      // Only rendered when a city exists — no empty separator.
+                      // Proper noun: rendered as stored, never translated.
+                      <span className="text-muted-foreground ms-1 text-xs">
+                        {venue.city}
+                      </span>
+                    ) : null}
                   </CommandItem>
                 ))}
               </CommandGroup>
             </CommandList>
+            {/* Rendered OUTSIDE `CommandList` (cmdk gives it `role="listbox"`,
+                which may only own option/group children — a note nested inside
+                is free to be dropped by assistive tech). As a footer it reads
+                as a caveat about the catalogue, not a search result. */}
+            {truncated && labels.truncatedHint ? (
+              <div
+                role="note"
+                className="text-muted-foreground border-border border-t px-3 py-2 text-xs"
+              >
+                {labels.truncatedHint}
+              </div>
+            ) : null}
           </Command>
         </PopoverContent>
       </Popover>

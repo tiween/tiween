@@ -10,6 +10,7 @@ import { Locale } from "next-intl"
 import { setRequestLocale } from "next-intl/server"
 
 import type { CategoryType } from "@/features/events/components/CategoryTabs"
+import type { VenueOption } from "@/features/events/components/VenueSelector/VenueSelector"
 
 import {
   getEventsWithAllFilters,
@@ -102,23 +103,39 @@ export default async function HomePageRoute({
   const categoryFilter = category !== "all" ? category : undefined
 
   // Fetch regions, venues, and events data in parallel
-  const [regions, venues, featuredEvents, upcomingData] = await Promise.all([
-    getRegions(locale),
-    getVenuesForSelector(locale, cityDocumentId),
-    getFeaturedEventsWithAllFilters(locale, {
-      category: categoryFilter,
-      dateFilter,
-      cityDocumentId,
-      venueDocumentId,
-    }),
-    getEventsWithAllFilters(locale, {
-      category: categoryFilter,
-      dateFilter,
-      cityDocumentId,
-      venueDocumentId,
-      limit: 10,
-    }),
-  ])
+  const [regions, venuesResult, featuredEvents, upcomingData] =
+    await Promise.all([
+      getRegions(locale),
+      // Cinema-scoped (the MVP catalogue), narrowed by the active city, with the
+      // active URL venue force-included so it is always labelable (DW-24).
+      getVenuesForSelector(locale, {
+        type: "cinema",
+        cityDocumentId,
+        includeDocumentId: venueDocumentId,
+      }),
+      getFeaturedEventsWithAllFilters(locale, {
+        category: categoryFilter,
+        dateFilter,
+        cityDocumentId,
+        venueDocumentId,
+      }),
+      getEventsWithAllFilters(locale, {
+        category: categoryFilter,
+        dateFilter,
+        cityDocumentId,
+        venueDocumentId,
+        limit: 10,
+      }),
+    ])
+  // `VenueSelector` types each option's `type` as required, but the venue schema
+  // does not — and `VenueSelector` already buckets a missing type under "other"
+  // internally. Map rather than filter: dropping an untyped venue would discard
+  // the very venue the server force-included for the active URL selection,
+  // leaving the trigger showing "all venues" while the page stays filtered.
+  const venues: VenueOption[] = venuesResult.venues.map((v) => ({
+    ...v,
+    type: v.type ?? "other",
+  }))
 
   // Only fetch today events when no date filter is active
   const todayEvents = dateFilter

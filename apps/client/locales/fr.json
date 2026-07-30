@@ -327,7 +327,8 @@
       "venueFilter": "Filtrer par salle",
       "allVenues": "Toutes les salles",
       "searchVenue": "Rechercher une salle",
-      "noVenueFound": "Aucune salle trouvée"
+      "noVenueFound": "Aucune salle trouvée",
+      "venuesTruncated": "Toutes les salles ne sont pas affichées. Affinez la liste par région ou par ville."
     }
   },
   "ticketing": {

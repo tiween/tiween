@@ -52,6 +52,10 @@ export interface EventsListingProps {
   regions: EventLocationRegion[]
   /** Approved venues (name-sorted) seeding the venue filter combobox. */
   venues: EventVenueOption[]
+  /** True when the venue catalogue is larger than the fetched `venues` page. */
+  venuesTruncated?: boolean
+  /** True when `venues` was narrowed server-side (region/city/type scope). */
+  venuesScoped?: boolean
   /** The active, validated filter state parsed from the URL. */
   activeFilters: EventFilters
   labels: EventsListingLabels
@@ -70,6 +74,8 @@ export function EventsListing({
   events,
   regions,
   venues,
+  venuesTruncated = false,
+  venuesScoped = false,
   activeFilters,
   labels,
 }: EventsListingProps) {
@@ -200,6 +206,8 @@ export function EventsListing({
           <div className="no-scrollbar -mx-4 overflow-x-auto px-4">
             <EventVenueFilter
               venues={venues}
+              truncated={venuesTruncated}
+              scoped={venuesScoped}
               value={venueValue}
               onChange={handleVenueChange}
               labels={labels.venue}

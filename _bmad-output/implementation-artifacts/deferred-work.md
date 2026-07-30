@@ -181,14 +181,16 @@ status: open
 origin: migrated from legacy ledger ("Deferred from: code review of 3-3-date-range-filtering (2026-07-06)"), 2026-07-12
 location: n/a
 reason: The events venue picker offers venues that can never match an MVP (cinema-only) event — non-cinema venue types, venues outside the active region/city, and a mislabeled "All venues" trigger for a URL-supplied venue beyond the 100-row `getVenuesForSelector` cap — all of which dead-end to an unexplained empty listing.
-status: open
+status: done 2026-07-31
+resolution: resolved by sweep bundle dw-venue-selector-fixes
 
 ### DW-25: Two same-named venues (e.g
 
 origin: migrated from legacy ledger ("Deferred from: follow-up code review of 3-5-venue-filtering (2026-07-06)"), 2026-07-12
 location: n/a
 reason: Two same-named venues (e.g. a chain with locations in different cities) are indistinguishable in the venue combobox because each `CommandItem` renders only `venue.name`, with no city/context to disambiguate.
-status: open
+status: done 2026-07-31
+resolution: resolved by sweep bundle dw-venue-selector-fixes
 
 ### DW-26: The Algolia indexing pipeline that populates the `tiween_events` index is not built
 
@@ -938,4 +940,46 @@ status: open
 origin: follow-up review of spec-public-inventory-leak-sanitization.md (2026-07-13)
 location: apps/strapi/src/plugins/events-manager/server/src/utils/sanitize-public.ts
 reason: (LOW) `sanitizePublicEvent` recurses only into `venue`, `screenings`, and `performances`. The event content-type also has an `eventGroup` relation (`content-types/event/schema.json`) to another event whose `screenings`/`performances` carry raw `ticketsSold`/`ticketsAvailable`. `eventGroup` is spread through untouched (`clone = { ...raw }`), so if any future populate path pulls it (with its nested events/screenings), those raw counts and venue-internal fields re-leak on the public `/events`, `/events/trending`, and `/events/:documentId` responses. Not currently reachable — `eventGroup` is absent from both `EVENT_POPULATE` and `DETAIL_POPULATE` — so this is latent, not an active leak. It is called out because the sanitizer's own docstring claims it is "fail-closed... follows the schema, not whatever the current controller populate happens to include," and the prior review pass hardened the sibling `performances` relation and the embedded `ticketTiers[]` component on exactly this reasoning; `eventGroup` is the one inventory-bearing relation left uncovered. A proper fix needs a design decision (recurse `sanitizePublicEvent` into `eventGroup` — with a recursion/self-reference guard — vs. strip it from public bodies), which is why it is deferred rather than patched now. Surfaced by Blind Hunter and Edge Case Hunter.
+status: open
+
+### DW-131: The homepage `VenueSelector` was not brought along with the selector rework — it discards `truncated` and renders no city, so it silently caps its list and still cannot disambiguate same-named venues
+
+origin: follow-up review of spec-dw-24-25-venue-selector-fixes.md (2026-07-31)
+location: apps/client/src/features/events/components/VenueSelector/VenueSelector.tsx, apps/client/src/app/[locale]/page.tsx, apps/client/src/app/[locale]/page.venue.tsx
+reason: (MEDIUM) The spec's "do not restyle or restructure `VenueSelector`" boundary kept the homepage picker out of scope, but the selector route change altered its data underneath it. (a) Truncation: `/venues/venues/selector` now honours pagination for real (the old `/venues` endpoint ignored `pageSize` and returned everything), so a city with >100 approved cinemas now yields an arbitrary alphabetical first page. Both homepages call `getVenuesForSelector` and consume only `venuesResult.venues` (`page.tsx:162`, `page.venue.tsx:231`), discarding `venuesResult.truncated`, and `VenueSelector` has neither a truncation affordance nor a search box — so the capped list is presented as complete, indistinguishable from "that venue does not exist". (b) DW-25: the fetcher now supplies `city` for every venue, but `VenueSelector` renders `{selectedVenue ? selectedVenue.name : labels.allVenues}` (`VenueSelector.tsx:176-178`) and name-only rows, so two identically-named "Pathé" venues remain indistinguishable on the homepage — the exact bug DW-25 exists to fix, now fixed on only one of the two pickers. `VenueSelector` also has no test and no story anywhere in the repo. Not reachable at current catalogue volume for (a); (b) is reachable today. Raised in the prior review pass as a deferred finding that was not written to the ledger (the run was invoked with a do-not-edit-ledger instruction); re-surfaced independently by Blind Hunter and the Verification Gap reviewer.
+status: open
+
+### DW-132: Venue-picker city names are not locale-aware — `city` is a localized content type reached through a non-localized `venue`, so Arabic visitors see Latin-script city names next to Arabic region names
+
+origin: follow-up review of spec-dw-24-25-venue-selector-fixes.md (2026-07-31)
+location: apps/strapi/src/plugins/venues/server/src/services/venue.ts, apps/strapi/src/plugins/venues/server/src/content-types/venue/schema.json
+reason: (MEDIUM) `city` is i18n-enabled including its `name` (`plugins/geography/.../content-types/city/schema.json` — `pluginOptions.i18n.localized: true`), but `venue` has no `pluginOptions` block at all, so the venue UID is not localized. `findVenuesForSelector` populates `{ cityRef: true }` with no locale propagation, so `toSelectorVenue`'s `cityRef?.name` projects whichever locale the relation happens to resolve to. The DW-25 city suffix therefore renders in a fixed locale while the sibling `EventLocationFilter` — fed by `getRegions(locale)` — renders its region/city names in the active locale, producing mixed scripts inside a single filter bar for `ar` (and potentially `en`) visitors. Corollary: `locale` is threaded into the selector's `findMany`/`count`/`findOne` calls where it is a no-op against a non-localized UID, and it fragments the client's 1-hour `revalidate` cache three ways for byte-identical data. A proper fix needs a decision (localize the `venue` content type, or resolve `cityRef` in the requested locale via a second localized lookup), which is why it is deferred rather than patched. Surfaced by Blind Hunter.
+status: open
+
+### DW-133: The venue combobox scores opaque Strapi documentIds as search text, so typed queries match venues with no relationship to any visible text
+
+origin: follow-up review of spec-dw-24-25-venue-selector-fixes.md (2026-07-31)
+location: apps/client/src/features/events/components/EventVenueFilter/EventVenueFilter.tsx
+reason: (LOW) Each row is `<CommandItem value={venue.documentId} keywords={[name, city]}>` (`EventVenueFilter.tsx:284-289`). cmdk's default filter subsequence-scores the item `value` alongside `keywords`, so a query is matched against the 24-character opaque documentId as well as the name and city. Confirmed by probe during review: two venues named "Alpha"/"Beta" with opaque ids, typing a three-character fragment of Alpha's id surfaces Alpha and hides Beta — a match with no relationship to anything on screen. On real ids a short query subsequence-matches a large fraction of the catalogue, so the DW-25 promise ("typing a city name narrows the list") degrades into apparently-random results. Pre-existing (the `value={documentId}` pattern predates this change) but squarely inside DW-25's blast radius. Fix is a custom cmdk `filter` scoring only name+city, or moving the documentId off `value`; both need a check that `onSelect`'s payload still resolves. Surfaced by Blind Hunter. Note: this also made the DW-25 city-keyword test pass for the wrong reason — that half was patched in this pass by switching the fixture to opaque documentIds.
+status: open
+
+### DW-134: A URL venue the `include` hatch cannot supply (unapproved, suspended, or bogus documentId) leaves the events filter hidden or mislabeled "All venues" while the listing stays venue-filtered — an unclearable dead-end
+
+origin: follow-up review of spec-dw-24-25-venue-selector-fixes.md (2026-07-31)
+location: apps/client/src/features/events/components/EventVenueFilter/EventVenueFilter.tsx
+reason: (MEDIUM) `include` guarantees a labelable selection only for an _approved_ venue; the spec's I/O matrix deliberately makes an unknown/unapproved `include` a silent no-op (200, `data` unchanged) and says nothing about the trigger. Two residual states follow. (a) The venue resolves to nothing and the scoped list is non-empty: `selectedVenue` is `undefined`, so the trigger renders `labels.allVenues` (`EventVenueFilter.tsx:240`) while `filters.venue` still filters the listing — the precise mislabel DW-24 was raised about, just from a different cause. (b) The venue resolves to nothing and the scoped list is empty (a cinema-less city, or a suspended venue): `if (venues.length === 0) return null` (`EventVenueFilter.tsx:209`) hides the whole control, so the user cannot clear a filter that is producing zero events. The equivalent hole exists on the homepage `VenueSelector`. Fix needs new copy (an "unknown venue" label in fr/en/ar) plus a decision to keep a clear-only control alive when `value.venue` is set, which is why it is deferred rather than patched. Surfaced by the Edge Case Hunter.
+status: open
+
+### DW-135: Changing region or city keeps a now-out-of-scope venue selected, so the listing goes empty right after the user widens or moves their location filter
+
+origin: follow-up review of spec-dw-24-25-venue-selector-fixes.md (2026-07-31)
+location: apps/client/src/features/events/components/EventsListing/EventsListing.tsx
+reason: (LOW) `handleLocationChange` pushes `{ ...latestFiltersRef.current, region, city }` (`EventsListing.tsx:146-158`) and never clears `venue`. Before this change the picker was unscoped, so a venue from another region was merely an odd pairing; now the picker is region/city-scoped, so after a location change the active venue is by construction outside the offered set — the `include` hatch keeps it correctly labeled, and the AND of location + venue yields an empty listing the user did not ask for. `EventLocationFilter` and the listing island were explicitly out of scope for this spec ("do not restyle or restructure"). Fix is a product decision: clear `venue` on a location change, or keep it and surface why the listing is empty. Surfaced by the Edge Case Hunter.
+status: open
+
+### DW-136: No test covers the events route's selector wiring — the scoping that _is_ the DW-24 fix, and the `scoped`/`truncated` props, can all be deleted with a fully green suite
+
+origin: follow-up review of spec-dw-24-25-venue-selector-fixes.md (2026-07-31)
+location: apps/client/src/app/[locale]/events/page.tsx
+reason: (MEDIUM) `events/page.tsx:131-136,150,177-178` is the only production producer of the picker's feed and of `venuesScoped`/`venuesTruncated`, and there is no test of any kind under `src/app/[locale]/events` (no route test, no e2e layer in the repo). Every existing test observes the layers on either side but never this one: `venues.test.ts` asserts only that options _it passes in_ are forwarded as flat params, and the `EventVenueFilter` tests inject `scoped`/`truncated` directly. Two concrete regressions ship green: (a) deleting `regionDocumentId: filters.region` or the `type` scope restores the DW-24 bug (out-of-region / non-cinema venues back in the picker); (b) dropping the `venuesScoped` forward silently falls back to the prop default `false` — the props are optional, so it type-checks — and a saved venue outside the current scope is purged from `localStorage` again, exactly the behavior the spec added `scoped` to prevent. Related but distinct from the mock-only client↔Strapi contract gap for `/venues/venues/selector` (both sides fail soft: the fetcher returns an empty result and the filter renders `null`, so a wire-contract break makes the venue filter silently vanish site-wide with no failing test — the generic "integration suites don't boot in this env" limitation is already tracked as DW-5/DW-45). Fix is a vitest test that mocks `@/lib/strapi-api/content/venues` and awaits the route component, asserting the options object and the forwarded props. Surfaced by the Verification Gap reviewer.
 status: open

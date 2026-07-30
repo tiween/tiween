@@ -166,6 +166,14 @@ development_status:
   4-4-profile-management: done
   4-5-language-and-region-preferences: done
   4-6-guest-checkout-capability: done
+  # 4-7 added 2026-07-31 from the blocked dw-integration-suite-boot-harness
+  # escalation (bmad-loop run 20260712-090054-5834). CRITICAL: the extension
+  # assigns auth overrides onto the users-permissions `auth` controller FACTORY
+  # function, so all six Epic-4 auth handlers are inert at runtime and the
+  # change-email routes hard-fail Strapi boot. Blocks DW-4 / DW-5 / DW-86.
+  # Activates dormant production behavior (welcome emails, social linking) —
+  # requires review, see the story's "Behavior Activation" section.
+  4-7-fix-users-permissions-auth-controller-factory-wiring: ready-for-dev
   epic-4-retrospective: optional
 
   # Epic 5: Watchlist & Personalization
@@ -186,7 +194,11 @@ development_status:
   epic-6: backlog
   6-1-view-ticket-types-and-prices: done
   6-2-select-ticket-quantity: done
-  6-3-konnect-payment-gateway-integration: backlog
+  # Landed manually (c94f41b + 811fb81, 2026-07-10) after bmad-loop run
+  # 20260708-193546-d2f7 stopped at 6-2's finalize; spec-6-3 is status:done but
+  # carries followup_review_recommended:true (review_loop_iteration 0) — the
+  # review hardening was folded into 811fb81 rather than a loop review pass.
+  6-3-konnect-payment-gateway-integration: done
   6-4-qr-code-ticket-generation: backlog
   6-5-email-ticket-delivery: backlog
   6-6-in-app-ticket-viewing: backlog
@@ -241,7 +253,7 @@ development_status:
   10-8-offline-status-indicators: backlog
   epic-10-retrospective: optional
 
-last_updated: 2026-07-14
+last_updated: 2026-07-31
 
 # Action items from retrospectives. See epic-{N}-retro-{date}.md for full context.
 action_items:

@@ -72,6 +72,7 @@ async function buildLabels(locale: Locale): Promise<EventsListingLabels> {
       allVenues: tEvents("listing.allVenues"),
       searchVenue: tEvents("listing.searchVenue"),
       noVenueFound: tEvents("listing.noVenueFound"),
+      truncatedHint: tEvents("listing.venuesTruncated"),
       clear: tEvents("listing.clear"),
     },
     card: {
@@ -116,17 +117,37 @@ export default async function EventsListingRoute({
     regions = []
   }
 
-  // Venues seed the venue filter combobox. Fail-soft: on any error the listing
-  // still renders (with the venue filter hidden) rather than 500ing the whole
-  // page — same contract as the location path. `getVenuesForSelector` is already
-  // fail-soft (returns []); the try/catch is belt-and-suspenders.
+  // Venues seed the venue filter combobox. Scoped to what can actually match the
+  // MVP catalogue and the ACTIVE location filters (DW-24): a non-cinema or
+  // out-of-region venue could only ever dead-end to an empty listing. The active
+  // URL venue is force-included so the trigger can label it even when it falls
+  // outside that scope or beyond the fetched page. Fail-soft: on any error the
+  // listing still renders (with the venue filter hidden) rather than 500ing the
+  // whole page — `getVenuesForSelector` is already fail-soft; the try/catch is
+  // belt-and-suspenders.
   let venues: EventVenueOption[] = []
+  let venuesTruncated = false
   try {
-    venues = await getVenuesForSelector(locale)
+    const selector = await getVenuesForSelector(locale, {
+      type: "cinema",
+      regionDocumentId: filters.region,
+      cityDocumentId: filters.city,
+      includeDocumentId: filters.venue,
+    })
+    venues = selector.venues
+    venuesTruncated = selector.truncated
   } catch (error) {
     console.error("[EventsListingRoute] Error fetching venues:", error)
     venues = []
+    venuesTruncated = false
   }
+
+  // This feed is ALWAYS narrowed — by `type: "cinema"` on every request, by the
+  // active region/city, and by the fetched page — so a saved venue missing from
+  // it can never be distinguished from one that was merely scoped out (a saved
+  // theater, or a cinema past the page cap). Absence here therefore never means
+  // "deleted": the picker must skip the restore and KEEP the stored value.
+  const venuesScoped = true
 
   let slice: EventsSlice = EMPTY_SLICE
   try {
@@ -153,6 +174,8 @@ export default async function EventsListingRoute({
       events={slice.events}
       regions={regions}
       venues={venues}
+      venuesTruncated={venuesTruncated}
+      venuesScoped={venuesScoped}
       activeFilters={filters}
       labels={labels}
     />

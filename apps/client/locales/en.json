@@ -327,7 +327,8 @@
       "venueFilter": "Filter by venue",
       "allVenues": "All venues",
       "searchVenue": "Search a venue",
-      "noVenueFound": "No venue found"
+      "noVenueFound": "No venue found",
+      "venuesTruncated": "Not all venues are shown. Narrow the list by region or city."
     }
   },
   "ticketing": {

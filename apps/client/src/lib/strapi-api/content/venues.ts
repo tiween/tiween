@@ -285,59 +285,104 @@ export async function searchVenues(
   return result.venues
 }
 
+/** A single option surfaced in the venue picker. */
+export interface VenueSelectorVenue {
+  documentId: string
+  name: string
+  type?: VenueType
+  /** Denormalized `cityRef.name` — absent when the venue has no city. */
+  city?: string
+}
+
+export interface VenueSelectorOptions {
+  /** Venue type scope. Defaults to `"cinema"` (the MVP catalogue). */
+  type?: VenueType
+  /** Restrict to venues in this city (`cityRef.documentId`). */
+  cityDocumentId?: string
+  /** Restrict to venues in this region (`cityRef.region.documentId`). */
+  regionDocumentId?: string
+  /**
+   * Force-add this venue to the page even when it falls outside the scope — the
+   * user's active (URL-supplied) selection must always be labelable.
+   */
+  includeDocumentId?: string
+  /** Page size (server caps at 200). Defaults to 100. */
+  pageSize?: number
+}
+
+export interface VenueSelectorResult {
+  venues: VenueSelectorVenue[]
+  /** Honest count of the scoped set (never inflated by `includeDocumentId`). */
+  total: number
+  /** True when the scoped set is larger than the returned page. */
+  truncated: boolean
+}
+
+/** A FRESH empty result per call — never a shared object a caller could mutate. */
+const emptySelectorResult = (): VenueSelectorResult => ({
+  venues: [],
+  total: 0,
+  truncated: false,
+})
+
 /**
- * Fetch all venues for the VenueSelector dropdown
- * Returns minimal data for performance
+ * Fetch venues for the venue picker (DW-24 / DW-25).
+ *
+ * Hits the dedicated `/venues/venues/selector` route, which is the only venues
+ * endpoint that actually honours filters: approved-only, type/city/region
+ * scoped, `cityRef` populated (so the UI can disambiguate same-named venues),
+ * really paginated with a reported `total`, plus an `include` escape hatch that
+ * guarantees the active selection is on the page. Params are sent FLAT (the
+ * client serializes with `qs.stringify`, so they arrive as plain query keys).
+ *
+ * Fail-soft: any error degrades to an empty result rather than throwing, so a
+ * broken selector never 500s the page that renders it.
  */
 export async function getVenuesForSelector(
   locale: string,
-  cityDocumentId?: string
-): Promise<
-  Array<{ documentId: string; name: string; type: VenueType; city?: string }>
-> {
+  options?: VenueSelectorOptions
+): Promise<VenueSelectorResult> {
+  const {
+    type = "cinema",
+    cityDocumentId,
+    regionDocumentId,
+    includeDocumentId,
+    pageSize = 100,
+  } = options || {}
+
   try {
-    const filters: Record<string, unknown> = {
-      status: { $eq: "approved" },
-    }
-
-    if (cityDocumentId) {
-      filters.cityRef = {
-        documentId: { $eq: cityDocumentId },
-      }
-    }
-
     const response = await PublicStrapiClient.fetchAPI(
-      "/venues/venues",
+      "/venues/venues/selector",
       {
         locale,
-        filters,
-        fields: ["documentId", "name", "type", "city"],
-        sort: ["name:asc"],
-        pagination: {
-          page: 1,
-          pageSize: 100, // Reasonable limit for dropdown
-        },
+        type,
+        ...(cityDocumentId ? { city: cityDocumentId } : {}),
+        ...(regionDocumentId ? { region: regionDocumentId } : {}),
+        ...(includeDocumentId ? { include: includeDocumentId } : {}),
+        page: 1,
+        pageSize,
       },
       { next: { revalidate: 3600 } } // 1 hour cache for selector data
     )
 
-    return (
-      response.data?.map(
-        (v: {
-          documentId: string
-          name: string
-          type: VenueType
-          city?: string
-        }) => ({
+    const venues: VenueSelectorVenue[] = Array.isArray(response?.data)
+      ? response.data.map((v: VenueSelectorVenue) => ({
           documentId: v.documentId,
           name: v.name,
           type: v.type,
           city: v.city,
-        })
-      ) || []
-    )
+        }))
+      : []
+
+    const total = response?.meta?.pagination?.total ?? venues.length
+
+    // Compare against the requested page size, NOT `venues.length`: the server
+    // may prepend an off-page `include` without inflating `total`, which would
+    // make a genuinely truncated list (total 101, 100 rows + 1 include) read as
+    // complete and suppress the "refine your search" hint.
+    return { venues, total, truncated: total > pageSize }
   } catch (error) {
     console.error("[getVenuesForSelector] Error fetching venues:", error)
-    return []
+    return emptySelectorResult()
   }
 }
