@@ -32,8 +32,9 @@ import {
 import { useLocale } from "next-intl"
 
 import type { EventCardEvent } from "../../types/event.types"
-import type { StrapiEvent } from "../../types/strapi.types"
+import type { StrapiEvent, StrapiMedia } from "../../types/strapi.types"
 import type { VenueLocation } from "../Map"
+import type { VenueType } from "../VenueSelector"
 
 import { formatDate } from "@/lib/dates"
 import { cn } from "@/lib/utils"
@@ -105,14 +106,31 @@ export interface EventDetailPageWithMapProps {
 }
 
 /**
+ * Fields seen on unmigrated venue payloads that `StrapiVenue` does not declare:
+ * flat coordinates (`latitude`/`longitude` or the shorter `lat`/`lng`/`lon`),
+ * a venue `type` discriminator, and a media `logo`.
+ */
+type LegacyVenueFields = {
+  latitude?: number
+  longitude?: number
+  lat?: number
+  lng?: number
+  lon?: number
+  type?: VenueType
+  logo?: StrapiMedia
+}
+
+/**
  * Convert venue data to VenueLocation for map
  */
 function toVenueLocation(venue: StrapiEvent["venue"]): VenueLocation | null {
   if (!venue) return null
 
+  const legacyVenue = venue as LegacyVenueFields
+
   // Check if venue has coordinates
-  const lat = venue.latitude ?? (venue as any).lat
-  const lng = venue.longitude ?? (venue as any).lng ?? (venue as any).lon
+  const lat = legacyVenue.latitude ?? legacyVenue.lat
+  const lng = legacyVenue.longitude ?? legacyVenue.lng ?? legacyVenue.lon
 
   if (typeof lat !== "number" || typeof lng !== "number") {
     return null
@@ -125,9 +143,8 @@ function toVenueLocation(venue: StrapiEvent["venue"]): VenueLocation | null {
     city: venue.city?.name,
     latitude: lat,
     longitude: lng,
-    type: (venue as any).type || "other",
-    logoUrl:
-      (venue as any).logo?.formats?.thumbnail?.url || (venue as any).logo?.url,
+    type: legacyVenue.type || "other",
+    logoUrl: legacyVenue.logo?.formats?.thumbnail?.url || legacyVenue.logo?.url,
   }
 }
 
@@ -173,7 +190,7 @@ export function EventDetailPageWithMap({
 
   // Group showtimes by date
   const showtimesByDate = React.useMemo(() => {
-    const grouped: Record<string, typeof event.showtimes> = {}
+    const grouped: Record<string, StrapiEvent["showtimes"]> = {}
     event.showtimes?.forEach((showtime) => {
       const date = showtime.time.split("T")[0]
       if (!grouped[date]) {

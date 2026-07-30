@@ -31,7 +31,6 @@ import { Footer } from "@/components/layout/Footer"
 import { MaxWidthContainer } from "@/components/layout/MaxWidthContainer"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Separator } from "@/components/ui/separator"
 
 import { getEventStartDate, mapTypeToCategory } from "../../utils"
 import { EventSection } from "../EventSection"
@@ -149,7 +148,7 @@ export function EventDetailPageDesktop({
 
   // Group showtimes by date
   const showtimesByDate = React.useMemo(() => {
-    const grouped: Record<string, typeof event.showtimes> = {}
+    const grouped: Record<string, StrapiEvent["showtimes"]> = {}
     event.showtimes?.forEach((showtime) => {
       const date = showtime.time.split("T")[0]
       if (date) {
