@@ -1,0 +1,126 @@
+<!doctype html>
+<!--
+  Tiween — Brevo transactional template: WATCHLIST SCHEDULE CHANGE
+  Sent by: apps/strapi/src/plugins/user-engagement/server/src/services/notification.ts
+           (bodies built in notification-emails.ts)
+  Trigger: a watchlisted event is cancelled / postponed / rescheduled / its showtime moves (story 5.6)
+  Params:  locale (ar|fr|en, default fr) · event_title · change_type · old_datetime · new_datetime · event_url (optional)
+
+  change_type ∈ cancelled | postponed | rescheduled | showtime_changed
+
+  DATE FORMATTING: old_datetime / new_datetime must arrive ALREADY FORMATTED as display strings.
+  The sender formats them with Intl.DateTimeFormat forced to timeZone "Africa/Tunis", and Arabic
+  uses the "ar-TN-u-nu-latn" locale so numerals stay Western per the project's always-Western-
+  numerals rule. Do NOT pass raw ISO strings — Brevo will not localize or convert them.
+  Pass an empty string when a value is absent; the conditionals below hide the row.
+-->
+<html lang="{{ params.locale }}" dir="{% if params.locale == 'ar' %}rtl{% else %}ltr{% endif %}">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark light" />
+    <meta name="supported-color-schemes" content="dark light" />
+    <title>Tiween</title>
+    <style>
+      body { margin: 0; padding: 0; width: 100% !important; background-color: #032523; }
+      table { border-collapse: collapse; }
+      a { color: #F8EB06; }
+      @media only screen and (max-width: 600px) {
+        .tw-card { padding: 24px 20px !important; }
+        .tw-h1 { font-size: 22px !important; }
+        .tw-btn a { display: block !important; text-align: center !important; }
+      }
+    </style>
+  </head>
+  <body style="margin:0;padding:0;background-color:#032523;">
+    <div style="display:none;max-height:0;overflow:hidden;opacity:0;">
+      {{ params.event_title }}
+    </div>
+
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#032523;">
+      <tr>
+        <td align="center" style="padding:32px 12px;">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;width:100%;">
+
+            <tr>
+              <td align="center" style="padding:0 0 24px;">
+                <span style="font-family:Inter,'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:26px;font-weight:700;letter-spacing:-0.02em;color:#F8EB06;">tiween</span>
+              </td>
+            </tr>
+
+            <tr>
+              <td class="tw-card" dir="{% if params.locale == 'ar' %}rtl{% else %}ltr{% endif %}" style="background-color:#0A3533;border:1px solid #0F4542;border-radius:14px;padding:32px 28px;font-family:{% if params.locale == 'ar' %}'Noto Sans Arabic','Segoe UI',Tahoma,{% endif %}Inter,'Helvetica Neue',Helvetica,Arial,sans-serif;text-align:{% if params.locale == 'ar' %}right{% else %}left{% endif %};">
+
+                <!-- status pill -->
+                <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 18px;">
+                  <tr>
+                    <td style="border-radius:999px;padding:6px 14px;font-size:12px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;{% if params.change_type == 'cancelled' %}background-color:#3A1418;color:#FF8A8A;{% else %}background-color:#0F4542;color:#F8EB06;{% endif %}">
+                      {% if params.change_type == 'cancelled' %}{% if params.locale == 'en' %}Cancelled{% elif params.locale == 'ar' %}ملغاة{% else %}Annulé{% endif %}{% elif params.change_type == 'postponed' %}{% if params.locale == 'en' %}Postponed{% elif params.locale == 'ar' %}مؤجّلة{% else %}Reporté{% endif %}{% elif params.change_type == 'rescheduled' %}{% if params.locale == 'en' %}Rescheduled{% elif params.locale == 'ar' %}أعيدت جدولتها{% else %}Reprogrammé{% endif %}{% else %}{% if params.locale == 'en' %}Time changed{% elif params.locale == 'ar' %}تغيّر الموعد{% else %}Horaire modifié{% endif %}{% endif %}
+                    </td>
+                  </tr>
+                </table>
+
+                <h1 class="tw-h1" style="margin:0 0 16px;font-size:24px;line-height:1.3;font-weight:700;color:#FFFFFF;">
+                  {% if params.change_type == 'cancelled' %}{% if params.locale == 'en' %}Event cancelled{% elif params.locale == 'ar' %}تم إلغاء الفعالية{% else %}Événement annulé{% endif %}{% elif params.change_type == 'postponed' %}{% if params.locale == 'en' %}Event postponed{% elif params.locale == 'ar' %}تم تأجيل الفعالية{% else %}Événement reporté{% endif %}{% elif params.change_type == 'rescheduled' %}{% if params.locale == 'en' %}Event rescheduled{% elif params.locale == 'ar' %}تمت إعادة جدولة الفعالية{% else %}Événement reprogrammé{% endif %}{% else %}{% if params.locale == 'en' %}Showtime changed{% elif params.locale == 'ar' %}تم تغيير الموعد{% else %}Horaire modifié{% endif %}{% endif %}
+                </h1>
+
+                {% if params.change_type == 'cancelled' %}
+                <p style="margin:0 0 20px;font-size:16px;line-height:1.65;color:#C8D6D4;">
+                  {% if params.locale == 'en' %}The event <strong style="color:#FFFFFF;">{{ params.event_title }}</strong>{% if params.old_datetime %} scheduled for {{ params.old_datetime }}{% endif %} has been cancelled.{% elif params.locale == 'ar' %}الفعالية <strong style="color:#FFFFFF;">{{ params.event_title }}</strong>{% if params.old_datetime %} المقررة في {{ params.old_datetime }}{% endif %} تم إلغاؤها.{% else %}L'événement <strong style="color:#FFFFFF;">{{ params.event_title }}</strong>{% if params.old_datetime %} prévu le {{ params.old_datetime }}{% endif %} a été annulé.{% endif %}
+                </p>
+                {% else %}
+                <p style="margin:0 0 20px;font-size:16px;line-height:1.65;color:#C8D6D4;">
+                  {% if params.locale == 'en' %}The schedule for <strong style="color:#FFFFFF;">{{ params.event_title }}</strong> has changed.{% elif params.locale == 'ar' %}تغيّر موعد الفعالية <strong style="color:#FFFFFF;">{{ params.event_title }}</strong>.{% else %}L'horaire de l'événement <strong style="color:#FFFFFF;">{{ params.event_title }}</strong> a changé.{% endif %}
+                </p>
+
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 24px;background-color:#032523;border:1px solid #0F4542;border-radius:8px;">
+                  {% if params.old_datetime %}
+                  <tr>
+                    <td style="padding:14px 18px;font-size:14px;color:#8FA9A6;">
+                      {% if params.locale == 'en' %}Previous time{% elif params.locale == 'ar' %}الموعد السابق{% else %}Ancien horaire{% endif %}
+                      <div style="margin-top:4px;font-size:16px;color:#C8D6D4;text-decoration:line-through;">{{ params.old_datetime }}</div>
+                    </td>
+                  </tr>
+                  {% endif %}
+                  {% if params.new_datetime %}
+                  <tr>
+                    <td style="padding:14px 18px;font-size:14px;color:#8FA9A6;{% if params.old_datetime %}border-top:1px solid #0F4542;{% endif %}">
+                      {% if params.locale == 'en' %}New time{% elif params.locale == 'ar' %}الموعد الجديد{% else %}Nouvel horaire{% endif %}
+                      <div style="margin-top:4px;font-size:18px;font-weight:700;color:#F8EB06;">{{ params.new_datetime }}</div>
+                    </td>
+                  </tr>
+                  {% endif %}
+                </table>
+                {% endif %}
+
+                {% if params.event_url %}
+                <table role="presentation" cellpadding="0" cellspacing="0" border="0" class="tw-btn">
+                  <tr>
+                    <td style="border-radius:8px;background-color:#F8EB06;">
+                      <a href="{{ params.event_url }}" target="_blank" style="display:inline-block;padding:13px 26px;font-size:15px;font-weight:700;color:#032523;text-decoration:none;border-radius:8px;">
+                        {% if params.locale == 'en' %}View the event{% elif params.locale == 'ar' %}عرض الفعالية{% else %}Voir l'événement{% endif %}
+                      </a>
+                    </td>
+                  </tr>
+                </table>
+                {% endif %}
+
+                <p style="margin:24px 0 0;padding-top:20px;border-top:1px solid #0F4542;font-size:13px;line-height:1.6;color:#6E8B88;">
+                  {% if params.locale == 'en' %}You are receiving this because this event is on your watchlist.{% elif params.locale == 'ar' %}تصلك هذه الرسالة لأن هذه الفعالية مضافة إلى قائمة متابعتك.{% else %}Vous recevez cet e-mail car cet événement figure dans votre liste de suivi.{% endif %}
+                </p>
+
+              </td>
+            </tr>
+
+            <tr>
+              <td align="center" style="padding:24px 16px 0;font-family:Inter,'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:12px;line-height:1.6;color:#6E8B88;">
+                Tiween — {% if params.locale == 'en' %}events in Tunisia{% elif params.locale == 'ar' %}الفعاليات في تونس{% else %}les événements en Tunisie{% endif %}
+              </td>
+            </tr>
+
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

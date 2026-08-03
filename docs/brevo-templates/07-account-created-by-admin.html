@@ -1,0 +1,93 @@
+<!doctype html>
+<!--
+  Tiween — Brevo transactional template: ACCOUNT CREATED FOR YOU (admin-provisioned end user)
+  Sent by: apps/strapi/src/lifeCycles/user.ts
+  Trigger: a users-permissions user is created from the Strapi admin panel (not self-registration).
+           Requires CLIENT_ACCOUNT_ACTIVATION_URL to be set, otherwise the send is skipped.
+  Params:  locale (optional — defaults to EN to preserve today's behaviour) · name (may be empty)
+           · activation_url (REQUIRED, already carries ?code=…&email=…&name=…)
+
+  HEADS-UP (carried over from the starter template, unchanged by this draft):
+  the current code auto-generates a password and passes a `resetPasswordToken` in the URL. The copy
+  below therefore frames the link as "set your password", which is what the link actually does.
+  If you ever stop auto-generating passwords, revisit this wording.
+-->
+<html lang="{% if params.locale %}{{ params.locale }}{% else %}en{% endif %}" dir="{% if params.locale == 'ar' %}rtl{% else %}ltr{% endif %}">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark light" />
+    <meta name="supported-color-schemes" content="dark light" />
+    <title>Tiween</title>
+    <style>
+      body { margin: 0; padding: 0; width: 100% !important; background-color: #032523; }
+      table { border-collapse: collapse; }
+      a { color: #F8EB06; }
+      @media only screen and (max-width: 600px) {
+        .tw-card { padding: 24px 20px !important; }
+        .tw-h1 { font-size: 22px !important; }
+        .tw-btn a { display: block !important; text-align: center !important; }
+      }
+    </style>
+  </head>
+  <body style="margin:0;padding:0;background-color:#032523;">
+    <div style="display:none;max-height:0;overflow:hidden;opacity:0;">
+      {% if params.locale == 'fr' %}Un compte Tiween a été créé pour vous.{% elif params.locale == 'ar' %}تم إنشاء حساب تيوين لك.{% else %}A Tiween account has been created for you.{% endif %}
+    </div>
+
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#032523;">
+      <tr>
+        <td align="center" style="padding:32px 12px;">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;width:100%;">
+
+            <tr>
+              <td align="center" style="padding:0 0 24px;">
+                <span style="font-family:Inter,'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:26px;font-weight:700;letter-spacing:-0.02em;color:#F8EB06;">tiween</span>
+              </td>
+            </tr>
+
+            <tr>
+              <td class="tw-card" dir="{% if params.locale == 'ar' %}rtl{% else %}ltr{% endif %}" style="background-color:#0A3533;border:1px solid #0F4542;border-radius:14px;padding:32px 28px;font-family:{% if params.locale == 'ar' %}'Noto Sans Arabic','Segoe UI',Tahoma,{% endif %}Inter,'Helvetica Neue',Helvetica,Arial,sans-serif;text-align:{% if params.locale == 'ar' %}right{% else %}left{% endif %};">
+
+                <h1 class="tw-h1" style="margin:0 0 16px;font-size:24px;line-height:1.3;font-weight:700;color:#FFFFFF;">
+                  {% if params.locale == 'fr' %}Bienvenue{% if params.name %}, {{ params.name }}{% endif %} !{% elif params.locale == 'ar' %}مرحباً{% if params.name %} {{ params.name }}{% endif %}!{% else %}Welcome{% if params.name %}, {{ params.name }}{% endif %}!{% endif %}
+                </h1>
+
+                <p style="margin:0 0 20px;font-size:16px;line-height:1.65;color:#C8D6D4;">
+                  {% if params.locale == 'fr' %}Un compte Tiween a été créé pour vous par notre équipe. Choisissez votre mot de passe avec le bouton ci-dessous pour l'activer.{% elif params.locale == 'ar' %}تم إنشاء حساب تيوين لك من طرف فريقنا. اختر كلمة المرور الخاصة بك عبر الزر أدناه لتفعيله.{% else %}A Tiween account has been created for you by our team. Choose your password with the button below to activate it.{% endif %}
+                </p>
+
+                <table role="presentation" cellpadding="0" cellspacing="0" border="0" class="tw-btn">
+                  <tr>
+                    <td style="border-radius:8px;background-color:#F8EB06;">
+                      <a href="{{ params.activation_url }}" target="_blank" style="display:inline-block;padding:13px 26px;font-size:15px;font-weight:700;color:#032523;text-decoration:none;border-radius:8px;">
+                        {% if params.locale == 'fr' %}Choisir mon mot de passe{% elif params.locale == 'ar' %}اختيار كلمة المرور{% else %}Set my password{% endif %}
+                      </a>
+                    </td>
+                  </tr>
+                </table>
+
+                <p style="margin:24px 0 0;padding-top:20px;border-top:1px solid #0F4542;font-size:14px;line-height:1.6;color:#8FA9A6;">
+                  {% if params.locale == 'fr' %}Ne partagez ce lien avec personne — il donne accès à votre compte.{% elif params.locale == 'ar' %}لا تشارك هذا الرابط مع أي شخص — فهو يمنح الوصول إلى حسابك.{% else %}Do not share this link with anyone — it grants access to your account.{% endif %}
+                </p>
+
+                <p style="margin:16px 0 0;font-size:12px;line-height:1.6;color:#6E8B88;word-break:break-all;">
+                  {% if params.locale == 'fr' %}Le bouton ne fonctionne pas ? Copiez ce lien :{% elif params.locale == 'ar' %}الزر لا يعمل؟ انسخ هذا الرابط:{% else %}Button not working? Copy this link:{% endif %}<br />
+                  <span style="color:#8FA9A6;">{{ params.activation_url }}</span>
+                </p>
+
+              </td>
+            </tr>
+
+            <tr>
+              <td align="center" style="padding:24px 16px 0;font-family:Inter,'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:12px;line-height:1.6;color:#6E8B88;">
+                Tiween — {% if params.locale == 'fr' %}les événements en Tunisie{% elif params.locale == 'ar' %}الفعاليات في تونس{% else %}events in Tunisia{% endif %}
+              </td>
+            </tr>
+
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

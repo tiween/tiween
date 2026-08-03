@@ -1,0 +1,84 @@
+<!doctype html>
+<!--
+  Tiween — Brevo transactional template: WELCOME
+  Sent by: apps/strapi/src/extensions/users-permissions/strapi-server.ts → sendWelcomeEmail()
+  Trigger: successful email/password registration (4.1) and first social login (4.2)
+  Params:  locale (ar|fr|en, default fr) · first_name (may be empty) · browse_url (optional)
+  Subject: see README — set per-locale via the conditional subject line
+-->
+<html lang="{{ params.locale }}" dir="{% if params.locale == 'ar' %}rtl{% else %}ltr{% endif %}">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark light" />
+    <meta name="supported-color-schemes" content="dark light" />
+    <title>Tiween</title>
+    <style>
+      body { margin: 0; padding: 0; width: 100% !important; background-color: #032523; }
+      table { border-collapse: collapse; }
+      img { border: 0; outline: none; text-decoration: none; -ms-interpolation-mode: bicubic; }
+      a { color: #F8EB06; }
+      @media only screen and (max-width: 600px) {
+        .tw-card { padding: 24px 20px !important; }
+        .tw-h1 { font-size: 22px !important; }
+        .tw-btn a { display: block !important; text-align: center !important; }
+      }
+    </style>
+  </head>
+  <body style="margin:0;padding:0;background-color:#032523;">
+    <div style="display:none;max-height:0;overflow:hidden;opacity:0;">
+      {% if params.locale == 'en' %}Your Tiween account is ready.{% elif params.locale == 'ar' %}حسابك في تيوين جاهز.{% else %}Votre compte Tiween est prêt.{% endif %}
+    </div>
+
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#032523;">
+      <tr>
+        <td align="center" style="padding:32px 12px;">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;width:100%;">
+
+            <!-- wordmark -->
+            <tr>
+              <td align="center" style="padding:0 0 24px;">
+                <span style="font-family:Inter,'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:26px;font-weight:700;letter-spacing:-0.02em;color:#F8EB06;">tiween</span>
+              </td>
+            </tr>
+
+            <!-- card -->
+            <tr>
+              <td class="tw-card" dir="{% if params.locale == 'ar' %}rtl{% else %}ltr{% endif %}" style="background-color:#0A3533;border:1px solid #0F4542;border-radius:14px;padding:32px 28px;font-family:{% if params.locale == 'ar' %}'Noto Sans Arabic','Segoe UI',Tahoma,{% endif %}Inter,'Helvetica Neue',Helvetica,Arial,sans-serif;text-align:{% if params.locale == 'ar' %}right{% else %}left{% endif %};">
+
+                <h1 class="tw-h1" style="margin:0 0 16px;font-size:24px;line-height:1.3;font-weight:700;color:#FFFFFF;">
+                  {% if params.locale == 'en' %}Welcome{% if params.first_name %}, {{ params.first_name }}{% endif %}!{% elif params.locale == 'ar' %}مرحباً{% if params.first_name %} {{ params.first_name }}{% endif %}!{% else %}Bienvenue{% if params.first_name %}, {{ params.first_name }}{% endif %} !{% endif %}
+                </h1>
+
+                <p style="margin:0 0 24px;font-size:16px;line-height:1.65;color:#C8D6D4;">
+                  {% if params.locale == 'en' %}Your Tiween account has been created. Start exploring the events happening near you.{% elif params.locale == 'ar' %}تم إنشاء حسابك في تيوين بنجاح. اكتشف الآن الفعاليات القريبة منك.{% else %}Votre compte Tiween a bien été créé. Découvrez dès maintenant les événements près de chez vous.{% endif %}
+                </p>
+
+                {% if params.browse_url %}
+                <table role="presentation" cellpadding="0" cellspacing="0" border="0" class="tw-btn">
+                  <tr>
+                    <td style="border-radius:8px;background-color:#F8EB06;">
+                      <a href="{{ params.browse_url }}" target="_blank" style="display:inline-block;padding:13px 26px;font-size:15px;font-weight:700;color:#032523;text-decoration:none;border-radius:8px;">
+                        {% if params.locale == 'en' %}Browse events{% elif params.locale == 'ar' %}تصفّح الفعاليات{% else %}Découvrir les événements{% endif %}
+                      </a>
+                    </td>
+                  </tr>
+                </table>
+                {% endif %}
+
+              </td>
+            </tr>
+
+            <!-- footer -->
+            <tr>
+              <td align="center" style="padding:24px 16px 0;font-family:Inter,'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:12px;line-height:1.6;color:#6E8B88;">
+                Tiween — {% if params.locale == 'en' %}events in Tunisia{% elif params.locale == 'ar' %}الفعاليات في تونس{% else %}les événements en Tunisie{% endif %}
+              </td>
+            </tr>
+
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

@@ -1,0 +1,80 @@
+<!doctype html>
+<!--
+  Tiween — Brevo transactional template: VENUE APPLICATION RECEIVED (applicant confirmation)
+  Sent by: apps/strapi/src/plugins/venues/server/src/services/registration.ts (build in registration-emails.ts)
+  Trigger: a venue manager submits the registration form (story 7.1)
+  Params:  locale (ar|fr|en, default fr) · applicant_name · venue_name
+  Copy rule: deliberately promises NO timeline — approval is a manual admin action until the
+  platform-administration epic ships. Do not add "within 48h"-style wording.
+-->
+<html lang="{{ params.locale }}" dir="{% if params.locale == 'ar' %}rtl{% else %}ltr{% endif %}">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark light" />
+    <meta name="supported-color-schemes" content="dark light" />
+    <title>Tiween</title>
+    <style>
+      body { margin: 0; padding: 0; width: 100% !important; background-color: #032523; }
+      table { border-collapse: collapse; }
+      a { color: #F8EB06; }
+      @media only screen and (max-width: 600px) {
+        .tw-card { padding: 24px 20px !important; }
+        .tw-h1 { font-size: 22px !important; }
+      }
+    </style>
+  </head>
+  <body style="margin:0;padding:0;background-color:#032523;">
+    <div style="display:none;max-height:0;overflow:hidden;opacity:0;">
+      {% if params.locale == 'en' %}We have received your venue registration request.{% elif params.locale == 'ar' %}لقد استلمنا طلب تسجيل مكانك.{% else %}Nous avons bien reçu votre demande d'inscription.{% endif %}
+    </div>
+
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#032523;">
+      <tr>
+        <td align="center" style="padding:32px 12px;">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;width:100%;">
+
+            <tr>
+              <td align="center" style="padding:0 0 24px;">
+                <span style="font-family:Inter,'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:26px;font-weight:700;letter-spacing:-0.02em;color:#F8EB06;">tiween</span>
+              </td>
+            </tr>
+
+            <tr>
+              <td class="tw-card" dir="{% if params.locale == 'ar' %}rtl{% else %}ltr{% endif %}" style="background-color:#0A3533;border:1px solid #0F4542;border-radius:14px;padding:32px 28px;font-family:{% if params.locale == 'ar' %}'Noto Sans Arabic','Segoe UI',Tahoma,{% endif %}Inter,'Helvetica Neue',Helvetica,Arial,sans-serif;text-align:{% if params.locale == 'ar' %}right{% else %}left{% endif %};">
+
+                <h1 class="tw-h1" style="margin:0 0 16px;font-size:24px;line-height:1.3;font-weight:700;color:#FFFFFF;">
+                  {% if params.locale == 'en' %}Thank you {{ params.applicant_name }}{% elif params.locale == 'ar' %}شكرا {{ params.applicant_name }}{% else %}Merci {{ params.applicant_name }}{% endif %}
+                </h1>
+
+                <p style="margin:0 0 20px;font-size:16px;line-height:1.65;color:#C8D6D4;">
+                  {% if params.locale == 'en' %}We have received the registration request for the venue <strong style="color:#FFFFFF;">{{ params.venue_name }}</strong>.{% elif params.locale == 'ar' %}لقد استلمنا طلب تسجيل المكان <strong style="color:#FFFFFF;">{{ params.venue_name }}</strong>.{% else %}Nous avons bien reçu la demande d'inscription du lieu <strong style="color:#FFFFFF;">{{ params.venue_name }}</strong>.{% endif %}
+                </p>
+
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 20px;">
+                  <tr>
+                    <td style="background-color:#032523;border:1px solid #0F4542;border-radius:8px;padding:16px 18px;font-size:15px;line-height:1.6;color:#C8D6D4;">
+                      {% if params.locale == 'en' %}Your application is under review by our team. You will receive an email as soon as a decision is made.{% elif params.locale == 'ar' %}طلبك قيد المراجعة من طرف فريقنا. سيصلك بريد إلكتروني بمجرد اتخاذ القرار.{% else %}Votre dossier est en cours d'examen par notre équipe. Vous recevrez un email dès qu'une décision aura été prise.{% endif %}
+                    </td>
+                  </tr>
+                </table>
+
+                <p style="margin:0;font-size:14px;line-height:1.6;color:#8FA9A6;">
+                  {% if params.locale == 'en' %}Your manager account has been created but stays inactive until approval.{% elif params.locale == 'ar' %}تم إنشاء حساب المسؤول لكنه يبقى غير مفعّل إلى حين الموافقة.{% else %}Votre compte gestionnaire est créé mais reste inactif jusqu'à l'approbation.{% endif %}
+                </p>
+
+              </td>
+            </tr>
+
+            <tr>
+              <td align="center" style="padding:24px 16px 0;font-family:Inter,'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:12px;line-height:1.6;color:#6E8B88;">
+                Tiween — {% if params.locale == 'en' %}events in Tunisia{% elif params.locale == 'ar' %}الفعاليات في تونس{% else %}les événements en Tunisie{% endif %}
+              </td>
+            </tr>
+
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
