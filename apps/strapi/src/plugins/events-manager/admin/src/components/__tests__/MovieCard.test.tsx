@@ -1,7 +1,7 @@
 /**
  * MovieCard admin component tests.
  *
- * Runs in the jsdom test project (see jest.config.ts → "admin" project).
+ * Runs in the jsdom test project (see jest.config.cjs → "admin" project).
  * Uses @strapi/design-system real components wrapped in DesignSystemProvider
  * so styled-components can access the theme. No fetch mocks needed — this
  * component is purely presentational.

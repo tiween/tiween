@@ -131,7 +131,8 @@ status: open
 origin: migrated from legacy ledger ("Deferred from: code review of 2d-1 — jest .tsx test infrastructure gap (2026-06-18)"), 2026-07-12
 location: n/a
 reason: `.tsx` admin component tests never run in jest.
-status: open
+status: done 2026-08-03
+resolution: resolved by sweep bundle dw-strapi-admin-jsdom-jest
 
 ### DW-18: The public events endpoints blanket-populate screenings/venue, exposing internal `ticketsSold`/`ticketsAvailable` (raw per-screening…
 
