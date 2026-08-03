@@ -5,7 +5,7 @@
  * single venue fetching, and CRUD mutations.
  */
 
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { useFetchClient } from "@strapi/strapi/admin"
 
 const VENUE_UID = "plugin::venues.venue"

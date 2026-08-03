@@ -211,7 +211,7 @@ export function VenuesPage() {
   }, [])
 
   const handleConfirmBulkDelete = useCallback(async () => {
-    const result = await bulkDelete(Array.from(selectedIds))
+    await bulkDelete(Array.from(selectedIds))
     setBulkDeleteConfirm(false)
     setSelectedIds(new Set())
     refetch()

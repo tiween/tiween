@@ -1213,7 +1213,8 @@ status: open
 origin: review of spec-1-10-restore-client-eslint-enforcement.md (2026-08-03)
 location: apps/strapi/src/plugins/user-engagement/server/src/services/watchlist.ts
 reason: (MEDIUM) Three `TS2339` errors (`nextScreeningDate`, `lastScreeningDate`, `venueName` on type `{}`) at lines 103-105 make `@tiween/admin`'s `type-check` and `build` fail, which fails root `yarn type-check` and — because the turbo `test` task depends on `^build` — root `yarn test` too. The client suite itself is green (63 files / 616 tests). The generated Strapi types are committed, so this is not a local-environment artifact; the CI `Type Check` job runs the same command. Introduced no later than `66f15c0` (story 5.3). Story 1.10 left `apps/strapi` untouched by design. Fix belongs with the Strapi lint/type work in story 1.11. Surfaced during story 1.10 verification.
-status: open
+status: resolved
+resolution: Fixed in story 1.11 (`_bmad-output/implementation-artifacts/spec-1-11-bring-strapi-backend-under-lint.md`). The enrichment record shape was extracted into a `ScreeningInfo` type and `info` annotated as `Partial<ScreeningInfo>`, so `?? {}` no longer widens to `{}`. Type-level only; runtime output identical. `corepack yarn build:strapi` and `npx tsc --noEmit` in `apps/strapi` are both green.
 
 ### DW-169: Four whole-file `eslint-disable` blocks survive the story-1.10 paydown as invisible blanket escape hatches
 
@@ -1234,4 +1235,67 @@ status: open
 origin: follow-up review of spec-1-10-restore-client-eslint-enforcement.md (2026-08-03)
 location: .github/workflows/chromatic.yml, apps/client/.storybook/main.ts
 reason: (LOW) `.github/workflows/chromatic.yml` sets `exitZeroOnChanges: true` and `autoAcceptChanges: main`, and there is no Storybook test-runner, so a visual or accessibility difference in any story can never turn a build red — `@storybook/addon-a11y` (registered at `main.ts:10`) reports interactively and enforces nothing. This is why story 1.10's ARIA edits to `DateSelector` and `SearchBar` had no gating verification available: the components have no vitest tests, and the stories that do exist are non-gating. Fix is either a `@storybook/test-runner` job with the a11y checks wired in, or dropping `exitZeroOnChanges` on PR builds so a diff must be reviewed. Distinct from DW-163 (the Storybook build itself is currently broken, which must be fixed first). Surfaced by the Verification Gap reviewer.
+status: open
+
+### DW-173: `is-ticket-owner` policy authorizes every authenticated user
+
+origin: review of spec-1-11-bring-strapi-backend-under-lint.md (2026-08-03)
+location: apps/strapi/src/plugins/ticketing/server/src/policies/is-ticket-owner.ts
+reason: (HIGH) The policy rejects anonymous callers, short-circuits `true` for `strapi-super-admin`, and then unconditionally `return true` for every other authenticated user under the comment "This will be checked in the controller/service". No ownership check is performed, so any logged-in user passes a policy whose name asserts the opposite. Pre-dates this story — 1.11 only renamed the unused `config` / `{ strapi }` params to `_config` / `{ strapi: _strapi }` — but the rename removed the unused-parameter signal that hinted the policy never uses its inputs. Fix is to resolve the ticket/order by `policyContext.params` and compare its owner to `user.id`, plus a unit test for the non-owner path; if enforcement genuinely lives downstream, the policy should be deleted rather than left as a false guarantee. Epic 6 (B2C ticketing) is the natural home. Surfaced by the Edge Case Hunter.
+status: open
+
+### DW-174: `apps/client/.lintstagedrc.js` has no prettier entry, so the whole client lost format-on-commit
+
+origin: review of spec-1-11-bring-strapi-backend-under-lint.md (2026-08-03)
+location: apps/client/.lintstagedrc.js
+reason: (MEDIUM) lint-staged applies only the _nearest_ config, so `apps/client/.lintstagedrc.js` (`{"*.{js,jsx,ts,tsx}": ["eslint --max-warnings=0 --no-warn-ignored"]}`) fully shadows the repo-root config for every staged file under `apps/client` — and it contains no `prettier --write`. Verified empirically: staging a mis-formatted `apps/client/__probe.ts` ran eslint only and left the file unformatted. Story 1.11 identified this shadowing hazard while writing the backend equivalent (and widened its own glob to a superset of the root's), but the spec forbade editing `apps/client`. Fix is to add the root's `prettier --write --cache --ignore-unknown` entry on a `*.{js,jsx,ts,tsx,md,css,scss}` glob. Surfaced by the Blind Hunter and the Verification Gap reviewer.
+status: open
+
+### DW-175: `yarn format:check` is red on 101 pre-existing files, so CI's Format check cannot pass
+
+origin: review of spec-1-11-bring-strapi-backend-under-lint.md (2026-08-03)
+location: repo-wide (`.agents/skills/**`, `.claude/skills/**`, `apps/client/**`, `_bmad-output/**`)
+reason: (MEDIUM) Running `yarn format:check` (`prettier --check "**/*.{js,jsx,ts,tsx,md,css,scss}"`, the same command the CI `Lint` job runs) reports **101 files** with style issues, none of them under `apps/strapi`. This is unrelated to story 1.11 and pre-dates it — it was measured on the untouched tree at `c23080d`. Almost certainly a consequence of DW-174 (client files never formatted on commit) plus skill/planning markdown written outside the hook. Fix is a one-shot `yarn format` landed as its own commit (it must be isolated: the script's glob is repo-wide, so folding it into a feature branch buries the real diff), after which the hook keeps it clean. Surfaced during story 1.11 verification.
+status: open
+
+### DW-176: Strapi admin React surface has neither React lint rules nor type-check coverage
+
+origin: review of spec-1-11-bring-strapi-backend-under-lint.md (2026-08-03)
+location: apps/strapi/src/admin/**, apps/strapi/src/plugins/\*/admin/**, apps/strapi/tsconfig.json
+reason: (MEDIUM) Story 1.11 gave the backend a node-appropriate flat config, which by design registers no `eslint-plugin-react`, `react-hooks`, or `jsx-a11y` — but ~74 `.tsx` files under the plugins' `admin/` trees are real React. `apps/strapi/tsconfig.json` also **excludes** `src/admin/` and `src/plugins/**/admin/**`, so `tsc --noEmit` never sees them either. That surface now has a lint gate covering roughly syntax and unused bindings, and no type gate at all — precisely where this story was deleting stray `useEffect` imports. Fix is either a `files:`-scoped React rule block in `apps/strapi/eslint.config.mjs` (the backend must stay self-contained, so the plugins would be declared by `apps/strapi`, not imported from `@tiween/eslint-config`) or a second tsconfig that includes the admin trees in `type-check`. Surfaced by the Blind Hunter and the Edge Case Hunter.
+status: open
+
+### DW-177: `no-undef` is inert on the TypeScript dirs that `tsc` also excludes
+
+origin: review of spec-1-11-bring-strapi-backend-under-lint.md (2026-08-03)
+location: apps/strapi/eslint.config.mjs, apps/strapi/tsconfig.json
+reason: (MEDIUM) typescript-eslint's `eslint-recommended` turns `no-undef` off for all `.ts`/`.tsx` on the premise that the type-checker catches undefined identifiers. `apps/strapi/tsconfig.json` excludes `scripts/`, `src/admin/`, the plugins' `admin/` trees, and `**/*.test.*`, so for those files neither gate is active: a typo'd or removed identifier ships with lint green and `tsc --noEmit` green. Related to DW-176 but distinct — this one also covers `scripts/**` (crawlers and seed CLIs) and test files. Fix is a `files:`-scoped `no-undef: "error"` block for the tsconfig-excluded TS paths, or extending the TS project to cover them. Surfaced by the Edge Case Hunter.
+status: open
+
+### DW-178: Venue bulk-delete discards its `{ success, failed }` result, hiding partial failures
+
+origin: review of spec-1-11-bring-strapi-backend-under-lint.md (2026-08-03)
+location: apps/strapi/src/plugins/events-manager/admin/src/pages/Venues/index.tsx, apps/strapi/src/plugins/events-manager/admin/src/hooks/useVenuesEnhanced.ts
+reason: (MEDIUM) `useVenuesEnhanced.bulkDelete` returns `{ success: string[]; failed: string[] }` and swallows per-item errors internally, but the caller at `pages/Venues/index.tsx:214` awaits it, discards the value, then unconditionally closes the dialog, clears the selection, and refetches — so a venue that failed to delete reads to the operator as deleted until the refetch quietly puts it back. Pre-dates this story; 1.11's paydown dropped the unread `const result =` binding, which was the last static evidence of the gap (same shape as DW-167 from story 1.10). Fix is to branch on `failed.length` and surface a partial-failure notification. Surfaced by the Blind Hunter and the Edge Case Hunter.
+status: open
+
+### DW-179: Three admin-panel props are declared and passed but never read; one export is now orphaned
+
+origin: review of spec-1-11-bring-strapi-backend-under-lint.md (2026-08-03)
+location: apps/strapi/src/plugins/events-manager/admin/src/components/MediaInput/index.tsx, .../pages/Import/index.tsx, apps/strapi/scripts/crawlers/tunisian-plays/adapters/index.ts
+reason: (LOW) `MediaInput`'s `allowedTypes?: ("images"|"videos"|"files"|"audios")[]` stays in the public prop type and `VenueFormModal/index.tsx:470,485` still passes `allowedTypes={["images"]}`, but the body never reads it — the picker only offers a URL field that fabricates `mime: "image/*"`. `StatCard`'s `color?: string` in `pages/Import/index.tsx` is dead with no caller. Both were `_`-prefixed by the 1.11 paydown, which is behaviour-preserving but converts an API lie into a permanently silenced finding. Separately, deleting the unused `createAllAdapters` import from `services/crawler.ts` left that export (`adapters/index.ts:52`) with zero callers. Fix is to delete the dead prop/export and either implement or remove `allowedTypes`. Surfaced by the Blind Hunter and the Edge Case Hunter.
+status: open
+
+### DW-180: Backend lint config has no `no-console` or undeclared-env-var rule, unlike the client
+
+origin: review of spec-1-11-bring-strapi-backend-under-lint.md (2026-08-03)
+location: apps/strapi/eslint.config.mjs, apps/strapi/config/cron-tasks.ts
+reason: (LOW) `apps/client/eslint.config.mjs` warns on `no-console` (scoped allowances for API routes and stories) and the shared preset carries `turbo/no-undeclared-env-vars`. The backend config adopts neither, yet it logs via bare `console.log` (e.g. `config/cron-tasks.ts:5`) instead of Strapi's `strapi.log`, and reads `process.env` throughout against a `turbo.json` `globalEnv` list. Story 1.11 scoped itself to the legacy config's rule set, so this is a deliberate non-decision rather than a regression — but it is an unrecorded divergence between the two apps' gates. Fix is to add `no-console` (allowing `strapi.log` call sites to be migrated first) and `eslint-config-turbo` to the backend config. Surfaced by the Blind Hunter.
+status: open
+
+### DW-181: Two backend lint relaxations are backend-global with no scheduled revisit
+
+origin: review of spec-1-11-bring-strapi-backend-under-lint.md (2026-08-03)
+location: apps/strapi/eslint.config.mjs
+reason: (LOW) Two decisions from story 1.11 are correct for the server but broader than their stated cause. (a) `@typescript-eslint/no-explicit-any: "off"` is justified by `strict: false` plus Strapi's generated types, yet applies to the admin React surface too, where neither rationale holds. (b) Type-aware linting was skipped for cost reasons, so `no-floating-promises` / `no-misused-promises` are absent from a backend that is almost entirely async service calls — a real class of bug on the exact surface this project cares about. Both were explicitly in-scope decisions of 1.11 (recorded in its Completion Notes), so this entry exists only to make the revisit trackable. Fix is to scope `no-explicit-any: "off"` to the server dirs, and to evaluate `projectService` on a `src/**` -only block where the cost is bounded. Surfaced by the Blind Hunter.
 status: open

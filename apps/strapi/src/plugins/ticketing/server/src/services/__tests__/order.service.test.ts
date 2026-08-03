@@ -31,15 +31,13 @@ describe.skip("order.createOrder (integration, boots Strapi)", () => {
   let fixtures: any
 
   beforeAll(async () => {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const { setupStrapi } = require(HELPERS)
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
+
     fixtures = require(FIXTURES)
     strapi = await setupStrapi()
   })
 
   afterAll(async () => {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const { cleanupStrapi } = require(HELPERS)
     await cleanupStrapi()
   })

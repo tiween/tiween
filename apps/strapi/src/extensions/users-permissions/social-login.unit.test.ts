@@ -101,14 +101,13 @@ function buildHarness(
     log: { error: logError, info: jest.fn() },
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ;(global as any).strapi = mockStrapi
 
   const fetchMock = jest.fn(async () => ({
     ok: opts.fetchOk ?? true,
     json: async () => opts.profileJson ?? googleProfileJson,
   }))
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   ;(global as any).fetch = fetchMock
 
   const plugin = {
@@ -144,9 +143,8 @@ function makeCtx(
 
 describe("users-permissions social-login callback override (unit)", () => {
   afterEach(() => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     delete (global as any).strapi
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     delete (global as any).fetch
   })
 
@@ -382,17 +380,15 @@ describe("users-permissions social-login callback override (unit)", () => {
 
 describe("fetchSocialProfile (unit)", () => {
   afterEach(() => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     delete (global as any).fetch
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     delete (global as any).strapi
   })
 
   function mockFetch(ok: boolean, json: unknown): jest.Mock {
     const fetchMock = jest.fn(async () => ({ ok, json: async () => json }))
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     ;(global as any).fetch = fetchMock
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ;(global as any).strapi = { log: { error: jest.fn() } }
     return fetchMock
   }
@@ -456,11 +452,9 @@ describe("fetchSocialProfile (unit)", () => {
   })
 
   it("returns an empty profile — never throws — when fetch itself rejects", async () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ;(global as any).fetch = jest.fn(async () => {
       throw new Error("network down")
     })
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ;(global as any).strapi = { log: { error: jest.fn() } }
 
     const profile = await fetchSocialProfile("google", "tok")

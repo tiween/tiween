@@ -20,7 +20,7 @@
  * ```
  */
 
-import { compileStrapi, createStrapi } from "@strapi/strapi"
+import { createStrapi } from "@strapi/strapi"
 
 import type { CreativeWorkSeed } from "./utils/creative-work-relations"
 import type { IdMap } from "./utils/types"
@@ -35,12 +35,7 @@ import personsData from "./data/persons.json"
 // Import seed data
 import regionsData from "./data/regions.json"
 import { buildCreativeWorkData } from "./utils/creative-work-relations"
-import {
-  addDays,
-  randomInt,
-  randomPick,
-  randomPickMultiple,
-} from "./utils/dates"
+import { addDays, randomInt } from "./utils/dates"
 
 // Type definitions
 interface SeedResult {

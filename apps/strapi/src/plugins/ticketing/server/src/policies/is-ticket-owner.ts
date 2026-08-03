@@ -1,4 +1,4 @@
-export default (policyContext: any, config: any, { strapi }: any) => {
+export default (policyContext: any, _config: any, { strapi: _strapi }: any) => {
   const { user } = policyContext.state
 
   if (!user) {

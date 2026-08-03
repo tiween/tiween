@@ -54,7 +54,6 @@ function buildHarness(
     log: { error: logError },
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ;(global as any).strapi = mockStrapi
 
   const plugin = {
@@ -92,7 +91,6 @@ function codesOf(err: unknown): string[] {
 
 describe("users-permissions register override (unit)", () => {
   afterEach(() => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     delete (global as any).strapi
   })
 

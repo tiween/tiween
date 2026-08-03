@@ -15,7 +15,6 @@ import { TimeSlot } from "./TimeSlot"
 import { SLOT_HEIGHTS } from "./types"
 import {
   addDays,
-  formatTime,
   getEventsForDay,
   isToday,
   positionEventsForDay,

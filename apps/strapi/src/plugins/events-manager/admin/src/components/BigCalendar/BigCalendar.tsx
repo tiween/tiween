@@ -13,12 +13,7 @@ import type { BigCalendarProps, CalendarView, SlotDuration } from "./types"
 
 import { DayView } from "./DayView"
 import { NavigationBar } from "./NavigationBar"
-import {
-  addDays,
-  generateTimeSlots,
-  getEventsForDay,
-  startOfWeek,
-} from "./utils"
+import { addDays, generateTimeSlots, getEventsForDay } from "./utils"
 import { WeekView } from "./WeekView"
 
 const CalendarContainer = styled(Box)`

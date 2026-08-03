@@ -218,7 +218,7 @@ export class WikipediaAdapter implements SourceAdapter {
                   )
                 }
               }
-            } catch (error) {
+            } catch (_error) {
               // Non-fatal: just skip this person
             }
           }

@@ -7,7 +7,6 @@
  * Env creds are cleared before import so the test is deterministic regardless of
  * the runner's environment (the module reads process.env at load time).
  */
-/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-var-requires */
 
 type EnsureFn = (args: { strapi: any }) => Promise<void>
 

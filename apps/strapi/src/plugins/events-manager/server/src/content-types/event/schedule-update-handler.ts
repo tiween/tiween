@@ -31,7 +31,6 @@ export async function handleEventScheduleUpdate({
 }: {
   strapi: Core.Strapi
   before: EventScheduleSnapshot | undefined
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   row: any
 }): Promise<void> {
   try {

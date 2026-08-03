@@ -8,7 +8,7 @@
  */
 
 import { useCallback, useEffect, useMemo, useReducer, useState } from "react"
-import { Box, Flex, Loader, Typography } from "@strapi/design-system"
+import { Box, Loader, Typography } from "@strapi/design-system"
 import { useFetchClient } from "@strapi/strapi/admin"
 
 import type { ShowtimeWithEvent } from "../../hooks/useShowtimes"

@@ -59,7 +59,7 @@ development_status:
   # --no-verify). Measured: 266 client warnings / 0 errors. Backend unlinted.
   # Sequencing: 1-10 gates 1-12. 1-12 / 1-13 close open Epic 5 retro action items.
   1-10-restore-client-eslint-enforcement: done
-  1-11-bring-strapi-backend-under-lint: ready-for-dev
+  1-11-bring-strapi-backend-under-lint: done
   1-12-i18n-western-numeral-lint-guard: backlog
   1-13-repo-hygiene-encoding-ci-guard: backlog
   epic-1-retrospective: optional

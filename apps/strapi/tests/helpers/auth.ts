@@ -29,7 +29,6 @@ export async function seedUserAndJwt(
   const password = opts.password ?? "Password123!"
   const roleName = opts.role ?? "authenticated"
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const role = await (strapi as any)
     .query("plugin::users-permissions.role")
     .findOne({ where: { type: roleName } })
@@ -38,7 +37,6 @@ export async function seedUserAndJwt(
     throw new Error(`Role "${roleName}" not found in Users-Permissions`)
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const user = await (strapi as any)
     .plugin("users-permissions")
     .service("user")
@@ -52,7 +50,6 @@ export async function seedUserAndJwt(
       provider: "local",
     })
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const jwt: string = (strapi as any)
     .plugin("users-permissions")
     .service("jwt")

@@ -6,7 +6,7 @@ import { distance } from "fastest-levenshtein"
 
 import type { NormalizedPerson, NormalizedPlay } from "../types.js"
 
-import { generateSlug, normalizeForComparison } from "./text.js"
+import { normalizeForComparison } from "./text.js"
 
 interface DuplicateMatch {
   index1: number

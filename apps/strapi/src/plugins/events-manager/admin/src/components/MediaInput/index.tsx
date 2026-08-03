@@ -56,7 +56,7 @@ export function MediaInput({
   value,
   onChange,
   multiple = false,
-  allowedTypes = ["images"],
+  allowedTypes: _allowedTypes = ["images"],
   label,
   disabled = false,
 }: MediaInputProps) {

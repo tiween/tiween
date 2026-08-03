@@ -42,7 +42,12 @@ interface StatCardProps {
   color?: string
 }
 
-function StatCard({ title, value, icon, color = "primary600" }: StatCardProps) {
+function StatCard({
+  title,
+  value,
+  icon,
+  color: _color = "primary600",
+}: StatCardProps) {
   return (
     <Card padding={4}>
       <Flex gap={3} alignItems="center">

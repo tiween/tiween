@@ -13,7 +13,6 @@ import {
   Flex,
   Grid,
   Modal,
-  NumberInput,
   SingleSelect,
   SingleSelectOption,
   Textarea,
@@ -30,7 +29,7 @@ import type {
 } from "../../hooks/useVenuesEnhanced"
 import type { MediaAsset } from "../MediaInput"
 
-import { useVenue, useVenueMutations } from "../../hooks/useVenuesEnhanced"
+import { useVenueMutations } from "../../hooks/useVenuesEnhanced"
 import { CitySelector } from "../CitySelector"
 import { MediaInput } from "../MediaInput"
 import { validateVenueForm } from "./validate"
@@ -184,7 +183,7 @@ export function VenueFormModal({
   )
 
   const handleCityChange = useCallback(
-    (cityId: number | null, city: City | null) => {
+    (cityId: number | null, _city: City | null) => {
       setFormData((prev) => ({ ...prev, cityId }))
     },
     []

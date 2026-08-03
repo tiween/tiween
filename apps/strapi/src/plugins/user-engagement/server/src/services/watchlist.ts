@@ -1,4 +1,10 @@
 import type { Core } from "@strapi/strapi"
+// Compile-time only (`import type`), so this does not create a runtime
+// dependency on the events-manager plugin -- the call below still goes through
+// the `strapi.plugin(...).service(...)` facade. Importing the producer's own
+// type instead of re-declaring it means a rename/addition there breaks here
+// loudly rather than silently returning `null` forever.
+import type { ScreeningInfo } from "../../../../events-manager/server/src/services/public-api"
 
 const PLUGIN_ID = "user-engagement"
 const WATCHLIST_UID = `plugin::${PLUGIN_ID}.user-watchlist`
@@ -73,14 +79,7 @@ const watchlistService = ({ strapi }: { strapi: Core.Strapi }) => ({
       .map((row: any) => row.creativeWork?.documentId)
       .filter(Boolean) as string[]
 
-    let enrichment: Record<
-      string,
-      {
-        nextScreeningDate: string | null
-        lastScreeningDate: string | null
-        venueName: string | null
-      }
-    > = {}
+    let enrichment: Record<string, ScreeningInfo> = {}
 
     if (ids.length > 0) {
       try {
@@ -97,7 +96,10 @@ const watchlistService = ({ strapi }: { strapi: Core.Strapi }) => ({
     }
 
     return rows.map((row: any) => {
-      const info = enrichment[row.creativeWork?.documentId] ?? {}
+      // DW-168: annotate the fallback so `?? {}` cannot widen `info` to the
+      // empty object type (which loses every property and produces TS2339).
+      const info: Partial<ScreeningInfo> =
+        enrichment[row.creativeWork?.documentId] ?? {}
       return {
         ...row,
         nextScreeningDate: info.nextScreeningDate ?? null,

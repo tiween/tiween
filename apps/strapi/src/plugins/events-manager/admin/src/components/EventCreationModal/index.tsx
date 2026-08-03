@@ -9,7 +9,6 @@ import {
   NumberInput,
   SingleSelect,
   SingleSelectOption,
-  TextInput,
   TimePicker,
   Typography,
 } from "@strapi/design-system"

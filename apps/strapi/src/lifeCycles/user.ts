@@ -1,7 +1,7 @@
+import crypto from "node:crypto"
+
 import { Event } from "@strapi/database/dist/lifecycles"
 import { Core } from "@strapi/strapi"
-
-const crypto = require("crypto")
 
 export const registerUserSubscriber = async ({
   strapi,

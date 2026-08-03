@@ -15,7 +15,6 @@ import {
   cleanText,
   detectLanguage,
   generateSlug,
-  isArabic,
   isPrimarilyArabic,
 } from "../utils/text.js"
 
@@ -99,7 +98,7 @@ export function normalizePlay(
  * Normalize a raw person to the standard format
  */
 export function normalizePerson(raw: RawPersonData): NormalizedPerson {
-  let name = raw.name
+  const name = raw.name
   let name_ar: string | undefined
 
   // Detect if name is Arabic

@@ -10,7 +10,7 @@
  * test pulls in a hook not listed here, add it explicitly rather than
  * auto-mocking the whole module.
  */
-/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { jest } from "@jest/globals"
 
 export const useFetchClient = jest.fn(() => ({

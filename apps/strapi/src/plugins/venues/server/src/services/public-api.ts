@@ -1,7 +1,6 @@
 import type { Core } from "@strapi/strapi"
 
 const PLUGIN_ID = "venues"
-const VENUE_UID = `plugin::${PLUGIN_ID}.venue` as const
 
 /**
  * Public API facade — the ONLY sanctioned cross-plugin entry point for the

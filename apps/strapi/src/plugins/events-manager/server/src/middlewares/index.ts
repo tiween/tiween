@@ -13,7 +13,7 @@ import { createRateLimit } from "./rate-limit"
  * if a caller attaches it without config.
  */
 export default {
-  "trending-rate-limit": (config: any, { strapi }: any) =>
+  "trending-rate-limit": (config: any, { strapi: _strapi }: any) =>
     createRateLimit({
       max: config?.max ?? 100,
       windowMs: config?.windowMs ?? 60_000,

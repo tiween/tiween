@@ -69,7 +69,6 @@ function buildHarness(opts: HarnessOpts = {}) {
     log: { error: logError, warn: logWarn, info: jest.fn() },
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ;(global as any).strapi = mockStrapi
 
   const plugin = {
@@ -90,7 +89,6 @@ function buildHarness(opts: HarnessOpts = {}) {
     },
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const wrapped = profileExtension(plugin as any)
 
   return {
@@ -129,7 +127,6 @@ const CHANGE_URL = "https://tiween.localhost:1355/auth/change-email"
 
 describe("users-permissions user.updateMe (self-scoped, unit)", () => {
   afterEach(() => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     delete (global as any).strapi
     jest.restoreAllMocks()
   })
@@ -285,7 +282,6 @@ describe("users-permissions auth.changeEmail (unit)", () => {
     delete process.env.RESET_TOKEN_TTL_MS
   })
   afterEach(() => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     delete (global as any).strapi
     delete process.env.CLIENT_EMAIL_CHANGE_URL
     delete process.env.RESET_TOKEN_TTL_MS
@@ -423,7 +419,6 @@ describe("users-permissions auth.changeEmail (unit)", () => {
 
 describe("users-permissions auth.confirmEmailChange (unit)", () => {
   afterEach(() => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     delete (global as any).strapi
     jest.restoreAllMocks()
   })
@@ -601,7 +596,6 @@ describe("users-permissions auth.confirmEmailChange (unit)", () => {
 
 describe("users-permissions Story 4.4 route registration (unit)", () => {
   afterEach(() => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     delete (global as any).strapi
   })
 

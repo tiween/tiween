@@ -31,12 +31,10 @@ jest.setTimeout(60000)
 
 let strapi: Core.Strapi
 type EventManagerService = ReturnType<
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (typeof import("../event-manager"))["default"]
 >
 
 function service(): EventManagerService {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return (strapi as any).plugin("events-manager").service("event-manager")
 }
 
@@ -164,7 +162,6 @@ describe("event-manager service: duplicateEvent", () => {
       eventId: original.documentId,
     })
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const duplicatedWithScreenings: any = await strapi
       .documents("plugin::events-manager.event")
       .findOne({
@@ -191,7 +188,6 @@ describe("event-manager service: duplicateEvent", () => {
       dateOffset: 7,
     })
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const populated: any = await strapi
       .documents("plugin::events-manager.event")
       .findOne({

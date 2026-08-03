@@ -82,7 +82,6 @@ function buildHarness(opts: HarnessOpts = {}) {
     log: { error: logError, warn: logWarn, info: jest.fn() },
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ;(global as any).strapi = mockStrapi
 
   const plugin = {
@@ -99,7 +98,6 @@ function buildHarness(opts: HarnessOpts = {}) {
     },
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const wrapped = resetExtension(plugin as any)
 
   return {
@@ -136,7 +134,6 @@ describe("users-permissions forgotPassword override (unit)", () => {
     delete process.env.RESET_TOKEN_TTL_MS
   })
   afterEach(() => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     delete (global as any).strapi
     delete process.env.CLIENT_RESET_PASSWORD_URL
     delete process.env.RESET_TOKEN_TTL_MS
@@ -267,7 +264,6 @@ describe("users-permissions forgotPassword override (unit)", () => {
 
 describe("users-permissions resetPassword override (unit)", () => {
   afterEach(() => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     delete (global as any).strapi
     jest.restoreAllMocks()
   })
@@ -414,7 +410,6 @@ describe("users-permissions resetPassword override (unit)", () => {
 
 describe("users-permissions wrapped jwt.verify (session invalidation, unit)", () => {
   afterEach(() => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     delete (global as any).strapi
   })
 

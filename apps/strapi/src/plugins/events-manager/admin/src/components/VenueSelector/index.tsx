@@ -7,7 +7,6 @@
 
 import { useCallback, useEffect, useState } from "react"
 import {
-  Badge,
   Box,
   Combobox,
   ComboboxOption,

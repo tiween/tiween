@@ -11,11 +11,7 @@ import type {
   NormalizedPlay,
 } from "../types.js"
 
-import {
-  createAllAdapters,
-  getAdapter,
-  getAdapterNames,
-} from "../adapters/index.js"
+import { getAdapter, getAdapterNames } from "../adapters/index.js"
 import { deduplicatePersons, deduplicatePlays } from "../utils/dedup.js"
 import { getImageKitConfig, ImageKitService } from "./imagekit.js"
 import { normalizeAdapterResult } from "./normalizer.js"

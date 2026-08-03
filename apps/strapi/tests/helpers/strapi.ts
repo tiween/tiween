@@ -23,9 +23,8 @@ import fs from "fs"
 
 import type { Core } from "@strapi/strapi"
 
-// eslint-disable-next-line @typescript-eslint/no-require-imports
 const path = require("path")
-// eslint-disable-next-line @typescript-eslint/no-require-imports
+
 const { createStrapi } = require("@strapi/strapi")
 
 let instance: Core.Strapi | undefined
@@ -62,7 +61,7 @@ export async function cleanupStrapi(): Promise<void> {
   // and tears down the DB pool in the right order. Without it, an in-flight
   // scheduled job can fire after we destroy the connection and throw an
   // unhandled `ERR_UNHANDLED_ERROR` that breaks `yarn test` exit code.
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   await (instance as any).destroy()
 
   const tmpDbFile = dbSettings?.connection?.filename

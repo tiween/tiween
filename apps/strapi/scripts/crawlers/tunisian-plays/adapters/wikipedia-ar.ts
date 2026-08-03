@@ -227,7 +227,7 @@ export class WikipediaArAdapter implements SourceAdapter {
     const cast = this.parsePersonList(infobox.الممثلون)
 
     // Clean title - remove disambiguation
-    let cleanTitle = title
+    const cleanTitle = title
       .replace(/\s*\(مسرحية(?:\s+تونسية)?\)\s*$/i, "")
       .trim()
 
