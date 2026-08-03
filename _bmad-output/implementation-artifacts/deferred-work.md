@@ -116,7 +116,8 @@ status: open
 origin: migrated from legacy ledger ("Deferred from: code review of 2d-1-extend-venue-schema-to-rich-model (2026-06-18)"), 2026-07-12
 location: n/a
 reason: `website` venue field is a plain `string` with no URL validation
-status: open
+status: done 2026-08-03
+resolution: resolved by sweep bundle dw-venue-website-url-validation
 
 ### DW-16: Dev super-admin seeder swallows all errors
 
@@ -1113,4 +1114,32 @@ status: open
 origin: follow-up review of spec-dw-12-13-catalog-schema-and-seed-integrity.md (2026-08-03)
 location: apps/strapi/scripts/seeds/data/creative-works.json
 reason: (LOW) Of the 25 works in the corpus only 12 carry `directors`, 6 carry `cast` and 5 carry a `trailer`, so even with the mapping fixed 13 works seed with empty `credits[]`, 19 with empty `cast[]` and 20 with empty `videos[]`. The plumbing is correct and every referenced person/genre slug resolves (now asserted in the unit gate), but a seeded environment still cannot meaningfully exercise the admin WorkForm's cast/crew editors or the public detail pages. Fix is content work on the seed data, not code. Surfaced by the previous review pass of this spec, not previously transcribed to the ledger.
+status: open
+
+### DW-155: `VenueFormModal` silently swallows every server-side rejection
+
+origin: follow-up review of spec-dw-15-venue-website-url-validation.md (2026-08-03)
+location: apps/strapi/src/plugins/events-manager/admin/src/components/VenueFormModal/index.tsx
+reason: (MEDIUM) The modal destructures only `{ createVenue, updateVenue, isLoading }` from `useVenueMutations()` and never reads the hook's `error`; both mutations in `useVenuesEnhanced.ts` catch, store the error internally and return `null`, and `handleSubmit` ends with a bare `if (result) onSuccess()` — no `else`. Any server rejection therefore produces nothing on screen: the spinner stops and the modal sits there. Reproduce by creating a venue whose name collides with an existing `slug` (a `uid` attribute, so unique): the POST 400s and the editor gets no toast, no field error, no message, and can only click Save forever. This is pre-existing behavior, not introduced by DW-15 — but it is the reason the DW-15 lifecycle's `ValidationError` (message + `details.code`) reaches no editor on this surface; only the new client-side check does. Fix is to surface the hook's `error` in the modal (banner or field-level mapping keyed on `details.code`), which is a change to the modal's error contract rather than to the website rule. Surfaced by all three reviewers.
+status: open
+
+### DW-156: Clearing `description`/`address`/`phone`/`email`/`capacity` in the venue form is silently ignored
+
+origin: follow-up review of spec-dw-15-venue-website-url-validation.md (2026-08-03)
+location: apps/strapi/src/plugins/events-manager/admin/src/components/VenueFormModal/index.tsx
+reason: (MEDIUM) `handleSubmit` builds its payload with `description: formData.description || undefined` and the same `|| undefined` shape for `address`, `phone`, `email` and `capacity`. `undefined` is dropped by `JSON.stringify`, so an emptied field is simply absent from the PUT body, Strapi's partial update leaves the stored value in place, and `onSuccess()` still fires — the editor is told the save worked while the old value survives. Reproduce by deleting a venue's phone number and saving: the list refetches showing the old number. DW-15 fixed exactly this failure mode for `website` only (it now submits the trimmed value or `null`); the other five fields still exhibit it. Fix is to apply the same explicit-`null` treatment across the payload, which needs a per-field decision about whether `null` or omission is correct for each attribute — hence deferred rather than patched inside a website-validation story. Surfaced by the Blind Hunter.
+status: open
+
+### DW-157: Four events-manager admin component tests match no runner's glob and never execute
+
+origin: follow-up review of spec-dw-15-venue-website-url-validation.md (2026-08-03)
+location: apps/strapi/src/plugins/events-manager/admin/src/components/**tests**/
+reason: (MEDIUM) `VenueCard.test.tsx`, `MovieCard.test.tsx`, `EventCreationModal.test.tsx` and `ImportTab.test.tsx` are run by nothing: `apps/strapi/jest.config.cjs` sets `testMatch: ["**/*.unit.test.ts"]` in a `node` environment, and the only other config in the repo (`apps/client/vitest.config.ts`) scopes `include` to `apps/client/src`. They read as coverage of the venue/event admin surfaces while asserting nothing, which is worse than no tests — DW-15 had to route its form rules into a separate `.ts` module precisely because this gap makes `.tsx` logic unverifiable. Fix is either a jsdom project in the Strapi jest config that picks up `*.test.tsx` (and repairing whatever those four suites currently assert) or deleting them; same blind-spot family as DW-144. Surfaced by the Verification Gap reviewer.
+status: open
+
+### DW-158: The `strapi import` write path is unvalidated at every layer, tracked only by a code comment
+
+origin: follow-up review of spec-dw-15-venue-website-url-validation.md (2026-08-03)
+location: apps/strapi/src/plugins/venues/server/src/bootstrap.ts
+reason: (MEDIUM) `@strapi/data-transfer`'s local-destination provider calls `strapi.db.lifecycles.disable()` for the whole restore and writes through `db.query().create`, so a `strapi import` bypasses the venues DB lifecycle subscriber, the content-type `regex` (the entity validator is bypassed too) and obviously the admin form. DW-15 deliberately scoped this out — a restore is an operator replaying a trusted export, not user input — and documented it in a "KNOWN GAP" block in `bootstrap.ts`. The gap itself is an accepted decision; what is missing is any tracking outside that one paragraph: nothing warns an operator, nothing re-validates after a restore, and the rest of the system now assumes venue `website` values cannot be malformed. This is not specific to `website` — the same disable applies to every lifecycle-enforced invariant in the repo (slug hooks, audit hooks, any future validation subscriber), so a restore can seed data no live write path would accept. Fix is a decision, not a patch: either a post-import validation pass over the affected content types, a pre-import check in the import wrapper, or an explicit written statement that imports are trusted and the invariants are advisory. Surfaced by the Blind Hunter.
 status: open

@@ -42,7 +42,9 @@
       "type": "email"
     },
     "website": {
-      "type": "string"
+      "type": "string",
+      "maxLength": 255,
+      "regex": "^$|^(?:[Hh][Tt][Tt][Pp][Ss]?)://(?:[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?\\.)+[A-Za-z]{2,}(?::\\d{1,5})?(?:[/?#][^\\s\\x00-\\x1F\\x7F\\u061C\\u200B-\\u200F\\u202A-\\u202E\\u2060-\\u2064\\u2066-\\u2069\\uFEFF]*)?$"
     },
     "type": {
       "type": "enumeration",

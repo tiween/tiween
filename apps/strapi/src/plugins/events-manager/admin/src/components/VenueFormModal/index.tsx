@@ -33,6 +33,7 @@ import type { MediaAsset } from "../MediaInput"
 import { useVenue, useVenueMutations } from "../../hooks/useVenuesEnhanced"
 import { CitySelector } from "../CitySelector"
 import { MediaInput } from "../MediaInput"
+import { validateVenueForm } from "./validate"
 
 interface VenueFormModalProps {
   /** Venue to edit (null for create mode) */
@@ -190,19 +191,9 @@ export function VenueFormModal({
   )
 
   const validate = useCallback((): boolean => {
-    const newErrors: Partial<Record<keyof FormData, string>> = {}
-
-    if (!formData.name.trim()) {
-      newErrors.name = "Le nom est requis"
-    }
-
-    if (!formData.type) {
-      newErrors.type = "Le type est requis"
-    }
-
-    if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = "Email invalide"
-    }
+    // Rules live in `./validate` so they are covered by the `*.unit.test.ts`
+    // gate, which does not load `.tsx` files.
+    const newErrors = validateVenueForm(formData)
 
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
@@ -221,7 +212,13 @@ export function VenueFormModal({
       cityRef: formData.cityId || undefined,
       phone: formData.phone || undefined,
       email: formData.email || undefined,
-      website: formData.website || undefined,
+      // Empty submits as `null`, NOT `undefined`: `undefined` is dropped by
+      // JSON serialization, so the key would be absent and the lifecycle would
+      // treat the save as "website untouched" — an editor clearing a bad legacy
+      // URL would be told it saved while the old value survived. `null` rather
+      // than `""` keeps ONE representation of "no website" in the column, so a
+      // `filters[website][$null]` query still finds venues created here.
+      website: formData.website.trim() || null,
       capacity: formData.capacity ? parseInt(formData.capacity, 10) : undefined,
       logo: formData.logo?.id || null,
       images: formData.images.map((img) => img.id),
@@ -404,7 +401,7 @@ export function VenueFormModal({
                 </Grid.Item>
 
                 <Grid.Item col={12}>
-                  <Field.Root>
+                  <Field.Root error={errors.website}>
                     <Field.Label>Site web</Field.Label>
                     <TextInput
                       value={formData.website}
@@ -413,6 +410,7 @@ export function VenueFormModal({
                       }
                       placeholder="https://www.lieu.tn"
                     />
+                    <Field.Error />
                   </Field.Root>
                 </Grid.Item>
               </Grid.Root>

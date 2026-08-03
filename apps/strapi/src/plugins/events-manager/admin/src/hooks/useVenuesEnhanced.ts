@@ -248,7 +248,8 @@ export interface VenueInput {
   address?: string
   phone?: string
   email?: string
-  website?: string
+  /** `null` clears a stored value; `undefined` leaves it untouched. */
+  website?: string | null
   type?: VenueType
   capacity?: number
   status?: VenueStatus
