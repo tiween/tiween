@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { useRouter, useSearchParams } from "next/navigation"
+import { useUnreadNotificationCount } from "@/features/notifications/hooks/useNotifications"
 import { useLocale } from "next-intl"
 
 import type { TabType } from "@/components/layout/BottomNav"
@@ -11,9 +12,9 @@ import type { CategoryType } from "../CategoryTabs"
 import type { FilmHeroEvent } from "../FilmHero"
 import type { RegionOption } from "../RegionCitySelector/RegionCitySelector"
 
+import { toNumeralSafeLocale } from "@/lib/intl-locale"
 import { BottomNav } from "@/components/layout/BottomNav"
 import { Header } from "@/components/layout/Header"
-import { useUnreadNotificationCount } from "@/features/notifications/hooks/useNotifications"
 
 import { getEventStartDate, mapTypeToCategory } from "../../utils"
 import { CategoryTabs } from "../CategoryTabs"
@@ -339,7 +340,7 @@ export function HomePageWithCity({
     if (/^\d{4}-\d{2}-\d{2}$/.test(activeDate)) {
       const date = parseDateString(activeDate)
       return date.toLocaleDateString(
-        locale === "ar" ? "fr-TN" : `${locale}-TN`,
+        toNumeralSafeLocale(locale === "ar" ? "fr-TN" : `${locale}-TN`),
         {
           weekday: "long",
           day: "numeric",

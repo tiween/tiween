@@ -7,6 +7,8 @@ import localizedFormat from "dayjs/plugin/localizedFormat"
 import timezone from "dayjs/plugin/timezone"
 import utc from "dayjs/plugin/utc"
 
+import { toNumeralSafeLocale } from "./intl-locale"
+
 export const DATE_FORMAT = "DD/MM/YYYY"
 export const TIME_FORMAT = "HH:mm"
 export const DATE_TIME_FORMAT = "DD/MM/YYYY HH:mm"
@@ -138,11 +140,12 @@ export function formatRelativeTime(
   if (Number.isNaN(then.getTime())) return ""
 
   // Arabic keeps its own wording but MUST use Western (Latin) numerals per
-  // Tunisian convention — force the `latn` numbering system via the Unicode
-  // extension rather than swapping to French words (which would print "il y a…"
-  // inside an Arabic sentence).
-  const resolvedLocale = locale === "ar" ? "ar-u-nu-latn" : locale
-  const rtf = new Intl.RelativeTimeFormat(resolvedLocale, { numeric: "auto" })
+  // Tunisian convention — `toNumeralSafeLocale` forces the `latn` numbering
+  // system via the Unicode extension rather than swapping to French words
+  // (which would print "il y a…" inside an Arabic sentence).
+  const rtf = new Intl.RelativeTimeFormat(toNumeralSafeLocale(locale), {
+    numeric: "auto",
+  })
 
   // A "last synced" time is always in the past; clamp future skew (a fast client
   // clock) to 0 so the banner never reads "synced in the future".

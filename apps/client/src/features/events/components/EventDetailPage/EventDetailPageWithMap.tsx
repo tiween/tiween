@@ -37,6 +37,7 @@ import type { VenueLocation } from "../Map"
 import type { VenueType } from "../VenueSelector"
 
 import { formatDate } from "@/lib/dates"
+import { toNumeralSafeLocale } from "@/lib/intl-locale"
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -509,11 +510,13 @@ export function EventDetailPageWithMap({
                   <div className="flex flex-wrap gap-2">
                     {showtimes?.map((showtime) => {
                       const time = new Date(showtime.time).toLocaleTimeString(
-                        locale === "ar"
-                          ? "ar-TN"
-                          : locale === "fr"
-                            ? "fr-TN"
-                            : "en-US",
+                        toNumeralSafeLocale(
+                          locale === "ar"
+                            ? "ar-TN"
+                            : locale === "fr"
+                              ? "fr-TN"
+                              : "en-US"
+                        ),
                         { hour: "2-digit", minute: "2-digit" }
                       )
                       const isSoldOut =

@@ -1299,3 +1299,101 @@ origin: review of spec-1-11-bring-strapi-backend-under-lint.md (2026-08-03)
 location: apps/strapi/eslint.config.mjs
 reason: (LOW) Two decisions from story 1.11 are correct for the server but broader than their stated cause. (a) `@typescript-eslint/no-explicit-any: "off"` is justified by `strict: false` plus Strapi's generated types, yet applies to the admin React surface too, where neither rationale holds. (b) Type-aware linting was skipped for cost reasons, so `no-floating-promises` / `no-misused-promises` are absent from a backend that is almost entirely async service calls — a real class of bug on the exact surface this project cares about. Both were explicitly in-scope decisions of 1.11 (recorded in its Completion Notes), so this entry exists only to make the revisit trackable. Fix is to scope `no-explicit-any: "off"` to the server dirs, and to evaluate `projectService` on a `src/**` -only block where the cost is bounded. Surfaced by the Blind Hunter.
 status: open
+
+### DW-182: `apps/strapi` has 10 unguarded `Intl` / `toLocale*String` sites; `@tiween/western-numerals` was not extended there
+
+origin: story 1-12-i18n-western-numeral-lint-guard (2026-08-03)
+location: apps/strapi/src/plugins/\*/admin/src/\*\*, packages/eslint-config/plugin.mjs, apps/strapi/eslint.config.mjs
+reason: (MEDIUM) Story 1.12 wired `@tiween/western-numerals` as an **error** in `apps/client` only; the story's Boundaries block explicitly forbade extending it to `apps/strapi` in the same pass. The backend admin panel formats dates and counts through the same locale-sensitive APIs (`toLocaleDateString`, `toLocaleString`, `Intl.NumberFormat`) at 10 call sites (measured 2026-08-03 across `apps/strapi/src` + `apps/strapi/scripts`), none of which is covered by any numeral guarantee. Extending the rule there is cheap — `apps/strapi/eslint.config.mjs` is self-contained, so it would import `@tiween/eslint-config/plugin` and add one rule entry — but the admin surface is also the one DW-176/DW-177 show has no React lint rules and no `tsc` coverage, so the paydown needs its own verification story rather than riding along. The Strapi admin is an internal B2B surface with a French/English UI, which is why it was ranked below the public client. Fix is a follow-up story: register the plugin in the backend config, pay down the surfaced sites against a backend-local `toNumeralSafeLocale` equivalent (the client helper lives under `apps/client/src/lib` and must not be cross-imported), and verify with `corepack yarn workspace @tiween/admin lint`.
+status: open
+
+### DW-183: HomePage prints French month names inside Arabic copy (`locale === "ar" ? "fr-TN" : ...`)
+
+origin: story 1-12-i18n-western-numeral-lint-guard (2026-08-03)
+location: apps/client/src/features/events/components/HomePage/HomePage.tsx, apps/client/src/features/events/components/HomePage/HomePageWithCity.tsx
+reason: (MEDIUM) Both HomePage variants format the active-date section title with a ternary that maps `ar` to `fr-TN` and every other locale to a `<locale>-TN` template, so an Arabic reader sees a French weekday and month ("vendredi 16 janvier") inside otherwise-Arabic copy. Story 1.12 wrapped the whole expression in `toNumeralSafeLocale(...)` **without touching the French branch**: the numeral guarantee was this story's scope, the wording is a product decision (its Boundaries block names this exclusion explicitly). The same file also hardcodes French strings for the `tomorrow` / `this-week` / `weekend` filter titles ("Demain", "Cette semaine", "Ce week-end"), which is the same untranslated-copy defect and should be fixed together. Fix is a product/UX decision — either translate the titles via next-intl and switch the formatter to `ar-TN` (Arabic words, `latn` digits, which the helper already guarantees), or keep French deliberately and document why. Note that `formatShowtimeLabel` and `formatRelativeTime` already take the Arabic-words path, so the app is currently inconsistent with itself.
+status: open
+
+### DW-184: `formatDate`'s dayjs "French words for Arabic" idiom is outside the lint rule's reach
+
+origin: story 1-12-i18n-western-numeral-lint-guard (2026-08-03)
+location: apps/client/src/lib/dates.ts
+reason: (LOW) `formatDate` (and its siblings in `lib/dates.ts`) render through **dayjs**, not `Intl`, using `d.locale(locale === "ar" ? "fr" : locale)` — so Arabic dates come out in French words. `@tiween/western-numerals` matches `Intl.*` constructions and `toLocale*String` member calls only; a dayjs call exposes no such AST, so this idiom is invisible to the guard and would stay invisible if someone changed it to `d.locale("ar")` (dayjs's `ar` locale ships Arabic-Indic digit output via its `preparse`/`postformat` hooks). The numeral risk is currently zero _because_ of the French substitution, which makes it a latent trap rather than a live defect. Fix options: migrate `formatDate` to `Intl.DateTimeFormat` (bringing it under the rule and letting Arabic keep Arabic words with `latn` digits — this is the same wording question as DW-183 and should land with it), or extend the rule with a `dayjs`-aware check. Deliberately excluded by story 1.12's Boundaries block ("Do not migrate `formatDate`'s French-words-for-Arabic idiom").
+status: open
+
+### DW-185: `apps/client` is absent from the `turbo type-check` graph and its `tsc --noEmit` is red on 91 pre-existing errors
+
+origin: story 1-12-i18n-western-numeral-lint-guard (2026-08-03)
+location: apps/client/package.json, turbo.json
+reason: (MEDIUM) The client declares its TypeScript gate as `"typecheck": "tsc --noEmit"` (no hyphen) while the turbo task — and the root `yarn type-check` script — is named `type-check`. Only `@tiween/admin` matches, so `corepack yarn type-check` reports "2 successful, 2 total" and exits 0 while never type-checking the client at all. Measured on the untouched tree at `8bf5c6a`, `cd apps/client && npx tsc --noEmit` emits **91 errors** (mostly `strictNullChecks` violations in `src/lib/strapi-api/**` and the `desktop-prototypes/**` pages); story 1.12 verified byte-for-byte that it introduced none of them (91 before, 91 after, differing only by line-number shifts from added import lines). Related but separate: `@tiween/client#build` also fails at baseline on `desktop-prototypes/ticketing-quantity/page.tsx:146` (`Object is possibly 'undefined'`), which makes the turbo `test` task — which `dependsOn: ["build"]` — red for the client even though `vitest run` itself passes 626/626. Fix is to rename the script to `type-check` (or alias it), then land the 91-error paydown as its own story; renaming alone would turn CI red immediately.
+status: open
+
+### DW-186: `@tiween/western-numerals` reads syntax, not bindings — aliased `Intl`, `.call`/`.bind`, and same-named helpers evade it
+
+origin: story 1-12-i18n-western-numeral-lint-guard (2026-08-03), review pass
+location: packages/eslint-config/rules/western-numerals.mjs
+reason: (MEDIUM) The rule matches AST shapes without scope or import resolution, so several forms slip past a guard the spec calls "fail-closed". Verified as unreported: `const { NumberFormat } = Intl; new NumberFormat(locale)`; `Number.prototype.toLocaleString.call(n, locale)`; a `d.toLocaleDateString.bind(d)` reference invoked later; and a _locally shadowed_ `function toNumeralSafeLocale(l) { return l }`, which silences every call site because `safeLocaleHelpers` is matched by name alone. The review pass closed the two cheap cases (computed member access `Intl["NumberFormat"]` / `d["toLocaleDateString"]`, and an explicit non-`latn` `numberingSystem` in the options bag); these remaining ones need scope analysis via `context.sourceCode.getScope()` plus import-origin checking, or a type-aware rule. None is reachable by accident — they are all deliberate-looking constructs, and the rule's purpose is preventing accidental recurrence of the 5.4/5.5 pattern — so the residual risk is low, but the "fail-closed" claim is stronger than the implementation. Note DW-182 plans a second, backend-local `toNumeralSafeLocale`, which would inherit the same name-only trust across two divergent implementations.
+status: open
+
+### DW-187: next-intl's `useFormatter()` / `format.number` path is unguarded by the numeral rule
+
+origin: story 1-12-i18n-western-numeral-lint-guard (2026-08-03), review pass
+location: apps/client/src (no current usages), packages/eslint-config/rules/western-numerals.mjs
+reason: (MEDIUM) next-intl's sanctioned formatting API — `useFormatter()` / `getFormatter()` returning `format.number(...)` / `format.dateTime(...)` — formats with the _message_ locale, so it renders Arabic-Indic digits wherever `ar` resolves to `arab`, exactly like a raw `Intl` call. The rule matches `Intl.*` constructors and `toLocale*String` members only, so this path is invisible to it. The repo has **zero** usages today (grep across `apps/client/src` finds only a comment in `types/global.d.ts`), which is why story 1.12 did not cover it — but it is the idiomatic next-intl approach a future developer would reach for first, and a `formats` block in `getRequestConfig` cannot fix it (a named number format cannot set a numbering system for bare ICU args; measured during 1.12 planning). Fix options: add `format.number` / `format.dateTime` member calls to the guarded set (imprecise — any object named `format` would match), prefer a type-aware rule, or forbid `useFormatter` outright in favour of the `toNumeralSafeLocale` helper.
+status: open
+
+### DW-188: the rule source in `packages/eslint-config` is neither linted, type-checked, nor format-checked
+
+origin: story 1-12-i18n-western-numeral-lint-guard (2026-08-03), review pass
+location: packages/eslint-config/, .github/workflows/ci.yml, package.json
+reason: (LOW) Story 1.12 added ~250 lines of production rule logic plus its test suite to `packages/eslint-config`, which declares no `lint` and no `type-check` script — so `turbo lint` / `turbo type-check` never enter the package. Independently, CI's `yarn format:check` glob is `**/*.{js,jsx,ts,tsx,md,css,scss}`, which excludes `.mjs`, so `plugin.mjs`, `rules/western-numerals.mjs` and `rules/western-numerals.test.mjs` are outside the formatting gate too (the same blind spot applies to the three existing preset `.mjs` files, which predate this story). The `node --test` suite does run in CI, so the rule's _behaviour_ is gated; only its style and static analysis are not. Fix: give the package an `eslint.config.mjs` + `lint` script and add `mjs`/`cjs` to the root `format` / `format:check` globs — the glob widening will surface pre-existing unformatted `.mjs` files, so it pairs with DW-175.
+status: open
+
+### DW-189: hardcoded `"fr-TN"` display formatting renders French dates and currency inside the Arabic UI
+
+origin: story 1-12-i18n-western-numeral-lint-guard (2026-08-03), review pass
+location: apps/client/src/features/events/components/EventCard/EventCard.tsx, apps/client/src/features/events/components/EventDateFilter/EventDateFilter.tsx, apps/client/src/features/tickets/components/TicketQR/TicketQR.tsx, apps/client/src/features/scanner/components/ValidationResult/ValidationResult.tsx
+reason: (MEDIUM) These five call sites pass a hardcoded `"fr-TN"` to `Intl.DateTimeFormat` / `Intl.NumberFormat` / `toLocaleTimeString`, so an Arabic or English reader sees French weekday, month and currency formatting. They are _numeral_-safe, so `@tiween/western-numerals` certifies them clean and story 1.12 correctly left them untouched — but that is worth naming explicitly: with `["fr","en"]` allowlisted, hardcoding `"fr-TN"` is the cheapest way to satisfy the new error rule, and it is the wrong fix. This is the same untranslated-copy defect class as DW-183, which names only the two HomePage files; DW-183 under-reports the surface. Fix these together: thread the active locale through `toNumeralSafeLocale(locale)` once the wording decision in DW-183 is made. Also relevant: `AttendanceCounter`'s new `locale` prop defaults to `"fr-TN"` and no caller passes it yet.
+status: open
+
+### DW-190: the rule certifies `` `${locale}-u-nu-latn` ``, which throws `RangeError` when `locale` already carries a `-u-` extension
+
+origin: story 1-12-i18n-western-numeral-lint-guard (2026-08-03), follow-up review pass
+location: packages/eslint-config/rules/western-numerals.mjs (`endsWithLatn`), apps/client/src/features/tickets/utils/formatShowtimeLabel.ts:16
+reason: (MEDIUM) Safety condition (b) — a template whose last quasi ends in `-u-nu-latn` — is string concatenation, precisely the construction `intl-locale.ts:22-26` documents as unsafe and `toNumeralSafeLocale` was rebuilt (this story's own review pass) to avoid. If the interpolated value already carries a Unicode extension, the result has two `-u-` singletons and every `Intl` constructor throws: verified that `new Intl.DateTimeFormat("ar-u-ca-islamic-u-nu-latn")` raises `RangeError: Invalid language tag`. `formatShowtimeLabel.ts:16` is a live, lint-clean instance with no `try/catch`, so a locale carrying `-u-` (a URL segment, a stored preference) would crash the ticket/payment render. Likelihood is low today — next-intl constrains the route locale to `ar`/`fr`/`en` — which is why this is deferred rather than patched: the spec's design sections name this site "the golden example" and expect no report (`spec-1-12…:50, :67, :159, :195`), so tightening condition (b) is a spec-level decision, not a patch. Fix: require expression-free templates for condition (b) (matching the intent-contract's own "a template with an interpolation … errors" clause) and pay `formatShowtimeLabel` down through `toNumeralSafeLocale`.
+status: open
+
+### DW-191: turbo caches `@tiween/eslint-config#test` against inputs that cannot see the wiring it guards
+
+origin: story 1-12-i18n-western-numeral-lint-guard (2026-08-03), follow-up review pass
+location: turbo.json, packages/eslint-config/rules/western-numerals.test.mjs (the `wiring` suite)
+reason: (MEDIUM) The `wiring` test exists to fail if `apps/client/eslint.config.mjs` stops registering the `@tiween` plugin — the story names `storybook upgrade` rewriting that generated file as the realistic accident. But `turbo test --filter=@tiween/eslint-config --dry=json` resolves the task's inputs to the `packages/eslint-config` files alone (`library.mjs`, `next.mjs`, `package.json`, `plugin.mjs`, `rules/*.mjs`); `apps/client` appears nowhere in inputs or dependencies. So a change that drops the wiring touches only `apps/client`, leaves the eslint-config package byte-identical, and CI (which restores `.turbo` via `restore-keys`) replays the cached PASS — the guard reports green while the rule is off. Not patched here because every available fix edits `turbo.json` (declare the client config as an input, or set `"cache": false` on that task), which the story verified it leaves untouched. Fix: add `apps/client/eslint.config.mjs` to the task's `inputs`, or disable caching for it.
+status: open
+
+### DW-192: `toNumeralSafeLocale`'s `-u-nu-latn` is silently dropped for well-formed but unsupported language tags
+
+origin: story 1-12-i18n-western-numeral-lint-guard (2026-08-03), follow-up review pass
+location: apps/client/src/lib/intl-locale.ts:43-62
+reason: (LOW) The helper's two `catch` arms only fire on tags `Intl.Locale` rejects as malformed. A tag that is well-formed but unsupported (`"xx"`, `"und"`, a typo'd subtag) parses fine, so the helper returns e.g. `"xx-u-nu-latn"` — and `Intl` then falls back to the host default locale, which does not carry the requested numbering system. The guarantee the helper's whole design rests on is quietly void for that input class, with no signal. Unreachable today: the only producers are next-intl's route locale (`ar`/`fr`/`en`) and the `"fr-TN"` default. Fix: after `withLatn`, verify with `Intl.NumberFormat.supportedLocalesOf([tag])` and degrade to the fallback when empty.
+status: open
+
+### DW-193: `search.resultsFor`'s `{display}` is a required ICU argument with no compile-time or call-site verification
+
+origin: story 1-12-i18n-western-numeral-lint-guard (2026-08-03), follow-up review pass
+location: apps/client/locales/{ar,fr,en}.json (`search.resultsFor`), apps/client/src/app/[locale]/search/SearchPageClient.tsx:327-333
+reason: (MEDIUM) Replacing the ICU `#` with a pre-formatted `{display}` argument moved the numeral guarantee from the catalog to the caller, and nothing verifies the caller holds up its end. `icu-numerals.test.ts:139` looks like coverage but re-declares the arguments inline, so it tests the catalogs, not `SearchPageClient`; there is no test importing `SearchPageClient`, and `vitest.config.ts`'s explicit `include` list has no glob matching `src/app/**/search/**`. next-intl does not type ICU argument names, and the client is absent from `turbo type-check` (DW-185). Demonstrated: deleting the `display:` line from `SearchPageClient.tsx:330` leaves lint, the RuleTester suite and the catalog gate all green, while the search header renders the literal key `search.resultsFor` in all three locales. The same trap awaits every future `#`-to-`{display}` conversion. Fix: add a `src/app/**/search/**` vitest glob and a case asserting the rendered label, or export the label factory and test it directly.
+status: open
+
+### DW-194: the ICU catalog gate reads only `ar.json` and only ever exercises `other`-style branches
+
+origin: story 1-12-i18n-western-numeral-lint-guard (2026-08-03), follow-up review pass
+location: apps/client/src/lib/icu-numerals.test.ts:60, :96-101
+reason: (LOW) Two coverage limits, both now documented in the file but neither closed. (1) The catalog path is hardcoded to `locales/ar.json`, so a newly added Arabic-script catalog ships ungated — a `readdirSync` over `locales/` would gate every file for free. (2) Every ICU argument receives the same numeric probe, so a `{kind, select, movie {# séances} other {…}}` message is only measured through the branch the number selects; a raw `#` in an unselected `select` branch reports zero offenders. A bare `{name}` is also stringified rather than number-formatted, but that is correct to leave alone — its digits come from the caller, not the catalog. Fix: enumerate catalogs from disk, and type-probe arguments (string probes for `select`, numeric for `plural`/`number`/date-time) so each branch is rendered.
+status: open
+
+### DW-195: an object-spread `numberingSystem` still bypasses the options-bag check
+
+origin: story 1-12-i18n-western-numeral-lint-guard (2026-08-03), follow-up review pass
+location: packages/eslint-config/rules/western-numerals.mjs (`unsafeNumberingSystem`)
+reason: (LOW) The check iterates the options object's own `Property` nodes and `continue`s past anything else, so `new Intl.NumberFormat(toNumeralSafeLocale(l), { ...{ numberingSystem: "arab" } })` is certified clean and renders Arabic-Indic digits. The follow-up review pass closed the sibling case (a template-literal value, ``{ numberingSystem: `arab` }``); the spread form needs the check to recurse into `SpreadElement` arguments whose argument is an `ObjectExpression`. Deliberate-looking rather than accidental — the same class as DW-186 — so it is recorded, not patched.
+status: open

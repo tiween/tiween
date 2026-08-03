@@ -60,7 +60,7 @@ development_status:
   # Sequencing: 1-10 gates 1-12. 1-12 / 1-13 close open Epic 5 retro action items.
   1-10-restore-client-eslint-enforcement: done
   1-11-bring-strapi-backend-under-lint: done
-  1-12-i18n-western-numeral-lint-guard: backlog
+  1-12-i18n-western-numeral-lint-guard: done
   1-13-repo-hygiene-encoding-ci-guard: backlog
   epic-1-retrospective: optional
 
@@ -274,7 +274,7 @@ action_items:
   - epic: 5
     action: "Add an i18n Western-numeral guard (shared formatter or lint rule) so the Arabic ar-u-nu-latn bug cannot recur (seen in 5.4 and 5.5)."
     owner: "Dev"
-    status: specced
+    status: done
     story: "1-12-i18n-western-numeral-lint-guard"
     note: "Specced in sprint-change-proposal-2026-07-14.md; depends on 1-10 (real enforcement)."
   - epic: 5

@@ -3,6 +3,7 @@
 import * as React from "react"
 import { CalendarDays } from "lucide-react"
 
+import { toNumeralSafeLocale } from "@/lib/intl-locale"
 import { cn } from "@/lib/utils"
 import { Calendar } from "@/components/ui/calendar"
 import {
@@ -96,7 +97,9 @@ function formatDateChip(
   if (isTomorrow(date)) return labels.tomorrow
 
   // Format as abbreviated weekday and day number (e.g., "Ven. 16")
-  const weekday = date.toLocaleDateString(locale, { weekday: "short" })
+  const weekday = date.toLocaleDateString(toNumeralSafeLocale(locale), {
+    weekday: "short",
+  })
   const day = date.getDate()
   return `${weekday} ${day}`
 }
@@ -287,7 +290,7 @@ export function DateSelector({
             >
               <CalendarDays className="h-4 w-4" />
               {isCustomDateSelected
-                ? selectedDate.toLocaleDateString(locale, {
+                ? selectedDate.toLocaleDateString(toNumeralSafeLocale(locale), {
                     month: "short",
                     day: "numeric",
                   })

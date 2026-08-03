@@ -435,7 +435,7 @@
     "placeholder": "Rechercher des événements...",
     "clearSearch": "Effacer la recherche",
     "searching": "Recherche en cours...",
-    "resultsFor": "{count, plural, =0 {Aucun résultat pour «{query}»} one {# résultat pour «{query}»} other {# résultats pour «{query}»}}",
+    "resultsFor": "{count, plural, =0 {Aucun résultat pour «{query}»} one {{display} résultat pour «{query}»} other {{display} résultats pour «{query}»}}",
     "noResults": "Aucun résultat pour",
     "noResultsSuggestion": "Essayez une autre recherche ou explorez les catégories ci-dessous",
     "tryAgain": "Effacer la recherche",

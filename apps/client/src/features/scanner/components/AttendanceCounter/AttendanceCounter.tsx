@@ -3,6 +3,7 @@
 import * as React from "react"
 import { AlertTriangle, CheckCircle2, TrendingUp, Users } from "lucide-react"
 
+import { toNumeralSafeLocale } from "@/lib/intl-locale"
 import { cn } from "@/lib/utils"
 
 /**
@@ -57,6 +58,13 @@ export interface AttendanceCounterProps {
   isActive?: boolean
   /** Localized labels */
   labels?: AttendanceCounterLabels
+  /**
+   * BCP-47 locale used to format the counts. Defaults to `"fr-TN"`, matching the
+   * component's French {@link defaultLabels}, so the rendered digits no longer
+   * depend on the ambient runtime locale. Always routed through
+   * `toNumeralSafeLocale`, so Arabic renders Western numerals.
+   */
+  locale?: string
   /** Additional class names */
   className?: string
 }
@@ -107,8 +115,14 @@ export function AttendanceCounter({
   warningThreshold = 90,
   isActive = false,
   labels = defaultLabels,
+  locale = "fr-TN",
   className,
 }: AttendanceCounterProps) {
+  // One numeral-safe count formatter for the whole component. The helper call
+  // is inlined here (not hoisted into a `const`) because `@tiween/western-numerals`
+  // is fail-closed: it only trusts a locale it can see at the call site.
+  const formatCount = (value: number) =>
+    value.toLocaleString(toNumeralSafeLocale(locale))
   // Calculate metrics
   const percentage =
     totalTickets > 0 ? Math.round((scannedCount / totalTickets) * 100) : 0
@@ -169,11 +183,11 @@ export function AttendanceCounter({
       >
         <Users className={cn(sizes.icon, "text-muted-foreground")} />
         <span className={cn("font-mono font-bold", getStatusColor())}>
-          {scannedCount.toLocaleString()}
+          {formatCount(scannedCount)}
         </span>
         <span className="text-muted-foreground">/</span>
         <span className="text-muted-foreground">
-          {totalTickets.toLocaleString()}
+          {formatCount(totalTickets)}
         </span>
         {percentage > 0 && (
           <span className={cn("text-xs", getStatusColor())}>
@@ -230,10 +244,10 @@ export function AttendanceCounter({
               getStatusColor()
             )}
           >
-            {scannedCount.toLocaleString()}
+            {formatCount(scannedCount)}
           </span>
           <span className={cn(sizes.subText, "text-muted-foreground")}>
-            {labels.of} {totalTickets.toLocaleString()}
+            {labels.of} {formatCount(totalTickets)}
           </span>
         </div>
         <span
@@ -274,7 +288,7 @@ export function AttendanceCounter({
                 size === "lg" ? "text-2xl" : "text-lg"
               )}
             >
-              {remaining.toLocaleString()}
+              {formatCount(remaining)}
             </p>
           </div>
 

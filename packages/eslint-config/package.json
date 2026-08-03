@@ -6,17 +6,24 @@
   "exports": {
     "./next": "./next.mjs",
     "./library": "./library.mjs",
-    "./react-internal": "./react-internal.mjs"
+    "./react-internal": "./react-internal.mjs",
+    "./plugin": "./plugin.mjs"
   },
   "files": [
     "library.mjs",
     "next.mjs",
-    "react-internal.mjs"
+    "react-internal.mjs",
+    "plugin.mjs",
+    "rules"
   ],
+  "scripts": {
+    "test": "node --test rules/*.test.mjs"
+  },
   "devDependencies": {
     "@eslint/js": "^9.39.0",
     "@typescript-eslint/eslint-plugin": "^8.33.1",
     "@typescript-eslint/parser": "^8.33.1",
+    "eslint": "^9.39.0",
     "eslint-config-next": "^16.1.0",
     "eslint-config-prettier": "^10.1.5",
     "eslint-config-turbo": "^2.5.0",

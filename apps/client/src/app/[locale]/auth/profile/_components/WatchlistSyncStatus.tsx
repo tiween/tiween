@@ -1,22 +1,24 @@
 "use client"
 
+import { useWatchlistSyncStatus } from "@/features/events/hooks/useWatchlistSyncStatus"
 import { RefreshCw } from "lucide-react"
 import { useLocale, useTranslations } from "next-intl"
 
 import { formatRelativeTime } from "@/lib/dates"
+import { toNumeralSafeLocale } from "@/lib/intl-locale"
 import { cn } from "@/lib/utils"
-import { useWatchlistSyncStatus } from "@/features/events/hooks/useWatchlistSyncStatus"
 
 /**
  * Format an integer with Western (Latin) numerals regardless of locale. Arabic's
  * default `arab` numbering system is disallowed by the project's
- * always-Western-numerals rule, so `ar` is forced to `ar-u-nu-latn` (mirrors
- * `formatRelativeTime`). Exported for direct unit testing of the numeral rule.
+ * always-Western-numerals rule, so the tag is routed through the shared
+ * {@link toNumeralSafeLocale} helper (story 1.12 replaced the local `ar →
+ * ar-u-nu-latn` duplicate this function introduced in 5.5). Exported for direct
+ * unit testing of the numeral rule.
  */
 export function formatCount(count: number, locale: string): string {
-  const numberLocale = locale === "ar" ? "ar-u-nu-latn" : locale
   try {
-    return new Intl.NumberFormat(numberLocale).format(count)
+    return new Intl.NumberFormat(toNumeralSafeLocale(locale)).format(count)
   } catch {
     return String(count)
   }
@@ -41,7 +43,9 @@ export function WatchlistSyncStatus() {
 
   // "" when there is no snapshot OR the snapshot timestamp is unparseable — both
   // render as `neverSynced` below.
-  const relativeSynced = lastSyncedAt ? formatRelativeTime(lastSyncedAt, locale) : ""
+  const relativeSynced = lastSyncedAt
+    ? formatRelativeTime(lastSyncedAt, locale)
+    : ""
 
   return (
     <section className="space-y-3" aria-label={t("syncStatusTitle")}>
@@ -68,7 +72,9 @@ export function WatchlistSyncStatus() {
             )}
             aria-hidden="true"
           />
-          <span>{isOnline ? t("syncStatusOnline") : t("offlineIndicator")}</span>
+          <span>
+            {isOnline ? t("syncStatusOnline") : t("offlineIndicator")}
+          </span>
         </div>
 
         {/* Last synced. `formatRelativeTime` returns "" for a null/absent OR an

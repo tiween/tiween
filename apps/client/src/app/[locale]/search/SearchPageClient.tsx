@@ -19,6 +19,7 @@ import type {
   SearchResultsLabels,
 } from "@/features/search/components/SearchResults"
 
+import { toNumeralSafeLocale } from "@/lib/intl-locale"
 import { cn } from "@/lib/utils"
 import { DesktopNav } from "@/components/layout/DesktopNav"
 import { Footer } from "@/components/layout/Footer"
@@ -33,6 +34,14 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet"
+
+/**
+ * Format a result count with Western (Latin) numerals in every locale — the
+ * value fed to the `search.resultsFor` message's `display` argument.
+ */
+function formatResultCount(count: number, locale: string): string {
+  return new Intl.NumberFormat(toNumeralSafeLocale(locale)).format(count)
+}
 
 // Local storage key for recent searches
 const RECENT_SEARCHES_KEY = "tiween_recent_searches"
@@ -310,8 +319,17 @@ export function SearchPageClient({
     searching: t("searching"),
   }
 
+  // `display` carries the pre-formatted, Western-numeral count: an ICU `#`
+  // inside a plural is formatted with the *message* locale, so under `ar` it can
+  // render Arabic-Indic digits (the story-5.5 defect). `count` still drives
+  // plural selection. Mirrors the `watchlist.pendingChanges` precedent.
   const resultsLabels: SearchResultsLabels = {
-    resultsFor: (count, q) => t("resultsFor", { count, query: q }),
+    resultsFor: (count, q) =>
+      t("resultsFor", {
+        count,
+        display: formatResultCount(count, locale),
+        query: q,
+      }),
     noResults: t("noResults"),
     noResultsSuggestion: t("noResultsSuggestion"),
     tryAgain: t("tryAgain"),

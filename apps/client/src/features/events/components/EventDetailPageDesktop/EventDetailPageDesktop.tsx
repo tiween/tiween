@@ -25,6 +25,7 @@ import type { EventCardEvent } from "../../types/event.types"
 import type { StrapiEvent } from "../../types/strapi.types"
 
 import { formatDate } from "@/lib/dates"
+import { toNumeralSafeLocale } from "@/lib/intl-locale"
 import { cn } from "@/lib/utils"
 import { DesktopNav } from "@/components/layout/DesktopNav"
 import { Footer } from "@/components/layout/Footer"
@@ -700,20 +701,24 @@ export function EventDetailPageDesktop({
                       {availableDates.map((date) => {
                         const dateObj = new Date(date)
                         const dayName = dateObj.toLocaleDateString(
-                          locale === "ar"
-                            ? "ar-TN"
-                            : locale === "fr"
-                              ? "fr-TN"
-                              : "en-US",
+                          toNumeralSafeLocale(
+                            locale === "ar"
+                              ? "ar-TN"
+                              : locale === "fr"
+                                ? "fr-TN"
+                                : "en-US"
+                          ),
                           { weekday: "short" }
                         )
                         const dayNum = dateObj.getDate()
                         const monthName = dateObj.toLocaleDateString(
-                          locale === "ar"
-                            ? "ar-TN"
-                            : locale === "fr"
-                              ? "fr-TN"
-                              : "en-US",
+                          toNumeralSafeLocale(
+                            locale === "ar"
+                              ? "ar-TN"
+                              : locale === "fr"
+                                ? "fr-TN"
+                                : "en-US"
+                          ),
                           { month: "short" }
                         )
                         const isSelected = selectedDate === date
@@ -743,11 +748,13 @@ export function EventDetailPageDesktop({
                     <div className="space-y-3">
                       {showtimesByDate[selectedDate]!.map((showtime) => {
                         const time = new Date(showtime.time).toLocaleTimeString(
-                          locale === "ar"
-                            ? "ar-TN"
-                            : locale === "fr"
-                              ? "fr-TN"
-                              : "en-US",
+                          toNumeralSafeLocale(
+                            locale === "ar"
+                              ? "ar-TN"
+                              : locale === "fr"
+                                ? "fr-TN"
+                                : "en-US"
+                          ),
                           { hour: "2-digit", minute: "2-digit" }
                         )
                         const isSoldOut =

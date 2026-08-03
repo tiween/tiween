@@ -13,6 +13,7 @@ import { useLocale } from "next-intl"
 
 import type { ShowtimeSlot } from "../VenueShowtimeCard"
 
+import { toNumeralSafeLocale } from "@/lib/intl-locale"
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -182,7 +183,9 @@ export function TicketingPageDesktop({
   const formatTime = (isoTime: string) => {
     const date = new Date(isoTime)
     return date.toLocaleTimeString(
-      locale === "ar" ? "ar-TN" : locale === "fr" ? "fr-TN" : "en-US",
+      toNumeralSafeLocale(
+        locale === "ar" ? "ar-TN" : locale === "fr" ? "fr-TN" : "en-US"
+      ),
       { hour: "2-digit", minute: "2-digit" }
     )
   }
@@ -190,7 +193,9 @@ export function TicketingPageDesktop({
   const formatDateLong = (isoDate: string) => {
     const date = new Date(isoDate)
     return date.toLocaleDateString(
-      locale === "ar" ? "ar-TN" : locale === "fr" ? "fr-TN" : "en-US",
+      toNumeralSafeLocale(
+        locale === "ar" ? "ar-TN" : locale === "fr" ? "fr-TN" : "en-US"
+      ),
       { weekday: "short", day: "numeric", month: "short", year: "numeric" }
     )
   }

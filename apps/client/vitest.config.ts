@@ -84,6 +84,11 @@ export default defineConfig({
       "src/features/events/components/EventCard/**/*.test.tsx",
       // formatRelativeTime (Story 5.4).
       "src/lib/dates.test.ts",
+      // Western-numeral guard (Story 1.12): the shared locale helper, plus the
+      // catalog-wide ICU gate that renders every ar.json message at
+      // `ar-u-nu-arab` and rejects Arabic-Indic output.
+      "src/lib/intl-locale.test.ts",
+      "src/lib/icu-numerals.test.ts",
       // FilmHero disabled/pulse behavior (Story 5.1).
       "src/features/events/components/FilmHero/**/*.test.tsx",
       // EventDetailPage toggle wiring + in-flight guard (Story 5.2).

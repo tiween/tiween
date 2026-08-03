@@ -435,7 +435,7 @@
     "placeholder": "ابحث عن الفعاليات...",
     "clearSearch": "مسح البحث",
     "searching": "جاري البحث...",
-    "resultsFor": "{count, plural, =0 {لا نتائج لـ «{query}»} one {# نتيجة لـ «{query}»} other {# نتائج لـ «{query}»}}",
+    "resultsFor": "{count, plural, =0 {لا نتائج لـ «{query}»} one {{display} نتيجة لـ «{query}»} other {{display} نتائج لـ «{query}»}}",
     "noResults": "لا نتائج لـ",
     "noResultsSuggestion": "جرّب بحثًا آخر أو استكشف الفئات أدناه",
     "tryAgain": "مسح البحث",

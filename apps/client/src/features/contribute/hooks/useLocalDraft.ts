@@ -4,6 +4,8 @@ import { useCallback, useEffect, useState } from "react"
 
 import type { PlayContributionData } from "../schemas/play-contribution"
 
+import { toNumeralSafeLocale } from "@/lib/intl-locale"
+
 const DRAFT_STORAGE_KEY = "tiween:contribute:play:draft"
 
 interface DraftData {
@@ -101,8 +103,12 @@ export function formatLastSaved(date: Date, locale: string = "en"): string {
   const diffMs = now.getTime() - date.getTime()
   const diffMins = Math.floor(diffMs / 60000)
 
-  // Use Intl.RelativeTimeFormat for localized output
-  const rtf = new Intl.RelativeTimeFormat(locale, { numeric: "auto" })
+  // Use Intl.RelativeTimeFormat for localized output. The locale is routed
+  // through `toNumeralSafeLocale` so Arabic keeps its wording but never renders
+  // Arabic-Indic digits (project rule; enforced by `@tiween/western-numerals`).
+  const rtf = new Intl.RelativeTimeFormat(toNumeralSafeLocale(locale), {
+    numeric: "auto",
+  })
 
   if (diffMins < 1) {
     return rtf.format(0, "minute") // "now" in most locales

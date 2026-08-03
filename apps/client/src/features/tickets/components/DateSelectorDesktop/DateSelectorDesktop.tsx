@@ -2,6 +2,7 @@
 
 import * as React from "react"
 
+import { toNumeralSafeLocale } from "@/lib/intl-locale"
 import { cn } from "@/lib/utils"
 
 export interface DateOption {
@@ -113,9 +114,13 @@ export function generateDateOptions(
     date.setDate(date.getDate() + i)
 
     const dateStr = date.toISOString().split("T")[0]!
-    const dayName = date.toLocaleDateString(localeCode, { weekday: "short" })
+    const dayName = date.toLocaleDateString(toNumeralSafeLocale(localeCode), {
+      weekday: "short",
+    })
     const dayNumber = date.getDate()
-    const monthName = date.toLocaleDateString(localeCode, { month: "short" })
+    const monthName = date.toLocaleDateString(toNumeralSafeLocale(localeCode), {
+      month: "short",
+    })
 
     const dateOnly = new Date(date)
     dateOnly.setHours(0, 0, 0, 0)
