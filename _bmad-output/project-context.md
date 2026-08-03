@@ -229,3 +229,23 @@ yarn test:e2e         # Playwright
 yarn lint             # ESLint
 yarn type-check       # TypeScript
 ```
+
+## Isolated (worktree) runs — install dependencies first
+
+Since 2026-08-03 `bmad-loop` runs with `scm.isolation = "worktree"`: each story is developed in a
+fresh git worktree, not the main checkout. A worktree contains **tracked files only**.
+
+`bmad-loop` seeds the three gitignored env files (`.env`, `apps/strapi/.env`,
+`apps/client/.env.local`), but **`node_modules` is deliberately not seeded** — it is 2.3 GB, and
+copying a yarn-1 workspace tree would resolve its workspace/`.bin` symlinks back into the original
+checkout, so the worktree would silently exercise the main repo's packages instead of its own.
+
+**So in a worktree, before running any test, lint or build:**
+
+```bash
+yarn install --frozen-lockfile
+```
+
+If `yarn test`, `yarn lint` or `yarn type-check` fails with a missing-module or command-not-found
+error, that is the cause — install, then re-run. **Never report a story as verified when the
+verification command could not execute.** A story whose tests never ran is `blocked`, not `done`.
