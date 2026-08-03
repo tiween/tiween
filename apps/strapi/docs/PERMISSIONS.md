@@ -92,6 +92,37 @@ Venue managers can manage their assigned venue and its events.
 | Ticket Order |  ✅  |   ✅    |   ❌   |   ❌   |   ❌   | Own venue orders only    |
 | Ticket       |  ✅  |   ✅    |   ❌   |   ✅   |   ❌   | Can scan tickets         |
 
+### Story 7.2 Venue-Profile Grants (seeded in code)
+
+Unlike everything else in this document, these **four** grants — three
+venue-profile routes plus one upload grant — are **seeded at bootstrap** by
+`src/bootstrap/venue-manager-role.ts` (`VENUE_MANAGER_PERMISSION_ACTIONS`) — no
+admin-panel click is required, on a fresh database or on an upgraded one. In
+users-permissions the existence of a permission row _is_ the grant, so without
+them every `/venues/me` route 403s.
+
+| Action                                             | Route                                         | Purpose                                      |
+| -------------------------------------------------- | --------------------------------------------- | -------------------------------------------- |
+| `plugin::venues.venue-profile.getMine`             | `GET /api/venues/venues/me`                   | Read the caller's own venue.                 |
+| `plugin::venues.venue-profile.updateMine`          | `PUT /api/venues/venues/me`                   | Update the caller's own venue.               |
+| `plugin::venues.venue-profile.propertyDefinitions` | `GET /api/venues/venues/property-definitions` | Amenity catalog for the editor.              |
+| `plugin::upload.content-api.upload`                | `POST /api/upload`                            | **Unscoped** upload — see the warning below. |
+
+The three venue-profile routes are tenant-scoped: each additionally carries the
+`plugin::venues.is-venue-manager` policy, and the venue is resolved from
+`ctx.state.user` — the permission grants access to the endpoint, the lookup is
+what scopes it to one tenant. `GET /api/venues/venues/by-slug/:slug` is
+`auth: false` and needs no grant.
+
+**The upload grant is not a formality.** `plugin::upload.content-api.upload`
+carries no scope of any kind: it lets **every** venue-manager account upload
+**arbitrary files** into the shared media library, of any type and any name the
+upload plugin's own config accepts, at any time — not only while saving a venue
+profile, and not only files that end up attached to their own venue. It is
+granted because the profile form uploads the logo and photos before it saves
+(the venue stores file ids), but the blast radius is the whole media library.
+Anything narrower requires a scoped upload proxy, which does not exist yet.
+
 ### Venue Assignment
 
 - Each venue has a `manager` relation to a User

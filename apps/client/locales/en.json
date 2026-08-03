@@ -838,6 +838,134 @@
         "UPLOAD_FAILED": "We could not upload your images. Please try again.",
         "INTERNAL_ERROR": "Something went wrong. Please try again."
       }
+    },
+    "profile": {
+      "pageTitle": "My venue",
+      "pageDescription": "Manage your venue profile on Tiween.",
+      "header": "My venue",
+      "description": "Update your venue details. Once your venue is approved, saved changes appear on your public page within a few minutes.",
+      "sections": {
+        "details": "Venue details",
+        "contact": "Contact",
+        "location": "Location",
+        "media": "Logo and photos",
+        "amenities": "Amenities"
+      },
+      "fields": {
+        "name": "Venue name",
+        "type": "Venue type",
+        "description": "Description",
+        "address": "Address",
+        "phone": "Phone",
+        "email": "Contact email",
+        "website": "Website",
+        "capacity": "Capacity (seats)",
+        "logo": "Logo",
+        "images": "Photos",
+        "status": "Status"
+      },
+      "placeholders": {
+        "type": "Select a venue type",
+        "website": "https://example.com",
+        "amenity": "Not specified"
+      },
+      "hints": {
+        "images": "Up to {max} photos, JPEG/PNG/WebP, 5 MB each.",
+        "imagesReplace": "Selecting photos replaces the current ones.",
+        "logoRemoved": "The logo will be removed when you save.",
+        "photosRemoved": "All photos will be removed when you save."
+      },
+      "status": {
+        "pending": "Pending review",
+        "approved": "Approved",
+        "suspended": "Suspended"
+      },
+      "location": {
+        "hint": "Click the map or drag the pin to set your venue's exact location.",
+        "loading": "Loading the map...",
+        "marker": "Venue location",
+        "empty": "No location set yet.",
+        "clear": "Remove the pin",
+        "coordinates": "Coordinates:"
+      },
+      "buttons": {
+        "save": "Save changes",
+        "saving": "Saving...",
+        "removeLogo": "Remove the logo",
+        "removePhotos": "Remove all photos"
+      },
+      "success": {
+        "saved": "Your changes have been saved. They appear on your public page within a few minutes."
+      },
+      "empty": {
+        "title": "No venue to manage"
+      },
+      "types": {
+        "cinema": "Cinema",
+        "theater": "Theater",
+        "cultural-center": "Cultural center",
+        "museum": "Museum",
+        "other": "Other"
+      },
+      "errors": {
+        "VENUE_NAME_REQUIRED": "The venue name is required.",
+        "VENUE_NAME_TOO_LONG": "The venue name is too long.",
+        "VENUE_DESCRIPTION_TOO_LONG": "The description is too long.",
+        "VENUE_ADDRESS_REQUIRED": "The address is required.",
+        "VENUE_ADDRESS_TOO_LONG": "The address is too long.",
+        "VENUE_TYPE_INVALID": "Select a valid venue type.",
+        "VENUE_PHONE_TOO_LONG": "The phone number is too long.",
+        "VENUE_EMAIL_REQUIRED": "A contact email is required.",
+        "VENUE_EMAIL_INVALID": "Enter a valid contact email.",
+        "VENUE_WEBSITE_INVALID": "Enter a valid website URL.",
+        "VENUE_WEBSITE_TOO_LONG": "The website URL is too long.",
+        "VENUE_CAPACITY_INVALID": "Enter a valid capacity.",
+        "VENUE_GEO_INVALID": "The location coordinates are invalid.",
+        "VENUE_IMAGES_TOO_MANY": "Too many photos.",
+        "VENUE_PROPERTIES_TOO_MANY": "Too many amenities.",
+        "PROPERTY_DEFINITION_REQUIRED": "An amenity is missing its definition.",
+        "PROPERTY_VALUE_TOO_LONG": "An amenity value is too long.",
+        "IMAGE_TOO_LARGE": "One of your images is larger than 5 MB. Please choose a smaller file.",
+        "IMAGE_TYPE_INVALID": "Images must be JPEG, PNG or WebP files.",
+        "IMAGES_TOO_MANY": "You can attach up to 10 photos.",
+        "VALIDATION_FAILED": "Some fields are invalid. Please review them and try again.",
+        "NO_FIELDS_TO_UPDATE": "Nothing has changed yet.",
+        "PROPERTY_DEFINITION_UNKNOWN": "One of the amenities is no longer available.",
+        "PROPERTY_VALUE_TYPE_MISMATCH": "An amenity value does not match its expected format.",
+        "NOT_VENUE_MANAGER": "Your account is not a venue manager account.",
+        "VENUE_NOT_FOUND": "No venue is linked to your account yet.",
+        "VENUE_PROFILE_UPDATE_FAILED": "Your changes could not be saved. Please try again.",
+        "UPLOAD_FAILED": "The image could not be uploaded. Please try again.",
+        "INTERNAL_ERROR": "Something went wrong. Please try again later."
+      }
+    },
+    "public": {
+      "pageTitle": "{name} | Tiween",
+      "pageDescription": "Discover this venue on Tiween.",
+      "notFound": {
+        "title": "Venue not found | Tiween"
+      },
+      "sections": {
+        "description": "About",
+        "contact": "Contact",
+        "photos": "Photos",
+        "amenities": "Amenities",
+        "location": "Location"
+      },
+      "capacity": "Capacity",
+      "amenity": {
+        "yes": "Yes",
+        "no": "No"
+      },
+      "directions": "Get directions",
+      "mapLoading": "Loading the map...",
+      "types": {
+        "cinema": "Cinema",
+        "theater": "Theater",
+        "cultural-center": "Cultural center",
+        "museum": "Museum",
+        "other": "Other"
+      }
     }
   }
 }

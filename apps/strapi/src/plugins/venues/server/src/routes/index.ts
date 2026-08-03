@@ -23,6 +23,63 @@ export default {
           auth: false,
         },
       },
+      // Venue-manager self-service profile (Story 7.2). All three are LITERAL
+      // segments under the `/venues/:documentId` prefix and MUST stay above it
+      // — Koa matches in registration order, so below it `me` and
+      // `property-definitions` are read as documentIds and 404.
+      //
+      // AUTHENTICATION IS DECLARED BY OMITTING `auth`, NOT BY `auth: true`.
+      // `@strapi/core`'s route schema (`services/server/routing.js`) validates
+      // `config.auth` with `yup.lazy(v => v === false ? boolean() : object({
+      // scope: array().of(string()).required() }))` under `strict: true`, so a
+      // literal `auth: true` is NOT a valid value — it throws
+      // `Invalid route config` at BOOT and takes the whole API down. Leaving the
+      // key off is what makes a content-api route both authenticated (401
+      // without a JWT) and permission-checked against the caller's
+      // users-permissions role, which is exactly what is wanted here and what
+      // every other authenticated route in this repo does (see
+      // `plugins/user-engagement/server/src/routes/content-api.ts`).
+      //
+      // The `plugin::venues.is-venue-manager` policy on top is the server-side
+      // tenant gate the epic marks P0; the dashboard's own role check is
+      // convenience only. The venue is then resolved from `ctx.state.user`
+      // inside the service, never from the request.
+      {
+        method: "GET",
+        path: "/venues/me",
+        handler: "venue-profile.getMine",
+        config: {
+          policies: ["plugin::venues.is-venue-manager"],
+        },
+      },
+      {
+        method: "PUT",
+        path: "/venues/me",
+        handler: "venue-profile.updateMine",
+        config: {
+          policies: ["plugin::venues.is-venue-manager"],
+        },
+      },
+      {
+        method: "GET",
+        path: "/venues/property-definitions",
+        handler: "venue-profile.propertyDefinitions",
+        config: {
+          policies: ["plugin::venues.is-venue-manager"],
+        },
+      },
+      // Public venue page read by slug (Story 7.2). Also a literal segment, so
+      // it too has to precede `/venues/:documentId`. Unauthenticated by design:
+      // it is the surface on which an approved venue's edits become observable.
+      {
+        method: "GET",
+        path: "/venues/by-slug/:slug",
+        handler: "venue.findVenueBySlug",
+        config: {
+          policies: [],
+          auth: false,
+        },
+      },
       // Public venue application (Story 7.1). Like `/venues/selector` this is a
       // LITERAL segment under the `/venues/:documentId` prefix — it is a POST so
       // the GET detail route cannot actually swallow it, but the ordering is

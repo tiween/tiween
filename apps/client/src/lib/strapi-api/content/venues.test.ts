@@ -4,7 +4,7 @@ import type { Mock } from "vitest"
 
 import { PublicStrapiClient } from "@/lib/strapi-api"
 
-import { getVenuesForSelector } from "./venues"
+import { getVenueBySlug, getVenuesForSelector } from "./venues"
 
 // Mock the Strapi client so no network/Strapi boot is needed.
 vi.mock("@/lib/strapi-api", () => ({
@@ -182,5 +182,105 @@ describe("getVenuesForSelector", () => {
       total: 0,
       truncated: false,
     })
+  })
+})
+
+/**
+ * `getVenueBySlug` (Story 7.2) — the ONLY read behind the public venue page.
+ *
+ * The route it targets is load-bearing and easy to regress: the previous
+ * implementation sent `filters[slug]` to `GET /venues/venues`, whose handler
+ * ignores query params, so it could never return the right venue. Reverting the
+ * path would 404 every public venue page while the suite stayed green, hence
+ * the explicit assertion on the URL.
+ */
+describe("getVenueBySlug", () => {
+  const publicVenue = {
+    documentId: "venue-1",
+    name: "Le Rio",
+    slug: "le-rio",
+    geo: null,
+    logo: null,
+    images: [],
+    city: null,
+    properties: [],
+  }
+
+  /** What `BaseStrapiClient` throws on a non-2xx Strapi response. */
+  function strapiError(status: number): Error {
+    return new Error(
+      JSON.stringify({
+        name: "NotFoundError",
+        message: "VENUE_NOT_FOUND",
+        status,
+      })
+    )
+  }
+
+  it("hits the dedicated by-slug route with the locale", async () => {
+    fetchAPI.mockResolvedValue({ data: publicVenue })
+
+    const venue = await getVenueBySlug("le-rio", "fr")
+
+    expect(fetchAPI).toHaveBeenCalledWith(
+      "/venues/venues/by-slug/le-rio",
+      { locale: "fr" },
+      expect.anything()
+    )
+    expect(venue).toEqual(publicVenue)
+  })
+
+  it("URL-encodes the slug rather than interpolating it raw", async () => {
+    fetchAPI.mockResolvedValue({ data: publicVenue })
+
+    await getVenueBySlug("le rio/../admin", "en")
+
+    expect(fetchAPI.mock.calls[0][0]).toBe(
+      "/venues/venues/by-slug/le%20rio%2F..%2Fadmin"
+    )
+  })
+
+  it("returns null for an empty slug WITHOUT calling Strapi", async () => {
+    await expect(getVenueBySlug("", "fr")).resolves.toBeNull()
+    expect(fetchAPI).not.toHaveBeenCalled()
+  })
+
+  it("returns null when the envelope carries no data", async () => {
+    fetchAPI.mockResolvedValue({})
+    await expect(getVenueBySlug("le-rio", "fr")).resolves.toBeNull()
+  })
+
+  it("returns null on a 404 WITHOUT logging an error", async () => {
+    // Every crawler hit on a dead slug lands here; logging it would bury the
+    // failures that matter under routine traffic.
+    fetchAPI.mockRejectedValue(strapiError(404))
+    const spy = vi.spyOn(console, "error").mockImplementation(() => {})
+
+    await expect(getVenueBySlug("ghost", "fr")).resolves.toBeNull()
+    expect(spy).not.toHaveBeenCalled()
+
+    spy.mockRestore()
+  })
+
+  it("LOGS a genuine failure while still failing soft", async () => {
+    // A 500 also degrades to null; the log is the only thing that keeps an
+    // outage distinguishable from "no such venue".
+    fetchAPI.mockRejectedValue(strapiError(500))
+    const spy = vi.spyOn(console, "error").mockImplementation(() => {})
+
+    await expect(getVenueBySlug("le-rio", "fr")).resolves.toBeNull()
+    expect(spy).toHaveBeenCalled()
+
+    spy.mockRestore()
+  })
+
+  it("LOGS an error that is not a Strapi envelope at all", async () => {
+    fetchAPI.mockRejectedValue(new Error("ECONNREFUSED 127.0.0.1:1337"))
+    const spy = vi.spyOn(console, "error").mockImplementation(() => {})
+
+    await expect(getVenueBySlug("le-rio", "fr")).resolves.toBeNull()
+    expect(spy).toHaveBeenCalled()
+
+    spy.mockRestore()
   })
 })

@@ -1539,3 +1539,52 @@ source_spec: `spec-1-13-repo-hygiene-encoding-ci-guard.md`
 severity: low
 reason: The follow-up-review damping cap (limits.max_followup_reviews = 1) was spent with the story finalized (status: done, verify green) while the review pass still recommended an independent follow-up. The work was committed by bmad-loop run 20260803-140539-83cd; this entry preserves the lingering recommendation for a deliberate later review.
 status: open
+
+### DW-217: `logo` / `images` accept any upload id, so a venue manager can attach another tenant's media
+
+origin: story 7-2-venue-profile-management (2026-08-03), review pass
+location: apps/strapi/src/plugins/venues/server/src/validation/profile.ts, services/venue-profile.ts
+reason: (MEDIUM) The profile schema validates media as `z.number().int().positive()` and the service copies the value straight into the update payload. The venue lookup is rigorously tenant-scoped, but the file ids in the body are not checked for existence or ownership, so a manager can publish any file in the shared media library — another venue's photo, an admin's upload — on their own public page. Same family as DW-207 (uploads trusted on client-declared MIME alone). Fix: verify each id resolves to a file uploaded by the calling user, or introduce a per-venue media folder.
+status: open
+
+### DW-218: a user may be `manager` of several venues, and the dashboard silently edits an arbitrary one
+
+origin: story 7-2-venue-profile-management (2026-08-03), review pass
+location: apps/strapi/src/plugins/venues/server/src/services/venue-profile.ts (`findVenueDraftForManager`), content-types/venue/schema.json (`manager`)
+reason: (MEDIUM) `venue.manager` is a `manyToOne` relation — many venues per user — but `findVenueDraftForManager` does a `findFirst` with no sort and no uniqueness guard, and the dashboard offers no venue selector. Epic 7 assumes one venue per manager and nothing enforces it; a second assignment makes one venue permanently unreachable from the only editing surface, with no warning. Fix: decide whether one-manager-one-venue is an invariant (enforce it in the schema/registration) or a multi-venue selector is owed, then make the lookup deterministic either way.
+status: open
+
+### DW-219: the partial `PUT /venues/me` has no optimistic concurrency control
+
+origin: story 7-2-venue-profile-management (2026-08-03), review pass
+location: apps/strapi/src/plugins/venues/server/src/services/venue-profile.ts, apps/client/src/features/venues/hooks/useVenueProfile.ts
+reason: (MEDIUM) The client sends a changed-fields-only diff computed against a venue cached with `staleTime: 60s`, and no `updatedAt` or version travels with the request or is checked on write. Two tabs, or a manager saving while an admin edits the same venue in the panel, silently overwrite each other — and because only changed fields are sent, the result can be an interleaved half-and-half record rather than a clean last-write-wins. Fix: send the read `updatedAt` and reject a stale write with a dedicated code the UI can offer to reload on.
+status: open
+
+### DW-220: upload size and MIME are enforced client-side only
+
+origin: story 7-2-venue-profile-management (2026-08-03), review pass
+location: apps/client/src/app/[locale]/venue/profile/\_components/VenueProfileForm.tsx (`checkImage`), apps/strapi/config/plugins.ts
+reason: (MEDIUM) `checkImage` is a pre-flight in the browser; a crafted POST to `/api/private-proxy/api/upload` with the manager's own JWT bypasses it entirely, bounded only by Strapi's global 250 MB limit. The `plugin::upload.content-api.upload` grant seeded in `src/bootstrap/venue-manager-role.ts` is unscoped, so every venue-manager account holds it. Same family as DW-207. Fix: enforce the allowlist and size cap in the upload provider config or a route-level middleware.
+status: open
+
+### DW-221: nothing unpublishes a venue when it is suspended
+
+origin: story 7-2-venue-profile-management (2026-08-03), review pass
+location: apps/strapi/src/plugins/venues/server/src/services/venue.ts (`findVenueBySlug`), services/venue-profile.ts
+reason: (MEDIUM) A venue that went approved → published → suspended keeps its published entry forever; no code path calls `unpublish` on a status transition. This pass added a `status: { $ne: "suspended" }` read filter so the public slug page hides it, but that is a read-side mask, not a takedown: any other consumer that queries on publication state alone still serves it, and the `status` state machine itself is unowned until the platform-administration epic ships approval/suspension. Fix: unpublish on the suspend transition when Epic 9 builds it, and keep the read filter as defence in depth.
+status: open
+
+### DW-222: leaflet marker images are fetched from unpkg.com at runtime
+
+origin: story 7-2-venue-profile-management (2026-08-03), review pass
+location: apps/client/src/features/venues/components/VenueLocationPicker/VenueLocationPickerClient.tsx, apps/client/src/features/events/components/Map/MapMarker.tsx
+reason: (LOW) The marker icon URLs point at a third-party CDN, so the map silently loses its pins if unpkg is unreachable or blocked by a CSP, and every venue-dashboard session leaks a request to an external host. Pre-existing in the events Map component and copied rather than fixed when the location picker was built on it. Fix: vendor the marker assets into `public/` and point both components at the local paths.
+status: open
+
+### DW-223: every venues-plugin persistence format is verified only against mocks
+
+origin: story 7-2-venue-profile-management (2026-08-03), review pass
+location: apps/strapi/src/plugins/venues/server/src/services/**tests**/\*.unit.test.ts
+reason: (MEDIUM) `data.properties = [{ definition: "<documentId>", ... }]` (a relation embedded in a repeatable component, written by documentId), `publish({ documentId })` with no locale, and `filters: { manager: { id: { $eq } } }` have never met a real Document Service — the suites assert only that the service hands those literals to a `jest.fn()`. The same is true of story 7.1's registration service. A format error here passes every test and fails on the first real save. Fix: adopt the integration-seam test tier already recorded as an Epic 5 retrospective action, and cover at least the component-relation write against a live instance.
+status: open

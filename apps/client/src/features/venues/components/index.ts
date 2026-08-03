@@ -5,3 +5,9 @@ export type {
   VenueCardLabels,
   VenueCardSkeletonProps,
 } from "./VenueCard"
+export { VenueLocationPicker } from "./VenueLocationPicker"
+export type {
+  VenueGeoValue,
+  VenueLocationPickerLabels,
+  VenueLocationPickerProps,
+} from "./VenueLocationPicker"

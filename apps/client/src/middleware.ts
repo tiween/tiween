@@ -9,7 +9,11 @@ import { routing } from "./lib/navigation"
 const intlMiddleware = createMiddleware(routing)
 
 // List all pages that require authentication (non-public)
-const authPages = ["/auth/change-password", "/auth/signout"]
+// `/venue/profile` is the venue-manager dashboard (Story 7.2): it must not be
+// reachable anonymously at the edge. The page ALSO guards with
+// `getServerSession`, and Strapi re-checks the role on every call — this entry
+// only stops an unauthenticated render from happening at all.
+const authPages = ["/auth/change-password", "/auth/signout", "/venue/profile"]
 
 const authMiddleware = withAuth(
   // Note that this callback is only invoked if

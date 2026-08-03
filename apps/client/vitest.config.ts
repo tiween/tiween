@@ -138,7 +138,16 @@ export default defineConfig({
       // Venue registration schema + form (Story 7.1). `[locale]` is a glob
       // char-class, so match the segment via `**`.
       "src/features/venues/**/*.test.ts",
+      // Venue feature COMPONENTS (Story 7.2) — the location picker island. The
+      // `.test.ts` glob above does NOT reach a `.test.tsx` file, so without
+      // this line a component test added under `features/venues/` would sit
+      // there silently never running.
+      "src/features/venues/**/*.test.tsx",
       "src/app/**/venues/**/*.test.tsx",
+      // Venue-manager profile dashboard (Story 7.2). The segment is `venue/`
+      // (singular) — the `venues/` glob above does NOT reach it — and `[locale]`
+      // is a glob char-class, so match that segment via `**`.
+      "src/app/**/venue/profile/**/*.test.tsx",
     ],
   },
 })

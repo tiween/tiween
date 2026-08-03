@@ -21,6 +21,15 @@ const ALLOWED_STRAPI_ENDPOINTS: Record<string, string[]> = {
     // Public ticket-tiers read for a sub-event (Story 6.1). `startsWith` covers
     // `.../showtimes/:documentId/ticket-tiers`. Public, read-only presentation.
     "api/events-manager/showtimes",
+    // Venue-manager self-service profile reads (Story 7.2). These are PREFIXES,
+    // not literal paths — every entry is matched with `startsWith`, so
+    // `api/venues/venues/me` also admits `api/venues/venues/meXYZ` and anything
+    // below it. Safe here because both routes are gated server-side by
+    // `plugin::venues.is-venue-manager` and `/venues/me` resolves the venue
+    // from the JWT — never from the request — so no id a caller could forge
+    // reaches Strapi, and no sibling route lives under either prefix.
+    "api/venues/venues/me",
+    "api/venues/venues/property-definitions",
   ],
   POST: [
     "api/subscribers",
@@ -47,7 +56,15 @@ const ALLOWED_STRAPI_ENDPOINTS: Record<string, string[]> = {
   // that would expose the stock `PUT api/users/:id` (arbitrary id + fields).
   // Notification mark-all-read (Story 5.6) — `startsWith` covers
   // `.../notifications/read-all`; JWT-self-scoped.
-  PUT: ["api/users/me", "api/user-engagement/notifications"],
+  // Venue-profile update (Story 7.2). A PREFIX matched with `startsWith`, not a
+  // literal path. Self-scoped in the same sense as `api/users/me`: the venue is
+  // looked up by `manager: ctx.state.user.id`, so this prefix cannot reach
+  // another manager's venue whatever the body or the trailing segments say.
+  PUT: [
+    "api/users/me",
+    "api/user-engagement/notifications",
+    "api/venues/venues/me",
+  ],
   // Watchlist hard remove (Story 5.2). `startsWith` covers
   // `.../watchlist/:creativeWorkId`. Every watchlist route is JWT-self-scoped,
   // so a user can only ever DELETE their own row. No other DELETE is allowed.

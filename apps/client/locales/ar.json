@@ -838,6 +838,134 @@
         "UPLOAD_FAILED": "تعذر رفع صورك. حاول مرة أخرى.",
         "INTERNAL_ERROR": "حدث خطأ ما. حاول مرة أخرى."
       }
+    },
+    "profile": {
+      "pageTitle": "مكاني",
+      "pageDescription": "أدر ملف مكانك على تيوين.",
+      "header": "مكاني",
+      "description": "حدّث معلومات مكانك. بعد الموافقة على مكانك، تظهر التعديلات المحفوظة على صفحتك العمومية في غضون بضع دقائق.",
+      "sections": {
+        "details": "معلومات المكان",
+        "contact": "التواصل",
+        "location": "الموقع",
+        "media": "الشعار والصور",
+        "amenities": "المرافق"
+      },
+      "fields": {
+        "name": "اسم المكان",
+        "type": "نوع المكان",
+        "description": "الوصف",
+        "address": "العنوان",
+        "phone": "الهاتف",
+        "email": "البريد الإلكتروني للتواصل",
+        "website": "الموقع الإلكتروني",
+        "capacity": "الطاقة الاستيعابية (عدد المقاعد)",
+        "logo": "الشعار",
+        "images": "الصور",
+        "status": "الحالة"
+      },
+      "placeholders": {
+        "type": "اختر نوع المكان",
+        "website": "https://example.com",
+        "amenity": "غير محدد"
+      },
+      "hints": {
+        "images": "إلى غاية {max} صور، بصيغة JPEG/PNG/WebP، بحجم أقصاه 5 ميغابايت لكل صورة.",
+        "imagesReplace": "اختيار صور جديدة يستبدل الصور الحالية.",
+        "logoRemoved": "سيُحذف الشعار عند الحفظ.",
+        "photosRemoved": "ستُحذف كل الصور عند الحفظ."
+      },
+      "status": {
+        "pending": "في انتظار المراجعة",
+        "approved": "تمت الموافقة",
+        "suspended": "موقوف"
+      },
+      "location": {
+        "hint": "انقر على الخريطة أو اسحب المؤشر لتحديد موقع مكانك بدقة.",
+        "loading": "جاري تحميل الخريطة...",
+        "marker": "موقع المكان",
+        "empty": "لم يتم تحديد أي موقع بعد.",
+        "clear": "إزالة المؤشر",
+        "coordinates": "الإحداثيات:"
+      },
+      "buttons": {
+        "save": "حفظ التعديلات",
+        "saving": "جاري الحفظ...",
+        "removeLogo": "حذف الشعار",
+        "removePhotos": "حذف كل الصور"
+      },
+      "success": {
+        "saved": "تم حفظ تعديلاتك. ستظهر على صفحتك العمومية في غضون بضع دقائق."
+      },
+      "empty": {
+        "title": "لا يوجد مكان لإدارته"
+      },
+      "types": {
+        "cinema": "سينما",
+        "theater": "مسرح",
+        "cultural-center": "مركز ثقافي",
+        "museum": "متحف",
+        "other": "أخرى"
+      },
+      "errors": {
+        "VENUE_NAME_REQUIRED": "اسم المكان مطلوب.",
+        "VENUE_NAME_TOO_LONG": "اسم المكان طويل جدا.",
+        "VENUE_DESCRIPTION_TOO_LONG": "الوصف طويل جدا.",
+        "VENUE_ADDRESS_REQUIRED": "العنوان مطلوب.",
+        "VENUE_ADDRESS_TOO_LONG": "العنوان طويل جدا.",
+        "VENUE_TYPE_INVALID": "اختر نوع مكان صالحا.",
+        "VENUE_PHONE_TOO_LONG": "رقم الهاتف طويل جدا.",
+        "VENUE_EMAIL_REQUIRED": "البريد الإلكتروني للتواصل مطلوب.",
+        "VENUE_EMAIL_INVALID": "أدخل بريدا إلكترونيا صالحا للتواصل.",
+        "VENUE_WEBSITE_INVALID": "أدخل رابط موقع إلكتروني صالحا.",
+        "VENUE_WEBSITE_TOO_LONG": "رابط الموقع الإلكتروني طويل جدا.",
+        "VENUE_CAPACITY_INVALID": "أدخل طاقة استيعابية صالحة.",
+        "VENUE_GEO_INVALID": "إحداثيات الموقع غير صالحة.",
+        "VENUE_IMAGES_TOO_MANY": "عدد الصور كبير جدا.",
+        "VENUE_PROPERTIES_TOO_MANY": "عدد المرافق كبير جدا.",
+        "PROPERTY_DEFINITION_REQUIRED": "أحد المرافق ينقصه التعريف.",
+        "PROPERTY_VALUE_TOO_LONG": "قيمة أحد المرافق طويلة جدا.",
+        "IMAGE_TOO_LARGE": "إحدى صورك يتجاوز حجمها 5 ميغابايت. اختر ملفا أصغر.",
+        "IMAGE_TYPE_INVALID": "يجب أن تكون الصور بصيغة JPEG أو PNG أو WebP.",
+        "IMAGES_TOO_MANY": "يمكنك إرفاق 10 صور كحد أقصى.",
+        "VALIDATION_FAILED": "بعض الحقول غير صالحة. راجعها ثم أعد المحاولة.",
+        "NO_FIELDS_TO_UPDATE": "لا يوجد أي تغيير لحفظه.",
+        "PROPERTY_DEFINITION_UNKNOWN": "أحد المرافق لم يعد متاحا.",
+        "PROPERTY_VALUE_TYPE_MISMATCH": "قيمة أحد المرافق لا تطابق الصيغة المتوقعة.",
+        "NOT_VENUE_MANAGER": "حسابك ليس حساب مسؤول مكان.",
+        "VENUE_NOT_FOUND": "لا يوجد أي مكان مرتبط بحسابك بعد.",
+        "VENUE_PROFILE_UPDATE_FAILED": "تعذر حفظ تعديلاتك. أعد المحاولة.",
+        "UPLOAD_FAILED": "تعذر رفع الصورة. أعد المحاولة.",
+        "INTERNAL_ERROR": "حدث خطأ ما. أعد المحاولة لاحقا."
+      }
+    },
+    "public": {
+      "pageTitle": "{name} | تيوين",
+      "pageDescription": "اكتشف هذا المكان على تيوين.",
+      "notFound": {
+        "title": "المكان غير موجود | تيوين"
+      },
+      "sections": {
+        "description": "نبذة",
+        "contact": "التواصل",
+        "photos": "الصور",
+        "amenities": "المرافق",
+        "location": "الموقع"
+      },
+      "capacity": "الطاقة الاستيعابية",
+      "amenity": {
+        "yes": "نعم",
+        "no": "لا"
+      },
+      "directions": "الاتجاهات",
+      "mapLoading": "جاري تحميل الخريطة...",
+      "types": {
+        "cinema": "سينما",
+        "theater": "مسرح",
+        "cultural-center": "مركز ثقافي",
+        "museum": "متحف",
+        "other": "أخرى"
+      }
     }
   }
 }

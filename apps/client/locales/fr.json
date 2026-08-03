@@ -838,6 +838,134 @@
         "UPLOAD_FAILED": "Nous n'avons pas pu envoyer vos images. Réessayez.",
         "INTERNAL_ERROR": "Une erreur est survenue. Réessayez."
       }
+    },
+    "profile": {
+      "pageTitle": "Mon lieu",
+      "pageDescription": "Gérez le profil de votre lieu sur Tiween.",
+      "header": "Mon lieu",
+      "description": "Mettez à jour les informations de votre lieu. Une fois votre lieu approuvé, les modifications enregistrées apparaissent sur votre page publique au bout de quelques minutes.",
+      "sections": {
+        "details": "Informations du lieu",
+        "contact": "Contact",
+        "location": "Localisation",
+        "media": "Logo et photos",
+        "amenities": "Équipements"
+      },
+      "fields": {
+        "name": "Nom du lieu",
+        "type": "Type de lieu",
+        "description": "Description",
+        "address": "Adresse",
+        "phone": "Téléphone",
+        "email": "Email de contact",
+        "website": "Site web",
+        "capacity": "Capacité (places)",
+        "logo": "Logo",
+        "images": "Photos",
+        "status": "Statut"
+      },
+      "placeholders": {
+        "type": "Sélectionnez un type de lieu",
+        "website": "https://example.com",
+        "amenity": "Non renseigné"
+      },
+      "hints": {
+        "images": "Jusqu'à {max} photos, JPEG/PNG/WebP, 5 Mo chacune.",
+        "imagesReplace": "Sélectionner des photos remplace les photos actuelles.",
+        "logoRemoved": "Le logo sera supprimé lors de l'enregistrement.",
+        "photosRemoved": "Toutes les photos seront supprimées lors de l'enregistrement."
+      },
+      "status": {
+        "pending": "En attente de validation",
+        "approved": "Approuvé",
+        "suspended": "Suspendu"
+      },
+      "location": {
+        "hint": "Cliquez sur la carte ou déplacez le repère pour situer précisément votre lieu.",
+        "loading": "Chargement de la carte...",
+        "marker": "Emplacement du lieu",
+        "empty": "Aucune localisation définie.",
+        "clear": "Retirer le repère",
+        "coordinates": "Coordonnées :"
+      },
+      "buttons": {
+        "save": "Enregistrer",
+        "saving": "Enregistrement...",
+        "removeLogo": "Supprimer le logo",
+        "removePhotos": "Supprimer toutes les photos"
+      },
+      "success": {
+        "saved": "Vos modifications ont été enregistrées. Elles apparaissent sur votre page publique au bout de quelques minutes."
+      },
+      "empty": {
+        "title": "Aucun lieu à gérer"
+      },
+      "types": {
+        "cinema": "Cinéma",
+        "theater": "Théâtre",
+        "cultural-center": "Centre culturel",
+        "museum": "Musée",
+        "other": "Autre"
+      },
+      "errors": {
+        "VENUE_NAME_REQUIRED": "Le nom du lieu est obligatoire.",
+        "VENUE_NAME_TOO_LONG": "Le nom du lieu est trop long.",
+        "VENUE_DESCRIPTION_TOO_LONG": "La description est trop longue.",
+        "VENUE_ADDRESS_REQUIRED": "L'adresse est obligatoire.",
+        "VENUE_ADDRESS_TOO_LONG": "L'adresse est trop longue.",
+        "VENUE_TYPE_INVALID": "Sélectionnez un type de lieu valide.",
+        "VENUE_PHONE_TOO_LONG": "Le numéro de téléphone est trop long.",
+        "VENUE_EMAIL_REQUIRED": "Un email de contact est obligatoire.",
+        "VENUE_EMAIL_INVALID": "Saisissez un email de contact valide.",
+        "VENUE_WEBSITE_INVALID": "Saisissez une URL de site web valide.",
+        "VENUE_WEBSITE_TOO_LONG": "L'URL du site web est trop longue.",
+        "VENUE_CAPACITY_INVALID": "Saisissez une capacité valide.",
+        "VENUE_GEO_INVALID": "Les coordonnées de localisation sont invalides.",
+        "VENUE_IMAGES_TOO_MANY": "Trop de photos.",
+        "VENUE_PROPERTIES_TOO_MANY": "Trop d'équipements.",
+        "PROPERTY_DEFINITION_REQUIRED": "Un équipement n'a pas de définition.",
+        "PROPERTY_VALUE_TOO_LONG": "La valeur d'un équipement est trop longue.",
+        "IMAGE_TOO_LARGE": "Une de vos images dépasse 5 Mo. Choisissez un fichier plus léger.",
+        "IMAGE_TYPE_INVALID": "Les images doivent être au format JPEG, PNG ou WebP.",
+        "IMAGES_TOO_MANY": "Vous pouvez joindre jusqu'à 10 photos.",
+        "VALIDATION_FAILED": "Certains champs sont invalides. Vérifiez-les puis réessayez.",
+        "NO_FIELDS_TO_UPDATE": "Aucune modification à enregistrer.",
+        "PROPERTY_DEFINITION_UNKNOWN": "Un des équipements n'est plus disponible.",
+        "PROPERTY_VALUE_TYPE_MISMATCH": "La valeur d'un équipement ne correspond pas au format attendu.",
+        "NOT_VENUE_MANAGER": "Votre compte n'est pas un compte gestionnaire de lieu.",
+        "VENUE_NOT_FOUND": "Aucun lieu n'est encore rattaché à votre compte.",
+        "VENUE_PROFILE_UPDATE_FAILED": "Vos modifications n'ont pas pu être enregistrées. Réessayez.",
+        "UPLOAD_FAILED": "L'image n'a pas pu être envoyée. Réessayez.",
+        "INTERNAL_ERROR": "Une erreur est survenue. Réessayez plus tard."
+      }
+    },
+    "public": {
+      "pageTitle": "{name} | Tiween",
+      "pageDescription": "Découvrez ce lieu sur Tiween.",
+      "notFound": {
+        "title": "Lieu introuvable | Tiween"
+      },
+      "sections": {
+        "description": "À propos",
+        "contact": "Contact",
+        "photos": "Photos",
+        "amenities": "Équipements",
+        "location": "Localisation"
+      },
+      "capacity": "Capacité",
+      "amenity": {
+        "yes": "Oui",
+        "no": "Non"
+      },
+      "directions": "Itinéraire",
+      "mapLoading": "Chargement de la carte...",
+      "types": {
+        "cinema": "Cinéma",
+        "theater": "Théâtre",
+        "cultural-center": "Centre culturel",
+        "museum": "Musée",
+        "other": "Autre"
+      }
     }
   }
 }

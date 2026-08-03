@@ -1,6 +1,15 @@
 import "server-only"
 
+import type { PublicVenue } from "@/features/venues/schemas/venue-profile"
+
 import { PublicStrapiClient } from "@/lib/strapi-api"
+
+/**
+ * The locale union `AppLocalizedParams` accepts. The other readers in this file
+ * pass a bare `string` and each earn a pre-existing type error for it; the
+ * slug reader narrows instead of adding one more.
+ */
+type AppLocale = "ar" | "fr" | "en"
 
 // =============================================================================
 // Venue Types
@@ -200,51 +209,71 @@ export async function getVenueByDocumentId(
 }
 
 /**
- * Fetch a single venue by slug
+ * Fetch a single venue by slug for the public venue page (Story 7.2).
+ *
+ * Hits the DEDICATED `GET /venues/venues/by-slug/{slug}` route. The previous
+ * implementation sent `filters[slug]` to `GET /venues/venues`, whose handler
+ * ignores query params entirely — it could never have returned the right venue
+ * (it had no callers, so nothing observed the bug). The new route pins
+ * `status: "published"` server-side and answers 404 for an unknown slug OR an
+ * unpublished (pending / suspended) venue: from outside, the two are
+ * indistinguishable, which is the point.
+ *
+ * The response is the WHITELISTED public projection — no `manager`, no
+ * `status`. Fail-soft: any error (including the 404) degrades to `null` so the
+ * page can `notFound()` rather than 500.
+ *
+ * A 404 is NOT logged as an error. It is the documented answer for an unknown
+ * slug and for an unpublished venue — i.e. for every crawler hit on a dead
+ * link — so logging it would bury the failures that do matter under routine
+ * traffic. Everything else still logs, which is the only way a genuine outage
+ * (which also degrades to `null`) stays distinguishable from "no such venue".
  */
 export async function getVenueBySlug(
   slug: string,
   locale: string
-): Promise<StrapiVenueDetail | null> {
+): Promise<PublicVenue | null> {
+  if (!slug) return null
+
   try {
     const response = await PublicStrapiClient.fetchAPI(
-      "/venues/venues",
-      {
-        locale,
-        filters: {
-          slug: { $eq: slug },
-          status: { $eq: "approved" },
-        },
-        populate: {
-          logo: {
-            fields: ["url", "formats"],
-          },
-          images: {
-            fields: ["url", "alternativeText", "formats"],
-          },
-          cityRef: {
-            fields: ["documentId", "name", "slug"],
-            populate: {
-              region: {
-                fields: ["documentId", "name", "slug"],
-              },
-            },
-          },
-          links: true,
-        },
-        pagination: {
-          page: 1,
-          pageSize: 1,
-        },
-      },
+      `/venues/venues/by-slug/${encodeURIComponent(slug)}`,
+      { locale: locale as AppLocale },
       { next: { revalidate: 300 } }
     )
 
-    return response.data?.[0] || null
+    return (response as { data?: PublicVenue }).data ?? null
   } catch (error) {
-    console.error("[getVenueBySlug] Error fetching venue:", error)
+    if (!isNotFoundError(error)) {
+      console.error("[getVenueBySlug] Error fetching venue:", error)
+    }
     return null
   }
+}
+
+/**
+ * Was this the "no such venue" answer rather than a failure?
+ *
+ * `BaseStrapiClient` rejects with `new Error(JSON.stringify(appError))`, where
+ * `appError.status` is the HTTP status. Anything that does not parse into that
+ * shape is treated as a genuine failure — the guard only ever SUPPRESSES a log
+ * it is certain about.
+ */
+function isNotFoundError(error: unknown): boolean {
+  if (!(error instanceof Error)) return false
+
+  let parsed: unknown
+  try {
+    parsed = JSON.parse(error.message)
+  } catch {
+    return false
+  }
+
+  return (
+    typeof parsed === "object" &&
+    parsed !== null &&
+    (parsed as { status?: unknown }).status === 404
+  )
 }
 
 /**

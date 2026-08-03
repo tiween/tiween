@@ -3,6 +3,7 @@ import { z } from "zod"
 import type { Core } from "@strapi/strapi"
 
 import { validate } from "../../../../../shared/validation"
+import { venueProfileUpdateSchema } from "../validation/profile"
 import { venueRegistrationSchema } from "../validation/registration"
 
 const PLUGIN_ID = "venues"
@@ -37,6 +38,31 @@ const VENUE_TYPES = [
   "museum",
   "other",
 ] as const
+
+/**
+ * The i18n locales this deployment actually has, mirroring
+ * `config/plugins.ts` (`i18n.config.locales`). A `locale` taken off `ctx.query`
+ * is caller-controlled and flows straight into the Document Service, so it is
+ * validated against this set the way the selector's query schema validates its
+ * own params rather than being forwarded raw.
+ */
+const SUPPORTED_LOCALES = ["en", "fr", "ar"] as const
+
+const localeQuerySchema = z.preprocess(
+  blankToUndefined,
+  z.enum(SUPPORTED_LOCALES).optional()
+)
+
+/**
+ * Read a validated `locale` off a query bag. An unknown or malformed value is
+ * IGNORED (→ default locale), never forwarded: these are public/read-only
+ * surfaces where an unrecognised `?locale=` is a stale link or a crawler, not
+ * something worth turning into a 400.
+ */
+function parseLocale(value: unknown): string | undefined {
+  const parsed = localeQuerySchema.safeParse(value)
+  return parsed.success ? parsed.data : undefined
+}
 
 /**
  * `GET /venues/selector` query contract. Deliberately NOT `.strict()`: unknown
@@ -135,6 +161,58 @@ const venueController = ({ strapi }: { strapi: Core.Strapi }) => ({
     ctx.body = {
       data: venue,
       meta: {},
+    }
+  },
+
+  /**
+   * GET /venues/by-slug/:slug — the public venue page read (Story 7.2).
+   * Registered BEFORE `/venues/:documentId` so `by-slug` is not read as a
+   * documentId. The service returns the WHITELISTED projection (no `manager`,
+   * no `status`) or `null`; an unpublished (`pending`), a `suspended` and an
+   * unknown slug all come back as the same `VENUE_NOT_FOUND`.
+   *
+   * The whole body is wrapped: this is an UNAUTHENTICATED route, and an
+   * unhandled Document Service throw would otherwise surface as Strapi's raw
+   * 500 carrying the exception message (and, in development, the stack) to an
+   * anonymous caller. The detail is logged; the response carries a CODE only.
+   */
+  async findVenueBySlug(ctx: any) {
+    const slug = typeof ctx.params?.slug === "string" ? ctx.params.slug : ""
+    const locale = parseLocale(ctx.query?.locale)
+
+    if (!slug) {
+      return ctx.notFound("VENUE_NOT_FOUND")
+    }
+
+    try {
+      const venue = await strapi
+        .plugin(PLUGIN_ID)
+        .service("venue")
+        .findVenueBySlug(slug, locale)
+
+      if (!venue) {
+        return ctx.notFound("VENUE_NOT_FOUND")
+      }
+
+      ctx.body = {
+        data: venue,
+        meta: {},
+      }
+    } catch (err: any) {
+      strapi.log.error(
+        `[venues] findVenueBySlug failed for slug "${slug}": ${
+          err?.stack ?? err
+        }`
+      )
+      ctx.status = 500
+      ctx.body = {
+        error: {
+          status: 500,
+          name: "VenueReadError",
+          message: "Venue read failed",
+          details: { code: "INTERNAL_ERROR" },
+        },
+      }
     }
   },
 })
@@ -241,8 +319,116 @@ const registrationController = ({ strapi }: { strapi: Core.Strapi }) => ({
   },
 })
 
+/**
+ * Venue-profile error CODE → HTTP status. Same discipline as
+ * `STATUS_BY_CODE` above: an UNMAPPED code collapses to 500 `INTERNAL_ERROR`
+ * for the client and is LOGGED here, so a raw Document Service failure is
+ * diagnosable instead of vanishing into a generic 500.
+ */
+const PROFILE_STATUS_BY_CODE: Record<string, number> = {
+  VALIDATION_FAILED: 400,
+  NO_FIELDS_TO_UPDATE: 400,
+  PROPERTY_DEFINITION_UNKNOWN: 400,
+  PROPERTY_VALUE_TYPE_MISMATCH: 400,
+  NOT_VENUE_MANAGER: 403,
+  VENUE_NOT_FOUND: 404,
+  VENUE_PROFILE_UPDATE_FAILED: 500,
+}
+
+/**
+ * Uniform error envelope for the profile endpoints. Internal exception text is
+ * NEVER echoed — the client translates the code — and per-field `issues` (which
+ * are themselves CODES) ride out only for MAPPED codes, so a payload we
+ * deliberately refused to disclose cannot leak through the field it was hidden
+ * from.
+ */
+function respondProfileError(strapi: Core.Strapi, ctx: any, err: any): void {
+  const code: string | undefined = err?.details?.code ?? err?.code
+  const mappedStatus = code ? PROFILE_STATUS_BY_CODE[code] : undefined
+  const status = mappedStatus ?? 500
+  const issues = err?.details?.issues
+
+  if (!mappedStatus) {
+    strapi.log.error(
+      `[venues:profile] unmapped profile error (code=${code ?? "none"}): ${
+        err?.stack ?? err
+      }`
+    )
+  }
+
+  ctx.status = status
+  ctx.body = {
+    error: {
+      status,
+      name: "VenueProfileError",
+      message: "Venue profile request failed",
+      details: {
+        code: mappedStatus ? code : "INTERNAL_ERROR",
+        ...(mappedStatus && Array.isArray(issues) ? { issues } : {}),
+      },
+    },
+  }
+}
+
+/**
+ * Venue-manager self-service endpoints (Story 7.2). All three routes OMIT
+ * `config.auth` — which is how a content-api route is declared authenticated
+ * and permission-checked (`auth: true` is not a valid value and throws at boot)
+ * — and carry `plugin::venues.is-venue-manager`. The venue itself is resolved
+ * from `ctx.state.user` inside the service; nothing here ever reads an id from
+ * the request.
+ */
+const venueProfileController = ({ strapi }: { strapi: Core.Strapi }) => ({
+  /** GET /venues/me */
+  async getMine(ctx: any) {
+    try {
+      const venue = await strapi
+        .plugin(PLUGIN_ID)
+        .service("venue-profile")
+        .getMyVenue(ctx.state.user)
+
+      ctx.body = { data: venue }
+    } catch (err) {
+      respondProfileError(strapi, ctx, err)
+    }
+  },
+
+  /** PUT /venues/me */
+  async updateMine(ctx: any) {
+    try {
+      const input = validate(venueProfileUpdateSchema, ctx.request?.body ?? {})
+
+      const venue = await strapi
+        .plugin(PLUGIN_ID)
+        .service("venue-profile")
+        .updateMyVenue(ctx.state.user, input)
+
+      ctx.body = { data: venue }
+    } catch (err) {
+      respondProfileError(strapi, ctx, err)
+    }
+  },
+
+  /** GET /venues/property-definitions — the amenity vocabulary. */
+  async propertyDefinitions(ctx: any) {
+    try {
+      const locale = parseLocale(ctx.query?.locale)
+
+      const data = await strapi
+        .plugin(PLUGIN_ID)
+        .service("property-catalog")
+        .listPropertyCatalog(locale)
+
+      ctx.body = { data }
+    } catch (err) {
+      respondProfileError(strapi, ctx, err)
+    }
+  },
+})
+
 export default {
   venue: venueController,
+  "venue-profile": venueProfileController,
   registration: registrationController,
   seed: seedController,
 }

@@ -1,5 +1,6 @@
 import plugin from "../../index"
 import middlewares from "../../middlewares"
+import policies from "../../policies"
 import routes from "../index"
 
 /**
@@ -113,5 +114,138 @@ describe("venues plugin POST /venues/register route", () => {
       )
       expect(r?.config?.middlewares ?? []).toHaveLength(0)
     }
+  })
+})
+
+/**
+ * Story 7.2 adds four LITERAL segments under the `/venues/:documentId` prefix.
+ * Koa matches in registration order, so any of them slipping below the id route
+ * is read as a documentId: `/venues/me` would 404 for every manager and
+ * `/venues/by-slug/x` would 404 for every public page — with a green suite,
+ * because nothing else observes the route table.
+ *
+ * The auth/policy config is equally invisible from the handlers: dropping
+ * `plugin::venues.is-venue-manager` would leave the endpoints reachable by any
+ * signed-in B2C account, which is precisely the P0 boundary the epic names.
+ */
+describe("venues plugin story 7.2 routes", () => {
+  const contentApiRoutes = routes["content-api"].routes as any[]
+
+  const find = (method: string, path: string) =>
+    contentApiRoutes.find((r) => r.method === method && r.path === path)
+
+  const indexOf = (method: string, path: string) =>
+    contentApiRoutes.findIndex((r) => r.method === method && r.path === path)
+
+  const POLICY = "plugin::venues.is-venue-manager"
+
+  const GUARDED: [string, string, string][] = [
+    ["GET", "/venues/me", "venue-profile.getMine"],
+    ["PUT", "/venues/me", "venue-profile.updateMine"],
+    [
+      "GET",
+      "/venues/property-definitions",
+      "venue-profile.propertyDefinitions",
+    ],
+  ]
+
+  /**
+   * AUTHENTICATION IS DECLARED BY OMITTING `config.auth`. `@strapi/core`'s
+   * route schema (`services/server/routing.js`) validates it as
+   * `yup.lazy(v => v === false ? boolean().required()
+   *              : object({ scope: array().of(string()).required() }))`
+   * under `strict: true`, so `auth: true` is NOT a valid value: it throws
+   * `Invalid route config` at BOOT and takes the whole API down. Omitting the
+   * key is what makes a content-api route authenticated AND permission-checked
+   * against the caller's users-permissions role — the shape every other
+   * authenticated route in this repo uses.
+   */
+  it.each(GUARDED)(
+    "%s %s is authenticated (no `auth` key) AND carries the is-venue-manager policy",
+    (method, path, handler) => {
+      const route = find(method, path)
+
+      expect(route).toBeDefined()
+      expect(route.handler).toBe(handler)
+      expect(route.config).not.toHaveProperty("auth")
+      expect(route.config.policies).toEqual([POLICY])
+    }
+  )
+
+  it("resolves that policy name against the plugin's exported map", () => {
+    // The route string is `plugin::venues.is-venue-manager`; the key below is
+    // what it resolves against at boot. The unit gate never boots Strapi, so a
+    // rename on either side is otherwise invisible.
+    expect(typeof (policies as any)["is-venue-manager"]).toBe("function")
+    expect((plugin as any).policies).toBe(policies)
+  })
+
+  it("exposes GET /venues/by-slug/:slug publicly with no policy", () => {
+    const route = find("GET", "/venues/by-slug/:slug")
+
+    expect(route).toBeDefined()
+    expect(route.handler).toBe("venue.findVenueBySlug")
+    expect(route.config.auth).toBe(false)
+    expect(route.config.policies).toEqual([])
+  })
+
+  it.each([
+    ["GET", "/venues/me"],
+    ["PUT", "/venues/me"],
+    ["GET", "/venues/property-definitions"],
+    ["GET", "/venues/by-slug/:slug"],
+  ])("declares %s %s before GET /venues/:documentId", (method, path) => {
+    const routeIndex = indexOf(method, path)
+    const detailIndex = indexOf("GET", "/venues/:documentId")
+
+    expect(routeIndex).toBeGreaterThanOrEqual(0)
+    expect(detailIndex).toBeGreaterThanOrEqual(0)
+    expect(routeIndex).toBeLessThan(detailIndex)
+  })
+
+  it("keeps the public reads free of the manager policy", () => {
+    for (const path of [
+      "/venues",
+      "/venues/selector",
+      "/venues/by-slug/:slug",
+      "/venues/:documentId",
+    ]) {
+      expect(find("GET", path).config.policies).toEqual([])
+    }
+  })
+
+  /**
+   * BOOT GUARD. Strapi validates every route config with `strict: true`, and
+   * `config.auth` only accepts `false` or an object `{ scope: string[] }` — a
+   * truthy scalar such as `auth: true` throws `Invalid route config` before a
+   * single request is served. No unit test observes boot, so without this pin a
+   * boot-breaking route table ships with a fully green suite.
+   */
+  it("declares no route with a `config.auth` value other than false", () => {
+    const allRoutes = [
+      ...(routes["content-api"].routes as any[]),
+      ...(routes["admin-api"].routes as any[]),
+    ]
+
+    for (const route of allRoutes) {
+      const auth = route.config?.auth
+      if (auth === undefined) continue
+      expect({ path: route.path, method: route.method, auth }).toEqual({
+        path: route.path,
+        method: route.method,
+        auth: false,
+      })
+    }
+  })
+
+  it("wires the profile handlers to controllers that actually exist", () => {
+    const controllers = (plugin as any).controllers
+    const profile = controllers["venue-profile"]({ strapi: {} as any })
+    const venue = controllers.venue({ strapi: {} as any })
+
+    for (const action of ["getMine", "updateMine", "propertyDefinitions"]) {
+      expect(typeof profile[action]).toBe("function")
+    }
+    expect(typeof venue.findVenueBySlug).toBe("function")
   })
 })

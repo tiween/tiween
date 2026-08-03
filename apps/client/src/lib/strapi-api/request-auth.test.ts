@@ -14,11 +14,11 @@
  */
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
+import { isStrapiEndpointAllowed } from "./request-auth"
+
 vi.mock("@/env.mjs", () => ({ env: {} }))
 vi.mock("next-auth/react", () => ({ getSession: vi.fn() }))
 vi.mock("@/lib/auth", () => ({ getAuth: vi.fn() }))
-
-import { isStrapiEndpointAllowed } from "./request-auth"
 
 describe("isStrapiEndpointAllowed (Story 4.4 profile endpoints)", () => {
   beforeEach(() => vi.clearAllMocks())
@@ -71,9 +71,9 @@ describe("isStrapiEndpointAllowed (Story 5.1 watchlist endpoints)", () => {
   })
 
   it("does NOT open DELETE for a non-watchlist endpoint", () => {
-    expect(
-      isStrapiEndpointAllowed("api/events-manager/events", "DELETE")
-    ).toBe(false)
+    expect(isStrapiEndpointAllowed("api/events-manager/events", "DELETE")).toBe(
+      false
+    )
   })
 })
 
@@ -102,5 +102,41 @@ describe("isStrapiEndpointAllowed (Story 6.1 ticket-tiers endpoint)", () => {
         "DELETE"
       )
     ).toBe(false)
+  })
+})
+
+describe("isStrapiEndpointAllowed (Story 7.2 venue-profile endpoints)", () => {
+  beforeEach(() => vi.clearAllMocks())
+
+  it("allows the three venue-profile routes under their OWN methods", () => {
+    expect(isStrapiEndpointAllowed("api/venues/venues/me", "GET")).toBe(true)
+    expect(isStrapiEndpointAllowed("api/venues/venues/me", "PUT")).toBe(true)
+    expect(
+      isStrapiEndpointAllowed("api/venues/venues/property-definitions", "GET")
+    ).toBe(true)
+  })
+
+  it("allows the upload the media pickers POST to", () => {
+    expect(isStrapiEndpointAllowed("api/upload", "POST")).toBe(true)
+  })
+
+  it("does NOT open the profile routes under the wrong method", () => {
+    expect(isStrapiEndpointAllowed("api/venues/venues/me", "POST")).toBe(false)
+    expect(isStrapiEndpointAllowed("api/venues/venues/me", "DELETE")).toBe(
+      false
+    )
+    expect(
+      isStrapiEndpointAllowed("api/venues/venues/property-definitions", "PUT")
+    ).toBe(false)
+  })
+
+  it("does NOT open the venues collection or a venue by id", () => {
+    // The allowlist entries are venue-manager SELF-scoped routes; the generic
+    // collection would hand the private proxy an arbitrary-id write.
+    expect(isStrapiEndpointAllowed("api/venues/venues", "PUT")).toBe(false)
+    expect(isStrapiEndpointAllowed("api/venues/venues/abc123", "PUT")).toBe(
+      false
+    )
+    expect(isStrapiEndpointAllowed("api/venues/venues", "GET")).toBe(false)
   })
 })

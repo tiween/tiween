@@ -1,4 +1,4 @@
-import venueService from "../venue"
+import venueService, { toPublicVenue } from "../venue"
 
 /**
  * Unit tests for `venue.findVenuesForSelector` (mocked Strapi, DW-24 / DW-25).
@@ -401,5 +401,391 @@ describe("venue service.findVenuesForSelector (unit)", () => {
       ])
       expect(strapi.log.warn).toHaveBeenCalled()
     })
+  })
+})
+
+/**
+ * `findVenueBySlug` + `toPublicVenue` (Story 7.2) — the public venue page read.
+ *
+ * Added ALONGSIDE the three readers above, never by editing them: 7.1's review
+ * pinned their `status` params to close a data leak and that pin must not
+ * regress. This reader carries the same publication gate for the same reason,
+ * plus an explicit output whitelist — `manager` (a users-permissions record)
+ * and `status` must never reach an unauthenticated caller.
+ */
+describe("venue service.findVenueBySlug (unit)", () => {
+  const RAW_ROW = {
+    id: 17,
+    documentId: "venue-1",
+    name: "Le Rio",
+    slug: "le-rio",
+    description: "Salle art déco",
+    address: "12 rue de Rome",
+    type: "cinema",
+    status: "approved",
+    phone: "+216 71 000 000",
+    email: "contact@lerio.tn",
+    website: "https://lerio.tn",
+    capacity: 300,
+    geo: { id: 3, latitude: 36.8, longitude: 10.18 },
+    logo: { id: 5, url: "/uploads/logo.png", name: "logo.png" },
+    images: [{ id: 6, url: "/uploads/a.png" }],
+    cityRef: { id: 2, documentId: "city-1", name: "Tunis", slug: "tunis" },
+    properties: [
+      {
+        id: 9,
+        booleanValue: true,
+        definition: {
+          id: 4,
+          documentId: "def-1",
+          name: "Wheelchair Accessible",
+          slug: "wheelchair-accessible",
+          type: "boolean",
+        },
+      },
+    ],
+    manager: { id: 42, email: "manager@example.com", password: "$2b$hash" },
+  }
+
+  const PROPERTY_DEFINITION_UID = "plugin::venues.property-definition"
+
+  function buildSlugStrapi(row: unknown, localizedDefinitions?: unknown[]) {
+    const api = { findFirst: jest.fn(async () => row) }
+    const definitionApi = {
+      findMany: jest.fn(async () => localizedDefinitions ?? []),
+    }
+    const strapi: any = {
+      documents: jest.fn((uid: string) =>
+        uid === PROPERTY_DEFINITION_UID ? definitionApi : api
+      ),
+      log: { warn: jest.fn(), info: jest.fn(), error: jest.fn() },
+    }
+    return { strapi, api, definitionApi }
+  }
+
+  it("asks the Document Service for the PUBLISHED document matching the slug", async () => {
+    const { strapi, api } = buildSlugStrapi(RAW_ROW)
+    const service = venueService({ strapi })
+
+    await service.findVenueBySlug("le-rio", "fr")
+
+    expect(strapi.documents).toHaveBeenCalledWith(VENUE_UID)
+    expect(api.findFirst).toHaveBeenCalledWith(
+      expect.objectContaining({
+        filters: { slug: { $eq: "le-rio" }, status: { $ne: "suspended" } },
+        locale: "fr",
+        status: "published",
+      })
+    )
+  })
+
+  /**
+   * A SUSPENDED venue must disappear from the public page. Nothing anywhere
+   * unpublishes on suspension — `updateMyVenue` only skips the REPUBLISH — so
+   * an already-published venue that is later suspended stays published in the
+   * database forever. The enum filter is the only thing that takes it down.
+   *
+   * It is a `$ne: "suspended"` and NOT an `$eq: "approved"` on purpose:
+   * `SEED_VENUES` never sets that enum (DW-211), so an approved-only filter
+   * would empty the public page for every seeded venue.
+   */
+  describe("the suspended-venue takedown gate", () => {
+    it("excludes suspended venues via the status ENUM, alongside the publication gate", async () => {
+      const { strapi, api } = buildSlugStrapi(RAW_ROW)
+      const service = venueService({ strapi })
+
+      await service.findVenueBySlug("le-rio")
+
+      const params = api.findFirst.mock.calls[0][0]
+      expect(params.filters.status).toEqual({ $ne: "suspended" })
+      expect(params.status).toBe("published")
+    })
+
+    it("404s (null) for a suspended venue — the filter matches nothing", async () => {
+      // The filter is applied by the Document Service, so the honest mock for
+      // "the row is suspended" is a query that returns nothing.
+      const { strapi } = buildSlugStrapi(null)
+      const service = venueService({ strapi })
+
+      expect(await service.findVenueBySlug("suspended-venue")).toBeNull()
+    })
+
+    it("still returns an APPROVED published venue (200)", async () => {
+      const { strapi } = buildSlugStrapi(RAW_ROW)
+      const service = venueService({ strapi })
+
+      const venue = await service.findVenueBySlug("le-rio")
+
+      expect(venue).not.toBeNull()
+      expect(venue?.documentId).toBe("venue-1")
+    })
+
+    it("still returns a SEEDED venue whose status enum is unset but is published", async () => {
+      // DW-211: `SEED_VENUES` never writes the enum. An `$eq: "approved"` gate
+      // here would 404 every seeded venue; `$ne: "suspended"` keeps them.
+      const { strapi } = buildSlugStrapi({
+        documentId: "seeded-1",
+        name: "Seeded Venue",
+        slug: "seeded-venue",
+      })
+      const service = venueService({ strapi })
+
+      const venue = await service.findVenueBySlug("seeded-venue")
+
+      expect(venue?.documentId).toBe("seeded-1")
+    })
+  })
+
+  /**
+   * `property-definition` is LOCALIZED; `venue` is not. Populating
+   * `properties.definition` through a venue read therefore always yields
+   * DEFAULT-locale labels, so an Arabic or French public page would render
+   * English amenity names. The definitions are re-resolved in the requested
+   * locale and their labels overlaid.
+   */
+  describe("localized amenity labels", () => {
+    const LOCALIZED = [
+      {
+        documentId: "def-1",
+        name: "Accessible en fauteuil roulant",
+        slug: "wheelchair-accessible",
+        type: "boolean",
+      },
+    ]
+
+    it("overlays the requested locale's definition name onto the projection", async () => {
+      const { strapi, definitionApi } = buildSlugStrapi(RAW_ROW, LOCALIZED)
+      const service = venueService({ strapi })
+
+      const venue = await service.findVenueBySlug("le-rio", "fr")
+
+      expect(definitionApi.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          filters: { documentId: { $in: ["def-1"] } },
+          locale: "fr",
+        })
+      )
+      expect(venue?.properties[0].definition?.name).toBe(
+        "Accessible en fauteuil roulant"
+      )
+      // The venue's own fields are NOT re-read; only the labels are overlaid.
+      expect(venue?.properties[0].definition?.slug).toBe(
+        "wheelchair-accessible"
+      )
+      expect(venue?.properties[0].booleanValue).toBe(true)
+    })
+
+    it("overlays localized enumOptions too", async () => {
+      const { strapi } = buildSlugStrapi(
+        {
+          documentId: "v",
+          name: "N",
+          properties: [
+            {
+              enumValue: "fixed",
+              definition: {
+                documentId: "def-seat",
+                name: "Seating",
+                type: "enum",
+                enumOptions: ["fixed", "flexible"],
+              },
+            },
+          ],
+        },
+        [
+          {
+            documentId: "def-seat",
+            name: "Type de sièges",
+            enumOptions: ["fixe", "modulable"],
+          },
+        ]
+      )
+      const service = venueService({ strapi })
+
+      const venue = await service.findVenueBySlug("x", "fr")
+
+      expect(venue?.properties[0].definition?.name).toBe("Type de sièges")
+      expect(venue?.properties[0].definition?.enumOptions).toEqual([
+        "fixe",
+        "modulable",
+      ])
+    })
+
+    it("does not issue the extra read when no locale is requested", async () => {
+      const { strapi, definitionApi } = buildSlugStrapi(RAW_ROW, LOCALIZED)
+      const service = venueService({ strapi })
+
+      await service.findVenueBySlug("le-rio")
+
+      expect(definitionApi.findMany).not.toHaveBeenCalled()
+    })
+
+    it("does not bound the lookup by the number of ids (a short read would drop labels)", async () => {
+      const { strapi, definitionApi } = buildSlugStrapi(RAW_ROW, LOCALIZED)
+      const service = venueService({ strapi })
+
+      await service.findVenueBySlug("le-rio", "ar")
+
+      const { limit } = definitionApi.findMany.mock.calls[0][0]
+      expect(limit).toBeGreaterThanOrEqual(100)
+    })
+
+    it("keeps the default-locale labels when the localized read fails (fail-soft)", async () => {
+      const { strapi, definitionApi } = buildSlugStrapi(RAW_ROW, LOCALIZED)
+      definitionApi.findMany.mockRejectedValueOnce(new Error("i18n exploded"))
+      const service = venueService({ strapi })
+
+      const venue = await service.findVenueBySlug("le-rio", "fr")
+
+      expect(venue?.properties[0].definition?.name).toBe(
+        "Wheelchair Accessible"
+      )
+      expect(strapi.log.warn).toHaveBeenCalled()
+    })
+
+    it("leaves a definition the localized read did not return untouched", async () => {
+      const { strapi } = buildSlugStrapi(RAW_ROW, [])
+      const service = venueService({ strapi })
+
+      const venue = await service.findVenueBySlug("le-rio", "fr")
+
+      expect(venue?.properties[0].definition?.name).toBe(
+        "Wheelchair Accessible"
+      )
+    })
+  })
+
+  it("stays published-only when no locale is given", async () => {
+    const { strapi, api } = buildSlugStrapi(RAW_ROW)
+    const service = venueService({ strapi })
+
+    await service.findVenueBySlug("le-rio")
+
+    expect(api.findFirst).toHaveBeenCalledWith(
+      expect.objectContaining({ status: "published" })
+    )
+  })
+
+  it("populates everything the public page renders", async () => {
+    const { strapi, api } = buildSlugStrapi(RAW_ROW)
+    const service = venueService({ strapi })
+
+    await service.findVenueBySlug("le-rio")
+
+    expect(api.findFirst.mock.calls[0][0].populate).toEqual({
+      geo: true,
+      logo: true,
+      images: true,
+      cityRef: true,
+      properties: { populate: { definition: true } },
+    })
+  })
+
+  it("returns null (→ 404) when nothing matches", async () => {
+    const { strapi } = buildSlugStrapi(null)
+    const service = venueService({ strapi })
+
+    expect(await service.findVenueBySlug("ghost")).toBeNull()
+  })
+
+  it("returns the whitelisted projection, never the raw row", async () => {
+    const { strapi } = buildSlugStrapi(RAW_ROW)
+    const service = venueService({ strapi })
+
+    const venue = await service.findVenueBySlug("le-rio")
+
+    expect(venue).toEqual({
+      documentId: "venue-1",
+      name: "Le Rio",
+      slug: "le-rio",
+      description: "Salle art déco",
+      address: "12 rue de Rome",
+      type: "cinema",
+      phone: "+216 71 000 000",
+      email: "contact@lerio.tn",
+      website: "https://lerio.tn",
+      capacity: 300,
+      geo: { latitude: 36.8, longitude: 10.18 },
+      logo: { id: 5, url: "/uploads/logo.png", name: "logo.png" },
+      images: [{ id: 6, url: "/uploads/a.png" }],
+      city: { documentId: "city-1", name: "Tunis", slug: "tunis" },
+      properties: [
+        {
+          booleanValue: true,
+          definition: {
+            documentId: "def-1",
+            name: "Wheelchair Accessible",
+            slug: "wheelchair-accessible",
+            type: "boolean",
+          },
+        },
+      ],
+    })
+  })
+})
+
+describe("venue service.toPublicVenue whitelist (unit)", () => {
+  it("drops manager, status and every internal numeric entity id", () => {
+    const projected = toPublicVenue({
+      id: 17,
+      documentId: "venue-1",
+      name: "Le Rio",
+      status: "approved",
+      manager: { id: 42, email: "manager@example.com" },
+      cityRef: { id: 2, documentId: "city-1", name: "Tunis" },
+      createdBy: { id: 1 },
+      publishedAt: "2026-01-01T00:00:00.000Z",
+    })
+
+    expect(projected).not.toHaveProperty("manager")
+    expect(projected).not.toHaveProperty("status")
+    expect(projected).not.toHaveProperty("id")
+    expect(projected).not.toHaveProperty("createdBy")
+    expect(projected).not.toHaveProperty("publishedAt")
+    expect(projected.city).toEqual({ documentId: "city-1", name: "Tunis" })
+    expect(projected.city).not.toHaveProperty("id")
+  })
+
+  it("never invents a key: absent optionals stay absent", () => {
+    const projected = toPublicVenue({ documentId: "v", name: "N" })
+
+    expect(projected).toEqual({
+      documentId: "v",
+      name: "N",
+      geo: null,
+      logo: null,
+      images: [],
+      city: null,
+      properties: [],
+    })
+  })
+
+  it("returns null for an unusable row rather than a half-built object", () => {
+    expect(toPublicVenue(null)).toBeNull()
+    expect(toPublicVenue([])).toBeNull()
+    expect(toPublicVenue({ name: "no documentId" })).toBeNull()
+    expect(toPublicVenue({ documentId: "v" })).toBeNull()
+  })
+
+  it("drops media entries that carry no usable url", () => {
+    const projected = toPublicVenue({
+      documentId: "v",
+      name: "N",
+      logo: { id: 5 },
+      images: [{ id: 6, url: "/uploads/a.png" }, { id: 7 }, null],
+    })
+
+    expect(projected.logo).toBeNull()
+    expect(projected.images).toEqual([{ id: 6, url: "/uploads/a.png" }])
+  })
+
+  it("treats partial coordinates as no location", () => {
+    const projected = toPublicVenue({
+      documentId: "v",
+      name: "N",
+      geo: { latitude: 36.8 },
+    })
+
+    expect(projected.geo).toBeNull()
   })
 })
