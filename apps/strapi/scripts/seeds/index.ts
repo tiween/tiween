@@ -9,6 +9,10 @@
  *   yarn seed:clear - Clear seeded data
  *   yarn seed:fresh - Clear and re-seed
  *
+ * Every seeder is idempotent by SKIPPING rows whose slug already exists — it
+ * never updates them. A database seeded before DW-13 therefore keeps its works
+ * with empty `credits`/`cast`/`videos`; use `yarn seed:fresh` to rebuild them.
+ *
  * @example
  * ```bash
  * cd apps/strapi
@@ -18,14 +22,19 @@
 
 import { compileStrapi, createStrapi } from "@strapi/strapi"
 
+import type { CreativeWorkSeed } from "./utils/creative-work-relations"
+import type { IdMap } from "./utils/types"
+
 import { config } from "./config"
 import categoriesData from "./data/categories.json"
 import citiesData from "./data/cities.json"
 import creativeWorksData from "./data/creative-works.json"
+import creditRolesData from "./data/credit-roles.json"
 import genresData from "./data/genres.json"
 import personsData from "./data/persons.json"
 // Import seed data
 import regionsData from "./data/regions.json"
+import { buildCreativeWorkData } from "./utils/creative-work-relations"
 import {
   addDays,
   randomInt,
@@ -40,16 +49,13 @@ interface SeedResult {
   total: number
 }
 
-interface IdMap {
-  [key: string]: string // slug -> documentId
-}
-
 // Global state for seeded document IDs
 const idMaps: {
   regions: IdMap
   cities: IdMap
   genres: IdMap
   categories: IdMap
+  creditRoles: IdMap
   persons: IdMap
   creativeWorks: IdMap
   venues: IdMap
@@ -60,6 +66,7 @@ const idMaps: {
   cities: {},
   genres: {},
   categories: {},
+  creditRoles: {},
   persons: {},
   creativeWorks: {},
   venues: {},
@@ -222,6 +229,48 @@ async function seedCategories(strapi: any): Promise<SeedResult> {
 }
 
 /**
+ * Seed credit roles (crew vocabulary used by `credits[]`)
+ *
+ * Slugs are written explicitly instead of being derived from the (French)
+ * `name`, so downstream code can key on stable identifiers such as `director`
+ * and the admin catch-all rule (`GENERIC_CREDIT_ROLE_SLUGS`) keeps firing.
+ */
+async function seedCreditRoles(strapi: any): Promise<SeedResult> {
+  console.log("🎬 Seeding credit roles...")
+  const uid = "plugin::creative-works.credit-role"
+  let created = 0,
+    skipped = 0
+
+  for (const creditRole of creditRolesData) {
+    const existing = await strapi.documents(uid).findMany({
+      filters: { slug: creditRole.slug },
+      limit: 1,
+    })
+
+    if (existing.length > 0) {
+      idMaps.creditRoles[creditRole.slug] = existing[0].documentId
+      skipped++
+      continue
+    }
+
+    const doc = await strapi.documents(uid).create({
+      data: {
+        name: creditRole.name,
+        slug: creditRole.slug,
+        department: creditRole.department,
+      },
+      status: "published",
+    })
+
+    idMaps.creditRoles[creditRole.slug] = doc.documentId
+    created++
+  }
+
+  console.log(`   Created: ${created}, Skipped: ${skipped}`)
+  return { created, skipped, total: creditRolesData.length }
+}
+
+/**
  * Seed persons (directors and actors)
  */
 async function seedPersons(strapi: any): Promise<SeedResult> {
@@ -270,7 +319,19 @@ async function seedCreativeWorks(strapi: any): Promise<SeedResult> {
   let created = 0,
     skipped = 0
 
-  for (const work of creativeWorksData) {
+  const directorRoleId = idMaps.creditRoles["director"]
+  if (!directorRoleId) {
+    console.warn(
+      '   ⚠️  No "director" credit-role seeded — works will be created without credits'
+    )
+  }
+
+  for (const work of creativeWorksData as CreativeWorkSeed[]) {
+    // Scoped per work so a degradation notice names the work it came from —
+    // a bare `credits: unresolved slug "x"` across 25 works is unactionable.
+    const warn = (message: string) =>
+      console.warn(`   ⚠️  [${work.slug}] ${message}`)
+
     const existing = await strapi.documents(uid).findMany({
       filters: { slug: work.slug },
       limit: 1,
@@ -282,31 +343,21 @@ async function seedCreativeWorks(strapi: any): Promise<SeedResult> {
       continue
     }
 
-    // Map genre slugs to document IDs
-    const genreIds = work.genres
-      .map((slug: string) => idMaps.genres[slug])
-      .filter(Boolean)
-
-    // Map director slugs to document IDs
-    const directorIds = work.directors
-      .map((slug: string) => idMaps.persons[slug])
-      .filter(Boolean)
+    // Map the flat source arrays (directors/cast/trailer) onto the real
+    // components. Assembled by a helper so the payload's key set is asserted
+    // against `creative-work/schema.json` in the unit gate — see DW-13.
+    const data = buildCreativeWorkData(
+      work,
+      {
+        genres: idMaps.genres,
+        persons: idMaps.persons,
+        directorRoleId,
+      },
+      warn
+    )
 
     const doc = await strapi.documents(uid).create({
-      data: {
-        title: work.title,
-        originalTitle: work.originalTitle,
-        slug: work.slug,
-        type: work.type,
-        synopsis: work.synopsis,
-        duration: work.duration,
-        releaseYear: work.releaseYear,
-        ageRating: work.ageRating,
-        rating: work.rating,
-        genres: genreIds,
-        directors: directorIds,
-        trailer: work.trailer,
-      },
+      data,
       status: "published",
     })
 
@@ -611,6 +662,7 @@ async function seed() {
     results.cities = await seedCities(strapi)
     results.genres = await seedGenres(strapi)
     results.categories = await seedCategories(strapi)
+    results.creditRoles = await seedCreditRoles(strapi)
 
     // 2. Entity properties
     await seedEntityProperties(strapi)

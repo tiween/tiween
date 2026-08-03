@@ -93,14 +93,16 @@ decision: 2026-07-13 Keep both (document the split) — Accept the dual-enum as 
 origin: migrated from legacy ledger ("Deferred from: code review of 2c-3-catalog-move-into-creative-works (2026-06-16)"), 2026-07-12
 location: n/a
 reason: `credit-role` content-type lacks integrity guards.
-status: open
+status: done 2026-08-03
+resolution: resolved by sweep bundle dw-catalog-schema-and-seed-integrity
 
 ### DW-13: Seed `index.ts` writes phantom fields to creative-work (pre-existing at baseline 54c092c)
 
 origin: migrated from legacy ledger ("Deferred from: code review of 2c-3-catalog-move-into-creative-works (2026-06-16)"), 2026-07-12
 location: n/a
 reason: Seed `index.ts` writes phantom fields to creative-work (pre-existing at baseline 54c092c).
-status: open
+status: done 2026-08-03
+resolution: resolved by sweep bundle dw-catalog-schema-and-seed-integrity
 
 ### DW-14: `cast` component billing semantics
 
@@ -1055,4 +1057,60 @@ location: n/a
 source_spec: `spec-dw-10-catalog-admin-workform-rebuild.md`
 severity: low
 reason: The follow-up-review damping cap (limits.max_followup_reviews = 1) was spent with the story finalized (status: done, verify green) while the review pass still recommended an independent follow-up. The work was committed by bmad-loop run 20260712-090054-5834; this entry preserves the lingering recommendation for a deliberate later review.
+status: open
+
+### DW-147: The `credit-role` NOT NULL tightening ships with no backfill migration
+
+origin: follow-up review of spec-dw-12-13-catalog-schema-and-seed-integrity.md (2026-08-03)
+location: apps/strapi/database/migrations/
+reason: (MEDIUM) `credit-role/schema.json` now declares `slug` and `department` as `required: true` (department defaulting to `other`), but `apps/strapi/database/migrations/` contains only `.gitkeep`, so the NOT NULL column sync is left entirely to Strapi's automatic schema sync at boot. Against the empty catalog this change targets that is harmless, but any environment already holding `credit_roles` rows with a NULL `slug` or `department` can fail the ALTER, and `seedCreditRoles` is slug-keyed skip-if-exists so it never backfills them. Fix is a migration that fills `department = 'other'` and derives a slug from `name` where either is NULL, landing before the schema tightening. Surfaced by all three reviewers.
+status: open
+
+### DW-148: The client shorts feature still reads the phantom `trailer` / `directors` fields the seed write path dropped
+
+origin: follow-up review of spec-dw-12-13-catalog-schema-and-seed-integrity.md (2026-08-03)
+location: apps/client/src/features/shorts/types/shorts.types.ts
+reason: (MEDIUM) `shorts.types.ts` still declares and maps `trailer` and `directors` as top-level `creative-work` fields, consumed by `ShortsHero.tsx`, `ShortFilmDetail.tsx`, `ShortFilmDetailPage.tsx` and `shorts/[slug]/page.tsx`. Neither key has existed on the content type since 2C.3, and the seed runner no longer writes them, so those surfaces render empty director lists and no trailer for every seeded short. The events feature already does this correctly — `eventMappers.ts` derives directors from `credits[]` — so the fix is to follow that pattern and read `credits[]` / `videos[]` instead. Pre-existing (the read path was never migrated with the schema); out of scope for a seeds-and-schema spec. Surfaced by the previous review pass of this spec, not previously transcribed to the ledger.
+status: open
+
+### DW-149: Seeded trailers get the legacy `video.type` default `TEASER`, while the contribution wizard deliberately writes `type: null`
+
+origin: follow-up review of spec-dw-12-13-catalog-schema-and-seed-integrity.md (2026-08-03)
+location: apps/strapi/scripts/seeds/utils/creative-work-relations.ts
+reason: (MEDIUM) `buildVideos` emits `{ url, videoType: "trailer" }` and omits the legacy `type` enum, exactly as the spec's I/O matrix prescribes — but `src/components/common/video.json` declares `"type": { ..., "default": "TEASER" }`, so Strapi stamps `TEASER` onto every seeded row. `apps/client/src/app/api/contribute/play/route.ts` takes the opposite approach with an explicit comment ("sent as an explicit null so the legacy enum's schema default is not stamped onto brand-new rows"), so the two write paths now produce different shapes for the same component. No consumer reads `type` (the component description marks it historic-rows-only), which is why this is deferred rather than patched — but the two paths cannot both be right, and the decision is which one to align. Not patched here because the emitted payload is fixed by the frozen intent contract's I/O matrix. Surfaced by the Blind Hunter and the Verification Gap reviewer.
+status: open
+
+### DW-150: No boot-level test proves a seed run actually persists non-empty `credits` / `cast` / `videos`
+
+origin: follow-up review of spec-dw-12-13-catalog-schema-and-seed-integrity.md (2026-08-03)
+location: apps/strapi/scripts/seeds/index.ts
+reason: (MEDIUM) The DW-13 fix is verified entirely by pure unit tests over `buildCreativeWorkData`; nothing exercises `scripts/seeds/index.ts` itself. Moving `seedCreditRoles` below `seedCreativeWorks` in the pipeline, or renaming the `"director"` key it is looked up by, leaves `directorRoleId` undefined so every work is created with `credits: []` — and the run still prints `Created: 25` and exits 0 while all 35 unit tests pass. The write shape is equally unproven: the key-set guard compares key NAMES against the schema JSON and never demonstrates that Strapi accepts bare documentId strings for `credit.person` / `credit.creditRole` / `cast.person` rather than a `{ connect: [...] }` form. Fix is an opt-in boot-based suite in the existing `tests/` integration style that runs the credit-role + creative-work seeders against a live DB and re-reads one work with those relations populated. Deferred rather than patched because it is a new test harness (needs a database), not a change to this story's code. Surfaced by the Verification Gap reviewer and the Blind Hunter.
+status: open
+
+### DW-151: The wizard crew vocabulary guard is a hand-copied slug list, so cross-app drift fails nothing
+
+origin: follow-up review of spec-dw-12-13-catalog-schema-and-seed-integrity.md (2026-08-03)
+location: apps/strapi/scripts/seeds/utils/creative-work-relations.unit.test.ts
+reason: (MEDIUM) `WIZARD_CREW_SLUGS` in the seed unit test is a literal array retyped from `roleInfo` in `apps/client/src/features/contribute/components/steps/CreditsStep.tsx` (currently identical minus `cast`). It only guards one direction: adding a role to the wizard adds nothing to the list and breaks no test, which is precisely the drift the guard was written to prevent. Because `credit.creditRole` is a required relation, a wizard role with no seeded credit-role makes every submission using it fail Strapi validation — and the client's own `route.test.ts` stubs the `/api/credit-roles` lookup with a per-test map, so it never sees the real vocabulary either. Fix is a shared vocabulary constant in a workspace package, or a client-side test that walks `roleInfo` against the seeded file. Cross-app import from `apps/strapi` is not currently possible, which is why this is a shared-package decision rather than a patch. Surfaced by all three reviewers.
+status: open
+
+### DW-152: `credit-roles.json` is French-only although `credit-role` is a localized content type
+
+origin: follow-up review of spec-dw-12-13-catalog-schema-and-seed-integrity.md (2026-08-03)
+location: apps/strapi/scripts/seeds/data/credit-roles.json
+reason: (LOW) `credit-role` declares `pluginOptions.i18n.localized: true` and `name` is a localized field, but the seed file carries only French names and `seedCreditRoles` never passes a `locale`, so the `ar` and `en` locales listed in `scripts/seeds/config.ts` get no credit-role names at all. This matches every existing seeder — none of them runs a locale pass, and `creative-works.json` carries `title_ar`/`synopsis_ar` that the seeder discards for the same reason — so it is a seeder-wide gap rather than a defect this change introduced. Fix is a locale pass across the seed runner (decide the source-of-truth shape for translated seed data first), not a one-file edit. Related to DW-142 on the read side. Surfaced by the Blind Hunter and the Edge Case Hunter.
+status: open
+
+### DW-153: Nothing typechecks `apps/strapi/scripts/` — the new seed helpers are compiled by no gate
+
+origin: follow-up review of spec-dw-12-13-catalog-schema-and-seed-integrity.md (2026-08-03)
+location: apps/strapi/tsconfig.json
+reason: (LOW) `apps/strapi/tsconfig.json` excludes `scripts/`, and `jest.config.cjs` runs ts-jest with `diagnostics: false`, so neither `yarn type-check` nor `yarn test` type-checks a single line of `scripts/seeds/` — including the ~500 lines of new helper, seeder and test code this change added. The type annotations there are documentation, not enforcement; the only real gate is the runtime unit test. Fix is either adding `scripts/` to a typecheck project (and fixing whatever backlog that first surfaces, size unknown) or enabling ts-jest diagnostics for that path. Pre-existing config; same blind-spot family as DW-144, which covers `.tsx` under the same tsconfig. Surfaced by the Blind Hunter.
+status: open
+
+### DW-154: The seed corpus is too thin to exercise the catalog surfaces the DW-13 fix unblocked
+
+origin: follow-up review of spec-dw-12-13-catalog-schema-and-seed-integrity.md (2026-08-03)
+location: apps/strapi/scripts/seeds/data/creative-works.json
+reason: (LOW) Of the 25 works in the corpus only 12 carry `directors`, 6 carry `cast` and 5 carry a `trailer`, so even with the mapping fixed 13 works seed with empty `credits[]`, 19 with empty `cast[]` and 20 with empty `videos[]`. The plumbing is correct and every referenced person/genre slug resolves (now asserted in the unit gate), but a seeded environment still cannot meaningfully exercise the admin WorkForm's cast/crew editors or the public detail pages. Fix is content work on the seed data, not code. Surfaced by the previous review pass of this spec, not previously transcribed to the ledger.
 status: open

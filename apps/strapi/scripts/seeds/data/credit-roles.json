@@ -1,0 +1,107 @@
+[
+  {
+    "name": "Réalisateur",
+    "slug": "director",
+    "department": "directing"
+  },
+  {
+    "name": "Assistant réalisateur",
+    "slug": "assistant-director",
+    "department": "directing"
+  },
+  {
+    "name": "Chorégraphe",
+    "slug": "choreographer",
+    "department": "stage"
+  },
+  {
+    "name": "Scénariste",
+    "slug": "screenwriter",
+    "department": "writing"
+  },
+  {
+    "name": "Dramaturge",
+    "slug": "playwright",
+    "department": "writing"
+  },
+  {
+    "name": "Adaptateur",
+    "slug": "adaptor",
+    "department": "writing"
+  },
+  {
+    "name": "Traducteur",
+    "slug": "translator",
+    "department": "writing"
+  },
+  {
+    "name": "Producteur",
+    "slug": "producer",
+    "department": "production"
+  },
+  {
+    "name": "Directeur de la photographie",
+    "slug": "director-of-photography",
+    "department": "camera"
+  },
+  {
+    "name": "Monteur",
+    "slug": "editor",
+    "department": "editing"
+  },
+  {
+    "name": "Ingénieur du son",
+    "slug": "sound-engineer",
+    "department": "sound"
+  },
+  {
+    "name": "Concepteur son",
+    "slug": "sound-designer",
+    "department": "sound"
+  },
+  {
+    "name": "Compositeur",
+    "slug": "composer",
+    "department": "music"
+  },
+  {
+    "name": "Directeur musical",
+    "slug": "musical-director",
+    "department": "music"
+  },
+  {
+    "name": "Directeur artistique",
+    "slug": "art-director",
+    "department": "art"
+  },
+  {
+    "name": "Scénographe",
+    "slug": "set-designer",
+    "department": "art"
+  },
+  {
+    "name": "Costumier",
+    "slug": "costume-designer",
+    "department": "costume-makeup"
+  },
+  {
+    "name": "Créateur lumière",
+    "slug": "lighting-designer",
+    "department": "lighting"
+  },
+  {
+    "name": "Concepteur vidéo",
+    "slug": "projection-designer",
+    "department": "other"
+  },
+  {
+    "name": "Régisseur de scène",
+    "slug": "stage-manager",
+    "department": "stage"
+  },
+  {
+    "name": "Autre",
+    "slug": "other",
+    "department": "other"
+  }
+]
