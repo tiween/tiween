@@ -215,7 +215,14 @@ development_status:
   # media upload token and reCAPTCHA all depend on credentials that must be
   # provisioned outside the repo. See the spec frontmatter operator_actions.
   7-1-venue-registration-flow: awaiting-operator
-  7-2-venue-profile-management: backlog
+  # 7-2 landed 2026-08-03. Code complete and reviewed; spec status is
+  # awaiting-operator because the surface cannot be exercised until a human
+  # approves and unblocks a venue-manager account in the Strapi admin (no code
+  # path does this until Epic 9). See the spec frontmatter operator_actions.
+  # NOTE: the epic names Epic 2D's admin form as 7.2's prerequisite; 2d-2 is
+  # still ready-for-dev, so 7.2 was built on the Next.js client instead — the
+  # accounts 7.1 creates are users-permissions users and cannot reach /admin.
+  7-2-venue-profile-management: awaiting-operator
   7-3-event-creation: backlog
   7-4-event-editing-and-cancellation: backlog
   7-5-ticketing-configuration: backlog

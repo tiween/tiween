@@ -4,6 +4,7 @@ type: "feature"
 created: "2026-08-03"
 status: "awaiting-operator"
 baseline_revision: "72c4034"
+final_revision: "7ca68e4" # this line is recorded in the next commit
 review_loop_iteration: 0
 followup_review_recommended: true # 17 patches in one pass (3 high, 9 medium), one of which was a boot-breaking route config the frozen intent-contract itself mandated; the pass also changed externally observable behaviour on a public read (the suspended-venue gate, localized amenity labels) and added the first authorization surface in the venues plugin
 operator_actions:
