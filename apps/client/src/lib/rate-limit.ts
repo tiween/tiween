@@ -103,6 +103,19 @@ export const playSubmissionLimiter = rateLimit({
   maxRequests: 5, // 5 submissions per hour
 })
 
+/**
+ * Public venue-registration submissions (Story 7.1): 5 per 15 minutes per IP.
+ * Tighter than the play limiter because each accepted submission provisions a
+ * user account plus a venue record.
+ *
+ * MUST stay a module-level instance: a limiter created per request would reset
+ * its counter map every call and bound nothing.
+ */
+export const venueRegistrationLimiter = rateLimit({
+  interval: 15 * 60 * 1000, // 15 minutes
+  maxRequests: 5,
+})
+
 export const personCreationLimiter = rateLimit({
   interval: 60 * 60 * 1000, // 1 hour
   maxRequests: 20, // 20 person creations per hour

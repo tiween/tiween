@@ -102,11 +102,21 @@ function pageCountOf(total: number, pageSize: number): number {
 
 const venueService = ({ strapi }: { strapi: Core.Strapi }) => ({
   /**
-   * Find all venues with optional locale
+   * Find all venues with optional locale.
+   *
+   * `status: "published"` is LOAD-BEARING, not decoration. `GET /venues` is
+   * `auth: false`, and `@strapi/core`'s `defaultToDraft` makes an omitted
+   * `status` mean **draft** — so without this every anonymously-created venue
+   * application (story 7.1 inserts them as drafts carrying the applicant's
+   * phone, email and address) would be world-readable. Registration never
+   * publishes; the seed does. Gating on the publication state rather than the
+   * `status` ENUM is deliberate: `SEED_VENUES` never sets that enum, so an
+   * `approved`-enum filter here would return nothing at all.
    */
   async findVenues(locale?: string) {
     return strapi.documents(VENUE_UID).findMany({
       locale,
+      status: "published",
       sort: [{ name: "asc" }],
       populate: {
         geo: true,
@@ -115,12 +125,15 @@ const venueService = ({ strapi }: { strapi: Core.Strapi }) => ({
   },
 
   /**
-   * Find a single venue by documentId
+   * Find a single venue by documentId. `status: "published"` for the same
+   * reason as {@link findVenues} — this route is public and an omitted status
+   * would resolve to the DRAFT document.
    */
   async findVenue(documentId: string, locale?: string) {
     return strapi.documents(VENUE_UID).findOne({
       documentId,
       locale,
+      status: "published",
       populate: {
         geo: true,
         events: true,

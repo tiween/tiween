@@ -143,7 +143,7 @@ Deferred (2026-07-09 pass 2): session-invalidation goes fully open under a futur
 - defer: 1: (high 0, medium 0, low 1)
 - reject: 8
 - addressed_findings:
-  - `[medium]` `[patch]` The `safeCallbackUrl` open-redirect guard `/^\/[^/\\]/` (added pass 2) still admitted ASCII control-char vectors: `[^/\\]` matches tab/newline/CR, so `/\n/evil.com` (`?callbackUrl=%0A%2Fevil.com`) passed, and the browser strips the control char during URL parsing, collapsing it to `//evil.com` → off-origin redirect after the authenticated auto-login. Added a `!/[ -]/` reject to the guard; the off-origin test now includes `/\t`, `/\n`, `/\r` vectors (all green).
+  - `[medium]` `[patch]` The `safeCallbackUrl` open-redirect guard `/^\/[^/\\]/` (added pass 2) still admitted ASCII control-char vectors: `[^/\\]` matches tab/newline/CR, so `/\n/evil.com` (`?callbackUrl=%0A%2Fevil.com`) passed, and the browser strips the control char during URL parsing, collapsing it to `//evil.com` → off-origin redirect after the authenticated auto-login. Added a `!/[\x00-\x1f\x7f]/` reject to the guard; the off-origin test now includes `/\t`, `/\n`, `/\r` vectors (all green).
   - `[low]` `[patch]` The `resetPassword` delegation-error classifier `/incorrect code|invalid/i` was broader than the pass-2 intent ("only the stock 'incorrect code' rejection → `RESET_TOKEN_INVALID`"): the `|invalid` alternative would mislabel any transient error whose message merely contains "invalid" as an invalid-link. Narrowed to `/incorrect code/i` (existing "Incorrect code provided" → `RESET_TOKEN_INVALID` and "Database connection lost" → `RESET_FAILED` tests stay green).
   - `[low]` `[patch]` The client error-mapping tests fed `mapErrorToKey` bare codes (`new Error("RESET_TOKEN_EXPIRED")`) rather than the JSON envelope `fetchAPI` actually throws (`new Error(JSON.stringify({message, details:{code}, …}))`), so a future tighten-to-equality regression would pass CI while breaking prod message mapping. Reworked the `RESET_TOKEN_EXPIRED` case to assert against the real envelope shape (still resolves `errors.RESET_TOKEN_EXPIRED` via substring match).
 
@@ -257,7 +257,7 @@ Status: done
 
 An independent follow-up review pass ran on the `done` spec (the prior pass recommended one). Three patches applied, all localized and test-covered:
 
-- `[medium]` Closed a real open-redirect: the `safeCallbackUrl` guard `/^\/[^/\\]/` still admitted control-char vectors (`/\n/evil.com` → browser strips the newline → `//evil.com` off-origin). Added `!/[ -]/` and the `/\t`,`/\n`,`/\r` regression vectors to the off-origin test.
+- `[medium]` Closed a real open-redirect: the `safeCallbackUrl` guard `/^\/[^/\\]/` still admitted control-char vectors (`/\n/evil.com` → browser strips the newline → `//evil.com` off-origin). Added `!/[\x00-\x1f\x7f]/` and the `/\t`,`/\n`,`/\r` regression vectors to the off-origin test.
 - `[low]` Narrowed the reset delegation-error classifier from `/incorrect code|invalid/i` to `/incorrect code/i` (the `|invalid` alternative over-mapped transient errors to `RESET_TOKEN_INVALID`), aligning with the pass-2 documented intent.
 - `[low]` Hardened the client error-mapping test to assert against the real JSON error envelope `fetchAPI` throws, not a bare code (closes a silent-regression gap).
 

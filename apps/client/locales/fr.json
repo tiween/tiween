@@ -744,5 +744,100 @@
     "emptyDescription": "Vous serez averti ici lorsque l'horaire d'un événement de votre watchlist change.",
     "emptyAction": "Découvrir des événements",
     "error": "Impossible de charger vos notifications. Réessayez."
+  },
+  "venues": {
+    "register": {
+      "pageTitle": "Inscrivez votre lieu",
+      "pageDescription": "Proposez votre cinéma, théâtre ou centre culturel sur Tiween.",
+      "header": "Inscrivez votre lieu",
+      "description": "Remplissez le formulaire ci-dessous. Notre équipe examine chaque demande avant la mise en ligne.",
+      "sections": {
+        "venue": "À propos du lieu",
+        "manager": "Compte gestionnaire"
+      },
+      "fields": {
+        "name": "Nom du lieu",
+        "type": "Type de lieu",
+        "description": "Description",
+        "address": "Adresse",
+        "phone": "Téléphone",
+        "venueEmail": "Email de contact du lieu",
+        "website": "Site web",
+        "capacity": "Capacité (places)",
+        "logo": "Logo",
+        "images": "Photos",
+        "firstName": "Prénom",
+        "lastName": "Nom",
+        "managerEmail": "Votre email",
+        "password": "Mot de passe",
+        "passwordConfirmation": "Confirmez le mot de passe"
+      },
+      "placeholders": {
+        "type": "Choisissez un type de lieu",
+        "website": "https://exemple.com"
+      },
+      "hints": {
+        "images": "Jusqu'à {max} photos, JPEG/PNG/WebP, 5 Mo maximum chacune.",
+        "password": "Au moins 8 caractères, avec une majuscule, une minuscule et un chiffre."
+      },
+      "types": {
+        "cinema": "Cinéma",
+        "theater": "Théâtre",
+        "cultural-center": "Centre culturel",
+        "museum": "Musée",
+        "other": "Autre"
+      },
+      "buttons": {
+        "submit": "Envoyer la demande",
+        "submitting": "Envoi en cours..."
+      },
+      "legal": "Ce site est protégé par reCAPTCHA.",
+      "success": {
+        "title": "Demande reçue",
+        "description": "Votre demande d'inscription est en cours d'examen.",
+        "next": "Un email de confirmation vous a été envoyé. Votre compte gestionnaire est créé mais reste inactif jusqu'à l'approbation du lieu par notre équipe."
+      },
+      "errors": {
+        "VENUE_NAME_REQUIRED": "Le nom du lieu est obligatoire.",
+        "VENUE_NAME_TOO_LONG": "Le nom du lieu est trop long.",
+        "VENUE_DESCRIPTION_TOO_LONG": "La description est trop longue.",
+        "VENUE_ADDRESS_REQUIRED": "L'adresse est obligatoire.",
+        "VENUE_ADDRESS_TOO_LONG": "L'adresse est trop longue.",
+        "VENUE_TYPE_INVALID": "Choisissez un type de lieu valide.",
+        "VENUE_PHONE_REQUIRED": "Un numéro de téléphone est obligatoire.",
+        "VENUE_PHONE_TOO_LONG": "Le numéro de téléphone est trop long.",
+        "VENUE_EMAIL_REQUIRED": "Un email de contact est obligatoire.",
+        "VENUE_EMAIL_INVALID": "Saisissez un email de contact valide.",
+        "VENUE_WEBSITE_INVALID": "Saisissez une adresse de site web valide.",
+        "VENUE_WEBSITE_TOO_LONG": "L'adresse du site web est trop longue.",
+        "VENUE_CAPACITY_INVALID": "Saisissez une capacité valide.",
+        "VENUE_GEO_INVALID": "Les coordonnées de localisation sont invalides.",
+        "VENUE_IMAGES_TOO_MANY": "Trop de photos.",
+        "IMAGE_TOO_LARGE": "Une de vos images dépasse 5 Mo. Choisissez un fichier plus léger.",
+        "IMAGE_TYPE_INVALID": "Les images doivent être au format JPEG, PNG ou WebP.",
+        "IMAGES_TOO_MANY": "Vous pouvez joindre jusqu'à 10 photos.",
+        "MANAGER_FIRST_NAME_REQUIRED": "Votre prénom est obligatoire.",
+        "MANAGER_FIRST_NAME_TOO_LONG": "Le prénom est trop long.",
+        "MANAGER_LAST_NAME_REQUIRED": "Votre nom est obligatoire.",
+        "MANAGER_LAST_NAME_TOO_LONG": "Le nom est trop long.",
+        "MANAGER_EMAIL_REQUIRED": "Votre email est obligatoire.",
+        "MANAGER_EMAIL_INVALID": "Saisissez une adresse email valide.",
+        "MANAGER_PASSWORD_REQUIRED": "Un mot de passe est obligatoire.",
+        "MANAGER_PASSWORD_TOO_SHORT": "Le mot de passe est trop court.",
+        "MANAGER_PASSWORD_TOO_LONG": "Le mot de passe est trop long.",
+        "MANAGER_PASSWORD_WEAK": "Le mot de passe doit contenir une majuscule, une minuscule et un chiffre.",
+        "PASSWORD_CONFIRMATION_REQUIRED": "Confirmez votre mot de passe.",
+        "PASSWORD_MISMATCH": "Les mots de passe ne correspondent pas.",
+        "VALIDATION_FAILED": "Certains champs sont invalides. Vérifiez le formulaire.",
+        "EMAIL_ALREADY_REGISTERED": "Un compte existe déjà pour cette adresse email.",
+        "VENUE_MANAGER_ROLE_MISSING": "L'inscription est momentanément indisponible. Réessayez plus tard.",
+        "VENUE_REGISTRATION_FAILED": "Nous n'avons pas pu envoyer votre demande. Réessayez.",
+        "RATE_LIMIT_EXCEEDED": "Trop de tentatives. Réessayez plus tard.",
+        "RECAPTCHA_REQUIRED": "La vérification de sécurité est requise.",
+        "RECAPTCHA_FAILED": "La vérification de sécurité a échoué. Réessayez.",
+        "UPLOAD_FAILED": "Nous n'avons pas pu envoyer vos images. Réessayez.",
+        "INTERNAL_ERROR": "Une erreur est survenue. Réessayez."
+      }
+    }
   }
 }

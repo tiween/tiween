@@ -1397,3 +1397,145 @@ origin: story 1-12-i18n-western-numeral-lint-guard (2026-08-03), follow-up revie
 location: packages/eslint-config/rules/western-numerals.mjs (`unsafeNumberingSystem`)
 reason: (LOW) The check iterates the options object's own `Property` nodes and `continue`s past anything else, so `new Intl.NumberFormat(toNumeralSafeLocale(l), { ...{ numberingSystem: "arab" } })` is certified clean and renders Arabic-Indic digits. The follow-up review pass closed the sibling case (a template-literal value, ``{ numberingSystem: `arab` }``); the spread form needs the check to recurse into `SpreadElement` arguments whose argument is an `ObjectExpression`. Deliberate-looking rather than accidental — the same class as DW-186 — so it is recorded, not patched.
 status: open
+
+### DW-196: the repo-hygiene guard does not police UTF-8 BOMs
+
+origin: story 1-13-repo-hygiene-encoding-ci-guard (2026-08-03)
+location: scripts/check-repo-hygiene.mjs (`checkBuffer`)
+reason: (LOW) `EF BB BF` at the head of a file is well-formed UTF-8 that decodes to `U+FEFF`, which is neither a C0 control nor DEL, so the guard passes it. A BOM is measurably absent from the tree today (0 of 5561 tracked files at baseline), but it breaks shebangs, `JSON.parse` on some runtimes, and diffs on the first line only — a distinct failure class from the one this story exists to close. Deliberately excluded: the intent contract's "Never" clause forbids turning this guard into a general line-ending/BOM/whitespace policy. Note for whoever closes this (corrected during the 2026-08-03 review pass): `TextDecoder("utf-8")` defaults to `ignoreBOM: false`, i.e. it **strips** a leading `U+FEFF` before the character-class scan ever sees it, so a fix that merely adds `U+FEFF` to that class would catch interior BOMs and silently miss the leading one — the only case that matters. The guard now decodes with `ignoreBOM: true` (so line-1 columns are correct), which also means the character does reach the scan. Fix: add a dedicated `bom` violation kind checked on the decoded string's first character, with its own allowlist for files that genuinely need one.
+
+### DW-197: line endings are unpoliced — CRLF and lone CR both pass the hygiene guard
+
+origin: story 1-13-repo-hygiene-encoding-ci-guard (2026-08-03)
+location: scripts/check-repo-hygiene.mjs (`CONTROL_BYTE`), 19 tracked CRLF files under `legacy/` and `.claude/skills/**/*.csv`
+reason: (LOW) `\r` (U+000D) is explicitly allowed so the 19 pre-existing CRLF files are not swept into this story, which also means a lone CR — a classic mac-classic-era line terminator that makes a file look like one enormous line in most tooling and reports every violation at `line 1` — is admitted. The guard's own `line:col` reporting degrades for such a file. Recorded as a named decision, not an oversight: normalising line endings is a separate invariant with its own paydown (a `.gitattributes` `text=auto` policy plus a one-time conversion), and doing it inside this story would have produced a 19-file diff unrelated to the control-byte defect. Fix: land a `.gitattributes` normalisation policy, convert the 19 files, then tighten the guard to reject lone CR.
+
+### DW-198: the extension allowlist can be spoofed in both directions
+
+origin: story 1-13-repo-hygiene-encoding-ci-guard (2026-08-03)
+location: scripts/check-repo-hygiene.mjs (`isBinaryPath`, `BINARY_EXTENSIONS`)
+reason: (MEDIUM) Classification is by path extension only, never by content, so two blind spots exist by construction. (a) A text file named `logo.png` is skipped outright — anything at an allowlisted extension is unread, so a `.png` holding a shell script is invisible to the guard. (b) A binary payload named `handler.ts` still passes whenever its bytes happen to be valid UTF-8 with no control bytes (e.g. base64 or hex-armoured content), because the guard only asserts decodability, not that the file is plausible source. Direction (a) is the deliberate cost of an allowlist — the alternative, content sniffing, is precisely git's NUL heuristic, which would make the guard blind to its only real target (see the story's Design Notes). Direction (b) is inherent to a byte-level invariant. Fix (partial, if ever wanted): cross-check that files at allowlisted extensions carry the expected magic bytes, so a misnamed text file at a `.png` path is reported.
+
+### DW-199: whole-repo mode cannot see untracked-but-unignored files
+
+origin: story 1-13-repo-hygiene-encoding-ci-guard (2026-08-03)
+location: scripts/check-repo-hygiene.mjs (`trackedPaths`, `git ls-files -z`)
+reason: (LOW) `yarn hygiene` enumerates the git index, so a file that exists in the working tree but has never been added is not checked. In practice the gap closes at the moment it matters — lint-staged runs the same script over the staged paths, so a new file is checked on the commit that introduces it, and CI then re-checks it as a tracked file. It does mean a local `yarn hygiene` reports green while a violating new file sits unstaged on disk, which can mislead a developer debugging a CI failure in reverse. Fix: add `git ls-files -z --others --exclude-standard` to the enumeration, behind a flag if the extra scan cost matters.
+
+### DW-200: the repo-hygiene guard reads the working tree, not the committed blob
+
+origin: story 1-13-repo-hygiene-encoding-ci-guard (2026-08-03), review pass
+location: scripts/check-repo-hygiene.mjs (`checkPaths`)
+reason: (LOW) The guard enumerates paths from the git index but reads their contents from disk with `readFileSync`, so what it judges is the working tree. Two consequences. (a) A file that is tracked but absent from the work tree — sparse checkout, partial clone, `skip-worktree` — is counted under `missing` and never inspected; the summary line now reports that count honestly, but a sparse CI checkout would still exit 0 having read a fraction of the tree. (b) Contents staged for commit but since modified on disk are judged in their on-disk form; lint-staged closes this at commit time (it stashes unstaged changes before running tasks) and CI checks out a clean tree, so no live gap exists. The review pass patched the loudest sub-case — symlinks, which git stores as a target _string_ but `readFileSync` follows through to arbitrary content — by skipping non-regular files. Fix: read blobs via `git cat-file --batch` against the index instead of the filesystem.
+
+### DW-201: `hygiene:test` runs in CI and nowhere else in the local loop
+
+origin: story 1-13-repo-hygiene-encoding-ci-guard (2026-08-03), review pass
+location: package.json (`hygiene:test`), turbo.json (`test` task)
+reason: (LOW) The guard's suite is a root-level script deliberately kept out of `turbo test` (the `test` task `dependsOn: ["build"]` and `@tiween/client#build` is red at baseline — DW-185 — and turbo input-scoping already produced a stale-cache guard hole, DW-191). The cost is that `yarn test` does not run it: a developer editing `scripts/check-repo-hygiene.mjs` can run `yarn lint && yarn type-check && yarn test` locally, see all green, and only learn of a break from the dedicated CI step. The same holds for `.mjs` being outside both the lint and the format globs (DW-188), so the guard's own two files have no static gate at all. Fix, once DW-185/DW-191 are closed: make the hygiene suite a turbo task with explicit `inputs` and no `build` dependency, and extend the format glob to `.mjs`.
+
+### DW-202: lint-staged passes every staged path on one command line
+
+origin: story 1-13-repo-hygiene-encoding-ci-guard (2026-08-03), review pass
+location: .lintstagedrc.js (the `"*"` hygiene entry)
+reason: (LOW) The `"*"` pattern matches every staged file, and lint-staged appends the matched absolute paths to the command as argv. A commit staging thousands of files (a generated-asset sweep, a bulk rename, an initial import) can exceed the platform `ARG_MAX` and fail the spawn with `E2BIG`, which surfaces as a confusing pre-commit failure rather than a hygiene violation. Not reachable at this repo's commit sizes, and the whole-repo CI run is unaffected because it enumerates internally rather than through argv. Fix: teach the script a `--stdin` mode reading NUL-separated paths, and have lint-staged pipe into it.
+
+### DW-203: invisible-but-legal Unicode (bidi overrides, zero-width, C1) is not policed
+
+origin: story 1-13-repo-hygiene-encoding-ci-guard (2026-08-03), follow-up review pass
+location: scripts/check-repo-hygiene.mjs (`CONTROL_BYTE`)
+reason: (MEDIUM) The guard's violation class is exactly C0-minus-tab/LF/CR plus DEL, as its intent contract specifies. Everything else that is invisible yet well-formed UTF-8 therefore passes: the bidirectional overrides `U+202A`-`U+202E` and isolates `U+2066`-`U+2069` (the Trojan Source attack — source that renders in one order and compiles in another), zero-width characters `U+200B`/`U+200C`/`U+200D`/`U+2060`, the C1 range `U+0080`-`U+009F`, and the line/paragraph separators `U+2028`/`U+2029`. Confirmed by measurement during the review pass: `checkBuffer` returns `null` for all of them. This is a scope boundary, not an oversight — the story exists to close the raw-control-byte class and its contract fixes the character class — but the guard is the natural home for the wider "invisible character in source" invariant, and a reader may reasonably assume a byte-level hygiene gate already covers Trojan Source. Fix: add a second, separately named violation kind (`suspicious-invisible`) with its own character class and its own allowlist, so the C0 invariant and the homoglyph/bidi invariant can fail independently and be reasoned about separately.
+status: open
+
+### DW-204: the pre-commit hygiene gate is off during merge, rebase, cherry-pick and revert
+
+origin: story 1-13-repo-hygiene-encoding-ci-guard (2026-08-03), follow-up review pass
+location: .husky/pre-commit (the merge/rebase skip branch), .lintstagedrc.js (the `"*"` hygiene entry)
+reason: (LOW) `.husky/pre-commit` skips the entire `lint-staged` invocation while git is replaying or combining commits, so the hygiene guard — which is wired only through `lint-staged` — does not run on a conflict-resolution commit. That is precisely the commit where a human hand-edits a hunk and can paste or mangle a byte, and precisely where the pre-existing hook design turns the gate off. The skip predates this story and is deliberate (a conflict commit must not be blocked by violations inherited from the commits being replayed, which would force `--no-verify`), and CI still catches the result on push, so this is a latency gap rather than a hole. The misleading claim in `.lintstagedrc.js` that hook and CI enforce "identical strictness" was corrected in the review pass. Fix, if wanted: run the hygiene guard alone (not the whole lint-staged pipeline) inside the skip branch, restricted to paths the resolving commit actually touches, so inherited violations stay tolerated while newly introduced ones do not.
+status: open
+
+### DW-205: a tracked symlink's own blob is never validated
+
+origin: story 1-13-repo-hygiene-encoding-ci-guard (2026-08-03), follow-up review pass
+location: scripts/check-repo-hygiene.mjs (`checkPaths`, the non-regular skip)
+reason: (LOW) `checkPaths` `lstat`s each path and skips anything that is not a regular file, which correctly stops the guard from reading through a symlink to out-of-repo content or blocking on a FIFO. The consequence is that the symlink's _own_ committed blob — which git stores as the raw bytes of the target path — is never checked, even though it is a tracked blob subject to the same invariant. A target path containing a control byte or invalid UTF-8 is a legal symlink and an illegal blob under this guard's rule, and it would be skipped silently. Narrower than DW-200 (which is about reading the work tree rather than the index generally) and vanishingly unlikely in this repo, which tracks no symlinks today. Fix: for a non-regular entry that `lstat` reports as a symlink, run `checkBuffer` over `readlinkSync`'s target bytes rather than skipping outright.
+status: open
+
+### DW-206: `getClientIp` trusts the left-most X-Forwarded-For hop
+
+origin: story 7-1-venue-registration-flow (2026-08-03), review pass
+location: apps/client/src/lib/rate-limit.ts (`getClientIp`)
+reason: (MEDIUM) `getClientIp` returns the FIRST entry of `x-forwarded-for`, which is the client-supplied end of the chain and therefore fully attacker-controlled. Any caller rotating that header gets an unlimited number of rate-limit buckets, defeating the per-IP limiter for every route that uses it. This predates story 7.1 (the helper shipped with `contribute/play`), but 7.1 raises the stakes: the Next-layer limiter is now the ONLY per-applicant throttle on an unauthenticated endpoint that provisions a user row, a venue row and two outbound emails per accepted request — the Strapi backstop behind it is one global bucket (see the middleware docstring). Fix: trust only the right-most hop appended by the known proxy, or validate the header against a trusted-proxy allowlist, and pin it with a test.
+status: open
+
+### DW-207: uploaded files are trusted on the client-declared MIME type alone
+
+origin: story 7-1-venue-registration-flow (2026-08-03), review pass
+location: apps/client/src/app/api/venues/register/route.ts (`assertAcceptableImage`)
+reason: (MEDIUM) The image gate checks `File.type` and `File.size`, both of which the caller controls. A direct multipart POST declaring `Content-Type: image/png` over arbitrary bytes will be written to the Strapi media library using the server write token, from an unauthenticated endpoint — up to 11 files x 5 MB per accepted request. Uploaded files are rolled back only when the downstream registration fails; a request that succeeds keeps them. Rate limiting bounds the volume but not the content. Fix: sniff magic bytes for the three accepted formats before uploading, and add a per-request aggregate size cap.
+status: open
+
+### DW-208: `verifyRecaptcha` does not verify the token's `action`
+
+origin: story 7-1-venue-registration-flow (2026-08-03), review pass
+location: apps/client/src/lib/recaptcha.ts (`verifyRecaptcha`)
+reason: (LOW) The shared verifier checks only `success` and `score`, never the `action` field the siteverify response returns. Every reCAPTCHA-protected route in the app therefore accepts a token minted for any other action on the same site key — a token harvested from the public contribute form passes venue-registration verification and vice versa. Pre-existing and shared by all callers; 7.1 adds one more. Fix: give `verifyRecaptcha` a required `expectedAction` parameter and assert it, then thread the action name through each call site.
+status: open
+
+### DW-209: the client and Strapi registration Zod schemas are hand-duplicated with nothing pinning them together
+
+origin: story 7-1-venue-registration-flow (2026-08-03), review pass
+location: apps/client/src/features/venues/schemas/venue-registration.ts, apps/strapi/src/plugins/venues/server/src/validation/registration.ts
+reason: (LOW) Both files declare the same fields, the same bounds and the same SCREAMING_SNAKE code vocabulary, and each docstring instructs the reader to keep the other in sync — but no test compares them. A backend-only tightening (a lower `name` max, a new required field) passes client validation, uploads the applicant's media, and only then 400s, after which the media is rolled back and the applicant sees a generic failure. The locale test pins codes to translations but says nothing about the two schemas agreeing. Cross-app, so a shared module is not trivial. Fix: extract the shared constants and code vocabulary into `packages/shared-types` (the project's designated home for cross-app types) and have both schemas build from it.
+status: open
+
+### DW-210: `rateLimit()` installs a never-cleared `setInterval` per limiter and has no tests
+
+origin: story 7-1-venue-registration-flow (2026-08-03), review pass
+location: apps/client/src/lib/rate-limit.ts
+reason: (LOW) Each `rateLimit()` call registers a module-scope `setInterval` sweep that is never cleared, so every limiter keeps a timer alive for the process lifetime and holds its `Map` reachable; the module has no test file at all. Pre-existing (two limiters already), but 7.1 adds a third and makes the module load-bearing for an unauthenticated write endpoint. Fix: `unref()` the timer (or sweep lazily on `check`, as the Strapi-side `createRateLimit` does) and add a unit suite covering window reset, per-key isolation and `getClientIp` parsing.
+status: open
+
+### DW-211: seeded venues carry the default `pending` status enum, so the approved-only selector returns none of them
+
+origin: story 7-1-venue-registration-flow (2026-08-03), review pass
+location: apps/strapi/src/plugins/venues/server/src/services/seed.ts (`SEED_VENUES`), services/venue.ts (`findVenuesForSelector`)
+reason: (MEDIUM) `SEED_VENUES` entries set only `name`/`slug`/`address`/`capacity`/`geo`, so every seeded venue takes the schema default `status: "pending"`, while `findVenuesForSelector` filters `status: { $eq: "approved" }`. On a freshly seeded database the venue picker is therefore empty. Surfaced while fixing the story-7.1 leak (the public `findVenues`/`findVenue` reads were gated on publication state rather than on the `status` enum precisely BECAUSE an `approved` filter would have emptied the public listing for seeded data). Pre-existing and independent of 7.1. Fix: set `status: "approved"` on the seed entries, and decide whether `findVenues`/`findVenue` should additionally enforce the enum once the seed is consistent.
+status: open
+
+### DW-212: seven ledger entries (DW-196 … DW-202) carry no `status:` field, so the sweep cannot see them
+
+origin: story 1-13-repo-hygiene-encoding-ci-guard (2026-08-03), follow-up review pass
+location: \_bmad-output/implementation-artifacts/deferred-work.md (entries DW-196 through DW-202)
+reason: (MEDIUM) Every other entry in the ledger ends with a `status:` line; exactly these seven do not. `bmad-loop-sweep` partitions open work on that field, so seven recorded debts are invisible to the triage that is supposed to route them — they will never be bundled, closed or escalated. Not fixed in this pass by explicit instruction: the orchestrator owns entry status and this session appends only. Fix: append `status: open` to DW-196 … DW-202, or have the sweep treat a missing `status:` as `open` and say so.
+status: open
+
+### DW-213: `stats.failed` is excluded from the guard's printed skip breakdown
+
+origin: story 1-13-repo-hygiene-encoding-ci-guard (2026-08-03), follow-up review pass
+location: scripts/check-repo-hygiene.mjs (the `skipped` sum feeding the coverage line)
+reason: (LOW) `skipped = stats.binary + stats.nonRegular + stats.missing` omits `stats.failed`, so `checked + skipped` does not reconcile against `paths.length` whenever a file was unreadable. It is harmless today only because `failed > 0` always implies at least one violation, and the coverage line now prints on both branches — but that coupling is undocumented and untested, and it is the same accounting-drift class two earlier passes already patched twice. Fix: include `failed` in the breakdown, or assert the invariant explicitly so the line cannot drift out of balance again.
+status: open
+
+### DW-214: the `undecodable-path` check runs before the binary allowlist, so an allowlisted asset with a non-UTF-8 filename is reported
+
+origin: story 1-13-repo-hygiene-encoding-ci-guard (2026-08-03), follow-up review pass
+location: scripts/check-repo-hygiene.mjs (`checkPaths`, the U+FFFD branch ordered ahead of `isBinaryPath`)
+reason: (LOW) A tracked `.png`/`.pdf` whose filename bytes are not UTF-8 — common for imported media — never reaches the allowlist skip. It fails as `undecodable-path`, and the remediation footer bundles that kind with `unreadable` and talks about re-saving the file as UTF-8, which is not the fix (the _name_ is the problem). No test covers the interaction of the two branches. Fix: decide whether filename encoding is policed for allowlisted extensions, document the choice, and give `undecodable-path` its own remediation line naming the rename.
+status: open
+
+### DW-215: lint-staged invoked outside `.husky/pre-commit` runs concurrently, so the guard can read a buffer prettier is mid-rewrite
+
+origin: story 1-13-repo-hygiene-encoding-ci-guard (2026-08-03), follow-up review pass
+location: .lintstagedrc.js (the `"*"` hygiene entry overlapping the prettier entry), .husky/pre-commit
+reason: (MEDIUM) The hygiene entry deliberately overlaps the prettier entry, and prettier rewrites in place; serial execution is the only thing keeping the guard off a half-written file. That serialism comes from `--concurrent false` on the husky hook alone. `npx lint-staged` run directly — GUI git clients, a future CI staged-only job, any wrapper — defaults to concurrent and reintroduces the race, producing intermittent bogus violations that push developers to `--no-verify`. This pass pinned the flag and the config key ORDER, which is as far as a patch reaches. Fix: move the hygiene command into the same task array as prettier for the overlapping extensions (lint-staged always runs an array serially, regardless of `--concurrent`), so the ordering holds under every invocation.
+status: open
+
+### DW-216: Follow-up review still recommended for 1-13-repo-hygiene-encoding-ci-guard after the damping cap was spent
+
+origin: review-budget-followup
+location: n/a
+source_spec: `spec-1-13-repo-hygiene-encoding-ci-guard.md`
+severity: low
+reason: The follow-up-review damping cap (limits.max_followup_reviews = 1) was spent with the story finalized (status: done, verify green) while the review pass still recommended an independent follow-up. The work was committed by bmad-loop run 20260803-140539-83cd; this entry preserves the lingering recommendation for a deliberate later review.
+status: open

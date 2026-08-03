@@ -744,5 +744,100 @@
     "emptyDescription": "سيتم إعلامك هنا عندما يتغيّر موعد فعالية في قائمة متابعتك.",
     "emptyAction": "اكتشف الفعاليات",
     "error": "تعذّر تحميل إشعاراتك. حاول مرة أخرى."
+  },
+  "venues": {
+    "register": {
+      "pageTitle": "سجّل مكانك",
+      "pageDescription": "قدّم قاعة السينما أو المسرح أو المركز الثقافي الخاص بك على تيوين.",
+      "header": "سجّل مكانك",
+      "description": "املأ النموذج أدناه. يراجع فريقنا كل طلب قبل نشر المكان.",
+      "sections": {
+        "venue": "عن المكان",
+        "manager": "حساب المسؤول"
+      },
+      "fields": {
+        "name": "اسم المكان",
+        "type": "نوع المكان",
+        "description": "الوصف",
+        "address": "العنوان",
+        "phone": "الهاتف",
+        "venueEmail": "البريد الإلكتروني للمكان",
+        "website": "الموقع الإلكتروني",
+        "capacity": "الطاقة الاستيعابية (عدد المقاعد)",
+        "logo": "الشعار",
+        "images": "الصور",
+        "firstName": "الاسم",
+        "lastName": "اللقب",
+        "managerEmail": "بريدك الإلكتروني",
+        "password": "كلمة المرور",
+        "passwordConfirmation": "تأكيد كلمة المرور"
+      },
+      "placeholders": {
+        "type": "اختر نوع المكان",
+        "website": "https://example.com"
+      },
+      "hints": {
+        "images": "إلى غاية {max} صور، بصيغة JPEG/PNG/WebP، بحجم أقصاه 5 ميغابايت لكل صورة.",
+        "password": "8 أحرف على الأقل، مع حرف كبير وحرف صغير ورقم."
+      },
+      "types": {
+        "cinema": "سينما",
+        "theater": "مسرح",
+        "cultural-center": "مركز ثقافي",
+        "museum": "متحف",
+        "other": "أخرى"
+      },
+      "buttons": {
+        "submit": "إرسال الطلب",
+        "submitting": "جاري الإرسال..."
+      },
+      "legal": "هذا الموقع محمي بواسطة reCAPTCHA.",
+      "success": {
+        "title": "تم استلام الطلب",
+        "description": "طلب تسجيل مكانك قيد المراجعة.",
+        "next": "أرسلنا لك بريد تأكيد. تم إنشاء حساب المسؤول لكنه يبقى غير مفعّل إلى حين موافقة فريقنا على المكان."
+      },
+      "errors": {
+        "VENUE_NAME_REQUIRED": "اسم المكان مطلوب.",
+        "VENUE_NAME_TOO_LONG": "اسم المكان طويل جدا.",
+        "VENUE_DESCRIPTION_TOO_LONG": "الوصف طويل جدا.",
+        "VENUE_ADDRESS_REQUIRED": "العنوان مطلوب.",
+        "VENUE_ADDRESS_TOO_LONG": "العنوان طويل جدا.",
+        "VENUE_TYPE_INVALID": "اختر نوع مكان صالح.",
+        "VENUE_PHONE_REQUIRED": "رقم الهاتف مطلوب.",
+        "VENUE_PHONE_TOO_LONG": "رقم الهاتف طويل جدا.",
+        "VENUE_EMAIL_REQUIRED": "البريد الإلكتروني للتواصل مطلوب.",
+        "VENUE_EMAIL_INVALID": "أدخل بريدا إلكترونيا صالحا للتواصل.",
+        "VENUE_WEBSITE_INVALID": "أدخل عنوان موقع إلكتروني صالحا.",
+        "VENUE_WEBSITE_TOO_LONG": "عنوان الموقع الإلكتروني طويل جدا.",
+        "VENUE_CAPACITY_INVALID": "أدخل طاقة استيعابية صالحة.",
+        "VENUE_GEO_INVALID": "إحداثيات الموقع غير صالحة.",
+        "VENUE_IMAGES_TOO_MANY": "عدد الصور كبير جدا.",
+        "IMAGE_TOO_LARGE": "إحدى الصور تتجاوز 5 ميغابايت. اختر ملفا أصغر.",
+        "IMAGE_TYPE_INVALID": "يجب أن تكون الصور بصيغة JPEG أو PNG أو WebP.",
+        "IMAGES_TOO_MANY": "يمكنك إرفاق 10 صور كحد أقصى.",
+        "MANAGER_FIRST_NAME_REQUIRED": "الاسم مطلوب.",
+        "MANAGER_FIRST_NAME_TOO_LONG": "الاسم طويل جدا.",
+        "MANAGER_LAST_NAME_REQUIRED": "اللقب مطلوب.",
+        "MANAGER_LAST_NAME_TOO_LONG": "اللقب طويل جدا.",
+        "MANAGER_EMAIL_REQUIRED": "البريد الإلكتروني مطلوب.",
+        "MANAGER_EMAIL_INVALID": "أدخل عنوان بريد إلكتروني صالحا.",
+        "MANAGER_PASSWORD_REQUIRED": "كلمة المرور مطلوبة.",
+        "MANAGER_PASSWORD_TOO_SHORT": "كلمة المرور قصيرة جدا.",
+        "MANAGER_PASSWORD_TOO_LONG": "كلمة المرور طويلة جدا.",
+        "MANAGER_PASSWORD_WEAK": "يجب أن تحتوي كلمة المرور على حرف كبير وحرف صغير ورقم.",
+        "PASSWORD_CONFIRMATION_REQUIRED": "يرجى تأكيد كلمة المرور.",
+        "PASSWORD_MISMATCH": "كلمتا المرور غير متطابقتين.",
+        "VALIDATION_FAILED": "بعض الحقول غير صالحة. تحقق من النموذج.",
+        "EMAIL_ALREADY_REGISTERED": "يوجد حساب مسجل بهذا البريد الإلكتروني.",
+        "VENUE_MANAGER_ROLE_MISSING": "التسجيل غير متاح مؤقتا. حاول لاحقا.",
+        "VENUE_REGISTRATION_FAILED": "تعذر إرسال طلبك. حاول مرة أخرى.",
+        "RATE_LIMIT_EXCEEDED": "محاولات كثيرة جدا. حاول لاحقا.",
+        "RECAPTCHA_REQUIRED": "التحقق الأمني مطلوب.",
+        "RECAPTCHA_FAILED": "فشل التحقق الأمني. حاول مرة أخرى.",
+        "UPLOAD_FAILED": "تعذر رفع صورك. حاول مرة أخرى.",
+        "INTERNAL_ERROR": "حدث خطأ ما. حاول مرة أخرى."
+      }
+    }
   }
 }

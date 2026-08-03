@@ -135,6 +135,10 @@ export default defineConfig({
       // Tickets route client child — TicketTypesSection state routing
       // (Story 6.1). `[locale]` etc. are glob char-classes, so match via `**`.
       "src/app/**/tickets/**/*.test.tsx",
+      // Venue registration schema + form (Story 7.1). `[locale]` is a glob
+      // char-class, so match the segment via `**`.
+      "src/features/venues/**/*.test.ts",
+      "src/app/**/venues/**/*.test.tsx",
     ],
   },
 })

@@ -61,7 +61,7 @@ development_status:
   1-10-restore-client-eslint-enforcement: done
   1-11-bring-strapi-backend-under-lint: done
   1-12-i18n-western-numeral-lint-guard: done
-  1-13-repo-hygiene-encoding-ci-guard: backlog
+  1-13-repo-hygiene-encoding-ci-guard: done
   epic-1-retrospective: optional
 
   # Epic 2A: Component Library & Design System (PARALLEL TRACK A)
@@ -209,8 +209,12 @@ development_status:
   epic-6-retrospective: optional
 
   # Epic 7: B2B Venue Management
-  epic-7: backlog
-  7-1-venue-registration-flow: backlog
+  epic-7: in-progress
+  # 7-1 landed 2026-08-03. Code complete and reviewed; spec status is
+  # awaiting-operator because delivery of the confirmation/admin emails, the
+  # media upload token and reCAPTCHA all depend on credentials that must be
+  # provisioned outside the repo. See the spec frontmatter operator_actions.
+  7-1-venue-registration-flow: awaiting-operator
   7-2-venue-profile-management: backlog
   7-3-event-creation: backlog
   7-4-event-editing-and-cancellation: backlog
@@ -280,7 +284,7 @@ action_items:
   - epic: 5
     action: "Add a repo-hygiene CI guard rejecting non-UTF-8 / control-byte source files (a binary email source in 5.6 hid from two review passes)."
     owner: "Dev"
-    status: specced
+    status: done
     story: "1-13-repo-hygiene-encoding-ci-guard"
     note: "Specced in sprint-change-proposal-2026-07-14.md."
   - epic: 5

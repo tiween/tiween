@@ -36,6 +36,75 @@ function buildStrapi(docApi: Partial<DocApiMock> = {}) {
 
 const base = { page: 1, pageSize: 100 }
 
+/**
+ * `findVenues` / `findVenue` back the two PUBLIC (`auth: false`) read routes.
+ * Neither filters on the `status` ENUM, so the ONLY thing keeping an
+ * anonymously-created venue application out of them is the Document Service
+ * publication state — and `@strapi/core`'s `defaultToDraft` makes an OMITTED
+ * `status` param mean **draft**, i.e. exactly the unpublished rows story 7.1
+ * lets anonymous callers insert (with the applicant's phone, email and
+ * address). Pin the params: dropping `status: "published"` is a silent data
+ * leak that no other assertion in this suite would catch.
+ *
+ * Gating on publication rather than the `status` enum is also the only option
+ * that works: `SEED_VENUES` never sets that enum, so an `approved`-enum filter
+ * would empty the public listing.
+ */
+describe("venue service public reads are published-only (unit)", () => {
+  it("findVenues asks the Document Service for PUBLISHED documents", async () => {
+    const { strapi, api } = buildStrapi()
+    const service = venueService({ strapi })
+
+    await service.findVenues("fr")
+
+    expect(strapi.documents).toHaveBeenCalledWith(VENUE_UID)
+    expect(api.findMany).toHaveBeenCalledWith({
+      locale: "fr",
+      status: "published",
+      sort: [{ name: "asc" }],
+      populate: { geo: true },
+    })
+  })
+
+  it("findVenues stays published-only when no locale is given", async () => {
+    const { strapi, api } = buildStrapi()
+    const service = venueService({ strapi })
+
+    await service.findVenues()
+
+    expect(api.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ status: "published" })
+    )
+  })
+
+  it("findVenue asks the Document Service for the PUBLISHED document", async () => {
+    const { strapi, api } = buildStrapi({
+      findOne: jest.fn(async () => ({ documentId: "v1", name: "Le Rio" })),
+    })
+    const service = venueService({ strapi })
+
+    await service.findVenue("v1", "en")
+
+    expect(api.findOne).toHaveBeenCalledWith({
+      documentId: "v1",
+      locale: "en",
+      status: "published",
+      populate: { geo: true, events: true },
+    })
+  })
+
+  it("findVenue stays published-only when no locale is given", async () => {
+    const { strapi, api } = buildStrapi()
+    const service = venueService({ strapi })
+
+    await service.findVenue("v1")
+
+    expect(api.findOne).toHaveBeenCalledWith(
+      expect.objectContaining({ documentId: "v1", status: "published" })
+    )
+  })
+})
+
 describe("venue service.findVenuesForSelector (unit)", () => {
   it("scopes to approved + type, sorts name:asc, paginates, returns the v5 shape", async () => {
     const { strapi, api } = buildStrapi({

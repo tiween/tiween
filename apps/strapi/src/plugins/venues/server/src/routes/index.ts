@@ -23,6 +23,32 @@ export default {
           auth: false,
         },
       },
+      // Public venue application (Story 7.1). Like `/venues/selector` this is a
+      // LITERAL segment under the `/venues/:documentId` prefix — it is a POST so
+      // the GET detail route cannot actually swallow it, but the ordering is
+      // kept explicit so a future method change can't silently break it.
+      // Unauthenticated by design. The rate-limit middleware is an ABUSE
+      // BACKSTOP for callers that bypass the Next.js proxy — behind the proxy
+      // it is one GLOBAL bucket (all traffic shares the Next server's IP), so
+      // the cap is sized high on purpose; a business-sized cap here would
+      // reject every applicant platform-wide. The per-applicant throttle is the
+      // Next-layer limiter. See `../middlewares/index.ts` for the full
+      // rationale and what per-IP would require.
+      {
+        method: "POST",
+        path: "/venues/register",
+        handler: "registration.register",
+        config: {
+          policies: [],
+          auth: false,
+          middlewares: [
+            {
+              name: "plugin::venues.registration-rate-limit",
+              config: { max: 200, windowMs: 3600000 },
+            },
+          ],
+        },
+      },
       {
         method: "GET",
         path: "/venues/:documentId",

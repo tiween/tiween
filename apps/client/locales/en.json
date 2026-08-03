@@ -744,5 +744,100 @@
     "emptyDescription": "You'll be notified here when the schedule of an event on your watchlist changes.",
     "emptyAction": "Discover events",
     "error": "Couldn't load your notifications. Try again."
+  },
+  "venues": {
+    "register": {
+      "pageTitle": "Register your venue",
+      "pageDescription": "Apply to list your cinema, theater or cultural center on Tiween.",
+      "header": "Register your venue",
+      "description": "Fill in the form below. Our team reviews every application before your venue goes live.",
+      "sections": {
+        "venue": "About the venue",
+        "manager": "Manager account"
+      },
+      "fields": {
+        "name": "Venue name",
+        "type": "Venue type",
+        "description": "Description",
+        "address": "Address",
+        "phone": "Phone",
+        "venueEmail": "Venue contact email",
+        "website": "Website",
+        "capacity": "Capacity (seats)",
+        "logo": "Logo",
+        "images": "Photos",
+        "firstName": "First name",
+        "lastName": "Last name",
+        "managerEmail": "Your email",
+        "password": "Password",
+        "passwordConfirmation": "Confirm password"
+      },
+      "placeholders": {
+        "type": "Select a venue type",
+        "website": "https://example.com"
+      },
+      "hints": {
+        "images": "Up to {max} photos, JPEG/PNG/WebP, 5 MB each.",
+        "password": "At least 8 characters, with an uppercase letter, a lowercase letter and a digit."
+      },
+      "types": {
+        "cinema": "Cinema",
+        "theater": "Theater",
+        "cultural-center": "Cultural center",
+        "museum": "Museum",
+        "other": "Other"
+      },
+      "buttons": {
+        "submit": "Submit application",
+        "submitting": "Submitting..."
+      },
+      "legal": "This site is protected by reCAPTCHA.",
+      "success": {
+        "title": "Application received",
+        "description": "Your venue application is under review.",
+        "next": "We have emailed you a confirmation. Your manager account has been created but stays inactive until our team approves the venue."
+      },
+      "errors": {
+        "VENUE_NAME_REQUIRED": "The venue name is required.",
+        "VENUE_NAME_TOO_LONG": "The venue name is too long.",
+        "VENUE_DESCRIPTION_TOO_LONG": "The description is too long.",
+        "VENUE_ADDRESS_REQUIRED": "The address is required.",
+        "VENUE_ADDRESS_TOO_LONG": "The address is too long.",
+        "VENUE_TYPE_INVALID": "Select a valid venue type.",
+        "VENUE_PHONE_REQUIRED": "A phone number is required.",
+        "VENUE_PHONE_TOO_LONG": "The phone number is too long.",
+        "VENUE_EMAIL_REQUIRED": "A contact email is required.",
+        "VENUE_EMAIL_INVALID": "Enter a valid contact email.",
+        "VENUE_WEBSITE_INVALID": "Enter a valid website URL.",
+        "VENUE_WEBSITE_TOO_LONG": "The website URL is too long.",
+        "VENUE_CAPACITY_INVALID": "Enter a valid capacity.",
+        "VENUE_GEO_INVALID": "The location coordinates are invalid.",
+        "VENUE_IMAGES_TOO_MANY": "Too many photos.",
+        "IMAGE_TOO_LARGE": "One of your images is larger than 5 MB. Please choose a smaller file.",
+        "IMAGE_TYPE_INVALID": "Images must be JPEG, PNG or WebP files.",
+        "IMAGES_TOO_MANY": "You can attach up to 10 photos.",
+        "MANAGER_FIRST_NAME_REQUIRED": "Your first name is required.",
+        "MANAGER_FIRST_NAME_TOO_LONG": "The first name is too long.",
+        "MANAGER_LAST_NAME_REQUIRED": "Your last name is required.",
+        "MANAGER_LAST_NAME_TOO_LONG": "The last name is too long.",
+        "MANAGER_EMAIL_REQUIRED": "Your email is required.",
+        "MANAGER_EMAIL_INVALID": "Enter a valid email address.",
+        "MANAGER_PASSWORD_REQUIRED": "A password is required.",
+        "MANAGER_PASSWORD_TOO_SHORT": "The password is too short.",
+        "MANAGER_PASSWORD_TOO_LONG": "The password is too long.",
+        "MANAGER_PASSWORD_WEAK": "The password needs an uppercase letter, a lowercase letter and a digit.",
+        "PASSWORD_CONFIRMATION_REQUIRED": "Please confirm your password.",
+        "PASSWORD_MISMATCH": "The passwords do not match.",
+        "VALIDATION_FAILED": "Some fields are invalid. Please check the form.",
+        "EMAIL_ALREADY_REGISTERED": "An account already exists for this email address.",
+        "VENUE_MANAGER_ROLE_MISSING": "Registration is temporarily unavailable. Please try again later.",
+        "VENUE_REGISTRATION_FAILED": "We could not submit your application. Please try again.",
+        "RATE_LIMIT_EXCEEDED": "Too many attempts. Please try again later.",
+        "RECAPTCHA_REQUIRED": "Security verification is required.",
+        "RECAPTCHA_FAILED": "Security verification failed. Please try again.",
+        "UPLOAD_FAILED": "We could not upload your images. Please try again.",
+        "INTERNAL_ERROR": "Something went wrong. Please try again."
+      }
+    }
   }
 }

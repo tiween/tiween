@@ -1,0 +1,14 @@
+{
+  "actions": [
+    "Provision a Brevo API key and set BREVO_API_KEY, BREVO_SENDER_EMAIL and BREVO_SENDER_NAME in every Strapi environment, and verify the sender address and its domain in the Brevo console \u2014 without this neither the applicant confirmation nor the admin notification is delivered.",
+    "Set ADMIN_NOTIFICATION_EMAIL in every Strapi environment to the address that should receive new venue applications; while it is unset the admin notification is skipped with a log warning and no one learns an application arrived.",
+    "Create a Strapi API token with create and delete permission on the Upload plugin and set it as STRAPI_REST_CUSTOM_API_KEY in the Next.js client environment \u2014 the route handler uploads and rolls back venue media with it, and now fails loudly rather than falling back to the read-only token.",
+    "Register the production and staging domains for a reCAPTCHA v3 site in the Google reCAPTCHA console, then set RECAPTCHA_SECRET_KEY and NEXT_PUBLIC_RECAPTCHA_SITE_KEY together in the client environment \u2014 setting only the secret rejects every application with RECAPTCHA_REQUIRED.",
+    "Confirm the 'Venue Manager' users-permissions role (type venue-manager) exists in every environment after boot; registration returns VENUE_MANAGER_ROLE_MISSING without it.",
+    "Submit one real application in staging once the credentials above are in place, and confirm both emails arrive and the pending venue is invisible on the public venue endpoints \u2014 no path in this story has been exercised end to end."
+  ],
+  "parked_at": "2026-08-03",
+  "run_id": "20260803-164822-29e0",
+  "spec_file": "_bmad-output/implementation-artifacts/spec-7-1-venue-registration-flow.md",
+  "story_key": "7-1-venue-registration-flow"
+}

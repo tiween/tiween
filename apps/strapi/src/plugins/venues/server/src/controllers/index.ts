@@ -2,6 +2,9 @@ import { z } from "zod"
 
 import type { Core } from "@strapi/strapi"
 
+import { validate } from "../../../../../shared/validation"
+import { venueRegistrationSchema } from "../validation/registration"
+
 const PLUGIN_ID = "venues"
 
 /** Upper bound on the selector page — the picker searches client-side. */
@@ -156,7 +159,90 @@ const seedController = ({ strapi }: { strapi: Core.Strapi }) => ({
   },
 })
 
+/**
+ * Map a registration error CODE to an HTTP status; unknown codes → 500.
+ * (Mirrors the `STATUS_BY_CODE` + `respondError` envelope in
+ * `plugins/ticketing/server/src/controllers/order.ts`.)
+ */
+const STATUS_BY_CODE: Record<string, number> = {
+  VALIDATION_FAILED: 400,
+  EMAIL_ALREADY_REGISTERED: 409,
+  VENUE_MANAGER_ROLE_MISSING: 500,
+  VENUE_REGISTRATION_FAILED: 500,
+}
+
+/**
+ * Emit a uniform Strapi error envelope carrying the SCREAMING_SNAKE code in
+ * `error.details.code`. Internal exception text is NEVER echoed — the client
+ * translates the code, so a static message is safe for mapped and unmapped
+ * errors alike. Per-field validation issues (themselves CODES) are forwarded so
+ * the form can attach them to fields.
+ *
+ * Two properties are load-bearing and easy to lose:
+ *
+ * 1. An UNMAPPED error is collapsed to 500 `INTERNAL_ERROR` for the client but
+ *    LOGGED here. Collapsing silently is how a raw DB failure (a lost race on
+ *    the users unique index, a driver error) reaches the applicant as a generic
+ *    500 with no trace anywhere — undiagnosable from either side.
+ * 2. `issues` is forwarded only for MAPPED codes. Emitting per-field issues
+ *    alongside a code we deliberately refused to disclose contradicts the
+ *    collapse: the payload the client is not supposed to see rides out in the
+ *    field it was hidden from.
+ */
+function respondError(strapi: Core.Strapi, ctx: any, err: any): void {
+  const code: string | undefined = err?.details?.code ?? err?.code
+  const mappedStatus = code ? STATUS_BY_CODE[code] : undefined
+  const status = mappedStatus ?? 500
+  const issues = err?.details?.issues
+
+  if (!mappedStatus) {
+    strapi.log.error(
+      `[venues:registration] unmapped registration error (code=${
+        code ?? "none"
+      }): ${err?.stack ?? err}`
+    )
+  }
+
+  ctx.status = status
+  ctx.body = {
+    error: {
+      status,
+      name: "VenueRegistrationError",
+      message: "Venue registration failed",
+      details: {
+        code: mappedStatus ? code : "INTERNAL_ERROR",
+        ...(mappedStatus && Array.isArray(issues) ? { issues } : {}),
+      },
+    },
+  }
+}
+
+const registrationController = ({ strapi }: { strapi: Core.Strapi }) => ({
+  /**
+   * POST /venues/register — public, unauthenticated venue application
+   * (Story 7.1). Creates a blocked `venue-manager` user plus a `pending`,
+   * unpublished venue linked as its `manager`, then fires two best-effort
+   * notification emails.
+   */
+  async register(ctx: any) {
+    try {
+      const input = validate(venueRegistrationSchema, ctx.request?.body ?? {})
+
+      const result = await strapi
+        .plugin(PLUGIN_ID)
+        .service("registration")
+        .registerVenue(input)
+
+      ctx.status = 201
+      ctx.body = { data: result }
+    } catch (err) {
+      respondError(strapi, ctx, err)
+    }
+  },
+})
+
 export default {
   venue: venueController,
+  registration: registrationController,
   seed: seedController,
 }

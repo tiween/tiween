@@ -45,6 +45,15 @@ jobs:
           node-version: 22
           cache: yarn
 
+      # Dependency-free (node + git are the whole toolchain), so these run
+      # before `yarn install`: a binary or control-byte source file fails in
+      # seconds and cannot be masked by an unrelated install or lint failure.
+      - name: Repo hygiene
+        run: yarn hygiene
+
+      - name: Repo hygiene tests
+        run: yarn hygiene:test
+
       - name: Install dependencies (immutable)
         uses: nick-fields/retry@v3
         with:
