@@ -3,7 +3,7 @@
   "info": {
     "displayName": "Video",
     "icon": "file-video",
-    "description": "Video link with type classification"
+    "description": "Video link. Use videoType — it is what every consumer reads. The older type field (FULL_LENGTH/TEASER/CLIP) is kept for historic rows only; leave it as it is."
   },
   "options": {},
   "attributes": {

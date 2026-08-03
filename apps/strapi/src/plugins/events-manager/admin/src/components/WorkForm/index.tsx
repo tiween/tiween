@@ -37,6 +37,7 @@ import { humanize, useCatalogT } from "../Catalog/i18n"
 import { LinksEditor } from "../Catalog/LinksEditor"
 import { AGE_RATINGS, WORK_TYPES } from "../Catalog/options"
 import { MediaInput } from "../MediaInput"
+import { CastEditor } from "./CastEditor"
 import { CreditsEditor } from "./CreditsEditor"
 import { DistinctionsEditor } from "./DistinctionsEditor"
 import { DEFAULT_WORK_VALUES, workFormSchema } from "./schema"
@@ -397,10 +398,20 @@ export function WorkForm({
         </FormSection>
 
         <FormSection
-          title={t("workForm.creditsSection", "Cast and crew")}
+          title={t("workForm.castSection", "Cast")}
+          hint={t(
+            "workForm.castHint",
+            "Each cast row links an actor to the character they portray."
+          )}
+        >
+          <CastEditor control={control} errors={errors} />
+        </FormSection>
+
+        <FormSection
+          title={t("workForm.creditsSection", "Crew")}
           hint={t(
             "workForm.creditsHint",
-            "Each credit links a person to this work with a role."
+            "Each credit links a person to this work with a credit role."
           )}
         >
           <CreditsEditor control={control} errors={errors} />

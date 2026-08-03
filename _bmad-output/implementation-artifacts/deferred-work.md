@@ -76,7 +76,8 @@ decision: 2026-07-13 Defer to Story 2C.5
 origin: migrated from legacy ledger ("Deferred from: 2c-3-catalog-move-into-creative-works (2026-06-16)"), 2026-07-12
 location: n/a
 reason: events-manager admin WorkForm is stale against the new catalog model.
-status: open
+status: done 2026-08-03
+resolution: resolved by sweep bundle dw-catalog-admin-workform-rebuild
 
 ### DW-11: `common.video` carries both `type` (legacy FULL_LENGTH/TEASER/CLIP) and `videoType` (new trailer/teaser/clip/…) enums
 
@@ -982,4 +983,76 @@ status: open
 origin: follow-up review of spec-dw-24-25-venue-selector-fixes.md (2026-07-31)
 location: apps/client/src/app/[locale]/events/page.tsx
 reason: (MEDIUM) `events/page.tsx:131-136,150,177-178` is the only production producer of the picker's feed and of `venuesScoped`/`venuesTruncated`, and there is no test of any kind under `src/app/[locale]/events` (no route test, no e2e layer in the repo). Every existing test observes the layers on either side but never this one: `venues.test.ts` asserts only that options _it passes in_ are forwarded as flat params, and the `EventVenueFilter` tests inject `scoped`/`truncated` directly. Two concrete regressions ship green: (a) deleting `regionDocumentId: filters.region` or the `type` scope restores the DW-24 bug (out-of-region / non-cinema venues back in the picker); (b) dropping the `venuesScoped` forward silently falls back to the prop default `false` — the props are optional, so it type-checks — and a saved venue outside the current scope is purged from `localStorage` again, exactly the behavior the spec added `scoped` to prevent. Related but distinct from the mock-only client↔Strapi contract gap for `/venues/venues/selector` (both sides fail soft: the fetcher returns an empty result and the filter renders `null`, so a wire-contract break makes the venue filter silently vanish site-wide with no failing test — the generic "integration suites don't boot in this env" limitation is already tracked as DW-5/DW-45). Fix is a vitest test that mocks `@/lib/strapi-api/content/venues` and awaits the route component, asserting the options object and the forwarded props. Surfaced by the Verification Gap reviewer.
+status: open
+
+### DW-137: Nothing seeds the `credit-role` vocabulary, so on a fresh environment the required `credit.creditRole` relation makes every crew credit unsaveable
+
+origin: follow-up review of spec-dw-10-catalog-admin-workform-rebuild.md (2026-08-03)
+location: apps/strapi/scripts/seeds/index.ts
+reason: (MEDIUM) `creative-works.credit.creditRole` is `required: true` since 2C.3, and the admin picker plus the contribute route are now the only writers of it — but no seed creates a single `credit-role` record. `scripts/seeds/index.ts` seeds genres, persons, cities, regions, categories and creative-works; `scripts/seeds/clear.ts:39` _deletes_ `plugin::creative-works.credit-role`, so the omission is asymmetric and looks like an oversight rather than a decision. Consequence on any freshly seeded environment: `useCreditRoles()` returns `[]`, the admin credits editor renders its "no credit roles available" banner with an inert picker, and no work carrying a crew credit can be saved at all. The DW-10 pass made the state visible and inert rather than silently broken, but the vocabulary itself still has to come from somewhere. Fix is a seed file (or a bootstrap in the creative-works plugin `register`) covering at least the slugs the contribution wizard collects — `THEATRE_ROLES` in `apps/client/src/features/contribute/schemas/play-contribution.ts` — plus the generic `other` record the form's customRole rule keys on. Surfaced by all three reviewers.
+status: open
+
+### DW-138: `GET /api/credit-roles` is not a registered route, so the contribute route's slug lookup 404s and every play submission is rejected
+
+origin: follow-up review of spec-dw-10-catalog-admin-workform-rebuild.md (2026-08-03)
+location: apps/strapi/src/plugins/creative-works/server/src/routes/content-api.ts
+reason: (MEDIUM) `fetchCreditRoleId` (`apps/client/src/app/api/contribute/play/route.ts`) resolves the wizard's role slug with `GET ${STRAPI_URL}/api/credit-roles?filters[slug][$eq]=…`, but the creative-works plugin declares only four custom GET routes in `content-api.ts` and exports controllers for `creative-work` and `person` only — there is no `credit-role` controller and no CRUD registration. `credit-role` is also `draftAndPublish: true`, so even with a route the default REST query would hide unpublished records. Both failure modes land in the same place: the lookup misses, `creditRole` is omitted, and the required relation makes Strapi reject the whole submission with a generic `SUBMISSION_FAILED`. Fix is either registering a read route + granting the REST token `credit-role.find`, or replacing the lookup with a server-side resolution that does not go through the public API. Same root cause as DW-139. Surfaced by all three reviewers.
+status: open
+
+### DW-139: The whole `POST /api/contribute/play` write path is non-functional — `POST /api/creative-works` and `/api/persons` are not registered routes
+
+origin: follow-up review of spec-dw-10-catalog-admin-workform-rebuild.md (2026-08-03)
+location: apps/strapi/src/plugins/creative-works/server/src/routes/content-api.ts
+reason: (MEDIUM) `creative-works/server/src/routes/content-api.ts` declares four custom GET routes and no write routes, so both `POST ${STRAPI_URL}/api/creative-works` (the submission itself) and `POST ${STRAPI_URL}/api/persons` (new-person creation) have no handler and no permission grant. The DW-10 pass corrected the _shape_ of that payload against the post-2C.3 catalog model — cast/crew split, `creditRole` relation, `videoType` — and explicitly scoped route creation out (recorded in the spec's Design Notes), so the contribution wizard still cannot persist anything. Fix needs public write routes, a permission policy, and a decision on how anonymous submissions are authorized and rate-limited. Pre-existing; carried forward here because the corrected payload is now the only thing standing between the wizard and a working submission. Surfaced by the Verification Gap reviewer.
+status: open
+
+### DW-140: The contribution wizard collects a character name for every actor and the route silently discards it
+
+origin: follow-up review of spec-dw-10-catalog-admin-workform-rebuild.md (2026-08-03)
+location: apps/client/src/app/api/contribute/play/route.ts
+reason: (MEDIUM) `creditSchema.character` is still a free-text field the wizard collects and `ReviewStep` displays, but since 2C.3 `creative-works.cast.character` is a relation to a `character` record and the route has no way to create one — the cast mapping emits `{person, billing}` and drops the text, with only a code comment recording it. The contributor fills in a field, sees it echoed on the review screen, gets a success response, and the data is gone: not stored, not logged, not stashed in `customRole` or the synopsis for an admin to reconcile from. Fix is a decision between find-or-create of `character` records from the route (which needs DW-138/DW-139's routing story) and removing the field from the wizard; either way the current state promises persistence it does not deliver. Surfaced by the Blind Hunter and the Edge Case Hunter.
+status: open
+
+### DW-141: The admin cast editor can only link pre-existing `character` records, a net regression against the free-text character field it replaced
+
+origin: follow-up review of spec-dw-10-catalog-admin-workform-rebuild.md (2026-08-03)
+location: apps/strapi/src/plugins/events-manager/admin/src/components/WorkForm/CharacterCombobox.tsx
+reason: (LOW) `CharacterCombobox` is search-only over `plugin::creative-works.character`: no create-from-here affordance, no empty-state copy when the search returns nothing, and (per DW-137's sibling gap) no seeded characters. Before 2C.3 an editor typed the character name straight into the credit row; now, until someone creates the record in the content manager, cast rows can only be saved with `character: null`. `PersonCombobox` has the same shape, so this is a consistent plugin-wide limitation rather than a DW-10 defect, and it is genuinely lower stakes than the credit-role equivalent because `cast.character` is optional. Fix is an inline create mirroring the contribution wizard's new-person path, or a documented workflow pointing editors at the content manager first. Surfaced by the Blind Hunter and the Edge Case Hunter.
+status: open
+
+### DW-142: The events-manager admin catalog hooks never pass `locale`, so localized content types are always read in the default locale
+
+origin: follow-up review of spec-dw-10-catalog-admin-workform-rebuild.md (2026-08-03)
+location: apps/strapi/src/plugins/events-manager/admin/src/hooks/useCreativeWorks.ts
+reason: (LOW) `credit-role`, `character`, `person` and `creative-work` all declare `pluginOptions.i18n.localized: true`, but no hook in `useCreativeWorks.ts` / `usePeople.ts` sends a `locale` param to the content-manager API — not the new `useCreditRoles()` / `useCharacterSearch()` and not the pre-existing list/search/detail hooks. Every picker therefore offers the default-locale records regardless of which locale of the work is being edited, and a picked record's `name` is the default-locale string. This is a plugin-wide pattern rather than something DW-10 introduced, and it is invisible while the catalog is single-locale, which is why it is deferred rather than patched: the fix is a locale-threading decision across the whole admin catalog surface (where does the active locale come from, and does the WorkForm edit one locale or all of them?). Surfaced by the Blind Hunter and the Edge Case Hunter.
+status: open
+
+### DW-143: A rejected play submission leaves orphan draft `person` records behind, and each retry creates more
+
+origin: follow-up review of spec-dw-10-catalog-admin-workform-rebuild.md (2026-08-03)
+location: apps/client/src/app/api/contribute/play/route.ts
+reason: (LOW) `resolvePersonId` creates every unknown contributor-named person in Strapi _before_ the work itself is POSTed, and there is no rollback, no reuse lookup and no transaction spanning the two. When the work POST fails — which per DW-138/DW-139 is currently the only outcome, and stays possible afterwards on any validation error — the draft persons already created stay in the catalog, and a contributor who fixes their form and resubmits creates a fresh duplicate of each. Fix is either creating persons only after the work lands (and patching the relations in), or a find-by-name lookup before create so retries converge instead of accumulating. Pre-existing (the create-then-post ordering predates DW-10) and only reachable once the write path works at all. Surfaced by the Blind Hunter.
+status: open
+
+### DW-144: No `.tsx` file under `apps/strapi` is typechecked — the admin plugin's entire React surface is compiled by nothing
+
+origin: follow-up review of spec-dw-10-catalog-admin-workform-rebuild.md (2026-08-03)
+location: apps/strapi/tsconfig.json
+reason: (MEDIUM) `apps/strapi/tsconfig.json` includes `./**/*.ts` and `./**/*.js` — no `.tsx` glob — and sets no `jsx` option, so `npx tsc --noEmit -p tsconfig.json` never sees a single admin component. Every `.tsx` file in `plugins/*/admin/src` (the WorkForm editors, the Catalog views, the venue and ticketing admin surfaces) is therefore verified by neither the type gate nor the jest gate, which is `testEnvironment: node` and collects `*.unit.test.ts` only. The DW-10 pass added ~305 lines of new components (`CastEditor`, `CharacterCombobox`, `CreditRoleSelect`) plus a rewritten `CreditsEditor` under exactly that blind spot: a wrong prop name, a missing required prop, or a `null` deref in those files ships green through `yarn test` and `yarn type-check` alike, and only surfaces when an editor opens the form. A prop-type break was in fact caught in an earlier pass only because it happened to also touch a `.ts` file. Fix is adding `./**/*.tsx` plus `"jsx": "react-jsx"` to the strapi tsconfig (or a dedicated admin tsconfig project) and fixing whatever backlog that first surfaces — the size of that backlog is unknown, which is why this is deferred rather than patched. Surfaced by the Blind Hunter.
+status: open
+
+### DW-145: The events-manager admin has no component/hook test harness, so every failure mode the DW-10 pass deliberately designed is unverified
+
+origin: follow-up review of spec-dw-10-catalog-admin-workform-rebuild.md (2026-08-03)
+location: apps/strapi/jest.config.cjs
+reason: (MEDIUM) `schema.unit.test.ts` covers the pure functions (`workToApiPayload`, `workToFormValues`, the zod schemas, `clampBilling`, `WORK_POPULATE`) and nothing else, because the jest gate runs `testEnvironment: node` over `*.unit.test.ts`. The stateful behaviour added and hardened across the DW-10 passes therefore has no test at all: `useCreditRoles()`'s multi-page fetch loop, its `error`-vs-empty distinction and the new truncation signal; `CreditsEditor`'s two different danger banners; `CreditRoleSelect`'s inert-when-empty gating; the generic-role gating of the `customRole` input; and `useCharacterSearch`'s debounce. Collapsing any of them — a single-page fetch, `setCreditRoles([])` in place of `setError`, a dropped `disabled` — leaves all 428 strapi tests green while making a required relation unpickable. `@testing-library/react` and `jest-environment-jsdom` are already in `apps/strapi` devDependencies, so the fix is a jsdom-docblock test project plus a `useFetchClient` mock; it is deferred rather than patched because it is a new test-harness layer for the plugin rather than a change to this story's code. Surfaced by the Verification Gap reviewer and the Blind Hunter.
+status: open
+
+### DW-146: Follow-up review still recommended for dw-catalog-admin-workform-rebuild after the damping cap was spent
+
+origin: review-budget-followup
+location: n/a
+source_spec: `spec-dw-10-catalog-admin-workform-rebuild.md`
+severity: low
+reason: The follow-up-review damping cap (limits.max_followup_reviews = 1) was spent with the story finalized (status: done, verify green) while the review pass still recommended an independent follow-up. The work was committed by bmad-loop run 20260712-090054-5834; this entry preserves the lingering recommendation for a deliberate later review.
 status: open

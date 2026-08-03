@@ -16,15 +16,50 @@ const personRefSchema = z.object({
   name: z.string(),
 })
 
+const creditRoleRefSchema = z.object({
+  id: z.number().optional(),
+  documentId: z.string(),
+  name: z.string(),
+  // Carried so the generic-role rule below can key on the vocabulary record
+  // rather than on its (localized) display name.
+  slug: z.string().nullish(),
+})
+
+/**
+ * Slugs of the catch-all `credit-role` record. A credit pointing at it says
+ * nothing on its own, so `customRole` has to carry the actual role name —
+ * the same rule the pre-2C.3 `role === "other"` enum enforced.
+ *
+ * Strapi derives the slug from the (localized) `name`, and this project's
+ * `defaultLocale` is `fr`, so the catch-all record is as likely to be created
+ * as "Autre" (`autre`) as "Other" (`other`). Matching a set keeps the rule
+ * firing either way instead of silently degrading to "customRole optional".
+ */
+export const GENERIC_CREDIT_ROLE_SLUGS = new Set(["other", "autre"])
+
+export function isGenericCreditRole(slug: string | null | undefined): boolean {
+  return typeof slug === "string" && GENERIC_CREDIT_ROLE_SLUGS.has(slug)
+}
+
+const characterRefSchema = z.object({
+  id: z.number().optional(),
+  documentId: z.string(),
+  name: z.string(),
+})
+
 const mediaAssetSchema = z.custom<MediaAsset>((value) =>
   Boolean(value && typeof value === "object" && "url" in value)
 )
 
+/**
+ * `creative-works.credit` — a crew contribution. Both `person` and
+ * `creditRole` are required relations on the component schema; the form keeps
+ * them nullable so legacy rows (saved before 2C.3) can load and be corrected.
+ */
 export const creditFormSchema = z
   .object({
     person: personRefSchema.nullable(),
-    role: z.string().min(1),
-    character: z.string(),
+    creditRole: creditRoleRefSchema.nullable(),
     customRole: z.string(),
     billing: z.number().int().min(1).max(999),
   })
@@ -36,10 +71,40 @@ export const creditFormSchema = z
         message: "required",
       })
     }
-    if (credit.role === "other" && !credit.customRole.trim()) {
+    if (!credit.creditRole) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["creditRole"],
+        message: "required",
+      })
+    }
+    if (
+      isGenericCreditRole(credit.creditRole?.slug) &&
+      !credit.customRole.trim()
+    ) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["customRole"],
+        message: "required",
+      })
+    }
+  })
+
+/**
+ * `creative-works.cast` — an actor portraying a character. `person` is
+ * required, `character` is an optional relation.
+ */
+export const castFormSchema = z
+  .object({
+    person: personRefSchema.nullable(),
+    character: characterRefSchema.nullable(),
+    billing: z.number().int().min(1).max(999),
+  })
+  .superRefine((castMember, ctx) => {
+    if (!castMember.person) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["person"],
         message: "required",
       })
     }
@@ -79,9 +144,28 @@ export const linkFormSchema = z.object({
   label: z.string(),
 })
 
+/**
+ * Legacy `common.video.type` → `videoType`, used ONLY to seed the editor for
+ * rows written before the split. Without it a legacy `CLIP`/`FULL_LENGTH` row
+ * would load as `trailer` and be persisted as the work's public trailer on the
+ * next save (`videoType === "trailer"` is what the client reads).
+ */
+const LEGACY_TYPE_TO_VIDEO_TYPE: Record<string, string> = {
+  FULL_LENGTH: "full-length",
+  TEASER: "teaser",
+  CLIP: "clip",
+}
+
+/**
+ * `common.video`. `videoType` is the authoritative field for consumers and the
+ * only one the editor exposes. `legacyType` mirrors the retained legacy `type`
+ * enum as a read-only passthrough so an existing value survives an edit
+ * byte-identical (DW-11 human decision: keep both, document the split).
+ */
 export const videoFormSchema = z.object({
   url: z.string().trim().min(1).url(),
-  type: z.string(),
+  legacyType: z.string().nullable(),
+  videoType: z.string().min(1),
 })
 
 export const workFormSchema = z.object({
@@ -96,6 +180,7 @@ export const workFormSchema = z.object({
   ageRating: z.string(),
   genreIds: z.array(z.string()),
   credits: z.array(creditFormSchema),
+  cast: z.array(castFormSchema),
   distinctions: z.array(distinctionFormSchema),
   theatreDetails: theatreDetailsFormSchema,
   tmdbId: z.number().int().nullable(),
@@ -109,14 +194,44 @@ export const workFormSchema = z.object({
 
 export type WorkFormValues = z.infer<typeof workFormSchema>
 export type CreditFormValues = z.infer<typeof creditFormSchema>
+export type CastFormValues = z.infer<typeof castFormSchema>
+export type VideoFormValues = z.infer<typeof videoFormSchema>
 export type DistinctionFormValues = z.infer<typeof distinctionFormSchema>
+
+/**
+ * Billing order accepted by `creditFormSchema` / `castFormSchema`. The editors
+ * clamp on input: neither row renders an error slot for billing, so an
+ * out-of-range value would otherwise block the submit with nothing on screen.
+ *
+ * An empty input (`undefined`, i.e. the editor cleared the field to retype it)
+ * is NOT a value to clamp — snapping it to a bound mid-edit would rewrite what
+ * the user is typing. Callers keep the previous value in that case.
+ */
+export function clampBilling(value: number | undefined): number | undefined {
+  if (value === undefined || Number.isNaN(value)) {
+    return undefined
+  }
+  return Math.min(999, Math.max(1, Math.round(value)))
+}
 
 export const EMPTY_CREDIT: CreditFormValues = {
   person: null,
-  role: "cast",
-  character: "",
+  creditRole: null,
   customRole: "",
   billing: 99,
+}
+
+export const EMPTY_CAST: CastFormValues = {
+  person: null,
+  character: null,
+  billing: 99,
+}
+
+/** A brand-new video carries no legacy `type` — it is sent as null. */
+export const EMPTY_VIDEO: VideoFormValues = {
+  url: "",
+  legacyType: null,
+  videoType: "trailer",
 }
 
 export const EMPTY_DISTINCTION: DistinctionFormValues = {
@@ -155,6 +270,7 @@ export const DEFAULT_WORK_VALUES: WorkFormValues = {
   ageRating: "",
   genreIds: [],
   credits: [],
+  cast: [],
   distinctions: [],
   theatreDetails: DEFAULT_THEATRE_DETAILS,
   tmdbId: null,
@@ -187,10 +303,33 @@ export function workToFormValues(work: CreativeWork): WorkFormValues {
             name: credit.person.name,
           }
         : null,
-      role: credit.role ?? "cast",
-      character: credit.character ?? "",
+      creditRole: credit.creditRole
+        ? {
+            id: credit.creditRole.id,
+            documentId: credit.creditRole.documentId,
+            name: credit.creditRole.name,
+            slug: credit.creditRole.slug ?? null,
+          }
+        : null,
       customRole: credit.customRole ?? "",
       billing: credit.billing ?? 99,
+    })),
+    cast: (work.cast ?? []).map((castMember) => ({
+      person: castMember.person
+        ? {
+            id: castMember.person.id,
+            documentId: castMember.person.documentId,
+            name: castMember.person.name,
+          }
+        : null,
+      character: castMember.character
+        ? {
+            id: castMember.character.id,
+            documentId: castMember.character.documentId,
+            name: castMember.character.name,
+          }
+        : null,
+      billing: castMember.billing ?? 99,
     })),
     distinctions: (work.distinctions ?? []).map((distinction) => ({
       name: distinction.name ?? "",
@@ -230,7 +369,12 @@ export function workToFormValues(work: CreativeWork): WorkFormValues {
     })),
     videos: (work.videos ?? []).map((video) => ({
       url: video.url ?? "",
-      type: video.type ?? "TEASER",
+      // read-only passthrough of the legacy enum, never edited
+      legacyType: video.type ?? null,
+      videoType:
+        video.videoType ??
+        (video.type ? LEGACY_TYPE_TO_VIDEO_TYPE[video.type] : undefined) ??
+        "trailer",
     })),
     poster: work.poster ?? null,
     backdrop: work.backdrop ?? null,
@@ -259,11 +403,20 @@ export function workToApiPayload(
     ageRating: values.ageRating || null,
     genres: values.genreIds,
     credits: values.credits.map((credit) => ({
-      person: credit.person?.documentId,
-      role: credit.role,
-      character: credit.role === "cast" ? orNull(credit.character) : null,
-      customRole: credit.role === "other" ? orNull(credit.customRole) : null,
+      person: credit.person?.documentId ?? null,
+      creditRole: credit.creditRole?.documentId ?? null,
+      // `customRole` only labels the catch-all role. Sending it alongside a
+      // named role would persist a contradiction ("Director" / "Producer"),
+      // which is why the pre-2C.3 code nulled it outside the generic case.
+      customRole: isGenericCreditRole(credit.creditRole?.slug)
+        ? orNull(credit.customRole)
+        : null,
       billing: credit.billing,
+    })),
+    cast: values.cast.map((castMember) => ({
+      person: castMember.person?.documentId ?? null,
+      character: castMember.character?.documentId ?? null,
+      billing: castMember.billing,
     })),
     distinctions: values.distinctions.map((distinction) => ({
       name: distinction.name.trim(),
@@ -300,7 +453,9 @@ export function workToApiPayload(
     })),
     videos: values.videos.map((video) => ({
       url: video.url.trim(),
-      type: video.type || null,
+      // legacy enum echoed back exactly as loaded (null for new videos)
+      type: video.legacyType ?? null,
+      videoType: video.videoType || null,
     })),
     poster: values.poster?.id ?? null,
     backdrop: values.backdrop?.id ?? null,

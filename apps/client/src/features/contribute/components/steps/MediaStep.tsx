@@ -4,7 +4,6 @@ import { useCallback, useEffect, useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import {
   Award,
-  HelpCircle,
   Image as ImageIcon,
   Link as LinkIcon,
   Plus,
@@ -18,7 +17,6 @@ import type { MediaStepData } from "../../schemas/play-contribution"
 import type { ContributeLabels } from "../../types"
 
 import { cn } from "@/lib/utils"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
   Form,
@@ -38,12 +36,6 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
 
 import { useContributeForm } from "../../context/ContributeFormContext"
 import {
@@ -70,11 +62,15 @@ const linkTypeLabels: Record<string, string> = {
   other: "Other",
 }
 
-// Video type labels
+// Video type labels (`common.video.videoType` vocabulary)
 const videoTypeLabels: Record<string, string> = {
-  FULL_LENGTH: "Full Recording",
-  TEASER: "Trailer/Teaser",
-  CLIP: "Clip/Excerpt",
+  trailer: "Trailer",
+  teaser: "Teaser",
+  clip: "Clip/Excerpt",
+  featurette: "Featurette",
+  interview: "Interview",
+  "behind-the-scenes": "Behind the Scenes",
+  "full-length": "Full Recording",
 }
 
 // Distinction result labels
@@ -145,6 +141,9 @@ export function MediaStep({ labels, onValidateRef }: MediaStepProps) {
 
   // Sync form data with context when values change
   useEffect(() => {
+    // react-hook-form's watch() cannot be memoized; the subscription is
+    // disposed on unmount below.
+    // eslint-disable-next-line react-hooks/incompatible-library
     const subscription = form.watch((data) => {
       updateFormData(data as Partial<MediaStepData>)
     })
@@ -284,10 +283,9 @@ export function MediaStep({ labels, onValidateRef }: MediaStepProps) {
                             type="file"
                             accept="image/*"
                             className="hidden"
-                            onChange={(e) => {
-                              // TODO: Implement file upload
-                              console.log(e.target.files)
-                            }}
+                            // TODO: Implement file upload — the selected file is
+                            // intentionally ignored until the upload path exists.
+                            onChange={() => {}}
                           />
                         </div>
                       </FormControl>
@@ -307,6 +305,8 @@ export function MediaStep({ labels, onValidateRef }: MediaStepProps) {
               {posterValue && posterValue.startsWith("http") && (
                 <div className="relative">
                   <p className="mb-2 text-sm text-white/60">Preview:</p>
+                  {/* eslint-disable-next-line @next/next/no-img-element -- preview of an
+                      arbitrary contributor-supplied URL; next/image needs a configured host */}
                   <img
                     src={posterValue}
                     alt="Poster preview"
@@ -390,7 +390,7 @@ export function MediaStep({ labels, onValidateRef }: MediaStepProps) {
                 type="button"
                 variant="outline"
                 size="sm"
-                onClick={() => appendVideo({ url: "", type: "TEASER" })}
+                onClick={() => appendVideo({ url: "", type: "trailer" })}
                 className="gap-2 border-white/20 text-white hover:bg-white/10"
               >
                 <Plus className="h-4 w-4" />

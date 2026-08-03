@@ -10,28 +10,11 @@ import type { WorkType } from "../../hooks/useCreativeWorks"
 
 export const WORK_TYPES: WorkType[] = ["film", "short-film", "play"]
 
-export const CREDIT_ROLES = [
-  "director",
-  "playwright",
-  "screenwriter",
-  "adaptor",
-  "translator",
-  "composer",
-  "musical-director",
-  "choreographer",
-  "cast",
-  "set-designer",
-  "costume-designer",
-  "lighting-designer",
-  "sound-designer",
-  "projection-designer",
-  "stage-manager",
-  "producer",
-  "executive-producer",
-  "cinematographer",
-  "editor",
-  "other",
-] as const
+/**
+ * NOTE: there is no `CREDIT_ROLES` enum any more. Since story 2C.3 the crew
+ * vocabulary lives in the `plugin::creative-works.credit-role` content type and
+ * is loaded through `useCreditRoles()`.
+ */
 
 export const DISTINCTION_RESULTS = [
   "selected",
@@ -95,7 +78,20 @@ export const LINK_TYPES = [
   "other",
 ] as const
 
-export const VIDEO_TYPES = ["TEASER", "CLIP", "FULL_LENGTH"] as const
+/**
+ * `common.video.videoType` — the vocabulary every consumer reads.
+ * The legacy `common.video.type` enum (FULL_LENGTH / TEASER / CLIP) is retained
+ * on the schema but not editable, so it is deliberately not listed here.
+ */
+export const VIDEO_TYPES = [
+  "trailer",
+  "teaser",
+  "clip",
+  "featurette",
+  "interview",
+  "behind-the-scenes",
+  "full-length",
+] as const
 
 /** Results that should render with a "success" badge in consult views */
 export const WINNING_RESULTS = new Set([

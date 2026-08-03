@@ -72,6 +72,10 @@ export default defineConfig({
     },
     include: [
       "src/features/events/utils/**/*.test.ts",
+      // Contribute-route Strapi payload contract (DW-10).
+      "src/app/api/**/*.test.ts",
+      // Contribute wizard schemas — incl. the legacy-draft video migration (DW-10).
+      "src/features/contribute/schemas/**/*.test.ts",
       // Watchlist add/sync hooks (Story 5.1).
       "src/features/events/hooks/**/*.test.ts",
       // Notification data-layer hooks (Story 5.6).

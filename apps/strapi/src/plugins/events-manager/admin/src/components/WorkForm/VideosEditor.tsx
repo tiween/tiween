@@ -1,7 +1,12 @@
 /**
  * VideosEditor
  *
- * Repeatable editor for the common.video component (url + type).
+ * Repeatable editor for the common.video component (url + videoType).
+ *
+ * `videoType` is the field every consumer reads (see the client's
+ * eventMappers). The legacy `type` enum is retained on the schema but never
+ * exposed here — it rides along in the form values as `legacyType` and is
+ * written back untouched.
  */
 
 import {
@@ -21,14 +26,9 @@ import { Controller, useFieldArray } from "react-hook-form"
 import type { Control } from "react-hook-form"
 import type { WorkFormValues } from "./schema"
 
-import { useCatalogT } from "../Catalog/i18n"
+import { humanize, useCatalogT } from "../Catalog/i18n"
 import { VIDEO_TYPES } from "../Catalog/options"
-
-const VIDEO_TYPE_LABELS: Record<string, string> = {
-  TEASER: "Teaser / trailer",
-  CLIP: "Clip",
-  FULL_LENGTH: "Full length",
-}
+import { EMPTY_VIDEO } from "./schema"
 
 interface VideosEditorProps {
   control: Control<WorkFormValues>
@@ -68,7 +68,7 @@ export function VideosEditor({ control, disabled }: VideosEditorProps) {
             <Field.Root width="100%">
               <Controller
                 control={control}
-                name={`videos.${index}.type`}
+                name={`videos.${index}.videoType`}
                 render={({ field: input }) => (
                   <SingleSelect
                     aria-label={t("videos.type", "Video type")}
@@ -78,7 +78,7 @@ export function VideosEditor({ control, disabled }: VideosEditorProps) {
                   >
                     {VIDEO_TYPES.map((value) => (
                       <SingleSelectOption key={value} value={value}>
-                        {t(`videoType.${value}`, VIDEO_TYPE_LABELS[value])}
+                        {t(`videoType.${value}`, humanize(value))}
                       </SingleSelectOption>
                     ))}
                   </SingleSelect>
@@ -104,7 +104,7 @@ export function VideosEditor({ control, disabled }: VideosEditorProps) {
         <Button
           variant="secondary"
           startIcon={<Plus />}
-          onClick={() => append({ url: "", type: "TEASER" })}
+          onClick={() => append({ ...EMPTY_VIDEO })}
           disabled={disabled}
         >
           {t("videos.add", "Add a video")}

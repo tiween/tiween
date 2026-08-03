@@ -102,10 +102,6 @@ export async function POST(request: Request) {
 
     const createdWork = await response.json()
 
-    console.log(
-      `[PlaySubmit] Successfully created draft play: ${createdWork.data?.documentId}`
-    )
-
     return NextResponse.json(
       {
         success: true,
@@ -131,28 +127,56 @@ export async function POST(request: Request) {
 }
 
 /**
- * Transform frontend form data to Strapi API format
+ * Transform frontend form data to Strapi API format.
+ *
+ * Exported for `route.test.ts`: this is the payload contract against the
+ * post-2C.3 catalog model (cast/crew split, `creditRole` relation, `videoType`)
+ * and nothing else in the route is worth pinning.
  */
-async function transformToStrapiFormat(
+export async function transformToStrapiFormat(
   data: ReturnType<typeof playContributionSchema.parse>,
-  submitterIp: string
+  _submitterIp: string
 ) {
-  // Build credits array for Strapi
+  // Resolve the wizard's role slugs to credit-role documentIds once per
+  // request. In-flight promises are cached so the concurrent credit mapping
+  // below never issues the same lookup twice.
+  const creditRoleCache = new Map<string, Promise<string | undefined>>()
+
+  // Since story 2C.3 actors and crew live in SEPARATE components: an actor is
+  // a `cast[]` row (person + character), a crew member is a `credits[]` row
+  // (person + creditRole). The wizard still collects both under one list keyed
+  // by `role`, so split them here.
+  const castEntries = data.credits.filter((credit) => credit.role === "cast")
+  const crewEntries = data.credits.filter((credit) => credit.role !== "cast")
+
   // For new persons (without documentId), we need to create them first
+  const cast = await Promise.all(
+    castEntries.map(async (credit) => ({
+      person: await resolvePersonId(credit.person),
+      // The wizard collects the character as free text, but `cast.character`
+      // is a relation to a `character` record and this route has no way to
+      // create one — the text is not forwarded.
+      billing: credit.billing || 99,
+    }))
+  )
+
   const credits = await Promise.all(
-    data.credits.map(async (credit) => {
-      let personId = credit.person.documentId
+    crewEntries.map(async (credit) => {
+      const personId = await resolvePersonId(credit.person)
+      const creditRoleId = await resolveCreditRoleId(
+        credit.role,
+        creditRoleCache
+      )
 
-      // If this is a new person (no documentId), create it first
-      if (!personId && credit.person.name) {
-        personId = await createPersonInStrapi(credit.person.name)
-      }
-
+      // `creditRole` is REQUIRED on the credit component, so an unresolved
+      // slug means Strapi rejects the whole submission. The slug is still
+      // carried in `customRole` so the failure is diagnosable from the payload.
       return {
         person: personId,
-        role: credit.role,
-        character: credit.character || null,
-        customRole: credit.customRole || null,
+        ...(creditRoleId ? { creditRole: creditRoleId } : {}),
+        customRole: creditRoleId
+          ? credit.customRole || null
+          : credit.customRole || credit.role,
         billing: credit.billing || 99,
       }
     })
@@ -170,10 +194,14 @@ async function transformToStrapiFormat(
     premiereDate: data.premiereDate || null,
   }
 
-  // Build videos array
+  // Build videos array.
+  // The wizard collects the `videoType` vocabulary directly. `type` is sent as
+  // an explicit null so the legacy enum's schema default is not stamped onto
+  // brand-new rows.
   const videos = data.videos?.map((video) => ({
     url: video.url,
-    type: video.type || "trailer",
+    type: null,
+    videoType: video.type || "trailer",
   }))
 
   // Build links array
@@ -205,6 +233,7 @@ async function transformToStrapiFormat(
     ageRating: data.ageRating || null,
 
     // Relations and components
+    cast,
     credits,
     theatreDetails,
     videos: videos || [],
@@ -227,7 +256,6 @@ async function transformToStrapiFormat(
     if (data.poster.startsWith("http")) {
       // External URL - might need a custom field or component
       // For now, we'll skip setting the poster and let admin handle it
-      console.log("[PlaySubmit] External poster URL:", data.poster)
     } else {
       // Uploaded file reference
       payload.poster = data.poster
@@ -240,6 +268,81 @@ async function transformToStrapiFormat(
   }
 
   return payload
+}
+
+/**
+ * Resolve a wizard person reference to a documentId, creating the person as a
+ * draft when the contributor typed a name that is not in the catalog yet.
+ */
+async function resolvePersonId(person: {
+  documentId?: string
+  name?: string
+}): Promise<string | undefined> {
+  if (person.documentId) {
+    return person.documentId
+  }
+  return person.name ? createPersonInStrapi(person.name) : undefined
+}
+
+/**
+ * Resolve a wizard role slug to a `credit-role` documentId.
+ *
+ * `creative-works.credit.creditRole` is a required relation to the credit-role
+ * content type, so the slug the wizard collects has to be looked up. Results
+ * (including misses) are memoized in the caller's per-request cache.
+ *
+ * Misses are cached deliberately: the credits below are mapped under a single
+ * `Promise.all`, so every credit sharing a slug is already awaiting the same
+ * in-flight request. Evicting on failure would not give any of them a retry —
+ * it would only re-issue the request for a slug nobody is waiting on anymore.
+ * The cache never outlives the request, so the next submission retries anyway.
+ */
+function resolveCreditRoleId(
+  slug: string,
+  cache: Map<string, Promise<string | undefined>>
+): Promise<string | undefined> {
+  const cached = cache.get(slug)
+  if (cached) {
+    return cached
+  }
+
+  const lookup = fetchCreditRoleId(slug)
+  cache.set(slug, lookup)
+  return lookup
+}
+
+async function fetchCreditRoleId(slug: string): Promise<string | undefined> {
+  let documentId: string | undefined
+
+  try {
+    const apiKey =
+      env.STRAPI_REST_CUSTOM_API_KEY || env.STRAPI_REST_READONLY_API_KEY
+
+    const response = await fetch(
+      `${env.STRAPI_URL}/api/credit-roles?filters[slug][$eq]=${encodeURIComponent(slug)}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey}`,
+        },
+      }
+    )
+
+    if (response.ok) {
+      const found = await response.json()
+      documentId = found.data?.[0]?.documentId
+    } else {
+      console.error(
+        "[PlaySubmit] Failed to resolve credit role:",
+        slug,
+        response.status
+      )
+    }
+  } catch (error) {
+    console.error("[PlaySubmit] Error resolving credit role:", slug, error)
+  }
+
+  return documentId
 }
 
 /**

@@ -189,8 +189,9 @@ export function usePersonMutations() {
 /**
  * Works a person is credited on.
  *
- * Credits are embedded components on creative-work (no inverse relation),
- * so this filters works whose credits component points at the person.
+ * Cast and credits are embedded components on creative-work (no inverse
+ * relation), so this filters works whose `cast[]` OR `credits[]` component
+ * points at the person — an actor lives in `cast`, a crew member in `credits`.
  */
 export function usePersonWorks(documentId: string | null) {
   const { get } = useFetchClient()
@@ -215,9 +216,19 @@ export function usePersonWorks(documentId: string | null) {
               page: 1,
               pageSize: 50,
               sort: "releaseYear:desc",
-              populate: ["credits", "credits.person"],
+              populate: [
+                "credits",
+                "credits.person",
+                "credits.creditRole",
+                "cast",
+                "cast.person",
+                "cast.character",
+              ],
               filters: {
-                credits: { person: { documentId: { $eq: documentId } } },
+                $or: [
+                  { credits: { person: { documentId: { $eq: documentId } } } },
+                  { cast: { person: { documentId: { $eq: documentId } } } },
+                ],
               },
             },
           }

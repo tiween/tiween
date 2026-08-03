@@ -1374,6 +1374,7 @@ export interface PluginEventsManagerPerformance
     surtitleLanguage: Schema.Attribute.String
     ticketsAvailable: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>
     ticketsSold: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>
+    ticketTiers: Schema.Attribute.Component<"ticketing.ticket-tier", true>
     updatedAt: Schema.Attribute.DateTime
     updatedBy: Schema.Attribute.Relation<"oneToOne", "admin::user"> &
       Schema.Attribute.Private
@@ -1422,6 +1423,7 @@ export interface PluginEventsManagerScreening
     subtitleLanguage: Schema.Attribute.String
     ticketsAvailable: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>
     ticketsSold: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>
+    ticketTiers: Schema.Attribute.Component<"ticketing.ticket-tier", true>
     updatedAt: Schema.Attribute.DateTime
     updatedBy: Schema.Attribute.Relation<"oneToOne", "admin::user"> &
       Schema.Attribute.Private
@@ -1879,6 +1881,48 @@ export interface PluginUploadFolder extends Struct.CollectionTypeSchema {
   }
 }
 
+export interface PluginUserEngagementScheduleNotification
+  extends Struct.CollectionTypeSchema {
+  collectionName: "schedule_notifications"
+  info: {
+    description: "In-app notification snapshot for a watchlisted event's schedule change"
+    displayName: "Schedule Notification"
+    pluralName: "schedule-notifications"
+    singularName: "schedule-notification"
+  }
+  options: {
+    draftAndPublish: false
+  }
+  attributes: {
+    changeType: Schema.Attribute.Enumeration<
+      ["showtime_changed", "cancelled", "postponed", "rescheduled"]
+    >
+    createdAt: Schema.Attribute.DateTime
+    createdBy: Schema.Attribute.Relation<"oneToOne", "admin::user"> &
+      Schema.Attribute.Private
+    creativeWorkDocumentId: Schema.Attribute.String
+    eventDocumentId: Schema.Attribute.String
+    eventTitle: Schema.Attribute.String
+    locale: Schema.Attribute.String & Schema.Attribute.Private
+    localizations: Schema.Attribute.Relation<
+      "oneToMany",
+      "plugin::user-engagement.schedule-notification"
+    > &
+      Schema.Attribute.Private
+    newDateTime: Schema.Attribute.DateTime
+    oldDateTime: Schema.Attribute.DateTime
+    publishedAt: Schema.Attribute.DateTime
+    read: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>
+    updatedAt: Schema.Attribute.DateTime
+    updatedBy: Schema.Attribute.Relation<"oneToOne", "admin::user"> &
+      Schema.Attribute.Private
+    user: Schema.Attribute.Relation<
+      "manyToOne",
+      "plugin::users-permissions.user"
+    >
+  }
+}
+
 export interface PluginUserEngagementUserWatchlist
   extends Struct.CollectionTypeSchema {
   collectionName: "user_watchlists"
@@ -2029,6 +2073,7 @@ export interface PluginUsersPermissionsUser
   }
   attributes: {
     avatar: Schema.Attribute.Media<"images">
+    avatarUrl: Schema.Attribute.Text
     blocked: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>
     confirmationToken: Schema.Attribute.String & Schema.Attribute.Private
     confirmed: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>
@@ -2044,6 +2089,11 @@ export interface PluginUsersPermissionsUser
       Schema.Attribute.SetMinMaxLength<{
         minLength: 6
       }>
+    emailChangeToken: Schema.Attribute.String & Schema.Attribute.Private
+    emailChangeTokenExpiresAt: Schema.Attribute.DateTime &
+      Schema.Attribute.Private
+    emailNotificationsEnabled: Schema.Attribute.Boolean &
+      Schema.Attribute.DefaultTo<true>
     firstName: Schema.Attribute.String
     lastName: Schema.Attribute.String
     locale: Schema.Attribute.String & Schema.Attribute.Private
@@ -2057,11 +2107,15 @@ export interface PluginUsersPermissionsUser
       Schema.Attribute.SetMinMaxLength<{
         minLength: 6
       }>
+    passwordChangedAt: Schema.Attribute.DateTime & Schema.Attribute.Private
+    pendingEmail: Schema.Attribute.Email & Schema.Attribute.Private
     preferredLanguage: Schema.Attribute.Enumeration<["ar", "fr", "en"]> &
       Schema.Attribute.DefaultTo<"fr">
     provider: Schema.Attribute.String
     publishedAt: Schema.Attribute.DateTime
     resetPasswordToken: Schema.Attribute.String & Schema.Attribute.Private
+    resetPasswordTokenExpiresAt: Schema.Attribute.DateTime &
+      Schema.Attribute.Private
     role: Schema.Attribute.Relation<
       "manyToOne",
       "plugin::users-permissions.role"
@@ -2330,6 +2384,7 @@ declare module "@strapi/strapi" {
       "plugin::ticketing.ticket-order": PluginTicketingTicketOrder
       "plugin::upload.file": PluginUploadFile
       "plugin::upload.folder": PluginUploadFolder
+      "plugin::user-engagement.schedule-notification": PluginUserEngagementScheduleNotification
       "plugin::user-engagement.user-watchlist": PluginUserEngagementUserWatchlist
       "plugin::users-permissions.permission": PluginUsersPermissionsPermission
       "plugin::users-permissions.role": PluginUsersPermissionsRole

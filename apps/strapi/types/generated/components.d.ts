@@ -56,7 +56,7 @@ export interface CommonRemarkableFact extends Struct.ComponentSchema {
 export interface CommonVideo extends Struct.ComponentSchema {
   collectionName: "components_common_videos"
   info: {
-    description: "Video link with type classification"
+    description: "Video link. Use videoType \u2014 it is what every consumer reads. The older type field (FULL_LENGTH/TEASER/CLIP) is kept for historic rows only; leave it as it is."
     displayName: "Video"
     icon: "file-video"
   }
@@ -365,6 +365,27 @@ export interface SharedGeoPoint extends Struct.ComponentSchema {
   }
 }
 
+export interface TicketingTicketTier extends Struct.ComponentSchema {
+  collectionName: "components_ticketing_ticket_tiers"
+  info: {
+    description: "A priced ticket type (Plein tarif / Tarif reduit / VIP) with its own inventory for a sub-event (Story 6.1, read-only display source)"
+    displayName: "Ticket Tier"
+    icon: "ticket"
+  }
+  attributes: {
+    price: Schema.Attribute.Decimal &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<0>
+    restrictionNote: Schema.Attribute.String
+    ticketsAvailable: Schema.Attribute.Integer &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<0>
+    ticketsSold: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>
+    type: Schema.Attribute.Enumeration<["standard", "reduced", "vip"]> &
+      Schema.Attribute.Required
+  }
+}
+
 export interface UtilitiesAccordions extends Struct.ComponentSchema {
   collectionName: "components_utilities_accordions"
   info: {
@@ -455,6 +476,7 @@ declare module "@strapi/strapi" {
       "seo-utilities.seo-twitter": SeoUtilitiesSeoTwitter
       "seo-utilities.social-icons": SeoUtilitiesSocialIcons
       "shared.geo-point": SharedGeoPoint
+      "ticketing.ticket-tier": TicketingTicketTier
       "utilities.accordions": UtilitiesAccordions
       "utilities.basic-image": UtilitiesBasicImage
       "utilities.image-with-link": UtilitiesImageWithLink

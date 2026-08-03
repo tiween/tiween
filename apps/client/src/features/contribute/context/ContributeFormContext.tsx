@@ -16,6 +16,7 @@ import {
   basicsStepSchema,
   creditsStepSchema,
   mediaStepSchema,
+  migrateDraftVideoType,
   reviewStepSchema,
   STEP_NAMES,
   theatreDetailsStepSchema,
@@ -121,7 +122,24 @@ export function ContributeFormProvider({
         savedAt,
       } = JSON.parse(saved)
 
-      setFormData(savedData)
+      // Drafts are stored unversioned, so one saved before the video
+      // vocabulary switch (DW-10) still carries the legacy enum values.
+      setFormData({
+        ...savedData,
+        // Array.isArray, not truthiness: a corrupt `videos` would otherwise
+        // throw inside .map, get caught below, and discard the user's entire
+        // draft over one bad field.
+        ...(Array.isArray(savedData?.videos)
+          ? {
+              videos: savedData.videos.map(
+                (video: { url: string; type?: string }) => ({
+                  ...video,
+                  type: migrateDraftVideoType(video.type),
+                })
+              ),
+            }
+          : {}),
+      })
       setCompletedSteps(new Set(savedSteps))
       setCurrentStep(savedStep)
       setLastSavedAt(new Date(savedAt))

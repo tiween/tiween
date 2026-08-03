@@ -107,7 +107,20 @@ export const LINK_TYPES = [
   "other",
 ] as const
 
-export const VIDEO_TYPES = ["FULL_LENGTH", "TEASER", "CLIP"] as const
+/**
+ * `common.video.videoType` — the vocabulary every consumer reads (the film
+ * hero picks the trailer with `videoType === "trailer"`). The legacy
+ * `common.video.type` enum is never written by this wizard.
+ */
+export const VIDEO_TYPES = [
+  "trailer",
+  "teaser",
+  "clip",
+  "featurette",
+  "interview",
+  "behind-the-scenes",
+  "full-length",
+] as const
 
 export const DISTINCTION_RESULTS = [
   "selected",
@@ -161,6 +174,33 @@ export const videoSchema = z.object({
 })
 
 export type Video = z.infer<typeof videoSchema>
+
+/**
+ * Legacy `common.video.type` values the wizard collected before it switched to
+ * the `videoType` vocabulary (DW-10).
+ */
+const LEGACY_VIDEO_TYPES: Record<string, (typeof VIDEO_TYPES)[number]> = {
+  FULL_LENGTH: "full-length",
+  TEASER: "teaser",
+  CLIP: "clip",
+}
+
+/**
+ * Normalizes a video type read back from a locally saved draft. Drafts are
+ * persisted unversioned in localStorage, so one saved before the vocabulary
+ * switch still carries `TEASER`/`CLIP`/`FULL_LENGTH` — values `videoSchema`
+ * now rejects, which would leave the restored step unsubmittable with a blank
+ * select. Unrecognized values drop to `undefined` (the field is optional).
+ */
+export function migrateDraftVideoType(
+  type: string | undefined | null
+): Video["type"] {
+  if (!type) return undefined
+  if ((VIDEO_TYPES as readonly string[]).includes(type)) {
+    return type as Video["type"]
+  }
+  return LEGACY_VIDEO_TYPES[type]
+}
 
 /**
  * External link (social media, website, etc.)
