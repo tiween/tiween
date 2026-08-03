@@ -1,7 +1,6 @@
 import nextConfig from "eslint-config-next/core-web-vitals";
 import prettier from "eslint-config-prettier";
 import turboConfig from "eslint-config-turbo/flat";
-import onlyWarn from "eslint-plugin-only-warn";
 import globals from "globals";
 
 /** @type {import("eslint").Linter.Config[]} */
@@ -10,9 +9,6 @@ export default [
   ...turboConfig,
   prettier,
   {
-    plugins: {
-      "only-warn": onlyWarn,
-    },
     languageOptions: {
       globals: {
         ...globals.browser,

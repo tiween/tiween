@@ -195,6 +195,7 @@ export function SearchBar({
             onKeyDown={handleKeyDown}
             placeholder={labels.placeholder}
             autoFocus={autoFocus}
+            role="combobox"
             aria-label={labels.placeholder}
             aria-expanded={showDropdown}
             aria-controls={showDropdown ? "search-suggestions" : undefined}

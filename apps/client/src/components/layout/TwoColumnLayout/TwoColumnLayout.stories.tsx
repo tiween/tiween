@@ -1,6 +1,6 @@
 import { Calendar, MapPin, Star } from "lucide-react"
 
-import type { Meta, StoryObj } from "@storybook/react"
+import type { Meta, StoryObj } from "@storybook/nextjs-vite"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -63,8 +63,8 @@ const MainContent = () => (
       <CardContent>
         <p className="text-muted-foreground">
           Ceci est la zone de contenu principal. Elle occupe la majorité de
-          l'espace disponible et s'adapte à la largeur restante après le
-          sidebar.
+          l&apos;espace disponible et s&apos;adapte à la largeur restante après
+          le sidebar.
         </p>
       </CardContent>
     </Card>
@@ -192,7 +192,9 @@ export const EventDetailPage: Story = {
         {/* Hero image placeholder */}
         <div className="bg-muted relative aspect-video overflow-hidden rounded-xl">
           <div className="absolute inset-0 flex items-center justify-center">
-            <span className="text-muted-foreground">Image de l'événement</span>
+            <span className="text-muted-foreground">
+              Image de l&apos;événement
+            </span>
           </div>
         </div>
 
@@ -222,7 +224,7 @@ export const EventDetailPage: Story = {
             <p className="text-muted-foreground">
               Une soirée exceptionnelle de jazz avec les meilleurs musiciens de
               la scène tunisienne. Préparez-vous pour une expérience musicale
-              inoubliable dans l'ambiance chaleureuse du Jazz Club Tunis.
+              inoubliable dans l&apos;ambiance chaleureuse du Jazz Club Tunis.
             </p>
           </CardContent>
         </Card>

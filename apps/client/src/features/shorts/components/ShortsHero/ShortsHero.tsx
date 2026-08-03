@@ -2,7 +2,6 @@
 
 import * as React from "react"
 import Image from "next/image"
-import Link from "next/link"
 import Autoplay from "embla-carousel-autoplay"
 import useEmblaCarousel from "embla-carousel-react"
 import { ChevronLeft, ChevronRight, Clock, Play, Star } from "lucide-react"

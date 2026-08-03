@@ -2,7 +2,6 @@
 
 import * as React from "react"
 import Link from "next/link"
-import { useLocale } from "next-intl"
 
 import type { EventCardEvent, EventCardVariant } from "../../types/event.types"
 
@@ -90,8 +89,6 @@ export function EventGrid({
   className,
   labels = defaultLabels,
 }: EventGridProps) {
-  const locale = useLocale()
-
   // Determine grid columns class
   const gridColsClass = {
     2: "grid-cols-1 sm:grid-cols-2",

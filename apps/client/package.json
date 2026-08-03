@@ -7,7 +7,7 @@
     "build-storybook": "storybook build",
     "dev": "portless tiween next dev",
     "gen:strapi-types": "openapi-typescript https://api.tiween.localhost:1355/documentation/v1.0.0/full_documentation.json -o ./src/types/strapi-openapi.d.ts",
-    "lint": "eslint .",
+    "lint": "eslint . --max-warnings=0",
     "preview": "next build && next start",
     "start": "next start",
     "storybook": "storybook dev -p 6006",

@@ -119,19 +119,19 @@ export default function TicketingSummaryPrototype() {
                 {/* Message */}
                 <div>
                   <p className="text-foreground mb-2">
-                    Votre réservation de 2 billets vient d'être ajoutée à votre
-                    panier.
+                    Votre réservation de 2 billets vient d&apos;être ajoutée à
+                    votre panier.
                   </p>
                   <p className="text-muted-foreground text-sm">
                     Vous pouvez poursuivre votre commande en choisissant un
                     autre événement.
                   </p>
                   <p className="text-muted-foreground mt-1 text-sm">
-                    Pour finaliser et payer, cliquez sur "
+                    Pour finaliser et payer, cliquez sur &quot;
                     <Link href="#" className="text-primary hover:underline">
                       Passer au paiement
                     </Link>
-                    ".
+                    &quot;.
                   </p>
                 </div>
               </div>

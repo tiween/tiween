@@ -11,7 +11,6 @@ import {
 } from "lucide-react"
 import { useLocale } from "next-intl"
 
-import type { DateOption } from "../DateSelectorDesktop"
 import type { ShowtimeSlot } from "../VenueShowtimeCard"
 
 import { cn } from "@/lib/utils"

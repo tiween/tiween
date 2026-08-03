@@ -1,6 +1,6 @@
 import { useState } from "react"
 
-import type { Meta, StoryObj } from "@storybook/react"
+import type { Meta, StoryObj } from "@storybook/nextjs-vite"
 import type { ProfileFormData, Region } from "."
 
 import { ProfileForm } from "."
@@ -189,7 +189,7 @@ export const EnglishLabels: Story = {
   render: () => {
     const [isLoading, setIsLoading] = useState(false)
 
-    const handleSubmit = async (data: ProfileFormData) => {
+    const handleSubmit = async (_data: ProfileFormData) => {
       setIsLoading(true)
       await new Promise((resolve) => setTimeout(resolve, 1500))
       setIsLoading(false)

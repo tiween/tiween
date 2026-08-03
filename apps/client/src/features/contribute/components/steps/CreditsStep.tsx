@@ -2,14 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
-import {
-  GripVertical,
-  HelpCircle,
-  Plus,
-  Trash2,
-  User,
-  Users,
-} from "lucide-react"
+import { HelpCircle, Plus, Trash2 } from "lucide-react"
 import { useFieldArray, useForm } from "react-hook-form"
 
 import type { Credit, CreditsStepData } from "../../schemas/play-contribution"
@@ -123,6 +116,7 @@ export function CreditsStep({ labels, onValidateRef }: CreditsStepProps) {
 
   // Sync form data with context when values change
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/incompatible-library -- react-hook-form's watch() returns a fresh subscription/value the React Compiler cannot memoize; matches the existing suppressions in MediaStep.tsx and DataTable.tsx. Revisit when react-hook-form ships a compiler-safe API.
     const subscription = form.watch((data) => {
       if (data.credits) {
         updateFormData({ credits: data.credits as Credit[] })

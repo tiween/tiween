@@ -1,7 +1,6 @@
 "use client"
 
 import * as React from "react"
-import { Phone } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Input } from "@/components/ui/input"
@@ -62,7 +61,6 @@ export function MobilePaymentFields({
   className,
 }: MobilePaymentFieldsProps) {
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const formatted = formatPhoneNumber(e.target.value)
     // Store raw digits internally
     onPhoneChange(e.target.value.replace(/\D/g, "").slice(0, 8))
   }

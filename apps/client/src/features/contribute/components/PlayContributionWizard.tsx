@@ -6,7 +6,6 @@ import { AlertCircle, CheckCircle2, Plus } from "lucide-react"
 
 import type { ContributeLabels } from "../types"
 
-import { cn } from "@/lib/utils"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 
@@ -44,16 +43,19 @@ const stepVariants = {
 }
 
 function WizardContent({ labels, onSuccess }: PlayContributionWizardProps) {
-  const { currentStep, submitError, isSubmitting } = useContributeForm()
+  const { currentStep, submitError } = useContributeForm()
   const [direction, setDirection] = useState(0)
   const [isSuccess, setIsSuccess] = useState(false)
   const stepValidateRef = useRef<(() => boolean) | null>(null)
 
-  // Track step changes for animation direction
-  const prevStepRef = useRef(currentStep)
-  if (prevStepRef.current !== currentStep) {
-    setDirection(currentStep > prevStepRef.current ? 1 : -1)
-    prevStepRef.current = currentStep
+  // Track step changes for animation direction.
+  // Uses the documented React "adjusting state when a prop changes" pattern
+  // (https://react.dev/learn/you-might-not-need-an-effect) with state rather
+  // than a ref, so nothing is read from a ref during render.
+  const [prevStep, setPrevStep] = useState(currentStep)
+  if (prevStep !== currentStep) {
+    setDirection(currentStep > prevStep ? 1 : -1)
+    setPrevStep(currentStep)
   }
 
   const handleSuccess = useCallback(() => {

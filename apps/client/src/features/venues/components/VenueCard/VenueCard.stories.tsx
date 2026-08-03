@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from "@storybook/react"
+import type { Meta, StoryObj } from "@storybook/nextjs-vite"
 import type { VenueCardVenue } from "./VenueCard"
 
 import { VenueCard } from "./VenueCard"

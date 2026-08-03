@@ -3,7 +3,7 @@
 import * as React from "react"
 import { AlertTriangle, Trash2 } from "lucide-react"
 
-import type { Meta, StoryObj } from "@storybook/react"
+import type { Meta, StoryObj } from "@storybook/nextjs-vite"
 
 import { Button } from "./button"
 import {
@@ -48,13 +48,13 @@ export const Default: Story = {
           <DialogTitle>Titre du dialogue</DialogTitle>
           <DialogDescription>
             Ceci est une description du dialogue. Elle fournit un contexte
-            supplémentaire pour l'utilisateur.
+            supplémentaire pour l&apos;utilisateur.
           </DialogDescription>
         </DialogHeader>
         <div className="py-4">
           <p className="text-muted-foreground text-sm">
-            Contenu principal du dialogue. Vous pouvez inclure n'importe quel
-            contenu ici.
+            Contenu principal du dialogue. Vous pouvez inclure n&apos;importe
+            quel contenu ici.
           </p>
         </div>
         <DialogFooter>
@@ -315,7 +315,7 @@ export const ControlledDialog: Story = {
                 ))}
               </div>
               <p className="text-muted-foreground mt-4 text-center text-sm">
-                Contenu de l'étape {step}
+                Contenu de l&apos;étape {step}
               </p>
             </div>
             <DialogFooter>

@@ -40,6 +40,7 @@ export function useLocalDraft(): UseLocalDraftReturn {
       const saved = localStorage.getItem(DRAFT_STORAGE_KEY)
       if (saved) {
         const parsed = JSON.parse(saved) as DraftData
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- localStorage is a browser-only API, so the draft cannot be read during (SSR) render; a mount effect is the only place this state can be seeded.
         setLastSavedAt(new Date(parsed.savedAt))
         setHasDraft(true)
       }

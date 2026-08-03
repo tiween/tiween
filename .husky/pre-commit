@@ -1,3 +1,29 @@
+set -e
+
 echo '🏗️👷 Styling your changes before committing 👷‍♂️🏗️'
- 
-git rev-parse -q --no-revs --verify MERGE_HEAD || npx lint-staged --verbose --concurrent false
+
+# Both steps are skipped while git is replaying or combining someone else's commits
+# — merge, rebase, cherry-pick, revert. A conflict-resolution commit must not be
+# blocked by violations inherited from the commits being replayed (that would force
+# --no-verify, the exact escape hatch this gate exists to remove).
+if git rev-parse -q --no-revs --verify MERGE_HEAD >/dev/null ||
+  git rev-parse -q --no-revs --verify CHERRY_PICK_HEAD >/dev/null ||
+  git rev-parse -q --no-revs --verify REVERT_HEAD >/dev/null ||
+  [ -d "$(git rev-parse --git-path rebase-merge)" ] ||
+  [ -d "$(git rev-parse --git-path rebase-apply)" ]; then
+  echo '🔀 Merge/rebase/cherry-pick in progress — skipping lint-staged and lint 🔀'
+else
+  npx lint-staged --verbose --concurrent false
+
+  # Same task CI's Lint job runs (`yarn lint` == `turbo lint`). Invoked through the
+  # repo-local turbo binary rather than `yarn`, because git hooks do not reliably
+  # inherit the interactive shell's version-manager environment and the `yarn` shim
+  # can fail to resolve here.
+  echo '🔍 Linting the repo (same task CI runs) 🔍'
+  TURBO_BIN="$(git rev-parse --show-toplevel)/node_modules/.bin/turbo"
+  if [ ! -x "$TURBO_BIN" ]; then
+    echo "❌ turbo not found at $TURBO_BIN — run 'yarn install' first." >&2
+    exit 1
+  fi
+  "$TURBO_BIN" lint
+fi

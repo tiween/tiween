@@ -2,9 +2,7 @@
 
 import * as React from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 import {
-  Calendar,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
@@ -110,7 +108,6 @@ Dans ce train à grande vitesse, il va croiser des adversaires redoutables, qui 
 }
 
 export default function FilmDetailPrototype() {
-  const router = useRouter()
   const locale = useLocale()
   const [watchlisted, setWatchlisted] = React.useState(false)
   const [synopsisExpanded, setSynopsisExpanded] = React.useState(false)
@@ -118,8 +115,6 @@ export default function FilmDetailPrototype() {
     mockFilm.showtimes[0]?.date
   )
   const [currentImageIndex, setCurrentImageIndex] = React.useState(0)
-
-  const handleBack = () => router.back()
 
   const selectedShowtimes = mockFilm.showtimes.find(
     (s) => s.date === selectedDate

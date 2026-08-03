@@ -54,7 +54,13 @@ export interface TicketScannerProps {
   selectedEventId?: string
   /** Called when event selection changes */
   onEventChange: (eventId: string) => void
-  /** Called when QR code is scanned */
+  /**
+   * Called when QR code is scanned.
+   *
+   * NOT WIRED UP: this component never invokes `onScan` (pre-dates story 1.10;
+   * the unused destructured binding was removed there, so lint no longer flags
+   * it). Scan results are not delivered to callers until decoding is implemented.
+   */
   onScan: (qrData: string) => void
   /** Called when manual entry button is pressed */
   onManualEntry: () => void
@@ -103,7 +109,6 @@ export function TicketScanner({
   events,
   selectedEventId,
   onEventChange,
-  onScan,
   onManualEntry,
   isFlashOn = false,
   onFlashToggle,

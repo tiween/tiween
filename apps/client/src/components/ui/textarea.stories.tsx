@@ -1,6 +1,6 @@
 import * as React from "react"
 
-import type { Meta, StoryObj } from "@storybook/react"
+import type { Meta, StoryObj } from "@storybook/nextjs-vite"
 
 import { Label } from "./label"
 import { Textarea } from "./textarea"
@@ -141,14 +141,14 @@ export const WithError: Story = {
 export const EventDescription: Story = {
   render: () => (
     <div className="space-y-2">
-      <Label htmlFor="event-description">Description de l'événement</Label>
+      <Label htmlFor="event-description">Description de l&apos;événement</Label>
       <Textarea
         id="event-description"
         placeholder="Décrivez votre événement en détail. Incluez les informations importantes pour les participants..."
         className="min-h-32"
       />
       <p className="text-muted-foreground text-xs">
-        Cette description apparaîtra sur la page de l'événement.
+        Cette description apparaîtra sur la page de l&apos;événement.
       </p>
     </div>
   ),

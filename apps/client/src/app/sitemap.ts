@@ -47,7 +47,6 @@ async function generateLocalizedSitemap(
   locale: Locale
 ): Promise<MetadataRoute.Sitemap> {
   const isDefaultLocale = locale === routing.defaultLocale
-  const localePrefix = isDefaultLocale ? "" : `/${locale}`
 
   // Build URL helper
   const buildUrl = (path: string) => {

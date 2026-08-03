@@ -1,7 +1,6 @@
 "use client"
 
 import * as React from "react"
-import { useRouter } from "next/navigation"
 import { ChevronRight, Film } from "lucide-react"
 import { useLocale } from "next-intl"
 
@@ -75,7 +74,6 @@ export function ShortsDirectory({
   className,
   labels = defaultLabels,
 }: ShortsDirectoryProps) {
-  const router = useRouter()
   const locale = useLocale()
   const isRTL = locale === "ar"
 
@@ -171,11 +169,11 @@ export function ShortsDirectory({
   )
 
   // Handle load more
-  const handleLoadMore = () => {
+  const handleLoadMore = React.useCallback(() => {
     if (!isLoadingMore && hasMore) {
       fetchShorts(filters, page + 1)
     }
-  }
+  }, [isLoadingMore, hasMore, fetchShorts, filters, page])
 
   // Handle film click
   const handleFilmClick = (film: ShortFilm) => {
@@ -232,7 +230,7 @@ export function ShortsDirectory({
     }
 
     return () => observer.disconnect()
-  }, [hasMore, isLoading, isLoadingMore])
+  }, [hasMore, isLoading, isLoadingMore, handleLoadMore])
 
   return (
     <div className={cn("bg-background min-h-screen", className)}>

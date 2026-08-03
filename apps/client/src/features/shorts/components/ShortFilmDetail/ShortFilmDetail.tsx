@@ -14,7 +14,6 @@ import {
   User,
   X,
 } from "lucide-react"
-import { useLocale } from "next-intl"
 
 import type { ShortFilm } from "../../types"
 
@@ -112,9 +111,6 @@ export function ShortFilmDetail({
   className,
   labels = defaultLabels,
 }: ShortFilmDetailProps) {
-  const locale = useLocale()
-  const isRTL = locale === "ar"
-
   const handleShare = async () => {
     if (!film) return
 

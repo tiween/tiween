@@ -3,7 +3,7 @@
 import * as React from "react"
 import { Calendar, Film, Globe, MapPin, Music, Theater } from "lucide-react"
 
-import type { Meta, StoryObj } from "@storybook/react"
+import type { Meta, StoryObj } from "@storybook/nextjs-vite"
 
 import { Label } from "./label"
 import {
@@ -139,7 +139,7 @@ export const WithGroups: Story = {
 export const Venues: Story = {
   render: () => (
     <div className="space-y-2">
-      <Label>Lieu de l'événement</Label>
+      <Label>Lieu de l&apos;événement</Label>
       <Select>
         <SelectTrigger>
           <SelectValue placeholder="Choisir un lieu" />
@@ -228,7 +228,7 @@ export const DateFilter: Story = {
           <SelectItem value="today">
             <span className="flex items-center gap-2">
               <Calendar className="h-4 w-4" />
-              Aujourd'hui
+              Aujourd&apos;hui
             </span>
           </SelectItem>
           <SelectItem value="tomorrow">

@@ -74,9 +74,14 @@ export function useNearbyEvents(
   const [error, setError] = React.useState<string | null>(null)
   const [offset, setOffset] = React.useState(0)
 
+  // Depend on the primitive coordinates rather than the `location` object so
+  // the effect is not re-run for a new object with identical coordinates.
+  const latitude = location?.latitude
+  const longitude = location?.longitude
+
   // Fetch events when location changes or options change
   React.useEffect(() => {
-    if (!location || !enabled) {
+    if (latitude === undefined || longitude === undefined || !enabled) {
       setEvents([])
       setTotal(0)
       setError(null)
@@ -89,8 +94,8 @@ export function useNearbyEvents(
 
       try {
         const params = new URLSearchParams({
-          lat: String(location.latitude),
-          lng: String(location.longitude),
+          lat: String(latitude),
+          lng: String(longitude),
           locale,
           limit: String(limit),
           offset: "0",
@@ -122,15 +127,7 @@ export function useNearbyEvents(
     }
 
     fetchEvents()
-  }, [
-    location?.latitude,
-    location?.longitude,
-    locale,
-    category,
-    limit,
-    radius,
-    enabled,
-  ])
+  }, [latitude, longitude, locale, category, limit, radius, enabled])
 
   // Load more handler
   const loadMore = React.useCallback(async () => {

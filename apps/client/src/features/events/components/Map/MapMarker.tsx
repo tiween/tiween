@@ -16,8 +16,6 @@ import { VENUE_TYPE_COLORS } from "./types"
  * Uses Leaflet's default marker with color customization via CSS filter
  */
 function createMarkerIcon(venueType?: VenueType): Icon {
-  const color = VENUE_TYPE_COLORS[venueType || "other"]
-
   // Use Leaflet's default marker as base
   return new Icon({
     iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
@@ -36,7 +34,13 @@ function createMarkerIcon(venueType?: VenueType): Icon {
 export interface MapMarkerProps {
   /** Venue location data */
   venue: VenueLocation
-  /** Whether this marker is currently selected/highlighted */
+  /**
+   * Whether this marker is currently selected/highlighted.
+   *
+   * NOT WIRED UP: the component ignores this prop (pre-dates story 1.10; the
+   * unused destructured binding was removed there, so lint no longer flags it).
+   * Passing it has no visual effect until selected-marker styling is implemented.
+   */
   isSelected?: boolean
   /** Callback when marker is clicked */
   onClick?: (venue: VenueLocation) => void
@@ -71,7 +75,6 @@ export interface MapMarkerProps {
  */
 export function MapMarker({
   venue,
-  isSelected = false,
   onClick,
   customPopup,
   popupClassName,
@@ -97,6 +100,7 @@ export function MapMarker({
             {/* Venue Logo */}
             {venue.logoUrl && (
               <div className="flex justify-center">
+                {/* eslint-disable-next-line @next/next/no-img-element -- rendered inside a Leaflet popup portal; the venue logo has unknown intrinsic dimensions and is sized by `h-12 w-auto`, which next/image cannot express without fixing a width and changing the rendered layout. */}
                 <img
                   src={venue.logoUrl}
                   alt={venue.name}

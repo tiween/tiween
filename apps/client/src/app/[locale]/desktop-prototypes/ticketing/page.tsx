@@ -100,6 +100,20 @@ function generateMockShowtimes(venueId: string): ShowtimeSlot[] {
   }))
 }
 
+// Find the showtime (and its venue) matching an id, across all venues
+function findShowtimeDetails(showtimeId: string | number | null) {
+  if (!showtimeId) return null
+
+  for (const venue of mockVenues) {
+    const showtimes = generateMockShowtimes(venue.id)
+    const found = showtimes.find((s) => s.id === showtimeId)
+    if (found) {
+      return { ...found, venue }
+    }
+  }
+  return null
+}
+
 export default function TicketingPrototype() {
   const router = useRouter()
   const locale = useLocale()
@@ -117,20 +131,12 @@ export default function TicketingPrototype() {
     }
   }, [dates, selectedDate])
 
-  // Get selected showtime details
-  const selectedShowtimeDetails = React.useMemo(() => {
-    if (!selectedShowtimeId) return null
-
-    // Find the showtime across all venues
-    for (const venue of mockVenues) {
-      const showtimes = generateMockShowtimes(venue.id)
-      const found = showtimes.find((s) => s.id === selectedShowtimeId)
-      if (found) {
-        return { ...found, venue }
-      }
-    }
-    return null
-  }, [selectedShowtimeId])
+  // Get selected showtime details. The lookup body was extracted to a pure
+  // module-level function so the memo's dependency is just the id.
+  const selectedShowtimeDetails = React.useMemo(
+    () => findShowtimeDetails(selectedShowtimeId),
+    [selectedShowtimeId]
+  )
 
   const handleBack = () => router.back()
 

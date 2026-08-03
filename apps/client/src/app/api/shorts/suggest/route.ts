@@ -95,7 +95,7 @@ export async function POST(request: NextRequest) {
       )
 
       // Log the suggestion for manual review
-      console.log(
+      console.info(
         "[SHORT FILM SUGGESTION]",
         JSON.stringify(suggestion, null, 2)
       )

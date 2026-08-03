@@ -1,20 +1,10 @@
 "use client"
 
 import * as React from "react"
-import {
-  Calendar,
-  ChevronRight,
-  CreditCard,
-  Lock,
-  Mail,
-  MapPin,
-  Phone,
-  User,
-} from "lucide-react"
+import { CreditCard, Lock, Mail, MapPin, Phone, User } from "lucide-react"
 
 import type { Meta, StoryObj } from "@storybook/nextjs-vite"
 
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -191,7 +181,7 @@ export const CheckoutForm: Story = {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="expiry">Date d'expiration</Label>
+                    <Label htmlFor="expiry">Date d&apos;expiration</Label>
                     <Input id="expiry" placeholder="MM/AA" />
                   </div>
                   <div className="space-y-2">
@@ -205,8 +195,8 @@ export const CheckoutForm: Story = {
             {paymentMethod === "cash" && (
               <div className="bg-muted rounded-lg p-4">
                 <p className="text-muted-foreground text-sm">
-                  Payez en espèces au guichet le jour de l'événement. Présentez
-                  votre confirmation de réservation.
+                  Payez en espèces au guichet le jour de l&apos;événement.
+                  Présentez votre confirmation de réservation.
                 </p>
               </div>
             )}
@@ -221,7 +211,7 @@ export const CheckoutForm: Story = {
               htmlFor="terms"
               className="text-muted-foreground text-sm leading-relaxed"
             >
-              J'accepte les{" "}
+              J&apos;accepte les{" "}
               <a href="#" className="text-primary hover:underline">
                 conditions générales de vente
               </a>{" "}
@@ -348,7 +338,7 @@ export const LoginForm: Story = {
             <p className="text-muted-foreground text-center text-sm">
               Pas encore de compte ?{" "}
               <a href="#" className="text-primary hover:underline">
-                S'inscrire
+                S&apos;inscrire
               </a>
             </p>
           </CardFooter>
@@ -435,9 +425,9 @@ export const RegistrationForm: Story = {
                   htmlFor="reg-terms"
                   className="text-muted-foreground text-sm leading-relaxed"
                 >
-                  J'accepte les{" "}
+                  J&apos;accepte les{" "}
                   <a href="#" className="text-primary hover:underline">
-                    conditions d'utilisation
+                    conditions d&apos;utilisation
                   </a>
                 </Label>
               </div>

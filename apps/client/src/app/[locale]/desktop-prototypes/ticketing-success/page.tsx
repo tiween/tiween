@@ -95,14 +95,14 @@ export default function TicketingSuccessPrototype() {
             dans la rubrique
           </p>
           <p className="mb-6">
-            "
+            &quot;
             <Link
               href={`/${locale}/desktop-prototypes/my-events`}
               className="text-primary hover:underline"
             >
               Mes événements
             </Link>
-            ".
+            &quot;.
           </p>
 
           {/* App Download Note */}
@@ -112,7 +112,7 @@ export default function TicketingSuccessPrototype() {
 
           {/* CTA Button */}
           <Button size="lg" className="min-w-[280px] text-base">
-            Retour à la page d'accueil
+            Retour à la page d&apos;accueil
           </Button>
         </div>
       </main>

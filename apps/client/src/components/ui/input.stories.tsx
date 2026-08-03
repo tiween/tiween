@@ -1,7 +1,7 @@
 import * as React from "react"
 import { Eye, EyeOff, Lock, Mail, Phone, Search } from "lucide-react"
 
-import type { Meta, StoryObj } from "@storybook/react"
+import type { Meta, StoryObj } from "@storybook/nextjs-vite"
 
 import { Input } from "./input"
 import { Label } from "./label"

@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from "@storybook/react"
+import type { Meta, StoryObj } from "@storybook/nextjs-vite"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -140,7 +140,7 @@ export const LoginPage: Story = {
             <p className="text-muted-foreground text-center text-sm">
               Pas encore de compte ?{" "}
               <a href="#" className="text-primary hover:underline">
-                S'inscrire
+                S&apos;inscrire
               </a>
             </p>
           </CardContent>

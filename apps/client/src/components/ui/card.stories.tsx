@@ -1,6 +1,6 @@
 import { Calendar, MapPin, Ticket } from "lucide-react"
 
-import type { Meta, StoryObj } from "@storybook/react"
+import type { Meta, StoryObj } from "@storybook/nextjs-vite"
 
 import { Button } from "./button"
 import {
@@ -49,7 +49,7 @@ export const Default: Story = {
       <CardContent>
         <p className="text-sm">
           Contenu principal de la carte. Peut inclure du texte, des images, ou
-          d'autres composants.
+          d&apos;autres composants.
         </p>
       </CardContent>
       <CardFooter>
@@ -65,7 +65,7 @@ export const EventCard: Story = {
       <div className="bg-primary/10 relative aspect-video w-full">
         <div className="absolute inset-0 flex items-center justify-center">
           <span className="text-muted-foreground text-sm">
-            Image de l'événement
+            Image de l&apos;événement
           </span>
         </div>
       </div>
@@ -256,11 +256,13 @@ export const Interactive: Story = {
     <Card className="cursor-pointer transition-shadow hover:shadow-lg">
       <CardHeader>
         <CardTitle>Carte interactive</CardTitle>
-        <CardDescription>Survol pour voir l'effet de shadow</CardDescription>
+        <CardDescription>
+          Survol pour voir l&apos;effet de shadow
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <p className="text-muted-foreground text-sm">
-          Cette carte a un effet hover pour indiquer qu'elle est cliquable.
+          Cette carte a un effet hover pour indiquer qu&apos;elle est cliquable.
         </p>
       </CardContent>
     </Card>

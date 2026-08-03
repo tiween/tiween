@@ -7,7 +7,7 @@ import {
   Ticket,
 } from "lucide-react"
 
-import type { Meta, StoryObj } from "@storybook/react"
+import type { Meta, StoryObj } from "@storybook/nextjs-vite"
 
 import { Alert, AlertDescription, AlertTitle } from "./alert"
 
@@ -49,7 +49,7 @@ export const Default: Story = {
       <Info className="h-4 w-4" />
       <AlertTitle>Information</AlertTitle>
       <AlertDescription>
-        Ceci est un message d'information pour l'utilisateur.
+        Ceci est un message d&apos;information pour l&apos;utilisateur.
       </AlertDescription>
     </Alert>
   ),
@@ -123,12 +123,12 @@ export const AllVariants: Story = {
       <Alert variant="destructive">
         <AlertCircle className="h-4 w-4" />
         <AlertTitle>Destructive</AlertTitle>
-        <AlertDescription>Message d'erreur.</AlertDescription>
+        <AlertDescription>Message d&apos;erreur.</AlertDescription>
       </Alert>
       <Alert variant="warning">
         <AlertTriangle className="h-4 w-4" />
         <AlertTitle>Warning</AlertTitle>
-        <AlertDescription>Message d'avertissement.</AlertDescription>
+        <AlertDescription>Message d&apos;avertissement.</AlertDescription>
       </Alert>
     </div>
   ),
@@ -147,8 +147,8 @@ export const TicketAlert: Story = {
       <Ticket className="h-4 w-4" />
       <AlertTitle>Billet en attente</AlertTitle>
       <AlertDescription>
-        Votre billet sera disponible 24h avant l'événement. Un email vous sera
-        envoyé avec le QR code.
+        Votre billet sera disponible 24h avant l&apos;événement. Un email vous
+        sera envoyé avec le QR code.
       </AlertDescription>
     </Alert>
   ),
@@ -167,8 +167,8 @@ export const EventReminder: Story = {
       <Calendar className="h-4 w-4" />
       <AlertTitle>Rappel</AlertTitle>
       <AlertDescription>
-        L'événement "Concert Jazz Night" commence dans 2 heures. N'oubliez pas
-        votre billet !
+        L&apos;événement &quot;Concert Jazz Night&quot; commence dans 2 heures.
+        N&apos;oubliez pas votre billet !
       </AlertDescription>
     </Alert>
   ),
@@ -207,8 +207,8 @@ export const SoldOut: Story = {
       <AlertTriangle className="h-4 w-4" />
       <AlertTitle>Complet</AlertTitle>
       <AlertDescription>
-        Cet événement affiche complet. Inscrivez-vous à la liste d'attente pour
-        être notifié en cas de désistement.
+        Cet événement affiche complet. Inscrivez-vous à la liste d&apos;attente
+        pour être notifié en cas de désistement.
       </AlertDescription>
     </Alert>
   ),
@@ -226,7 +226,7 @@ export const WithoutIcon: Story = {
     <Alert>
       <AlertTitle>Note importante</AlertTitle>
       <AlertDescription>
-        Les portes ouvrent 30 minutes avant le début de l'événement.
+        Les portes ouvrent 30 minutes avant le début de l&apos;événement.
       </AlertDescription>
     </Alert>
   ),
@@ -244,7 +244,7 @@ export const WithoutTitle: Story = {
     <Alert>
       <Info className="h-4 w-4" />
       <AlertDescription>
-        Pensez à présenter votre QR code à l'entrée.
+        Pensez à présenter votre QR code à l&apos;entrée.
       </AlertDescription>
     </Alert>
   ),

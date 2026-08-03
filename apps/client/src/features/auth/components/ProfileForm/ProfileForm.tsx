@@ -143,7 +143,7 @@ export function ProfileForm({
   const [language, setLanguage] = useState<Language>(initialData.language)
   const [region, setRegion] = useState(initialData.region || "")
   const [avatarUrl, setAvatarUrl] = useState(initialData.avatarUrl)
-  const [avatarFile, setAvatarFile] = useState<File | null>(null)
+  const [, setAvatarFile] = useState<File | null>(null)
 
   const handleAvatarSelect = useCallback(
     (file: File) => {

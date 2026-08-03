@@ -1,14 +1,6 @@
-import {
-  Calendar,
-  Film,
-  MapPin,
-  Music,
-  SlidersHorizontal,
-  Star,
-  Theater,
-} from "lucide-react"
+import { Calendar, Film, MapPin, Music, Theater } from "lucide-react"
 
-import type { Meta, StoryObj } from "@storybook/react"
+import type { Meta, StoryObj } from "@storybook/nextjs-vite"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"

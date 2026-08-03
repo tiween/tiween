@@ -1,14 +1,8 @@
 "use client"
 
-import { useCallback, useEffect, useRef, useState } from "react"
-import {
-  Check,
-  ChevronsUpDown,
-  Loader2,
-  Plus,
-  Search,
-  User,
-} from "lucide-react"
+import { useCallback, useState } from "react"
+import Image from "next/image"
+import { Check, ChevronsUpDown, Loader2, Plus, User } from "lucide-react"
 
 import type { PersonSearchResult } from "../../schemas/person"
 
@@ -49,7 +43,7 @@ export function PersonSearchCombobox({
   disabled = false,
 }: PersonSearchComboboxProps) {
   const [open, setOpen] = useState(false)
-  const { query, setQuery, results, isLoading, error } = usePersonSearch({
+  const { query, setQuery, results, isLoading } = usePersonSearch({
     debounceMs: 300,
     minQueryLength: 2,
   })
@@ -154,12 +148,14 @@ export function PersonSearchCombobox({
                     <div className="flex w-full items-center gap-3">
                       {/* Photo or placeholder */}
                       {person.photo?.url ? (
-                        <img
+                        <Image
                           src={
                             person.photo.formats?.thumbnail?.url ||
                             person.photo.url
                           }
                           alt={person.name}
+                          width={32}
+                          height={32}
                           className="h-8 w-8 rounded-full object-cover"
                         />
                       ) : (

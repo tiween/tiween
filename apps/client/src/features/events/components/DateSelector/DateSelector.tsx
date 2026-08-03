@@ -217,9 +217,19 @@ export function DateSelector({
       />
 
       {/* Chips container */}
+      {/*
+        A `group` of toggle buttons, not a `listbox`. The custom-date chip below is
+        a Radix PopoverTrigger, which cannot be an `option` (it opens a dialog, and
+        Radix injects aria-haspopup at runtime), so a `listbox` here would own a
+        non-`option` child and violate ARIA required-owned-elements. This strip also
+        never implemented the listbox keyboard contract (no roving tabindex, no arrow
+        keys, no aria-activedescendant) -- each chip is individually tabbable. Toggle
+        buttons with `aria-pressed` describe what this actually is and keep every chip
+        consistent.
+      */}
       <div
         ref={scrollContainerRef}
-        role="listbox"
+        role="group"
         aria-label={labels.selectDate}
         className="no-scrollbar flex gap-2 overflow-x-auto scroll-smooth py-1"
       >
@@ -230,8 +240,7 @@ export function DateSelector({
             <button
               key={date.toISOString()}
               type="button"
-              role="option"
-              aria-selected={isSelected}
+              aria-pressed={isSelected}
               data-selected={isSelected}
               onClick={() => handleDateSelect(date)}
               className={cn(
@@ -259,9 +268,7 @@ export function DateSelector({
           <PopoverTrigger asChild>
             <button
               type="button"
-              role="option"
-              aria-selected={isCustomDateSelected}
-              aria-haspopup="dialog"
+              aria-pressed={isCustomDateSelected}
               data-selected={isCustomDateSelected}
               className={cn(
                 // Base styles

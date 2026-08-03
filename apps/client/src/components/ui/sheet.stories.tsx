@@ -3,7 +3,7 @@
 import * as React from "react"
 import { Filter, Menu, Settings, ShoppingCart, User, X } from "lucide-react"
 
-import type { Meta, StoryObj } from "@storybook/react"
+import type { Meta, StoryObj } from "@storybook/nextjs-vite"
 
 import { Button } from "./button"
 import { Checkbox } from "./checkbox"
@@ -53,8 +53,8 @@ export const Default: Story = {
         </SheetHeader>
         <div className="py-4">
           <p className="text-muted-foreground text-sm">
-            Contenu principal du panneau. Vous pouvez y mettre n'importe quel
-            contenu.
+            Contenu principal du panneau. Vous pouvez y mettre n&apos;importe
+            quel contenu.
           </p>
         </div>
         <SheetFooter>

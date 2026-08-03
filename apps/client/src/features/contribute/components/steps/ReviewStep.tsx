@@ -12,7 +12,6 @@ import {
   Image as ImageIcon,
   Mail,
   Shield,
-  User,
   Users,
 } from "lucide-react"
 import { useForm } from "react-hook-form"
@@ -23,7 +22,6 @@ import type { ContributeLabels } from "../../types"
 import { cn } from "@/lib/utils"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
   Form,
@@ -113,12 +111,11 @@ export function ReviewStep({
     markStepCompleted,
     markStepIncomplete,
     submitForm,
-    isSubmitting,
     submitError,
   } = useContributeForm()
 
-  const [recaptchaLoaded, setRecaptchaLoaded] = useState(false)
-  const [recaptchaError, setRecaptchaError] = useState<string | null>(null)
+  const [, setRecaptchaLoaded] = useState(false)
+  const [, setRecaptchaError] = useState<string | null>(null)
 
   const form = useForm<ReviewStepData>({
     resolver: zodResolver(reviewStepSchema),
@@ -141,6 +138,7 @@ export function ReviewStep({
 
   // Sync form data with context when values change
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/incompatible-library -- react-hook-form's watch() returns a fresh subscription/value the React Compiler cannot memoize; matches the existing suppressions in MediaStep.tsx and DataTable.tsx. Revisit when react-hook-form ships a compiler-safe API.
     const subscription = form.watch((data) => {
       updateFormData({
         inputLanguage: data.inputLanguage,
@@ -170,7 +168,7 @@ export function ReviewStep({
 
   // Handle submission
   const handleSubmit = useCallback(
-    async (data: ReviewStepData) => {
+    async (_data: ReviewStepData) => {
       // TODO: Get reCAPTCHA token here
       // const token = await grecaptcha.execute(...)
 

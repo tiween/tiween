@@ -150,6 +150,7 @@ export function TheatreDetailsStep({
 
   // Sync form data with context when values change
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/incompatible-library -- react-hook-form's watch() returns a fresh subscription/value the React Compiler cannot memoize; matches the existing suppressions in MediaStep.tsx and DataTable.tsx. Revisit when react-hook-form ships a compiler-safe API.
     const subscription = form.watch((data) => {
       updateFormData(data as Partial<TheatreDetailsStepData>)
     })

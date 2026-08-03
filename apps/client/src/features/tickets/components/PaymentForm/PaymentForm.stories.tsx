@@ -1,6 +1,6 @@
 import { useState } from "react"
 
-import type { Meta, StoryObj } from "@storybook/react"
+import type { Meta, StoryObj } from "@storybook/nextjs-vite"
 import type { PaymentFormInput, PaymentMethod } from "."
 
 import { PaymentForm } from "."
@@ -252,8 +252,8 @@ export const ValidationErrors: Story = {
     return (
       <div className="mx-auto max-w-md space-y-4">
         <p className="text-muted-foreground text-sm">
-          Cliquez "Payer" sans remplir le formulaire pour voir les erreurs de
-          validation.
+          Cliquez &quot;Payer&quot; sans remplir le formulaire pour voir les
+          erreurs de validation.
         </p>
         <PaymentForm
           selectedMethod="card"

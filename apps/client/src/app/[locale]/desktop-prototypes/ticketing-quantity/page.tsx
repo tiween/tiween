@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation"
 import {
   ArrowLeft,
   Calendar,
-  CreditCard,
   MapPin,
   Minus,
   Plus,

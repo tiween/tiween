@@ -66,7 +66,7 @@ export async function POST(request: Request) {
 
       if (errorCode === "duplicate_parameter") {
         // Contact already exists - this is fine, treat as success
-        console.log(`[Newsletter] Contact already exists: ${email}`)
+        console.info(`[Newsletter] Contact already exists: ${email}`)
         return NextResponse.json({ success: true })
       }
 
@@ -78,7 +78,7 @@ export async function POST(request: Request) {
       )
     }
 
-    console.log(`[Newsletter] Successfully subscribed: ${email}`)
+    console.info(`[Newsletter] Successfully subscribed: ${email}`)
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error("[Newsletter] Unexpected error:", error)

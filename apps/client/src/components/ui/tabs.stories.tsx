@@ -1,6 +1,6 @@
 import { Calendar, Film, MapPin, Music, Star, Theater } from "lucide-react"
 
-import type { Meta, StoryObj } from "@storybook/react"
+import type { Meta, StoryObj } from "@storybook/nextjs-vite"
 
 import { Badge } from "./badge"
 import {
@@ -191,7 +191,7 @@ export const TicketTypes: Story = {
           </CardHeader>
           <CardContent>
             <ul className="text-muted-foreground space-y-2 text-sm">
-              <li>✓ Accès à l'événement</li>
+              <li>✓ Accès à l&apos;événement</li>
               <li>✓ Place assise garantie</li>
             </ul>
           </CardContent>
@@ -214,7 +214,7 @@ export const TicketTypes: Story = {
           </CardHeader>
           <CardContent>
             <ul className="text-muted-foreground space-y-2 text-sm">
-              <li>✓ Accès à l'événement</li>
+              <li>✓ Accès à l&apos;événement</li>
               <li>✓ Place au premier rang</li>
               <li>✓ Accès aux coulisses</li>
               <li>✓ Boisson offerte</li>

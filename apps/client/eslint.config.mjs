@@ -51,6 +51,26 @@ const config = [...nextConfig, ...tseslint.configs.recommended, {
     "react/jsx-curly-brace-presence": "off",
     "@typescript-eslint/no-unused-vars": "off",
   },
+}, {
+  files: ["**/*.stories.@(ts|tsx)"],
+  rules: {
+    // Storybook arg handlers demonstrate callbacks by logging them; that is the
+    // documented CSF idiom and these files never ship to production.
+    "no-console": "off",
+    // Stories are isolated component fixtures rendered by Storybook, not Next.js
+    // pages -- the LCP/bandwidth rationale for next/image does not apply, and
+    // remote placeholder art has no known intrinsic dimensions.
+    "@next/next/no-img-element": "off",
+  },
+}, {
+  files: ["src/app/api/**/*.ts"],
+  rules: {
+    // Route handlers run on the server and have no structured logger yet, so
+    // `console.info` is their intentional observability channel. Scoped here so
+    // browser-shipped components cannot log unnoticed; stray `console.log`
+    // stays banned everywhere.
+    "no-console": ["warn", { allow: ["warn", "error", "info"] }],
+  },
 }, ...storybook.configs["flat/recommended"]];
 
 export default config;

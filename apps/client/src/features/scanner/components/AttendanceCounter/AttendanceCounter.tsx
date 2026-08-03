@@ -4,7 +4,6 @@ import * as React from "react"
 import { AlertTriangle, CheckCircle2, TrendingUp, Users } from "lucide-react"
 
 import { cn } from "@/lib/utils"
-import { Progress } from "@/components/ui/progress"
 
 /**
  * Localized labels for AttendanceCounter

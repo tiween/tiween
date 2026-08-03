@@ -1144,3 +1144,94 @@ origin: follow-up review of spec-dw-15-venue-website-url-validation.md (2026-08-
 location: apps/strapi/src/plugins/venues/server/src/bootstrap.ts
 reason: (MEDIUM) `@strapi/data-transfer`'s local-destination provider calls `strapi.db.lifecycles.disable()` for the whole restore and writes through `db.query().create`, so a `strapi import` bypasses the venues DB lifecycle subscriber, the content-type `regex` (the entity validator is bypassed too) and obviously the admin form. DW-15 deliberately scoped this out — a restore is an operator replaying a trusted export, not user input — and documented it in a "KNOWN GAP" block in `bootstrap.ts`. The gap itself is an accepted decision; what is missing is any tracking outside that one paragraph: nothing warns an operator, nothing re-validates after a restore, and the rest of the system now assumes venue `website` values cannot be malformed. This is not specific to `website` — the same disable applies to every lifecycle-enforced invariant in the repo (slug hooks, audit hooks, any future validation subscriber), so a restore can seed data no live write path would accept. Fix is a decision, not a patch: either a post-import validation pass over the affected content types, a pre-import check in the import wrapper, or an explicit written statement that imports are trusted and the invariants are advisory. Surfaced by the Blind Hunter.
 status: open
+
+### DW-159: `turbo type-check` never type-checks `apps/client` (script name mismatch), leaving 61 errors ungated
+
+origin: review of spec-1-10-restore-client-eslint-enforcement.md (2026-08-03)
+location: apps/client/package.json, turbo.json
+reason: (MEDIUM) `turbo.json` defines a `type-check` task and the CI `Type Check` job runs `yarn type-check` → `turbo type-check`, but `apps/client/package.json` names its script `typecheck` (no hyphen) while `apps/strapi` names it `type-check`. Turbo therefore silently skips the client, and `cd apps/client && npx tsc --noEmit` currently reports **61 errors** that no gate runs. This is also why story 1.10's 40-file `@storybook/react` → `@storybook/nextjs-vite` swap has no automated backstop: ESLint does not resolve imports (verified — a story importing from a nonexistent package still lints clean), vitest's `include` excludes story files, and Storybook's build is broken for unrelated reasons. Fix is a one-word rename, but it cannot land alone: it would immediately turn the CI Type Check job red on the 61 pre-existing errors, so the paydown must come first (same shape as 1.10's lint paydown). Surfaced by the Verification Gap reviewer.
+status: open
+
+### DW-160: Five `features/auth` test files match no vitest `include` glob and never execute
+
+origin: review of spec-1-10-restore-client-eslint-enforcement.md (2026-08-03)
+location: apps/client/vitest.config.ts
+reason: (MEDIUM) `include` is an explicit allowlist with no `src/features/auth/**` entry, so `RegisterForm.test.tsx`, `PasswordStrength.test.tsx`, `registerSchema.test.ts`, `LoginForm.test.tsx` and `loginSchema.test.ts` are never run (`npx vitest list` = 616 tests, zero under `features/auth`). They read as coverage of the registration/login surfaces while asserting nothing. Story 1.10 edited `RegisterForm.tsx` and `ProfileForm.tsx` with no test able to catch a regression. Fix is to add the glob and repair whatever those suites currently assert. Same blind-spot family as DW-157. Surfaced by the Verification Gap reviewer.
+status: open
+
+### DW-161: Root `.eslintrc.js` is dead, broken, and blocks ESLint 10
+
+origin: review of spec-1-10-restore-client-eslint-enforcement.md (2026-08-03)
+location: .eslintrc.js
+reason: (LOW) The repo-root `.eslintrc.js` extends `@tiween/eslint-config/library.js`, which is not an export of that package (the `exports` map ships `./library` → `library.mjs`; no `.js` file exists). ESLint 9 flat config ignores it and no root lint script runs, so it is inert — but it is legacy eslintrc-era config that ESLint 10 drops entirely, and it is the only thing referencing the `library` preset. Story 1.10 left it alone to stay in scope; story 1.11 does the equivalent deletion for `apps/strapi`. Fix is to delete it (or give the root a real flat config if root-level linting is wanted). Surfaced by the Blind Hunter and the Verification Gap reviewer.
+status: open
+
+### DW-162: Two of the three shared ESLint presets are loaded by nothing, so their correctness is unverified
+
+origin: review of spec-1-10-restore-client-eslint-enforcement.md (2026-08-03)
+location: packages/eslint-config/library.mjs, packages/eslint-config/react-internal.mjs
+reason: (LOW) `apps/client` is the only workspace with a `lint` script, and its config imports `@tiween/eslint-config/next` only. Nothing imports `library.mjs` or `react-internal.mjs` (the sole reference is the broken `.eslintrc.js` of DW-161), so a syntax error or a reintroduced severity downgrade in either would ship silently — `yarn lint` would still exit 0. Story 1.10's acceptance evidence is therefore about `next.mjs` alone. `packages/prettier-config` and `packages/typescript-config` are likewise unlinted. Fix is either a lint script per package or a smoke test that imports both presets and asserts they produce a valid flat config. Surfaced by the Verification Gap reviewer.
+status: open
+
+### DW-163: `yarn.lock` pins an incompatible `@storybook/addon-docs` / `storybook` pair, so `build-storybook` cannot succeed
+
+origin: review of spec-1-10-restore-client-eslint-enforcement.md (2026-08-03)
+location: yarn.lock, apps/client/package.json
+reason: (MEDIUM) `apps/client/package.json` pins `storybook@10.1.11` and `@storybook/addon-docs@^10.1.11`, but the lockfile resolves the addon to `10.4.6`, whose preset imports `Tag` from `storybook/internal/core-server` — an export `10.1.11` does not have. `yarn workspace @tiween/client run build-storybook` therefore dies with `SB_CORE-SERVER_0002 CriticalPresetLoadError` at preset load, before any story file is parsed, on every commit (reproduced on the pre-1.10 baseline tree). Storybook is not in CI, so nothing reports it. Fix is to align the pins (exact-pin the addon to the storybook version, or upgrade storybook) and, ideally, add a Storybook build to CI so it cannot rot again. Surfaced during story 1.10 verification and confirmed by the Verification Gap reviewer.
+status: open
+
+### DW-164: `TicketScanner` never invokes its required `onScan` prop — scan results are never delivered
+
+origin: review of spec-1-10-restore-client-eslint-enforcement.md (2026-08-03)
+location: apps/client/src/features/scanner/components/TicketScanner/TicketScanner.tsx
+reason: (MEDIUM) `onScan: (qrData: string) => void` is a required prop, documented in the component's JSDoc usage example and supplied by six stories, but the component contains no call site — QR decoding is not implemented, so a caller's handler can never fire. This pre-dates story 1.10; what 1.10 changed is that the unused destructured binding was deleted to clear `@typescript-eslint/no-unused-vars`, removing the last automated signal (the prop's JSDoc now carries a "NOT WIRED UP" note instead). Fix is to implement decoding and call `onScan`, or make the prop optional until then. Epic 8 (B2B ticket validation scanner) is the natural home. Surfaced by the Blind Hunter and the Edge Case Hunter.
+status: open
+
+### DW-165: `MapMarker` ignores its `isSelected` prop and venue-type marker colouring is dead
+
+origin: review of spec-1-10-restore-client-eslint-enforcement.md (2026-08-03)
+location: apps/client/src/features/events/components/Map/MapMarker.tsx
+reason: (LOW) `isSelected?: boolean` remains in the exported `MapMarkerProps` (documented "Whether this marker is currently selected/highlighted") but nothing in the component reads it, so callers passing it get no visual effect; the `VENUE_TYPE_COLORS` lookup that `createMarkerIcon`'s JSDoc still describes is likewise unused. Pre-dates story 1.10, which deleted the unused bindings and annotated the prop as "NOT WIRED UP". Fix is to implement selected/`venue-type` marker styling or remove the prop and the stale doc comment. Surfaced by the Blind Hunter and the Edge Case Hunter.
+status: open
+
+### DW-166: A newly picked avatar file is stored in state that nothing reads, so avatar uploads are silently dropped
+
+origin: review of spec-1-10-restore-client-eslint-enforcement.md (2026-08-03)
+location: apps/client/src/features/auth/components/ProfileForm/ProfileForm.tsx
+reason: (MEDIUM) `handleAvatarSelect` writes the chosen `File` into `avatarFile` state, but `handleSubmit` submits only `name/language/region/avatarUrl/email` — the file is never uploaded or passed to the caller, so the user sees a local preview and their avatar silently never changes. Pre-dates story 1.10, which elided the unread binding to `const [, setAvatarFile]` to clear the unused-var error. Fix is to upload the file (or pass it through `onSubmit`) and drop the local-only state. Surfaced by the Blind Hunter and the Edge Case Hunter.
+status: open
+
+### DW-167: Two contribution-flow error paths are captured and then discarded
+
+origin: review of spec-1-10-restore-client-eslint-enforcement.md (2026-08-03)
+location: apps/client/src/features/contribute/components/steps/ReviewStep.tsx, apps/client/src/features/contribute/components/credits/PersonSearchCombobox.tsx
+reason: (MEDIUM) `ReviewStep` sets reCAPTCHA `loaded`/`error` state from the script's `onLoad`/`onError` handlers but reads neither, so a script-load failure is invisible and the user submits with no captcha token (the live `// TODO: Get reCAPTCHA token here` is the other half of that gap). `PersonSearchCombobox` no longer reads the `error` that `usePersonSearch` still returns, so a failed search renders the "no person found" empty state — inviting the contributor to create a duplicate person record. Both pre-date story 1.10, which elided/dropped the unread bindings to clear unused-var errors. Fix is to render both error states (and block submit while the captcha script has not loaded). Surfaced by the Blind Hunter and the Edge Case Hunter.
+status: open
+
+### DW-168: Three Strapi type errors fail `yarn type-check` and `yarn test` repo-wide (CI Type Check likely red)
+
+origin: review of spec-1-10-restore-client-eslint-enforcement.md (2026-08-03)
+location: apps/strapi/src/plugins/user-engagement/server/src/services/watchlist.ts
+reason: (MEDIUM) Three `TS2339` errors (`nextScreeningDate`, `lastScreeningDate`, `venueName` on type `{}`) at lines 103-105 make `@tiween/admin`'s `type-check` and `build` fail, which fails root `yarn type-check` and — because the turbo `test` task depends on `^build` — root `yarn test` too. The client suite itself is green (63 files / 616 tests). The generated Strapi types are committed, so this is not a local-environment artifact; the CI `Type Check` job runs the same command. Introduced no later than `66f15c0` (story 5.3). Story 1.10 left `apps/strapi` untouched by design. Fix belongs with the Strapi lint/type work in story 1.11. Surfaced during story 1.10 verification.
+status: open
+
+### DW-169: Four whole-file `eslint-disable` blocks survive the story-1.10 paydown as invisible blanket escape hatches
+
+origin: follow-up review of spec-1-10-restore-client-eslint-enforcement.md (2026-08-03)
+location: apps/client/src/app/api/preview/route.ts, apps/client/src/components/elementary/ImageWith{Blur,Fallback,Plaiceholder}.tsx
+reason: (MEDIUM) Story 1.10 removed the repo-wide severity downgrade and required every remaining relaxation to be narrowly scoped and justified, but four pre-existing file-level disables were never audited because a file-level disable produces no ESLint finding and so never appeared in the 245-problem baseline: `/* eslint-disable no-console */` in `api/preview/route.ts` (3 `console.log` calls, silenced for the whole file rather than the scoped `console.info` allowance the story introduced) and `/* eslint-disable jsx-a11y/alt-text */` in the three `ImageWith*` wrappers. They are exactly the class of blanket silencing the story's "Never" clause forbids, one scope level down. Fix is an audit: run `eslint --no-inline-config` (or grep for `eslint-disable ` without `-next-line`) to enumerate them, then convert each to a targeted `eslint-disable-next-line` with a `--` justification or fix the underlying violation. Surfaced by the Blind Hunter.
+status: open
+
+### DW-170: Newsletter subscriber email addresses are logged to stdout, now via a config-approved channel
+
+origin: follow-up review of spec-1-10-restore-client-eslint-enforcement.md (2026-08-03)
+location: apps/client/src/app/api/newsletter/subscribe/route.ts
+reason: (MEDIUM) Lines 69 and 81 log the subscriber's email address (`[Newsletter] Successfully subscribed: ${email}` and `Contact already exists: ${email}`) into the server log stream. The PII exposure pre-dates story 1.10, but 1.10 converted both calls from `console.log` to `console.info` and added an `no-console` allow-list override scoped to `src/app/api/**/*.ts` that explicitly permits `info` — so what was previously a lint-flagged line is now a config-blessed one, and the lint gate will never raise it again. Fix is to drop the address from the message (log a hash, a truncated form, or nothing) and, when a structured logger lands, route it through a field the log pipeline can redact. Surfaced by the Blind Hunter.
+status: open
+
+### DW-171: Chromatic cannot fail a build, so Storybook's a11y addon gates nothing
+
+origin: follow-up review of spec-1-10-restore-client-eslint-enforcement.md (2026-08-03)
+location: .github/workflows/chromatic.yml, apps/client/.storybook/main.ts
+reason: (LOW) `.github/workflows/chromatic.yml` sets `exitZeroOnChanges: true` and `autoAcceptChanges: main`, and there is no Storybook test-runner, so a visual or accessibility difference in any story can never turn a build red — `@storybook/addon-a11y` (registered at `main.ts:10`) reports interactively and enforces nothing. This is why story 1.10's ARIA edits to `DateSelector` and `SearchBar` had no gating verification available: the components have no vitest tests, and the stories that do exist are non-gating. Fix is either a `@storybook/test-runner` job with the a11y checks wired in, or dropping `exitZeroOnChanges` on PR builds so a diff must be reviewed. Distinct from DW-163 (the Storybook build itself is currently broken, which must be fixed first). Surfaced by the Verification Gap reviewer.
+status: open

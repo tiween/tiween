@@ -8,7 +8,6 @@ import {
   Filter,
   Heart,
   MapPin,
-  Play,
   Search,
   Share2,
   Star,
@@ -137,7 +136,7 @@ const Footer = () => (
           <ul className="text-muted-foreground space-y-2 text-sm">
             <li>
               <a href="#" className="hover:text-foreground">
-                Conditions d'utilisation
+                Conditions d&apos;utilisation
               </a>
             </li>
             <li>
@@ -361,7 +360,7 @@ export const SearchResultsPage: Story = {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="all">Toutes les dates</SelectItem>
-                        <SelectItem value="today">Aujourd'hui</SelectItem>
+                        <SelectItem value="today">Aujourd&apos;hui</SelectItem>
                         <SelectItem value="week">Cette semaine</SelectItem>
                         <SelectItem value="month">Ce mois</SelectItem>
                       </SelectContent>
@@ -466,7 +465,7 @@ export const SearchResultsPage: Story = {
 
               {/* Load More */}
               <div className="mt-8 text-center">
-                <Button variant="outline">Voir plus d'événements</Button>
+                <Button variant="outline">Voir plus d&apos;événements</Button>
               </div>
             </div>
           </div>
@@ -550,10 +549,10 @@ export const EventDetailPage: Story = {
                   <p className="text-muted-foreground">
                     Une soirée exceptionnelle de jazz avec les meilleurs
                     musiciens de la scène tunisienne. Préparez-vous pour une
-                    expérience musicale inoubliable dans l'ambiance chaleureuse
-                    du Jazz Club Tunis. Le concert réunira des artistes de
-                    renommée internationale pour une nuit de musique improvisée
-                    et de performances uniques.
+                    expérience musicale inoubliable dans l&apos;ambiance
+                    chaleureuse du Jazz Club Tunis. Le concert réunira des
+                    artistes de renommée internationale pour une nuit de musique
+                    improvisée et de performances uniques.
                   </p>
                 </section>
 
@@ -904,7 +903,7 @@ export const ProfilePage: Story = {
           {activeTab === "history" && (
             <div className="text-muted-foreground py-12 text-center">
               <Clock className="mx-auto mb-4 h-12 w-12 opacity-50" />
-              <p>Votre historique d'événements apparaîtra ici</p>
+              <p>Votre historique d&apos;événements apparaîtra ici</p>
             </div>
           )}
         </main>
@@ -940,9 +939,9 @@ export const EmptyStatePage: Story = {
             </div>
             <h1 className="text-2xl font-bold">Aucun résultat trouvé</h1>
             <p className="text-muted-foreground mx-auto mt-2 max-w-md">
-              Nous n'avons pas trouvé d'événements correspondant à votre
-              recherche. Essayez de modifier vos filtres ou d'élargir vos
-              critères.
+              Nous n&apos;avons pas trouvé d&apos;événements correspondant à
+              votre recherche. Essayez de modifier vos filtres ou d&apos;élargir
+              vos critères.
             </p>
             <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
               <Button>Voir tous les événements</Button>

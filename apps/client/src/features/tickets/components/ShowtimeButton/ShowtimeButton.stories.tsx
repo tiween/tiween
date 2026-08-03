@@ -1,7 +1,6 @@
 import { useState } from "react"
 
-import type { Meta, StoryObj } from "@storybook/react"
-import type { ShowtimeStatus } from "./ShowtimeButton"
+import type { Meta, StoryObj } from "@storybook/nextjs-vite"
 
 import { ShowtimeButton } from "./ShowtimeButton"
 

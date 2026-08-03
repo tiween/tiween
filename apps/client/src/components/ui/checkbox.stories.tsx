@@ -2,7 +2,7 @@
 
 import * as React from "react"
 
-import type { Meta, StoryObj } from "@storybook/react"
+import type { Meta, StoryObj } from "@storybook/nextjs-vite"
 
 import { Checkbox } from "./checkbox"
 import { Label } from "./label"
@@ -75,7 +75,9 @@ export const WithLabel: Story = {
   render: () => (
     <div className="flex items-center space-x-2">
       <Checkbox id="terms" />
-      <Label htmlFor="terms">J'accepte les conditions d'utilisation</Label>
+      <Label htmlFor="terms">
+        J&apos;accepte les conditions d&apos;utilisation
+      </Label>
     </div>
   ),
   parameters: {
@@ -93,7 +95,7 @@ export const WithDescription: Story = {
       <Checkbox id="newsletter" />
       <div className="grid gap-1.5 leading-none">
         <Label htmlFor="newsletter" className="text-sm font-medium">
-          S'abonner à la newsletter
+          S&apos;abonner à la newsletter
         </Label>
         <p className="text-muted-foreground text-sm">
           Recevez les dernières actualités et offres par email.

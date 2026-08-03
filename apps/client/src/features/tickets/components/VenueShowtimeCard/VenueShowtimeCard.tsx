@@ -4,7 +4,6 @@ import * as React from "react"
 import { MapPin, MoreVertical } from "lucide-react"
 
 import { cn } from "@/lib/utils"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 
 export type ShowtimeFormat = "VOST" | "VF" | "VO" | "3D" | "IMAX" | "4DX"

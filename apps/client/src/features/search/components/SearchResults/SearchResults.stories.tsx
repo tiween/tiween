@@ -1,7 +1,7 @@
 import { useState } from "react"
 
 import type { EventCardEvent } from "@/features/events/types"
-import type { Meta, StoryObj } from "@storybook/react"
+import type { Meta, StoryObj } from "@storybook/nextjs-vite"
 
 import { SearchResults } from "./SearchResults"
 import { SearchResultsEmpty } from "./SearchResultsEmpty"

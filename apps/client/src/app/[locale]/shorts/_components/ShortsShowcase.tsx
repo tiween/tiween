@@ -148,7 +148,7 @@ export function ShortsShowcase({
                 className="flex items-center gap-3 rounded-lg bg-white/10 px-8 py-4 font-semibold text-white backdrop-blur-sm transition-all hover:bg-white/20"
               >
                 <Info className="h-5 w-5" />
-                Plus d'infos
+                Plus d&apos;infos
               </Link>
             </div>
           </div>
