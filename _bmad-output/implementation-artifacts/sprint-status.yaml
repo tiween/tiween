@@ -186,7 +186,7 @@ development_status:
   5-6-schedule-change-notifications: done
   # 5-7 / 5-8: watchlist-hardening stories promoted from the Epic 5 retrospective
   # (epic-5-retro-2026-07-10.md). Critical-path — should run before Epic 6 ticketing.
-  5-7-watchlist-atomic-dedupe: ready-for-dev
+  5-7-watchlist-atomic-dedupe: done
   5-8-user-scoped-watchlist-cache: ready-for-dev
   epic-5-retrospective: done
 

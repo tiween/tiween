@@ -1944,6 +1944,9 @@ export interface PluginUserEngagementUserWatchlist
       "manyToOne",
       "plugin::creative-works.creative-work"
     >
+    dedupeKey: Schema.Attribute.String &
+      Schema.Attribute.Private &
+      Schema.Attribute.Unique
     locale: Schema.Attribute.String & Schema.Attribute.Private
     localizations: Schema.Attribute.Relation<
       "oneToMany",

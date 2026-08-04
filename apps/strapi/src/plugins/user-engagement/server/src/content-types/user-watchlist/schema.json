@@ -27,6 +27,11 @@
     "notifyChanges": {
       "type": "boolean",
       "default": true
+    },
+    "dedupeKey": {
+      "type": "string",
+      "unique": true,
+      "private": true
     }
   }
 }
