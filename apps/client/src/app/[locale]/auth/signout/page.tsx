@@ -1,11 +1,12 @@
 "use client"
 
 import { useEffect } from "react"
-import { signOut, useSession } from "next-auth/react"
+import { useSession } from "next-auth/react"
 import { useLocale } from "next-intl"
 
 import { removeThisWhenYouNeedMe } from "@/lib/general-helpers"
 import { redirect } from "@/lib/navigation"
+import { signOutAndClearCache } from "@/lib/sign-out"
 
 export default function SignOutPage() {
   removeThisWhenYouNeedMe("SignOutPage")
@@ -15,7 +16,7 @@ export default function SignOutPage() {
 
   useEffect(() => {
     if (session.status === "authenticated") {
-      signOut({ callbackUrl: "/" })
+      signOutAndClearCache({ callbackUrl: "/" })
     } else {
       redirect({ href: "/", locale })
     }

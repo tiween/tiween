@@ -7,10 +7,20 @@
  * A real `QueryClientProvider` supplies the client so `invalidateQueries` can be
  * spied.
  */
+import * as React from "react"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { act, renderHook, waitFor } from "@testing-library/react"
-import * as React from "react"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
+
+import {
+  enqueueAdd,
+  enqueueOp,
+  getPendingAdds,
+  getPendingOps,
+  MAX_DRAIN_ATTEMPTS,
+  pendingAddKey,
+} from "../utils/watchlistQueue"
+import { useWatchlistSync } from "./useWatchlistSync"
 
 const { useSessionMock, mutateAsyncMock, removeMutateAsyncMock } = vi.hoisted(
   () => ({
@@ -28,20 +38,10 @@ vi.mock("./useWatchlist", () => ({
   }),
   watchlistKeys: {
     all: ["watchlist"],
-    list: () => ["watchlist", "list"],
-    check: (id: string) => ["watchlist", "check", id],
+    list: (userId: number) => ["watchlist", "list", userId],
+    check: (userId: number, id: string) => ["watchlist", "check", userId, id],
   },
 }))
-
-import { useWatchlistSync } from "./useWatchlistSync"
-import {
-  enqueueAdd,
-  enqueueOp,
-  getPendingAdds,
-  getPendingOps,
-  MAX_DRAIN_ATTEMPTS,
-  pendingAddKey,
-} from "../utils/watchlistQueue"
 
 function setOnline(value: boolean) {
   Object.defineProperty(navigator, "onLine", {
@@ -97,7 +97,7 @@ describe("useWatchlistSync — reconnect drain", () => {
     expect(mutateAsyncMock).toHaveBeenCalledWith("cw-2")
     await waitFor(() => expect(getPendingAdds(7)).toEqual([]))
     expect(invalidateSpy).toHaveBeenCalledWith({
-      queryKey: ["watchlist", "list"],
+      queryKey: ["watchlist", "list", 7],
     })
   })
 
@@ -201,7 +201,7 @@ describe("useWatchlistSync — kind-aware drain (Story 5.2)", () => {
     expect(mutateAsyncMock).not.toHaveBeenCalled() // not the add mutation
     await waitFor(() => expect(getPendingOps(7)).toEqual([]))
     expect(invalidateSpy).toHaveBeenCalledWith({
-      queryKey: ["watchlist", "list"],
+      queryKey: ["watchlist", "list", 7],
     })
   })
 

@@ -1630,3 +1630,52 @@ origin: story 5-7-watchlist-atomic-dedupe (2026-08-04), follow-up review pass
 location: apps/strapi/src/plugins/user-engagement/server/src/**tests**/watchlist-dedupe-migration.unit.test.ts
 reason: (LOW) The suite lives under the plugin but tests a file in `apps/strapi/database/migrations/`, reaching it through `require("../../../../../../database/migrations/2026.08.04T00.00.00.watchlist-dedupe-key.js")` — a dated filename embedded in a six-level relative path, so renaming or restamping the migration breaks the test by silent module-not-found rather than by a failing assertion. It also `require("knex")`, which is not a dependency of `apps/strapi/package.json` and resolves only via root hoisting; any hoisting change (pnpm, `nmHoistingLimits`, a nested install) breaks the suite for reasons unrelated to the code. Fix: co-locate migration tests next to `database/migrations/`, resolve the module by directory scan rather than by literal filename, and declare `knex` as a devDependency of `apps/strapi`.
 status: open
+
+### DW-230: `notificationKeys` are not user-scoped and survive sign-out
+
+origin: story 5-8-user-scoped-watchlist-cache (2026-08-04), review pass
+location: apps/client/src/features/notifications/hooks/useNotifications.ts
+reason: (MEDIUM) `notificationKeys.list()` / `unreadCount()` are the bare `["notifications","list"|"unread-count"]` — no user id — and both queries are `enabled: isAuthenticated` with a staleTime, so on a shared device user B's first paint can read user A's cached notification list and unread badge. This is the exact leak Story 5.8 closed for the watchlist, in a file whose own comment says it "mirrors `watchlistKeys`". Story 5.8's spec explicitly ruled notifications out of scope ("Do NOT change ... the notifications keys"), so it was left untouched — and `sign-out.test.ts` now asserts a `["notifications",...]` entry SURVIVES the sign-out eviction, which pins the current shape and must be updated together with the fix. Fix: apply the same treatment — user-scoped keys, `enabled: isAuthenticated && !!userId`, `notificationKeys.all` added to `signOutAndClearCache`, plus the same-tab user-switch test.
+status: open
+
+### DW-231: `useUser`'s `["user","me"]` key is not user-scoped and survives sign-out
+
+origin: story 5-8-user-scoped-watchlist-cache (2026-08-04), review pass
+location: apps/client/src/hooks/useUser.ts
+reason: (MEDIUM) The current-user query is cached under a global `["user","me"]` key gated only on `isAuthenticated`, and sign-out evicts only `watchlistKeys.all`. On a same-tab account switch without a full reload, user B's first paint can render user A's email, username and avatar out of the cache until the refetch lands — a higher-value leak than the watchlist rows Story 5.8 was scoped to. Not caused by this story and outside its stated boundaries. Fix: scope the key by `session.user.userId` and evict it on the shared sign-out path alongside the watchlist keys.
+status: open
+
+### DW-232: session terminations that bypass `signOutAndClearCache` leave the per-user cache resident
+
+origin: story 5-8-user-scoped-watchlist-cache (2026-08-04), review pass
+location: apps/client/src/lib/sign-out.ts, apps/client/src/components/providers/ClientProviders.tsx
+reason: (MEDIUM) Eviction is bound to the sign-out FUNCTION, not to the session ending. A JWT expiring in place, a session invalidated in another tab, or a restored tab whose session is already gone all leave the outgoing user's watchlist entries in memory with nothing to clear them — only the user-scoped keys defend those paths, and only until a same-id collision. A lint guard now stops new code from calling NextAuth's `signOut` directly (added in this story), but it cannot cover terminations that never call sign-out at all. Fix: add a session-transition effect at the provider level — track the previous `userId` and `removeQueries` whenever it changes or clears — so eviction follows the session rather than the button.
+status: open
+
+### DW-233: the offline watchlist snapshot in localStorage is not cleared at sign-out
+
+origin: story 5-8-user-scoped-watchlist-cache (2026-08-04), review pass
+location: apps/client/src/features/events/hooks/useWatchlistSync.ts, apps/client/src/lib (watchlist offline storage from stories 5.1/5.4)
+reason: (MEDIUM) Story 5.8 closed the in-memory react-query gap only; its spec explicitly forbade touching the localStorage layer. That layer is per-user keyed (`tiween:watchlist:pending-add:<userId>`), so it cannot be read under the wrong scope — but it is durable and never cleared, so the outgoing user's queued items (and any offline snapshot of their titles) remain on disk on a shared device after sign-out, readable by anyone with devtools or by a later session that resolves to the same id. Fix: decide the retention policy (clearing on sign-out costs the offline queue of a user who signs out while offline, which is why it is a call and not a patch), then clear or expire the outgoing user's entries on the shared sign-out path.
+status: open
+
+### DW-234: two divergent user-scope conventions for query keys now coexist
+
+origin: story 5-8-user-scoped-watchlist-cache (2026-08-04), review pass
+location: apps/client/src/features/venues/hooks/useVenueProfile.ts, apps/client/src/features/events/utils/watchlistKeys.ts
+reason: (LOW) `venueProfileKeys` solved the same problem earlier with `UserScope = number | string` and an `"anonymous"` string sentinel; `watchlistKeys` (this story) uses a numeric-only scope with `UNRESOLVED_USER_ID = 0` and a docstring that forbids strings. Neither is wrong, but there is no shared helper, and `venueProfileKeys`' docstring claims "same rule as the watchlist keys" — which is now false. Cosmetic today; the cost is that the third feature to need user scoping has two contradictory templates to copy. Fix: extract one shared `userScope` helper with a single sentinel and have both factories use it, then correct the stale docstring.
+status: open
+
+### DW-235: `getQueryClient()` is per-call on the server, not request-scoped, so a future SSR prefetch would hydrate nothing
+
+origin: story 5-8-user-scoped-watchlist-cache (2026-08-04), follow-up review pass
+location: apps/client/src/lib/query-client.ts
+reason: (LOW) The server branch returns a brand-new `QueryClient` on every call, which is exactly right for today's zero-prefetch setup and is what keeps concurrent SSR requests from sharing one cache. But TanStack's documented pattern memoizes it per request with React `cache()`, and the difference only shows up once someone adds a server-side `prefetchQuery` + `HydrationBoundary`: the prefetching component and `ClientProviders` would each get a _different_ client within the same request, so the dehydrated state would be empty and the page would silently fall back to a client fetch — a performance regression with no error and no failing test. The module docstring explains why there is no server singleton but never flags this consequence. Fix: wrap `makeQueryClient` in React `cache()` for the server branch (request-scoped rather than call-scoped) and note the prefetch contract in the docstring.
+status: open
+
+### DW-236: `useWatchlistToggle` is dead code, so its guards are unobservable
+
+origin: story 5-8-user-scoped-watchlist-cache (2026-08-04), follow-up review pass
+location: apps/client/src/features/events/hooks/useWatchlist.ts
+reason: (LOW) A repo-wide grep for `useWatchlistToggle` across `apps/` matches only its own definition and docstring — it is not re-exported from `features/events/hooks/index.ts` and no component calls it; the detail-page and hero flows use `useAddToWatchlist` / `useRemoveFromWatchlist` instead. Story 5.8 hardened its `!userId` gate (a real defect had it been reachable), and its tests pass, but nothing it does is observable in the running app. Carrying an unused public-looking hook alongside the two real ones is a live trap: the next author may reasonably reach for it and inherit whatever drift it has accumulated. Fix: decide whether it is the intended public API (then export it and migrate the two call sites onto it) or vestigial (then delete it with its tests).
+status: open

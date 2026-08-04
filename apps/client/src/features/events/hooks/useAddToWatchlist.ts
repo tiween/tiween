@@ -86,7 +86,7 @@ export function useAddToWatchlist(
         toast({ variant: "destructive", description: t("error") })
         return
       }
-      queryClient.setQueryData(watchlistKeys.check(creativeWorkId), {
+      queryClient.setQueryData(watchlistKeys.check(userId, creativeWorkId), {
         isInWatchlist: true,
       })
       toast({ description: t("queued") })

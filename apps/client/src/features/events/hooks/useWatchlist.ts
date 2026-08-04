@@ -5,6 +5,10 @@ import { useSession } from "next-auth/react"
 
 import { PrivateStrapiClient } from "@/lib/strapi-api"
 
+import { UNRESOLVED_USER_ID, watchlistKeys } from "../utils/watchlistKeys"
+
+export { UNRESOLVED_USER_ID, watchlistKeys }
+
 /**
  * Watchlist item from Strapi
  */
@@ -55,13 +59,23 @@ export function watchlistRefetchInterval(online: boolean): number | false {
 }
 
 /**
- * Query key factory for watchlist queries
+ * Reads the authenticated user's numeric id off the NextAuth session.
+ *
+ * Returns `undefined` while the session is loading / unauthenticated, plus the
+ * scope actually used to build a query key (`UNRESOLVED_USER_ID` in that case —
+ * those queries are always disabled).
  */
-export const watchlistKeys = {
-  all: ["watchlist"] as const,
-  list: () => [...watchlistKeys.all, "list"] as const,
-  check: (creativeWorkId: string) =>
-    [...watchlistKeys.all, "check", creativeWorkId] as const,
+function useWatchlistScope() {
+  const { data: session, status } = useSession()
+  const isAuthenticated = status === "authenticated"
+  const userId = session?.user?.userId
+
+  return {
+    isAuthenticated,
+    userId,
+    /** Never `undefined` — safe to put in a key; gated by `enabled` below. */
+    scope: userId ?? UNRESOLVED_USER_ID,
+  }
 }
 
 /**
@@ -77,11 +91,10 @@ export const watchlistKeys = {
  * ```
  */
 export function useWatchlist() {
-  const { status } = useSession()
-  const isAuthenticated = status === "authenticated"
+  const { isAuthenticated, userId, scope } = useWatchlistScope()
 
   return useQuery({
-    queryKey: watchlistKeys.list(),
+    queryKey: watchlistKeys.list(scope),
     queryFn: async () => {
       const response = await PrivateStrapiClient.fetchAPI(
         "/user-engagement/watchlist",
@@ -97,7 +110,8 @@ export function useWatchlist() {
       )
       return (response.data || []) as WatchlistItem[]
     },
-    enabled: isAuthenticated,
+    // Never fire under an ambiguous session (loading, or an unresolved id).
+    enabled: isAuthenticated && !!userId,
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 30 * 60 * 1000, // 30 minutes
     // Cross-device sync (Story 5.5): poll every 5s while online so another
@@ -123,11 +137,10 @@ export function useWatchlist() {
  * ```
  */
 export function useWatchlistCheck(creativeWorkId: string | undefined) {
-  const { status } = useSession()
-  const isAuthenticated = status === "authenticated"
+  const { isAuthenticated, userId, scope } = useWatchlistScope()
 
   return useQuery({
-    queryKey: watchlistKeys.check(creativeWorkId ?? ""),
+    queryKey: watchlistKeys.check(scope, creativeWorkId ?? ""),
     queryFn: async () => {
       const response = await PrivateStrapiClient.fetchAPI(
         `/user-engagement/watchlist/check/${creativeWorkId}`,
@@ -137,7 +150,7 @@ export function useWatchlistCheck(creativeWorkId: string | undefined) {
       )
       return response as { isInWatchlist: boolean }
     },
-    enabled: isAuthenticated && !!creativeWorkId,
+    enabled: isAuthenticated && !!userId && !!creativeWorkId,
     staleTime: 2 * 60 * 1000, // 2 minutes
   })
 }
@@ -157,6 +170,9 @@ export function useWatchlistCheck(creativeWorkId: string | undefined) {
  */
 export function useWatchlistMutations() {
   const queryClient = useQueryClient()
+  // Invalidations must hit the CURRENT user's scoped keys — a bare key would
+  // no longer match anything (and, worse, could match another account's).
+  const { scope } = useWatchlistScope()
 
   /**
    * Add to watchlist
@@ -175,9 +191,9 @@ export function useWatchlistMutations() {
     },
     onSuccess: (_, creativeWorkId) => {
       // Invalidate queries
-      queryClient.invalidateQueries({ queryKey: watchlistKeys.list() })
+      queryClient.invalidateQueries({ queryKey: watchlistKeys.list(scope) })
       queryClient.invalidateQueries({
-        queryKey: watchlistKeys.check(creativeWorkId),
+        queryKey: watchlistKeys.check(scope, creativeWorkId),
       })
     },
   })
@@ -195,9 +211,9 @@ export function useWatchlistMutations() {
       )
     },
     onSuccess: (_, creativeWorkId) => {
-      queryClient.invalidateQueries({ queryKey: watchlistKeys.list() })
+      queryClient.invalidateQueries({ queryKey: watchlistKeys.list(scope) })
       queryClient.invalidateQueries({
-        queryKey: watchlistKeys.check(creativeWorkId),
+        queryKey: watchlistKeys.check(scope, creativeWorkId),
       })
     },
   })
@@ -221,16 +237,16 @@ export function useWatchlistMutations() {
     onMutate: async (creativeWorkId) => {
       // Cancel outgoing queries
       await queryClient.cancelQueries({
-        queryKey: watchlistKeys.check(creativeWorkId),
+        queryKey: watchlistKeys.check(scope, creativeWorkId),
       })
 
       // Snapshot previous value
       const previousCheck = queryClient.getQueryData<{
         isInWatchlist: boolean
-      }>(watchlistKeys.check(creativeWorkId))
+      }>(watchlistKeys.check(scope, creativeWorkId))
 
       // Optimistically update
-      queryClient.setQueryData(watchlistKeys.check(creativeWorkId), {
+      queryClient.setQueryData(watchlistKeys.check(scope, creativeWorkId), {
         isInWatchlist: !previousCheck?.isInWatchlist,
       })
 
@@ -240,16 +256,16 @@ export function useWatchlistMutations() {
       // Rollback on error
       if (context?.previousCheck) {
         queryClient.setQueryData(
-          watchlistKeys.check(context.creativeWorkId),
+          watchlistKeys.check(scope, context.creativeWorkId),
           context.previousCheck
         )
       }
     },
     onSettled: (_, __, creativeWorkId) => {
       // Refetch to ensure consistency
-      queryClient.invalidateQueries({ queryKey: watchlistKeys.list() })
+      queryClient.invalidateQueries({ queryKey: watchlistKeys.list(scope) })
       queryClient.invalidateQueries({
-        queryKey: watchlistKeys.check(creativeWorkId),
+        queryKey: watchlistKeys.check(scope, creativeWorkId),
       })
     },
   })
@@ -275,15 +291,17 @@ export function useWatchlistMutations() {
  * ```
  */
 export function useWatchlistToggle(creativeWorkId: string | undefined) {
-  const { status } = useSession()
-  const isAuthenticated = status === "authenticated"
+  const { isAuthenticated, userId } = useWatchlistScope()
 
   const { data: checkData, isLoading: isCheckLoading } =
     useWatchlistCheck(creativeWorkId)
   const { toggleMutation } = useWatchlistMutations()
 
   const toggle = () => {
-    if (!isAuthenticated || !creativeWorkId) return
+    // `userId` is required, not just `isAuthenticated`: the mutation's
+    // optimistic writes and invalidations are built from the scope, and firing
+    // before the id resolves would land them under `UNRESOLVED_USER_ID`.
+    if (!isAuthenticated || !userId || !creativeWorkId) return
     toggleMutation.mutate(creativeWorkId)
   }
 

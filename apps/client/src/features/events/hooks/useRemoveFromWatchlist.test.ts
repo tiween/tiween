@@ -13,10 +13,12 @@
  * mocked to a passthrough, the toast's `action.props.onClick` IS the `reAdd`
  * handler, so an Undo tap is exercised by invoking it.
  */
+import * as React from "react"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { act, renderHook } from "@testing-library/react"
-import * as React from "react"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
+
+import { useRemoveFromWatchlist } from "./useRemoveFromWatchlist"
 
 const {
   useSessionMock,
@@ -59,12 +61,10 @@ vi.mock("./useWatchlist", () => ({
   }),
   watchlistKeys: {
     all: ["watchlist"],
-    list: () => ["watchlist", "list"],
-    check: (id: string) => ["watchlist", "check", id],
+    list: (userId: number) => ["watchlist", "list", userId],
+    check: (userId: number, id: string) => ["watchlist", "check", userId, id],
   },
 }))
-
-import { useRemoveFromWatchlist } from "./useRemoveFromWatchlist"
 
 function setOnline(value: boolean) {
   Object.defineProperty(navigator, "onLine", {
@@ -93,7 +93,7 @@ function renderRemove(id: string | undefined = "cw-1") {
 
 /** The cached check value = the heart state (true filled, false outline). */
 function checkState(client: QueryClient, id = "cw-1") {
-  return client.getQueryData(["watchlist", "check", id])
+  return client.getQueryData(["watchlist", "check", 7, id])
 }
 
 /** The `action` (Undo) attached to the last `removeSuccess` toast. */
@@ -165,7 +165,9 @@ describe("useRemoveFromWatchlist — offline remove", () => {
     setOnline(false)
     enqueueOpMock.mockReturnValue(false)
     const { result, client } = renderRemove()
-    client.setQueryData(["watchlist", "check", "cw-1"], { isInWatchlist: true })
+    client.setQueryData(["watchlist", "check", 7, "cw-1"], {
+      isInWatchlist: true,
+    })
 
     act(() => result.current.remove())
 

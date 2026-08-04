@@ -6,13 +6,13 @@
  * page renders standalone; `useCurrentUser`, next-intl, next/navigation, and
  * next-auth are mocked so the page composes without a real session/query.
  */
-import { render, screen } from "@testing-library/react"
+import { fireEvent, render, screen } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-const { pushMock, backMock, signOutMock } = vi.hoisted(() => ({
+const { pushMock, backMock, signOutAndClearCacheMock } = vi.hoisted(() => ({
   pushMock: vi.fn(),
   backMock: vi.fn(),
-  signOutMock: vi.fn(),
+  signOutAndClearCacheMock: vi.fn(),
 }))
 
 vi.mock("next-intl", () => ({
@@ -23,8 +23,8 @@ vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: pushMock, back: backMock }),
 }))
 
-vi.mock("next-auth/react", () => ({
-  signOut: signOutMock,
+vi.mock("@/lib/sign-out", () => ({
+  signOutAndClearCache: signOutAndClearCacheMock,
 }))
 
 vi.mock("@/hooks/useUser", () => ({
@@ -72,5 +72,15 @@ describe("ProfilePageClient", () => {
     expect(
       screen.getByTestId("notification-preferences-sentinel")
     ).toBeInTheDocument()
+  })
+
+  it("signs out through the cache-clearing path, not NextAuth directly (Story 5.8)", () => {
+    render(<ProfilePageClient locale="fr" regions={[]} user={user} />)
+
+    fireEvent.click(screen.getByRole("button", { name: /signOut/i }))
+
+    expect(signOutAndClearCacheMock).toHaveBeenCalledWith({
+      callbackUrl: "/fr",
+    })
   })
 })

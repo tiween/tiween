@@ -63,7 +63,7 @@ export function useWatchlistSync(): void {
         }
       }
       if (anySuccess) {
-        queryClient.invalidateQueries({ queryKey: watchlistKeys.list() })
+        queryClient.invalidateQueries({ queryKey: watchlistKeys.list(userId) })
       }
     } finally {
       drainingRef.current = false
