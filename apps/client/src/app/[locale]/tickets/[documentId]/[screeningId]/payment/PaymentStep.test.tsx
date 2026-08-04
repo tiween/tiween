@@ -5,6 +5,7 @@ import { useCreateOrder } from "@/features/tickets/hooks/useCreateOrder"
 import { useGuestCheckout } from "@/features/tickets/hooks/useGuestCheckout"
 import { useTicketTiers } from "@/features/tickets/hooks/useTicketTiers"
 import { useTicketSelectionStore } from "@/features/tickets/stores/ticketSelectionStore"
+import { readOrderAccess } from "@/features/tickets/utils/orderAccess"
 
 import { PaymentStep } from "./PaymentStep"
 
@@ -108,6 +109,7 @@ function renderStep() {
 
 beforeEach(() => {
   vi.clearAllMocks()
+  window.localStorage.clear()
   useTicketSelectionStore.setState({
     subEventId: "sc1",
     quantities: { standard: 2 },
@@ -118,6 +120,7 @@ beforeEach(() => {
   createOrderSpy.mockResolvedValue({
     orderNumber: "TW-1",
     payUrl: "https://pay/x",
+    accessToken: "tok-1",
   })
   mockUseCreateOrder.mockReturnValue({
     createOrder: createOrderSpy,
@@ -172,6 +175,27 @@ describe("PaymentStep", () => {
     await waitFor(() =>
       expect(window.location.assign).toHaveBeenCalledWith("https://pay/x")
     )
+  })
+
+  it("stores the order access token locally BEFORE leaving for Konnect (Story 6.4)", async () => {
+    // Record what the local store held at the moment of the redirect: the
+    // browser never comes back to this component, so a token saved after the
+    // hand-off would be lost and the guest could never read their tickets.
+    let storedAtRedirect: unknown = "not redirected"
+    vi.mocked(window.location.assign).mockImplementation(() => {
+      storedAtRedirect = readOrderAccess("TW-1")?.accessToken
+    })
+
+    renderStep()
+
+    fireEvent.click(screen.getByTestId("pick-card"))
+    fireEvent.click(screen.getByTestId("submit-guest"))
+
+    await waitFor(() =>
+      expect(window.location.assign).toHaveBeenCalledWith("https://pay/x")
+    )
+    expect(storedAtRedirect).toBe("tok-1")
+    expect(readOrderAccess("TW-1")?.accessToken).toBe("tok-1")
   })
 
   it("recaps only the matching sub-event's selectable tiers (vip sold out excluded)", () => {

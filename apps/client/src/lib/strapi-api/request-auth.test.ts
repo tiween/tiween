@@ -140,3 +140,39 @@ describe("isStrapiEndpointAllowed (Story 7.2 venue-profile endpoints)", () => {
     expect(isStrapiEndpointAllowed("api/venues/venues", "GET")).toBe(false)
   })
 })
+
+describe("isStrapiEndpointAllowed (Story 6.4 ticket reads)", () => {
+  beforeEach(() => vi.clearAllMocks())
+
+  it("allows the two ticket-read GET prefixes", () => {
+    expect(isStrapiEndpointAllowed("api/ticketing/my-tickets", "GET")).toBe(
+      true
+    )
+    expect(
+      isStrapiEndpointAllowed("api/ticketing/order-tickets/TW-1", "GET")
+    ).toBe(true)
+  })
+
+  it("does NOT re-admit the guest-PII order route removed in Story 6.3", () => {
+    // Matching is `startsWith`, so an `api/ticketing/orders` GET entry would
+    // reopen `GET api/ticketing/orders/:orderNumber` — full guest PII by
+    // order-number enumeration.
+    expect(isStrapiEndpointAllowed("api/ticketing/orders", "GET")).toBe(false)
+    expect(isStrapiEndpointAllowed("api/ticketing/orders/TW-1", "GET")).toBe(
+      false
+    )
+  })
+
+  it("keeps the checkout POSTs and blocks ticket reads under other methods", () => {
+    expect(isStrapiEndpointAllowed("api/ticketing/orders", "POST")).toBe(true)
+    expect(
+      isStrapiEndpointAllowed("api/ticketing/orders/TW-1/confirm", "POST")
+    ).toBe(true)
+    expect(isStrapiEndpointAllowed("api/ticketing/my-tickets", "POST")).toBe(
+      false
+    )
+    expect(
+      isStrapiEndpointAllowed("api/ticketing/order-tickets/TW-1", "DELETE")
+    ).toBe(false)
+  })
+})

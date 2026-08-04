@@ -379,7 +379,9 @@
       "TICKET_SOLD_OUT": "Sorry, these tickets just sold out.",
       "INVALID_ORDER": "Your order is invalid. Please start your selection again.",
       "VALIDATION_FAILED": "Please check your details and try again.",
-      "UNKNOWN_ERROR": "Something went wrong. Please try again."
+      "UNKNOWN_ERROR": "Something went wrong. Please try again.",
+      "UNAUTHORIZED": "Please sign in to view your tickets.",
+      "FORBIDDEN": "These tickets are not accessible from this device."
     },
     "guest": {
       "description": "Your tickets will be sent to this email address",
@@ -398,6 +400,28 @@
       "emailRequired": "Email is required",
       "emailInvalid": "Invalid email address",
       "phoneInvalid": "Invalid phone number"
+    },
+    "viewMyTickets": "View my tickets",
+    "myTickets": {
+      "title": "My Tickets",
+      "description": "Your tickets for upcoming events.",
+      "loading": "Loading your tickets",
+      "emptyTitle": "No tickets yet",
+      "emptyDescription": "Your tickets will appear here after a purchase.",
+      "errorTitle": "Could not load your tickets",
+      "errorDescription": "Something went wrong. Please try again.",
+      "signInPrompt": "Sign in to find all your tickets."
+    },
+    "ticketCard": {
+      "tickets": "{count, plural, one {# ticket} other {# tickets}}",
+      "addToWallet": "Add to Wallet",
+      "share": "Share",
+      "scanned": "Scanned",
+      "scannedAt": "Scanned at",
+      "expired": "Event passed",
+      "offlineAvailable": "Available offline",
+      "qrAlt": "Ticket QR code",
+      "qrPending": "Your QR code is being generated."
     }
   },
   "payment": {

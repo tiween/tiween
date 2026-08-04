@@ -1,7 +1,6 @@
 "use client"
 
 import * as React from "react"
-import Image from "next/image"
 import {
   Calendar,
   Check,
@@ -12,6 +11,7 @@ import {
   Wallet,
   WifiOff,
 } from "lucide-react"
+import { QRCodeSVG } from "qrcode.react"
 
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
@@ -62,6 +62,14 @@ export interface TicketQRLabels {
   scannedAt: string
   expired: string
   offlineAvailable: string
+  /**
+   * Accessible name for the QR image. The ticket number is NOT interpolated
+   * here — it is already rendered as visible text directly below the code, so
+   * a screen reader announces it either way, and keeping this a plain string
+   * lets it come straight from the `ticketing` namespace like every other
+   * user-facing string.
+   */
+  qrAlt: string
 }
 
 const defaultLabels: TicketQRLabels = {
@@ -72,6 +80,7 @@ const defaultLabels: TicketQRLabels = {
   scannedAt: "Scanné à",
   expired: "Événement passé",
   offlineAvailable: "Disponible hors ligne",
+  qrAlt: "Code QR du billet",
 }
 
 export interface TicketQRProps {
@@ -229,17 +238,19 @@ export function TicketQR({
           style={{ width: qrSize + 16, height: qrSize + 16 }}
         >
           {/*
-            Using a placeholder image for Storybook.
-            In production, replace with QRCodeSVG from qrcode.react:
-            <QRCodeSVG value={ticket.qrData} size={qrSize} level="H" />
+            Rendered INLINE as SVG (Story 6.4). `qrData` is a signed entry
+            credential, so it must never be shipped to a third-party QR image
+            host on every render — and an inline SVG still renders offline on
+            event night. `level="H"` keeps it scannable on a scratched or
+            dimmed screen.
           */}
-          <Image
-            src={`https://api.qrserver.com/v1/create-qr-code/?size=${qrSize}x${qrSize}&data=${encodeURIComponent(ticket.qrData)}`}
-            alt={`QR code for ticket ${ticket.id}`}
-            width={qrSize}
-            height={qrSize}
+          <QRCodeSVG
+            value={ticket.qrData}
+            size={qrSize}
+            level="H"
+            role="img"
+            aria-label={labels.qrAlt}
             className="rounded"
-            unoptimized // External URL, skip optimization
           />
         </div>
 

@@ -29,8 +29,9 @@ const ticketController = ({ strapi }: { strapi: Core.Strapi }) => ({
       .service("ticket")
       .validate(ctx.params.ticketNumber || ticketId)
 
+    // Error CODES, not prose — the client translates `validation.code`.
     if (!validation.valid) {
-      return ctx.badRequest(validation.error)
+      return ctx.badRequest(validation.code)
     }
 
     // Then scan

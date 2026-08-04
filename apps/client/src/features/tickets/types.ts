@@ -25,6 +25,27 @@ export interface TicketTier {
   restrictionNote: string | null
 }
 
+/**
+ * One sanitized ticket row (Story 6.4), as returned by
+ * `GET /ticketing/my-tickets` and `GET /ticketing/order-tickets/:orderNumber`.
+ *
+ * The backend builds this from an explicit allow-list — no guest email/name,
+ * no payment reference, no access token, no QR nonce. `qrCode` is the opaque
+ * signed `TWQ1.` token and is `null` until the order is paid.
+ */
+export interface TicketView {
+  ticketNumber: string
+  type: TicketTierType
+  status: "valid" | "scanned" | "cancelled" | "expired"
+  price: number
+  qrCode: string | null
+  scannedAt: string | null
+  orderNumber: string
+  eventTitle: string
+  startDateTime: string | null
+  venueName: string | null
+}
+
 /** The `data` payload for a sub-event's ticket tiers. */
 export interface TicketTiersResponse {
   subEventId: string

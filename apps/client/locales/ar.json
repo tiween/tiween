@@ -379,7 +379,9 @@
       "TICKET_SOLD_OUT": "عذرًا، نفدت هذه التذاكر للتو.",
       "INVALID_ORDER": "طلبك غير صالح. يرجى إعادة اختيارك من جديد.",
       "VALIDATION_FAILED": "يرجى التحقّق من معلوماتك والمحاولة مرة أخرى.",
-      "UNKNOWN_ERROR": "حدث خطأ. يرجى المحاولة مرة أخرى."
+      "UNKNOWN_ERROR": "حدث خطأ. يرجى المحاولة مرة أخرى.",
+      "UNAUTHORIZED": "يرجى تسجيل الدخول لعرض تذاكرك.",
+      "FORBIDDEN": "لا يمكن الوصول إلى هذه التذاكر من هذا الجهاز."
     },
     "guest": {
       "description": "ستُرسل تذاكرك إلى هذا البريد الإلكتروني",
@@ -398,6 +400,28 @@
       "emailRequired": "البريد الإلكتروني مطلوب",
       "emailInvalid": "بريد إلكتروني غير صالح",
       "phoneInvalid": "رقم هاتف غير صالح"
+    },
+    "viewMyTickets": "عرض تذاكري",
+    "myTickets": {
+      "title": "تذاكري",
+      "description": "تذاكرك للفعاليات القادمة.",
+      "loading": "جارٍ تحميل تذاكرك",
+      "emptyTitle": "لا توجد تذاكر بعد",
+      "emptyDescription": "ستظهر تذاكرك هنا بعد الشراء.",
+      "errorTitle": "تعذّر تحميل تذاكرك",
+      "errorDescription": "حدث خطأ. يرجى المحاولة مرة أخرى.",
+      "signInPrompt": "سجّل الدخول للعثور على كل تذاكرك."
+    },
+    "ticketCard": {
+      "tickets": "{count} تذكرة",
+      "addToWallet": "أضف للمحفظة",
+      "share": "مشاركة",
+      "scanned": "تم المسح",
+      "scannedAt": "تم المسح في",
+      "expired": "انتهى الحدث",
+      "offlineAvailable": "متاح بدون اتصال",
+      "qrAlt": "رمز QR للتذكرة",
+      "qrPending": "يتم إنشاء رمز QR الخاص بك."
     }
   },
   "payment": {

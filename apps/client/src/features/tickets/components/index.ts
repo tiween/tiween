@@ -28,6 +28,9 @@ export type {
   TicketQRSize,
 } from "./TicketQR"
 
+export { TicketList } from "./TicketList"
+export type { TicketListProps, TicketListLabels } from "./TicketList"
+
 export { SeatSelector, SeatLegend } from "./SeatSelector"
 export type {
   SeatSelectorProps,

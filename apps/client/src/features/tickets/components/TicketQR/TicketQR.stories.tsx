@@ -233,6 +233,7 @@ export const RTL: Story = {
       scannedAt: "تم المسح في",
       expired: "انتهى الحدث",
       offlineAvailable: "متاح بدون اتصال",
+      qrAlt: "رمز QR للتذكرة",
     },
   },
   decorators: [
@@ -260,6 +261,7 @@ export const EnglishLabels: Story = {
       scannedAt: "Scanned at",
       expired: "Event passed",
       offlineAvailable: "Available offline",
+      qrAlt: "Ticket QR code",
     },
   },
 }
