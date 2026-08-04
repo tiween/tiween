@@ -1679,3 +1679,94 @@ origin: story 5-8-user-scoped-watchlist-cache (2026-08-04), follow-up review pas
 location: apps/client/src/features/events/hooks/useWatchlist.ts
 reason: (LOW) A repo-wide grep for `useWatchlistToggle` across `apps/` matches only its own definition and docstring — it is not re-exported from `features/events/hooks/index.ts` and no component calls it; the detail-page and hero flows use `useAddToWatchlist` / `useRemoveFromWatchlist` instead. Story 5.8 hardened its `!userId` gate (a real defect had it been reachable), and its tests pass, but nothing it does is observable in the running app. Carrying an unused public-looking hook alongside the two real ones is a live trap: the next author may reasonably reach for it and inherit whatever drift it has accumulated. Fix: decide whether it is the intended public API (then export it and migrate the two call sites onto it) or vestigial (then delete it with its tests).
 status: open
+
+### DW-237: `GET /ticketing/my-tickets` has no users-permissions grant, and pre-existing paid orders get no QR backfill
+
+origin: story 6-4-qr-code-ticket-generation (2026-08-04), review pass
+location: apps/strapi/src/plugins/ticketing/server/src/routes/content-api.ts, apps/strapi/src/bootstrap/
+reason: (MEDIUM) The new content-api routes need the corresponding users-permissions role permission enabled on deploy; there is no programmatic grant (compare `apps/strapi/src/bootstrap/venue-manager-role.ts`) and no config-sync entry, so "Mes Billets" can 403 on a fresh environment. Separately, every order created before this story has `accessToken = NULL` and every already-`paid` order has `qrCode = NULL`; the self-heal path only fires on a NEW confirm/webhook, which never arrives for a settled past order, so those tickets stay QR-less and guest-unreadable. Harmless today (ticketing is not live), but it must be handled before Epic 6 ships. Fix: add a bootstrap role grant for the ticketing read routes, and a one-shot migration that mints access tokens and issues QR for historical paid orders.
+status: open
+
+### DW-238: QR tokens have no expiry, no key id, and no rotation window; the order access token is stored in plaintext
+
+origin: story 6-4-qr-code-ticket-generation (2026-08-04), review pass
+location: apps/strapi/src/plugins/ticketing/server/src/services/qr.ts, apps/strapi/src/plugins/ticketing/server/src/content-types/ticket-order/schema.json
+reason: (LOW) `qr.verify` checks prefix, version and HMAC only — the `iat` it signs is never enforced, and neither the payload nor the token carries a key id, so rotating `TICKET_QR_SECRET` invalidates every already-issued ticket at once with no dual-verify window. The per-order `accessToken` is stored unhashed, so a DB dump yields directly usable read credentials. Deliberately out of scope: the verification/rotation policy belongs with the scanner (Epic 8), which is the first real consumer of `verify`. Fix: add a `kid` to the token and accept the previous key during a rotation window, decide whether `iat` gets a max age, and store a hash of the access token instead of the token.
+status: open
+
+### DW-239: a guest who loses the locally stored order access token has no recovery path
+
+origin: story 6-4-qr-code-ticket-generation (2026-08-04), review pass
+location: apps/client/src/features/tickets/utils/orderAccess.ts, apps/strapi/src/plugins/ticketing/server/src
+reason: (MEDIUM) The guest read credential lives only in that browser's `localStorage`: it is capped at 20 orders (oldest evicted), silently dropped when storage is blocked or in private mode, and lost entirely on a different device or an in-app webview that returns from Konnect in another browser. The buyer then has a paid order they cannot open. The intended recovery is Story 6.5 (email delivery of the tickets), which is not built yet, and account linking only covers a guest who later registers with the same email (`order.linkGuestOrders`). Fix: land 6.5's emailed ticket/retrieval link, and consider surfacing a "sent to your email" hint on the result page when a paid order has no locally stored token.
+status: open
+
+### DW-240: a paid ticket whose QR issuance has not landed shows a static placeholder with no refresh
+
+origin: story 6-4-qr-code-ticket-generation (2026-08-04), review pass
+location: apps/client/src/features/tickets/components/TicketList/TicketList.tsx, apps/client/src/features/tickets/hooks/useOrderTickets.ts
+reason: (LOW) `toTicketView` returns `qrCode: null` until issuance runs, and `TicketList` renders the `qrPending` placeholder for it. There is no `refetchInterval`, so a buyer who lands on the result page in the window between the paid CAS and the ticket writes (or after a transient issuance failure) must manually reload before the QR ever appears. Fix: poll the ticket query while any returned ticket of a paid order still has `qrCode: null`, with a bounded number of attempts.
+status: open
+
+### DW-241: tickets created before this story keep an unsigned legacy `qrCode` that issuance can never replace
+
+origin: story 6-4-qr-code-ticket-generation (2026-08-04), follow-up review pass
+location: apps/strapi/src/plugins/ticketing/server/src/services/qr.ts
+reason: (MEDIUM) The `afterCreate` lifecycle removed by this story wrote an unsigned `{"ticketNumber","type"}` blob into `qrCode` for EVERY ticket at creation time (`git show babe606:.../bootstrap.ts`). `issueForOrder` treats any non-null `qrCode` as already issued — both in the cheap pre-filter (`if (ticket.qrCode) continue`) and in the CAS (`where: { qrCode: { $null: true } }`) — so those rows are skipped permanently, even on a fresh confirm. Meanwhile the new read endpoints serve that legacy blob to `TicketList`, which renders it as a scannable QR: the holder gets a forgeable code that `qr.verify` rejects as `QR_MALFORMED`. This also corrects the premise recorded in DW-237, which assumes historical paid orders have `qrCode = NULL`; they do not. Fix: have the backfill migration target legacy tokens explicitly (any `qrCode` not prefixed `TWQ1.`), or widen the pre-filter/CAS to treat a non-`TWQ1.` token as unissued so a later confirm self-heals it.
+status: open
+
+### DW-242: a cancelled ticket is displayed to its holder as "Event passed"
+
+origin: story 6-4-qr-code-ticket-generation (2026-08-04), follow-up review pass
+location: apps/client/src/features/tickets/components/TicketList/TicketList.tsx, apps/client/src/features/tickets/components/TicketQR/TicketQR.tsx
+reason: (LOW) The ticket content type has four statuses (`valid`/`scanned`/`cancelled`/`expired`) but the pre-existing `TicketQR` models only three, so `toQRStatus` folds `cancelled` into `expired`, whose label is "Événement passé" / "انتهى الحدث". A refunded or cancelled ticket therefore tells its holder the event has passed — wrong information, and the current `TicketList.test.tsx` codifies the mapping as intended. No cancellation flow exists yet, so nothing produces the status today. Fix: give `TicketQR` a fourth status with its own `ticketCard.cancelled` label in fr/ar/en when ticket cancellation/refunds land.
+status: open
+
+### DW-243: "Mes Billets" fans out one request per stored guest order on every mount
+
+origin: story 6-4-qr-code-ticket-generation (2026-08-04), follow-up review pass
+location: apps/client/src/app/[locale]/tickets/MyTicketsView.tsx, apps/strapi/src/plugins/ticketing/server/src/routes/content-api.ts
+reason: (LOW) `MyTicketsView` renders one `GuestOrderTickets` child — and therefore one `useOrderTickets` query — per entry from `listOrderAccess()`, capped only by `ORDER_ACCESS_LIMIT = 20`. A returning guest buyer issues up to 20 concurrent reads (plus react-query's default retries) against a public, un-rate-limited Strapi route on every visit to the page, with no batching or staggering. Fine at current volumes; it becomes a self-inflicted load pattern as guest purchase counts grow. Fix: add a batched "read these orders" endpoint, or bound the concurrent reads and load the rest on demand.
+status: open
+
+### DW-244: the QR payload's real-world density is never measured against the "scannable" design claim
+
+origin: story 6-4-qr-code-ticket-generation (2026-08-04), follow-up review pass
+location: apps/strapi/src/plugins/ticketing/server/src/services/qr.ts, apps/client/src/features/tickets/components/TicketQR/TicketQR.tsx
+reason: (LOW) The Design Notes justify the short payload keys and `level="H"` as keeping the code "scannable on a scratched/dimmed screen", but nothing bounds or asserts the result. A token built from realistic values (a normal `et` event title, real documentIds) measures ~376 characters, which `qrcode.react` renders at 97x97 modules — roughly 1.2px per module at the `small` (120px) size. `ti` (ticket documentId) is also redundant with `t` (ticket number), and `et` is an unbounded user-authored string that can push a ticket to a denser version still. Fix: cap or drop `et`, drop the redundant identifier, and add a test asserting a maximum token length (hence QR version) for a worst-case event title.
+status: open
+
+### DW-245: the guest ticket read is proxied with a READ-ONLY API token, which cannot reach a custom controller action
+
+origin: story 6-4-qr-code-ticket-generation (2026-08-04), follow-up review pass
+location: apps/client/src/app/api/public-proxy/[...slug]/route.ts, apps/strapi/src/plugins/ticketing/server/src/routes/content-api.ts
+reason: (MEDIUM) `useOrderTickets` calls `GET /ticketing/order-tickets/:orderNumber` with `useProxy: true`, and the public proxy REPLACES the client `Authorization` header with `createStrapiAuthHeader({ isPrivate: false })` — i.e. `STRAPI_REST_READONLY_API_KEY`. A Strapi read-only API token auto-grants the `find`/`findOne` actions only; `order.orderTickets` is a custom action and is not among them, so the guest read can 403 in a deployed environment no matter which users-permissions ROLE grant is added. That makes it a different defect from DW-237, whose proposed fix (a bootstrap role grant) would not help this route. The same substitution also means `ctx.state.user` is never a real user on this handler, so `findTicketsForOrder`'s `isOwner` branch — documented on the route, the controller and the service as one of two live authorization paths — is unreachable from the app; only the token path runs. Nothing in the change set exercises either route through a booted Strapi, so neither the 403 nor the dead branch is observable in the suite. Fix: verify the route end-to-end against a booted Strapi, and either grant the custom action to the token used by the public proxy (or a purpose-scoped token) or make the proxy forward the client's own headers for this endpoint; then either wire up or delete the `isOwner` branch and correct the three docstrings.
+status: open
+
+### DW-246: signing out destroys every stored guest order token, including ones sign-out has nothing to do with
+
+origin: story 6-4-qr-code-ticket-generation (2026-08-04), follow-up review pass
+location: apps/client/src/lib/sign-out.ts, apps/client/src/features/tickets/utils/orderAccess.ts
+reason: (MEDIUM) `signOutAndClearCache` calls `clearOrderAccess()`, which wipes the WHOLE `localStorage` store — not just the orders belonging to the session being ended. The shared-device rationale behind it (pass 1) is sound, but the blast radius is not bounded to that case: orders bought as a guest before the account existed, or under a different email so `order.linkGuestOrders` never claims them, lose their only read credential on an ordinary sign-out. Story 6.5 (emailed tickets) is the intended recovery path and is not built, so today this is permanent loss of access to a paid order. DW-239 covers losing the token to the 20-entry cap, blocked storage or a different device; it does not cover the app actively deleting it. Fix: scope the clearing to orders the signed-out account actually owns (the account link is known server-side), or keep the wipe but land 6.5's email retrieval first so there is a recovery path.
+status: open
+
+### DW-247: "Mes Billets" spins indefinitely when the device is offline
+
+origin: story 6-4-qr-code-ticket-generation (2026-08-04), follow-up review pass
+location: apps/client/src/app/[locale]/tickets/MyTicketsView.tsx
+reason: (LOW) react-query's default `networkMode: "online"` PAUSES a query while the device is offline — it neither resolves nor errors. `MyTicketsView` derives `isLoading` from the account query plus `hasPendingGuestRead`, and `hasPendingGuestRead` only clears when a `GuestOrderTickets` child observes `data` or `isError`, so an offline visit renders a `role="status"` spinner forever: no offline message, no timeout, no cached fallback. This is the scenario the inline-SVG QR was specifically introduced to serve (offline on event night, Design Notes / Story 6.7), so the page hangs precisely when it matters most. A pass-2 note rejected an offline branch as "unreachable-or-cosmetic"; the pause semantics make it reachable. Offline caching itself belongs to Story 6.7, but the indefinite spinner does not. Fix: treat `isPaused` as its own state with a translated offline message, and render tickets already in the react-query cache while offline.
+status: open
+
+### DW-248: `GET /ticketing/orders/:orderNumber` is still an existence + payment-status oracle on Strapi directly
+
+origin: story 6-4-qr-code-ticket-generation (2026-08-04), follow-up review pass
+location: apps/strapi/src/plugins/ticketing/server/src/routes/content-api.ts, apps/strapi/src/plugins/ticketing/server/src/controllers/order.ts
+reason: (LOW) Story 6.4 takes care that the new `order-tickets` route answers the SAME `FORBIDDEN` for a wrong token and an unknown order number, and both the controller and the service comment this as "no enumeration oracle". But the sibling `GET /orders/:orderNumber` route is still mounted with `policies: []` and needs no token: it answers 404 for an unknown order and 200 with `paymentStatus`, `totalAmount` and `purchasedAt` for a known one, over a short and guessable order number. It was only dropped from the NEXT proxy allow-list (Story 6.3) — anyone addressing Strapi directly still has the oracle, so the property the new route is careful to preserve does not actually hold for the order namespace. Pre-existing, and pass 1 correctly narrowed that route's projection rather than removing it. Fix: require the order access token on `findByOrderNumber` too (it is the same credential the result page already holds), or collapse it into the token-gated read.
+status: open
+
+### DW-249: Arabic `ticketCard.tickets` is not pluralized
+
+origin: story 6-4-qr-code-ticket-generation (2026-08-04), follow-up review pass
+location: apps/client/locales/ar.json
+reason: (LOW) `fr`/`en` use ICU plurals (`{count, plural, one {# billet} other {# billets}}`) while `ar` ships the bare `"{count} تذكرة"`, so every count renders the singular noun ("5 تذكرة" instead of "5 تذاكر"). Passes 1 and 2 rejected a fix on the grounds that the bare `{count}` form is required by the repo's Western-numerals rule — that reasoning holds for `#` (which formats via CLDR and would emit Arabic-Indic digits) but NOT for an explicit `{count}` inside plural branches, which keeps Western numerals while still selecting the right form. `ticketingI18n.test.tsx` compares key SETS across locales, so it cannot see a value-shape divergence like this. Left deferred rather than patched because Arabic has six plural categories (`zero`/`one`/`two`/`few`/`many`/`other`) and choosing the noun form for each needs a native-speaker decision, not a mechanical edit. Fix: have an Arabic speaker supply the plural branches, apply the same treatment to any other counted `ar` key, and extend the i18n test to assert plural-shape parity rather than key-set parity alone.
+status: open

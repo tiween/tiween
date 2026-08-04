@@ -7,6 +7,9 @@ const STATUS_BY_CODE: Record<string, number> = {
   TICKET_SOLD_OUT: 409,
   INVENTORY_UNDERFLOW: 409,
   KONNECT_UNAVAILABLE: 502,
+  UNAUTHORIZED: 401,
+  FORBIDDEN: 403,
+  QR_SIGNING_UNAVAILABLE: 500,
 }
 
 /**
@@ -32,13 +35,31 @@ function respondError(ctx: any, err: any): void {
   }
 }
 
+/**
+ * Mark a ticket-read response as uncacheable.
+ *
+ * These bodies carry signed entry credentials (`qrCode`) and are authorized by
+ * a request HEADER — the JWT for `my-tickets`, `x-order-access-token` for
+ * `order-tickets`. Every hop in front of Strapi (the Next proxy, any CDN) keys
+ * its cache on the URL, not on those headers, so without this a shared
+ * `/order-tickets/TW-…` URL could hand one buyer's QR to the next requester.
+ * `Vary` alone would be too fragile to rely on for a credential.
+ */
+function noStore(ctx: any): void {
+  ctx.set("Cache-Control", "private, no-store")
+  ctx.set("Vary", "Authorization, x-order-access-token")
+}
+
 const orderController = ({ strapi }: { strapi: Core.Strapi }) => ({
   /**
    * POST /orders — create an order + initialize a Konnect payment (Story 6.3).
    *
    * Guest-capable: `userId` is derived server-side from the authenticated JWT
    * (`ctx.state.user`) and never trusted from the body. Returns
-   * `{ orderNumber, payUrl }` for the browser to redirect to.
+   * `{ orderNumber, payUrl, accessToken }`: `payUrl` is where the browser
+   * redirects, and `accessToken` is the guest's ONLY future authorization to
+   * read this order's tickets (Story 6.4) — the client stores it locally before
+   * leaving, and it is never put in the redirect URL.
    */
   async create(ctx: any) {
     const body = { ...(ctx.request?.body ?? {}) }
@@ -82,6 +103,87 @@ const orderController = ({ strapi }: { strapi: Core.Strapi }) => ({
     }
   },
 
+  /**
+   * GET /my-tickets — the caller's own tickets (Story 6.4).
+   *
+   * Self-scoped: the user is taken from the validated JWT (`ctx.state.user`),
+   * never from the request, so there is no id a caller could forge. Returns
+   * sanitized ticket views only.
+   */
+  async myTickets(ctx: any) {
+    const userId = ctx.state?.user?.documentId
+    if (!userId) {
+      return respondError(ctx, { code: "UNAUTHORIZED" })
+    }
+
+    try {
+      const data = await strapi
+        .plugin("ticketing")
+        .service("order")
+        .findTicketsForUser(userId)
+      noStore(ctx)
+      ctx.body = { data }
+    } catch (err) {
+      respondError(ctx, err)
+    }
+  },
+
+  /**
+   * GET /order-tickets/:orderNumber — a single order's tickets
+   * (Story 6.4). Guest-capable: authorized either by the owner's JWT or by the
+   * per-order access token issued at checkout. A wrong token and an unknown
+   * order number both answer 403 `FORBIDDEN` (no enumeration oracle).
+   *
+   * Deliberately NOT mounted under `/orders` — the Next proxy allow-list
+   * matches by prefix, and `GET api/ticketing/orders/:orderNumber` was dropped
+   * from that allow-list in Story 6.3 for leaking guest PII (the Strapi route
+   * itself still exists, see `findByOrderNumber` below).
+   *
+   * The access token travels in the `x-order-access-token` HEADER, never in the
+   * query string: a URL is written verbatim into Next, Strapi and CDN access
+   * logs, and this token is a never-expiring bearer credential.
+   */
+  async orderTickets(ctx: any) {
+    const { orderNumber } = ctx.params
+
+    if (!orderNumber) {
+      return ctx.badRequest("Missing order number")
+    }
+
+    // A repeated header arrives as an array; only a single string can ever be a
+    // token.
+    const rawToken = ctx.request?.header?.["x-order-access-token"]
+    const accessToken = typeof rawToken === "string" ? rawToken : undefined
+
+    try {
+      const data = await strapi
+        .plugin("ticketing")
+        .service("order")
+        .findTicketsForOrder(orderNumber, {
+          userId: ctx.state?.user?.documentId,
+          accessToken,
+        })
+      noStore(ctx)
+      ctx.body = { data }
+    } catch (err) {
+      respondError(ctx, err)
+    }
+  },
+
+  /**
+   * GET /orders/:orderNumber — minimal public order status.
+   *
+   * This route is PUBLIC (`policies: []`) and keyed by a short, guessable order
+   * number, so the response is an explicit ALLOW-LIST projection. A custom
+   * controller does NOT run `sanitize.contentAPI.output`, so `private: true` on
+   * `accessToken` / `qrCode` / `qrNonce` strips nothing here — returning the
+   * populated document would hand out the order access token, every ticket's
+   * signed QR + nonce, and the buyer's PII. Never add a field to this object
+   * without checking it is safe for an anonymous caller.
+   *
+   * Not reachable through the Next public proxy either: Story 6.3's review
+   * dropped `GET api/ticketing/orders` from `ALLOWED_STRAPI_ENDPOINTS`.
+   */
   async findByOrderNumber(ctx: any) {
     const { orderNumber } = ctx.params
 
@@ -98,7 +200,17 @@ const orderController = ({ strapi }: { strapi: Core.Strapi }) => ({
       return ctx.notFound("Order not found")
     }
 
-    ctx.body = { data: order }
+    ctx.body = {
+      data: {
+        orderNumber: order.orderNumber,
+        paymentStatus: order.paymentStatus,
+        currency: order.currency,
+        totalAmount: order.totalAmount,
+        purchasedAt: order.purchasedAt ?? null,
+        // A count only — ticket rows carry the signed QR credential.
+        ticketCount: Array.isArray(order.tickets) ? order.tickets.length : 0,
+      },
+    }
   },
 })
 

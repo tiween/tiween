@@ -26,23 +26,9 @@ export default async ({ strapi }: { strapi: Core.Strapi }) => {
     }
   )
 
-  // Generate QR codes for tickets on creation
-  strapi.db.lifecycles.subscribe({
-    models: ["plugin::ticketing.ticket"],
-    async afterCreate(event) {
-      const { result } = event
-
-      // Generate QR code data
-      const qrData = strapi
-        .plugin("ticketing")
-        .service("ticket")
-        .generateQRData(result)
-
-      // Update the ticket with QR code
-      await strapi.documents("plugin::ticketing.ticket").update({
-        documentId: result.documentId,
-        data: { qrCode: qrData },
-      })
-    },
-  })
+  // NOTE (Story 6.4): there is deliberately NO `ticket` afterCreate lifecycle
+  // here. Tickets are created at order time — i.e. BEFORE payment — so issuing
+  // a QR there would hand a valid-looking entry credential to abandoned and
+  // failed orders. Issuance now hangs off the exactly-once `paid` transition in
+  // `order.reconcileFromGateway` instead.
 }

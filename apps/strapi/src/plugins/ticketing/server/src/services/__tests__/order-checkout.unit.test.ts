@@ -22,6 +22,8 @@ interface DepOverrides {
   /** Mock for the atomic `strapi.db.query(ORDER_UID).updateMany` CAS. */
   updateMany?: jest.Mock
   findManyResult?: unknown[]
+  /** Mock for `ticketing.qr.issueForOrder` (Story 6.4). */
+  issueForOrder?: jest.Mock
 }
 
 function buildStrapi(deps: DepOverrides = {}) {
@@ -63,8 +65,12 @@ function buildStrapi(deps: DepOverrides = {}) {
   // Atomic compare-and-set on the pending row; default = winner (count 1).
   const updateMany = deps.updateMany ?? jest.fn(async () => ({ count: 1 }))
 
+  const issueForOrder =
+    deps.issueForOrder ?? jest.fn(async () => ({ issued: 2, skipped: 0 }))
+
   const eventsPublicApi = { getSubEventContext, adjustInventory }
   const paymentsPublicApi = { initPayment, getPaymentStatus }
+  const qrService = { issueForOrder }
 
   const strapi: any = {
     documents: jest.fn(() => ({
@@ -79,6 +85,9 @@ function buildStrapi(deps: DepOverrides = {}) {
         }
         if (name === "payments" && svc === "public-api") {
           return paymentsPublicApi
+        }
+        if (name === "ticketing" && svc === "qr") {
+          return qrService
         }
         return {}
       },
@@ -102,6 +111,7 @@ function buildStrapi(deps: DepOverrides = {}) {
     documentCreate,
     documentUpdate,
     updateMany,
+    issueForOrder,
   }
 }
 
@@ -153,7 +163,27 @@ describe("order.initCheckout (unit)", () => {
     expect(result).toEqual({
       orderNumber: expect.stringMatching(/^TW-/),
       payUrl: "https://pay.konnect/x",
+      // Guest ticket-retrieval credential (Story 6.4) — returned to the buyer,
+      // never put in the Konnect redirect URL.
+      accessToken: expect.stringMatching(/^[A-Za-z0-9_-]{32}$/),
     })
+
+    // The token is persisted on the order row it authorizes.
+    expect(deps.documentCreate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ accessToken: result.accessToken }),
+      })
+    )
+  })
+
+  it("mints a distinct access token per order", async () => {
+    const deps = buildStrapi()
+    const service = orderService({ strapi: deps.strapi })
+
+    const a = await service.initCheckout(checkoutInput)
+    const b = await service.initCheckout(checkoutInput)
+
+    expect(a.accessToken).not.toEqual(b.accessToken)
   })
 
   it("Konnect init failure: releases inventory once and marks order failed", async () => {
@@ -456,6 +486,101 @@ describe("order.reconcileFromGateway (unit)", () => {
     })
     expect(deps.updateMany).not.toHaveBeenCalled()
     expect(deps.adjustInventory).not.toHaveBeenCalled()
+  })
+
+  it("paid: issues QR codes exactly once, on the CAS winner", async () => {
+    const deps = buildStrapi({
+      findManyResult: [pendingOrder()],
+      getPaymentStatus: jest.fn(async () => ({
+        status: "paid",
+        amount: 35000,
+        orderId: "TW-1",
+      })),
+    })
+    const service = orderService({ strapi: deps.strapi })
+
+    await service.reconcileFromGateway("TW-1")
+
+    expect(deps.issueForOrder).toHaveBeenCalledTimes(1)
+    expect(deps.issueForOrder).toHaveBeenCalledWith("TW-1")
+  })
+
+  it("lost race on paid: the CAS loser does NOT issue QR codes", async () => {
+    const deps = buildStrapi({
+      findManyResult: [pendingOrder()],
+      getPaymentStatus: jest.fn(async () => ({
+        status: "paid",
+        amount: 35000,
+        orderId: "TW-1",
+      })),
+      updateMany: jest.fn(async () => ({ count: 0 })),
+    })
+    const service = orderService({ strapi: deps.strapi })
+
+    const result = await service.reconcileFromGateway("TW-1")
+
+    expect(result.changed).toBe(false)
+    expect(deps.issueForOrder).not.toHaveBeenCalled()
+  })
+
+  it("self-heal: an already-paid order re-attempts issuance for missing tickets", async () => {
+    const deps = buildStrapi({
+      findManyResult: [pendingOrder({ paymentStatus: "paid" })],
+    })
+    const service = orderService({ strapi: deps.strapi })
+
+    const result = await service.reconcileFromGateway("TW-1")
+
+    expect(result).toEqual({
+      orderNumber: "TW-1",
+      status: "paid",
+      changed: false,
+    })
+    // Idempotent at the issuance level: tickets that already carry a qrCode are
+    // skipped inside issueForOrder, so re-running is safe.
+    expect(deps.issueForOrder).toHaveBeenCalledWith("TW-1")
+    expect(deps.updateMany).not.toHaveBeenCalled()
+  })
+
+  it("no issuance for a failed order (a QR must not exist without payment)", async () => {
+    const deps = buildStrapi({
+      findManyResult: [pendingOrder()],
+      getPaymentStatus: jest.fn(async () => ({ status: "failed" })),
+    })
+    const service = orderService({ strapi: deps.strapi })
+
+    await service.reconcileFromGateway("TW-1")
+
+    expect(deps.issueForOrder).not.toHaveBeenCalled()
+  })
+
+  it("throw-safe: a failing issuance is logged and the order stays paid", async () => {
+    const deps = buildStrapi({
+      findManyResult: [pendingOrder()],
+      getPaymentStatus: jest.fn(async () => ({
+        status: "paid",
+        amount: 35000,
+        orderId: "TW-1",
+      })),
+      issueForOrder: jest.fn(async () => {
+        throw Object.assign(new Error("no secret"), {
+          code: "QR_SIGNING_UNAVAILABLE",
+        })
+      }),
+    })
+    const service = orderService({ strapi: deps.strapi })
+
+    const result = await service.reconcileFromGateway("TW-1")
+
+    // The money transition is authoritative — issuance must never undo it.
+    expect(result).toEqual({
+      orderNumber: "TW-1",
+      status: "paid",
+      changed: true,
+    })
+    expect(deps.strapi.log.error).toHaveBeenCalledWith(
+      expect.stringContaining("QR issuance failed")
+    )
   })
 
   it("unknown order number is a safe no-op", async () => {

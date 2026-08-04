@@ -33,7 +33,16 @@
       "required": true
     },
     "qrCode": {
-      "type": "string"
+      "type": "string",
+      "private": true
+    },
+    "qrNonce": {
+      "type": "string",
+      "unique": true,
+      "private": true
+    },
+    "qrIssuedAt": {
+      "type": "datetime"
     },
     "status": {
       "type": "enumeration",

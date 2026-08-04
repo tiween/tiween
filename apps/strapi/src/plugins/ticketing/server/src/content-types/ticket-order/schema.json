@@ -68,6 +68,10 @@
     "paymentReference": {
       "type": "string"
     },
+    "accessToken": {
+      "type": "string",
+      "private": true
+    },
     "purchasedAt": {
       "type": "datetime"
     }

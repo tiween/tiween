@@ -60,7 +60,8 @@ export function DesktopNav({
   const navItems: NavItem[] = [
     { id: "home", icon: Home, href: `/${locale}` },
     { id: "search", icon: Search, href: `/${locale}/search` },
-    { id: "tickets", icon: Ticket, href: `/${locale}/auth/profile` },
+    // "Mes Billets" (Story 6.4) — the real tickets page, not the profile.
+    { id: "tickets", icon: Ticket, href: `/${locale}/tickets` },
     { id: "account", icon: User, href: `/${locale}/auth/profile` },
   ]
 

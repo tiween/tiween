@@ -11,6 +11,7 @@ import { useCreateOrder } from "@/features/tickets/hooks/useCreateOrder"
 import { useGuestCheckout } from "@/features/tickets/hooks/useGuestCheckout"
 import { useTicketTiers } from "@/features/tickets/hooks/useTicketTiers"
 import { useTicketSelectionStore } from "@/features/tickets/stores/ticketSelectionStore"
+import { saveOrderAccess } from "@/features/tickets/utils/orderAccess"
 import { OrderSummary, PaymentMethodSelector } from "@/features/tickets/components"
 import { GuestCheckoutForm } from "@/features/tickets/components/GuestCheckoutForm"
 import { Button } from "@/components/ui/button"
@@ -118,7 +119,7 @@ export function PaymentStep({
     setGuestInfo(guest)
 
     try {
-      const { payUrl } = await createOrder({
+      const { payUrl, orderNumber, accessToken } = await createOrder({
         eventId: documentId,
         // The tiers response tells us whether the sub-event is a screening or a
         // performance; send exactly one of the two ids.
@@ -135,6 +136,12 @@ export function PaymentStep({
         locale,
         tickets: selectedTickets,
       })
+      // Persist the guest ticket-retrieval credential BEFORE leaving the
+      // client (Story 6.4). It stays in this browser's own storage — putting it
+      // in the Konnect redirect URL would leak it through the gateway, the
+      // referrer and every server log along the way.
+      saveOrderAccess(orderNumber, accessToken)
+
       // Leave the client and hand off to Konnect's hosted page.
       window.location.assign(payUrl)
     } catch {

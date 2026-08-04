@@ -25,6 +25,12 @@ export interface CreateOrderPayload {
 export interface CreateOrderResult {
   orderNumber: string
   payUrl: string
+  /**
+   * Per-order credential that lets a GUEST read their own tickets later
+   * (Story 6.4). Store it locally — never put it in a URL that leaves the
+   * origin.
+   */
+  accessToken: string
 }
 
 export interface UseCreateOrder {

@@ -1,3 +1,5 @@
+import { randomBytes, timingSafeEqual } from "node:crypto"
+
 import type { Core } from "@strapi/strapi"
 
 import { validate } from "../../../../../shared/validation"
@@ -11,6 +13,73 @@ const TICKET_UID = `plugin::${PLUGIN_ID}.ticket`
 export const INVALID_ORDER = "INVALID_ORDER"
 /** Error code: Konnect init failed / timed out (order rolled back to failed). */
 export const KONNECT_UNAVAILABLE = "KONNECT_UNAVAILABLE"
+/** Error code: the caller is not authenticated (no JWT). */
+export const UNAUTHORIZED = "UNAUTHORIZED"
+/** Error code: the caller may not read this order's tickets. */
+export const FORBIDDEN = "FORBIDDEN"
+
+/**
+ * Populate needed to build a ticket view: the tickets themselves plus the event
+ * (with its venue) and sub-event fields the card renders.
+ */
+const TICKET_VIEW_POPULATE = {
+  tickets: true,
+  event: { populate: { venue: true } },
+  screening: true,
+  performance: true,
+  user: true,
+}
+
+/** Sanitized ticket row returned by the ticket-read endpoints. */
+export interface TicketView {
+  ticketNumber: string
+  type: string
+  status: string
+  price: number
+  /** The signed `TWQ1.` token — `null` until the order is paid. */
+  qrCode: string | null
+  scannedAt: string | null
+  orderNumber: string
+  eventTitle: string
+  startDateTime: string | null
+  venueName: string | null
+}
+
+/** Shape of a populated order as consumed by `toTicketView`. */
+interface PopulatedOrder {
+  documentId?: string
+  orderNumber?: string
+  paymentStatus?: string
+  accessToken?: string | null
+  user?: { documentId?: string } | null
+  event?: {
+    title?: string
+    startDateTime?: string
+    venue?: { name?: string } | null
+  } | null
+  screening?: { startDateTime?: string; documentId?: string } | null
+  performance?: { startDateTime?: string; documentId?: string } | null
+  tickets?: Array<{
+    ticketNumber?: string
+    type?: string
+    status?: string
+    price?: number
+    qrCode?: string | null
+    scannedAt?: string | null
+  }> | null
+}
+
+/**
+ * Constant-time string compare that never throws on a length mismatch. Used for
+ * the guest order access token so a caller cannot binary-search it by timing.
+ */
+function timingSafeCompare(a?: string | null, b?: string | null): boolean {
+  if (!a || !b) return false
+  const ab = Buffer.from(a)
+  const bb = Buffer.from(b)
+  if (ab.length !== bb.length) return false
+  return timingSafeEqual(ab, bb)
+}
 
 /** Terminal payment states reconciliation must not re-apply. */
 const TERMINAL_STATUSES = new Set(["paid", "failed", "refunded"])
@@ -75,6 +144,12 @@ const orderService = ({ strapi }: { strapi: Core.Strapi }) => ({
 
     const orderNumber = this.generateOrderNumber()
     const totalAmount = data.tickets.reduce((sum, t) => sum + t.price, 0)
+    // Per-order bearer credential for guest ticket retrieval (Story 6.4). The
+    // order number is short and guessable; this 24-byte random token is what
+    // actually authorizes a guest read. Kept in the buyer's own localStorage and
+    // sent as the `x-order-access-token` REQUEST HEADER — never in a redirect
+    // URL and never in a query string, so it stays out of every access log.
+    const accessToken = this.generateAccessToken()
 
     const publicApi = strapi.plugin("events-manager").service("public-api")
 
@@ -103,6 +178,7 @@ const orderService = ({ strapi }: { strapi: Core.Strapi }) => ({
             "TND"
           ),
           paymentStatus: "pending",
+          accessToken,
         },
       })
 
@@ -122,8 +198,16 @@ const orderService = ({ strapi }: { strapi: Core.Strapi }) => ({
         createdTickets.push(ticket)
       }
 
-      return { order, tickets: createdTickets }
+      // Return the token we generated rather than reading it back off the
+      // document — the attribute is `private` and must not be relied on to
+      // survive any future sanitization of the create result.
+      return { order, tickets: createdTickets, accessToken }
     })
+  },
+
+  /** Fresh 24-byte per-order access token (base64url). */
+  generateAccessToken(): string {
+    return randomBytes(24).toString("base64url")
   },
 
   /**
@@ -169,6 +253,7 @@ const orderService = ({ strapi }: { strapi: Core.Strapi }) => ({
   async initCheckout(input: unknown): Promise<{
     orderNumber: string
     payUrl: string
+    accessToken: string
   }> {
     const data = validate(checkoutSchema, input)
 
@@ -205,7 +290,7 @@ const orderService = ({ strapi }: { strapi: Core.Strapi }) => ({
     const guestName = data.userId
       ? undefined
       : `${data.firstName} ${data.lastName}`.trim()
-    const { order } = await this.createOrder({
+    const { order, accessToken } = await this.createOrder({
       userId: data.userId,
       guestEmail: data.userId ? undefined : data.email,
       guestName,
@@ -251,7 +336,7 @@ const orderService = ({ strapi }: { strapi: Core.Strapi }) => ({
         },
       })
 
-      return { orderNumber: order.orderNumber, payUrl }
+      return { orderNumber: order.orderNumber, payUrl, accessToken }
     } catch (err) {
       // (4) Compensate: release the reservation once, mark the order failed.
       await this.releaseInventory(subEvent, data.tickets.length)
@@ -302,6 +387,13 @@ const orderService = ({ strapi }: { strapi: Core.Strapi }) => ({
 
     // Idempotency: never re-apply a terminal state.
     if (TERMINAL_STATUSES.has(order.paymentStatus)) {
+      // Self-heal (Story 6.4): if a previous issuance partially failed, a later
+      // confirm/webhook fills in the tickets still missing a `qrCode`. Already
+      // issued tickets are skipped inside `issueForOrder`, so this is a no-op
+      // on the common path.
+      if (order.paymentStatus === "paid") {
+        await this.issueQrCodes(orderNumber)
+      }
       return { orderNumber, status: order.paymentStatus, changed: false }
     }
     if (!order.paymentReference) {
@@ -349,6 +441,16 @@ const orderService = ({ strapi }: { strapi: Core.Strapi }) => ({
         // Lost the race — another reconcile already transitioned this order.
         return { orderNumber, status: gw.status, changed: false }
       }
+
+      // QR issuance (Story 6.4). Only the CAS winner reaches this line, but the
+      // already-`paid` early return above also issues, and any number of
+      // confirms/webhooks can be in it concurrently — so exactly-once is NOT a
+      // property of this call site. It is enforced inside `issueForOrder`, whose
+      // per-ticket write is itself a compare-and-set on `qrCode IS NULL`.
+      // Throw-safe — a failed issuance must never undo or hide a settled
+      // payment; a later confirm/webhook self-heals via the already-`paid` path.
+      await this.issueQrCodes(orderNumber)
+
       return { orderNumber, status: "paid", changed: true }
     }
 
@@ -371,6 +473,124 @@ const orderService = ({ strapi }: { strapi: Core.Strapi }) => ({
     }
 
     return { orderNumber, status: gw.status, changed: false }
+  },
+
+  /**
+   * Issue QR tokens for a settled order, never throwing.
+   *
+   * QR issuance is strictly downstream of the money: a signing or DB failure
+   * here must not undo the `paid` transition or make `reconcileFromGateway`
+   * report a non-terminal status. The error is logged and the next
+   * confirm/webhook re-attempts through the already-`paid` self-heal path.
+   */
+  async issueQrCodes(orderNumber: string): Promise<void> {
+    try {
+      await strapi.plugin(PLUGIN_ID).service("qr").issueForOrder(orderNumber)
+    } catch (err) {
+      strapi.log.error(
+        `[ticketing] QR issuance failed for order ${orderNumber}: ${(err as Error)?.message}`
+      )
+    }
+  },
+
+  /**
+   * Explicit allow-list projection of one ticket. NEVER return a raw populated
+   * document: `guestEmail`, `guestName`, `paymentReference`, `accessToken` and
+   * `qrNonce` must not leave the server. `qrCode` is exposed only for a `paid`
+   * order — an unpaid order's tickets read as `qrCode: null`.
+   */
+  toTicketView(
+    order: PopulatedOrder,
+    ticket: NonNullable<PopulatedOrder["tickets"]>[number]
+  ): TicketView {
+    const isPaid = order.paymentStatus === "paid"
+    return {
+      ticketNumber: ticket.ticketNumber ?? "",
+      type: ticket.type ?? "standard",
+      status: ticket.status ?? "valid",
+      price: ticket.price ?? 0,
+      qrCode: isPaid ? ticket.qrCode ?? null : null,
+      scannedAt: ticket.scannedAt ?? null,
+      orderNumber: order.orderNumber ?? "",
+      eventTitle: order.event?.title ?? "",
+      startDateTime:
+        order.screening?.startDateTime ??
+        order.performance?.startDateTime ??
+        order.event?.startDateTime ??
+        null,
+      venueName: order.event?.venue?.name ?? null,
+    }
+  },
+
+  /** Flatten one populated order into its sanitized ticket views. */
+  toTicketViews(order: PopulatedOrder): TicketView[] {
+    const tickets = Array.isArray(order.tickets) ? order.tickets : []
+    return tickets.map((ticket) => this.toTicketView(order, ticket))
+  },
+
+  /**
+   * All tickets of the caller's PAID orders (Story 6.4).
+   *
+   * Scoped by the JWT-derived `userId` only — never by an id from the request —
+   * so a caller can only ever read their own tickets.
+   *
+   * Explicitly unbounded via a TOP-LEVEL `limit: -1`. This is the shape the
+   * Document Service actually understands: `@strapi/utils`' query-param
+   * transformer takes `limit`/`start` at the top level and has no `pagination`
+   * key at all, so a nested `pagination: { limit: -1 }` is an unrecognized
+   * property that is spread through to the db query untouched — it reads as an
+   * intent that is never applied. `limit: -1` converts to "no limit", so a
+   * frequent buyer cannot silently lose older orders from "Mes Billets".
+   * Sorted by `purchasedAt` with
+   * `createdAt` as the tie-break, because a paid order whose `purchasedAt` was
+   * never written (legacy/self-healed row) sorts arbitrarily on its own.
+   */
+  async findTicketsForUser(userId: string): Promise<TicketView[]> {
+    if (!userId) return []
+
+    const orders = (await strapi.documents(ORDER_UID).findMany({
+      filters: { user: { documentId: userId }, paymentStatus: "paid" },
+      populate: TICKET_VIEW_POPULATE,
+      sort: ["purchasedAt:desc", "createdAt:desc"],
+      limit: -1,
+    })) as unknown as PopulatedOrder[]
+
+    return (orders ?? []).flatMap((order) => this.toTicketViews(order))
+  },
+
+  /**
+   * One order's tickets, authorized by owner-JWT or the guest access token.
+   *
+   * An unknown order number and a wrong token both raise the SAME `FORBIDDEN`,
+   * so the endpoint is not an order-number enumeration oracle. The token
+   * compare is constant-time.
+   */
+  async findTicketsForOrder(
+    orderNumber: string,
+    auth: { userId?: string; accessToken?: string }
+  ): Promise<TicketView[]> {
+    const orders = (await strapi.documents(ORDER_UID).findMany({
+      filters: { orderNumber },
+      populate: TICKET_VIEW_POPULATE,
+    })) as unknown as PopulatedOrder[]
+
+    const order = orders?.[0]
+    if (!order) {
+      // Indistinguishable from a wrong token — no enumeration oracle.
+      throw codedError("Not allowed to read these tickets", FORBIDDEN)
+    }
+
+    const isOwner =
+      !!auth.userId && !!order.user?.documentId
+        ? order.user.documentId === auth.userId
+        : false
+    const hasToken = timingSafeCompare(auth.accessToken, order.accessToken)
+
+    if (!isOwner && !hasToken) {
+      throw codedError("Not allowed to read these tickets", FORBIDDEN)
+    }
+
+    return this.toTicketViews(order)
   },
 
   /**

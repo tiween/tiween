@@ -1690,7 +1690,11 @@ export interface PluginTicketingTicket extends Struct.CollectionTypeSchema {
     >
     price: Schema.Attribute.Decimal & Schema.Attribute.Required
     publishedAt: Schema.Attribute.DateTime
-    qrCode: Schema.Attribute.String
+    qrCode: Schema.Attribute.String & Schema.Attribute.Private
+    qrIssuedAt: Schema.Attribute.DateTime
+    qrNonce: Schema.Attribute.String &
+      Schema.Attribute.Private &
+      Schema.Attribute.Unique
     scannedAt: Schema.Attribute.DateTime
     seatInfo: Schema.Attribute.JSON
     status: Schema.Attribute.Enumeration<
@@ -1723,6 +1727,7 @@ export interface PluginTicketingTicketOrder
     draftAndPublish: false
   }
   attributes: {
+    accessToken: Schema.Attribute.String & Schema.Attribute.Private
     createdAt: Schema.Attribute.DateTime
     createdBy: Schema.Attribute.Relation<"oneToOne", "admin::user"> &
       Schema.Attribute.Private

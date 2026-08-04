@@ -21,6 +21,19 @@ const ALLOWED_STRAPI_ENDPOINTS: Record<string, string[]> = {
     // Public ticket-tiers read for a sub-event (Story 6.1). `startsWith` covers
     // `.../showtimes/:documentId/ticket-tiers`. Public, read-only presentation.
     "api/events-manager/showtimes",
+    // Ticket reads (Story 6.4). These are PREFIXES matched with `startsWith`.
+    // `my-tickets` is JWT-self-scoped server-side; `order-tickets/:orderNumber`
+    // is authorized by the per-order access token (sent as the
+    // `x-order-access-token` header, never in the URL) or the owner's JWT, and
+    // answers 403 for both a wrong token and an unknown order number.
+    // DO NOT add `api/ticketing/orders` here: prefix matching would re-admit
+    // `GET api/ticketing/orders/:orderNumber`, which Story 6.3's review
+    // deliberately dropped FROM THIS ALLOW-LIST (the Strapi route still exists;
+    // it now returns an allow-listed status projection only). That is exactly
+    // why these endpoints are `order-tickets/:orderNumber`, not
+    // `orders/:orderNumber/tickets`.
+    "api/ticketing/my-tickets",
+    "api/ticketing/order-tickets",
     // Venue-manager self-service profile reads (Story 7.2). These are PREFIXES,
     // not literal paths — every entry is matched with `startsWith`, so
     // `api/venues/venues/me` also admits `api/venues/venues/meXYZ` and anything

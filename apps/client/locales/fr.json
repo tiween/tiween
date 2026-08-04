@@ -379,7 +379,9 @@
       "TICKET_SOLD_OUT": "Désolé, ces billets viennent d'être épuisés.",
       "INVALID_ORDER": "Votre commande n'est pas valide. Veuillez recommencer votre sélection.",
       "VALIDATION_FAILED": "Veuillez vérifier vos informations et réessayer.",
-      "UNKNOWN_ERROR": "Une erreur est survenue. Veuillez réessayer."
+      "UNKNOWN_ERROR": "Une erreur est survenue. Veuillez réessayer.",
+      "UNAUTHORIZED": "Veuillez vous connecter pour voir vos billets.",
+      "FORBIDDEN": "Ces billets ne sont pas accessibles depuis cet appareil."
     },
     "guest": {
       "description": "Vos billets seront envoyés à cette adresse email",
@@ -398,6 +400,28 @@
       "emailRequired": "L'email est requis",
       "emailInvalid": "Adresse email invalide",
       "phoneInvalid": "Numéro de téléphone invalide"
+    },
+    "viewMyTickets": "Voir mes billets",
+    "myTickets": {
+      "title": "Mes Billets",
+      "description": "Vos billets pour les prochains événements.",
+      "loading": "Chargement de vos billets",
+      "emptyTitle": "Aucun billet pour le moment",
+      "emptyDescription": "Vos billets apparaîtront ici après un achat.",
+      "errorTitle": "Impossible de charger vos billets",
+      "errorDescription": "Une erreur est survenue. Veuillez réessayer.",
+      "signInPrompt": "Connectez-vous pour retrouver tous vos billets."
+    },
+    "ticketCard": {
+      "tickets": "{count, plural, one {# billet} other {# billets}}",
+      "addToWallet": "Ajouter au wallet",
+      "share": "Partager",
+      "scanned": "Scanné",
+      "scannedAt": "Scanné à",
+      "expired": "Événement passé",
+      "offlineAvailable": "Disponible hors ligne",
+      "qrAlt": "Code QR du billet",
+      "qrPending": "Votre QR code est en cours de génération."
     }
   },
   "payment": {

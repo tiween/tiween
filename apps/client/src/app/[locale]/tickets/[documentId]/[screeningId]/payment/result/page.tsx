@@ -33,7 +33,9 @@ export default async function PaymentResultPage({
   const t = await getTranslations({ locale, namespace: "ticketing" })
 
   const paymentHref = `/${locale}/tickets/${documentId}/${screeningId}/payment`
-  const viewOrderHref = `/${locale}`
+  // "Mes Billets" is the destination once a payment settles (Story 6.4) — the
+  // tickets are the thing the buyer came for, not the homepage.
+  const viewOrderHref = `/${locale}/tickets`
 
   return (
     <div className="bg-background min-h-screen pb-24">
