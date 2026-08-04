@@ -1,4 +1,5 @@
-import watchlistService from "../watchlist"
+import watchlistSchema from "../../content-types/user-watchlist/schema.json"
+import watchlistService, { isUniqueViolation } from "../watchlist"
 
 /**
  * Unit tests for the user-engagement `watchlist` service (mocked Strapi),
@@ -85,6 +86,461 @@ describe("watchlist.add (unit)", () => {
     const arg = docApi.create.mock.calls[0][0]
     expect(typeof arg.data.addedAt).toBe("string")
     expect(Number.isNaN(Date.parse(arg.data.addedAt))).toBe(false)
+  })
+})
+
+/**
+ * Story 5.7 — `add` is idempotent under CONCURRENCY, not just serially.
+ *
+ * The serial repeat-add case ("pre-check hits the existing row, no second
+ * create") is already locked above ("returns the existing entry and does NOT
+ * create when already watchlisted") and again in the LWW convergence suite
+ * ("add(X) then add(X) ⇒ dedupe yields a SINGLE row"), so it is not duplicated
+ * here. What these cases lock is the part the pre-check CANNOT give us:
+ *
+ *  - every created row carries `dedupeKey === "<userId>:<creativeWorkId>"`,
+ *    which is the scalar the DB unique index is built on (a composite unique
+ *    across two Strapi v5 relations is not expressible directly);
+ *  - when a concurrent add wins the race and our `create` loses the unique
+ *    constraint, `add` re-reads the pair and returns the winner's row rather
+ *    than surfacing a 500;
+ *  - the re-read is defensive: if the winning row is gone by the time we look,
+ *    we rethrow rather than return `undefined`;
+ *  - only uniqueness conflicts are swallowed — any other create failure still
+ *    propagates.
+ */
+describe("watchlist.add dedupe/race (Story 5.7, unit)", () => {
+  /** Strapi harness whose `create` rejects, and whose `findMany` can change. */
+  function buildRacingStrapi(
+    createError: unknown,
+    findManyResults: Array<Array<{ documentId: string }>>
+  ) {
+    let call = 0
+    const docApi = {
+      // First call is the pre-check, later calls are the post-conflict re-read.
+      findMany: jest.fn(async () => findManyResults[call++] ?? []),
+      create: jest.fn(async () => {
+        throw createError
+      }),
+      delete: jest.fn(),
+    }
+    const strapi: any = { documents: jest.fn(() => docApi) }
+    return { strapi, docApi }
+  }
+
+  it("stamps dedupeKey = `<userId>:<creativeWorkId>` on the created row", async () => {
+    const { strapi, docApi } = buildStrapi([])
+    const service = watchlistService({ strapi })
+
+    await service.add("user-7", "cw-7")
+
+    expect(docApi.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ dedupeKey: "user-7:cw-7" }),
+      })
+    )
+  })
+
+  it("catches a unique-constraint violation, re-reads the pair, returns the winner's row", async () => {
+    // Postgres unique_violation, as `pg` surfaces it.
+    const pgUnique: any = new Error(
+      'duplicate key value violates unique constraint "user_watchlists_dedupe_key_unique"'
+    )
+    pgUnique.code = "23505"
+
+    const { strapi, docApi } = buildRacingStrapi(pgUnique, [
+      [], // pre-check: pair absent (the race window)
+      [{ documentId: "wl-winner" }], // re-read: the concurrent add's row
+    ])
+    const service = watchlistService({ strapi })
+
+    const result = await service.add("user-1", "cw-1")
+
+    expect(docApi.create).toHaveBeenCalledTimes(1)
+    expect(docApi.findMany).toHaveBeenCalledTimes(2)
+    expect(result).toEqual({ documentId: "wl-winner" })
+  })
+
+  it("also recovers from the sqlite flavour of the unique violation", async () => {
+    const sqliteUnique: any = new Error(
+      "insert into `user_watchlists` - UNIQUE constraint failed: user_watchlists.dedupe_key"
+    )
+    sqliteUnique.code = "SQLITE_CONSTRAINT_UNIQUE"
+
+    const { strapi } = buildRacingStrapi(sqliteUnique, [
+      [],
+      [{ documentId: "wl-winner" }],
+    ])
+    const service = watchlistService({ strapi })
+
+    await expect(service.add("user-1", "cw-1")).resolves.toEqual({
+      documentId: "wl-winner",
+    })
+  })
+
+  it("rethrows the original error when the re-read finds nothing (row deleted mid-race)", async () => {
+    const pgUnique: any = new Error("duplicate key")
+    pgUnique.code = "23505"
+
+    const { strapi } = buildRacingStrapi(pgUnique, [[], []])
+    const service = watchlistService({ strapi })
+
+    // Never resolve to `undefined` — that would claim a write that did not land.
+    await expect(service.add("user-1", "cw-1")).rejects.toBe(pgUnique)
+  })
+
+  it("propagates a non-unique create error untouched", async () => {
+    const boom: any = new Error("connection terminated unexpectedly")
+    boom.code = "ECONNRESET"
+
+    const { strapi, docApi } = buildRacingStrapi(boom, [
+      [],
+      [{ documentId: "wl-should-not-be-used" }],
+    ])
+    const service = watchlistService({ strapi })
+
+    await expect(service.add("user-1", "cw-1")).rejects.toBe(boom)
+    // No recovery re-read for a non-uniqueness failure.
+    expect(docApi.findMany).toHaveBeenCalledTimes(1)
+  })
+})
+
+/**
+ * Story 5.7 — `dedupeKey` is an internal uniqueness mechanism and must NEVER
+ * reach a client (spec: "Do NOT expose dedupeKey in API responses").
+ *
+ * Marking it `private` in the schema is not sufficient here: Strapi v5 honours
+ * `private` in `strapi.contentAPI.sanitize.output()`, which only the CORE
+ * controllers call — this plugin's controller assigns the raw service result to
+ * `ctx.body`. So the guarantee has to hold at the service boundary, on EVERY
+ * path that returns a row.
+ */
+describe("watchlist dedupeKey is never returned (Story 5.7, unit)", () => {
+  const ROW_WITH_KEY = {
+    documentId: "wl-1",
+    addedAt: "2026-01-01T00:00:00.000Z",
+    notifyChanges: true,
+    dedupeKey: "user-1:cw-1",
+  }
+
+  function buildStrapiReturning(rows: any[], created?: any) {
+    const docApi = {
+      findMany: jest.fn(async () => rows),
+      create: jest.fn(async () => created ?? { ...ROW_WITH_KEY }),
+      delete: jest.fn(),
+    }
+    const strapi: any = { documents: jest.fn(() => docApi) }
+    return { strapi, docApi }
+  }
+
+  it("fast path (pre-check hit) strips dedupeKey", async () => {
+    const { strapi } = buildStrapiReturning([{ ...ROW_WITH_KEY }])
+    const service = watchlistService({ strapi })
+
+    const result: any = await service.add("user-1", "cw-1")
+
+    expect(result).not.toHaveProperty("dedupeKey")
+    // Everything else survives untouched.
+    expect(result).toMatchObject({ documentId: "wl-1", notifyChanges: true })
+  })
+
+  it("create path strips dedupeKey from the returned row (but still SENDS it)", async () => {
+    const { strapi, docApi } = buildStrapiReturning([])
+    const service = watchlistService({ strapi })
+
+    const result: any = await service.add("user-1", "cw-1")
+
+    expect(result).not.toHaveProperty("dedupeKey")
+    // The write itself must still carry the key — stripping is read-side only.
+    expect(docApi.create.mock.calls[0][0].data.dedupeKey).toBe("user-1:cw-1")
+  })
+
+  it("race-recovery path strips dedupeKey from the winner's row", async () => {
+    const pgUnique: any = new Error("duplicate key")
+    pgUnique.code = "23505"
+    let call = 0
+    const docApi = {
+      findMany: jest.fn(async () =>
+        call++ === 0 ? [] : [{ ...ROW_WITH_KEY }]
+      ),
+      create: jest.fn(async () => {
+        throw pgUnique
+      }),
+      delete: jest.fn(),
+    }
+    const strapi: any = { documents: jest.fn(() => docApi) }
+    const service = watchlistService({ strapi })
+
+    const result: any = await service.add("user-1", "cw-1")
+
+    expect(result).not.toHaveProperty("dedupeKey")
+    expect(result.documentId).toBe("wl-1")
+  })
+
+  it("getUserWatchlist strips dedupeKey from every row, preserving order and enrichment", async () => {
+    const rows = [
+      {
+        documentId: "wl-1",
+        dedupeKey: "user-1:cw-1",
+        creativeWork: { documentId: "cw-1" },
+      },
+      {
+        documentId: "wl-2",
+        dedupeKey: "user-1:cw-2",
+        creativeWork: { documentId: "cw-2" },
+      },
+    ]
+    const { strapi } = buildEnrichStrapi(rows as any, {
+      resolve: {
+        "cw-1": {
+          nextScreeningDate: "2026-07-13T00:00:00.000Z",
+          lastScreeningDate: null,
+          venueName: "V",
+        },
+      },
+    })
+    const service = watchlistService({ strapi })
+
+    const result: any[] = await service.getUserWatchlist("user-1")
+
+    expect(result.map((row) => row.documentId)).toEqual(["wl-1", "wl-2"])
+    for (const row of result) {
+      expect(row).not.toHaveProperty("dedupeKey")
+    }
+    expect(result[0]).toMatchObject({
+      creativeWork: { documentId: "cw-1" },
+      nextScreeningDate: "2026-07-13T00:00:00.000Z",
+      lastScreeningDate: null,
+      venueName: "V",
+    })
+  })
+})
+
+/**
+ * Story 5.7 — a "poisoned" row makes the pair permanently un-addable without a
+ * key-based fallback.
+ *
+ * The controller takes `creativeWorkId` straight from the request body with no
+ * existence check, so a create with an unresolvable relation can land a row that
+ * HOLDS the dedupeKey but has no `creativeWork` link. Every later `add` would
+ * then miss on the relation-filtered pre-check, lose to the unique index, miss
+ * again on the relation-filtered re-read, and rethrow — a permanent hard 500 for
+ * that pair, unclearable via `remove` (same relation filter).
+ */
+describe("watchlist.add poisoned-key recovery (Story 5.7, unit)", () => {
+  it("falls back to a dedupeKey lookup when the pair re-read comes back empty", async () => {
+    const pgUnique: any = new Error("duplicate key")
+    pgUnique.code = "23505"
+
+    const results = [
+      [], // pre-check on the pair
+      [], // post-conflict re-read on the pair — the poisoned row has no link
+      [{ documentId: "wl-poisoned", dedupeKey: "user-1:cw-1" }], // by key
+    ]
+    let call = 0
+    const docApi = {
+      findMany: jest.fn(async () => results[call++] ?? []),
+      create: jest.fn(async () => {
+        throw pgUnique
+      }),
+      delete: jest.fn(),
+    }
+    const strapi: any = { documents: jest.fn(() => docApi) }
+    const service = watchlistService({ strapi })
+
+    const result: any = await service.add("user-1", "cw-1")
+
+    expect(result).toEqual({ documentId: "wl-poisoned" })
+    expect(result).not.toHaveProperty("dedupeKey")
+    expect(docApi.findMany).toHaveBeenCalledTimes(3)
+    // Scoped to the requesting user as well as the key: `dedupeKey` is unique
+    // and already embeds `userId`, so this filter is redundant exactly when the
+    // key encoding is sound — which is the point of asserting it.
+    expect(docApi.findMany).toHaveBeenNthCalledWith(3, {
+      filters: { dedupeKey: "user-1:cw-1", user: { documentId: "user-1" } },
+    })
+  })
+
+  it("still rethrows when the dedupeKey lookup finds nothing either", async () => {
+    const pgUnique: any = new Error("duplicate key")
+    pgUnique.code = "23505"
+
+    const docApi = {
+      findMany: jest.fn(async () => []),
+      create: jest.fn(async () => {
+        throw pgUnique
+      }),
+      delete: jest.fn(),
+    }
+    const strapi: any = { documents: jest.fn(() => docApi) }
+    const service = watchlistService({ strapi })
+
+    await expect(service.add("user-1", "cw-1")).rejects.toBe(pgUnique)
+  })
+})
+
+/**
+ * The unique-violation detector has to work across every driver this repo runs
+ * on (Postgres in prod, better-sqlite3 in dev/test per `config/database.ts`) and
+ * survive Strapi wrapping the driver error.
+ */
+describe("isUniqueViolation (Story 5.7, unit)", () => {
+  it("recognises the structured driver codes", () => {
+    expect(
+      isUniqueViolation(Object.assign(new Error("x"), { code: "23505" }))
+    ).toBe(true)
+    expect(
+      isUniqueViolation(
+        Object.assign(new Error("x"), { code: "SQLITE_CONSTRAINT_UNIQUE" })
+      )
+    ).toBe(true)
+    expect(
+      isUniqueViolation(Object.assign(new Error("x"), { code: "ER_DUP_ENTRY" }))
+    ).toBe(true)
+  })
+
+  it("falls back to the message when the driver code was stripped by a wrapper", () => {
+    expect(
+      isUniqueViolation(
+        new Error("UNIQUE constraint failed: user_watchlists.dedupe_key")
+      )
+    ).toBe(true)
+    expect(
+      isUniqueViolation(
+        new Error('duplicate key value violates unique constraint "x_unique"')
+      )
+    ).toBe(true)
+  })
+
+  it("unwraps one level of `cause`", () => {
+    const wrapped: any = new Error("Document creation failed")
+    wrapped.cause = Object.assign(new Error("x"), { code: "23505" })
+    expect(isUniqueViolation(wrapped)).toBe(true)
+  })
+
+  it("checks BOTH unwrap paths — a non-unique `cause` must not mask a unique `details.originalError`", () => {
+    const wrapped: any = new Error("Document creation failed")
+    wrapped.cause = new Error("some unrelated context")
+    wrapped.details = {
+      originalError: Object.assign(new Error("x"), { code: "23505" }),
+    }
+    expect(isUniqueViolation(wrapped)).toBe(true)
+  })
+
+  it("survives a cyclic cause chain instead of overflowing the stack", () => {
+    const a: any = new Error("a")
+    const b: any = new Error("b")
+    a.cause = b
+    b.cause = a
+
+    // The whole point: this runs inside a `catch`, so a RangeError here would
+    // turn a recoverable race into an unrecoverable crash.
+    expect(() => isUniqueViolation(a)).not.toThrow()
+    expect(isUniqueViolation(a)).toBe(false)
+
+    // A cycle that DOES contain a unique violation is still detected.
+    const c: any = new Error("c")
+    const d: any = Object.assign(new Error("d"), { code: "23505" })
+    c.cause = d
+    d.cause = c
+    expect(isUniqueViolation(c)).toBe(true)
+  })
+
+  it("returns false for unrelated errors and non-objects", () => {
+    expect(isUniqueViolation(new Error("connection terminated"))).toBe(false)
+    expect(
+      isUniqueViolation(Object.assign(new Error("nope"), { code: "23503" }))
+    ).toBe(false)
+    expect(isUniqueViolation(null)).toBe(false)
+    expect(isUniqueViolation("23505")).toBe(false)
+  })
+
+  it("does NOT treat a primary-key collision as the dedupe race", () => {
+    // A PK collision on an auto-increment `id` is corruption, not the
+    // "a concurrent add won" case this recovery exists for. Swallowing it would
+    // route a genuine corruption signal into "re-read and carry on".
+    expect(
+      isUniqueViolation(
+        Object.assign(new Error("x"), {
+          code: "SQLITE_CONSTRAINT_PRIMARYKEY",
+        })
+      )
+    ).toBe(false)
+  })
+})
+
+/**
+ * Story 5.7 — the dedupe key is `"<userId>:<creativeWorkId>"`, so `:` is the
+ * separator and both halves must be colon-free for the encoding to be
+ * reversible. `creativeWorkId` arrives straight from the request body (the
+ * controller checks truthiness only), so the type check matters too: without it
+ * every object body would coerce to the SAME key, `"<user>:[object Object]"`.
+ */
+describe("watchlist.add rejects identifiers that would build an ambiguous key", () => {
+  function buildBareStrapi() {
+    const docApi = {
+      findMany: jest.fn(async () => []),
+      create: jest.fn(async () => ({ documentId: "wl-1" })),
+      delete: jest.fn(),
+    }
+    return { strapi: { documents: jest.fn(() => docApi) } as any, docApi }
+  }
+
+  it.each([
+    ["a colon in the creativeWorkId", "user-1", "cw:1"],
+    ["a colon in the userId", "user:1", "cw-1"],
+    ["a non-string creativeWorkId", "user-1", {} as unknown as string],
+    ["an empty creativeWorkId", "user-1", ""],
+  ])("throws on %s", async (_label, userId, creativeWorkId) => {
+    const { strapi, docApi } = buildBareStrapi()
+    const service = watchlistService({ strapi })
+
+    await expect(service.add(userId, creativeWorkId)).rejects.toThrow(
+      "INVALID_WATCHLIST_IDENTIFIER"
+    )
+    // Rejected before any write — no half-formed row can land.
+    expect(docApi.create).not.toHaveBeenCalled()
+  })
+
+  it("accepts well-formed Strapi documentIds", async () => {
+    const { strapi, docApi } = buildBareStrapi()
+    const service = watchlistService({ strapi })
+
+    await service.add("kx8t2h9wq1mnb4vc7ry0zjfa", "p3d6l0suew8kna2xvt5hcgqm")
+
+    expect(docApi.create).toHaveBeenCalledTimes(1)
+  })
+})
+
+/**
+ * The whole story rests on ONE schema flag. `"unique": true` is what makes
+ * Strapi's schema sync create the `user_watchlists.dedupe_key` UNIQUE index —
+ * without it every race test above still passes (they inject the driver error
+ * rather than provoke it), the migration still backfills, and the duplicate rows
+ * come straight back. `"private": true` is the other half of the contract
+ * ("Do NOT expose dedupeKey in API responses") and is defence in depth behind
+ * `stripDedupeKey`. Neither is observable from a mocked Document Service, so
+ * they are pinned here directly — same pattern as the venue `schema.json` sync
+ * guard in `src/shared/__tests__/website-url.unit.test.ts`.
+ */
+describe("user-watchlist schema.json sync (Story 5.7, unit)", () => {
+  const dedupeKey = (
+    watchlistSchema as {
+      attributes: {
+        dedupeKey: { type: string; unique?: boolean; private?: boolean }
+      }
+    }
+  ).attributes.dedupeKey
+
+  it("declares dedupeKey as a unique string", () => {
+    expect(dedupeKey).toBeDefined()
+    expect(dedupeKey.type).toBe("string")
+    // Load-bearing: this flag IS the database-level dedupe guarantee.
+    expect(dedupeKey.unique).toBe(true)
+  })
+
+  it("declares dedupeKey private", () => {
+    expect(dedupeKey.private).toBe(true)
   })
 })
 

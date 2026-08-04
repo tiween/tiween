@@ -1588,3 +1588,45 @@ origin: story 7-2-venue-profile-management (2026-08-03), review pass
 location: apps/strapi/src/plugins/venues/server/src/services/**tests**/\*.unit.test.ts
 reason: (MEDIUM) `data.properties = [{ definition: "<documentId>", ... }]` (a relation embedded in a repeatable component, written by documentId), `publish({ documentId })` with no locale, and `filters: { manager: { id: { $eq } } }` have never met a real Document Service — the suites assert only that the service hands those literals to a `jest.fn()`. The same is true of story 7.1's registration service. A format error here passes every test and fails on the first real save. Fix: adopt the integration-seam test tier already recorded as an Epic 5 retrospective action, and cover at least the component-relation write against a live instance.
 status: open
+
+### DW-224: a NULL `dedupeKey` exempts any non-service writer from the watchlist unique constraint
+
+origin: story 5-7-watchlist-atomic-dedupe (2026-08-04), review pass
+location: apps/strapi/src/plugins/user-engagement/server/src/content-types/user-watchlist/schema.json, services/watchlist.ts (`add`)
+reason: (MEDIUM) `dedupeKey` is stamped only by `watchlist.add`. A row created any other way — the Strapi admin content-manager, a seed script, a future service — gets NULL, and both Postgres and SQLite allow unlimited NULLs in a unique index, so those rows escape the constraint entirely and can re-introduce the duplicate pairs this story eliminated. Today `add` is the only writer, so the invariant holds in practice, but it rests on that staying true rather than on the schema. Fix: stamp `dedupeKey` in a `beforeCreate` lifecycle hook on the content type so every writer is covered, and make the column non-nullable once the backfill has run everywhere.
+status: open
+
+### DW-225: watchlist dedupe cleanup and its UNIQUE index are created in two non-atomic phases
+
+origin: story 5-7-watchlist-atomic-dedupe (2026-08-04), review pass
+location: apps/strapi/database/migrations/2026.08.04T00.00.00.watchlist-dedupe-key.js
+reason: (MEDIUM) Strapi runs user migrations, commits them, and only then runs `syncSchema()` to add the UNIQUE index (`@strapi/database/dist/schema/index.js:69-73`). In a rolling deploy where old pods still serve `POST /watchlist`, a duplicate pair inserted in that window makes the index creation fail and boot crash — and because the migration is already recorded in `strapi_migrations` it will never re-run to re-clean, requiring manual DB surgery. Fix: create the unique index inside the migration itself (matching Strapi's generated index name so `diffTableIndexes` treats it as present), or gate the deploy so no writer is live across the boundary. Needs a real database to validate the index-name match, which is why it was not attempted in this pass.
+status: open
+
+### DW-226: the watchlist dedupe migration loads the whole table into memory unbatched
+
+origin: story 5-7-watchlist-atomic-dedupe (2026-08-04), review pass
+location: apps/strapi/database/migrations/2026.08.04T00.00.00.watchlist-dedupe-key.js
+reason: (LOW) The backfill selects every `user_watchlists` row plus two joins into a single in-memory array, inside the migration's transaction. Watchlist is a Phase-2 feature with low volume today, so this is not a live risk, but at a few million rows the boot-time migration would allocate the whole result set at once and OOM inside a container memory limit, leaving a crash loop. Fix: page the select by primary key and process in batches.
+status: open
+
+### DW-227: the watchlist dedupe change has no integration-tier verification at either seam
+
+origin: story 5-7-watchlist-atomic-dedupe (2026-08-04), follow-up review pass
+location: apps/strapi/src/plugins/user-engagement/server/src/services/**tests**/watchlist.unit.test.ts, src/plugins/user-engagement/server/src/**tests**/watchlist-dedupe-migration.unit.test.ts
+reason: (MEDIUM) Both halves of the story are verified alone and their seams never execute. (a) The migration creates `dedupe_key` itself and relies on `syncSchema()` then diffing it as an unchanged nullable `varchar(255)` and adding only the UNIQUE index — the migration tests drive `up()` against hand-built SQLite tables and never run Strapi's schema diff, so a column-shape mismatch or a future reordering of user migrations after `syncSchema()` would surface first on a production boot. (b) `isUniqueViolation` is only ever fed errors the tests construct themselves; the shape a real `pg`/better-sqlite3 driver error has once Strapi has wrapped it is never observed, so a Strapi or pg upgrade that rewraps it turns the "never a 500" race guarantee off with a green suite. This pass closed the cheap part of the gap (a schema-contract test now fails if `"unique": true` is dropped) but the seams need a live instance. Fix: use the opt-in boot-based tier (`*.service.test.ts` via `tests/helpers/strapi`) to seed a pre-5.7 duplicate pair, boot, and assert the index exists, a duplicate insert is rejected, and the rejection satisfies `isUniqueViolation`. Same tier DW-223 asks for.
+status: open
+
+### DW-228: `watchlist.add` never checks that `creativeWorkId` resolves, so a bogus id returns a lying 200
+
+origin: story 5-7-watchlist-atomic-dedupe (2026-08-04), follow-up review pass
+location: apps/strapi/src/plugins/user-engagement/server/src/services/watchlist.ts (`add`), controllers/watchlist.ts
+reason: (LOW) The controller checks `creativeWorkId` for truthiness only, and Strapi silently drops a relation it cannot resolve — so a POST with a well-formed but nonexistent documentId lands a "poisoned" row that holds the dedupe key with no `creativeWork` link. The client gets 200, the item never appears in `getUserWatchlist`, and `remove` cannot delete it (both filter on the relation). Story 5.7's key-lookup fallback stops that pair from becoming a permanent 500, but it returns the poisoned row as success rather than repairing it, so the silent-lie end state is unchanged. Only reachable from a client sending ids it did not get from the API, and the damage is confined to that user's own account, which is why it was not patched here. Fix: verify the creative work exists before creating and return a proper error code — that is a client-contract decision (a new 4xx on the add path) rather than an in-scope patch, so it needs a call rather than a quiet change.
+status: open
+
+### DW-229: the migration's test reaches it by a hardcoded six-level path and an undeclared `knex`
+
+origin: story 5-7-watchlist-atomic-dedupe (2026-08-04), follow-up review pass
+location: apps/strapi/src/plugins/user-engagement/server/src/**tests**/watchlist-dedupe-migration.unit.test.ts
+reason: (LOW) The suite lives under the plugin but tests a file in `apps/strapi/database/migrations/`, reaching it through `require("../../../../../../database/migrations/2026.08.04T00.00.00.watchlist-dedupe-key.js")` — a dated filename embedded in a six-level relative path, so renaming or restamping the migration breaks the test by silent module-not-found rather than by a failing assertion. It also `require("knex")`, which is not a dependency of `apps/strapi/package.json` and resolves only via root hoisting; any hoisting change (pnpm, `nmHoistingLimits`, a nested install) breaks the suite for reasons unrelated to the code. Fix: co-locate migration tests next to `database/migrations/`, resolve the module by directory scan rather than by literal filename, and declare `knex` as a devDependency of `apps/strapi`.
+status: open
