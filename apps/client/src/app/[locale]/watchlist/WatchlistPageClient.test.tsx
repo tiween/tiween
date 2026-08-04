@@ -9,29 +9,42 @@
  * observable (the seed is what prevents the remove-hook guard from no-opping the
  * first tap).
  */
+import * as React from "react"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { fireEvent, render, screen, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
-import * as React from "react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import type { WatchlistItem } from "@/features/events/hooks/useWatchlist"
 
-const { useOfflineWatchlistMock, removeMock, pushMock, formatRelativeTimeMock } =
-  vi.hoisted(() => ({
-    useOfflineWatchlistMock: vi.fn(),
-    removeMock: vi.fn(),
-    pushMock: vi.fn(),
-    formatRelativeTimeMock: vi.fn(() => ""),
-  }))
+// A parity guard for the `watchlist` i18n namespace: the mocked next-intl above
+// echoes keys, so the component tests cannot catch a key that is missing in one
+// locale. This asserts the three locale files carry the SAME watchlist keys
+// (recursively, including the nested `categories` object) so a dropped/renamed
+// key surfaces as a failing test instead of a runtime MISSING_MESSAGE.
+import ar from "../../../../locales/ar.json"
+import en from "../../../../locales/en.json"
+import fr from "../../../../locales/fr.json"
+import { WatchlistPageClient } from "./WatchlistPageClient"
+
+const {
+  useOfflineWatchlistMock,
+  removeMock,
+  pushMock,
+  formatRelativeTimeMock,
+} = vi.hoisted(() => ({
+  useOfflineWatchlistMock: vi.fn(),
+  removeMock: vi.fn(),
+  pushMock: vi.fn(),
+  formatRelativeTimeMock: vi.fn(() => ""),
+}))
 
 // Surface the `{time}` value for the `lastSynced` message (the real message is
 // "Last synced {time}") so the banner's formatted value is actually asserted;
 // every other key still echoes bare (the mock has no real message templates).
 vi.mock("next-intl", () => ({
-  useTranslations:
-    () => (key: string, values?: Record<string, unknown>) =>
-      key === "lastSynced" && values ? `lastSynced ${values.time}` : key,
+  useTranslations: () => (key: string, values?: Record<string, unknown>) =>
+    key === "lastSynced" && values ? `lastSynced ${values.time}` : key,
 }))
 
 vi.mock("@/lib/dates", () => ({
@@ -67,16 +80,14 @@ vi.mock("@/features/events/hooks/useOfflineWatchlist", () => ({
 vi.mock("@/features/events/hooks/useWatchlist", () => ({
   watchlistKeys: {
     all: ["watchlist"],
-    list: () => ["watchlist", "list"],
-    check: (id: string) => ["watchlist", "check", id],
+    list: (userId: number) => ["watchlist", "list", userId],
+    check: (userId: number, id: string) => ["watchlist", "check", userId, id],
   },
 }))
 
 vi.mock("@/features/events/hooks/useRemoveFromWatchlist", () => ({
   useRemoveFromWatchlist: () => ({ remove: removeMock, isPending: false }),
 }))
-
-import { WatchlistPageClient } from "./WatchlistPageClient"
 
 function makeItem(
   documentId: string,
@@ -207,8 +218,14 @@ describe("WatchlistPageClient", () => {
       data: [
         makeItem("Film", { type: "film", next: "2026-07-11T00:00:00.000Z" }),
         makeItem("Play", { type: "play", next: "2026-07-12T00:00:00.000Z" }),
-        makeItem("PastFilm", { type: "film", last: "2026-07-01T00:00:00.000Z" }),
-        makeItem("PastPlay", { type: "play", last: "2026-07-02T00:00:00.000Z" }),
+        makeItem("PastFilm", {
+          type: "film",
+          last: "2026-07-01T00:00:00.000Z",
+        }),
+        makeItem("PastPlay", {
+          type: "play",
+          last: "2026-07-02T00:00:00.000Z",
+        }),
       ],
     })
 
@@ -231,7 +248,9 @@ describe("WatchlistPageClient", () => {
   it("shows an inline no-category message when the filter empties the list", async () => {
     const user = userEvent.setup()
     setWatchlist({
-      data: [makeItem("Play", { type: "play", next: "2026-07-12T00:00:00.000Z" })],
+      data: [
+        makeItem("Play", { type: "play", next: "2026-07-12T00:00:00.000Z" }),
+      ],
     })
 
     renderPage(new QueryClient())
@@ -346,7 +365,7 @@ describe("WatchlistPageClient", () => {
 
     // The card seeded its `check` cache so the shared remove hook would not
     // no-op the first tap.
-    expect(client.getQueryData(["watchlist", "check", "cw-D"])).toEqual({
+    expect(client.getQueryData(["watchlist", "check", 1, "cw-D"])).toEqual({
       isInWatchlist: true,
     })
 
@@ -477,15 +496,6 @@ describe("WatchlistPageClient — offline (Story 5.4)", () => {
     expect(screen.queryByText("offlineEmptyTitle")).toBeNull()
   })
 })
-
-// A parity guard for the `watchlist` i18n namespace: the mocked next-intl above
-// echoes keys, so the component tests cannot catch a key that is missing in one
-// locale. This asserts the three locale files carry the SAME watchlist keys
-// (recursively, including the nested `categories` object) so a dropped/renamed
-// key surfaces as a failing test instead of a runtime MISSING_MESSAGE.
-import ar from "../../../../locales/ar.json"
-import en from "../../../../locales/en.json"
-import fr from "../../../../locales/fr.json"
 
 function keyPaths(obj: unknown, prefix = ""): string[] {
   if (obj === null || typeof obj !== "object") return [prefix]

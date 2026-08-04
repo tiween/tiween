@@ -1,17 +1,13 @@
 "use client"
 
 import * as React from "react"
+import { CategoryTabs } from "@/features/events/components/CategoryTabs"
 import {
   EventCard,
   EventCardSkeleton,
-  type EventCardLabels,
 } from "@/features/events/components/EventCard"
-import {
-  CategoryTabs,
-  type CategoryType,
-} from "@/features/events/components/CategoryTabs"
-import { useRemoveFromWatchlist } from "@/features/events/hooks/useRemoveFromWatchlist"
 import { useOfflineWatchlist } from "@/features/events/hooks/useOfflineWatchlist"
+import { useRemoveFromWatchlist } from "@/features/events/hooks/useRemoveFromWatchlist"
 import { watchlistKeys } from "@/features/events/hooks/useWatchlist"
 import { mapTypeToCategory } from "@/features/events/utils/categoryMapper"
 import {
@@ -20,15 +16,18 @@ import {
 } from "@/features/events/utils/watchlistView"
 import { useQueryClient } from "@tanstack/react-query"
 import { AlertCircle, Heart, RefreshCw, WifiOff } from "lucide-react"
+import { useSession } from "next-auth/react"
 import { useTranslations } from "next-intl"
 
+import type { CategoryType } from "@/features/events/components/CategoryTabs"
+import type { EventCardLabels } from "@/features/events/components/EventCard"
 import type { WatchlistItem } from "@/features/events/hooks/useWatchlist"
 
 import { formatRelativeTime } from "@/lib/dates"
 import { useRouter } from "@/lib/navigation"
+import { EmptyState } from "@/components/common/EmptyState"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { EmptyState } from "@/components/common/EmptyState"
 
 export interface WatchlistPageClientProps {
   locale: string
@@ -275,7 +274,8 @@ function OfflineBanner({
 /**
  * A single watchlist row.
  *
- * Seeds `watchlistKeys.check(id)` to `{ isInWatchlist: true }` on mount — every
+ * Seeds `watchlistKeys.check(userId, id)` to `{ isInWatchlist: true }` on mount
+ * (under the signed-in user's scope only, Story 5.8) — every
  * listed item is, by definition, watchlisted — so the shared
  * `useRemoveFromWatchlist` guard does not read `undefined` and silently no-op
  * the first tap (and the heart renders filled). Because hooks can't run inside
@@ -298,6 +298,8 @@ function WatchlistCard({
 }) {
   const router = useRouter()
   const queryClient = useQueryClient()
+  const { data: session } = useSession()
+  const userId = session?.user?.userId
   const creativeWorkId = item.creativeWork.documentId
   const { remove } = useRemoveFromWatchlist(creativeWorkId)
 
@@ -309,10 +311,13 @@ function WatchlistCard({
     : mapTypeToCategory(item.creativeWork.type)
 
   React.useEffect(() => {
-    queryClient.setQueryData(watchlistKeys.check(creativeWorkId), {
+    // Seed under the CURRENT user's scope only (Story 5.8) — never write a
+    // check answer that another account could read back.
+    if (!userId) return
+    queryClient.setQueryData(watchlistKeys.check(userId, creativeWorkId), {
       isInWatchlist: true,
     })
-  }, [queryClient, creativeWorkId])
+  }, [queryClient, creativeWorkId, userId])
 
   return (
     <EventCard

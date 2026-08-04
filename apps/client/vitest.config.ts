@@ -84,6 +84,15 @@ export default defineConfig({
       "src/features/events/components/EventCard/**/*.test.tsx",
       // formatRelativeTime (Story 5.4).
       "src/lib/dates.test.ts",
+      // Shared sign-out path — per-user watchlist cache eviction (Story 5.8),
+      // plus the server branch of the query client that eviction depends on.
+      // (The provider-wiring test is already covered by the
+      // `src/components/providers/**` glob further down.)
+      "src/lib/sign-out.test.ts",
+      "src/lib/query-client.test.ts",
+      // NextAuth's configured sign-out route (Story 5.8). `[locale]` is a glob
+      // char-class, so match the segment via `**`.
+      "src/app/**/signout/**/*.test.tsx",
       // Western-numeral guard (Story 1.12): the shared locale helper, plus the
       // catalog-wide ICU gate that renders every ar.json message at
       // `ar-u-nu-arab` and rejects Arabic-Indic output.

@@ -62,6 +62,42 @@ const config = [
     },
   },
   {
+    // Story 5.8: react-query caches are user-scoped, and the outgoing user's
+    // watchlist entries are evicted by `signOutAndClearCache`. A sign-out that
+    // calls NextAuth directly skips that eviction and leaves one account's rows
+    // resident for the next one on a shared device -- a leak no test catches
+    // because the bypassing call site is exactly what a new feature adds.
+    // `lib/sign-out.ts` is the one place allowed to reach NextAuth's `signOut`.
+    files: ["src/**/*.@(ts|tsx)"],
+    ignores: ["src/lib/sign-out.ts"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          paths: [
+            {
+              name: "next-auth/react",
+              importNames: ["signOut"],
+              message:
+                "Import `signOutAndClearCache` from `@/lib/sign-out` instead -- it evicts the user-scoped watchlist cache before signing out (Story 5.8).",
+            },
+          ],
+        },
+      ],
+      // `no-restricted-imports` only sees static imports; a dynamic
+      // `import("next-auth/react")` would slip the same bypass through.
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector:
+            "ImportExpression > Literal[value='next-auth/react'], CallExpression[callee.name='require'] > Literal[value='next-auth/react']",
+          message:
+            "Import `signOutAndClearCache` from `@/lib/sign-out` instead -- it evicts the user-scoped watchlist cache before signing out (Story 5.8).",
+        },
+      ],
+    },
+  },
+  {
     files: ["src/components/ui/*.tsx"],
     rules: {
       "react/jsx-curly-brace-presence": "off",

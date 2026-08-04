@@ -2,9 +2,9 @@
 
 import { useRouter } from "next/navigation"
 import { ArrowLeft, Bell, Key, LogOut } from "lucide-react"
-import { signOut } from "next-auth/react"
 import { useTranslations } from "next-intl"
 
+import { signOutAndClearCache } from "@/lib/sign-out"
 import { cn } from "@/lib/utils"
 import { useCurrentUser } from "@/hooks/useUser"
 import { Button } from "@/components/ui/button"
@@ -45,7 +45,7 @@ export function ProfilePageClient({
   const { isLoading: isLoadingProfile } = useCurrentUser(true)
 
   const handleSignOut = () => {
-    signOut({ callbackUrl: `/${locale}` })
+    signOutAndClearCache({ callbackUrl: `/${locale}` })
   }
 
   return (

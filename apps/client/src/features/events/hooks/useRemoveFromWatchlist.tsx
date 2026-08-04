@@ -80,19 +80,19 @@ export function useRemoveFromWatchlist(
         toast({ variant: "destructive", description: t("error") })
         return
       }
-      queryClient.setQueryData(watchlistKeys.check(creativeWorkId), {
+      queryClient.setQueryData(watchlistKeys.check(userId, creativeWorkId), {
         isInWatchlist: true,
       })
       return
     }
 
     // Online: optimistic refill, then re-add via the shared add mutation.
-    queryClient.setQueryData(watchlistKeys.check(creativeWorkId), {
+    queryClient.setQueryData(watchlistKeys.check(userId, creativeWorkId), {
       isInWatchlist: true,
     })
     addMutation.mutate(creativeWorkId, {
       onError: () => {
-        queryClient.setQueryData(watchlistKeys.check(creativeWorkId), {
+        queryClient.setQueryData(watchlistKeys.check(userId, creativeWorkId), {
           isInWatchlist: false,
         })
         toast({ variant: "destructive", description: t("error") })
@@ -122,7 +122,7 @@ export function useRemoveFromWatchlist(
         toast({ variant: "destructive", description: t("error") })
         return
       }
-      queryClient.setQueryData(watchlistKeys.check(creativeWorkId), {
+      queryClient.setQueryData(watchlistKeys.check(userId, creativeWorkId), {
         isInWatchlist: false,
       })
       toast({ description: t("removeSuccess"), action: undo })
@@ -130,13 +130,13 @@ export function useRemoveFromWatchlist(
     }
 
     // (6) Online: optimistic outline, then persist via the remove mutation.
-    queryClient.setQueryData(watchlistKeys.check(creativeWorkId), {
+    queryClient.setQueryData(watchlistKeys.check(userId, creativeWorkId), {
       isInWatchlist: false,
     })
     removeMutation.mutate(creativeWorkId, {
       onSuccess: () => toast({ description: t("removeSuccess"), action: undo }),
       onError: () => {
-        queryClient.setQueryData(watchlistKeys.check(creativeWorkId), {
+        queryClient.setQueryData(watchlistKeys.check(userId, creativeWorkId), {
           isInWatchlist: true,
         })
         toast({ variant: "destructive", description: t("error") })
