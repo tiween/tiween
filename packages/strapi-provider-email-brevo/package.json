@@ -1,0 +1,26 @@
+{
+  "name": "@tiween/strapi-provider-email-brevo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Brevo email provider for Strapi v5 (Transactional Email API) with attachment support and console fallback in development",
+  "main": "index.js",
+  "license": "MIT",
+  "strapi": {
+    "name": "brevo",
+    "displayName": "Brevo Email Provider",
+    "description": "Send transactional emails via Brevo API with dev fallback and attachments",
+    "kind": "provider"
+  },
+  "peerDependencies": {
+    "@strapi/strapi": "^5.0.0"
+  },
+  "dependencies": {
+    "@getbrevo/brevo": "^3.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "files": [
+    "index.js"
+  ]
+}

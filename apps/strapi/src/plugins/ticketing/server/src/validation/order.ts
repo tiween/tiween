@@ -47,6 +47,11 @@ const baseOrderShape = {
     .nullish()
     .transform((v) => v ?? undefined),
   tickets: z.array(ticketInputSchema).min(1),
+  /**
+   * Checkout UI locale (Story 6.5): persisted on the order so the guest
+   * confirmation email speaks the buyer's language.
+   */
+  locale: z.enum(["fr", "ar", "en"]).optional(),
 }
 
 export const createOrderSchema = z
@@ -77,7 +82,6 @@ export const checkoutSchema = z
     lastName: z.string().min(1),
     email: z.string().email(),
     phone: z.string().min(1).optional(),
-    locale: z.enum(["fr", "ar", "en"]).optional(),
   })
   .refine(
     (data) =>

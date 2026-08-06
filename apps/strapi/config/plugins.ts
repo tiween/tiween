@@ -167,7 +167,7 @@ export default ({ env }) => {
     // Falls back to console logging when BREVO_API_KEY is not set
     email: {
       config: {
-        provider: "@ayhid/strapi-provider-email-brevo",
+        provider: "@tiween/strapi-provider-email-brevo",
         providerOptions: {
           apiKey: env("BREVO_API_KEY"),
         },

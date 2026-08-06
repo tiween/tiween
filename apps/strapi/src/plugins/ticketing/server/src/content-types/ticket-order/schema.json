@@ -74,6 +74,14 @@
     },
     "purchasedAt": {
       "type": "datetime"
+    },
+    "locale": {
+      "type": "enumeration",
+      "enum": ["ar", "fr", "en"]
+    },
+    "confirmationEmailSentAt": {
+      "type": "datetime",
+      "private": true
     }
   }
 }

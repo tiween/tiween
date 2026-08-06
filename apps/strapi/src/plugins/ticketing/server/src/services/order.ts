@@ -133,6 +133,7 @@ const orderService = ({ strapi }: { strapi: Core.Strapi }) => ({
     screeningId?: string
     performanceId?: string
     tickets: Array<{ type: string; price: number }>
+    locale?: string
   }) {
     // (a) Validate at the boundary (Zod via shared helper, screening XOR
     // performance). Throws a Strapi ValidationError with an error CODE.
@@ -179,6 +180,9 @@ const orderService = ({ strapi }: { strapi: Core.Strapi }) => ({
           ),
           paymentStatus: "pending",
           accessToken,
+          // Checkout UI locale (Story 6.5) — drives the confirmation email's
+          // language for guests; null when the caller sent none.
+          locale: (data.locale ?? null) as "ar" | "fr" | "en" | null,
         },
       })
 
@@ -301,6 +305,7 @@ const orderService = ({ strapi }: { strapi: Core.Strapi }) => ({
         type: t.type as string,
         price: t.price as number,
       })),
+      locale: data.locale,
     })
 
     // (3) Initialize the hosted Konnect payment (only ticketing→payments edge).
@@ -393,6 +398,10 @@ const orderService = ({ strapi }: { strapi: Core.Strapi }) => ({
       // on the common path.
       if (order.paymentStatus === "paid") {
         await this.issueQrCodes(orderNumber)
+        // Confirmation email (Story 6.5): exactly-once is enforced inside
+        // `sendForOrder` via the `confirmationEmailSentAt` CAS, so this
+        // self-heal call is a no-op once the email has gone out.
+        await this.sendConfirmationEmail(orderNumber)
       }
       return { orderNumber, status: order.paymentStatus, changed: false }
     }
@@ -451,6 +460,11 @@ const orderService = ({ strapi }: { strapi: Core.Strapi }) => ({
       // payment; a later confirm/webhook self-heals via the already-`paid` path.
       await this.issueQrCodes(orderNumber)
 
+      // Confirmation email (Story 6.5): strictly after QR issuance so the
+      // attached PNGs can exist. Throw-safe and exactly-once via the
+      // `confirmationEmailSentAt` CAS inside the order-email service.
+      await this.sendConfirmationEmail(orderNumber)
+
       return { orderNumber, status: "paid", changed: true }
     }
 
@@ -489,6 +503,28 @@ const orderService = ({ strapi }: { strapi: Core.Strapi }) => ({
     } catch (err) {
       strapi.log.error(
         `[ticketing] QR issuance failed for order ${orderNumber}: ${(err as Error)?.message}`
+      )
+    }
+  },
+
+  /**
+   * Send the purchase-confirmation email for a settled order, never throwing.
+   *
+   * Email delivery is strictly downstream of the money (mirror of
+   * `issueQrCodes`): a Brevo/API failure must not undo the `paid` transition
+   * or change the reconcile return value. The error is logged; the
+   * `order-email` service has already cleared its exactly-once marker on
+   * throw, so the next confirm/webhook retries the send.
+   */
+  async sendConfirmationEmail(orderNumber: string): Promise<void> {
+    try {
+      await strapi
+        .plugin(PLUGIN_ID)
+        .service("order-email")
+        .sendForOrder(orderNumber)
+    } catch (err) {
+      strapi.log.error(
+        `[ticketing] confirmation email failed for order ${orderNumber}: ${(err as Error)?.message}`
       )
     }
   },

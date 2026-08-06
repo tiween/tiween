@@ -102,6 +102,37 @@ describe("order.createOrder (unit)", () => {
     )
   })
 
+  it("persists a valid locale on the order document (Story 6.5)", async () => {
+    const { strapi, documentCreate } = buildStrapi()
+    const service = orderService({ strapi })
+
+    await service.createOrder({ ...baseInput, locale: "ar" })
+
+    const orderCall = documentCreate.mock.calls[0][0]
+    expect(orderCall.data.locale).toBe("ar")
+  })
+
+  it("stores a null locale when none is given (Story 6.5)", async () => {
+    const { strapi, documentCreate } = buildStrapi()
+    const service = orderService({ strapi })
+
+    await service.createOrder(baseInput)
+
+    const orderCall = documentCreate.mock.calls[0][0]
+    expect(orderCall.data.locale).toBeNull()
+  })
+
+  it("rejects an unsupported locale before any write (Story 6.5)", async () => {
+    const { strapi, adjustInventory, documentCreate } = buildStrapi()
+    const service = orderService({ strapi })
+
+    await expect(
+      service.createOrder({ ...baseInput, locale: "de" } as any)
+    ).rejects.toMatchObject({ name: "ValidationError" })
+    expect(adjustInventory).not.toHaveBeenCalled()
+    expect(documentCreate).not.toHaveBeenCalled()
+  })
+
   it("oversell: TICKET_SOLD_OUT rejects the order, nothing is created", async () => {
     const soldOut = Object.assign(new Error("sold out"), {
       code: "TICKET_SOLD_OUT",

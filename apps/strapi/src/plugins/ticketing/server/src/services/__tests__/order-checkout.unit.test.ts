@@ -24,6 +24,8 @@ interface DepOverrides {
   findManyResult?: unknown[]
   /** Mock for `ticketing.qr.issueForOrder` (Story 6.4). */
   issueForOrder?: jest.Mock
+  /** Mock for `ticketing.order-email.sendForOrder` (Story 6.5). */
+  sendForOrder?: jest.Mock
 }
 
 function buildStrapi(deps: DepOverrides = {}) {
@@ -67,10 +69,12 @@ function buildStrapi(deps: DepOverrides = {}) {
 
   const issueForOrder =
     deps.issueForOrder ?? jest.fn(async () => ({ issued: 2, skipped: 0 }))
+  const sendForOrder = deps.sendForOrder ?? jest.fn(async () => undefined)
 
   const eventsPublicApi = { getSubEventContext, adjustInventory }
   const paymentsPublicApi = { initPayment, getPaymentStatus }
   const qrService = { issueForOrder }
+  const orderEmailService = { sendForOrder }
 
   const strapi: any = {
     documents: jest.fn(() => ({
@@ -88,6 +92,9 @@ function buildStrapi(deps: DepOverrides = {}) {
         }
         if (name === "ticketing" && svc === "qr") {
           return qrService
+        }
+        if (name === "ticketing" && svc === "order-email") {
+          return orderEmailService
         }
         return {}
       },
@@ -112,6 +119,7 @@ function buildStrapi(deps: DepOverrides = {}) {
     documentUpdate,
     updateMany,
     issueForOrder,
+    sendForOrder,
   }
 }
 
@@ -172,6 +180,43 @@ describe("order.initCheckout (unit)", () => {
     expect(deps.documentCreate).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({ accessToken: result.accessToken }),
+      })
+    )
+  })
+
+  it("persists the checkout locale on the created order (Story 6.5)", async () => {
+    const deps = buildStrapi()
+    const service = orderService({ strapi: deps.strapi })
+
+    await service.initCheckout({ ...checkoutInput, locale: "ar" })
+
+    expect(deps.documentCreate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ locale: "ar" }),
+      })
+    )
+  })
+
+  it("rejects an unsupported checkout locale before any write (Story 6.5)", async () => {
+    const deps = buildStrapi()
+    const service = orderService({ strapi: deps.strapi })
+
+    await expect(
+      service.initCheckout({ ...checkoutInput, locale: "de" })
+    ).rejects.toMatchObject({ name: "ValidationError" })
+    expect(deps.getSubEventContext).not.toHaveBeenCalled()
+    expect(deps.adjustInventory).not.toHaveBeenCalled()
+  })
+
+  it("stores a null locale when the checkout sent none", async () => {
+    const deps = buildStrapi()
+    const service = orderService({ strapi: deps.strapi })
+
+    await service.initCheckout(checkoutInput)
+
+    expect(deps.documentCreate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ locale: null }),
       })
     )
   })
@@ -580,6 +625,107 @@ describe("order.reconcileFromGateway (unit)", () => {
     })
     expect(deps.strapi.log.error).toHaveBeenCalledWith(
       expect.stringContaining("QR issuance failed")
+    )
+  })
+
+  it("paid winner: sends the confirmation email once, after QR issuance (Story 6.5)", async () => {
+    const callOrder: string[] = []
+    const deps = buildStrapi({
+      findManyResult: [pendingOrder()],
+      getPaymentStatus: jest.fn(async () => ({
+        status: "paid",
+        amount: 35000,
+        orderId: "TW-1",
+      })),
+      issueForOrder: jest.fn(async () => {
+        callOrder.push("qr")
+        return { issued: 2, skipped: 0 }
+      }),
+      sendForOrder: jest.fn(async () => {
+        callOrder.push("email")
+      }),
+    })
+    const service = orderService({ strapi: deps.strapi })
+
+    await service.reconcileFromGateway("TW-1")
+
+    expect(deps.sendForOrder).toHaveBeenCalledTimes(1)
+    expect(deps.sendForOrder).toHaveBeenCalledWith("TW-1")
+    // Email strictly AFTER issuance so the QR PNG attachments can exist.
+    expect(callOrder).toEqual(["qr", "email"])
+  })
+
+  it("lost race on paid: the CAS loser does NOT trigger the email", async () => {
+    const deps = buildStrapi({
+      findManyResult: [pendingOrder()],
+      getPaymentStatus: jest.fn(async () => ({
+        status: "paid",
+        amount: 35000,
+        orderId: "TW-1",
+      })),
+      updateMany: jest.fn(async () => ({ count: 0 })),
+    })
+    const service = orderService({ strapi: deps.strapi })
+
+    await service.reconcileFromGateway("TW-1")
+
+    expect(deps.sendForOrder).not.toHaveBeenCalled()
+  })
+
+  it("self-heal: an already-paid order re-attempts the email send", async () => {
+    const deps = buildStrapi({
+      findManyResult: [pendingOrder({ paymentStatus: "paid" })],
+    })
+    const service = orderService({ strapi: deps.strapi })
+
+    const result = await service.reconcileFromGateway("TW-1")
+
+    expect(result).toEqual({
+      orderNumber: "TW-1",
+      status: "paid",
+      changed: false,
+    })
+    // Exactly-once lives inside sendForOrder (confirmationEmailSentAt CAS),
+    // so re-running the self-heal path is safe.
+    expect(deps.sendForOrder).toHaveBeenCalledWith("TW-1")
+  })
+
+  it("no email for a failed order", async () => {
+    const deps = buildStrapi({
+      findManyResult: [pendingOrder()],
+      getPaymentStatus: jest.fn(async () => ({ status: "failed" })),
+    })
+    const service = orderService({ strapi: deps.strapi })
+
+    await service.reconcileFromGateway("TW-1")
+
+    expect(deps.sendForOrder).not.toHaveBeenCalled()
+  })
+
+  it("throw-safe: a failing email send is logged and the reconcile result is unchanged", async () => {
+    const deps = buildStrapi({
+      findManyResult: [pendingOrder()],
+      getPaymentStatus: jest.fn(async () => ({
+        status: "paid",
+        amount: 35000,
+        orderId: "TW-1",
+      })),
+      sendForOrder: jest.fn(async () => {
+        throw new Error("EMAIL_SEND_FAILED")
+      }),
+    })
+    const service = orderService({ strapi: deps.strapi })
+
+    const result = await service.reconcileFromGateway("TW-1")
+
+    // Email delivery is strictly downstream of the money.
+    expect(result).toEqual({
+      orderNumber: "TW-1",
+      status: "paid",
+      changed: true,
+    })
+    expect(deps.strapi.log.error).toHaveBeenCalledWith(
+      expect.stringContaining("confirmation email failed")
     )
   })
 
