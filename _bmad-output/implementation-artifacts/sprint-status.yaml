@@ -200,7 +200,7 @@ development_status:
   # review hardening was folded into 811fb81 rather than a loop review pass.
   6-3-konnect-payment-gateway-integration: done
   6-4-qr-code-ticket-generation: done
-  6-5-email-ticket-delivery: backlog
+  6-5-email-ticket-delivery: awaiting-operator
   6-6-in-app-ticket-viewing: backlog
   6-7-offline-qr-code-access: backlog
   6-8-purchase-confirmation-with-celebration: backlog
