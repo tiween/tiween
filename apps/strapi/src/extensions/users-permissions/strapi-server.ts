@@ -538,16 +538,40 @@ interface JwtService {
 
 type JwtServiceFactory = (deps: unknown) => JwtService
 
+/**
+ * The INSTANTIATED `auth` controller — handlers by name. Upstream exports this
+ * controller as a FACTORY (`({ strapi }) => ({ ...handlers })`), unlike `user`
+ * which is a plain object. The extension therefore must never assume the
+ * plain-object shape for `auth` (see `UsersPermissionsPlugin.controllers.auth`
+ * and the wiring in the default export) — Story 4.7.
+ */
+interface AuthController {
+  register: RegisterController
+  callback: CallbackController
+  forgotPassword: ForgotPasswordController
+  resetPassword: ResetPasswordController
+  changeEmail?: ChangeEmailController
+  confirmEmailChange?: ConfirmEmailChangeController
+  /** Stock handlers we do not override (changePassword, emailConfirmation, …). */
+  [key: string]: unknown
+}
+
+interface AuthFactoryDeps {
+  strapi: unknown
+}
+
+type AuthControllerFactory = (deps: AuthFactoryDeps) => AuthController
+
 interface UsersPermissionsPlugin {
   controllers: {
-    auth: {
-      register: RegisterController
-      callback: CallbackController
-      forgotPassword: ForgotPasswordController
-      resetPassword: ResetPasswordController
-      changeEmail?: ChangeEmailController
-      confirmEmailChange?: ConfirmEmailChangeController
-    }
+    /**
+     * EITHER a factory (`typeof === "function"`, the current upstream shape)
+     * OR a plain controller object. Typing it as the union is what keeps the
+     * factory-vs-object defect type-visible (Story 4.7): reading
+     * `plugin.controllers.auth.register` no longer type-checks without first
+     * discriminating on the shape.
+     */
+    auth: AuthController | AuthControllerFactory
     user?: {
       updateMe?: UpdateMeController
       [key: string]: unknown
@@ -559,10 +583,16 @@ interface UsersPermissionsPlugin {
   routes?: Record<string, { routes: RouteConfig[] }>
 }
 
-export default (plugin: UsersPermissionsPlugin): UsersPermissionsPlugin => {
-  const originalRegister = plugin.controllers.auth.register
-
-  plugin.controllers.auth.register = async (ctx: RegisterCtx) => {
+// --- Story 4.1: register override --------------------------------------------
+//
+// Each `make*` builder below receives the INSTANTIATED stock handler it
+// delegates to (Story 4.7): the upstream `auth` controller is a factory, so
+// the stock handlers only exist on the object the factory produces — they are
+// resolved inside `applyAuthOverrides` at instantiation time, never off the
+// factory function object (where they would be `undefined`).
+const makeRegister =
+  (originalRegister: RegisterController): RegisterController =>
+  async (ctx: RegisterCtx) => {
     const body = ctx.request.body
     const rawName = body.firstName ?? body.name
     // Read the request locale BEFORE stripping custom keys — it drives the
@@ -609,20 +639,20 @@ export default (plugin: UsersPermissionsPlugin): UsersPermissionsPlugin => {
     }
   }
 
-  // --- Story 4.2: social-login callback override -------------------------------
-  //
-  // Wrap the stock `GET /auth/:provider/callback` (a JSON endpoint returning
-  // `{jwt,user}`) so that, for TRUSTED social providers only:
-  //   1. A social login whose provider-verified email already exists under a
-  //      DIFFERENT provider is LINKED (signed into the same account) instead of
-  //      being rejected with "Email is already taken" — the existing user's
-  //      `provider` field is never overwritten.
-  //   2. A brand-new social account gets `firstName` + `avatarUrl` from the
-  //      provider and a non-blocking localized welcome email.
-  // Non-trusted providers and `local` delegate to the stock controller unchanged.
-  const originalCallback = plugin.controllers.auth.callback
-
-  plugin.controllers.auth.callback = async (ctx: CallbackCtx) => {
+// --- Story 4.2: social-login callback override -------------------------------
+//
+// Wrap the stock `GET /auth/:provider/callback` (a JSON endpoint returning
+// `{jwt,user}`) so that, for TRUSTED social providers only:
+//   1. A social login whose provider-verified email already exists under a
+//      DIFFERENT provider is LINKED (signed into the same account) instead of
+//      being rejected with "Email is already taken" — the existing user's
+//      `provider` field is never overwritten.
+//   2. A brand-new social account gets `firstName` + `avatarUrl` from the
+//      provider and a non-blocking localized welcome email.
+// Non-trusted providers and `local` delegate to the stock controller unchanged.
+const makeCallback =
+  (originalCallback: CallbackController): CallbackController =>
+  async (ctx: CallbackCtx) => {
     const provider = ctx.params.provider || "local"
 
     if (!TRUSTED_SOCIAL_PROVIDERS.has(provider)) {
@@ -711,16 +741,17 @@ export default (plugin: UsersPermissionsPlugin): UsersPermissionsPlugin => {
     }
   }
 
-  // --- Story 4.3: forgot-password override -------------------------------------
-  //
-  // Replace the stock `POST /auth/forgot-password` so it:
-  //   - NEVER leaks whether the account exists: always responds `{ ok: true }`;
-  //   - SKIPS admin-`blocked` accounts silently (no token, no email);
-  //   - mints its OWN single-use token (`crypto.randomBytes(64)`) with an
-  //     expiry (`resetPasswordTokenExpiresAt = now + TTL`, 1h default);
-  //   - sends a localized AR/FR/EN reset email with the CLIENT-hosted
-  //     `?code=&email=` link, swallowing + logging any send error.
-  plugin.controllers.auth.forgotPassword = async (ctx: ForgotPasswordCtx) => {
+// --- Story 4.3: forgot-password override -------------------------------------
+//
+// Replace the stock `POST /auth/forgot-password` so it:
+//   - NEVER leaks whether the account exists: always responds `{ ok: true }`;
+//   - SKIPS admin-`blocked` accounts silently (no token, no email);
+//   - mints its OWN single-use token (`crypto.randomBytes(64)`) with an
+//     expiry (`resetPasswordTokenExpiresAt = now + TTL`, 1h default);
+//   - sends a localized AR/FR/EN reset email with the CLIENT-hosted
+//     `?code=&email=` link, swallowing + logging any send error.
+const makeForgotPassword =
+  (): ForgotPasswordController => async (ctx: ForgotPasswordCtx) => {
     const body = ctx.request.body ?? {}
     const email = String(body.email ?? "")
       .trim()
@@ -775,15 +806,15 @@ export default (plugin: UsersPermissionsPlugin): UsersPermissionsPlugin => {
     ctx.body = { ok: true }
   }
 
-  // --- Story 4.3: reset-password override --------------------------------------
-  //
-  // Wrap the stock `POST /auth/reset-password` to add expiry enforcement, the
-  // project password policy, stable error codes, and the `passwordChangedAt`
-  // session-invalidation boundary. The stock controller still performs the hash,
-  // single-use token clear, and JWT issue.
-  const originalResetPassword = plugin.controllers.auth.resetPassword
-
-  plugin.controllers.auth.resetPassword = async (ctx: ResetPasswordCtx) => {
+// --- Story 4.3: reset-password override --------------------------------------
+//
+// Wrap the stock `POST /auth/reset-password` to add expiry enforcement, the
+// project password policy, stable error codes, and the `passwordChangedAt`
+// session-invalidation boundary. The stock controller still performs the hash,
+// single-use token clear, and JWT issue.
+const makeResetPassword =
+  (originalResetPassword: ResetPasswordController): ResetPasswordController =>
+  async (ctx: ResetPasswordCtx) => {
     const body = ctx.request.body ?? {}
     const code = body.code != null ? String(body.code) : ""
 
@@ -891,6 +922,7 @@ export default (plugin: UsersPermissionsPlugin): UsersPermissionsPlugin => {
     }
   }
 
+export default (plugin: UsersPermissionsPlugin): UsersPermissionsPlugin => {
   // --- Story 4.3: session invalidation via jwt.verify wrap ---------------------
   //
   // Wrap the users-permissions `jwt` SERVICE factory so the returned instance's
@@ -1007,7 +1039,7 @@ export default (plugin: UsersPermissionsPlugin): UsersPermissionsPlugin => {
   // Authenticated. Mirrors the password-reset staging pattern: it only STAGES a
   // `pendingEmail` + single-use, time-limited `emailChangeToken` and emails the
   // NEW address a confirmation link; the live `email` is never touched here.
-  plugin.controllers.auth.changeEmail = async (ctx: ChangeEmailCtx) => {
+  const changeEmail: ChangeEmailController = async (ctx: ChangeEmailCtx) => {
     const authUser = ctx.state?.user
     if (!authUser?.id) {
       return ctx.unauthorized()
@@ -1082,7 +1114,7 @@ export default (plugin: UsersPermissionsPlugin): UsersPermissionsPlugin => {
   // `email = pendingEmail` and clears the staging fields. Does NOT auto-login
   // and does NOT stamp `passwordChangedAt` — an email change must not invalidate
   // the active session.
-  plugin.controllers.auth.confirmEmailChange = async (
+  const confirmEmailChange: ConfirmEmailChangeController = async (
     ctx: ConfirmEmailChangeCtx
   ) => {
     const body = ctx.request.body ?? {}
@@ -1156,6 +1188,35 @@ export default (plugin: UsersPermissionsPlugin): UsersPermissionsPlugin => {
 
     ctx.body = { ok: true }
   }
+
+  // --- Story 4.7: auth controller wiring ---------------------------------------
+  //
+  // Upstream `users-permissions` exports the `auth` controller as a FACTORY
+  // (`({ strapi }) => ({...handlers})`), unlike `user` (a plain object).
+  // Assigning overrides onto the factory FUNCTION object is a silent no-op:
+  // Strapi calls the factory at boot and none of the assigned handlers land on
+  // the instantiated controller — and the appended `auth.changeEmail` /
+  // `auth.confirmEmailChange` routes then hard-fail boot with "Handler not
+  // found". So: when `auth` is a function, WRAP it in a new factory that
+  // instantiates the original and overrides the six handlers on the produced
+  // object; when it is a plain object, apply the overrides directly. Both
+  // shapes are handled so an upstream change in either direction cannot
+  // silently re-break this (Story 4.7).
+  const applyAuthOverrides = (original: AuthController): AuthController => ({
+    ...original,
+    register: makeRegister(original.register),
+    callback: makeCallback(original.callback),
+    forgotPassword: makeForgotPassword(),
+    resetPassword: makeResetPassword(original.resetPassword),
+    changeEmail,
+    confirmEmailChange,
+  })
+
+  const authExport = plugin.controllers.auth
+  plugin.controllers.auth =
+    typeof authExport === "function"
+      ? (deps: AuthFactoryDeps) => applyAuthOverrides(authExport(deps))
+      : applyAuthOverrides(authExport)
 
   // --- Story 4.4: route registration ------------------------------------------
   //

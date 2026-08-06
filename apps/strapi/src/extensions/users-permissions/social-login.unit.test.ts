@@ -110,19 +110,28 @@ function buildHarness(
 
   ;(global as any).fetch = fetchMock
 
+  // Mirror the REAL upstream shape (Story 4.7): `auth` is exported as a
+  // FACTORY; handlers are read off the INSTANTIATED controller, as at boot.
   const plugin = {
     controllers: {
-      auth: {
+      auth: ({ strapi: _strapi }: { strapi: unknown }) => ({
         register: jest.fn(async () => undefined),
         callback: originalCallback,
-      },
+      }),
     },
   }
 
-  const wrapped = socialExtension(plugin)
+  const wrapped = socialExtension(plugin as any)
+  const wrappedAuth = wrapped.controllers.auth
+  if (typeof wrappedAuth !== "function") {
+    throw new Error("expected the extension to keep auth as a factory")
+  }
+  const instantiated = wrappedAuth({ strapi: mockStrapi })
 
   return {
-    callback: wrapped.controllers.auth.callback,
+    callback: instantiated.callback as (
+      ctx: MockCallbackCtx
+    ) => Promise<unknown>,
     originalCallback,
     userEdit,
     jwtIssue,

@@ -56,14 +56,28 @@ function buildHarness(
 
   ;(global as any).strapi = mockStrapi
 
+  // Mirror the REAL upstream shape (Story 4.7): `auth` is exported as a
+  // FACTORY (`({ strapi }) => ({...handlers})`), not a plain object. Handlers
+  // must be read off the INSTANTIATED controller, exactly as Strapi does at
+  // boot — a double built as a plain object is structurally blind to the
+  // factory-wiring defect.
   const plugin = {
-    controllers: { auth: { register: originalRegister } },
+    controllers: {
+      auth: ({ strapi: _strapi }: { strapi: unknown }) => ({
+        register: originalRegister,
+      }),
+    },
   }
 
-  const wrapped = registerExtension(plugin)
+  const wrapped = registerExtension(plugin as any)
+  const wrappedAuth = wrapped.controllers.auth
+  if (typeof wrappedAuth !== "function") {
+    throw new Error("expected the extension to keep auth as a factory")
+  }
+  const instantiated = wrappedAuth({ strapi: mockStrapi })
 
   return {
-    register: wrapped.controllers.auth.register,
+    register: instantiated.register as (ctx: MockCtx) => Promise<unknown>,
     originalRegister,
     userEdit,
     emailSend,

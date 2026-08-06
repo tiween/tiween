@@ -84,14 +84,16 @@ function buildHarness(opts: HarnessOpts = {}) {
 
   ;(global as any).strapi = mockStrapi
 
+  // Mirror the REAL upstream shape (Story 4.7): `auth` is exported as a
+  // FACTORY; handlers are read off the INSTANTIATED controller, as at boot.
   const plugin = {
     controllers: {
-      auth: {
+      auth: ({ strapi: _strapi }: { strapi: unknown }) => ({
         register: jest.fn(async () => undefined),
         callback: jest.fn(async () => undefined),
         forgotPassword: jest.fn(async () => undefined),
         resetPassword: originalResetPassword,
-      },
+      }),
     },
     services: {
       jwt: jest.fn(() => ({ verify: baseVerify })),
@@ -99,10 +101,19 @@ function buildHarness(opts: HarnessOpts = {}) {
   }
 
   const wrapped = resetExtension(plugin as any)
+  const wrappedAuth = wrapped.controllers.auth
+  if (typeof wrappedAuth !== "function") {
+    throw new Error("expected the extension to keep auth as a factory")
+  }
+  const instantiated = wrappedAuth({ strapi: mockStrapi })
 
   return {
-    forgotPassword: wrapped.controllers.auth.forgotPassword,
-    resetPassword: wrapped.controllers.auth.resetPassword,
+    forgotPassword: instantiated.forgotPassword as (
+      ctx: MockCtx
+    ) => Promise<unknown>,
+    resetPassword: instantiated.resetPassword as (
+      ctx: MockCtx
+    ) => Promise<unknown>,
     jwtFactory: wrapped.services.jwt,
     userEdit,
     emailSend,

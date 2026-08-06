@@ -37,17 +37,36 @@ export async function setupStrapi(): Promise<Core.Strapi> {
   process.env.DATABASE_FILENAME =
     process.env.DATABASE_FILENAME ?? ".tmp/test.db"
 
-  // Skip Strapi's TypeScript compile step during tests — the repo has
-  // pre-existing unrelated TS errors in scripts/crawlers/ and we don't
-  // want them to block test execution. The dist/ directory exists from
-  // `strapi build`, so we point createStrapi() at it directly.
+  // Skip Strapi's TypeScript compile step during tests — pre-existing TS
+  // errors elsewhere in the repo must not block test execution. We boot from
+  // a prebuilt dist/ instead. IMPORTANT: `strapi build` runs tsc with
+  // `noEmitOnError: true`, so with ANY TS error it emits nothing and dist/
+  // silently goes stale. Run the boot-based integration suites via
+  // `yarn test:integration`, which refreshes dist/ first with the
+  // transpile-tolerant `yarn build:test-dist` (tsc --noEmitOnError false).
   const appDir = path.resolve(__dirname, "..", "..")
   const distDir = path.join(appDir, "dist")
 
-  const app = await createStrapi({ appDir, distDir }).load()
-  instance = app as Core.Strapi
-  await instance.server.mount()
-  return instance
+  let booting: Core.Strapi | undefined
+  try {
+    booting = (await createStrapi({ appDir, distDir }).load()) as Core.Strapi
+    await booting.server.mount()
+    instance = booting
+    return instance
+  } catch (err) {
+    // Boot failed part-way (bad dist/, schema error, mount failure…): tear
+    // down whatever was created so DB-pool handles and cron timers don't leak
+    // ("Jest did not exit one second after the test run has completed").
+    if (booting) {
+      try {
+        await (booting as any).destroy()
+      } catch {
+        // Best effort — the original boot error is the one worth surfacing.
+      }
+    }
+    instance = undefined
+    throw err
+  }
 }
 
 export async function cleanupStrapi(): Promise<void> {
