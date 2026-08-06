@@ -1775,9 +1775,9 @@ status: open
 
 origin: spec-deferred e40dece0e02d
 location: .github/workflows/ci.yml
-source*spec: `4-7-fix-users-permissions-auth-controller-factory-wiring.md`
+source\*spec: `4-7-fix-users-permissions-auth-controller-factory-wiring.md`
 severity: medium
-reason: .github/workflows/ci.yml runs only the default `yarn test` gate (testMatch \**/\_.unit.test.ts); no workflow or merge gate invokes `test:integration` / the \*.service.test.ts suites. The suite itself is green and self-contained (SQLite + build:test-dist), so wiring it into CI is feasible but is a CI-infrastructure decision beyond this story's ACs.
+reason: .github/workflows/ci.yml runs only the default `yarn test` gate (testMatch \*\*/\_.unit.test.ts); no workflow or merge gate invokes `test:integration` / the \*.service.test.ts suites. The suite itself is green and self-contained (SQLite + build:test-dist), so wiring it into CI is feasible but is a CI-infrastructure decision beyond this story's ACs.
 status: open
 
 ### DW-251: The two production-deploy actions from Behavior Activation (confirm BREVO_SENDER_EMAIL/BREVO_SENDER_NAME before setting BREVO_API_KEY in prod, and run the firstName-NULL backfill query + decision on t
@@ -1787,4 +1787,22 @@ location: \_bmad-output/implementation-artifacts/4-7-fix-users-permissions-auth-
 source_spec: `4-7-fix-users-permissions-auth-controller-factory-wiring.md`
 severity: medium
 reason: Dev Agent Record, "Task 3.3 — Behavior Activation findings": welcome emails go live the moment BREVO_API_KEY is set, and users registered through the stock path have first_name = NULL (`SELECT COUNT(*) FROM up_users WHERE first_name IS NULL AND provider = 'local'`). Neither action is executable from this environment (no prod access), and unlike the CI gap (DW-250) neither was entered anywhere a deploy checklist would surface it.
+status: open
+
+### DW-252: CI does not run the boot-based integration suite (yarn test:integration) in apps/strapi, so boot-level regressions (route wiring, extension instantiation) are only caught by the default-gate unit guar
+
+origin: spec-deferred e40dece0e02d
+location: .github/workflows/ci.yml
+source_spec: `4-7-fix-users-permissions-auth-controller-factory-wiring.md`
+severity: medium
+reason: .github/workflows/ci.yml runs only the default `yarn test` gate (testMatch \*_/_.unit.test.ts); no workflow or merge gate invokes `test:integration` / the \*.service.test.ts suites. The suite itself is green and self-contained (SQLite + build:test-dist), so wiring it into CI is feasible but is a CI-infrastructure decision beyond this story's ACs.
+status: open
+
+### DW-253: Follow-up review still recommended for 4-7-fix-users-permissions-auth-controller-factory-wiring after the damping cap was spent
+
+origin: review-budget-followup
+location: n/a
+source_spec: `4-7-fix-users-permissions-auth-controller-factory-wiring.md`
+severity: low
+reason: The follow-up-review damping cap (limits.max_followup_reviews = 1) was spent with the story finalized (status: done, verify green) while the review pass still recommended an independent follow-up. The work was committed by bmad-loop run 20260806-161858-94c9; this entry preserves the lingering recommendation for a deliberate later review.
 status: open
