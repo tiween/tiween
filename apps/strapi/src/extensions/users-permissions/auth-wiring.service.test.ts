@@ -189,6 +189,9 @@ describe("Story 4.7: auth overrides run at runtime (booted Strapi)", () => {
       where: { email },
     })
     expect(staged).toBeTruthy()
+    // Fail HERE if forgot-password silently no-opped (blocked user, send
+    // failure…) instead of misattributing a null code to the policy branch.
+    expect(staged.resetPasswordToken).toBeTruthy()
     const code = staged.resetPasswordToken
 
     // Override-only: policy rejection with a stable code (stock: >=6 chars).

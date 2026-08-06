@@ -13,13 +13,14 @@
  *    The default `yarn test` run is the unit gate only (`*.unit.test.ts`) so a
  *    DB/boot/env failure in an integration suite can never block it. Run the
  *    boot-based integration suites (the `.service.test.ts` / `.controller.test.ts`
- *    files and `tests/app.test.js`) explicitly, with a live DB and `--runInBand`,
- *    by passing their paths or a `--testMatch` glob on the CLI.
+ *    files and `tests/app.test.js`) via the self-contained script, which first
+ *    refreshes `dist/` with the transpile-tolerant build and covers all three
+ *    globs with `--selectProjects server --runInBand`:
+ *      yarn test:integration
  *
- *    IMPORTANT: a CLI `--testMatch` applies to EVERY project, so it would make
- *    the `admin` project pick the same files up a second time (one file, two
- *    PASS lines, doubled DB access). Always pair it with `--selectProjects`:
- *      npx jest --selectProjects server --testMatch='**\/*.service.test.ts' --runInBand
+ *    (A bare CLI `--testMatch` without `--selectProjects` would apply to EVERY
+ *    project and make the `admin` project pick the same files up a second time
+ *    — one file, two PASS lines, doubled DB access.)
  *
  * 2. `admin` — the admin-plugin React component gate.
  *    - Runs `*.test.tsx` (the `admin/src/components/__tests__` suites) in a

@@ -1770,3 +1770,12 @@ origin: story 6-4-qr-code-ticket-generation (2026-08-04), follow-up review pass
 location: apps/client/locales/ar.json
 reason: (LOW) `fr`/`en` use ICU plurals (`{count, plural, one {# billet} other {# billets}}`) while `ar` ships the bare `"{count} تذكرة"`, so every count renders the singular noun ("5 تذكرة" instead of "5 تذاكر"). Passes 1 and 2 rejected a fix on the grounds that the bare `{count}` form is required by the repo's Western-numerals rule — that reasoning holds for `#` (which formats via CLDR and would emit Arabic-Indic digits) but NOT for an explicit `{count}` inside plural branches, which keeps Western numerals while still selecting the right form. `ticketingI18n.test.tsx` compares key SETS across locales, so it cannot see a value-shape divergence like this. Left deferred rather than patched because Arabic has six plural categories (`zero`/`one`/`two`/`few`/`many`/`other`) and choosing the noun form for each needs a native-speaker decision, not a mechanical edit. Fix: have an Arabic speaker supply the plural branches, apply the same treatment to any other counted `ar` key, and extend the i18n test to assert plural-shape parity rather than key-set parity alone.
 status: open
+
+### DW-250: CI does not run the boot-based integration suite (yarn test:integration) in apps/strapi, so boot-level regressions (route wiring, extension instantiation) are only caught by the default-gate unit guar
+
+origin: spec-deferred e40dece0e02d
+location: .github/workflows/ci.yml
+source_spec: `4-7-fix-users-permissions-auth-controller-factory-wiring.md`
+severity: medium
+reason: .github/workflows/ci.yml runs only the default `yarn test` gate (testMatch \*_/_.unit.test.ts); no workflow or merge gate invokes `test:integration` / the \*.service.test.ts suites. The suite itself is green and self-contained (SQLite + build:test-dist), so wiring it into CI is feasible but is a CI-infrastructure decision beyond this story's ACs.
+status: open

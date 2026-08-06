@@ -47,22 +47,23 @@ export async function setupStrapi(): Promise<Core.Strapi> {
   const appDir = path.resolve(__dirname, "..", "..")
   const distDir = path.join(appDir, "dist")
 
-  let booting: Core.Strapi | undefined
+  // Capture the app BEFORE `.load()`: most boot failures (bad dist/, schema
+  // error) reject inside `load()` itself, and resources opened during a
+  // partial load must still be destroyed.
+  const app = createStrapi({ appDir, distDir })
   try {
-    booting = (await createStrapi({ appDir, distDir }).load()) as Core.Strapi
-    await booting.server.mount()
-    instance = booting
+    const booted = (await app.load()) as Core.Strapi
+    await booted.server.mount()
+    instance = booted
     return instance
   } catch (err) {
     // Boot failed part-way (bad dist/, schema error, mount failure…): tear
     // down whatever was created so DB-pool handles and cron timers don't leak
     // ("Jest did not exit one second after the test run has completed").
-    if (booting) {
-      try {
-        await (booting as any).destroy()
-      } catch {
-        // Best effort — the original boot error is the one worth surfacing.
-      }
+    try {
+      await (app as { destroy?: () => Promise<void> }).destroy?.()
+    } catch {
+      // Best effort — the original boot error is the one worth surfacing.
     }
     instance = undefined
     throw err

@@ -18,6 +18,23 @@ deferred:
     location: >-
       .github/workflows/ci.yml
     severity: medium
+  - summary: >-
+      The two production-deploy actions from Behavior Activation (confirm
+      BREVO_SENDER_EMAIL/BREVO_SENDER_NAME before setting BREVO_API_KEY in
+      prod, and run the firstName-NULL backfill query + decision on the prod
+      DB) are recorded only as prose in the story's Completion Notes; nothing
+      tracks them to resolution.
+    evidence: |-
+      Dev Agent Record, "Task 3.3 — Behavior Activation findings": welcome
+      emails go live the moment BREVO_API_KEY is set, and users registered
+      through the stock path have first_name = NULL
+      (`SELECT COUNT(*) FROM up_users WHERE first_name IS NULL AND provider = 'local'`).
+      Neither action is executable from this environment (no prod access), and
+      unlike the CI gap (DW-250) neither was entered anywhere a deploy
+      checklist would surface it.
+    location: >-
+      _bmad-output/implementation-artifacts/4-7-fix-users-permissions-auth-controller-factory-wiring.md (Behavior Activation)
+    severity: medium
 ---
 
 # Story 4.7: Fix users-permissions Auth Controller Extension Factory Wiring
@@ -414,51 +431,48 @@ Gates re-run after patches: `yarn workspace @tiween/admin test` → 59 suites /
   - `[medium]` `[patch]` The route-string-to-handler mismatch class ("Handler not found") was uncovered by the default gate — added a default-gate unit test in factory-wiring.unit.test.ts resolving every registered content-api route handler against the instantiated wrapped controllers.
   - `[low]` `[patch]` auth-wiring.service.test.ts depended on a pristine store and dereferenced findOne results unguarded — unique per-run email suffix + toBeTruthy guards added.
 
+### 2026-08-06 — Review pass (follow-up, second pass)
+
+- intent_gap: 0
+- bad_spec: 0
+- patch: 5: (high 0, medium 3, low 2)
+- defer: 1: (high 0, medium 1, low 0)
+- reject: 19: (high 0, medium 0, low 19)
+- addressed_findings:
+  - `[medium]` `[patch]` `setupStrapi()`'s teardown-on-failure only covered failures after `load()` resolved — `booting` was assigned from `await createStrapi(...).load()`, so a rejection inside `load()` (the common boot-failure mode: bad dist/, schema error) left nothing to destroy and the DB-pool handle leak Task 4.2 targeted survived. Fixed by capturing the app object before `.load()` and best-effort `destroy()`-ing it in every failure path.
+  - `[medium]` `[patch]` `test:integration` used `yarn build:test-dist && jest …`, but `tsc` exits non-zero on type errors even with `--noEmitOnError false` (while still emitting) — so the moment any TS error reappears, the `&&` short-circuits and the suite never runs, defeating the transpile-tolerant guard's exact purpose. Fixed with `(yarn build:test-dist || true) && jest …`: dist/ is still refreshed (tsc emits despite errors) and the suite always runs.
+  - `[medium]` `[patch]` The documented boot-suite entry point (`yarn test:integration`) matched only `**/*.service.test.ts`, silently excluding the other boot-based suites (`event-manager.controller.test.ts`, `tests/app.test.js`) — they were executed by nothing (not the unit gate, not the script, not CI). Widened the script to three `--testMatch` globs covering `*.service.test.ts`, `*.controller.test.ts`, and `tests/app.test.js`; verified all 6 files are matched and the widened gate passes (5 suites green, 1 known-skip).
+  - `[low]` `[patch]` `jest.config.cjs`'s header still carried the escaped-glob ad-hoc invocation the previous pass claimed to have removed (a third copy) — updated to point at `yarn test:integration`.
+  - `[low]` `[patch]` The reset-password integration test read `staged.resetPasswordToken` unguarded — if forgot-password silently no-ops, the failure would be misattributed to the policy branch. Added an explicit `toBeTruthy()` guard on the token.
+
+---
+
 ## Auto Run Result
 
-Status: done
+Status: done (follow-up review pass, 2026-08-06)
 
-**Summary of implemented change** — The users-permissions extension now wraps the
-instantiated `auth` controller instead of assigning overrides onto the exported
-factory function: the six Epic-4 auth overrides (`register`, `callback`,
-`forgotPassword`, `resetPassword`, `changeEmail`, `confirmEmailChange`) are
-builders composed by `applyAuthOverrides(original)`, applied by wrapping the
-factory when `typeof auth === "function"` and by direct assignment when it is a
-plain object. Delegating overrides close over the instantiated stock originals.
-Strapi boots with no "Handler not found"; all six handlers verified end-to-end
-against a booted instance. The four blind unit-test doubles were rebuilt as
-factories (they fail against the pre-fix wiring: 5/5 suites, 49/84 tests), and a
-factory-survival + route-wiring regression guard runs in the default gate.
+**Summary of implemented change**: This run was a fresh follow-up review pass over the already-implemented Story 4.7 diff (baseline `66e9dde2210f2674c839e005b38e7909e8639564`, implementation commit `46fedaa`). Four parallel review layers (blind hunter, edge-case hunter, verification-gap, intent-alignment) produced 25 deduplicated findings; 5 were patched, 1 deferred, 19 rejected as noise. No intent gaps or spec defects — the wiring fix itself stands as implemented.
 
-**Files changed**
+**Files changed in this pass**:
 
-- `apps/strapi/src/extensions/users-permissions/strapi-server.ts` — factory-wrap wiring, `make*` builders, `AuthController | AuthControllerFactory` union typing
-- `apps/strapi/src/extensions/users-permissions/register.unit.test.ts` — double rebuilt as factory, handlers read off instantiated controller
-- `apps/strapi/src/extensions/users-permissions/social-login.unit.test.ts` — same
-- `apps/strapi/src/extensions/users-permissions/password-reset.unit.test.ts` — same
-- `apps/strapi/src/extensions/users-permissions/profile-management.unit.test.ts` — same
-- `apps/strapi/src/extensions/users-permissions/factory-wiring.unit.test.ts` — new: factory-survival guard (double + real upstream export) and route-handler resolution guard
-- `apps/strapi/src/extensions/users-permissions/auth-wiring.service.test.ts` — new: opt-in boot + behavior-activation integration suite (six handlers exercised)
-- `apps/strapi/tests/helpers/strapi.ts` — teardown on boot failure; dist-refresh guidance
-- `apps/strapi/package.json` — `build:test-dist` (transpile-tolerant dist build) and `test:integration` (chained dist refresh + service-suite run)
+- `apps/strapi/tests/helpers/strapi.ts` — teardown-on-boot-failure now also covers rejections inside `load()` (app captured before `.load()`, best-effort `destroy()` in the catch).
+- `apps/strapi/package.json` — `test:integration` no longer short-circuits on tsc's non-zero exit (`|| true`; tsc still emits) and now covers all boot-based suites (`*.service.test.ts`, `*.controller.test.ts`, `tests/app.test.js`).
+- `apps/strapi/jest.config.cjs` — header doc points at `yarn test:integration` instead of the stale escaped-glob ad-hoc invocation.
+- `apps/strapi/src/extensions/users-permissions/auth-wiring.service.test.ts` — `toBeTruthy()` guard on the reset token before use.
 
-**Review findings breakdown** — 3 patches applied (2 medium, 1 low); 1 deferred
-(CI does not run the integration suite — recorded in frontmatter `deferred`);
-18 rejected as noise/speculative.
+**Review findings breakdown**: 5 patches applied (3 medium, 2 low), 1 deferred (medium — the two prod-deploy actions from Behavior Activation, now in the frontmatter `deferred` list), 19 rejected (hypothetical-input guards, cosmetic test/doc completeness, workflow-bookkeeping noise such as the sprint-status/spec status skew inherent to the review process).
 
-**Follow-up review recommendation: true** — patched counts: high 0, medium 2,
-low 1; score = 3×2 + 1×1 = 7 ≥ 5.
+**Follow-up review recommendation**: true — patched counts: 0 high, 3 medium, 2 low; score = 3×3 + 1×2 = 11 (≥ 5).
 
-**Verification performed**
+**Verification performed**:
 
-- `yarn workspace @tiween/admin test` (via nix yarn.js under asdf node 22): 59 suites / 866 tests pass — run independently by the orchestrator after patches.
-- `yarn build:strapi`: succeeds.
-- `yarn lint` (apps/strapi): clean at `--max-warnings=0`.
-- `yarn test:integration`: green twice consecutively (dist rebuild + 3 service suites pass, 1 known-skipped DW-5 suite).
-- Updated unit doubles demonstrated to fail against the pre-fix extension (5/5 suites, 49/84 tests fail).
+- `yarn test:integration` (widened): 5 suites passed, 1 skipped (known DW-5 `order.service.test.ts`), 34 tests passed — including the two suites previously executed by nothing (`event-manager.controller.test.ts`, `tests/app.test.js`).
+- `yarn test` (apps/strapi, server + admin projects): 59 suites / 866 tests passed.
+- `yarn lint` (`eslint . --max-warnings=0`): clean.
+- `yarn type-check` (`tsc --noEmit`): exit 0.
 
-**Residual risks**
+**Residual risks**:
 
-- Behavior activation: welcome/reset/change-email sends go live in production once `BREVO_API_KEY` is set; templates/locales should be sanity-checked at deploy time. Existing stock-registered users have `firstName = NULL` (backfill query recorded in Dev Agent Record; nothing breaks for null values).
-- The boot-based integration suite is not in CI (deferred item).
-- The `dw-integration-suite-boot-harness` bundle (DW-4/DW-5/DW-86) is now unblocked and should be re-run.
+- If `build:test-dist` fails without emitting (e.g. tsc crashes outright, not a type error), `test:integration` now proceeds against a stale `dist/` — the trade accepted to keep the gate runnable in the presence of type errors, which is its stated purpose.
+- The boot-based integration gate still does not run in CI (tracked as DW-250) and boots the transpile-tolerant `dist/`, not the production `strapi build` artifact.
+- Behavior-activation deploy actions (Brevo sender config confirmation, firstName backfill decision) remain open — now tracked in this spec's `deferred` frontmatter.

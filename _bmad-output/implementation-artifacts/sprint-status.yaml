@@ -173,7 +173,7 @@ development_status:
   # change-email routes hard-fail Strapi boot. Blocks DW-4 / DW-5 / DW-86.
   # Activates dormant production behavior (welcome emails, social linking) —
   # requires review, see the story's "Behavior Activation" section.
-  4-7-fix-users-permissions-auth-controller-factory-wiring: ready-for-dev
+  4-7-fix-users-permissions-auth-controller-factory-wiring: done
   epic-4-retrospective: optional
 
   # Epic 5: Watchlist & Personalization

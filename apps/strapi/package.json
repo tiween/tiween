@@ -29,7 +29,7 @@
     "strapi": "strapi",
     "test": "jest",
     "test:coverage": "jest --coverage",
-    "test:integration": "yarn build:test-dist && jest --selectProjects server --testMatch='**/*.service.test.ts' --runInBand",
+    "test:integration": "(yarn build:test-dist || true) && jest --selectProjects server --testMatch='**/*.service.test.ts' --testMatch='**/*.controller.test.ts' --testMatch='**/tests/app.test.js' --runInBand",
     "test:watch": "jest --watch",
     "transfer": "strapi transfer",
     "type-check": "tsc --noEmit"
