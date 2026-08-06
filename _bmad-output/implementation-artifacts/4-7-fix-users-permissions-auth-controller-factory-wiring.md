@@ -39,7 +39,7 @@ deferred:
 
 # Story 4.7: Fix users-permissions Auth Controller Extension Factory Wiring
 
-Status: review
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -327,8 +327,7 @@ wrapping+instantiation — an upstream shape change now fails loudly here.
 
 New opt-in integration suite
 `apps/strapi/src/extensions/users-permissions/auth-wiring.service.test.ts`
-(runs under `--testMatch='**\/*.service.test.ts' --runInBand`; excluded from the
-default unit gate). Against a real booted Strapi (SQLite, fresh DB): 6/6 pass.
+(run via `yarn test:integration`; excluded from the default unit gate). Against a real booted Strapi (SQLite, fresh DB): 6/6 pass.
 
 | Handler              | Outcome (override-only effects observed)                                                                                                                                                                                     |
 | -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -390,7 +389,10 @@ default unit gate). Against a real booted Strapi (SQLite, fresh DB): 6/6 pass.
 - `apps/strapi/src/extensions/users-permissions/factory-wiring.unit.test.ts` (new — AC #6 guard)
 - `apps/strapi/src/extensions/users-permissions/auth-wiring.service.test.ts` (new — AC #4/#7 boot verification, opt-in integration)
 - `apps/strapi/tests/helpers/strapi.ts` (teardown-on-failure + dist guidance)
-- `apps/strapi/package.json` (`build:test-dist` script)
+- `apps/strapi/tests/helpers/test-dist.ts` (new — dist freshness guard)
+- `apps/strapi/tests/helpers/strapi.unit.test.ts` (new — harness failure-path coverage)
+- `apps/strapi/package.json` (`build:test-dist` + `test:integration` scripts)
+- `apps/strapi/jest.config.cjs` (header run-instructions updated to `yarn test:integration`)
 
 ### Review triage patches (2026-08-06, same session)
 
@@ -445,34 +447,50 @@ Gates re-run after patches: `yarn workspace @tiween/admin test` → 59 suites /
   - `[low]` `[patch]` `jest.config.cjs`'s header still carried the escaped-glob ad-hoc invocation the previous pass claimed to have removed (a third copy) — updated to point at `yarn test:integration`.
   - `[low]` `[patch]` The reset-password integration test read `staged.resetPasswordToken` unguarded — if forgot-password silently no-ops, the failure would be misattributed to the policy branch. Added an explicit `toBeTruthy()` guard on the token.
 
+### 2026-08-06 — Review pass (follow-up, third pass)
+
+- intent_gap: 0
+- bad_spec: 0
+- patch: 3: (high 0, medium 1, low 2)
+- defer: 0
+- reject: 17: (high 0, medium 0, low 17)
+- addressed_findings:
+  - `[medium]` `[patch]` `test:integration`'s `(yarn build:test-dist || true)` swallows EVERY build failure — not just the intended emit-with-type-errors case — so a tsc crash / broken tsconfig / missing binary would let the boot suite silently verify a stale `dist/` (flagged independently by three review layers). Added a dist freshness guard (`tests/helpers/test-dist.ts`, called from `setupStrapi()`): boot now refuses with an actionable error when any compilable source under `src/`/`config/` is newer than everything tsc emitted. Non-code files are excluded from the source side because Strapi itself regenerates the documentation plugin's `full_documentation.json` under `src/` at every boot — comparing every file marked `dist/` stale mid-run (caught live when the first guard version failed the suite).
+  - `[low]` `[patch]` `setupStrapi()`'s teardown-on-failure path (Task 4.2) had zero test coverage — it only executes when boot fails, it already regressed once (second-pass fix), and reverting it keeps every suite green. Added `tests/helpers/strapi.unit.test.ts` to the default unit gate: load()-rejection and mount()-rejection each destroy the partial app and re-throw the ORIGINAL error, the instance cache is cleared, destroy()-failure doesn't mask the boot error, plus real-implementation coverage of the freshness guard (missing dist, stale dist, fresh dist, generated-JSON exclusion).
+  - `[low]` `[patch]` Story-record corrections: the Dev Agent Record still documented the boot suite via the removed escaped-glob ad-hoc invocation (now `yarn test:integration`), and the File List omitted `apps/strapi/jest.config.cjs` (touched by a first-pass triage patch).
+
+Notable rejects (recorded, not acted on): the truncated DW-250/DW-251 headings and the mangled glob in `deferred-work.md` are real cosmetic defects, but the invocation explicitly reserves existing deferred-work ledger entries to the orchestrator, so they are out of scope here by intent authority. The `sprint-status.yaml`-vs-frontmatter status disagreement is transient workflow state resolved at finalization.
+
 ---
 
 ## Auto Run Result
 
-Status: done (follow-up review pass, 2026-08-06)
+**Run:** 2026-08-06, follow-up review pass (third pass) on a `done` spec — no re-implementation, review-only with triage patches.
 
-**Summary of implemented change**: This run was a fresh follow-up review pass over the already-implemented Story 4.7 diff (baseline `66e9dde2210f2674c839e005b38e7909e8639564`, implementation commit `46fedaa`). Four parallel review layers (blind hunter, edge-case hunter, verification-gap, intent-alignment) produced 25 deduplicated findings; 5 were patched, 1 deferred, 19 rejected as noise. No intent gaps or spec defects — the wiring fix itself stands as implemented.
+**Summary of implemented change (this pass):** closed the last self-verification hole in the story's boot harness. The `(yarn build:test-dist || true)` guard (added in pass 2 so type errors can't skip the suite) also swallowed builds that failed without emitting, letting the boot suite silently verify a stale `dist/`. `setupStrapi()` now runs a dist freshness check first and refuses to boot outdated compiled code; the previously-untested teardown-on-failure path and the new guard are pinned by a harness unit suite in the default gate.
 
-**Files changed in this pass**:
+**Files changed (this pass):**
 
-- `apps/strapi/tests/helpers/strapi.ts` — teardown-on-boot-failure now also covers rejections inside `load()` (app captured before `.load()`, best-effort `destroy()` in the catch).
-- `apps/strapi/package.json` — `test:integration` no longer short-circuits on tsc's non-zero exit (`|| true`; tsc still emits) and now covers all boot-based suites (`*.service.test.ts`, `*.controller.test.ts`, `tests/app.test.js`).
-- `apps/strapi/jest.config.cjs` — header doc points at `yarn test:integration` instead of the stale escaped-glob ad-hoc invocation.
-- `apps/strapi/src/extensions/users-permissions/auth-wiring.service.test.ts` — `toBeTruthy()` guard on the reset token before use.
+- `apps/strapi/tests/helpers/test-dist.ts` — new: `assertTestDistFresh()` compares newest compilable source under `src/`/`config/` against newest emitted file under `dist/`; excludes non-code files (Strapi regenerates the documentation plugin's JSON under `src/` at boot).
+- `apps/strapi/tests/helpers/strapi.ts` — `setupStrapi()` calls the freshness guard before creating the app.
+- `apps/strapi/tests/helpers/strapi.unit.test.ts` — new: 9 unit tests covering teardown-on-failure (load/mount rejection, destroy-failure masking, cache clearing, success caching, stale-dist refusal) and the real freshness guard.
+- `_bmad-output/implementation-artifacts/4-7-…-factory-wiring.md` — stale run-instruction prose fixed, File List completed, triage log + this section.
 
-**Review findings breakdown**: 5 patches applied (3 medium, 2 low), 1 deferred (medium — the two prod-deploy actions from Behavior Activation, now in the frontmatter `deferred` list), 19 rejected (hypothetical-input guards, cosmetic test/doc completeness, workflow-bookkeeping noise such as the sprint-status/spec status skew inherent to the review process).
+**Review findings breakdown:** 4 layers (blind hunter, edge-case hunter, verification-gap, intent-alignment). After dedup: 3 patched (1 medium, 2 low), 0 deferred, 17 rejected (all low — details in the triage log; ledger-entry defects rejected as orchestrator-owned per the invocation). Intent-alignment audit: the diff faithfully implements the harness-boot reading of the intent; every divergence from the strictest reading is explicitly tracked (DW-250, DW-251), none silent.
 
-**Follow-up review recommendation**: true — patched counts: 0 high, 3 medium, 2 low; score = 3×3 + 1×2 = 11 (≥ 5).
+**Follow-up review recommendation:** patched counts — high 0, medium 1, low 2; score = 3×1 + 1×2 = 5 ≥ 5 → `followup_review_recommended: true`.
 
-**Verification performed**:
+**Verification performed (all via the nix `yarn.js` under asdf node 22 — the asdf yarn shim is broken on this machine):**
 
-- `yarn test:integration` (widened): 5 suites passed, 1 skipped (known DW-5 `order.service.test.ts`), 34 tests passed — including the two suites previously executed by nothing (`event-manager.controller.test.ts`, `tests/app.test.js`).
-- `yarn test` (apps/strapi, server + admin projects): 59 suites / 866 tests passed.
-- `yarn lint` (`eslint . --max-warnings=0`): clean.
-- `yarn type-check` (`tsc --noEmit`): exit 0.
+- `yarn test` (apps/strapi, unit gate, server + admin): 61 suites / 875 tests pass.
+- `yarn workspace @tiween/admin test` (repo root): 875 tests pass.
+- `yarn lint` (apps/strapi): clean at `--max-warnings=0`.
+- `npx tsc --noEmit -p tsconfig.json`: exit 0.
+- `yarn test:integration`: green twice consecutively (5 suites pass, 1 known-skip — the DW-5 `order.service.test.ts`), proving the freshness guard is re-run-safe against the boot-time regenerated documentation JSON.
+- `yarn build:strapi` not re-run this pass: no `src/` or build-input change (tests/ and docs only); it passed in the prior pass on identical build inputs.
 
-**Residual risks**:
+**Residual risks:**
 
-- If `build:test-dist` fails without emitting (e.g. tsc crashes outright, not a type error), `test:integration` now proceeds against a stale `dist/` — the trade accepted to keep the gate runnable in the presence of type errors, which is its stated purpose.
-- The boot-based integration gate still does not run in CI (tracked as DW-250) and boots the transpile-tolerant `dist/`, not the production `strapi build` artifact.
-- Behavior-activation deploy actions (Brevo sender config confirmation, firstName backfill decision) remain open — now tracked in this spec's `deferred` frontmatter.
+- The freshness guard compares mtimes; a clock-skewed filesystem or a tool that preserves mtimes on checkout could produce a false pass. The failure mode is loud in the common cases it targets (no emit at all, edits after a crashed build).
+- Schema-only edits (`schema.json`) are invisible to the code-only source scan; the guard targets the tsc-emit failure mode, not every possible dist divergence.
+- CI still does not run `yarn test:integration` (tracked as DW-250) and the two production-deploy actions remain open (DW-251) — both orchestrator-owned.

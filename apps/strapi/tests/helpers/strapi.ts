@@ -23,6 +23,8 @@ import fs from "fs"
 
 import type { Core } from "@strapi/strapi"
 
+import { assertTestDistFresh } from "./test-dist"
+
 const path = require("path")
 
 const { createStrapi } = require("@strapi/strapi")
@@ -46,6 +48,11 @@ export async function setupStrapi(): Promise<Core.Strapi> {
   // transpile-tolerant `yarn build:test-dist` (tsc --noEmitOnError false).
   const appDir = path.resolve(__dirname, "..", "..")
   const distDir = path.join(appDir, "dist")
+
+  // `yarn test:integration`'s build step is `(… || true)`-guarded (type
+  // errors must not skip the suite), which would also swallow a build that
+  // failed without emitting. Refuse to boot stale compiled code instead.
+  assertTestDistFresh(appDir, distDir)
 
   // Capture the app BEFORE `.load()`: most boot failures (bad dist/, schema
   // error) reject inside `load()` itself, and resources opened during a
