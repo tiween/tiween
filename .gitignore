@@ -77,3 +77,9 @@ RALPH_PRD/
 
 # CodeGraph index (generated)
 .codegraph/
+.bmad-loop/policy.toml
+_bmad/render/
+
+# Python bytecode caches (BMad skill scripts)
+__pycache__/
+*.pyc
