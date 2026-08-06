@@ -83,3 +83,7 @@ _bmad/render/
 # Python bytecode caches (BMad skill scripts)
 __pycache__/
 *.pyc
+
+# Track the repo .envrc (pins PORTLESS_PORT for dev) even when a user's
+# global gitignore excludes .envrc files.
+!.envrc

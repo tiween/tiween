@@ -28,8 +28,12 @@ npm install -g portless
 # Trust Portless's local CA so HTTPS works without browser warnings
 portless trust
 
-# Start the proxy with HTTP/2 + TLS (runs as a background daemon on port 1355)
-portless proxy start --https
+# Start the proxy with HTTP/2 + TLS (runs as a background daemon on port 1355).
+# The explicit --port matters: without it portless defaults to port 443, which
+# requires sudo. The repo's .envrc also pins PORTLESS_PORT=1355 (via direnv) so
+# the proxy auto-started by `yarn dev` picks the same port. If a proxy is
+# already running on 443, stop it first with `portless proxy stop`.
+portless proxy start --port 1355 --https
 
 # (Optional, Safari only) Sync /etc/hosts so .localhost resolves
 portless hosts sync
