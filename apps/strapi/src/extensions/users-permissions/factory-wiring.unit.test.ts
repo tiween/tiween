@@ -142,14 +142,40 @@ describe("users-permissions auth factory wiring (Story 4.7 regression guard)", (
     // The package's `exports` map only exposes ./strapi-server, so resolve the
     // controller file relative to the package root instead of via a subpath.
 
+    // Guard the RUNTIME artifact first: the booted server loads the plugin
+    // through the package's `./strapi-server` export (dist/server/index.js,
+    // a rollup bundle) — not the `server/src` source files. Assert that the
+    // controller Strapi actually instantiates still has the factory shape
+    // the extension wraps.
+    const strapiServerExport = require("@strapi/plugin-users-permissions/strapi-server")
+    const strapiServerModule = strapiServerExport.default ?? strapiServerExport
+    const runtimePlugin =
+      typeof strapiServerModule === "function"
+        ? strapiServerModule()
+        : strapiServerModule
+    expect(typeof runtimePlugin.controllers?.auth).toBe("function")
+
+    // Also exercise the extension against the standalone controller file
+    // (≥5.51 layout: server/src/controllers/auth.js), which the runtime
+    // bundle is compiled from.
     const path = require("path")
+    const fs = require("fs")
     const packageRoot = path.dirname(
       require.resolve("@strapi/plugin-users-permissions/package.json")
     )
 
-    const realAuthExport = require(
-      path.join(packageRoot, "server", "controllers", "auth.js")
-    )
+    const candidates = [
+      path.join(packageRoot, "server", "src", "controllers", "auth.js"),
+    ]
+    const authPath = candidates.find((p: string) => fs.existsSync(p))
+    if (!authPath) {
+      throw new Error(
+        "@strapi/plugin-users-permissions auth controller not found; " +
+          `probed: ${candidates.join(", ")} — the package layout changed again, update this test.`
+      )
+    }
+
+    const realAuthExport = require(authPath)
 
     // Pin the upstream shape this fix is built around — if upstream changes
     // it, this fails loudly instead of the extension silently no-opping.

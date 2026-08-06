@@ -35,12 +35,12 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@strapi/plugin-documentation": "^5.33.1",
-    "@strapi/plugin-sentry": "^5.33.1",
-    "@strapi/plugin-users-permissions": "^5.33.1",
-    "@strapi/provider-email-mailgun": "^5.33.1",
-    "@strapi/provider-upload-aws-s3": "^5.33.1",
-    "@strapi/strapi": "^5.33.1",
+    "@strapi/plugin-documentation": "^5.51.2",
+    "@strapi/plugin-sentry": "^5.51.2",
+    "@strapi/plugin-users-permissions": "^5.51.2",
+    "@strapi/provider-email-mailgun": "^5.51.2",
+    "@strapi/provider-upload-aws-s3": "^5.51.2",
+    "@strapi/strapi": "^5.51.2",
     "@tiween/strapi-provider-email-brevo": "*",
     "chalk": "^5.3.0",
     "cheerio": "^1.0.0",

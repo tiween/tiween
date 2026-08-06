@@ -1793,9 +1793,9 @@ status: open
 
 origin: spec-deferred e40dece0e02d
 location: .github/workflows/ci.yml
-source_spec: `4-7-fix-users-permissions-auth-controller-factory-wiring.md`
+source*spec: `4-7-fix-users-permissions-auth-controller-factory-wiring.md`
 severity: medium
-reason: .github/workflows/ci.yml runs only the default `yarn test` gate (testMatch \*_/_.unit.test.ts); no workflow or merge gate invokes `test:integration` / the \*.service.test.ts suites. The suite itself is green and self-contained (SQLite + build:test-dist), so wiring it into CI is feasible but is a CI-infrastructure decision beyond this story's ACs.
+reason: .github/workflows/ci.yml runs only the default `yarn test` gate (testMatch \**/\_.unit.test.ts); no workflow or merge gate invokes `test:integration` / the \*.service.test.ts suites. The suite itself is green and self-contained (SQLite + build:test-dist), so wiring it into CI is feasible but is a CI-infrastructure decision beyond this story's ACs.
 status: open
 
 ### DW-253: Follow-up review still recommended for 4-7-fix-users-permissions-auth-controller-factory-wiring after the damping cap was spent
@@ -1805,4 +1805,31 @@ location: n/a
 source_spec: `4-7-fix-users-permissions-auth-controller-factory-wiring.md`
 severity: low
 reason: The follow-up-review damping cap (limits.max_followup_reviews = 1) was spent with the story finalized (status: done, verify green) while the review pass still recommended an independent follow-up. The work was committed by bmad-loop run 20260806-161858-94c9; this entry preserves the lingering recommendation for a deliberate later review.
+status: open
+
+### DW-254: Pre-deploy migration rehearsal needed before shipping Strapi 5.51.2 to an environment with a pre-5.51 Postgres database
+
+origin: review-defer
+location: deployment process (no repo file)
+source_spec: `spec-upgrade-strapi-5-51-2.md`
+severity: medium
+reason: The 5.33.1→5.51.2 upgrade was boot-verified against the dev Postgres container (migrations ran clean), but staging/production databases created under 5.33 with real rows were never exercised. The upgrade adds columns (admin api-token kind/owner relations, session metadata, user resetPasswordTokenExpiresAt, upload focalPoint) via boot-time schema sync, and rollback to 5.33 after that sync is non-trivial. Before deploying, restore a dump of the target database and boot 5.51.2 against it once.
+status: open
+
+### DW-255: strapi-plugin-config-sync pinned at 2.1.0 (disabled) — verify compatibility or upgrade to 3.x before re-enabling under Strapi 5.51
+
+origin: review-defer
+location: apps/strapi/package.json
+source_spec: `spec-upgrade-strapi-5-51-2.md`
+severity: low
+reason: config-sync is exact-pinned at 2.1.0 and `enabled: false` in config/plugins.ts, so the 5.51.2 upgrade did not exercise it. Latest is 3.2.0 (major bump). The plugin serializes admin/permission schemas that changed in 5.51 (api-token kind, admin-scoped tokens), so whenever it is re-enabled it must first be validated or upgraded, and any committed sync export re-generated.
+status: open
+
+### DW-256: Regenerate apps/client/src/types/strapi-openapi.d.ts against the 5.51.2 server once in-flight schema work lands
+
+origin: review-defer
+location: apps/client/src/types/strapi-openapi.d.ts
+source_spec: `spec-upgrade-strapi-5-51-2.md`
+severity: low
+reason: The committed client API types are generated from the running server's OpenAPI output (`yarn gen:strapi-types`), and @strapi/plugin-documentation jumped 5.33→5.51 (plus content-API surface additions like upload focalPoint). Regenerating now would also pull in uncommitted story-6.x schema changes (e.g. ticket-order confirmationEmailSentAt), tangling scopes — regenerate and diff after that work is committed.
 status: open
