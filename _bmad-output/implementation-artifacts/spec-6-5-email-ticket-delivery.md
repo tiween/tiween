@@ -2,7 +2,7 @@
 title: "Story 6.5: Email Ticket Delivery"
 type: "feature"
 created: "2026-08-06"
-status: "awaiting-operator"
+status: done
 baseline_revision: "749eadd072f22b1b10e5e6bb862c7a0447da0004"
 final_revision: "23dcb35f907539f1cb5912677d5f70f71cb14902"
 review_loop_iteration: 0
@@ -220,3 +220,13 @@ Status: awaiting-operator — implementation and review complete; the only remai
 - Real-inbox rendering (Gmail/Outlook attachment display, spam scoring, the 2-minute NFR) is only verifiable after the operator actions below.
 - Claim-first CAS crash window and skip-loop observability recorded as a deferred item.
 - DW-241 (legacy unsigned `qrCode` rows) remains open; this story's `TWQ1.` gate stops those rows from being emailed but does not backfill them.
+
+## Operator Confirmation
+
+Confirmed 2026-08-06: the external actions this story owed were carried out.
+
+- Create (or reuse) a Brevo transactional API key at https://app.brevo.com/settings/keys/api and set it as BREVO_API_KEY in the production Strapi environment (Dokploy env vars); without it buyers receive no ticket email — dev/staging may leave it unset to use the console-logging fallback.
+- Verify the sender address noreply@tiween.tn (or whatever BREVO_SENDER_EMAIL is set to) in the Brevo console, including the domain's SPF/DKIM DNS records, so transactional sends are accepted and land in inboxes.
+- After deploying with the key set, run one sandbox checkout end-to-end and confirm the email arrives within 2 minutes with one QR PNG per ticket, the .ics attachment, and a working add-to-calendar link (the real-inbox acceptance surface no test can reach).
+
+_Appended by the bmad-loop orchestrator (`bmad-loop confirm`, #335): a human confirmed these external actions out of band, and the story was advanced from `awaiting-operator` to `done`._
