@@ -123,6 +123,34 @@ granted because the profile form uploads the logo and photos before it saves
 (the venue stores file ids), but the blast radius is the whole media library.
 Anything narrower requires a scoped upload proxy, which does not exist yet.
 
+### Story 7.3 Venue-Events Grants (seeded in code)
+
+Like the 7.2 grants above, these **six** grants are **seeded at bootstrap** by
+`src/bootstrap/venue-manager-role.ts` (`VENUE_MANAGER_PERMISSION_ACTIONS`).
+They open the events-manager `/venue/*` event-creation surface:
+
+| Action                                                    | Route                                                       | Purpose                                          |
+| --------------------------------------------------------- | ----------------------------------------------------------- | ------------------------------------------------ |
+| `plugin::events-manager.venue-events.findMine`            | `GET /api/events-manager/venue/events`                      | List the caller's own venue's events.            |
+| `plugin::events-manager.venue-events.create`              | `POST /api/events-manager/venue/events`                     | Create a DRAFT event + showtimes at own venue.   |
+| `plugin::events-manager.venue-events.findOne`             | `GET /api/events-manager/venue/events/:documentId`          | Draft-preview read of an own event.              |
+| `plugin::events-manager.venue-events.publish`             | `POST /api/events-manager/venue/events/:documentId/publish` | Explicit publish (approved venues only).         |
+| `plugin::events-manager.venue-events.searchCreativeWorks` | `GET /api/events-manager/venue/creative-works/search`       | Catalog search feeding the creative-work picker. |
+| `plugin::events-manager.venue-events.createCreativeWork`  | `POST /api/events-manager/venue/creative-works`             | Create + publish a minimal catalog entry.        |
+
+All six routes are **tenant-scoped twice over**: each carries the
+`plugin::venues.is-venue-manager` policy (referenced cross-plugin by its
+global id), and the service resolves the venue from `ctx.state.user` via the
+venues facade (`findVenueForManager`) — no venue id is ever accepted from a
+request, and a foreign event answers the same 404 as an absent one. Publishing
+is additionally gated on `venue.status === "approved"` (409
+`VENUE_NOT_APPROVED` otherwise), so a pending venue's events stay drafts.
+
+Note that `createCreativeWork` writes into the SHARED catalog (creative
+works are platform data, published immediately), and events carry a
+manager-settable `featured` flag that feeds the homepage featured slice —
+both are trust grants to venue managers; moderation belongs to Epic 9.
+
 ### Venue Assignment
 
 - Each venue has a `manager` relation to a User

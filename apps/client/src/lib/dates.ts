@@ -88,6 +88,18 @@ export function formatTime(
 }
 
 /**
+ * A Tunisian wall-clock date (`YYYY-MM-DD`) + time (`HH:mm`) as an ISO instant.
+ *
+ * Venue schedules are Tunisian local time, so the wall clock a manager types
+ * must be read in `Africa/Tunis` no matter where their browser sits —
+ * `new Date("2026-09-01T20:00")` would resolve it in the browser's zone and
+ * shift the event by hours (and, at the day boundary, by a day).
+ */
+export function toTunisIsoInstant(date: string, time: string): string {
+  return dayjs.tz(`${date}T${time}`, TIMEZONE).toISOString()
+}
+
+/**
  * Get today's date formatted
  */
 export function getToday(format = DATE_FORMAT): string {

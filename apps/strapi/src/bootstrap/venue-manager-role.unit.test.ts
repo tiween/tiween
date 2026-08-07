@@ -77,6 +77,12 @@ describe("ensureVenueManagerRole permission seeding (unit)", () => {
       "plugin::venues.venue-profile.updateMine",
       "plugin::venues.venue-profile.propertyDefinitions",
       "plugin::upload.content-api.upload",
+      "plugin::events-manager.venue-events.create",
+      "plugin::events-manager.venue-events.findMine",
+      "plugin::events-manager.venue-events.findOne",
+      "plugin::events-manager.venue-events.publish",
+      "plugin::events-manager.venue-events.searchCreativeWorks",
+      "plugin::events-manager.venue-events.createCreativeWork",
     ])
   })
 
@@ -86,6 +92,12 @@ describe("ensureVenueManagerRole permission seeding (unit)", () => {
       "plugin::venues.venue-profile.updateMine",
       "plugin::venues.venue-profile.propertyDefinitions",
       "plugin::upload.content-api.upload",
+      "plugin::events-manager.venue-events.create",
+      "plugin::events-manager.venue-events.findMine",
+      "plugin::events-manager.venue-events.findOne",
+      "plugin::events-manager.venue-events.publish",
+      "plugin::events-manager.venue-events.searchCreativeWorks",
+      "plugin::events-manager.venue-events.createCreativeWork",
     ])
   })
 
@@ -139,6 +151,12 @@ describe("ensureVenueManagerRole permission seeding (unit)", () => {
       "plugin::venues.venue-profile.updateMine",
       "plugin::venues.venue-profile.propertyDefinitions",
       "plugin::upload.content-api.upload",
+      "plugin::events-manager.venue-events.create",
+      "plugin::events-manager.venue-events.findMine",
+      "plugin::events-manager.venue-events.findOne",
+      "plugin::events-manager.venue-events.publish",
+      "plugin::events-manager.venue-events.searchCreativeWorks",
+      "plugin::events-manager.venue-events.createCreativeWork",
     ])
   })
 

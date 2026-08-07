@@ -39,6 +39,19 @@ export const VENUE_MANAGER_PERMISSION_ACTIONS = [
   "plugin::venues.venue-profile.updateMine",
   "plugin::venues.venue-profile.propertyDefinitions",
   "plugin::upload.content-api.upload",
+  // Story 7.3 — venue event creation. Six grants tracking the
+  // `venue-events` controller keys in
+  // `plugins/events-manager/server/src/controllers/index.ts`. All six routes
+  // additionally carry `plugin::venues.is-venue-manager` and resolve the venue
+  // from `ctx.state.user`, so the grant opens the endpoint and the lookup
+  // scopes it to one tenant. Without these rows every `/venue/*` route 403s on
+  // a fresh database.
+  "plugin::events-manager.venue-events.create",
+  "plugin::events-manager.venue-events.findMine",
+  "plugin::events-manager.venue-events.findOne",
+  "plugin::events-manager.venue-events.publish",
+  "plugin::events-manager.venue-events.searchCreativeWorks",
+  "plugin::events-manager.venue-events.createCreativeWork",
 ] as const
 
 /**

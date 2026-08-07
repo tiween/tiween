@@ -168,6 +168,9 @@ export default defineConfig({
       // (singular) — the `venues/` glob above does NOT reach it — and `[locale]`
       // is a glob char-class, so match that segment via `**`.
       "src/app/**/venue/profile/**/*.test.tsx",
+      // Venue-manager event creation surfaces (Story 7.3). The profile glob
+      // above is pinned to `profile/` only, so the events pages need their own.
+      "src/app/**/venue/events/**/*.test.tsx",
     ],
   },
 })

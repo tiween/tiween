@@ -43,6 +43,14 @@ const ALLOWED_STRAPI_ENDPOINTS: Record<string, string[]> = {
     // reaches Strapi, and no sibling route lives under either prefix.
     "api/venues/venues/me",
     "api/venues/venues/property-definitions",
+    // Venue-manager event reads (Story 7.3). PREFIXES matched with
+    // `startsWith`: `venue/events` also covers `venue/events/:documentId`.
+    // Safe because every `/venue/*` route is gated server-side by
+    // `plugin::venues.is-venue-manager` and the venue is resolved from the
+    // JWT (never the request), so a forged path segment reaches nothing that
+    // is not already tenant-scoped.
+    "api/events-manager/venue/events",
+    "api/events-manager/venue/creative-works/search",
   ],
   POST: [
     "api/subscribers",
@@ -64,6 +72,12 @@ const ALLOWED_STRAPI_ENDPOINTS: Record<string, string[]> = {
     // reconciliation confirm (Story 6.3). `startsWith` covers both
     // `.../orders` and `.../orders/:orderNumber/confirm`.
     "api/ticketing/orders",
+    // Venue-manager event writes (Story 7.3). PREFIXES matched with
+    // `startsWith`: `venue/events` also covers
+    // `venue/events/:documentId/publish`. Tenant-scoped server-side — the
+    // policy gates the role and the service derives the venue from the JWT.
+    "api/events-manager/venue/events",
+    "api/events-manager/venue/creative-works",
   ],
   // Self-scoped profile update only. `api/users` is intentionally NOT listed —
   // that would expose the stock `PUT api/users/:id` (arbitrary id + fields).

@@ -38,6 +38,7 @@ import type {
 } from "@/features/venues/schemas/venue-profile"
 import type { FieldError, Resolver } from "react-hook-form"
 
+import { Link } from "@/lib/navigation"
 import { AppField } from "@/components/forms/AppField"
 import { AppForm } from "@/components/forms/AppForm"
 import { AppSelect } from "@/components/forms/AppSelect"
@@ -523,6 +524,12 @@ function VenueProfileEditor({
         <CardDescription>{t("description")}</CardDescription>
         <p className="text-muted-foreground text-sm" data-testid="venue-status">
           {t("fields.status")}: {t(`status.${venue.status ?? "pending"}`)}
+        </p>
+        {/* Discoverability between the two manager surfaces (Story 7.3). */}
+        <p className="text-sm">
+          <Link className="text-primary underline" href="/venue/events">
+            {t("eventsLink")}
+          </Link>
         </p>
       </CardHeader>
 

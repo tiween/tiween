@@ -968,7 +968,8 @@
         "VENUE_PROFILE_UPDATE_FAILED": "تعذر حفظ تعديلاتك. أعد المحاولة.",
         "UPLOAD_FAILED": "تعذر رفع الصورة. أعد المحاولة.",
         "INTERNAL_ERROR": "حدث خطأ ما. أعد المحاولة لاحقا."
-      }
+      },
+      "eventsLink": "إدارة أحداثي"
     },
     "public": {
       "pageTitle": "{name} | تيوين",
@@ -996,6 +997,155 @@
         "cultural-center": "مركز ثقافي",
         "museum": "متحف",
         "other": "أخرى"
+      }
+    },
+    "events": {
+      "pageTitle": "أحداثي",
+      "pageDescription": "أنشئ وانشر أحداث قاعتك على تيوين.",
+      "list": {
+        "title": "أحداثي",
+        "description": "أحداث قاعتك — المسودات والمنشورة.",
+        "emptyTitle": "لا توجد أحداث بعد",
+        "emptyDescription": "أنشئ حدثك الأول: اختر فيلما أو مسرحية، حدد التواريخ والحصص، عاينه ثم انشره.",
+        "backToProfile": "العودة إلى ملف قاعتي"
+      },
+      "form": {
+        "pageTitle": "حدث جديد",
+        "header": "إنشاء حدث",
+        "description": "يحفظ الحدث كمسودة — لا شيء يظهر للعموم قبل النشر."
+      },
+      "preview": {
+        "pageTitle": "معاينة الحدث",
+        "draftBanner": "معاينة المسودة",
+        "publishedBanner": "حدث منشور",
+        "draftHint": "هكذا سيظهر حدثك بعد النشر. لم يصبح عموميا بعد.",
+        "publishedHint": "هذا الحدث منشور على تيوين."
+      },
+      "publishConfirm": {
+        "title": "نشر هذا الحدث؟",
+        "description": "سيصبح الحدث وجميع حصصه مرئيين للجميع على تيوين."
+      },
+      "workDialog": {
+        "title": "عنوان جديد"
+      },
+      "sections": {
+        "work": "فيلم أو مسرحية",
+        "details": "تفاصيل الحدث",
+        "dates": "التواريخ",
+        "showtimes": "الحصص",
+        "extras": "خيارات"
+      },
+      "fields": {
+        "title": "عنوان الحدث",
+        "description": "الوصف",
+        "startDate": "تاريخ البداية",
+        "endDate": "تاريخ النهاية (اختياري)",
+        "showtime": "الحصة",
+        "showtimeDate": "التاريخ",
+        "showtimeTime": "الوقت",
+        "videoFormat": "صيغة العرض",
+        "audioLanguage": "لغة الصوت",
+        "subtitleLanguage": "الترجمة",
+        "surtitleLanguage": "الترجمة الفوقية",
+        "featured": "إبراز هذا الحدث (يظهر في الصفحة الرئيسية)",
+        "images": "صور الحدث",
+        "workTitle": "العنوان",
+        "workType": "النوع",
+        "synopsis": "الملخص",
+        "duration": "المدة (بالدقائق)",
+        "releaseYear": "سنة الإصدار",
+        "poster": "الملصق"
+      },
+      "placeholders": {
+        "videoFormat": "اختر صيغة",
+        "workType": "اختر نوعا"
+      },
+      "hints": {
+        "showtimesScreening": "كل حصة هي عرض سينمائي: تاريخ ووقت وصيغة عرض ولغات.",
+        "showtimesPerformance": "كل حصة هي عرض مسرحي: تاريخ ووقت وترجمة فوقية اختيارية.",
+        "images": "حتى {max} صور.",
+        "draft": "الحفظ ينشئ مسودة. يمكنك معاينتها قبل النشر."
+      },
+      "picker": {
+        "label": "البحث في الكتالوج",
+        "placeholder": "ابحث عن فيلم أو مسرحية…",
+        "search": "اكتب عنوانا…",
+        "typeToSearch": "اكتب حرفين على الأقل للبحث.",
+        "searching": "جار البحث…",
+        "noResult": "لا نتيجة — يمكنك إنشاؤه.",
+        "selected": "المختار"
+      },
+      "workTypes": {
+        "film": "فيلم",
+        "play": "مسرحية",
+        "short-film": "فيلم قصير"
+      },
+      "formats": {
+        "standard": "عادي",
+        "threeD": "3D",
+        "imax": "IMAX",
+        "fourDX": "4DX",
+        "format70mm": "70mm"
+      },
+      "buttons": {
+        "newEvent": "حدث جديد",
+        "createFirst": "إنشاء حدثي الأول",
+        "preview": "معاينة",
+        "save": "حفظ المسودة",
+        "saving": "جار الحفظ…",
+        "addShowtime": "إضافة حصة",
+        "removeShowtime": "حذف هذه الحصة",
+        "createWork": "إنشاء عنوان جديد",
+        "creatingWork": "جار الإنشاء…",
+        "confirmCreateWork": "إنشاء",
+        "publish": "نشر",
+        "publishing": "جار النشر…",
+        "confirmPublish": "نشر الآن",
+        "cancel": "إلغاء",
+        "backToList": "أحداثي"
+      },
+      "state": {
+        "draft": "مسودة",
+        "published": "منشور"
+      },
+      "success": {
+        "created": "تم حفظ الحدث كمسودة.",
+        "workCreated": "تمت إضافة العنوان إلى الكتالوج.",
+        "published": "حدثك الآن منشور!"
+      },
+      "errors": {
+        "CREATIVE_WORK_REQUIRED": "يرجى اختيار أو إنشاء الفيلم أو المسرحية التي يقدمها هذا الحدث.",
+        "EVENT_TITLE_REQUIRED": "عنوان الحدث إجباري.",
+        "EVENT_TITLE_TOO_LONG": "عنوان الحدث طويل جدا (200 حرف كحد أقصى).",
+        "EVENT_DESCRIPTION_TOO_LONG": "الوصف طويل جدا (5000 حرف كحد أقصى).",
+        "EVENT_DATES_INVALID": "التواريخ غير صالحة — لا يمكن أن يسبق تاريخ النهاية تاريخ البداية.",
+        "EVENT_SHOWTIMES_REQUIRED": "أضف حصة واحدة على الأقل.",
+        "EVENT_SHOWTIMES_TOO_MANY": "عدد الحصص كبير جدا لحدث واحد.",
+        "EVENT_IMAGES_TOO_MANY": "عدد الصور كبير جدا لحدث واحد.",
+        "SHOWTIME_START_INVALID": "كل حصة تحتاج إلى تاريخ ووقت صالحين.",
+        "SHOWTIME_FORMAT_INVALID": "صيغة العرض المختارة غير صالحة.",
+        "SHOWTIME_LANGUAGE_TOO_LONG": "اللغة طويلة جدا (50 حرفا كحد أقصى).",
+        "SHOWTIME_OUTSIDE_EVENT_RANGE": "توجد حصة خارج تواريخ الحدث.",
+        "WORK_TITLE_REQUIRED": "العنوان إجباري.",
+        "WORK_TITLE_TOO_LONG": "العنوان طويل جدا (200 حرف كحد أقصى).",
+        "WORK_TYPE_INVALID": "يرجى اختيار نوع صالح.",
+        "WORK_SYNOPSIS_TOO_LONG": "الملخص طويل جدا (5000 حرف كحد أقصى).",
+        "WORK_DURATION_INVALID": "يجب أن تكون المدة عددا صحيحا من الدقائق.",
+        "WORK_YEAR_INVALID": "سنة الإصدار غير صالحة.",
+        "IMAGE_TOO_LARGE": "هذه الصورة كبيرة جدا.",
+        "IMAGE_TYPE_INVALID": "نوع الملف غير مقبول.",
+        "IMAGES_TOO_MANY": "تم اختيار عدد كبير من الصور.",
+        "VALIDATION_FAILED": "بعض الحقول غير صالحة. يرجى مراجعة الاستمارة.",
+        "NOT_VENUE_MANAGER": "هذا الفضاء مخصص لمديري القاعات.",
+        "VENUE_NOT_FOUND": "لا توجد قاعة مرتبطة بحسابك بعد.",
+        "EVENT_NOT_FOUND": "لم يتم العثور على هذا الحدث.",
+        "CREATIVE_WORK_NOT_FOUND": "لم يتم العثور على الفيلم أو المسرحية المختارة.",
+        "VENUE_NOT_APPROVED": "قاعتك في انتظار الموافقة — يمكنك نشر الأحداث بعد الموافقة عليها.",
+        "EVENT_CREATE_FAILED": "تعذر إنشاء الحدث. يرجى المحاولة مجددا.",
+        "EVENT_PUBLISH_FAILED": "تعذر نشر الحدث. يرجى المحاولة مجددا.",
+        "WORK_CREATE_FAILED": "تعذر إنشاء الفيلم أو المسرحية. يرجى المحاولة مجددا.",
+        "UPLOAD_FAILED": "فشل تحميل الصورة. يرجى المحاولة مجددا.",
+        "INTERNAL_ERROR": "حدث خطأ غير متوقع. يرجى المحاولة مجددا."
       }
     }
   }

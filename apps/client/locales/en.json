@@ -968,7 +968,8 @@
         "VENUE_PROFILE_UPDATE_FAILED": "Your changes could not be saved. Please try again.",
         "UPLOAD_FAILED": "The image could not be uploaded. Please try again.",
         "INTERNAL_ERROR": "Something went wrong. Please try again later."
-      }
+      },
+      "eventsLink": "Manage my events"
     },
     "public": {
       "pageTitle": "{name} | Tiween",
@@ -996,6 +997,155 @@
         "cultural-center": "Cultural center",
         "museum": "Museum",
         "other": "Other"
+      }
+    },
+    "events": {
+      "pageTitle": "My events",
+      "pageDescription": "Create and publish your venue's events on Tiween.",
+      "list": {
+        "title": "My events",
+        "description": "Your venue's events — drafts and published.",
+        "emptyTitle": "No events yet",
+        "emptyDescription": "Create your first event: pick a film or play, set the dates and showtimes, preview it, then publish.",
+        "backToProfile": "Back to my venue profile"
+      },
+      "form": {
+        "pageTitle": "New event",
+        "header": "Create an event",
+        "description": "The event is saved as a draft — nothing is public until you publish it."
+      },
+      "preview": {
+        "pageTitle": "Event preview",
+        "draftBanner": "Draft preview",
+        "publishedBanner": "Published event",
+        "draftHint": "This is how your event will appear once published. It is not public yet.",
+        "publishedHint": "This event is live on Tiween."
+      },
+      "publishConfirm": {
+        "title": "Publish this event?",
+        "description": "The event and all its showtimes will become visible to everyone on Tiween."
+      },
+      "workDialog": {
+        "title": "New title"
+      },
+      "sections": {
+        "work": "Film or play",
+        "details": "Event details",
+        "dates": "Run dates",
+        "showtimes": "Showtimes",
+        "extras": "Options"
+      },
+      "fields": {
+        "title": "Event title",
+        "description": "Description",
+        "startDate": "Start date",
+        "endDate": "End date (optional)",
+        "showtime": "Showtime",
+        "showtimeDate": "Date",
+        "showtimeTime": "Time",
+        "videoFormat": "Projection format",
+        "audioLanguage": "Audio language",
+        "subtitleLanguage": "Subtitles",
+        "surtitleLanguage": "Surtitles",
+        "featured": "Feature this event (highlighted on the homepage)",
+        "images": "Event images",
+        "workTitle": "Title",
+        "workType": "Type",
+        "synopsis": "Synopsis",
+        "duration": "Duration (minutes)",
+        "releaseYear": "Release year",
+        "poster": "Poster"
+      },
+      "placeholders": {
+        "videoFormat": "Choose a format",
+        "workType": "Choose a type"
+      },
+      "hints": {
+        "showtimesScreening": "Each showtime is a screening: date, time, projection format and languages.",
+        "showtimesPerformance": "Each showtime is a performance: date, time and optional surtitles.",
+        "images": "Up to {max} images.",
+        "draft": "Saving creates a draft. You can preview it before publishing."
+      },
+      "picker": {
+        "label": "Search the catalog",
+        "placeholder": "Search for a film or play…",
+        "search": "Type a title…",
+        "typeToSearch": "Type at least two characters to search.",
+        "searching": "Searching…",
+        "noResult": "No match — you can create it.",
+        "selected": "Selected"
+      },
+      "workTypes": {
+        "film": "Film",
+        "play": "Play",
+        "short-film": "Short film"
+      },
+      "formats": {
+        "standard": "Standard",
+        "threeD": "3D",
+        "imax": "IMAX",
+        "fourDX": "4DX",
+        "format70mm": "70mm"
+      },
+      "buttons": {
+        "newEvent": "New event",
+        "createFirst": "Create my first event",
+        "preview": "Preview",
+        "save": "Save draft",
+        "saving": "Saving…",
+        "addShowtime": "Add a showtime",
+        "removeShowtime": "Remove this showtime",
+        "createWork": "Create a new title",
+        "creatingWork": "Creating…",
+        "confirmCreateWork": "Create",
+        "publish": "Publish",
+        "publishing": "Publishing…",
+        "confirmPublish": "Publish now",
+        "cancel": "Cancel",
+        "backToList": "My events"
+      },
+      "state": {
+        "draft": "Draft",
+        "published": "Published"
+      },
+      "success": {
+        "created": "Event saved as a draft.",
+        "workCreated": "Title added to the catalog.",
+        "published": "Your event is now live!"
+      },
+      "errors": {
+        "CREATIVE_WORK_REQUIRED": "Please select or create the film or play this event presents.",
+        "EVENT_TITLE_REQUIRED": "The event title is required.",
+        "EVENT_TITLE_TOO_LONG": "The event title is too long (200 characters max).",
+        "EVENT_DESCRIPTION_TOO_LONG": "The description is too long (5000 characters max).",
+        "EVENT_DATES_INVALID": "The run dates are invalid — the end date cannot precede the start date.",
+        "EVENT_SHOWTIMES_REQUIRED": "Add at least one showtime.",
+        "EVENT_SHOWTIMES_TOO_MANY": "Too many showtimes for a single event.",
+        "EVENT_IMAGES_TOO_MANY": "Too many images for a single event.",
+        "SHOWTIME_START_INVALID": "Each showtime needs a valid date and time.",
+        "SHOWTIME_FORMAT_INVALID": "The selected projection format is invalid.",
+        "SHOWTIME_LANGUAGE_TOO_LONG": "The language is too long (50 characters max).",
+        "SHOWTIME_OUTSIDE_EVENT_RANGE": "A showtime falls outside the event's run dates.",
+        "WORK_TITLE_REQUIRED": "The title is required.",
+        "WORK_TITLE_TOO_LONG": "The title is too long (200 characters max).",
+        "WORK_TYPE_INVALID": "Please choose a valid type.",
+        "WORK_SYNOPSIS_TOO_LONG": "The synopsis is too long (5000 characters max).",
+        "WORK_DURATION_INVALID": "The duration must be a whole number of minutes.",
+        "WORK_YEAR_INVALID": "The release year is invalid.",
+        "IMAGE_TOO_LARGE": "This image is too large.",
+        "IMAGE_TYPE_INVALID": "This file type is not accepted.",
+        "IMAGES_TOO_MANY": "Too many images selected.",
+        "VALIDATION_FAILED": "Some fields are invalid. Please review the form.",
+        "NOT_VENUE_MANAGER": "This area is reserved for venue managers.",
+        "VENUE_NOT_FOUND": "No venue is linked to your account yet.",
+        "EVENT_NOT_FOUND": "This event was not found.",
+        "CREATIVE_WORK_NOT_FOUND": "The selected film or play was not found.",
+        "VENUE_NOT_APPROVED": "Your venue is awaiting approval — you can publish events once it is approved.",
+        "EVENT_CREATE_FAILED": "The event could not be created. Please try again.",
+        "EVENT_PUBLISH_FAILED": "The event could not be published. Please try again.",
+        "WORK_CREATE_FAILED": "The film or play could not be created. Please try again.",
+        "UPLOAD_FAILED": "The image upload failed. Please try again.",
+        "INTERNAL_ERROR": "An unexpected error occurred. Please try again."
       }
     }
   }

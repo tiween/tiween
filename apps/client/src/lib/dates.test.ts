@@ -7,7 +7,7 @@
  */
 import { describe, expect, it } from "vitest"
 
-import { formatRelativeTime } from "./dates"
+import { formatRelativeTime, toTunisIsoInstant } from "./dates"
 
 const NOW = new Date("2026-07-10T12:00:00.000Z")
 
@@ -63,5 +63,23 @@ describe("formatRelativeTime", () => {
 
   it("returns an empty string for an unparseable iso", () => {
     expect(formatRelativeTime("not-a-date", "fr", NOW)).toBe("")
+  })
+})
+
+describe("toTunisIsoInstant", () => {
+  // Venue schedules are Tunisian local time. Tunisia is a fixed UTC+1 with no
+  // DST, so the expected instants are exact — and independent of the machine
+  // the suite runs on, which is the whole point of the helper.
+  it("reads the wall clock in Africa/Tunis regardless of the host timezone", () => {
+    expect(toTunisIsoInstant("2026-09-01", "00:00")).toBe(
+      "2026-08-31T23:00:00.000Z"
+    )
+    expect(toTunisIsoInstant("2026-09-01", "20:00")).toBe(
+      "2026-09-01T19:00:00.000Z"
+    )
+    // Midwinter — still UTC+1, no DST shift.
+    expect(toTunisIsoInstant("2026-01-15", "12:30")).toBe(
+      "2026-01-15T11:30:00.000Z"
+    )
   })
 })

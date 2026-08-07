@@ -1,55 +1,59 @@
-# Epic 7 Context: B2B Venue Management [Phase 2]
+# Epic 7 Context: B2B Venue Management
 
 <!-- Generated from planning artifacts. Regenerate with compile-epic-context if planning docs change. -->
 
 ## Goal
 
-Give venue partners a self-service back office so they stop depending on platform admins for day-to-day operations. A venue owner registers and is approved, then manages their venue profile, authors events and showtimes, configures ticketing and ticket categories, and monitors sales and audience engagement — all scoped strictly to their own venue. This is the "professional dashboard" pillar of the product: it is what makes Tiween worth adopting for venues (lower fees, real analytics, direct publishing) instead of posting on social media, and it unlocks the downstream on-site scanner and platform-administration work.
+Give venue managers a self-service back office (via Strapi Admin) to register their venue, maintain its public profile, create and manage events with showtimes, and see how their events perform. This supplies the event content that powers the v1 aggregation platform — venues publishing their own schedules is what makes Tiween "the place to find what's happening" across Tunisia. The epic was split on 2026-08-06: aggregation stories (7.1, 7.2, 7.3, 7.4, 7.8) are v1; ticketing-dependent stories (7.5, 7.6, 7.7, 7.9) are deferred post-v1 along with all purchase functionality.
 
 ## Stories
 
-- Story 7.1: Venue Registration Flow
-- Story 7.2: Venue Profile Management
-- Story 7.3: Event Creation
-- Story 7.4: Event Editing and Cancellation
-- Story 7.5: Ticketing Configuration
-- Story 7.6: Multiple Ticket Types Configuration
-- Story 7.7: Ticket Sales Reports
-- Story 7.8: Event Analytics
-- Story 7.9: Real-Time Sales Updates
+- Story 7.1: Venue Registration Flow — delivered, awaiting-operator
+- Story 7.2: Venue Profile Management — delivered, awaiting-operator
+- Story 7.3: Event Creation — v1
+- Story 7.4: Event Editing and Cancellation — v1
+- Story 7.5: Ticketing Configuration — deferred post-v1
+- Story 7.6: Multiple Ticket Types Configuration — deferred post-v1
+- Story 7.7: Ticket Sales Reports — deferred post-v1
+- Story 7.8: Event Analytics — v1
+- Story 7.9: Real-Time Sales Updates — deferred post-v1
 
 ## Requirements & Constraints
 
-- Covers the B2B functional set: venue registration and profile, event create/edit/cancel, ticketing setup and multiple ticket types, sales reporting, event analytics, and live sales updates on the dashboard.
-- **Tenant isolation is the hard security requirement**: a venue manager may read and write only their own venue's data — venue record, events, showtimes, ticketing config, reports, analytics, and any real-time stream. This is a P0 authorization concern with per-role end-to-end coverage expected; the UI-level gate is convenience only, the boundary must be enforced server-side.
-- **Analytics must be privacy-safe**: demographics are aggregated only, never per-user; respect the platform's anonymization window and consent rules for non-essential tracking. No artifact defines an aggregation threshold — pick and document one.
-- Mutations by venue managers and admins must be attributable (actor + timestamp), which is what satisfies the "edit history is logged" expectation on cancellation/editing.
-- Real-time sales feedback target is a sub-2-second update on the dashboard; no other latency budget applies to reports or analytics.
-- Locale/formatting rules for any operator-facing surface: French-first operational copy, Western numerals and DD/MM/YYYY dates even in Arabic, prices in TND with comma decimals.
+- Venue managers can register a venue, manage its profile (photos, description, location, contact), create events (title, description, dates, showtimes, media), edit events, and cancel events. Analytics show views, watchlist activity, and conversion.
+- **Data isolation:** a venue manager may only see and modify their own venue's data — enforced via RBAC, not UI convention.
+- **Privacy:** analytics demographics must be aggregated only; never expose individual user data.
+- **V1 must not expose any live purchase surface.** Shipped ticketing code stays in the codebase dormant behind a feature flag (default off). Event and venue pages are fully informational. Do not build on or reactivate ticketing paths in v1 work.
+- All localized content must support AR/FR/EN; venue public pages are SSR with LocalBusiness/Event structured data for SEO.
+- Registration creates a _pending_ venue plus a venue-manager account; admin approves or rejects (registration is not self-activating).
+- Note for 7.4: the cancellation AC mentions triggering ticket refunds — in v1 ticketing is dormant, so implement cancellation status/notification mechanics without depending on live purchase flows.
 
 ## Technical Decisions
 
-- **Everything venue-related lives in the `venues` plugin** (extracted in Epic 2C.1). Its `policies/` slot is reserved for the `is-venue-manager` policy — that policy is Epic 7 work, not delivered by the extraction. Venue Manager permissions seed against the plugin's own permission UIDs; the epic cannot start before that re-seed lands.
-- **Venue Manager identity is a users-permissions role, not an admin-panel user**, and the venue's `manager` relation targets a users-permissions user. The story text's "Strapi admin" framing conflicts with this; the epic must resolve which panel venue managers actually authenticate into before building 7.2+ surfaces.
-- **Registration/approval rides on the venue `status` lifecycle** (pending → approved/suspended, default pending). `status` is read-only for venue managers; only platform admins transition it. Approval is the admin-side counterpart story in the platform-administration epic — coordinate, don't duplicate.
-- **The venue form already exists.** The rich venue model (contact fields, type enum, logo/images, manager relation) and its admin CRUD with server-side scoping were built in Epic 2D, along with amenity authoring via property-category/property-definition and a repeatable property-value component. Story 7.2 extends that surface; do not re-derive a venue form. Location is captured via address + geocoding + map picker — raw lat/lng inputs are rejected.
-- **Cross-plugin access goes through facades.** Each plugin exposes exactly one public-api service as its sole external entry point; never query another plugin's content types directly, and only traverse existing schema edges. Note the open design question: sales and analytics aggregation needs ticketing and event data from inside a venue-facing surface, and that edge is not currently sanctioned — decide and record where the aggregation service lives before building 7.7–7.9.
-- **Plugin coding conventions are binding**: hand-rolled factory services/controllers (no core factories), UIDs as module-level constants only, Document Service API exclusively (no entity service, no raw db queries in business logic), routes declared as `"controller.method"` strings, and en/fr/ar translation files for every plugin surface.
-- **Real-time is Socket.io with Redis backing**, and the live venue sales dashboard is a named use case — but no channel model, connection auth, or per-venue scoping has been designed. Story 7.9 must specify that, and it depends on the ticketing inventory facade existing.
-- Cancellation is a fan-out, not a local state change: it cascades to showtimes and must trigger the watchlist notification path and the refund path owned by other epics rather than reimplementing them.
-- Undesigned areas you will have to specify: ticket-type schema, CSV export format/encoding, analytics event collection and storage, and refund mechanics.
+- **All venue work targets the `venues` plugin** (extracted from events-manager per the 2026-06-12 plugin-decomposition amendment, which supersedes the baseline architecture for backend module structure). Venue Manager RBAC seeds against `plugin::venues.*` UIDs. Content-api routes live under `/venues/*`.
+- **Rich venue model** (2026-06-16 addendum): venue carries city/region, phone, email, website, type enum, status enum, logo/images media, manager relation, and a repeatable `property-value` component for amenities. Amenity vocabulary uses the property-category / property-definition types absorbed from the retired entity-properties plugin.
+- **One venue form:** the venues plugin owns the canonical venue admin UI (Epic 2D relocated the events-manager venue form there). Story 7.2's self-service UI builds on that admin, never a re-derived form. `plugin::venues.venue` is the single source of venue truth.
+- **Events stay in events-manager** (scheduling: event, screening, performance); the catalog is creative-works' unified `creative-work` (type enum film/short-film/play). Event creation selects/creates a creative work, then attaches showtimes. Sanctioned dependency edges: venues ← events-manager (event.venue), events-manager → creative-works.
+- **Dependency rules:** cross-plugin access only via each plugin's single `public-api` facade service or existing schema relations — never `strapi.documents()` with a foreign UID. The plugin graph must stay acyclic.
+- **Plugin code conventions:** hand-rolled `({ strapi }) => ({...})` service/controller factories; module-level UID constants (no inline UID strings); Document Service API only; Zod validation via the shared `validate()` helper; error responses carry codes (SCREAMING_SNAKE), never prose — translation happens client-side; `ctx: Context` typing; admin translations en/fr/ar required; multi-write operations wrapped in `strapi.db.transaction`.
+- **Mutations by venue managers and admins must be attributable (actor + timestamp)** — this is what satisfies the "edit history is logged" expectation on 7.4's editing/cancellation. Strapi's `createdBy`/`updatedBy` cover admin-panel writes only; content-api writes made on behalf of a `users-permissions` manager (7.2 onward) carry no actor, so 7.4 owes an explicit attribution mechanism.
+- New plugins/scaffolds follow the sibling-clone-of-geography pattern, not the official SDK layout.
+- Real-time updates (7.9) are deferred; the baseline WebSocket decision stands but nothing in v1 builds it.
 
 ## UX & Interaction Patterns
 
-- The canonical journey is: registration request → admin review (reject with reason, or approve + welcome email) → first login → guided onboarding → complete profile → create first event → ticketing yes/no → publish → monitor views/saves/sales. Success milestones (profile complete, first event published, first 100 views, first sale) are designed as celebratory moments; the onboarding tour and the recurring performance summary email are in the UX vision but have no story — flag rather than silently drop.
-- Operator surfaces are designed to be **invisible inside the Strapi admin host**: use the admin design-system tokens and components, no B2C brand bleed, no custom hex/px or inline styles, no native HTML controls or browser dialogs.
-- **Errors are codes, not prose**: the backend returns stable error codes and the UI maps them to translated field-level messages. Never render a raw code or backend sentence.
-- Navigation and controls vary by role: a venue manager sees a pre-filtered list, no create action, no property-authoring nav, a read-only status field, and editable amenities. Every surface needs loading, empty, error, and RBAC-variation states defined.
-- No design exists yet for sales reports, charts, CSV export, the real-time toast/dashboard, event/ticketing authoring forms, or the public registration form. Also unresolved: the UX component roadmap implies client-side React B2B components while the epic and architecture route B2B through the admin panel — settle this alongside the identity question above.
+- Venue manager journey (persona: small independent venue owner): register → admin approval queue → welcome email → first login → complete profile → add first event → publish → watch analytics. Keep each step simple enough for a non-technical operator who currently posts schedules to Facebook.
+- Professional presentation is the retention hook: profile completion and event publishing should feel like an upgrade (preview how the event/venue will appear publicly).
+- B2B milestone celebrations are part of the design language ("You're live!", "100 people discovered you") — analytics should surface reach, not just raw counts.
+- Events are created as drafts and explicitly published; venue managers can preview before publishing.
+- Success metric orientation: weekly schedule updates and >2x/week dashboard logins — flows should make routine updating fast.
 
 ## Cross-Story Dependencies
 
-- **Blocking prerequisites**: the venues-plugin extraction and permission re-seed (Epic 2C.1), the venue admin UI and property model (Epic 2D), event discovery/data model (Epic 3), and auth/sessions/roles (Epic 4).
-- **Within the epic**: 7.1 establishes the pending-venue and manager-account substrate everything else assumes; 7.3 precedes 7.4; 7.5 precedes 7.6; 7.7 precedes 7.9 (real-time is a live view over the same aggregation).
-- **Consumes other epics**: ticket-type vocabulary and the ticketing/inventory facade from the B2C ticketing epic; the watchlist notification path and refund flow triggered by cancellation; venue approval and content-flagging workflows from the platform-administration epic.
-- **Blocks**: the ticket-validation/scanner epic and the parts of platform administration that assume venues author their own content.
+- **Epic prerequisite:** story 2C.1 (venues plugin extraction) must be stable before Epic 7 stories run (currently in review). Epic 7 RBAC and content types all assume the extracted plugin.
+- 7.2 builds on Epic 2D's venues-plugin admin (2d-1 schema extension done; 2d-2 CRUD admin UI is the base for the self-service profile surface).
+- 7.1 and 7.2 are code-complete (awaiting-operator: email delivery and human admin-approval walkthrough pending) — 7.3/7.4/7.8 build on their venue + manager-account foundation.
+- 7.4 edits/cancels what 7.3 creates; cancellation notifies users who watchlisted the event (integration with Epic 5's user-engagement watchlist).
+- 7.8 analytics consumes engagement signals from the public discovery surfaces (Epic 3 pages, watchlist adds) — conversion metrics involving purchases are moot until ticketing returns.
+- Deferred 7.5–7.7/7.9 depend on the dormant ticketing plugin and Epic 6; do not partially implement them in v1 stories.
+- Admin approval of registrations (7.1) intersects with Epic 9 admin workflows.

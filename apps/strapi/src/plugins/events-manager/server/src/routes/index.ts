@@ -54,6 +54,71 @@ export default {
           auth: false,
         },
       },
+      // Venue-manager event creation (Story 7.3). The DISTINCT `/venue/*`
+      // prefix means none of these can be swallowed by `/events/:documentId`
+      // above (no ordering constraint), and the public routes stay untouched.
+      //
+      // AUTHENTICATION IS DECLARED BY OMITTING `auth`, NOT BY `auth: true`.
+      // `@strapi/core`'s route schema validates `config.auth` with
+      // `yup.lazy(v => v === false ? boolean() : object({ scope: ... }))`
+      // under `strict: true`, so a literal `auth: true` throws
+      // `Invalid route config` at BOOT (7.2's lead review finding). Omitting
+      // the key makes a content-api route both authenticated (401 without a
+      // JWT) and permission-checked against the caller's users-permissions
+      // role — the grants are seeded by `src/bootstrap/venue-manager-role.ts`.
+      //
+      // The `plugin::venues.is-venue-manager` policy (referenced cross-plugin
+      // by its global id — the same string venues' own routes use) is the
+      // server-side tenant gate; the venue itself is then resolved from
+      // `ctx.state.user` inside the service, never from the request.
+      {
+        method: "GET",
+        path: "/venue/events",
+        handler: "venue-events.findMine",
+        config: {
+          policies: ["plugin::venues.is-venue-manager"],
+        },
+      },
+      {
+        method: "POST",
+        path: "/venue/events",
+        handler: "venue-events.create",
+        config: {
+          policies: ["plugin::venues.is-venue-manager"],
+        },
+      },
+      {
+        method: "GET",
+        path: "/venue/events/:documentId",
+        handler: "venue-events.findOne",
+        config: {
+          policies: ["plugin::venues.is-venue-manager"],
+        },
+      },
+      {
+        method: "POST",
+        path: "/venue/events/:documentId/publish",
+        handler: "venue-events.publish",
+        config: {
+          policies: ["plugin::venues.is-venue-manager"],
+        },
+      },
+      {
+        method: "GET",
+        path: "/venue/creative-works/search",
+        handler: "venue-events.searchCreativeWorks",
+        config: {
+          policies: ["plugin::venues.is-venue-manager"],
+        },
+      },
+      {
+        method: "POST",
+        path: "/venue/creative-works",
+        handler: "venue-events.createCreativeWork",
+        config: {
+          policies: ["plugin::venues.is-venue-manager"],
+        },
+      },
     ],
   },
   admin: {

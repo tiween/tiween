@@ -968,7 +968,8 @@
         "VENUE_PROFILE_UPDATE_FAILED": "Vos modifications n'ont pas pu être enregistrées. Réessayez.",
         "UPLOAD_FAILED": "L'image n'a pas pu être envoyée. Réessayez.",
         "INTERNAL_ERROR": "Une erreur est survenue. Réessayez plus tard."
-      }
+      },
+      "eventsLink": "Gérer mes événements"
     },
     "public": {
       "pageTitle": "{name} | Tiween",
@@ -996,6 +997,155 @@
         "cultural-center": "Centre culturel",
         "museum": "Musée",
         "other": "Autre"
+      }
+    },
+    "events": {
+      "pageTitle": "Mes événements",
+      "pageDescription": "Créez et publiez les événements de votre salle sur Tiween.",
+      "list": {
+        "title": "Mes événements",
+        "description": "Les événements de votre salle — brouillons et publiés.",
+        "emptyTitle": "Aucun événement pour l'instant",
+        "emptyDescription": "Créez votre premier événement : choisissez un film ou une pièce, définissez les dates et les séances, prévisualisez, puis publiez.",
+        "backToProfile": "Retour au profil de ma salle"
+      },
+      "form": {
+        "pageTitle": "Nouvel événement",
+        "header": "Créer un événement",
+        "description": "L'événement est enregistré comme brouillon — rien n'est public avant sa publication."
+      },
+      "preview": {
+        "pageTitle": "Aperçu de l'événement",
+        "draftBanner": "Aperçu du brouillon",
+        "publishedBanner": "Événement publié",
+        "draftHint": "Voici comment votre événement apparaîtra une fois publié. Il n'est pas encore public.",
+        "publishedHint": "Cet événement est en ligne sur Tiween."
+      },
+      "publishConfirm": {
+        "title": "Publier cet événement ?",
+        "description": "L'événement et toutes ses séances deviendront visibles par tous sur Tiween."
+      },
+      "workDialog": {
+        "title": "Nouveau titre"
+      },
+      "sections": {
+        "work": "Film ou pièce",
+        "details": "Détails de l'événement",
+        "dates": "Dates",
+        "showtimes": "Séances",
+        "extras": "Options"
+      },
+      "fields": {
+        "title": "Titre de l'événement",
+        "description": "Description",
+        "startDate": "Date de début",
+        "endDate": "Date de fin (optionnelle)",
+        "showtime": "Séance",
+        "showtimeDate": "Date",
+        "showtimeTime": "Heure",
+        "videoFormat": "Format de projection",
+        "audioLanguage": "Langue audio",
+        "subtitleLanguage": "Sous-titres",
+        "surtitleLanguage": "Surtitres",
+        "featured": "Mettre en avant cet événement (mis en valeur sur l'accueil)",
+        "images": "Images de l'événement",
+        "workTitle": "Titre",
+        "workType": "Type",
+        "synopsis": "Synopsis",
+        "duration": "Durée (minutes)",
+        "releaseYear": "Année de sortie",
+        "poster": "Affiche"
+      },
+      "placeholders": {
+        "videoFormat": "Choisir un format",
+        "workType": "Choisir un type"
+      },
+      "hints": {
+        "showtimesScreening": "Chaque séance est une projection : date, heure, format et langues.",
+        "showtimesPerformance": "Chaque séance est une représentation : date, heure et surtitres optionnels.",
+        "images": "Jusqu'à {max} images.",
+        "draft": "L'enregistrement crée un brouillon. Vous pourrez le prévisualiser avant de le publier."
+      },
+      "picker": {
+        "label": "Rechercher dans le catalogue",
+        "placeholder": "Rechercher un film ou une pièce…",
+        "search": "Saisissez un titre…",
+        "typeToSearch": "Saisissez au moins deux caractères pour rechercher.",
+        "searching": "Recherche…",
+        "noResult": "Aucun résultat — vous pouvez le créer.",
+        "selected": "Sélection"
+      },
+      "workTypes": {
+        "film": "Film",
+        "play": "Pièce de théâtre",
+        "short-film": "Court métrage"
+      },
+      "formats": {
+        "standard": "Standard",
+        "threeD": "3D",
+        "imax": "IMAX",
+        "fourDX": "4DX",
+        "format70mm": "70mm"
+      },
+      "buttons": {
+        "newEvent": "Nouvel événement",
+        "createFirst": "Créer mon premier événement",
+        "preview": "Aperçu",
+        "save": "Enregistrer le brouillon",
+        "saving": "Enregistrement…",
+        "addShowtime": "Ajouter une séance",
+        "removeShowtime": "Supprimer cette séance",
+        "createWork": "Créer un nouveau titre",
+        "creatingWork": "Création…",
+        "confirmCreateWork": "Créer",
+        "publish": "Publier",
+        "publishing": "Publication…",
+        "confirmPublish": "Publier maintenant",
+        "cancel": "Annuler",
+        "backToList": "Mes événements"
+      },
+      "state": {
+        "draft": "Brouillon",
+        "published": "Publié"
+      },
+      "success": {
+        "created": "Événement enregistré comme brouillon.",
+        "workCreated": "Titre ajouté au catalogue.",
+        "published": "Votre événement est en ligne !"
+      },
+      "errors": {
+        "CREATIVE_WORK_REQUIRED": "Veuillez sélectionner ou créer le film ou la pièce présentés par cet événement.",
+        "EVENT_TITLE_REQUIRED": "Le titre de l'événement est obligatoire.",
+        "EVENT_TITLE_TOO_LONG": "Le titre de l'événement est trop long (200 caractères max).",
+        "EVENT_DESCRIPTION_TOO_LONG": "La description est trop longue (5000 caractères max).",
+        "EVENT_DATES_INVALID": "Les dates sont invalides — la date de fin ne peut pas précéder la date de début.",
+        "EVENT_SHOWTIMES_REQUIRED": "Ajoutez au moins une séance.",
+        "EVENT_SHOWTIMES_TOO_MANY": "Trop de séances pour un seul événement.",
+        "EVENT_IMAGES_TOO_MANY": "Trop d'images pour un seul événement.",
+        "SHOWTIME_START_INVALID": "Chaque séance doit avoir une date et une heure valides.",
+        "SHOWTIME_FORMAT_INVALID": "Le format de projection sélectionné est invalide.",
+        "SHOWTIME_LANGUAGE_TOO_LONG": "La langue est trop longue (50 caractères max).",
+        "SHOWTIME_OUTSIDE_EVENT_RANGE": "Une séance est en dehors des dates de l'événement.",
+        "WORK_TITLE_REQUIRED": "Le titre est obligatoire.",
+        "WORK_TITLE_TOO_LONG": "Le titre est trop long (200 caractères max).",
+        "WORK_TYPE_INVALID": "Veuillez choisir un type valide.",
+        "WORK_SYNOPSIS_TOO_LONG": "Le synopsis est trop long (5000 caractères max).",
+        "WORK_DURATION_INVALID": "La durée doit être un nombre entier de minutes.",
+        "WORK_YEAR_INVALID": "L'année de sortie est invalide.",
+        "IMAGE_TOO_LARGE": "Cette image est trop volumineuse.",
+        "IMAGE_TYPE_INVALID": "Ce type de fichier n'est pas accepté.",
+        "IMAGES_TOO_MANY": "Trop d'images sélectionnées.",
+        "VALIDATION_FAILED": "Certains champs sont invalides. Veuillez vérifier le formulaire.",
+        "NOT_VENUE_MANAGER": "Cet espace est réservé aux gestionnaires de salle.",
+        "VENUE_NOT_FOUND": "Aucune salle n'est encore liée à votre compte.",
+        "EVENT_NOT_FOUND": "Cet événement est introuvable.",
+        "CREATIVE_WORK_NOT_FOUND": "Le film ou la pièce sélectionnés sont introuvables.",
+        "VENUE_NOT_APPROVED": "Votre salle est en attente d'approbation — vous pourrez publier vos événements une fois la salle approuvée.",
+        "EVENT_CREATE_FAILED": "L'événement n'a pas pu être créé. Veuillez réessayer.",
+        "EVENT_PUBLISH_FAILED": "L'événement n'a pas pu être publié. Veuillez réessayer.",
+        "WORK_CREATE_FAILED": "Le film ou la pièce n'ont pas pu être créés. Veuillez réessayer.",
+        "UPLOAD_FAILED": "Le téléversement de l'image a échoué. Veuillez réessayer.",
+        "INTERNAL_ERROR": "Une erreur inattendue est survenue. Veuillez réessayer."
       }
     }
   }

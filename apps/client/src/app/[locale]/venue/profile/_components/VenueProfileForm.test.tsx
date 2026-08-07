@@ -34,6 +34,20 @@ vi.mock("@/lib/general-helpers", () => ({
   removeThisWhenYouNeedMe: () => {},
 }))
 
+// `@/lib/navigation` also imports env.mjs eagerly; the form only uses `Link`
+// (the Story 7.3 cross-link to /venue/events).
+vi.mock("@/lib/navigation", () => ({
+  Link: ({
+    href,
+    children,
+    ...rest
+  }: React.PropsWithChildren<{ href: unknown }>) => (
+    <a href={String(href)} {...rest}>
+      {children}
+    </a>
+  ),
+}))
+
 vi.mock("next-intl", () => ({
   useTranslations: () => (key: string) => key,
   useLocale: () => "fr",

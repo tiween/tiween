@@ -19,6 +19,16 @@ const intlMiddleware = createMiddleware(routing)
 // only stops an unauthenticated render from happening at all.
 const authPages = ["/auth/change-password", "/auth/signout", "/venue/profile"]
 
+// Auth-required PREFIXES (Story 7.3). The venue-manager surfaces live under
+// `/venue/...` and include a dynamic preview route
+// (`/venue/events/[documentId]`) that cannot be enumerated exactly, so the
+// whole `/venue` subtree is guarded by prefix. The exact `authPages` entries
+// above keep working unchanged (`/venue/profile` is now doubly covered).
+// `/venues/...` (the PUBLIC venue pages, plural) is deliberately NOT matched:
+// the prefix regex requires the segment to END at `/venue` or continue with
+// `/`.
+const authPrefixes = ["/venue"]
+
 const authMiddleware = withAuth(
   // Note that this callback is only invoked if
   // the `authorized` callback has returned `true`
@@ -66,7 +76,16 @@ export default function middleware(req: NextRequest) {
     `^(/(${routing.locales.join("|")}))?(${authPages.join("|")})/?$`,
     "i"
   )
-  const isAuthPage = authPathnameRegex.test(req.nextUrl.pathname)
+  // Prefix-guarded subtrees (Story 7.3): matches the prefix itself and
+  // anything BELOW it (`/venue`, `/venue/events/abc123`), never a sibling
+  // sharing the prefix as a substring (`/venues/...`).
+  const authPrefixRegex = RegExp(
+    `^(/(${routing.locales.join("|")}))?(${authPrefixes.join("|")})(/.*)?$`,
+    "i"
+  )
+  const isAuthPage =
+    authPathnameRegex.test(req.nextUrl.pathname) ||
+    authPrefixRegex.test(req.nextUrl.pathname)
 
   // If the request is for a non-public (auth) page, require authentication
   if (isAuthPage) {

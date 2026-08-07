@@ -3,19 +3,20 @@
   "version": "1.0.0",
   "description": "Event scheduling and venue management for Tiween",
   "license": "MIT",
+  "dependencies": {
+    "creative-works": "1.0.0",
+    "geography": "1.0.0",
+    "rrule": "^2.8.1",
+    "venues": "1.0.0"
+  },
+  "peerDependencies": {
+    "@strapi/strapi": "^5.0.0"
+  },
   "strapi": {
     "displayName": "Events Manager",
     "name": "events-manager",
     "description": "Schedule events, manage venues, and handle showtimes",
     "kind": "plugin",
     "required": false
-  },
-  "peerDependencies": {
-    "@strapi/strapi": "^5.0.0"
-  },
-  "dependencies": {
-    "creative-works": "1.0.0",
-    "geography": "1.0.0",
-    "rrule": "^2.8.1"
   }
 }
