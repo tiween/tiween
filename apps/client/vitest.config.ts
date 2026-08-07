@@ -109,6 +109,12 @@ export default defineConfig({
       "src/features/events/components/EventDateFilter/**/*.test.tsx",
       "src/features/events/components/EventLocationFilter/**/*.test.tsx",
       "src/features/events/components/EventVenueFilter/**/*.test.tsx",
+      // Category tabs wrapper + listing island URL writes (Story 3.2).
+      "src/features/events/components/EventCategoryFilter/**/*.test.tsx",
+      "src/features/events/components/EventsListing/**/*.test.tsx",
+      // `/[locale]/events` route param forwarding (Story 3.2). `[locale]` is a
+      // glob char-class, so match the segment via `**`.
+      "src/app/**/events/*.test.tsx",
       "src/features/events/components/ShareDialog/**/*.test.tsx",
       "src/lib/strapi-api/**/*.test.ts",
       "src/lib/algolia/**/*.test.ts",

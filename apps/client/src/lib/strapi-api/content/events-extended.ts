@@ -18,10 +18,9 @@ function asLocale(locale?: string): Locale | undefined {
  * `startDateTime`), `sort` (`startDateTime|title` × `asc|desc`), `locale`.
  * Unknown params are stripped server-side; there is NO raw `filters`/`populate`
  * pass-through, and responses are the Strapi v5 shape (`{ data, meta }`) with no
- * transformation layer. Location (`city`/`region`, Story 3.4), `venue`
- * (Story 3.5), and keyword search (`q`, Story 3.6) filtering are supported via
- * the typed params below; category filtering remains out of scope (deferred
- * Story 3.2).
+ * transformation layer. Category (`category`, Story 3.2), location
+ * (`city`/`region`, Story 3.4), `venue` (Story 3.5), and keyword search (`q`,
+ * Story 3.6) filtering are supported via the typed params below.
  *
  * Every fetcher is fail-soft: an upstream error resolves to an empty slice so
  * the homepage degrades gracefully and never becomes a cold empty page.
@@ -60,6 +59,12 @@ export interface EventQueryParams {
   pageSize?: number
   featured?: boolean
   eventStatus?: "scheduled" | "cancelled" | "postponed" | "rescheduled"
+  /**
+   * Discovery category token (`cinema|theater|shorts|music|exhibitions`) —
+   * translated into enum/relation filters server-side (Story 3.2). Absent ⇒
+   * all categories.
+   */
+  category?: string
   /** ISO datetime; lower bound on `startDateTime`. */
   startDate?: string
   /** ISO datetime; upper bound on `startDateTime`. */
@@ -162,6 +167,7 @@ export async function fetchEvents(
     pageSize = DEFAULT_SLICE_SIZE,
     featured,
     eventStatus,
+    category,
     startDate,
     endDate,
     city,
@@ -180,6 +186,7 @@ export async function fetchEvents(
         pageSize,
         ...(featured !== undefined ? { featured } : {}),
         ...(eventStatus ? { eventStatus } : {}),
+        ...(category ? { category } : {}),
         ...(startDate ? { startDate } : {}),
         ...(endDate ? { endDate } : {}),
         ...(city ? { city } : {}),

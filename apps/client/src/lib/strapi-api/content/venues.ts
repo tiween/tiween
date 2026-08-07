@@ -324,8 +324,12 @@ export interface VenueSelectorVenue {
 }
 
 export interface VenueSelectorOptions {
-  /** Venue type scope. Defaults to `"cinema"` (the MVP catalogue). */
-  type?: VenueType
+  /**
+   * Venue type scope. Defaults to `"cinema"` (the homepage catalogue);
+   * `null` un-scopes the selector entirely (the `type` param is omitted and the
+   * backend treats absence as "all types" — Story 3.2's multi-category listing).
+   */
+  type?: VenueType | null
   /** Restrict to venues in this city (`cityRef.documentId`). */
   cityDocumentId?: string
   /** Restrict to venues in this region (`cityRef.region.documentId`). */
@@ -384,7 +388,9 @@ export async function getVenuesForSelector(
       "/venues/venues/selector",
       {
         locale,
-        type,
+        // `null` means "all types": omit the param (backend treats absence as
+        // no type filter). Only a concrete VenueType is sent.
+        ...(type ? { type } : {}),
         ...(cityDocumentId ? { city: cityDocumentId } : {}),
         ...(regionDocumentId ? { region: regionDocumentId } : {}),
         ...(includeDocumentId ? { include: includeDocumentId } : {}),

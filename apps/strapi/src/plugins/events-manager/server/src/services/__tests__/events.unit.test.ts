@@ -4,8 +4,11 @@ import eventsService from "../events"
  * Unit tests for the public `events` read service (mocked Strapi, Story 3.1a).
  *
  * Document Service API only. We assert the load-bearing invariants:
- *  - list scopes to published rows + MVP category `movie_screening`, paginates,
- *    and returns the v5 shape (`{ data, meta.pagination }`)
+ *  - list scopes to published rows across ALL categories by default (the
+ *    2026-08-06 pivot, Story 3.2), paginates, and returns the v5 shape
+ *    (`{ data, meta.pagination }`)
+ *  - the five discovery `category` tokens translate to their enum/relation
+ *    filter shapes; absent ⇒ no category filter
  *  - the optional `featured` filter is threaded into the Document Service call
  *  - empty data returns `data: []` with valid pagination (not an error)
  *  - trending ranks by sum(screening.ticketsSold) desc and tolerates events
@@ -37,7 +40,7 @@ function buildStrapi(docApi: Partial<DocApiMock>) {
 }
 
 describe("events service.findEvents (unit)", () => {
-  it("scopes to published + movie_screening, paginates, returns v5 shape", async () => {
+  it("scopes to published rows across all categories, paginates, returns v5 shape", async () => {
     const rows = [{ documentId: "e1" }, { documentId: "e2" }]
     const { strapi, api } = buildStrapi({
       findMany: jest.fn(async () => rows),
@@ -51,12 +54,14 @@ describe("events service.findEvents (unit)", () => {
     expect(api.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         status: "published",
-        filters: expect.objectContaining({ category: "movie_screening" }),
         sort: "startDateTime:asc",
         start: 10,
         limit: 10,
       })
     )
+    // No default category scope (Story 3.2 widened v1 beyond cinema).
+    const call = api.findMany.mock.calls[0][0]
+    expect(call.filters).not.toHaveProperty("category")
     expect(result).toEqual({
       data: rows,
       meta: { pagination: { page: 2, pageSize: 10, pageCount: 5, total: 42 } },
@@ -79,7 +84,6 @@ describe("events service.findEvents (unit)", () => {
     expect(api.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         filters: {
-          category: "movie_screening",
           featured: true,
           eventStatus: "scheduled",
           startDateTime: {
@@ -89,6 +93,73 @@ describe("events service.findEvents (unit)", () => {
         },
       })
     )
+  })
+
+  it.each([
+    [
+      "cinema",
+      {
+        category: "movie_screening",
+        screenings: { movie: { type: "film" } },
+      },
+    ],
+    [
+      "shorts",
+      {
+        category: "movie_screening",
+        screenings: { movie: { type: "short-film" } },
+      },
+    ],
+    ["theater", { category: "theater_performance" }],
+    ["music", { category: "concert" }],
+    ["exhibitions", { category: "exhibition" }],
+  ] as const)(
+    "translates the %s discovery token into its filter shape (Story 3.2)",
+    async (token, expected) => {
+      const { strapi, api } = buildStrapi({ count: jest.fn(async () => 0) })
+      const service = eventsService({ strapi })
+
+      await service.findEvents({ page: 1, pageSize: 25, category: token })
+
+      expect(api.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          filters: expect.objectContaining(expected),
+        })
+      )
+    }
+  )
+
+  it("applies no category (and no screenings) filter when category is omitted", async () => {
+    const { strapi, api } = buildStrapi({ count: jest.fn(async () => 0) })
+    const service = eventsService({ strapi })
+
+    await service.findEvents({ page: 1, pageSize: 25 })
+
+    const call = api.findMany.mock.calls[0][0]
+    expect(call.filters).not.toHaveProperty("category")
+    expect(call.filters).not.toHaveProperty("screenings")
+  })
+
+  it("AND-combines the category filter with date + location filters", async () => {
+    const { strapi, api } = buildStrapi({ count: jest.fn(async () => 0) })
+    const service = eventsService({ strapi })
+
+    await service.findEvents({
+      page: 1,
+      pageSize: 25,
+      category: "theater",
+      startDate: "2026-08-01T00:00:00.000Z",
+      region: "region-1",
+    })
+
+    const call = api.findMany.mock.calls[0][0]
+    expect(call.filters.category).toBe("theater_performance")
+    expect(call.filters.startDateTime).toEqual({
+      $gte: "2026-08-01T00:00:00.000Z",
+    })
+    expect(call.filters.venue).toEqual({
+      cityRef: { region: { documentId: "region-1" } },
+    })
   })
 
   it("applies a city-only location filter as venue.cityRef.documentId", async () => {
@@ -243,6 +314,7 @@ describe("events service.findEvents (unit)", () => {
       q: "jazz",
       venue: "venue-1",
       city: "city-1",
+      category: "shorts",
       startDate: "2026-07-01T00:00:00.000Z",
     })
 
@@ -259,8 +331,13 @@ describe("events service.findEvents (unit)", () => {
     expect(call.filters.startDateTime).toEqual({
       $gte: "2026-07-01T00:00:00.000Z",
     })
-    // …and the MVP category scope is preserved.
+    // …and the discovery-category translation is preserved: the `$or` nests its
+    // screenings clauses under `$or`, so the top-level `filters.screenings`
+    // relation filter (shorts) is NOT clobbered.
     expect(call.filters.category).toBe("movie_screening")
+    expect(call.filters.screenings).toEqual({
+      movie: { type: "short-film" },
+    })
   })
 
   it("applies no keyword $or when q is omitted", async () => {
@@ -282,7 +359,6 @@ describe("events service.findEvents (unit)", () => {
     expect(api.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         filters: expect.objectContaining({
-          category: "movie_screening",
           eventStatus: { $ne: "cancelled" },
         }),
       })
@@ -436,7 +512,7 @@ describe("events service.findEvent (unit)", () => {
     )
   })
 
-  it("treats a non-cinema event as not-found (returns null)", async () => {
+  it("resolves a non-cinema event (Story 3.2 — no cinema-only 404)", async () => {
     const { strapi } = buildStrapi({
       findOne: jest.fn(async () => ({
         documentId: "t1",
@@ -445,7 +521,10 @@ describe("events service.findEvent (unit)", () => {
     })
     const service = eventsService({ strapi })
 
-    expect(await service.findEvent("t1")).toBeNull()
+    expect(await service.findEvent("t1")).toEqual({
+      documentId: "t1",
+      category: "theater_performance",
+    })
   })
 
   it("returns null when the row is absent", async () => {
@@ -476,19 +555,20 @@ describe("events service.findTrending (unit)", () => {
 
     const result = await service.findTrending({ page: 1, pageSize: 25 })
 
-    // upcoming window: startDateTime $gte now, movie_screening only, cancelled
-    // excluded, deterministic fetch order.
+    // upcoming window: startDateTime $gte now, ALL categories (Story 3.2),
+    // cancelled excluded, deterministic fetch order.
     expect(api.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         status: "published",
         sort: "startDateTime:asc",
         filters: expect.objectContaining({
-          category: "movie_screening",
           eventStatus: { $ne: "cancelled" },
           startDateTime: expect.objectContaining({ $gte: expect.any(String) }),
         }),
       })
     )
+    // No category scope: trending may include non-cinema events.
+    expect(api.findMany.mock.calls[0][0].filters).not.toHaveProperty("category")
     expect(result.data.map((e: any) => e.documentId)).toEqual([
       "high",
       "mid",
@@ -500,6 +580,31 @@ describe("events service.findTrending (unit)", () => {
       pageCount: 1,
       total: 3,
     })
+  })
+
+  it("includes non-cinema events in the trending ranking (Story 3.2)", async () => {
+    const rows = [
+      {
+        documentId: "concert-1",
+        category: "concert",
+        screenings: [],
+      },
+      {
+        documentId: "film-1",
+        category: "movie_screening",
+        screenings: [{ ticketsSold: 5 }],
+      },
+    ]
+    const { strapi } = buildStrapi({ findMany: jest.fn(async () => rows) })
+    const service = eventsService({ strapi })
+
+    const result = await service.findTrending({ page: 1, pageSize: 25 })
+
+    // The concert is kept (ranked by its sum, 0), not filtered out.
+    expect(result.data.map((e: any) => e.documentId)).toEqual([
+      "film-1",
+      "concert-1",
+    ])
   })
 
   it("treats events with no screenings as sum 0 (ranked last, not dropped)", async () => {

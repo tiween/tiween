@@ -77,6 +77,13 @@ export type {
   LocationFilterValue,
 } from "./EventLocationFilter"
 
+export { EventCategoryFilter } from "./EventCategoryFilter"
+export type {
+  EventCategoryFilterProps,
+  EventCategoryFilterLabels,
+  CategoryFilterValue,
+} from "./EventCategoryFilter"
+
 export { EventVenueFilter } from "./EventVenueFilter"
 export type {
   EventVenueFilterProps,

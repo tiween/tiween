@@ -1833,3 +1833,30 @@ source_spec: `spec-upgrade-strapi-5-51-2.md`
 severity: low
 reason: The committed client API types are generated from the running server's OpenAPI output (`yarn gen:strapi-types`), and @strapi/plugin-documentation jumped 5.33→5.51 (plus content-API surface additions like upload focalPoint). Regenerating now would also pull in uncommitted story-6.x schema changes (e.g. ticket-order confirmationEmailSentAt), tangling scopes — regenerate and diff after that work is committed.
 status: open
+
+### DW-257: The trending ranking metric (sum of screening.ticketsSold) is obsolete for the aggregation-only v1 and structurally biases against non-cinema events.
+
+origin: spec-deferred 6e6dacafc464
+location: apps/strapi/src/plugins/events-manager/server/src/services/events.ts (findTrending)
+source_spec: `spec-3-2-category-filtering.md`
+severity: low
+reason: findTrending was widened to all categories (Story 3.2), but it still ranks by sum(screening.ticketsSold). Concerts/exhibitions have no screenings and always sum to 0, and in the aggregation-only v1 no tickets are sold at all, so every event sums 0 and the ranking degenerates to startDateTime order. The metric needs a post-pivot rethink (views, watchlist adds, or editorial curation) — related to the existing DW-19 durable-rollup deferral.
+status: open
+
+### DW-258: The public browse reads (findEvents/findEvent/findTrending) — including the new cinema/shorts nested relation filters — have no integration coverage against a real Strapi query engine.
+
+origin: spec-deferred 76f0f42ce173
+location: apps/strapi/src/plugins/events-manager/server/src/services/events.ts (CATEGORY_FILTERS/buildFilters)
+source_spec: `spec-3-2-category-filtering.md`
+severity: medium
+reason: Every backend test mocks strapi.documents().findMany and asserts the built filter object's shape, which is self-referential: if the Document Service does not interpret `screenings: { movie: { type } }` as "has ≥1 matching screening" (or a Strapi upgrade changes deep-relation semantics — the repo just moved to 5.51.2), the Cinéma/Courts-métrages tabs return wrong rows while all suites stay green. The repo's opt-in boot integration suite (`yarn test:integration`, `*.controller.test.ts`) covers only the admin endpoints — no public-read case exists at all. Distinct from the generic "integration suites don't boot in this env" limitation (DW-5/DW-45): the fix is adding public findEvents cases (seed a film event, a short-film event, a screening-less movie_screening event; assert ?category=cinema and ?category=shorts each return exactly their own row) to the existing boot suite. Surfaced by the Verification Gap and Edge Case reviewers (2026-08-07 follow-up pass); a live curl check was not poss
+status: open
+
+### DW-259: Non-cinema event detail pages reuse the cinema-shaped "no screenings" empty state, which reads wrong for concerts/exhibitions.
+
+origin: spec-deferred d24cb5d9a455
+location: apps/client/src/features/events/components/EventDetailPage
+source_spec: `spec-3-2-category-filtering.md`
+severity: low
+reason: The 3.2 widening deliberately makes screening-less concert/exhibition events reachable on the detail route, and EventDetailPage.noncinema.test.tsx locks in that they render the `noShowtimes` copy ("Aucune séance disponible") — semantically wrong for events that never have screenings. The 3.2 intent scopes the story to the listing and only requires the detail page to render (no cinema-only 404), so a category-aware detail treatment (neutral or per-category empty state/copy) is follow-up work. Surfaced by the Blind Hunter (2026-08-07 follow-up pass).
+status: open

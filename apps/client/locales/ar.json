@@ -328,7 +328,14 @@
       "allVenues": "كل القاعات",
       "searchVenue": "ابحث عن قاعة",
       "noVenueFound": "لا توجد قاعة",
-      "venuesTruncated": "لا تظهر جميع القاعات. يمكنك تضييق القائمة حسب الجهة أو المدينة."
+      "venuesTruncated": "لا تظهر جميع القاعات. يمكنك تضييق القائمة حسب الجهة أو المدينة.",
+      "categoryFilter": "فئات الفعاليات",
+      "categoryAll": "الكل",
+      "categoryCinema": "سينما",
+      "categoryTheater": "مسرح",
+      "categoryShorts": "أفلام قصيرة",
+      "categoryMusic": "موسيقى",
+      "categoryExhibitions": "معارض"
     }
   },
   "ticketing": {

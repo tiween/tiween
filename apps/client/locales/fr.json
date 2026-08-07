@@ -328,7 +328,14 @@
       "allVenues": "Toutes les salles",
       "searchVenue": "Rechercher une salle",
       "noVenueFound": "Aucune salle trouvée",
-      "venuesTruncated": "Toutes les salles ne sont pas affichées. Affinez la liste par région ou par ville."
+      "venuesTruncated": "Toutes les salles ne sont pas affichées. Affinez la liste par région ou par ville.",
+      "categoryFilter": "Catégories d'événements",
+      "categoryAll": "Tout",
+      "categoryCinema": "Cinéma",
+      "categoryTheater": "Théâtre",
+      "categoryShorts": "Courts-métrages",
+      "categoryMusic": "Musique",
+      "categoryExhibitions": "Expositions"
     }
   },
   "ticketing": {

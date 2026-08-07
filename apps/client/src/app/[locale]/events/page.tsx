@@ -51,6 +51,17 @@ async function buildLabels(locale: Locale): Promise<EventsListingLabels> {
   return {
     title: tEvents("listing.title"),
     empty: tEvents("listing.empty"),
+    categoryFilter: {
+      groupLabel: tEvents("listing.categoryFilter"),
+      tabs: {
+        all: tEvents("listing.categoryAll"),
+        cinema: tEvents("listing.categoryCinema"),
+        theater: tEvents("listing.categoryTheater"),
+        shorts: tEvents("listing.categoryShorts"),
+        music: tEvents("listing.categoryMusic"),
+        exhibitions: tEvents("listing.categoryExhibitions"),
+      },
+    },
     dateFilter: {
       today: tHome("dateSelector.today"),
       tomorrow: tHome("dateSelector.tomorrow"),
@@ -84,14 +95,16 @@ async function buildLabels(locale: Locale): Promise<EventsListingLabels> {
 }
 
 /**
- * `/[locale]/events` — SSR listing route (Story 3.3).
+ * `/[locale]/events` — SSR listing route (Stories 3.2–3.6).
  *
- * Reads + validates the `date` search param, resolves it to a Tunis-aware ISO
- * `{startDate,endDate}` window, fetches a flat, showtime-ordered, date-filtered
- * event slice from the Story 3.1a public API, and hands off to the client
- * island. Fail-soft: any upstream error degrades to an empty slice (the fetcher
- * is already fail-soft; the extra try/catch guards the resolver/label path) so a
- * bad window never 500s the whole page.
+ * Reads + validates the `category`/`date`/`region`/`city`/`venue` search
+ * params, resolves the date to a Tunis-aware ISO `{startDate,endDate}` window,
+ * fetches a flat, showtime-ordered, filtered event slice from the public API
+ * (all categories by default; a discovery `category` token narrows to one
+ * pillar), and hands off to the client island. Fail-soft: any upstream error
+ * degrades to an empty slice (the fetcher is already fail-soft; the extra
+ * try/catch guards the resolver/label path) so a bad window never 500s the
+ * whole page.
  */
 export default async function EventsListingRoute({
   params,
@@ -117,9 +130,10 @@ export default async function EventsListingRoute({
     regions = []
   }
 
-  // Venues seed the venue filter combobox. Scoped to what can actually match the
-  // MVP catalogue and the ACTIVE location filters (DW-24): a non-cinema or
-  // out-of-region venue could only ever dead-end to an empty listing. The active
+  // Venues seed the venue filter combobox. Scoped to the ACTIVE location
+  // filters but NOT to a venue type: the multi-category listing (Story 3.2)
+  // surfaces theaters/concert halls/galleries too, so `type: null` un-scopes
+  // the selector (homepage callers keep their own cinema default). The active
   // URL venue is force-included so the trigger can label it even when it falls
   // outside that scope or beyond the fetched page. Fail-soft: on any error the
   // listing still renders (with the venue filter hidden) rather than 500ing the
@@ -129,7 +143,7 @@ export default async function EventsListingRoute({
   let venuesTruncated = false
   try {
     const selector = await getVenuesForSelector(locale, {
-      type: "cinema",
+      type: null,
       regionDocumentId: filters.region,
       cityDocumentId: filters.city,
       includeDocumentId: filters.venue,
@@ -142,17 +156,18 @@ export default async function EventsListingRoute({
     venuesTruncated = false
   }
 
-  // This feed is ALWAYS narrowed — by `type: "cinema"` on every request, by the
-  // active region/city, and by the fetched page — so a saved venue missing from
-  // it can never be distinguished from one that was merely scoped out (a saved
-  // theater, or a cinema past the page cap). Absence here therefore never means
-  // "deleted": the picker must skip the restore and KEEP the stored value.
+  // This feed can still be narrowed — by the active region/city and by the
+  // fetched page — so a saved venue missing from it can never be distinguished
+  // from one that was merely scoped out (out of region, or past the page cap).
+  // Absence here therefore never means "deleted": the picker must skip the
+  // restore and KEEP the stored value.
   const venuesScoped = true
 
   let slice: EventsSlice = EMPTY_SLICE
   try {
     slice = await fetchEvents({
       locale,
+      category: filters.category,
       startDate,
       endDate,
       city: filters.city,

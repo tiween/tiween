@@ -8,10 +8,12 @@ import { buildDateRange, fetchEvents } from "./events-extended"
 /**
  * Thin back-compat wrappers over the public events browse API (Story 3.1a).
  *
- * The public endpoint supports flat date/featured/pagination params only —
- * category/city filtering (Stories 3.2 / 3.4) is not implemented here, so those
- * options are accepted for signature compatibility but ignored. See
- * `events-extended.ts` for the curated homepage slices.
+ * The public endpoint now supports category (Story 3.2) and location (Story
+ * 3.4) filtering via `fetchEvents`, but these legacy wrappers predate that and
+ * still forward flat date/featured/pagination params only — the `category` /
+ * `cityDocumentId` options are accepted for signature compatibility but
+ * ignored. No routed page passes them; use `fetchEvents` (`events-extended.ts`)
+ * directly for filtered reads.
  */
 
 export type { DateFilterType }

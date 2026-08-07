@@ -8,6 +8,13 @@ export default function EventsListingLoading() {
         {/* Title */}
         <Skeleton className="mb-4 h-9 w-48" />
 
+        {/* Category tabs */}
+        <div className="no-scrollbar -mx-4 mb-3 flex gap-1 overflow-x-auto px-4">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <Skeleton key={i} className="h-11 w-24" />
+          ))}
+        </div>
+
         {/* Date filter chips */}
         <div className="mb-3 flex gap-2">
           {Array.from({ length: 4 }).map((_, i) => (

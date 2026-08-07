@@ -2,6 +2,7 @@ import { z } from "zod"
 
 import type { Core } from "@strapi/strapi"
 
+import { DISCOVERY_CATEGORIES } from "../services/events"
 import {
   sanitizeEventsListResult,
   sanitizePublicEvent,
@@ -75,6 +76,11 @@ const listQuerySchema = z
     eventStatus: z
       .enum(["scheduled", "cancelled", "postponed", "rescheduled"])
       .optional(),
+    // Discovery category (Story 3.2): one of the five URL/UI tokens (single
+    // source of truth: the service's DISCOVERY_CATEGORIES tuple), translated
+    // into enum/relation filters by the service. Absent ⇒ all categories
+    // ("Tout"); present-but-unknown ⇒ 400 INVALID_QUERY (like eventStatus).
+    category: z.enum(DISCOVERY_CATEGORIES).optional(),
     startDate: isoDatetime.optional(),
     endDate: isoDatetime.optional(),
     // Location filters (Story 3.4): opaque, locale-stable `documentId`s threaded
@@ -123,7 +129,7 @@ const detailQuerySchema = z.object({ locale: localeParam })
 
 const eventsController = ({ strapi }: { strapi: Core.Strapi }) => ({
   /**
-   * GET /events — list published cinema events (v5 shape + pagination).
+   * GET /events — list published events, all categories (v5 shape + pagination).
    */
   async findEvents(ctx: any) {
     const parsed = listQuerySchema.safeParse(ctx.query ?? {})
@@ -158,7 +164,7 @@ const eventsController = ({ strapi }: { strapi: Core.Strapi }) => ({
   },
 
   /**
-   * GET /events/:documentId — single published cinema event.
+   * GET /events/:documentId — single published event (any category).
    */
   async findEvent(ctx: any) {
     const parsed = detailQuerySchema.safeParse(ctx.query ?? {})

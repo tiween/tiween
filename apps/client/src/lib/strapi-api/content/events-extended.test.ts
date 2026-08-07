@@ -232,6 +232,25 @@ describe("fetchEvents", () => {
     expect(params).not.toHaveProperty("endDate")
   })
 
+  it("forwards the category param to the endpoint (Story 3.2)", async () => {
+    fetchAPI.mockResolvedValue(listResponse(1))
+    await fetchEvents({
+      locale: "fr",
+      category: "theater",
+      sort: "startDateTime:asc",
+    })
+    const [path, params] = fetchAPI.mock.calls[0]
+    expect(path).toBe("/events-manager/events")
+    expect(params).toMatchObject({ category: "theater" })
+  })
+
+  it("omits category when it is not provided", async () => {
+    fetchAPI.mockResolvedValue(listResponse(1))
+    await fetchEvents({ locale: "fr" })
+    const [, params] = fetchAPI.mock.calls[0]
+    expect(params).not.toHaveProperty("category")
+  })
+
   it("forwards city + region location params to the endpoint", async () => {
     fetchAPI.mockResolvedValue(listResponse(1))
     await fetchEvents({

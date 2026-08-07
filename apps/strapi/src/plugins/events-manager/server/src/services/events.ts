@@ -17,9 +17,6 @@ import { createTrendingCache } from "../utils/trending-cache"
 const PLUGIN_ID = "events-manager"
 const EVENT_UID = `plugin::${PLUGIN_ID}.event` as const
 
-/** MVP is cinema only — every public read is scoped to this category. */
-export const MVP_CATEGORY = "movie_screening" as const
-
 /** Upper bound on rows fetched for in-JS trending aggregation (see findTrending). */
 const TRENDING_FETCH_CAP = 500
 
@@ -38,11 +35,36 @@ export type EventStatus =
   | "postponed"
   | "rescheduled"
 
+/**
+ * Discovery category tokens accepted by the public list endpoint (Story 3.2).
+ * These are the URL/UI vocabulary (the epic fixes `?category=cinema`), NOT the
+ * event `category` enum: `cinema` vs `shorts` is a creative-work `type`
+ * distinction (`film` vs `short-film`) below the event's `movie_screening`
+ * category, so the translation to real filters lives in `buildFilters`.
+ *
+ * Single server-side source of truth: the controller's `z.enum` derives from
+ * this tuple, so the query allowlist can never drift from the service union.
+ */
+export const DISCOVERY_CATEGORIES = [
+  "cinema",
+  "theater",
+  "shorts",
+  "music",
+  "exhibitions",
+] as const
+
+export type DiscoveryCategory = (typeof DISCOVERY_CATEGORIES)[number]
+
 export interface FindEventsParams {
   page: number
   pageSize: number
   featured?: boolean
   eventStatus?: EventStatus
+  /**
+   * Discovery category token (Story 3.2) — translated into enum/relation
+   * filters by `buildFilters`. Absent ⇒ no category filter ("Tout").
+   */
+  category?: DiscoveryCategory
   startDate?: string
   endDate?: string
   /** City `documentId` — filters via `venue.cityRef.documentId` (Story 3.4). */
@@ -163,9 +185,31 @@ const DETAIL_POPULATE = {
   },
 } as const
 
+/**
+ * Discovery token → event query filters (Story 3.2). `cinema`/`shorts` add a
+ * nested relation filter on `screenings.movie.type` (`film` vs `short-film`) —
+ * a relation filter on the EVENT query, never a foreign-UID
+ * `strapi.documents()` call, per the cross-plugin rule. A mixed event with both
+ * a feature-film and a short-film screening legitimately matches both tabs.
+ */
+const CATEGORY_FILTERS: Record<DiscoveryCategory, Record<string, unknown>> = {
+  cinema: {
+    category: "movie_screening",
+    screenings: { movie: { type: "film" } },
+  },
+  shorts: {
+    category: "movie_screening",
+    screenings: { movie: { type: "short-film" } },
+  },
+  theater: { category: "theater_performance" },
+  music: { category: "concert" },
+  exhibitions: { category: "exhibition" },
+}
+
 function buildFilters(params: {
   featured?: boolean
   eventStatus?: EventStatus
+  category?: DiscoveryCategory
   startDate?: string
   endDate?: string
   city?: string
@@ -173,7 +217,13 @@ function buildFilters(params: {
   venue?: string
   q?: string
 }): Record<string, unknown> {
-  const filters: Record<string, unknown> = { category: MVP_CATEGORY }
+  // Category filter (Story 3.2): absent ⇒ all categories ("Tout") — the 2026-08-06
+  // pivot widened v1 beyond cinema, so there is no default category scope anymore.
+  // `filters.screenings` (cinema/shorts) is a fresh key here: the keyword search
+  // `$or` below nests its own screenings clauses UNDER `$or`, so no clobber.
+  const filters: Record<string, unknown> = params.category
+    ? { ...CATEGORY_FILTERS[params.category] }
+    : {}
 
   if (params.featured !== undefined) {
     filters.featured = params.featured
@@ -262,8 +312,9 @@ const eventsService = ({ strapi }: { strapi: Core.Strapi }) => {
 
   return {
     /**
-     * List published cinema events with pagination, filtering and populate.
-     * Only published rows (`status: "published"`), MVP category `movie_screening`.
+     * List published events (all categories) with pagination, filtering and
+     * populate. Only published rows (`status: "published"`); an optional
+     * discovery `category` token narrows to one content pillar (Story 3.2).
      */
     async findEvents(params: FindEventsParams): Promise<ListResult> {
       const { page, pageSize, sort, locale } = params
@@ -306,12 +357,10 @@ const eventsService = ({ strapi }: { strapi: Core.Strapi }) => {
     },
 
     /**
-     * Fetch a single published cinema event by documentId (null when absent).
+     * Fetch a single published event by documentId (null when absent).
      *
-     * Document Service `findOne` cannot filter by field, so the MVP cinema scope
-     * (`category = movie_screening`) is enforced after the fetch: a non-cinema
-     * event is treated as not-found, keeping the detail endpoint consistent with
-     * the list endpoint (both are cinema-only).
+     * Any published event resolves regardless of category (Story 3.2): the
+     * widened multi-category list must never surface cards whose detail 404s.
      */
     async findEvent(documentId: string, locale?: string) {
       const event = await strapi.documents(EVENT_UID).findOne({
@@ -321,19 +370,12 @@ const eventsService = ({ strapi }: { strapi: Core.Strapi }) => {
         populate: DETAIL_POPULATE,
       } as never)
 
-      if (
-        !event ||
-        (event as { category?: string }).category !== MVP_CATEGORY
-      ) {
-        return null
-      }
-
-      return event
+      return event ?? null
     },
 
     /**
-     * Trending = upcoming published cinema events ranked by
-     * `sum(screening.ticketsSold)` desc.
+     * Trending = upcoming published events (all categories, Story 3.2) ranked
+     * by `sum(screening.ticketsSold)` desc.
      *
      * Strapi REST/Document Service cannot sort by a related aggregate, so we fetch
      * the upcoming window with screenings populated, sum in JS, sort desc, then
@@ -369,7 +411,6 @@ const eventsService = ({ strapi }: { strapi: Core.Strapi }) => {
           status: "published",
           locale,
           filters: {
-            category: MVP_CATEGORY,
             eventStatus: { $ne: "cancelled" },
             startDateTime: { $gte: now },
           },

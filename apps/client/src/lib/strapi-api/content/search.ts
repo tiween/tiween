@@ -166,9 +166,9 @@ export async function getSearchSuggestions(
 }
 
 /**
- * Popular search terms for the empty search state (MVP is cinema-only, so these
- * stay cinema-oriented — non-cinema terms would guarantee empty results against
- * the `movie_screening`-scoped browse endpoint). Could be analytics-driven later.
+ * Popular search terms for the empty search state. Historically cinema-oriented
+ * (the pre-3.2 browse endpoint was `movie_screening`-scoped); the endpoint now
+ * spans all categories, so this list could widen. Could be analytics-driven later.
  */
 export const POPULAR_SEARCHES = [
   "Cinéma",

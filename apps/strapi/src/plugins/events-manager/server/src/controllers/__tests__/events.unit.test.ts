@@ -113,6 +113,42 @@ describe("events controller.findEvents (unit)", () => {
     expect(ctx.body).toBeUndefined()
   })
 
+  it.each(["cinema", "theater", "shorts", "music", "exhibitions"])(
+    "threads the %s discovery category token through to the service (Story 3.2)",
+    async (token) => {
+      const { controller, service } = buildController()
+      const ctx = ctxWith({ query: { category: token } })
+
+      await controller.findEvents(ctx)
+
+      expect(ctx.badRequest).not.toHaveBeenCalled()
+      expect(service.findEvents).toHaveBeenCalledWith(
+        expect.objectContaining({ category: token })
+      )
+    }
+  )
+
+  it("400s with INVALID_QUERY on an unknown category token (never a 500)", async () => {
+    const { controller, service } = buildController()
+    const ctx = ctxWith({ query: { category: "bogus" } })
+
+    await controller.findEvents(ctx)
+
+    expect(ctx.badRequest).toHaveBeenCalledWith("INVALID_QUERY")
+    expect(service.findEvents).not.toHaveBeenCalled()
+  })
+
+  it("omits category entirely when the param is absent (no category filter)", async () => {
+    const { controller, service } = buildController()
+    const ctx = ctxWith({ query: {} })
+
+    await controller.findEvents(ctx)
+
+    expect(ctx.badRequest).not.toHaveBeenCalled()
+    const arg = service.findEvents.mock.calls[0][0]
+    expect(arg.category).toBeUndefined()
+  })
+
   it("400s with INVALID_QUERY on an unknown eventStatus", async () => {
     const { controller, service } = buildController()
     const ctx = ctxWith({ query: { eventStatus: "bogus" } })

@@ -22,7 +22,9 @@ import { JsonLd } from "@/components/seo"
 // Base URL for structured data (mirrors the event-detail route).
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://tiween.tn"
 
-// Valid category values (selector chrome only — filtering itself is Story 3.2).
+// Valid category values (selector chrome only on the homepage — the acted-on
+// category filter shipped on `/[locale]/events` in Story 3.2; wiring these
+// homepage tabs to it is deliberately out of that story's scope).
 const validCategories: CategoryType[] = [
   "all",
   "cinema",

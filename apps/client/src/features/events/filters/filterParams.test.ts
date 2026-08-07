@@ -167,4 +167,39 @@ describe("parseEventFilters / serializeEventFilters", () => {
     const query = serializeEventFilters(next).toString()
     expect(parseEventFilters(new URLSearchParams(query))).toEqual(next)
   })
+
+  it.each(["cinema", "theater", "shorts", "music", "exhibitions"] as const)(
+    "accepts the %s discovery category token (Story 3.2)",
+    (token) => {
+      expect(parseEventFilters({ category: token })).toEqual({
+        category: token,
+      })
+    }
+  )
+
+  it.each(["bogus", "movie_screening", "CINEMA", "", " "])(
+    "drops the invalid category token %j (no category filter)",
+    (token) => {
+      expect(parseEventFilters({ category: token })).toEqual({})
+    }
+  )
+
+  it("round-trips category through the query string", () => {
+    const original = { category: "theater" as const }
+    const query = serializeEventFilters(original).toString()
+    expect(query).toContain("category=theater")
+    expect(parseEventFilters(new URLSearchParams(query))).toEqual(original)
+  })
+
+  it("preserves category alongside every other axis through a serialize round-trip", () => {
+    const next = {
+      date: "weekend",
+      category: "music" as const,
+      region: "grand-tunis-1",
+      city: "tunis-1",
+      venue: "venue-1",
+    }
+    const query = serializeEventFilters(next).toString()
+    expect(parseEventFilters(new URLSearchParams(query))).toEqual(next)
+  })
 })

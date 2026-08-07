@@ -43,6 +43,8 @@ export interface CategoryTabsProps {
   onCategoryChange: (category: CategoryType) => void
   /** Localized labels for category names */
   labels?: CategoryTabsLabels
+  /** Localized accessible name for the tablist (Story 3.2 i18n). */
+  ariaLabel?: string
   /** Additional class names */
   className?: string
 }
@@ -81,6 +83,7 @@ export function CategoryTabs({
   activeCategory,
   onCategoryChange,
   labels = defaultLabels,
+  ariaLabel = "Event categories",
   className,
 }: CategoryTabsProps) {
   const scrollContainerRef = React.useRef<HTMLDivElement>(null)
@@ -152,7 +155,7 @@ export function CategoryTabs({
       <div
         ref={scrollContainerRef}
         role="tablist"
-        aria-label="Event categories"
+        aria-label={ariaLabel}
         className="no-scrollbar flex gap-1 overflow-x-auto scroll-smooth"
       >
         {categoryOrder.map((category) => {

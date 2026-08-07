@@ -76,6 +76,19 @@ describe("getVenuesForSelector", () => {
     )
   })
 
+  it("sends NO type param at all when un-scoped with type: null (Story 3.2)", async () => {
+    fetchAPI.mockResolvedValue(selectorResponse([]))
+
+    await getVenuesForSelector("fr", { type: null })
+
+    const params = fetchAPI.mock.calls[0][1]
+    // Guard against a `type ?? "cinema"` style regression: `null` must mean
+    // "all types" (param omitted; backend treats absence as no type filter),
+    // never a silent fallback to the cinema default.
+    expect(params).not.toHaveProperty("type")
+    expect(params).toMatchObject({ locale: "fr", page: 1, pageSize: 100 })
+  })
+
   it("omits absent optional scopes entirely", async () => {
     fetchAPI.mockResolvedValue(selectorResponse([]))
 

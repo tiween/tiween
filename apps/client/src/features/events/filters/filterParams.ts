@@ -7,10 +7,12 @@
  * dependency-free (no `server-only`, no React) so it runs on the server RSC, in
  * the client island, and in unit tests alike.
  *
- * The `date` (Story 3.3), `region` / `city` (Story 3.4) and `venue` (Story 3.5)
- * params are the filters this mechanism *acts on*. `category` is parsed and
- * preserved (round-tripped through the URL) but never used for filtering here —
- * it is reserved for the deferred Story 3.2.
+ * The `date` (Story 3.3), `region` / `city` (Story 3.4), `venue` (Story 3.5)
+ * and `category` (Story 3.2) params are the filters this mechanism *acts on*.
+ *
+ * `category` is one of the five discovery tokens
+ * (`cinema|theater|shorts|music|exhibitions`); anything else is dropped —
+ * treated as no filter, like a malformed `date`.
  *
  * `region` / `city` / `venue` are opaque, locale-stable Strapi `documentId`
  * tokens (NOT localized slugs): any non-empty string is accepted and
@@ -38,14 +40,36 @@ export type DateFilterValue =
   | { type: "day"; date: string }
   | { type: "range"; start: string; end: string }
 
+/** The discovery category tokens accepted in the URL (Story 3.2). */
+export const CATEGORY_TOKENS = [
+  "cinema",
+  "theater",
+  "shorts",
+  "music",
+  "exhibitions",
+] as const
+
+/** A validated discovery category URL token (Story 3.2). */
+export type EventCategoryToken = (typeof CATEGORY_TOKENS)[number]
+
+/** True when `token` is one of the five discovery category tokens. */
+export function isCategoryToken(
+  token: string | null | undefined
+): token is EventCategoryToken {
+  return (
+    typeof token === "string" &&
+    (CATEGORY_TOKENS as readonly string[]).includes(token)
+  )
+}
+
 /**
  * Parsed, validated filter state. `date` holds the canonical serialized token
  * (preset / `YYYY-MM-DD` / range) or `undefined` when there is no valid filter.
  */
 export interface EventFilters {
   date?: string
-  /** Reserved for Story 3.2 (category) — parsed & preserved, not filtered on. */
-  category?: string
+  /** Story 3.2 — validated discovery token (invalid values dropped), filtered on. */
+  category?: EventCategoryToken
   /** Story 3.4 — region `documentId` (opaque, locale-stable), filtered on. */
   region?: string
   /** Story 3.4 — city `documentId` (opaque, locale-stable), filtered on. */
@@ -151,11 +175,13 @@ function readReserved(
 
 /**
  * Parse the raw search params into a validated {@link EventFilters}. The `date`
- * token is normalized (invalid values dropped); reserved keys are preserved.
+ * and `category` tokens are validated (invalid values dropped ⇒ no filter);
+ * `region`/`city`/`venue` are opaque non-empty documentId tokens.
  */
 export function parseEventFilters(input: EventFiltersInput): EventFilters {
   const date = serializeDateValue(parseDateValue(readParam(input, "date")))
-  const category = readReserved(input, "category")
+  const rawCategory = readParam(input, "category")
+  const category = isCategoryToken(rawCategory) ? rawCategory : undefined
   const region = readReserved(input, "region")
   const city = readReserved(input, "city")
   const venue = readReserved(input, "venue")
@@ -170,8 +196,8 @@ export function parseEventFilters(input: EventFiltersInput): EventFilters {
 
 /**
  * Serialize {@link EventFilters} into a `URLSearchParams`, omitting empty keys.
- * Reserved keys are round-tripped so the deferred/sibling filters survive a
- * date change.
+ * Every sibling filter is round-tripped so changing one axis never drops
+ * another.
  */
 export function serializeEventFilters(filters: EventFilters): URLSearchParams {
   const params = new URLSearchParams()

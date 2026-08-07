@@ -542,8 +542,99 @@ async function seedEvents(strapi: any): Promise<SeedResult> {
     created++
   }
 
+  // Standalone concert/exhibition events (Story 3.2): the works-driven loop
+  // above only yields movie_screening/theater_performance events, so without
+  // these the Musique and Expositions tabs would always be empty against seeded
+  // data. No screenings/performances needed — they are plain scheduled events.
+  // Idempotent by slug, like every other seeder.
+  const standaloneEvents: Array<{
+    slug: string
+    title: string
+    description: string
+    category: "concert" | "exhibition"
+  }> = [
+    {
+      slug: "concert-jazz-a-carthage",
+      title: "Jazz à Carthage",
+      description:
+        "Une soirée jazz exceptionnelle réunissant des musiciens tunisiens et internationaux.",
+      category: "concert",
+    },
+    {
+      slug: "concert-malouf-el-medina",
+      title: "Nuit du Malouf",
+      description:
+        "Concert de malouf traditionnel au cœur de la médina, avec l'orchestre de la Rachidia.",
+      category: "concert",
+    },
+    {
+      slug: "concert-electro-dunes",
+      title: "Électro des Dunes",
+      description:
+        "Festival de musique électronique sous les étoiles du sud tunisien.",
+      category: "concert",
+    },
+    {
+      slug: "exposition-regards-de-tunisie",
+      title: "Regards de Tunisie",
+      description:
+        "Exposition photographique collective sur la Tunisie contemporaine.",
+      category: "exhibition",
+    },
+    {
+      slug: "exposition-ceramiques-de-nabeul",
+      title: "Céramiques de Nabeul",
+      description:
+        "Un parcours autour de l'artisanat céramique nabeulien, d'hier à aujourd'hui.",
+      category: "exhibition",
+    },
+  ]
+
+  for (let i = 0; i < standaloneEvents.length; i++) {
+    const seed = standaloneEvents[i]
+    const venueSlug = venueSlugs[i % venueSlugs.length]
+
+    const existing = await strapi.documents(eventUid).findMany({
+      filters: { slug: seed.slug },
+      limit: 1,
+    })
+
+    if (existing.length > 0) {
+      idMaps.events[seed.slug] = existing[0].documentId
+      skipped++
+      continue
+    }
+
+    // Always upcoming so the category tabs return data on the default
+    // "upcoming" listing window.
+    const startDate = addDays(today, randomInt(1, futureDays))
+    const endDate = addDays(startDate, randomInt(1, 14))
+
+    const event = await strapi.documents(eventUid).create({
+      data: {
+        title: seed.title,
+        slug: seed.slug,
+        description: seed.description,
+        category: seed.category,
+        startDateTime: startDate.toISOString(),
+        endDateTime: endDate.toISOString(),
+        eventStatus: "scheduled",
+        featured: false,
+        venue: idMaps.venues[venueSlug],
+      },
+      status: "published",
+    })
+
+    idMaps.events[seed.slug] = event.documentId
+    created++
+  }
+
   console.log(`   Created: ${created}, Skipped: ${skipped}`)
-  return { created, skipped, total: config.eventCount }
+  return {
+    created,
+    skipped,
+    total: config.eventCount + standaloneEvents.length,
+  }
 }
 
 /**

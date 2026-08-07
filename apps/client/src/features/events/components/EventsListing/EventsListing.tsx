@@ -5,6 +5,10 @@ import { useRouter } from "next/navigation"
 import { useSession } from "next-auth/react"
 
 import type { EventCardLabels } from "../EventCard"
+import type {
+  CategoryFilterValue,
+  EventCategoryFilterLabels,
+} from "../EventCategoryFilter"
 import type { EventDateFilterLabels } from "../EventDateFilter"
 import type {
   EventLocationFilterLabels,
@@ -29,6 +33,7 @@ import {
 } from "../../filters/filterParams"
 import { toEventCardEvent } from "../../utils"
 import { EventCard } from "../EventCard"
+import { EventCategoryFilter } from "../EventCategoryFilter"
 import { EventDateFilter } from "../EventDateFilter"
 import { EventLocationFilter } from "../EventLocationFilter"
 import { EventVenueFilter } from "../EventVenueFilter"
@@ -38,6 +43,7 @@ export interface EventsListingLabels {
   title: string
   /** Inline empty-state copy, e.g. "Aucun événement pour cette date". */
   empty: string
+  categoryFilter: EventCategoryFilterLabels
   dateFilter: EventDateFilterLabels
   location: EventLocationFilterLabels
   venue: EventVenueFilterLabels
@@ -62,12 +68,12 @@ export interface EventsListingProps {
 }
 
 /**
- * Client island for the `/[locale]/events` listing. Renders the date filter +
- * a responsive `EventCard` grid from server-fetched props and owns the URL
- * writes: on filter change it serializes the filters and `router.push`es the
- * new query (`scroll: false`), letting the RSC re-fetch server-side. The date,
- * location (`region`/`city`) and `venue` filters all act; the reserved
- * `category` param is merely preserved across changes.
+ * Client island for the `/[locale]/events` listing. Renders the category tabs,
+ * the date/location/venue filters + a responsive `EventCard` grid from
+ * server-fetched props and owns the URL writes: on filter change it serializes
+ * the filters and `router.push`es the new query (`scroll: false`), letting the
+ * RSC re-fetch server-side. The `category` (Story 3.2), date, location
+ * (`region`/`city`) and `venue` filters all act and AND-combine.
  */
 export function EventsListing({
   locale,
@@ -87,6 +93,11 @@ export function EventsListing({
   // this public listing — never fire a `/users/me` request that just 401s.
   const { status } = useSession()
   const { data: currentUser } = useCurrentUser(status === "authenticated")
+
+  const categoryValue = React.useMemo<CategoryFilterValue>(
+    () => ({ category: activeFilters.category }),
+    [activeFilters.category]
+  )
 
   const dateValue = React.useMemo<DateFilterValue>(
     () => parseDateValue(activeFilters.date),
@@ -131,6 +142,16 @@ export function EventsListing({
       }
     },
     [locale, router]
+  )
+
+  const handleCategoryChange = React.useCallback(
+    (value: CategoryFilterValue, options?: { replace?: boolean }) => {
+      pushFilters(
+        { ...latestFiltersRef.current, category: value.category },
+        options
+      )
+    },
+    [pushFilters]
   )
 
   const handleDateChange = React.useCallback(
@@ -187,6 +208,13 @@ export function EventsListing({
         </h1>
 
         <div className="mb-6 space-y-3">
+          <div className="-mx-4 px-4">
+            <EventCategoryFilter
+              value={categoryValue}
+              onChange={handleCategoryChange}
+              labels={labels.categoryFilter}
+            />
+          </div>
           <div className="no-scrollbar -mx-4 overflow-x-auto px-4">
             <EventDateFilter
               value={dateValue}
