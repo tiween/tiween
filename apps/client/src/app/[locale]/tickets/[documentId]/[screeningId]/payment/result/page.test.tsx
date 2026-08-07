@@ -16,6 +16,12 @@ vi.mock("next-intl/server", () => ({
   setRequestLocale: vi.fn(),
 }))
 
+// Purchase flag stubbed ON (Story 3.12): the page now guards with `notFound()`
+// when purchases are disabled; this suite asserts the flag-on destinations.
+vi.mock("@/lib/feature-flags", () => ({
+  isTicketPurchaseEnabled: () => true,
+}))
+
 // Stand in for the client child: render the hrefs it was handed so they can be
 // asserted without running the confirm effect.
 vi.mock("./ResultView", () => ({

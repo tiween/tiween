@@ -28,6 +28,12 @@ vi.mock("next/navigation", () => ({
 }))
 vi.mock("next-intl", () => ({ useLocale: () => "fr" }))
 
+// Purchase flag stubbed ON (Story 3.12) — this suite predates the v1 gate and
+// asserts the ungated composition.
+vi.mock("@/lib/feature-flags", () => ({
+  isTicketPurchaseEnabled: () => true,
+}))
+
 vi.mock("../../hooks/useAddToWatchlist", () => ({
   useAddToWatchlist: () => ({
     isWatchlisted: addState.isWatchlisted,

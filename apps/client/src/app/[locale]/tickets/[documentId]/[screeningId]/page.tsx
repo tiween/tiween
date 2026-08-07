@@ -2,6 +2,7 @@ import { notFound } from "next/navigation"
 import { Locale } from "next-intl"
 import { getTranslations, setRequestLocale } from "next-intl/server"
 
+import { isTicketPurchaseEnabled } from "@/lib/feature-flags"
 import { getEventByDocumentId } from "@/lib/strapi-api/content/server"
 import { formatShowtimeLabel } from "@/features/tickets/utils/formatShowtimeLabel"
 
@@ -27,6 +28,13 @@ interface PageProps {
  * Continue lands on a labelled placeholder route.
  */
 export default async function TicketsPage({ params }: PageProps) {
+  // Aggregation-only v1 (Story 3.12): no purchase route with the flag off.
+  // Belt and braces under the middleware rewrite — this holds even if the
+  // middleware matcher misses (matcher configs drift).
+  if (!isTicketPurchaseEnabled()) {
+    notFound()
+  }
+
   const { locale, documentId, screeningId } = await params
 
   // Enable static rendering for this locale segment.

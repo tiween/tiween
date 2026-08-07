@@ -1,10 +1,21 @@
 import { NextResponse } from "next/server"
 import { env } from "@/env.mjs"
 
+import { isTicketPurchaseEnabled } from "@/lib/feature-flags"
 import {
   createStrapiAuthHeader,
   isStrapiEndpointAllowed,
 } from "@/lib/strapi-api/request-auth"
+
+/**
+ * Aggregation-only v1 (Story 3.12), defense in depth: with the purchase flag
+ * off, the order-creation path must never reach Strapi even though the UI
+ * that calls it is already hidden. Matches `api/ticketing/orders` and anything
+ * below it (`.../orders/:orderNumber/confirm`). Ticket VIEWING
+ * (`api/ticketing/my-tickets`, `api/ticketing/order-tickets`) stays open.
+ */
+const isGatedTicketingPath = (path: string): boolean =>
+  /^api\/ticketing\/orders(\/|$)/i.test(path)
 
 /**
  * This route handler acts as a public proxy for frontend requests with two primary goals:
@@ -23,6 +34,20 @@ async function handler(
   const { slug } = await params
 
   const path = Array.isArray(slug) ? slug.join("/") : slug
+
+  // Story 3.12: no live order-creation path while purchases are disabled.
+  // Error code only (no prose) — the client translates.
+  if (!isTicketPurchaseEnabled() && isGatedTicketingPath(path)) {
+    return NextResponse.json(
+      {
+        error: {
+          name: "NotFoundError",
+          code: "ticket_purchase_disabled",
+        },
+      },
+      { status: 404 }
+    )
+  }
 
   const isAccessible = isStrapiEndpointAllowed(path, request.method)
   if (!isAccessible) {

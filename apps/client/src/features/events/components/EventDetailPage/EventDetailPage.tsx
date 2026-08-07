@@ -17,12 +17,14 @@ import { useLocale } from "next-intl"
 
 import type { EventCardEvent } from "../../types/event.types"
 import type { StrapiEvent } from "../../types/strapi.types"
+import type { DirectionsPlatform } from "../../utils"
 
 import { formatDate, formatTime } from "@/lib/dates"
+import { isTicketPurchaseEnabled } from "@/lib/feature-flags"
+import { cn } from "@/lib/utils"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
-
-import type { DirectionsPlatform } from "../../utils"
 
 import { useAddToWatchlist } from "../../hooks/useAddToWatchlist"
 import { useRemoveFromWatchlist } from "../../hooks/useRemoveFromWatchlist"
@@ -142,6 +144,10 @@ export function EventDetailPage({
   const router = useRouter()
   const locale = useLocale()
   const isRTL = locale === "ar"
+  // Aggregation-only v1 (Story 3.12): purchase controls (ShowtimeButton grid,
+  // sticky buy CTA, prices) render only when the flag is on. Informational
+  // content (dates, venue, map, share) always renders.
+  const purchaseEnabled = isTicketPurchaseEnabled()
   // Watchlist state is server-backed: the creative-work id comes from the
   // event's film (`screenings[0].movie`). `canWatchlist` is false when the event
   // has no film id, which disables the heart. The heart is a TOGGLE (Story 5.2):
@@ -225,6 +231,8 @@ export function EventDetailPage({
   }
 
   const handleShowtimeSelect = (screeningId: string) => {
+    // No purchase navigation while the v1 gate is closed (Story 3.12).
+    if (!purchaseEnabled) return
     // Begin ticket purchase at the ticketing entrypoint (the flow is Epic 6).
     router.push(`/${locale}/tickets/${event.documentId}/${screeningId}`)
   }
@@ -406,24 +414,65 @@ export function EventDetailPage({
                       {formatDate(date, locale)}
                     </p>
                   )}
-                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                    {showtimes?.map((showtime) => (
-                      <ShowtimeButton
-                        key={showtime.id}
-                        time={formatTime(showtime.time, locale)}
-                        venueName={detail.venue?.name ?? ""}
-                        price={showtime.price}
-                        currency={detail.currency}
-                        formats={showtime.formats}
-                        status={showtime.status}
-                        onSelect={() => handleShowtimeSelect(showtime.id)}
-                        labels={{
-                          soldOut: labels.soldOut,
-                          selectShowtime: labels.buyTickets,
-                        }}
-                      />
-                    ))}
-                  </div>
+                  {purchaseEnabled && (
+                    <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                      {showtimes?.map((showtime) => (
+                        <ShowtimeButton
+                          key={showtime.id}
+                          time={formatTime(showtime.time, locale)}
+                          venueName={detail.venue?.name ?? ""}
+                          price={showtime.price}
+                          currency={detail.currency}
+                          formats={showtime.formats}
+                          status={showtime.status}
+                          onSelect={() => handleShowtimeSelect(showtime.id)}
+                          labels={{
+                            soldOut: labels.soldOut,
+                            selectShowtime: labels.buyTickets,
+                          }}
+                        />
+                      ))}
+                    </div>
+                  )}
+                  {/* Flag off (Story 3.12): showtime TIMES stay visible —
+                      they are core discovery information — but as plain,
+                      non-interactive text: no price, no buy label, no
+                      navigation. Format badges (VOST, 3D, …) and sold-out
+                      state are informational too and survive the gate. */}
+                  {!purchaseEnabled && (
+                    <div className="flex flex-wrap gap-2">
+                      {showtimes?.map((showtime) => {
+                        const isSoldOut = showtime.status === "sold-out"
+                        return (
+                          <span
+                            key={showtime.id}
+                            className={cn(
+                              "bg-secondary text-foreground inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium",
+                              isSoldOut && "opacity-60"
+                            )}
+                          >
+                            <span className={cn(isSoldOut && "line-through")}>
+                              {formatTime(showtime.time, locale)}
+                            </span>
+                            {showtime.formats?.map((format) => (
+                              <Badge
+                                key={format}
+                                variant="secondary"
+                                className="text-xs"
+                              >
+                                {format}
+                              </Badge>
+                            ))}
+                            {isSoldOut && (
+                              <Badge variant="destructive" className="text-xs">
+                                {labels.soldOut}
+                              </Badge>
+                            )}
+                          </span>
+                        )
+                      })}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -529,8 +578,8 @@ export function EventDetailPage({
         />
       )}
 
-      {/* Sticky Buy Tickets CTA */}
-      {detail.showtimes.length > 0 && (
+      {/* Sticky Buy Tickets CTA — a purchase control, gated for v1 (3.12) */}
+      {purchaseEnabled && detail.showtimes.length > 0 && (
         <div className="bg-background/95 fixed inset-x-0 bottom-0 border-t p-4 backdrop-blur-sm">
           <div className="mx-auto flex max-w-3xl items-center justify-between gap-4">
             <div>

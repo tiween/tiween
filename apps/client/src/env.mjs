@@ -64,6 +64,10 @@ export const env = createEnv({
     NEXT_PUBLIC_SENTRY_DSN: z.string().optional(),
     NEXT_PUBLIC_RECAPTCHA_SITE_KEY: z.string().optional(),
     NEXT_PUBLIC_PREVENT_UNUSED_FUNCTIONS_ERROR_LOGS: optionalZodBoolean,
+    // Story 3.12: aggregation-only v1 gate. Default OFF — absence/empty/garbage
+    // all coerce to `false`; only "true" (case-insensitive) enables the Epic 6
+    // purchase surfaces (prices, quantity selection, checkout routes).
+    NEXT_PUBLIC_TICKET_PURCHASE_ENABLED: optionalZodBoolean,
   },
   shared: {
     // NODE_ENV makes app to behave as it's in production mode (optimized builds, no dev-only behavior, etc.)
@@ -120,6 +124,8 @@ export const env = createEnv({
     NEXT_PUBLIC_SENTRY_DSN: process.env.NEXT_PUBLIC_SENTRY_DSN,
     NEXT_PUBLIC_PREVENT_UNUSED_FUNCTIONS_ERROR_LOGS:
       process.env.NEXT_PUBLIC_PREVENT_UNUSED_FUNCTIONS_ERROR_LOGS,
+    NEXT_PUBLIC_TICKET_PURCHASE_ENABLED:
+      process.env.NEXT_PUBLIC_TICKET_PURCHASE_ENABLED,
 
     RECAPTCHA_SECRET_KEY: process.env.RECAPTCHA_SECRET_KEY,
     NEXT_PUBLIC_RECAPTCHA_SITE_KEY: process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY,

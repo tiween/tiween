@@ -1,5 +1,7 @@
 import type { StrapiEvent } from "@/features/events/types"
 
+import { isTicketPurchaseEnabled } from "@/lib/feature-flags"
+
 /**
  * Schema.org Event type for cultural events
  * @see https://schema.org/Event
@@ -224,13 +226,14 @@ export function generateEventJsonLd(
   // `!soldOut`; unknown inventory (`soldOut` absent — e.g. legacy showtimes) is
   // treated as available. Only an explicit sold-out across every priced
   // screening marks the event SoldOut.
-  const hasInventory = priced.some(
-    (s) => !(s as { soldOut?: boolean }).soldOut
-  )
+  const hasInventory = priced.some((s) => !(s as { soldOut?: boolean }).soldOut)
 
-  // Build offer(s)
+  // Build offer(s). Aggregation-only v1 (Story 3.12): with the purchase flag
+  // off, no `offers` block is emitted at all — search engines must not surface
+  // ticket prices (or purchasability) the UI hides. Flag on keeps the output
+  // identical to the pre-gate behavior.
   const offers: OfferSchema[] = []
-  if (minPrice !== undefined) {
+  if (isTicketPurchaseEnabled() && minPrice !== undefined) {
     offers.push({
       "@type": "Offer",
       url: `${baseUrl}/events/${event.documentId}`,

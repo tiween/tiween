@@ -161,7 +161,7 @@ development_status:
   3-8-venue-location-on-map: done
   3-9-geolocation-near-me-filtering: deferred
   3-10-share-event-details: done
-  3-12-gate-ticketing-entry-points-for-v1: backlog
+  3-12-gate-ticketing-entry-points-for-v1: done
   epic-3-retrospective: optional
 
   # Epic 4: User Authentication & Profiles

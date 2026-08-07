@@ -37,6 +37,7 @@ import type { VenueLocation } from "../Map"
 import type { VenueType } from "../VenueSelector"
 
 import { formatDate } from "@/lib/dates"
+import { isTicketPurchaseEnabled } from "@/lib/feature-flags"
 import { toNumeralSafeLocale } from "@/lib/intl-locale"
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
@@ -228,8 +229,12 @@ export function EventDetailPageWithMap({
     // TODO: Persist to backend when auth is implemented
   }
 
+  // Aggregation-only v1 (Story 3.12): purchase controls are gated.
+  const purchaseEnabled = isTicketPurchaseEnabled()
+
   // Handle showtime selection
   const handleShowtimeSelect = (showtimeId: string | number) => {
+    if (!purchaseEnabled) return
     router.push(`/${locale}/tickets/${event.documentId}/${showtimeId}`)
   }
 
@@ -507,37 +512,84 @@ export function EventDetailPageWithMap({
                   <p className="text-foreground mb-2 text-sm font-medium">
                     {formatDate(date, locale)}
                   </p>
-                  <div className="flex flex-wrap gap-2">
-                    {showtimes?.map((showtime) => {
-                      const time = new Date(showtime.time).toLocaleTimeString(
-                        toNumeralSafeLocale(
-                          locale === "ar"
-                            ? "ar-TN"
-                            : locale === "fr"
-                              ? "fr-TN"
-                              : "en-US"
-                        ),
-                        { hour: "2-digit", minute: "2-digit" }
-                      )
-                      const isSoldOut =
-                        showtime.ticketsAvailable !== undefined &&
-                        showtime.ticketsAvailable <= 0
+                  {purchaseEnabled && (
+                    <div className="flex flex-wrap gap-2">
+                      {showtimes?.map((showtime) => {
+                        const time = new Date(showtime.time).toLocaleTimeString(
+                          toNumeralSafeLocale(
+                            locale === "ar"
+                              ? "ar-TN"
+                              : locale === "fr"
+                                ? "fr-TN"
+                                : "en-US"
+                          ),
+                          { hour: "2-digit", minute: "2-digit" }
+                        )
+                        const isSoldOut =
+                          showtime.ticketsAvailable !== undefined &&
+                          showtime.ticketsAvailable <= 0
 
-                      return (
-                        <ShowtimeButton
-                          key={showtime.documentId}
-                          time={time}
-                          price={showtime.price}
-                          currency="TND"
-                          format={showtime.format}
-                          isAvailable={!isSoldOut}
-                          onClick={() =>
-                            handleShowtimeSelect(showtime.documentId)
-                          }
-                        />
-                      )
-                    })}
-                  </div>
+                        return (
+                          <ShowtimeButton
+                            key={showtime.documentId}
+                            time={time}
+                            price={showtime.price}
+                            currency="TND"
+                            format={showtime.format}
+                            isAvailable={!isSoldOut}
+                            onClick={() =>
+                              handleShowtimeSelect(showtime.documentId)
+                            }
+                          />
+                        )
+                      })}
+                    </div>
+                  )}
+                  {/* Flag off (Story 3.12): showtime TIMES stay visible as
+                      plain, non-interactive text — no price, no buy label, no
+                      navigation. Format badge and sold-out state are
+                      informational too and survive the gate. */}
+                  {!purchaseEnabled && (
+                    <div className="flex flex-wrap gap-2">
+                      {showtimes?.map((showtime) => {
+                        const isSoldOut =
+                          showtime.ticketsAvailable !== undefined &&
+                          showtime.ticketsAvailable <= 0
+                        return (
+                          <span
+                            key={showtime.documentId}
+                            className={cn(
+                              "bg-secondary text-foreground inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium",
+                              isSoldOut && "opacity-60"
+                            )}
+                          >
+                            <span className={cn(isSoldOut && "line-through")}>
+                              {new Date(showtime.time).toLocaleTimeString(
+                                toNumeralSafeLocale(
+                                  locale === "ar"
+                                    ? "ar-TN"
+                                    : locale === "fr"
+                                      ? "fr-TN"
+                                      : "en-US"
+                                ),
+                                { hour: "2-digit", minute: "2-digit" }
+                              )}
+                            </span>
+                            {showtime.format && (
+                              <Badge variant="secondary" className="text-xs">
+                                {showtime.format}
+                              </Badge>
+                            )}
+                            {isSoldOut && (
+                              <Badge variant="destructive" className="text-xs">
+                                {labels.soldOut}
+                              </Badge>
+                            )}
+                          </span>
+                        )
+                      })}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -637,8 +689,8 @@ export function EventDetailPageWithMap({
         />
       )}
 
-      {/* Sticky Buy Tickets CTA */}
-      {event.showtimes && event.showtimes.length > 0 && (
+      {/* Sticky Buy Tickets CTA — a purchase control, gated for v1 (3.12) */}
+      {purchaseEnabled && event.showtimes && event.showtimes.length > 0 && (
         <div className="bg-background/95 fixed inset-x-0 bottom-0 border-t p-4 backdrop-blur-sm">
           <div className="mx-auto flex max-w-3xl items-center justify-between gap-4">
             <div>

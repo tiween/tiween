@@ -1,8 +1,17 @@
-import { describe, expect, it } from "vitest"
+import { describe, expect, it, vi } from "vitest"
 
 import type { StrapiEvent, StrapiScreening } from "@/features/events/types"
 
 import { generateEventJsonLd } from "./structured-data"
+
+// Purchase flag (Story 3.12): stubbed ON by default so the pre-gate offer
+// assertions keep passing; the flag-off suite below flips it per-test. The
+// mock also keeps `env.mjs` (which rejects vitest's NODE_ENV=test) out of the
+// import graph.
+const { purchaseFlag } = vi.hoisted(() => ({ purchaseFlag: { enabled: true } }))
+vi.mock("@/lib/feature-flags", () => ({
+  isTicketPurchaseEnabled: () => purchaseFlag.enabled,
+}))
 
 /**
  * Pins the JSON-LD `Offer.availability` logic (structured-data.ts), which now
@@ -60,5 +69,35 @@ describe("generateEventJsonLd availability", () => {
   it("treats a screening with no soldOut flag as available (unknown ⇒ InStock)", () => {
     const event = makeEvent([{ price: 15 }])
     expect(availabilityOf(event)).toBe("InStock")
+  })
+})
+
+describe("generateEventJsonLd purchase gate (Story 3.12)", () => {
+  it("omits the offers block entirely when the flag is off", () => {
+    purchaseFlag.enabled = false
+    try {
+      const event = makeEvent([{ price: 15, soldOut: false }])
+      const jsonLd = generateEventJsonLd(event, BASE_URL)
+      // No price, no availability, no purchasability signal of any kind — but
+      // the informational schema (name, dates, status) is untouched.
+      expect(jsonLd.offers).toBeUndefined()
+      expect(JSON.stringify(jsonLd)).not.toContain('"price"')
+      expect(jsonLd.name).toBe("Dune")
+      expect(jsonLd.startDate).toBe("2026-07-20T20:00:00.000Z")
+    } finally {
+      purchaseFlag.enabled = true
+    }
+  })
+
+  it("keeps the offers block identical to the pre-gate output when the flag is on", () => {
+    const event = makeEvent([{ price: 15, soldOut: false }])
+    const jsonLd = generateEventJsonLd(event, BASE_URL)
+    expect(jsonLd.offers).toEqual({
+      "@type": "Offer",
+      url: `${BASE_URL}/events/e1`,
+      price: 15,
+      priceCurrency: "TND",
+      availability: "InStock",
+    })
   })
 })

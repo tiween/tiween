@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from "next/server"
 import { withAuth } from "next-auth/middleware"
 import createMiddleware from "next-intl/middleware"
 
+import {
+  isTicketPurchaseEnabled,
+  isTicketPurchasePath,
+} from "./lib/feature-flags"
 import { isDevelopment } from "./lib/general-helpers"
 import { routing } from "./lib/navigation"
 
@@ -43,6 +47,18 @@ export default function middleware(req: NextRequest) {
       `https://${req.headers.get("host")}${req.nextUrl.pathname}`,
       301
     )
+  }
+
+  // Aggregation-only v1 (Story 3.12): with the purchase flag off, checkout /
+  // purchase routes and the routable ticketing prototypes are rewritten to a
+  // non-existent path so the app answers 404. Rewrite (not redirect) keeps the
+  // URL; the purchase pages ALSO guard with `notFound()` server-side. `/tickets`
+  // exact ("Mes Billets", Story 6.4) is viewing, not purchase — never matched.
+  if (
+    !isTicketPurchaseEnabled() &&
+    isTicketPurchasePath(req.nextUrl.pathname)
+  ) {
+    return NextResponse.rewrite(new URL("/not-found-404", req.url))
   }
 
   // Build regex for auth (non-public) pages

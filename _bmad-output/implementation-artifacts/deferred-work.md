@@ -1860,3 +1860,21 @@ source_spec: `spec-3-2-category-filtering.md`
 severity: low
 reason: The 3.2 widening deliberately makes screening-less concert/exhibition events reachable on the detail route, and EventDetailPage.noncinema.test.tsx locks in that they render the `noShowtimes` copy ("Aucune séance disponible") — semantically wrong for events that never have screenings. The 3.2 intent scopes the story to the listing and only requires the detail page to render (no cinema-only 404), so a category-aware detail treatment (neutral or per-category empty state/copy) is follow-up work. Surfaced by the Blind Hunter (2026-08-07 follow-up pass).
 status: open
+
+### DW-260: Desktop-prototype mockup pages film-detail and theater-detail remain routable in production and render hardcoded ticket prices and dead "Réserver des billets" CTAs regardless of the purchase flag.
+
+origin: spec-deferred 8ae68dbf9f3b
+location: apps/client/src/app/[locale]/desktop-prototypes/{film-detail,theater-detail}/page.tsx
+source_spec: `spec-3-12-gate-ticketing-entry-points-for-v1.md`
+severity: low
+reason: apps/client/src/app/[locale]/desktop-prototypes/film-detail/page.tsx renders `{showtime.price} DT` (~line 445) plus a static reserve button (~line 464); theater-detail/page.tsx renders "25 TND" (~line 350) and the same dead CTA (~line 360). Static design mockups predating story 3-12; the middleware gate deliberately covers only desktop-prototypes/ticketing\*. Broader question is whether any /desktop-prototypes route should ship in production builds at all.
+status: open
+
+### DW-261: `yarn workspace @tiween/client build` fails on pre-existing strict TypeScript errors unrelated to story 3-12; the failure reproduces identically at the story's baseline revision.
+
+origin: spec-deferred 7cbdae7ccc17
+location: apps/client (next build TypeScript phase)
+source_spec: `spec-3-12-gate-ticketing-entry-points-for-v1.md`
+severity: medium
+reason: At HEAD and at baseline e3c3f49 alike, the build's "Running TypeScript" phase stops — first on desktop-prototypes/ticketing-quantity/page.tsx (`quantities[type.id]` possibly undefined under noUncheckedIndexedAccess), then on events/[documentId]/page.tsx:211 (`EventSchema` not assignable to JsonLd's `Record<string, unknown>`). `tsc` reports the same 63 pre-existing errors at HEAD and at the pre-patch state (strapi-api/content/venues.ts locale strings, apps/strapi types imports, EventDetailPageWithMap ShowtimeButton prop drift, …). The spec's originally recorded "build: compiles successfully" could not be reproduced in this environment. Surfaced by the 2026-08-07 follow-up review pass.
+status: open

@@ -55,6 +55,13 @@ vi.mock("@/lib/navigation", () => ({
   useRouter: () => ({ push: pushMock }),
 }))
 
+// Purchase flag stubbed ON (Story 3.12): the page renders real EventCards,
+// whose price line now reads the flag; the mock also keeps `env.mjs` (which
+// rejects vitest's NODE_ENV=test) out of the import graph.
+vi.mock("@/lib/feature-flags", () => ({
+  isTicketPurchaseEnabled: () => true,
+}))
+
 vi.mock("next-auth/react", () => ({
   useSession: () => ({
     status: "authenticated",

@@ -1,5 +1,8 @@
+import { notFound } from "next/navigation"
 import { Locale } from "next-intl"
 import { getTranslations, setRequestLocale } from "next-intl/server"
+
+import { isTicketPurchaseEnabled } from "@/lib/feature-flags"
 
 import { ResultView } from "./ResultView"
 
@@ -25,6 +28,11 @@ export default async function PaymentResultPage({
   params,
   searchParams,
 }: PageProps) {
+  // Aggregation-only v1 (Story 3.12): no purchase route with the flag off.
+  if (!isTicketPurchaseEnabled()) {
+    notFound()
+  }
+
   const { locale, documentId, screeningId } = await params
   const { order } = await searchParams
 

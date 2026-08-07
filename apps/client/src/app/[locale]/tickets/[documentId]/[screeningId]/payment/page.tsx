@@ -2,6 +2,7 @@ import { notFound } from "next/navigation"
 import { Locale } from "next-intl"
 import { getTranslations, setRequestLocale } from "next-intl/server"
 
+import { isTicketPurchaseEnabled } from "@/lib/feature-flags"
 import { getEventByDocumentId } from "@/lib/strapi-api/content/server"
 import { formatShowtimeLabel } from "@/features/tickets/utils/formatShowtimeLabel"
 
@@ -25,6 +26,11 @@ interface PageProps {
  * No payment logic lives in this server component.
  */
 export default async function PaymentPage({ params }: PageProps) {
+  // Aggregation-only v1 (Story 3.12): no purchase route with the flag off.
+  if (!isTicketPurchaseEnabled()) {
+    notFound()
+  }
+
   const { locale, documentId, screeningId } = await params
 
   setRequestLocale(locale)

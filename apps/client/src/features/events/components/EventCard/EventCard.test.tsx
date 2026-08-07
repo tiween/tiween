@@ -18,6 +18,13 @@ import type { EventCardEvent } from "../../types/event.types"
 import { EventCard } from "./EventCard"
 import { EventCardSkeleton } from "./EventCardSkeleton"
 
+// Purchase flag (Story 3.12): stubbed ON by default so the pre-gating price
+// assertions keep passing; the flag-off case flips it per-test.
+const { purchaseFlag } = vi.hoisted(() => ({ purchaseFlag: { enabled: true } }))
+vi.mock("@/lib/feature-flags", () => ({
+  isTicketPurchaseEnabled: () => purchaseFlag.enabled,
+}))
+
 // Mock next/image for testing
 vi.mock("next/image", () => ({
   default: ({ src, alt, ...props }: { src: string; alt: string }) => (
@@ -65,6 +72,20 @@ describe("EventCard", () => {
       const eventWithoutPrice = { ...mockEvent, price: undefined }
       render(<EventCard event={eventWithoutPrice} />)
       expect(screen.queryByText(/À partir de/)).not.toBeInTheDocument()
+    })
+
+    it("hides the price when ticket purchase is disabled (Story 3.12)", () => {
+      purchaseFlag.enabled = false
+      try {
+        render(<EventCard event={mockEvent} />)
+        // Informational content stays; only the ticket price disappears.
+        expect(screen.getByText("Test Event")).toBeInTheDocument()
+        expect(screen.getByText("Test Venue")).toBeInTheDocument()
+        expect(screen.queryByText(/À partir de/)).not.toBeInTheDocument()
+        expect(screen.queryByText(/25,000/)).not.toBeInTheDocument()
+      } finally {
+        purchaseFlag.enabled = true
+      }
     })
   })
 

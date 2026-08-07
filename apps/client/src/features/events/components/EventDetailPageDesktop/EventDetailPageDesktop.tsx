@@ -25,6 +25,7 @@ import type { EventCardEvent } from "../../types/event.types"
 import type { StrapiEvent } from "../../types/strapi.types"
 
 import { formatDate } from "@/lib/dates"
+import { isTicketPurchaseEnabled } from "@/lib/feature-flags"
 import { toNumeralSafeLocale } from "@/lib/intl-locale"
 import { cn } from "@/lib/utils"
 import { DesktopNav } from "@/components/layout/DesktopNav"
@@ -195,7 +196,11 @@ export function EventDetailPageDesktop({
     setWatchlisted((prev) => !prev)
   }
 
+  // Aggregation-only v1 (Story 3.12): purchase controls are gated.
+  const purchaseEnabled = isTicketPurchaseEnabled()
+
   const handleShowtimeSelect = (showtimeId: string | number) => {
+    if (!purchaseEnabled) return
     router.push(`/${locale}/tickets/${event.documentId}/${showtimeId}`)
   }
 
@@ -743,71 +748,126 @@ export function EventDetailPageDesktop({
                     </div>
                   </div>
 
-                  {/* Showtimes for Selected Date */}
-                  {selectedDate && showtimesByDate[selectedDate] && (
-                    <div className="space-y-3">
-                      {showtimesByDate[selectedDate]!.map((showtime) => {
-                        const time = new Date(showtime.time).toLocaleTimeString(
-                          toNumeralSafeLocale(
-                            locale === "ar"
-                              ? "ar-TN"
-                              : locale === "fr"
-                                ? "fr-TN"
-                                : "en-US"
-                          ),
-                          { hour: "2-digit", minute: "2-digit" }
-                        )
-                        const isSoldOut =
-                          showtime.ticketsAvailable !== undefined &&
-                          showtime.ticketsAvailable <= 0
+                  {/* Showtimes for Selected Date — purchase controls with
+                      prices, gated for v1 (Story 3.12) */}
+                  {purchaseEnabled &&
+                    selectedDate &&
+                    showtimesByDate[selectedDate] && (
+                      <div className="space-y-3">
+                        {showtimesByDate[selectedDate]!.map((showtime) => {
+                          const time = new Date(
+                            showtime.time
+                          ).toLocaleTimeString(
+                            toNumeralSafeLocale(
+                              locale === "ar"
+                                ? "ar-TN"
+                                : locale === "fr"
+                                  ? "fr-TN"
+                                  : "en-US"
+                            ),
+                            { hour: "2-digit", minute: "2-digit" }
+                          )
+                          const isSoldOut =
+                            showtime.ticketsAvailable !== undefined &&
+                            showtime.ticketsAvailable <= 0
 
-                        return (
-                          <button
-                            key={showtime.documentId}
-                            onClick={() =>
-                              !isSoldOut &&
-                              handleShowtimeSelect(showtime.documentId)
-                            }
-                            disabled={isSoldOut}
-                            className={cn(
-                              "bg-secondary hover:bg-accent flex w-full items-center justify-between rounded-lg p-4 transition-all",
-                              isSoldOut && "cursor-not-allowed opacity-50"
-                            )}
-                          >
-                            <div className="flex items-center gap-4">
-                              <span className="text-foreground text-xl font-bold">
-                                {time}
+                          return (
+                            <button
+                              key={showtime.documentId}
+                              onClick={() =>
+                                !isSoldOut &&
+                                handleShowtimeSelect(showtime.documentId)
+                              }
+                              disabled={isSoldOut}
+                              className={cn(
+                                "bg-secondary hover:bg-accent flex w-full items-center justify-between rounded-lg p-4 transition-all",
+                                isSoldOut && "cursor-not-allowed opacity-50"
+                              )}
+                            >
+                              <div className="flex items-center gap-4">
+                                <span className="text-foreground text-xl font-bold">
+                                  {time}
+                                </span>
+                                {showtime.format && (
+                                  <Badge variant="secondary">
+                                    {showtime.format}
+                                  </Badge>
+                                )}
+                              </div>
+                              <div className="flex items-center gap-3">
+                                {showtime.price !== undefined && !isSoldOut && (
+                                  <span className="text-foreground font-medium">
+                                    {showtime.price} TND
+                                  </span>
+                                )}
+                                {isSoldOut && (
+                                  <Badge variant="destructive">
+                                    {labels.soldOut}
+                                  </Badge>
+                                )}
+                                <Ticket className="text-muted-foreground h-5 w-5" />
+                              </div>
+                            </button>
+                          )
+                        })}
+                      </div>
+                    )}
+
+                  {/* Flag off (Story 3.12): showtime TIMES stay visible as
+                      plain, non-interactive text — no price, no buy label, no
+                      navigation. Format badge and sold-out state are
+                      informational too and survive the gate. */}
+                  {!purchaseEnabled &&
+                    selectedDate &&
+                    showtimesByDate[selectedDate] && (
+                      <div className="flex flex-wrap gap-2">
+                        {showtimesByDate[selectedDate]!.map((showtime) => {
+                          const isSoldOut =
+                            showtime.ticketsAvailable !== undefined &&
+                            showtime.ticketsAvailable <= 0
+                          return (
+                            <span
+                              key={showtime.documentId}
+                              className={cn(
+                                "bg-secondary text-foreground inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium",
+                                isSoldOut && "opacity-60"
+                              )}
+                            >
+                              <span className={cn(isSoldOut && "line-through")}>
+                                {new Date(showtime.time).toLocaleTimeString(
+                                  toNumeralSafeLocale(
+                                    locale === "ar"
+                                      ? "ar-TN"
+                                      : locale === "fr"
+                                        ? "fr-TN"
+                                        : "en-US"
+                                  ),
+                                  { hour: "2-digit", minute: "2-digit" }
+                                )}
                               </span>
                               {showtime.format && (
-                                <Badge variant="secondary">
+                                <Badge variant="secondary" className="text-xs">
                                   {showtime.format}
                                 </Badge>
                               )}
-                            </div>
-                            <div className="flex items-center gap-3">
-                              {showtime.price !== undefined && !isSoldOut && (
-                                <span className="text-foreground font-medium">
-                                  {showtime.price} TND
-                                </span>
-                              )}
                               {isSoldOut && (
-                                <Badge variant="destructive">
+                                <Badge variant="destructive" className="text-xs">
                                   {labels.soldOut}
                                 </Badge>
                               )}
-                              <Ticket className="text-muted-foreground h-5 w-5" />
-                            </div>
-                          </button>
-                        )
-                      })}
-                    </div>
-                  )}
+                            </span>
+                          )
+                        })}
+                      </div>
+                    )}
 
-                  {/* CTA Button */}
-                  <Button size="lg" className="w-full gap-2 text-lg">
-                    <Ticket className="h-5 w-5" />
-                    {labels.buyTickets}
-                  </Button>
+                  {/* CTA Button — a purchase control, gated for v1 (3.12) */}
+                  {purchaseEnabled && (
+                    <Button size="lg" className="w-full gap-2 text-lg">
+                      <Ticket className="h-5 w-5" />
+                      {labels.buyTickets}
+                    </Button>
+                  )}
                 </div>
               ) : (
                 <p className="text-muted-foreground">{labels.noShowtimes}</p>

@@ -6,6 +6,7 @@ import { Heart } from "lucide-react"
 
 import type { EventCardEvent, EventCardVariant } from "../../types/event.types"
 
+import { isTicketPurchaseEnabled } from "@/lib/feature-flags"
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import {
@@ -256,12 +257,15 @@ export function EventCard({
           )}
         </div>
 
-        {/* Price */}
-        {config.showPrice && event.price !== undefined && (
-          <p className="text-primary mt-2 text-sm font-medium">
-            {labels.priceFrom(formatPrice(event.price, event.currency))}
-          </p>
-        )}
+        {/* Price — a ticket price on a discovery surface: gated behind the
+            aggregation-only v1 purchase flag (Story 3.12) */}
+        {config.showPrice &&
+          isTicketPurchaseEnabled() &&
+          event.price !== undefined && (
+            <p className="text-primary mt-2 text-sm font-medium">
+              {labels.priceFrom(formatPrice(event.price, event.currency))}
+            </p>
+          )}
       </div>
     </article>
   )
