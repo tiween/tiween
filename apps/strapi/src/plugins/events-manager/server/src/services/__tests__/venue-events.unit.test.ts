@@ -455,6 +455,26 @@ describe("venue-events.findMine (unit)", () => {
     expect(result.documentId).toBe("event-1")
     expect(result.isPublished).toBe(false)
   })
+
+  it("asks for the PREVIEW populate — the projection the detail component needs", async () => {
+    const { strapi, eventApi } = buildStrapi()
+    const service = venueEventsService({ strapi })
+
+    await service.findMine(USER, "event-1")
+
+    // Pinned because every failure here is SILENT: drop `screenings` and the
+    // preview renders a live-looking page with no dates; drop `venue` and the
+    // ownership check below turns EVERY preview into EVENT_NOT_FOUND.
+    const populate = eventApi.findOne.mock.calls[0][0].populate
+    expect(populate).toEqual(
+      expect.objectContaining({
+        images: expect.anything(),
+        venue: expect.anything(),
+        screenings: expect.anything(),
+        performances: expect.anything(),
+      })
+    )
+  })
 })
 
 describe("venue-events.publishEvent (unit)", () => {
@@ -502,6 +522,49 @@ describe("venue-events.publishEvent (unit)", () => {
     // event with no dates.
     expect(order).toEqual(["scr-1", "scr-2", "event"])
     expect(result).toEqual({ documentId: "event-1", isPublished: true })
+  })
+
+  it("cascades to PERFORMANCES too — a play publishes with its dates", async () => {
+    const order: string[] = []
+    const { strapi, eventApi, performanceApi } = buildStrapi({
+      eventApi: {
+        findOne: jest.fn(async ({ status }: { status?: string }) =>
+          status === "published"
+            ? null
+            : {
+                documentId: "event-1",
+                title: "Hamlet",
+                venue: { documentId: VENUE.documentId },
+                screenings: [],
+                performances: [
+                  { documentId: "perf-1" },
+                  { documentId: "perf-2" },
+                ],
+              }
+        ),
+        publish: jest.fn(async () => {
+          order.push("event")
+          return {}
+        }),
+      },
+      performanceApi: {
+        publish: jest.fn(async (args: any) => {
+          order.push(args.documentId)
+          return {}
+        }),
+      },
+    })
+    const service = venueEventsService({ strapi })
+
+    await service.publishEvent(USER, "event-1")
+
+    // The theatre half of the story: without this the play goes live with an
+    // empty schedule, and the screening-only fixture above would never notice.
+    expect(
+      performanceApi.publish.mock.calls.map((c) => c[0].documentId)
+    ).toEqual(["perf-1", "perf-2"])
+    expect(order).toEqual(["perf-1", "perf-2", "event"])
+    expect(eventApi.publish).toHaveBeenCalledTimes(1)
   })
 
   it("collapses a cascade failure to a LOUD EVENT_PUBLISH_FAILED, leaving the event a DRAFT", async () => {
@@ -556,7 +619,7 @@ describe("venue-events creative-works passthroughs (unit)", () => {
     ])
     const service = venueEventsService({ strapi })
 
-    const result = await service.searchCreativeWorks("dune")
+    const result = await service.searchCreativeWorks(USER, "dune")
 
     expect(creativeWorksFacade.searchWorks).toHaveBeenCalledWith("dune", 20)
     expect(result).toEqual([
@@ -577,10 +640,37 @@ describe("venue-events creative-works passthroughs (unit)", () => {
 
     expect(
       await codeOf(() =>
-        service.createCreativeWork({ title: "X", type: "film" }, "fr")
+        service.createCreativeWork(USER, { title: "X", type: "film" }, "fr")
       )
     ).toBe("WORK_CREATE_FAILED")
     expect(strapi.log.error).toHaveBeenCalled()
+  })
+})
+
+describe("venue-events catalog endpoints are TENANT-GATED (unit)", () => {
+  // "Manager without venue -> 404" is stated for the /venue/* PREFIX, not for
+  // the event endpoints alone. Without these, a venue-manager role-holder with
+  // no venue could still write a PUBLISHED row into the shared catalog.
+  it("refuses the search with VENUE_NOT_FOUND when the caller manages no venue", async () => {
+    const { strapi, creativeWorksFacade } = buildStrapi({ venue: null })
+    const service = venueEventsService({ strapi })
+
+    expect(await codeOf(() => service.searchCreativeWorks(USER, "dune"))).toBe(
+      "VENUE_NOT_FOUND"
+    )
+    expect(creativeWorksFacade.searchWorks).not.toHaveBeenCalled()
+  })
+
+  it("refuses the work create with VENUE_NOT_FOUND and writes NOTHING", async () => {
+    const { strapi, creativeWorksFacade } = buildStrapi({ venue: null })
+    const service = venueEventsService({ strapi })
+
+    expect(
+      await codeOf(() =>
+        service.createCreativeWork(USER, { title: "X", type: "film" }, "fr")
+      )
+    ).toBe("VENUE_NOT_FOUND")
+    expect(creativeWorksFacade.createWork).not.toHaveBeenCalled()
   })
 })
 

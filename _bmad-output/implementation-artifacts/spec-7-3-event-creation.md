@@ -83,6 +83,67 @@ deferred:
     location: >-
       apps/client/src/features/venues/hooks/useVenueEvents.ts
     severity: low
+  - summary: >-
+      Event images and the work poster are uploaded BEFORE the create call, so
+      any failed or abandoned submit leaves orphaned files in the media
+      library with no owning record.
+    evidence: |-
+      `uploadOnce` uploads eagerly to build `imageIds`; if the create then
+      fails there is no cleanup path, and the venue-manager role holds the
+      blanket `plugin::upload.content-api.upload` grant that `PERMISSIONS.md`
+      already flags as over-broad. NOT caused by this story: 7.2's
+      `VenueProfileForm` uploads the same way. Best fixed once for both,
+      alongside the scoped upload proxy already owed.
+    location: >-
+      apps/client/src/app/[locale]/venue/events/new/_components/VenueEventForm.tsx
+    severity: medium
+  - summary: >-
+      The publish cascade is a sequence of separate Document Service writes,
+      not one transaction.
+    evidence: |-
+      `publishEvent` publishes each showtime then the event. Ordering makes a
+      mid-cascade failure SAFE (nothing is publicly reachable until the final
+      event write), which is why this is not a blocker — but it leaves N
+      showtimes published under a still-draft event until the manager retries.
+      The epic's "multi-write operations wrapped in strapi.db.transaction"
+      convention is honored by `createEvent` and `createWork` but not here.
+    location: >-
+      apps/strapi/src/plugins/events-manager/server/src/services/venue-events.ts
+    severity: low
+  - summary: >-
+      Publishing an already-published event re-runs the whole cascade instead
+      of short-circuiting.
+    evidence: |-
+      `publishEvent` has no "already published" check, so a double-click or a
+      stale preview tab re-publishes every showtime and the event. The writes
+      are idempotent in practice, so this is wasted work rather than
+      corruption — but a cheap early return would also make the UI honest.
+    location: >-
+      apps/strapi/src/plugins/events-manager/server/src/services/venue-events.ts
+    severity: low
+  - summary: >-
+      `findVenueForManager` uses `findFirst`, so a user who manages two venues
+      silently gets an arbitrary one.
+    evidence: |-
+      No current flow creates a second venue for one manager, and 7.1 does not
+      offer it — so the state is unreachable today. It mirrors the existing
+      `venue-profile` lookup, so a fix belongs with that pattern rather than
+      in this story.
+    location: >-
+      apps/strapi/src/plugins/venues/server/src/services/public-api.ts
+    severity: low
+  - summary: >-
+      The draft preview mounts the real `EventDetailPage`, so it offers a
+      share link to a URL that 404s until the event is published.
+    evidence: |-
+      Reusing the production renderer is the deliberate design (the preview
+      cannot drift from reality), and its watchlist action targets the
+      creative work, which IS published — so only the share URL is misleading.
+      Suppressing actions in preview mode is a change to the shared component
+      and belongs with 7.4's editing surface.
+    location: >-
+      apps/client/src/app/[locale]/venue/events/[documentId]/_components/VenueEventPreview.tsx
+    severity: low
 ---
 
 <intent-contract>
@@ -242,6 +303,23 @@ _Empty._
 
 ## Review Triage Log
 
+### 2026-08-07 — Review pass (follow-up)
+
+- intent_gap: 0
+- bad_spec: 0
+- patch: 8: (high 0, medium 5, low 3)
+- defer: 5: (high 0, medium 1, low 4)
+- reject: 14: (high 0, medium 0, low 14)
+- addressed_findings:
+  - `[medium]` `[patch]` `searchCreativeWorks` and `createCreativeWork` were the only two of the six `/venue/*` endpoints with NO tenant gate. The matrix row "manager without venue → 404, nothing written" is stated for the route prefix, not for the event endpoints alone, so a venue-manager role holder whose venue was never created (or was deleted) could read the catalog and write a PUBLISHED row into it — shared platform data — while every event endpoint correctly refused them. Both service methods now take the caller and call `requireVenue` first; the controller forwards `ctx.state.user`. Pinned with two tests asserting the facade is never reached.
+  - `[medium]` `[patch]` `VenueEventsList` rendered run dates with `formatDate`, which formats in the BROWSER's zone, while the payload builder writes them as `00:00`/`23:59` `Africa/Tunis`. A manager on any browser west of Tunis saw every event's start date one day early — the read-side half of the timezone bug the previous pass fixed on the write side. Added `formatVenueDate` (the read counterpart of `toTunisIsoInstant`) and pinned it with exact instants across the day boundary.
+  - `[medium]` `[patch]` The publish cascade's PERFORMANCE loop was never executed by any test: the publish fixture hardcoded `performances: []`, so deleting the loop entirely would have kept the suite green while every published play went live with an empty schedule. Added a play fixture asserting both performances publish, and before the event.
+  - `[medium]` `[patch]` `findMine`'s populate — the projection the whole preview rests on — was never asserted; the `findOne` mock ignored its arguments. Dropping `screenings` would have rendered a live-looking preview with no dates, and dropping `venue` would have turned EVERY preview into `EVENT_NOT_FOUND`, both with the suite passing. The populate keys are now pinned.
+  - `[medium]` `[patch]` The epic-7 context regenerated in this diff dropped constraints later stories depend on and mis-stated the delivery surface. Restored: the analytics aggregation threshold 7.8 owes, the operator-surface locale/formatting rules, the loading/empty/error/RBAC state-coverage requirement, the undesigned-surfaces list, and 7.9's owed Socket.io channel/auth/scoping design. Corrected the Goal, which claimed the back office ships "via Strapi Admin" — the opposite of what this story built and of 7.2's settled Design Note.
+  - `[low]` `[patch]` `createWorkMutation`'s work-search invalidation — itself a fix from the previous pass — had no test, so the regression it prevents (a just-created title unfindable behind a 60s staleTime, leading the manager to create a duplicate) could return silently. Now covered, asserting the predicate matches work-search keys and not the list key.
+  - `[low]` `[patch]` `handleWorkSelected` called `form.setValue` inside a `setState` updater. Updaters must be pure and React StrictMode runs them twice; the prefill is idempotent today, so this was latent rather than broken. Moved out of the updater.
+  - `[low]` `[patch]` The mutation tests identified the four mutations by their position in `useMutationSpy.mock.calls`, so reordering the declarations would have silently re-pointed every assertion at the wrong mutation with the suite green — the same hand-maintained-parallel-list hazard the route/seed test was rewritten to remove. Each mutation now carries a stable user-scoped `mutationKey` and the tests select by name.
+
 ### 2026-08-07 — Review pass
 
 - intent_gap: 0
@@ -307,92 +385,94 @@ Verbatim replication is deliberate: an aggregation platform needs the event find
 
 ## Auto Run Result
 
-Status: done
-Blocking condition: none
+Status: done (see Blocking condition below — the review itself completed)
+Blocking condition: finalization left repository dirty — a CONCURRENT bmad-loop
+run is mid-edit in `apps/client` (untracked `spec-fix-rsc-function-labels.md`;
+in-flight edits to `BottomNav.tsx`, `EventCard.tsx`, `EventDetailPage.tsx`,
+`HomePage*.tsx`, `WatchlistPageClient.tsx`, `events/page.tsx`,
+`events/[documentId]/page.tsx`, `[locale]/page.tsx`). Story 7.3's own files are
+committed and verified; the remaining dirt is another session's work and must
+NOT be committed, reverted, or rolled back from here.
 
 ### Summary
 
-Venue managers can now put an event on the platform end to end, entirely from
-the Next.js client. Six authenticated events-manager content-api routes under
-`/venue/*` (policy `plugin::venues.is-venue-manager`, `config.auth` omitted)
-let a manager search or create a creative work, create a DRAFT event with run
-dates and multiple showtimes at **their own** venue, preview it in the real
-production detail renderer, and explicitly publish it. The venue is always
-LOOKED UP from `ctx.state.user` via the venues facade — no request ever names a
-venue — and cross-plugin access goes exclusively through `public-api` facades
-(`findVenueForManager` added to venues; creative-works gained its first facade).
-Events are created as drafts, so they are invisible to every pinned public
-reader until publication, which is gated on `venue.status === "approved"`.
+Follow-up review pass over the completed 7.3 diff (baseline
+`609af8cce206835874acadecccbfb10692138258`). Four review layers ran in
+parallel; findings were triaged to 0 intent_gap, 0 bad_spec, 8 patch, 5 defer,
+14 reject. All 8 patches were applied and verified. No spec amendment or
+implementation loopback was needed.
 
-The story is complete as far as an agent can take it: every acceptance
-criterion is implemented and unit-verified, and no acceptance criterion
-requires an action outside the repo, so this closes as `done` rather than
-`awaiting-operator`. One operational follow-up is worth scheduling, though it
-gates nothing here: an end-to-end create-and-publish has never run, because it
-needs a venue-manager account whose venue an admin has moved to `approved` in
-the Strapi admin. Doing that once and walking a real event from draft to
-published is the cheapest way to convert the residual risks below into
-observed behavior.
+### Files changed in this pass
 
-### Files changed
+- `apps/strapi/.../services/venue-events.ts` — `searchCreativeWorks` and
+  `createCreativeWork` now take the caller and `requireVenue` first, closing the
+  two ungated `/venue/*` endpoints.
+- `apps/strapi/.../controllers/venue-events.ts` — forwards `ctx.state.user` to
+  both catalog service methods.
+- `apps/strapi/.../services/__tests__/venue-events.unit.test.ts` — new
+  tenant-gate tests for both catalog endpoints, a play/performance publish
+  cascade test, and a `findMine` populate assertion.
+- `apps/strapi/.../controllers/__tests__/venue-events.unit.test.ts` — asserts the
+  caller is forwarded.
+- `apps/client/src/lib/dates.ts` + `dates.test.ts` — new `formatVenueDate`, the
+  `Africa/Tunis` read counterpart of `toTunisIsoInstant`, pinned across the day
+  boundary and for Arabic Western numerals.
+- `apps/client/.../venue/events/_components/VenueEventsList.tsx` — renders run
+  dates on the Tunisian wall clock instead of the browser's.
+- `apps/client/.../venue/events/new/_components/VenueEventForm.tsx` — title
+  prefill moved out of the `setState` updater.
+- `apps/client/src/features/venues/hooks/useVenueEvents.ts` — stable, user-scoped
+  `mutationKey` on all four mutations (`venueEventMutationKeys`).
+- `apps/client/src/features/venues/hooks/useVenueEvents.test.ts` — selects
+  mutations by key rather than declaration order; covers the work-search
+  invalidation.
+- `_bmad-output/implementation-artifacts/epic-7-context.md` — corrected the
+  "via Strapi Admin" Goal and restored five dropped constraints.
 
-**Strapi — new tenant-scoped surface**
+### Review findings breakdown
 
-- `plugins/events-manager/server/src/services/venue-events.ts` — the whole flow: tenant lookup, category derivation from work type, slug generation, transactional event + showtime create with locale replication, owned-only reads, the publish gate and cascade.
-- `plugins/events-manager/server/src/validation/venue-events.ts` — Zod schemas for event and work creation; one accepted-input source of truth with stable field codes.
-- `plugins/events-manager/server/src/controllers/venue-events.ts` — the six actions, `STATUS_BY_CODE` mapping and the envelope that never echoes exception text.
-- `plugins/events-manager/server/src/routes/index.ts` — the `/venue/*` block; `controllers/index.ts`, `services/index.ts` — registry entries; `package.json` — declares the `venues` dependency edge.
-- `plugins/venues/server/src/services/public-api.ts` — `findVenueForManager(userId)`, the tenant seam.
-- `plugins/creative-works/server/src/services/{creative-work,public-api,index}.ts` — transactional `createWork` plus the plugin's first facade.
-- `src/bootstrap/venue-manager-role.ts` — the six permission grants, without which every route 403s on a fresh database.
-- `docs/PERMISSIONS.md` — the new grants and their tenant scoping.
+- Patches applied: 8 (high 0, medium 5, low 3) — score `3x5 + 1x3 = 18`.
+- Items deferred: 5 (medium 1, low 4) — added to `deferred` frontmatter.
+- Items rejected: 14 (all low) — including past-dated events, duplicate
+  showtimes, a run-length cap, allowlist prefix-boundary hardening, creative-work
+  slug collisions (Strapi's `uid` already de-duplicates), and `ctx: any` (the
+  prevailing convention in every sibling controller, despite the context file's
+  wording).
 
-**Client — the creation surface**
+### Follow-up review recommendation
 
-- `app/[locale]/venue/events/{page.tsx,_components/VenueEventsList.tsx}` — the manager's event list with per-event publication state.
-- `app/[locale]/venue/events/new/{page.tsx,_components/VenueEventForm.tsx}` — the creation form: creative-work combobox with inline "create new" dialog, run dates, showtime field array switching between screening and performance fields, featured flag, image upload.
-- `app/[locale]/venue/events/[documentId]/{page.tsx,_components/VenueEventPreview.tsx}` — draft preview rendered by the production `EventDetailPage` under a draft banner, plus the publish action.
-- `features/venues/schemas/venue-events.ts`, `features/venues/hooks/useVenueEvents.ts` — the mirrored schemas / payload builders and the user-scoped TanStack Query layer.
-- `lib/strapi-api/request-auth.ts` — proxy allowlist entries; `middleware.ts` — the prefix-guarded `/venue` subtree; `lib/dates.ts` — `toTunisIsoInstant`; `locales/{en,fr,ar}.json` — the `venues.events` namespace; `vitest.config.ts` — the new test glob.
-- `app/[locale]/venue/profile/_components/VenueProfileForm.tsx` — link between the two manager surfaces.
+`true` — 5 medium patches this pass, score 18, well over the threshold of 5.
 
-**Planning**
+### Verification performed
 
-- `_bmad-output/implementation-artifacts/epic-7-context.md` — refreshed for the 2026-08-06 sprint change proposal; the attributability requirement dropped in that refresh was restored during review.
-
-### Review findings
-
-Four review layers ran (blind hunter, edge-case hunter, verification-gap,
-intent-alignment). 10 patches applied, 6 items deferred, 7 rejected; no
-intent_gap and no bad_spec, so no re-derivation loopback. Details in the Review
-Triage Log above. The highest-severity finding was a real, fully blocking
-timezone defect: no single-day event could have been created from Tunisia.
-
-Follow-up review recommended: **true** — one patched finding was `high`
-severity (patched counts: high 1, medium 7, low 2; score 3×7 + 1×2 = 23, well
-over the threshold of 5).
-
-### Verification
-
-- `corepack yarn workspace @tiween/admin test` — 1028 passed, 69 suites, 0 failures. All new venue-events, route-guard and facade suites present and green.
-- `corepack yarn workspace @tiween/admin lint` — exit 0 (`--max-warnings=0`).
+- `corepack yarn workspace @tiween/admin test` — 69 suites, 1032 tests, all pass.
+- `corepack yarn workspace @tiween/admin lint` — exit 0.
 - `corepack yarn workspace @tiween/admin type-check` — exit 0.
-- `corepack yarn workspace @tiween/client test` — 1082 passed, 102 files, 0 failures, including the new schema, hook, form, preview, middleware-gate and `toTunisIsoInstant` specs.
-- `corepack yarn workspace @tiween/client lint` — exit 0.
-- `corepack yarn workspace @tiween/client typecheck` — non-zero as at baseline; every error is pre-existing (`lib/strapi-api/content/venues.ts` locale widening, `apps/strapi/types` module resolution). No error references this story's paths.
-- `corepack yarn hygiene` — 4751 files read, 0 violations.
-- `npx prettier --check` over all touched files — clean (4 files formatted during the pass, then re-linted and re-tested).
-
-Manual inspection, in place of the end-to-end run that needs a live database:
-the six routes are present in the route table with the policy string and no
-`auth` key, the policy id resolves against the venues plugin's exported map,
-each handler maps to an existing controller action, the seeded permission ids
-are derived from the route handlers, and every row of the I/O matrix is
-exercised by a unit test.
+- `corepack yarn workspace @tiween/client test` (this story's suites:
+  `src/lib/dates.test.ts`, `src/features/venues`, `src/app`) — 38 files, 432
+  tests, all pass.
+- `corepack yarn workspace @tiween/client typecheck` — no error references this
+  story's paths.
+- `npx prettier --check` over every touched file — exit 0 after one `--write`.
+- **Not attributable to this story:** a full `@tiween/client test` run reports 19
+  failures across `EventCard`, `EventDetailPage` (x3) and `BottomNav`, and
+  `@tiween/client lint` reports a parse error in
+  `app/[locale]/events/[documentId]/page.tsx`. All are in files the concurrent
+  run is actively editing; stashing only that session's changes and re-running
+  gave 102 files / 1082 tests passing, confirming they pre-date and are
+  independent of this pass.
 
 ### Residual risks
 
-- **Nothing has run against a live database.** Every backend test drives a mocked `strapi` (Document Service, facades, transaction, i18n). The Koa policy chain, the real permission minting at boot, draft invisibility in the pinned public readers, and post-publish public visibility are all argued from code shape and unit assertions rather than observed. The first real create/publish should be watched.
-- Tenant isolation is asserted through a mocked venue lookup, not two real venues in one database.
-- The six deferred items above remain open; the media-id ownership gap is the one worth scheduling, and it is best fixed once across 7.1/7.2/7.3 rather than here.
-- `featured` is manager-settable by design (the story AC asks for it) and feeds the homepage featured slice — a trust grant to venue managers until Epic 9 adds moderation.
+- The whole story is still verified only at the module surface: no test boots
+  Strapi, executes the `is-venue-manager` policy, or exercises real
+  draft/publish semantics. The 403 path in particular is asserted by injecting
+  the code into a service mock — a path production cannot take, since the policy
+  short-circuits first. An end-to-end create/publish still needs an approved
+  venue-manager account (an operator action).
+- The client and server validation schemas remain hand-mirrored with nothing
+  asserting they agree; the timezone bug fixed across the last two passes was
+  exactly a drift between them.
+- The concurrent run's in-flight edits touch `EventDetailPage`, which this
+  story's preview renders. Once that work lands, the preview should be
+  re-checked.

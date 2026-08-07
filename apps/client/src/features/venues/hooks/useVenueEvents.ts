@@ -149,6 +149,26 @@ export function useCreativeWorkSearch(query: string) {
   })
 }
 
+/**
+ * Stable, user-scoped identities for the four mutations below. Declaration
+ * order inside `useVenueEventMutations` is not part of the contract; these
+ * keys are.
+ */
+export const venueEventMutationKeys = {
+  createEvent: (userId?: number | string | null) =>
+    [...venueEventKeys.all, userId ?? ANONYMOUS_SCOPE, "create-event"] as const,
+  createWork: (userId?: number | string | null) =>
+    [...venueEventKeys.all, userId ?? ANONYMOUS_SCOPE, "create-work"] as const,
+  publishEvent: (userId?: number | string | null) =>
+    [
+      ...venueEventKeys.all,
+      userId ?? ANONYMOUS_SCOPE,
+      "publish-event",
+    ] as const,
+  uploadImage: (userId?: number | string | null) =>
+    [...venueEventKeys.all, userId ?? ANONYMOUS_SCOPE, "upload-image"] as const,
+}
+
 export function useVenueEventMutations() {
   const queryClient = useQueryClient()
   const { data: session } = useSession()
@@ -156,6 +176,10 @@ export function useVenueEventMutations() {
 
   /** `POST /venue/events` — the venue is resolved server-side from the JWT. */
   const createEventMutation = useMutation({
+    // A stable mutationKey identifies this mutation by NAME rather than by its
+    // position in this function, so tests never select the wrong one after a
+    // reorder (they used to index `useMutation.mock.calls[n]`).
+    mutationKey: venueEventMutationKeys.createEvent(userId),
     mutationFn: async (
       payload: VenueEventCreatePayload
     ): Promise<ManagerEventDetail | null> => {
@@ -174,6 +198,7 @@ export function useVenueEventMutations() {
 
   /** `POST /venue/creative-works` — a minimal published catalog entry. */
   const createWorkMutation = useMutation({
+    mutationKey: venueEventMutationKeys.createWork(userId),
     mutationFn: async (
       payload: VenueWorkCreatePayload
     ): Promise<CreativeWorkSearchEntry | null> => {
@@ -197,6 +222,7 @@ export function useVenueEventMutations() {
 
   /** `POST /venue/events/:documentId/publish` — the explicit publish. */
   const publishEventMutation = useMutation({
+    mutationKey: venueEventMutationKeys.publishEvent(userId),
     mutationFn: async ({ documentId }: { documentId: string }) => {
       const response = await PrivateStrapiClient.fetchAPI(
         `${VENUE_EVENTS_PATH}/${documentId}/publish`,
@@ -221,6 +247,7 @@ export function useVenueEventMutations() {
    * shape as the venue-profile upload.
    */
   const uploadImageMutation = useMutation({
+    mutationKey: venueEventMutationKeys.uploadImage(userId),
     mutationFn: async ({ file }: { file: File }): Promise<number> => {
       const formData = new FormData()
       formData.append("files", file)

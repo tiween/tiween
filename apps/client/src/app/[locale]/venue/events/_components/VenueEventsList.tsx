@@ -11,7 +11,7 @@ import { useTranslations } from "next-intl"
 
 import type { VenueEventListEntry } from "@/features/venues/schemas/venue-events"
 
-import { formatDate } from "@/lib/dates"
+import { formatVenueDate } from "@/lib/dates"
 import { Link } from "@/lib/navigation"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -118,10 +118,10 @@ export function VenueEventsList() {
                     </p>
                     <p className="text-muted-foreground text-sm">
                       {event.startDateTime
-                        ? formatDate(event.startDateTime)
+                        ? formatVenueDate(event.startDateTime)
                         : ""}
                       {event.endDateTime
-                        ? ` — ${formatDate(event.endDateTime)}`
+                        ? ` — ${formatVenueDate(event.endDateTime)}`
                         : ""}
                     </p>
                   </div>

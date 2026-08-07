@@ -67,9 +67,12 @@ interface QueryOptions {
 }
 
 interface MutationOptions {
+  mutationKey?: unknown[]
   mutationFn: (input: never) => Promise<unknown>
   onSuccess?: (data: unknown, variables: never) => void
 }
+
+type PredicateFn = (query: { queryKey: unknown[] }) => boolean
 
 beforeEach(() => {
   sessionMock.mockReturnValue({
@@ -196,13 +199,26 @@ describe("useCreativeWorkSearch", () => {
 })
 
 describe("useVenueEventMutations", () => {
+  /**
+   * Select a mutation by its stable `mutationKey`, NEVER by its position in
+   * `useVenueEventMutations`: indexing `mock.calls[n]` silently re-pointed
+   * every assertion at the wrong mutation the moment the four declarations
+   * were reordered, with the suite still green.
+   */
+  function mutationFor(name: string): MutationOptions {
+    const call = useMutationSpy.mock.calls.find((c) => {
+      const key = (c[0] as { mutationKey?: unknown[] }).mutationKey
+      return Array.isArray(key) && key[key.length - 1] === name
+    })
+    expect(call, `no mutation registered under "${name}"`).toBeDefined()
+    return call![0] as unknown as MutationOptions
+  }
   it("POSTs the create payload through the proxy and invalidates the list", async () => {
     fetchAPIMock.mockResolvedValue({ data: { documentId: "e1" } })
 
     renderHook(() => useVenueEventMutations())
 
-    const createOptions = useMutationSpy.mock
-      .calls[0]![0] as unknown as MutationOptions
+    const createOptions = mutationFor("create-event")
     await createOptions.mutationFn({ title: "Dune" } as never)
     expect(fetchAPIMock).toHaveBeenCalledWith(
       "/events-manager/venue/events",
@@ -222,8 +238,7 @@ describe("useVenueEventMutations", () => {
 
     renderHook(() => useVenueEventMutations())
 
-    const workOptions = useMutationSpy.mock
-      .calls[1]![0] as unknown as MutationOptions
+    const workOptions = mutationFor("create-work")
     await workOptions.mutationFn({ title: "Dune", type: "film" } as never)
     expect(fetchAPIMock).toHaveBeenCalledWith(
       "/events-manager/venue/creative-works",
@@ -236,13 +251,33 @@ describe("useVenueEventMutations", () => {
     )
   })
 
+  it("invalidates EVERY cached work search after creating a work", async () => {
+    renderHook(() => useVenueEventMutations())
+
+    mutationFor("create-work").onSuccess?.(undefined, undefined as never)
+
+    const call = invalidateSpy.mock.calls
+      .map((c) => c[0] as { queryKey: unknown[]; predicate?: PredicateFn })
+      .find((arg) => typeof arg.predicate === "function")
+    // Without this the 60s-fresh empty search survives the create and the
+    // manager cannot find the title they just added — they create a duplicate.
+    expect(call?.queryKey).toEqual(["venue-events", 42])
+    expect(
+      call!.predicate!({
+        queryKey: ["venue-events", 42, "work-search", "dune"],
+      })
+    ).toBe(true)
+    expect(call!.predicate!({ queryKey: ["venue-events", 42, "list"] })).toBe(
+      false
+    )
+  })
+
   it("POSTs the publish and invalidates both the list and the detail", async () => {
     fetchAPIMock.mockResolvedValue({ data: { documentId: "e1" } })
 
     renderHook(() => useVenueEventMutations())
 
-    const publishOptions = useMutationSpy.mock
-      .calls[2]![0] as unknown as MutationOptions
+    const publishOptions = mutationFor("publish-event")
     await publishOptions.mutationFn({ documentId: "e1" } as never)
     expect(fetchAPIMock).toHaveBeenCalledWith(
       "/events-manager/venue/events/e1/publish",
@@ -269,8 +304,7 @@ describe("useVenueEventMutations", () => {
 
     renderHook(() => useVenueEventMutations())
 
-    const uploadOptions = useMutationSpy.mock
-      .calls[3]![0] as unknown as MutationOptions
+    const uploadOptions = mutationFor("upload-image")
     const id = await uploadOptions.mutationFn({
       file: new File(["x"], "x.png", { type: "image/png" }),
     } as never)

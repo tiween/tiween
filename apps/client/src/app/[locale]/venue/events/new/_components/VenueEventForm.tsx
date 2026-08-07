@@ -194,17 +194,16 @@ export function VenueEventForm() {
 
   const handleWorkSelected = React.useCallback(
     (work: SelectedWork) => {
-      setSelectedWork((previous) => {
-        // Prefill the event title from the work — but never stomp a title the
-        // manager already typed themselves.
-        const currentTitle = form.getValues("title")
-        if (currentTitle === "" || currentTitle === previous?.title) {
-          form.setValue("title", work.title, { shouldDirty: true })
-        }
-        return work
-      })
+      // Prefill the event title from the work — but never stomp a title the
+      // manager already typed themselves. Done OUTSIDE the state updater: a
+      // `setState` updater must be pure, and React StrictMode runs it twice.
+      const currentTitle = form.getValues("title")
+      if (currentTitle === "" || currentTitle === selectedWork?.title) {
+        form.setValue("title", work.title, { shouldDirty: true })
+      }
+      setSelectedWork(work)
     },
-    [form]
+    [form, selectedWork]
   )
 
   async function onSubmit(values: VenueEventFormValues) {

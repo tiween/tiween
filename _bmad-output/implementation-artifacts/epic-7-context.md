@@ -4,7 +4,7 @@
 
 ## Goal
 
-Give venue managers a self-service back office (via Strapi Admin) to register their venue, maintain its public profile, create and manage events with showtimes, and see how their events perform. This supplies the event content that powers the v1 aggregation platform — venues publishing their own schedules is what makes Tiween "the place to find what's happening" across Tunisia. The epic was split on 2026-08-06: aggregation stories (7.1, 7.2, 7.3, 7.4, 7.8) are v1; ticketing-dependent stories (7.5, 7.6, 7.7, 7.9) are deferred post-v1 along with all purchase functionality.
+Give venue managers a self-service back office to register their venue, maintain its public profile, create and manage events with showtimes, and see how their events perform. This supplies the event content that powers the v1 aggregation platform — venues publishing their own schedules is what makes Tiween "the place to find what's happening" across Tunisia. The epic was split on 2026-08-06: aggregation stories (7.1, 7.2, 7.3, 7.4, 7.8) are v1; ticketing-dependent stories (7.5, 7.6, 7.7, 7.9) are deferred post-v1 along with all purchase functionality.
 
 ## Stories
 
@@ -22,7 +22,8 @@ Give venue managers a self-service back office (via Strapi Admin) to register th
 
 - Venue managers can register a venue, manage its profile (photos, description, location, contact), create events (title, description, dates, showtimes, media), edit events, and cancel events. Analytics show views, watchlist activity, and conversion.
 - **Data isolation:** a venue manager may only see and modify their own venue's data — enforced via RBAC, not UI convention.
-- **Privacy:** analytics demographics must be aggregated only; never expose individual user data.
+- **Privacy:** analytics demographics must be aggregated only; never expose individual user data. No planning artifact defines an aggregation threshold — 7.8 must pick and document one.
+- **Operator-surface locale/formatting rules:** French-first operational copy, Western numerals and DD/MM/YYYY dates even in Arabic, prices in TND with comma decimals.
 - **V1 must not expose any live purchase surface.** Shipped ticketing code stays in the codebase dormant behind a feature flag (default off). Event and venue pages are fully informational. Do not build on or reactivate ticketing paths in v1 work.
 - All localized content must support AR/FR/EN; venue public pages are SSR with LocalBusiness/Event structured data for SEO.
 - Registration creates a _pending_ venue plus a venue-manager account; admin approves or rejects (registration is not self-activating).
@@ -38,7 +39,7 @@ Give venue managers a self-service back office (via Strapi Admin) to register th
 - **Plugin code conventions:** hand-rolled `({ strapi }) => ({...})` service/controller factories; module-level UID constants (no inline UID strings); Document Service API only; Zod validation via the shared `validate()` helper; error responses carry codes (SCREAMING_SNAKE), never prose — translation happens client-side; `ctx: Context` typing; admin translations en/fr/ar required; multi-write operations wrapped in `strapi.db.transaction`.
 - **Mutations by venue managers and admins must be attributable (actor + timestamp)** — this is what satisfies the "edit history is logged" expectation on 7.4's editing/cancellation. Strapi's `createdBy`/`updatedBy` cover admin-panel writes only; content-api writes made on behalf of a `users-permissions` manager (7.2 onward) carry no actor, so 7.4 owes an explicit attribution mechanism.
 - New plugins/scaffolds follow the sibling-clone-of-geography pattern, not the official SDK layout.
-- Real-time updates (7.9) are deferred; the baseline WebSocket decision stands but nothing in v1 builds it.
+- Real-time updates (7.9) are deferred; the baseline WebSocket decision (Socket.io with Redis backing) stands, but no channel model, connection auth, or per-venue scoping has been designed — 7.9 owes that design, and nothing in v1 builds it.
 
 ## UX & Interaction Patterns
 
@@ -47,6 +48,8 @@ Give venue managers a self-service back office (via Strapi Admin) to register th
 - B2B milestone celebrations are part of the design language ("You're live!", "100 people discovered you") — analytics should surface reach, not just raw counts.
 - Events are created as drafts and explicitly published; venue managers can preview before publishing.
 - Success metric orientation: weekly schedule updates and >2x/week dashboard logins — flows should make routine updating fast.
+- Every operator surface defines its loading, empty, error, and RBAC-variation states; errors are rendered from stable backend codes, never raw codes or backend prose.
+- Still undesigned: sales reports, charts/CSV export, the real-time dashboard, and the analytics surfaces — those stories owe their own design.
 
 ## Cross-Story Dependencies
 

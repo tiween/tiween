@@ -187,7 +187,8 @@ describe("venue-events controller happy paths (unit)", () => {
 
     await controller.searchCreativeWorks(ctx)
 
-    expect(service.searchCreativeWorks).toHaveBeenCalledWith("dune")
+    // The CALLER is forwarded: the service tenant-gates the catalog surface.
+    expect(service.searchCreativeWorks).toHaveBeenCalledWith({ id: 42 }, "dune")
     expect(ctx.body).toEqual({ data: [{ documentId: "work-1" }] })
   })
 
@@ -207,6 +208,7 @@ describe("venue-events controller happy paths (unit)", () => {
     expect(ctx.status).toBe(201)
     expect(ctx.body).toEqual({ data: { documentId: "work-9" } })
     expect(service.createCreativeWork).toHaveBeenCalledWith(
+      { id: 42 },
       { title: "Dune", type: "film" },
       "fr"
     )

@@ -100,6 +100,29 @@ export function toTunisIsoInstant(date: string, time: string): string {
 }
 
 /**
+ * The READ counterpart of {@link toTunisIsoInstant}: render an instant on the
+ * Tunisian wall clock rather than the browser's.
+ *
+ * `formatDate` deliberately formats in the runtime zone, which is right for
+ * B2C surfaces rendered near the user. Venue run dates are not that: they are
+ * written as `00:00`/`23:59` Tunis, so a manager on a browser west of Tunis
+ * would see every run date one day early. Manager surfaces must read back
+ * exactly the wall clock they wrote.
+ */
+export function formatVenueDate(
+  date: string | Date | undefined,
+  locale?: string,
+  format = DATE_FORMAT
+): string {
+  if (!date) return ""
+  // Arabic keeps Western numerals (Tunisian convention) — same rule as formatDate.
+  return dayjs(date)
+    .tz(TIMEZONE)
+    .locale(locale === "ar" ? "fr" : locale ?? "fr")
+    .format(format)
+}
+
+/**
  * Get today's date formatted
  */
 export function getToday(format = DATE_FORMAT): string {

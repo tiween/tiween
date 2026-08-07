@@ -7,7 +7,7 @@
  */
 import { describe, expect, it } from "vitest"
 
-import { formatRelativeTime, toTunisIsoInstant } from "./dates"
+import { formatRelativeTime, formatVenueDate, toTunisIsoInstant } from "./dates"
 
 const NOW = new Date("2026-07-10T12:00:00.000Z")
 
@@ -81,5 +81,26 @@ describe("toTunisIsoInstant", () => {
     expect(toTunisIsoInstant("2026-01-15", "12:30")).toBe(
       "2026-01-15T11:30:00.000Z"
     )
+  })
+})
+
+describe("formatVenueDate", () => {
+  // The READ side of the same contract: a run date written as 00:00 Tunis is
+  // stored as the PREVIOUS UTC day, so formatting it in the browser's zone
+  // showed every manager west of Tunis the wrong date.
+  it("renders the Tunisian wall-clock day, not the host's", () => {
+    expect(formatVenueDate("2026-08-31T23:00:00.000Z")).toBe("01/09/2026")
+    expect(formatVenueDate("2026-09-01T22:59:00.000Z")).toBe("01/09/2026")
+    expect(formatVenueDate("2026-09-01T23:00:00.000Z")).toBe("02/09/2026")
+  })
+
+  it("keeps Western numerals for Arabic", () => {
+    const out = formatVenueDate("2026-08-31T23:00:00.000Z", "ar")
+    expect(out).toBe("01/09/2026")
+    expect(ARABIC_INDIC_DIGITS.test(out)).toBe(false)
+  })
+
+  it("returns an empty string for a missing date", () => {
+    expect(formatVenueDate(undefined)).toBe("")
   })
 })

@@ -189,7 +189,7 @@ const venueEventsController = ({ strapi }: { strapi: Core.Strapi }) => ({
       const works = await strapi
         .plugin(PLUGIN_ID)
         .service("venue-events")
-        .searchCreativeWorks(parsed.data)
+        .searchCreativeWorks(ctx.state?.user, parsed.data)
 
       ctx.body = { data: works }
     } catch (err) {
@@ -206,7 +206,7 @@ const venueEventsController = ({ strapi }: { strapi: Core.Strapi }) => ({
       const work = await strapi
         .plugin(PLUGIN_ID)
         .service("venue-events")
-        .createCreativeWork(input, locale)
+        .createCreativeWork(ctx.state?.user, input, locale)
 
       ctx.status = 201
       ctx.body = { data: work }

@@ -561,8 +561,16 @@ const venueEventsService = ({ strapi }: { strapi: Core.Strapi }) => ({
   /**
    * `GET /venue/creative-works/search` — catalog search through the
    * creative-works facade, projected to what the picker renders.
+   *
+   * Tenant-gated like every other `/venue/*` method even though the catalog is
+   * shared, platform-wide data: the matrix row "manager without venue → 404"
+   * is stated for the route PREFIX, not for the event endpoints only. A
+   * role-holder whose venue was never created (or was deleted) has no business
+   * reading or writing through the venue surface.
    */
-  async searchCreativeWorks(query: string, limit = 20) {
+  async searchCreativeWorks(user: VenueManagerUser, query: string, limit = 20) {
+    await this.requireVenue(user)
+
     const rows = (await strapi
       .plugin(CREATIVE_WORKS_PLUGIN_ID)
       .service("public-api")
@@ -580,8 +588,18 @@ const venueEventsService = ({ strapi }: { strapi: Core.Strapi }) => ({
   /**
    * `POST /venue/creative-works` — create AND publish a catalog entry through
    * the creative-works facade (catalog data, not a venue announcement).
+   *
+   * Tenant-gated for the same reason as the search above — and more sharply:
+   * this writes a PUBLISHED row into the shared catalog, so a venue-manager
+   * role-holder with no venue must not reach it.
    */
-  async createCreativeWork(input: CreateWorkInput, locale?: string) {
+  async createCreativeWork(
+    user: VenueManagerUser,
+    input: CreateWorkInput,
+    locale?: string
+  ) {
+    await this.requireVenue(user)
+
     try {
       return await strapi
         .plugin(CREATIVE_WORKS_PLUGIN_ID)
