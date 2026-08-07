@@ -91,7 +91,6 @@ export function WatchlistPageClient({ locale }: WatchlistPageClientProps) {
     () => ({
       addToWatchlist: te("addToWatchlist"),
       removeFromWatchlist: te("removeFromWatchlist"),
-      priceFrom: (price: string) => te("priceFrom", { price }),
       watchlistDisabledHint: t("offlineActionDisabled"),
     }),
     [te, t]

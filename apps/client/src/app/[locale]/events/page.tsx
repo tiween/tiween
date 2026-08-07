@@ -89,7 +89,6 @@ async function buildLabels(locale: Locale): Promise<EventsListingLabels> {
     card: {
       addToWatchlist: tEvents("addToWatchlist"),
       removeFromWatchlist: tEvents("removeFromWatchlist"),
-      priceFrom: (price: string) => tEvents("priceFrom", { price }),
     },
   }
 }

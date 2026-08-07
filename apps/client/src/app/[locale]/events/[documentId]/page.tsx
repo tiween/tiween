@@ -166,8 +166,6 @@ export default async function EventDetailRoute({ params }: PageProps) {
     showtimes: t("showtimes"),
     noShowtimes: t("noShowtimes"),
     buyTickets: t("buyTickets"),
-    priceFrom: (price: string) => t("priceFrom", { price }),
-    ticketsAvailable: (count: number) => t("ticketsAvailable", { count }),
     soldOut: t("soldOut"),
     cast: t("cast"),
     directors: t("directors"),

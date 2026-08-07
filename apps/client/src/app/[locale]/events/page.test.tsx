@@ -11,14 +11,20 @@
 import { render } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
+import { assertNoFunctionProps } from "../../../../test/assert-serializable-props"
 import EventsListingRoute from "./page"
 
-const { fetchEventsMock, getRegionsMock, getVenuesForSelectorMock } =
-  vi.hoisted(() => ({
-    fetchEventsMock: vi.fn(),
-    getRegionsMock: vi.fn(),
-    getVenuesForSelectorMock: vi.fn(),
-  }))
+const {
+  fetchEventsMock,
+  getRegionsMock,
+  getVenuesForSelectorMock,
+  listingPropsSpy,
+} = vi.hoisted(() => ({
+  fetchEventsMock: vi.fn(),
+  getRegionsMock: vi.fn(),
+  getVenuesForSelectorMock: vi.fn(),
+  listingPropsSpy: vi.fn(),
+}))
 
 vi.mock("next-intl/server", () => ({
   setRequestLocale: vi.fn(),
@@ -49,8 +55,12 @@ vi.mock("@/lib/strapi-api/content/venues", () => ({
 vi.mock("@/features/events/components", async () => {
   const ReactModule = await import("react")
   return {
-    EventsListing: () =>
-      ReactModule.createElement("div", { "data-testid": "events-listing" }),
+    EventsListing: (props: Record<string, unknown>) => {
+      listingPropsSpy(props)
+      return ReactModule.createElement("div", {
+        "data-testid": "events-listing",
+      })
+    },
   }
 })
 
@@ -66,6 +76,7 @@ async function renderRoute(
 }
 
 beforeEach(() => {
+  listingPropsSpy.mockReset()
   fetchEventsMock.mockReset().mockResolvedValue({ events: [], total: 0 })
   getRegionsMock.mockReset().mockResolvedValue([])
   getVenuesForSelectorMock
@@ -105,5 +116,18 @@ describe("EventsListingRoute (Story 3.2 category wiring)", () => {
       "fr",
       expect.objectContaining({ type: null })
     )
+  })
+})
+
+describe("EventsListingRoute prop serializability", () => {
+  it("hands the client island props with no function values anywhere", async () => {
+    await renderRoute({})
+
+    expect(listingPropsSpy).toHaveBeenCalled()
+    const props = listingPropsSpy.mock.calls[0]![0] as Record<string, unknown>
+    // Guard the WHOLE prop object, not just `labels`: a function on `regions`,
+    // `venues` or any future callback prop crashes the route identically.
+    expect(props.labels).toBeDefined()
+    expect(() => assertNoFunctionProps(props)).not.toThrow()
   })
 })

@@ -25,6 +25,14 @@ vi.mock("@/lib/feature-flags", () => ({
   isTicketPurchaseEnabled: () => purchaseFlag.enabled,
 }))
 
+// `priceFrom` interpolates `{price}`, so it is NOT a prop (a function cannot
+// cross the RSC boundary) — `EventCard` looks it up itself. Echo the key plus
+// the interpolated price so the wiring, not a hardcoded string, is asserted.
+vi.mock("next-intl", () => ({
+  useTranslations: () => (key: string, values?: Record<string, unknown>) =>
+    values?.price === undefined ? key : `${key}:${values.price}`,
+}))
+
 // Mock next/image for testing
 vi.mock("next/image", () => ({
   default: ({ src, alt, ...props }: { src: string; alt: string }) => (
@@ -63,15 +71,17 @@ describe("EventCard", () => {
 
     it("renders price when provided", () => {
       render(<EventCard event={mockEvent} />)
-      // Match the price specifically ("À partir de 25,000 DT"); a bare /25/ also
-      // matches the date "2025" and would be ambiguous.
-      expect(screen.getByText(/25,000/)).toBeInTheDocument()
+      // The label comes from the `events.priceFrom` message resolved on the
+      // client, with the formatted price interpolated into `{price}`. Match the
+      // key-prefixed node; a bare /25/ also matches the date "2025".
+      expect(screen.getByText(/^priceFrom:/)).toHaveTextContent("25,000")
     })
 
     it("does not render price when not provided", () => {
       const eventWithoutPrice = { ...mockEvent, price: undefined }
       render(<EventCard event={eventWithoutPrice} />)
-      expect(screen.queryByText(/À partir de/)).not.toBeInTheDocument()
+      // No empty "From " string either — the whole line is omitted.
+      expect(screen.queryByText(/priceFrom/)).not.toBeInTheDocument()
     })
 
     it("hides the price when ticket purchase is disabled (Story 3.12)", () => {
@@ -81,7 +91,7 @@ describe("EventCard", () => {
         // Informational content stays; only the ticket price disappears.
         expect(screen.getByText("Test Event")).toBeInTheDocument()
         expect(screen.getByText("Test Venue")).toBeInTheDocument()
-        expect(screen.queryByText(/À partir de/)).not.toBeInTheDocument()
+        expect(screen.queryByText(/priceFrom/)).not.toBeInTheDocument()
         expect(screen.queryByText(/25,000/)).not.toBeInTheDocument()
       } finally {
         purchaseFlag.enabled = true
@@ -215,7 +225,6 @@ describe("EventCard watchlistDisabled (Story 5.4)", () => {
   const disabledLabels = {
     addToWatchlist: "Add",
     removeFromWatchlist: "Remove",
-    priceFrom: (price: string) => `From ${price}`,
     watchlistDisabledHint: "Unavailable offline",
   }
 

@@ -17,7 +17,13 @@ import { EventDetailPage } from "./EventDetailPage"
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), back: vi.fn() }),
 }))
-vi.mock("next-intl", () => ({ useLocale: () => "fr" }))
+vi.mock("next-intl", () => ({
+  useLocale: () => "fr",
+  // `priceFrom` interpolates `{price}` and so is resolved here rather than
+  // passed as a (non-serializable) function label prop.
+  useTranslations: () => (key: string, values?: Record<string, unknown>) =>
+    values?.price === undefined ? key : `${key}:${values.price}`,
+}))
 
 // Purchase flag stubbed ON (Story 3.12) — this suite predates the v1 gate and
 // asserts the ungated composition.

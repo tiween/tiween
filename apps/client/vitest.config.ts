@@ -119,6 +119,11 @@ export default defineConfig({
       // `/[locale]/events` route param forwarding (Story 3.2). `[locale]` is a
       // glob char-class, so match the segment via `**`.
       "src/app/**/events/*.test.tsx",
+      // Server-route → client-island prop serializability guards. Covers the
+      // `/[locale]` homepage (the reported "Functions cannot be passed directly
+      // to Client Components" crash site); `[locale]` is a glob char-class, so
+      // match the segment via `**`.
+      "src/app/**/page.test.tsx",
       "src/features/events/components/ShareDialog/**/*.test.tsx",
       "src/lib/strapi-api/**/*.test.ts",
       "src/lib/algolia/**/*.test.ts",

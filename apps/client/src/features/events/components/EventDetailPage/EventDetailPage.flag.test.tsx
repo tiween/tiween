@@ -3,7 +3,7 @@
  *
  * v1 is aggregation-only: with `NEXT_PUBLIC_TICKET_PURCHASE_ENABLED` off (the
  * default) an event detail page must render NO purchase controls — no
- * ShowtimeButton grid, no sticky buy CTA, no "À partir de …" price — while the
+ * ShowtimeButton grid, no sticky buy CTA, no `events.priceFrom` price — while the
  * informational content (dates, TIMES, venue, synopsis) stays intact:
  * screening times render as plain non-interactive text. Flipping the flag ON
  * must restore the 6.1/6.2 surfaces with zero code changes, so the ON
@@ -28,7 +28,13 @@ const { purchaseFlag, pushSpy } = vi.hoisted(() => ({
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: pushSpy, back: vi.fn() }),
 }))
-vi.mock("next-intl", () => ({ useLocale: () => "fr" }))
+vi.mock("next-intl", () => ({
+  useLocale: () => "fr",
+  // `priceFrom` interpolates `{price}` and so is resolved here rather than
+  // passed as a (non-serializable) function label prop.
+  useTranslations: () => (key: string, values?: Record<string, unknown>) =>
+    values?.price === undefined ? key : `${key}:${values.price}`,
+}))
 
 // The gate under test — mutable so both directions run on one fixture.
 vi.mock("@/lib/feature-flags", () => ({
@@ -121,7 +127,7 @@ describe("EventDetailPage with the purchase flag OFF", () => {
   it("renders no sticky buy CTA and no price line", () => {
     render(<EventDetailPage event={event} />)
     expect(screen.queryByText("Réserver des billets")).not.toBeInTheDocument()
-    expect(screen.queryByText(/À partir de/)).not.toBeInTheDocument()
+    expect(screen.queryByText(/priceFrom/)).not.toBeInTheDocument()
   })
 
   it("keeps the showtime TIME visible as plain non-interactive text", () => {
@@ -170,6 +176,6 @@ describe("EventDetailPage with the purchase flag ON", () => {
   it("restores the sticky buy CTA with the price line", () => {
     render(<EventDetailPage event={event} />)
     expect(screen.getByText("Réserver des billets")).toBeInTheDocument()
-    expect(screen.getByText(/À partir de 15 TND/)).toBeInTheDocument()
+    expect(screen.getByText("priceFrom:15 TND")).toBeInTheDocument()
   })
 })

@@ -22,11 +22,23 @@ vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: pushMock, replace: replaceMock }),
 }))
 
-// Purchase flag stubbed ON (Story 3.12): the listing renders real EventCards,
-// whose price line now reads the flag; the mock also keeps `env.mjs` (which
-// rejects vitest's NODE_ENV=test) out of the import graph.
+// Purchase flag stubbed ON (Story 3.12). Every case below renders with
+// `events={[]}`, so no `EventCard` actually mounts today — but the flag mock is
+// kept because it also keeps `env.mjs` (which rejects vitest's NODE_ENV=test)
+// out of the import graph, and because a non-empty fixture must not need new
+// wiring to work.
 vi.mock("@/lib/feature-flags", () => ({
   isTicketPurchaseEnabled: () => true,
+}))
+
+// `EventCard` resolves its parameterized `events.priceFrom` label through
+// `useTranslations` (it can no longer take a function label prop across the RSC
+// boundary), so it needs an intl context the moment a fixture is non-empty.
+// Mocked up front rather than on first failure: without it, adding one event to
+// any case below fails with "No intl context found", far from its cause.
+vi.mock("next-intl", () => ({
+  useTranslations: () => (key: string, values?: Record<string, unknown>) =>
+    values?.price === undefined ? key : `${key}:${values.price}`,
 }))
 
 // Anonymous visitor — the common case on this public listing; keeps the
@@ -82,7 +94,6 @@ const labels: EventsListingLabels = {
   card: {
     addToWatchlist: "Ajouter",
     removeFromWatchlist: "Retirer",
-    priceFrom: (price: string) => `Dès ${price}`,
   },
 }
 

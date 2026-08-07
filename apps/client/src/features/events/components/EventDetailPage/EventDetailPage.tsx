@@ -13,7 +13,7 @@ import {
   MapPin,
   Ticket,
 } from "lucide-react"
-import { useLocale } from "next-intl"
+import { useLocale, useTranslations } from "next-intl"
 
 import type { EventCardEvent } from "../../types/event.types"
 import type { StrapiEvent } from "../../types/strapi.types"
@@ -53,6 +53,16 @@ function detectDirectionsPlatform(): DirectionsPlatform {
   return platformFromUserAgent(`${navigator.userAgent} ${navigator.platform}`)
 }
 
+/**
+ * Static detail-page labels only.
+ *
+ * The price line (`events.priceFrom`) interpolates `{price}` and is deliberately
+ * NOT here and NOT overridable: a function cannot cross the RSC boundary, so
+ * `EventDetailPage` resolves it itself via `useTranslations("events")`. A caller
+ * passing custom `labels` still gets catalog text for the price. (`dateRange`
+ * is the exception that proves the rule — it crosses as a raw ICU STRING via
+ * `t.raw()` and is formatted client-side.)
+ */
 export interface EventDetailPageLabels {
   back: string
   share: string
@@ -64,8 +74,6 @@ export interface EventDetailPageLabels {
   showtimes: string
   noShowtimes: string
   buyTickets: string
-  priceFrom: (price: string) => string
-  ticketsAvailable: (count: number) => string
   soldOut: string
   cast: string
   directors: string
@@ -95,8 +103,6 @@ const defaultLabels: EventDetailPageLabels = {
   showtimes: "Séances",
   noShowtimes: "Aucune séance disponible",
   buyTickets: "Réserver des billets",
-  priceFrom: (price) => `À partir de ${price}`,
-  ticketsAvailable: (count) => `${count}`,
   soldOut: "Complet",
   cast: "Distribution",
   directors: "Mise en scène",
@@ -144,6 +150,9 @@ export function EventDetailPage({
   const router = useRouter()
   const locale = useLocale()
   const isRTL = locale === "ar"
+  // `priceFrom` interpolates `{price}`, so it cannot be a serializable string
+  // prop — the parameterized lookup lives on the client side of the boundary.
+  const t = useTranslations("events")
   // Aggregation-only v1 (Story 3.12): purchase controls (ShowtimeButton grid,
   // sticky buy CTA, prices) render only when the flag is on. Informational
   // content (dates, venue, map, share) always renders.
@@ -588,7 +597,9 @@ export function EventDetailPage({
               </p>
               {detail.minPrice !== undefined && (
                 <p className="text-muted-foreground text-xs">
-                  {labels.priceFrom(`${detail.minPrice} ${detail.currency}`)}
+                  {t("priceFrom", {
+                    price: `${detail.minPrice} ${detail.currency}`,
+                  })}
                 </p>
               )}
             </div>

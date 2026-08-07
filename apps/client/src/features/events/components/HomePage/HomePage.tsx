@@ -31,8 +31,6 @@ export interface HomePageLabels {
     tickets: string
     account: string
     navigation: string
-    unscannedTickets: (count: number) => string
-    notifications: (count: number) => string
   }
   categoryTabs: {
     all: string
@@ -64,8 +62,6 @@ const defaultLabels: HomePageLabels = {
     tickets: "Billets",
     account: "Compte",
     navigation: "Navigation principale",
-    unscannedTickets: (count) => `${count} billets non scannés`,
-    notifications: (count) => `${count} notifications non lues`,
   },
   categoryTabs: {
     all: "Tout",

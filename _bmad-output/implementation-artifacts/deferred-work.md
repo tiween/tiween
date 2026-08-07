@@ -1878,3 +1878,102 @@ source_spec: `spec-3-12-gate-ticketing-entry-points-for-v1.md`
 severity: medium
 reason: At HEAD and at baseline e3c3f49 alike, the build's "Running TypeScript" phase stops — first on desktop-prototypes/ticketing-quantity/page.tsx (`quantities[type.id]` possibly undefined under noUncheckedIndexedAccess), then on events/[documentId]/page.tsx:211 (`EventSchema` not assignable to JsonLd's `Record<string, unknown>`). `tsc` reports the same 63 pre-existing errors at HEAD and at the pre-patch state (strapi-api/content/venues.ts locale strings, apps/strapi types imports, EventDetailPageWithMap ShowtimeButton prop drift, …). The spec's originally recorded "build: compiles successfully" could not be reproduced in this environment. Surfaced by the 2026-08-07 follow-up review pass.
 status: open
+
+### DW-262: Manager-supplied media ids (event `imageIds`, work `posterId`) are accepted as any positive integer and linked without an existence or ownership check.
+
+origin: spec-deferred 503bacb6d76e
+location: apps/strapi/src/plugins/events-manager/server/src/validation/venue-events.ts
+source_spec: `spec-7-3-event-creation.md`
+severity: medium
+reason: `validation/venue-events.ts` validates shape only, and the service writes the ids straight into the `images` / `poster` relations. A manager could guess an upload id belonging to another venue and attach it to their own public event. NOT caused by this story: `venues/validation/profile.ts` and `registration.ts` accept `fileId` the same way (7.1/7.2), so this is one platform-wide gap in the upload surface, best fixed once for all three callers alongside the scoped upload proxy `docs/PERMISSIONS.md` already records as owed.
+status: open
+
+### DW-263: Backend per-field `issues` are transported but never rendered as inline field errors — a VALIDATION_FAILED relay shows only a generic toast.
+
+origin: spec-deferred 2ad2bfafefaa
+location: apps/client/src/features/venues/schemas/venue-events.ts
+source_spec: `spec-7-3-event-creation.md`
+severity: medium
+reason: The controller deliberately forwards `details.issues` for mapped codes, but `extractVenueEventErrorCode` keeps only the top-level code and the form has no path to attach the issues to fields. Any drift between the mirrored client/server schemas — the exact risk of maintaining two — is undiagnosable for the manager. Pre-existing shape: 7.2's `extractVenueProfileErrorCode` does the same.
+status: open
+
+### DW-264: `listMine` silently truncates at 200 events with no pagination and no signal to the manager.
+
+origin: spec-deferred ffcee7042436
+location: apps/strapi/src/plugins/events-manager/server/src/services/venue-events.ts
+source_spec: `spec-7-3-event-creation.md`
+severity: low
+reason: Both Document Service reads pass `limit: 200`; a venue past that count loses its oldest events from the dashboard, and the `isPublished` flag derived from the second read could also miss rows. Not reachable for any current venue, so not worth blocking the story.
+status: open
+
+### DW-265: Event slug collisions surface as an opaque 500 rather than retrying.
+
+origin: spec-deferred 3695677da150
+location: apps/strapi/src/plugins/events-manager/server/src/services/venue-events.ts
+source_spec: `spec-7-3-event-creation.md`
+severity: low
+reason: `generateEventSlug` appends 6 random base-36 chars and `slug` is a unique `uid` field; a collision fails the whole transactional create and the manager sees EVENT_CREATE_FAILED with no recourse but resubmitting. Astronomically unlikely per event, but the fix (retry on unique violation) is cheap and the failure is user-visible.
+status: open
+
+### DW-266: `VenueEventsList` is the only new component with no test.
+
+origin: spec-deferred 982ea94498db
+location: apps/client/src/app/[locale]/venue/events/\_components/VenueEventsList.tsx
+source_spec: `spec-7-3-event-creation.md`
+severity: low
+reason: The form, preview, hooks and schemas all have suites; the list's empty state, draft/published badges, error-code translation and preview links are unexercised, as are the three `page.tsx` session guards.
+status: open
+
+### DW-267: Publishing invalidates only manager-scoped query keys, so public event caches stay stale in the same browser session.
+
+origin: spec-deferred 34c4580c00a1
+location: apps/client/src/features/venues/hooks/useVenueEvents.ts
+source_spec: `spec-7-3-event-creation.md`
+severity: low
+reason: `publishEventMutation` invalidates the venue-events list and detail keys only. A manager who publishes and then browses to `/events` or the homepage featured slice can be served a cached response that omits the event they were just told is live.
+status: open
+
+### DW-268: `EventDetailPageDesktop` and `EventDetailPageWithMap` still declare function-typed label fields.
+
+origin: spec-deferred spec-fix-rsc-function-labels
+location: apps/client/src/features/events/components/EventDetailPage/EventDetailPageWithMap.tsx
+source_spec: `spec-fix-rsc-function-labels.md`
+severity: low
+reason: `EventDetailPageDesktop.tsx:56,64` and `EventDetailPageWithMap.tsx:66` keep `priceFrom`/`ticketsAvailable` as `(x) => string` in their own local label interfaces. Neither component is rendered anywhere (`grep '<EventDetailPageDesktop'` and `'<EventDetailPageWithMap'` return no hits), so neither sits behind an RSC boundary and neither can trigger the "Functions cannot be passed directly to Client Components" crash today. They were deliberately left out of the fix so the change stayed scoped to the three live routes; if either is ever wired to a server route it must move its parameterized lookups to `useTranslations` first. `EventDetailPageWithMap.tsx:702` also hardcodes French ("À partir de"), which the same pass would remove.
+status: open
+
+### DW-269: `events.ticketsAvailable` is now an orphaned message key in all three catalogs.
+
+origin: review-deferred spec-fix-rsc-function-labels
+location: apps/client/locales/fr.json:297
+source_spec: `spec-fix-rsc-function-labels.md`
+severity: low
+reason: The RSC-serializability fix removed `ticketsAvailable` from `EventDetailPageLabels`, its `defaultLabels` and the `/[locale]/events/[documentId]` route label object — the field was declared and defaulted but never rendered. `events.ticketsAvailable` ("{count} billets disponibles" / "{count} tickets available" / "{count} تذكرة متاحة") now has no live consumer; the only remaining references are the hardcoded French defaults inside the unrendered `EventDetailPageDesktop` / `EventDetailPageWithMap` (see DW-268). Left in place because the spec forbade locale-file edits and the key should be re-wired, not deleted, if per-showtime availability wording is ever surfaced. Surfaced by the 2026-08-07 review pass.
+status: open
+
+### DW-270: Badge and availability counts use flat interpolation, not ICU plurals — grammar is wrong at count = 1 in every locale.
+
+origin: review-deferred spec-fix-rsc-function-labels
+location: apps/client/locales/fr.json:634
+source_spec: `spec-fix-rsc-function-labels.md`
+severity: medium
+reason: `home.bottomNav.unscannedTickets`, `home.bottomNav.notifications` and `events.ticketsAvailable` are flat `{count} …` strings, so a single item reads "1 billets non scannés" / "1 unscanned tickets". Now that these resolve through next-intl's `t(key, { count })` on the client, the fix is a one-line catalog change per key to `{count, plural, one {…} other {…}}` — and Arabic needs the full `zero/one/two/few/many/other` set, which no current key exercises. NOT caused by the RSC fix: the same flat strings were passed to the same `t(key, {count})` call before, just from the server side. Deferred because the spec explicitly forbade locale-file edits.
+status: open
+
+### DW-271: `BottomNav`, a `components/layout` primitive, is now hard-coupled to the `home.bottomNav` message namespace.
+
+origin: review-deferred spec-fix-rsc-function-labels
+location: apps/client/src/components/layout/BottomNav/BottomNav.tsx
+source_spec: `spec-fix-rsc-function-labels.md`
+severity: low
+reason: Resolving the count-interpolated badge labels inside the component (the RSC fix) means a shared layout primitive now reads `home.*` strings. If the bottom nav is ever mounted on a venue, tickets or account shell it still pulls the home namespace. Options: accept a `namespace` prop, hoist the badge lookup into the three `HomePage*` wrappers that already own the namespace, or relocate the keys to a shared `nav.*` namespace (a locale edit, hence deferred). No user-visible impact today — the nav renders only from the homepage islands.
+status: open
+
+### DW-272: Function-typed label fields remain across seven further components (extends DW-268).
+
+origin: review-deferred spec-fix-rsc-function-labels
+location: apps/client/src/features/events/components/FilmHero/FilmHero.tsx
+source_spec: `spec-fix-rsc-function-labels.md`
+severity: low
+reason: Beyond the two dead components in DW-268, `(x) => string` label fields survive in `FilmHero.tsx:36` (`inVenues`), `VenueCard.tsx:31,33` (`eventsThisWeek`, `distanceAway`), `Footer.tsx:21` (`copyright`), `TicketQR.tsx:58` (`tickets`), `TicketTypeList.tsx:24` and `TicketSelectionList.tsx:24` (`remaining`), `SearchResults.tsx:19` (`resultsFor`), and `GroupedTicketList`/`TicketPreviewCard` (`viewTicket`). None is fed from a Server Component today — every current caller is a client component (e.g. `TicketTypesSection.tsx:84`, `WatchlistPageClient.tsx`, `SearchPageClient.tsx`), so none can trigger the crash. The three routes that DID cross the boundary are fixed and guarded. Wiring any of these to a server route without first moving the parameterized lookup to `useTranslations` reintroduces "Functions cannot be passed directly to Client Components". A lint rule or a `Serializable<T>` type helper on `*Labels` interfaces would make this structural rather than per-site.
+status: open

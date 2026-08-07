@@ -9,14 +9,20 @@ import { describe, expect, it, vi } from "vitest"
 
 import { BottomNav } from "./BottomNav"
 
+// The count-interpolated badge labels are NOT props (a function cannot cross
+// the RSC boundary) — `BottomNav` looks them up itself. Echo the key plus the
+// interpolated count so the wiring, not a hardcoded string, is asserted.
+vi.mock("next-intl", () => ({
+  useTranslations: () => (key: string, values?: Record<string, unknown>) =>
+    values?.count === undefined ? key : `${key}:${values.count}`,
+}))
+
 const labels = {
   home: "Home",
   search: "Search",
   tickets: "Tickets",
   account: "Account",
   navigation: "Nav",
-  unscannedTickets: (count: number) => `${count} unscanned`,
-  notifications: (count: number) => `${count} unread notifications`,
 }
 
 describe("BottomNav account badge", () => {
@@ -29,7 +35,7 @@ describe("BottomNav account badge", () => {
         labels={labels}
       />
     )
-    const badge = screen.getByLabelText("4 unread notifications")
+    const badge = screen.getByLabelText("notifications:4")
     expect(badge).toBeInTheDocument()
     expect(badge).toHaveTextContent("4")
   })
@@ -43,9 +49,7 @@ describe("BottomNav account badge", () => {
         labels={labels}
       />
     )
-    expect(
-      screen.queryByLabelText(/unread notifications/)
-    ).not.toBeInTheDocument()
+    expect(screen.queryByLabelText(/^notifications:/)).not.toBeInTheDocument()
   })
 
   it("caps the account badge at 99+", () => {
@@ -57,9 +61,7 @@ describe("BottomNav account badge", () => {
         labels={labels}
       />
     )
-    expect(
-      screen.getByLabelText("150 unread notifications")
-    ).toHaveTextContent("99+")
+    expect(screen.getByLabelText("notifications:150")).toHaveTextContent("99+")
   })
 
   it("still renders the unscanned-ticket badge independently", () => {
@@ -72,6 +74,6 @@ describe("BottomNav account badge", () => {
         labels={labels}
       />
     )
-    expect(screen.getByLabelText("2 unscanned")).toHaveTextContent("2")
+    expect(screen.getByLabelText("unscannedTickets:2")).toHaveTextContent("2")
   })
 })

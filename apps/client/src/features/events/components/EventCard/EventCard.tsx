@@ -3,6 +3,7 @@
 import * as React from "react"
 import Image from "next/image"
 import { Heart } from "lucide-react"
+import { useTranslations } from "next-intl"
 
 import type { EventCardEvent, EventCardVariant } from "../../types/event.types"
 
@@ -22,10 +23,17 @@ import { EventCardSkeleton } from "./EventCardSkeleton"
 const BLUR_DATA_URL =
   "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAMCAgMCAgMDAwMEAwMEBQgFBQQEBQoHBwYIDAoMCwsKCwsNDhIQDQ4RDgsLEBYQERMUFRUVDA8XGBYUGBIUFRT/2wBDAQMEBAUEBQkFBQkUDQsNFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBT/wAARCAAIAAoDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAAYH/8QAIhAAAgEEAgIDAQAAAAAAAAAAAQIDAAQFESEGEhMxQVFh/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAZEQADAQEBAAAAAAAAAAAAAAABAgMAEUH/2gAMAwEAAhEDEEA/ANM4/wAix+TwGNvIZ4Xknt0kkiWVWeNmUEqw+iCexrxSlOhIqnAiYp//2Q=="
 
+/**
+ * Static card labels only.
+ *
+ * The price line (`events.priceFrom`) interpolates `{price}` and is deliberately
+ * NOT here and NOT overridable: a function cannot cross the RSC boundary, so
+ * `EventCard` resolves it itself via `useTranslations("events")`. A caller
+ * passing custom `labels` still gets catalog text for the price.
+ */
 export interface EventCardLabels {
   addToWatchlist: string
   removeFromWatchlist: string
-  priceFrom: (price: string) => string
   /** Tooltip shown when the watchlist control is disabled (e.g. offline). */
   watchlistDisabledHint?: string
 }
@@ -33,7 +41,6 @@ export interface EventCardLabels {
 const defaultLabels: EventCardLabels = {
   addToWatchlist: "Ajouter à la liste de suivi",
   removeFromWatchlist: "Retirer de la liste de suivi",
-  priceFrom: (price) => `À partir de ${price}`,
 }
 
 export interface EventCardProps {
@@ -124,6 +131,9 @@ export function EventCard({
 }: EventCardProps) {
   const config = variantConfig[variant]
   const badgeVariant = categoryVariants[event.category] || "secondary"
+  // `priceFrom` interpolates `{price}`, so it cannot be a serializable string
+  // prop — the parameterized lookup lives on the client side of the boundary.
+  const t = useTranslations("events")
 
   // Handle watchlist click without triggering card click
   const handleWatchlistClick = (e: React.MouseEvent) => {
@@ -263,7 +273,9 @@ export function EventCard({
           isTicketPurchaseEnabled() &&
           event.price !== undefined && (
             <p className="text-primary mt-2 text-sm font-medium">
-              {labels.priceFrom(formatPrice(event.price, event.currency))}
+              {t("priceFrom", {
+                price: formatPrice(event.price, event.currency),
+              })}
             </p>
           )}
       </div>

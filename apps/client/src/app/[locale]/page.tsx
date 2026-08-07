@@ -86,10 +86,6 @@ async function buildLabels(locale: Locale): Promise<HomePageWithVenueLabels> {
       tickets: t("bottomNav.tickets"),
       account: t("bottomNav.account"),
       navigation: t("bottomNav.navigation"),
-      unscannedTickets: (count: number) =>
-        t("bottomNav.unscannedTickets", { count }),
-      notifications: (count: number) =>
-        t("bottomNav.notifications", { count }),
     },
     categoryTabs: {
       all: t("categoryTabs.all"),

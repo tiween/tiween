@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { Home, Search, Ticket, User } from "lucide-react"
+import { useTranslations } from "next-intl"
 
 import { cn } from "@/lib/utils"
 
@@ -18,14 +19,21 @@ const tabIcons: Record<TabType, TabIcon> = {
   account: { icon: User },
 }
 
+/**
+ * Static tab labels only.
+ *
+ * The count-interpolated badge labels (`home.bottomNav.unscannedTickets` /
+ * `.notifications`) are deliberately NOT here and NOT overridable: a function
+ * cannot cross the RSC boundary, so `BottomNav` resolves them itself via
+ * `useTranslations("home.bottomNav")`. A caller passing custom `labels` still
+ * gets catalog text for the two badges.
+ */
 export interface BottomNavLabels {
   home: string
   search: string
   tickets: string
   account: string
   navigation: string
-  unscannedTickets: (count: number) => string
-  notifications: (count: number) => string
 }
 
 const defaultLabels: BottomNavLabels = {
@@ -34,8 +42,6 @@ const defaultLabels: BottomNavLabels = {
   tickets: "Billets",
   account: "Compte",
   navigation: "Navigation principale",
-  unscannedTickets: (count) => `${count} billets non scannés`,
-  notifications: (count) => `${count} notifications non lues`,
 }
 
 export interface BottomNavProps {
@@ -62,6 +68,10 @@ export function BottomNav({
   labels = defaultLabels,
 }: BottomNavProps) {
   const tabOrder: TabType[] = ["home", "search", "tickets", "account"]
+  // The badge labels interpolate `{count}`, so they cannot be plain string
+  // props. Resolving them here keeps every `labels` field serializable —
+  // a function prop cannot cross the RSC boundary.
+  const t = useTranslations("home.bottomNav")
 
   return (
     <nav
@@ -96,8 +106,8 @@ export function BottomNav({
                 : 0
           const badgeLabel =
             tabId === "tickets"
-              ? labels.unscannedTickets(ticketCount)
-              : labels.notifications(accountBadgeCount)
+              ? t("unscannedTickets", { count: ticketCount })
+              : t("notifications", { count: accountBadgeCount })
           const showBadge = badgeCount > 0
 
           return (

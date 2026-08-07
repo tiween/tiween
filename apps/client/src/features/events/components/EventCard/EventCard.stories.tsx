@@ -63,7 +63,6 @@ const musicEvent: EventCardEvent = {
 const arabicLabels: EventCardLabels = {
   addToWatchlist: "أضف إلى قائمة المتابعة",
   removeFromWatchlist: "إزالة من قائمة المتابعة",
-  priceFrom: (price) => `ابتداءً من ${price}`,
 }
 
 const arabicEvent: EventCardEvent = {
