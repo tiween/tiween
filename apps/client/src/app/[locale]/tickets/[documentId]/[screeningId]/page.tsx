@@ -29,8 +29,8 @@ interface PageProps {
  */
 export default async function TicketsPage({ params }: PageProps) {
   // Aggregation-only v1 (Story 3.12): no purchase route with the flag off.
-  // Belt and braces under the middleware rewrite — this holds even if the
-  // middleware matcher misses (matcher configs drift).
+  // Belt and braces under the Next proxy rewrite — this holds even if its
+  // matcher misses (matcher configs drift).
   if (!isTicketPurchaseEnabled()) {
     notFound()
   }

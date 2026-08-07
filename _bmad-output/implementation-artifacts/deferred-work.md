@@ -1977,3 +1977,30 @@ source_spec: `spec-fix-rsc-function-labels.md`
 severity: low
 reason: Beyond the two dead components in DW-268, `(x) => string` label fields survive in `FilmHero.tsx:36` (`inVenues`), `VenueCard.tsx:31,33` (`eventsThisWeek`, `distanceAway`), `Footer.tsx:21` (`copyright`), `TicketQR.tsx:58` (`tickets`), `TicketTypeList.tsx:24` and `TicketSelectionList.tsx:24` (`remaining`), `SearchResults.tsx:19` (`resultsFor`), and `GroupedTicketList`/`TicketPreviewCard` (`viewTicket`). None is fed from a Server Component today — every current caller is a client component (e.g. `TicketTypesSection.tsx:84`, `WatchlistPageClient.tsx`, `SearchPageClient.tsx`), so none can trigger the crash. The three routes that DID cross the boundary are fixed and guarded. Wiring any of these to a server route without first moving the parameterized lookup to `useTranslations` reintroduces "Functions cannot be passed directly to Client Components". A lint rule or a `Serializable<T>` type helper on `*Labels` interfaces would make this structural rather than per-site.
 status: open
+
+### DW-273: The HTTPS-redirect layer in the Next proxy drops the query string and trusts the `Host` header.
+
+origin: review-deferred spec-migrate-middleware-to-proxy
+location: apps/client/src/proxy.ts
+source_spec: `spec-migrate-middleware-to-proxy.md`
+severity: medium
+reason: Four defects in one seven-line block, all PRE-EXISTING — the middleware→proxy rename moved the code verbatim and did not touch this logic. (1) The target is built from `req.nextUrl.pathname` only, never `req.nextUrl.search`, so every production http→https bounce silently drops `?callbackUrl=`, Konnect payment-result params, and UTM tags. (2) The host comes from the unvalidated `req.headers.get("host")` with no allow-list, so a spoofed `Host` yields a 301 off-site — and browsers cache 301s. (3) `xForwardedProtoHeader.includes("https")` is a substring test, so `"httpsx"` and a chained-proxy list like `"http,https"` both pass as secure; the correct form splits on `,` and compares the first entry exactly. (4) A 301 downgrades POST to GET, losing the body — 308 is the method-preserving code. The layer is now test-pinned (`proxy.flag.test.ts`, "HTTPS redirect (production only)"), so any fix has a harness waiting; the existing cases deliberately use query-less paths, so adding a `?a=1` case will fail until (1) is fixed. Deferred, not fixed: the spec's Boundaries forbade behavioural changes to this block, and only Heroku production traffic reaches it.
+status: open
+
+### DW-274: `apps/client` is never type-checked in CI, and its `next build` is already red on main.
+
+origin: review-deferred spec-migrate-middleware-to-proxy
+location: apps/client/package.json
+source_spec: `spec-migrate-middleware-to-proxy.md`
+severity: high
+reason: CI's "Type Check" job runs `yarn type-check` → `turbo type-check`, but `apps/client/package.json` names the script `typecheck` (no hyphen) while `apps/strapi` uses `type-check`. Turbo silently runs the task only where it exists, so the client's `tsc --noEmit` has never run in CI — verified locally: `yarn type-check` at the root exercises `@tiween/admin` alone. Behind that gap sit 63 real type errors, five of them in `src/app/[locale]/desktop-prototypes/ticketing-quantity/page.tsx` (TS2532, `quantities[type.id]` possibly undefined), which make `yarn workspace @tiween/client build` fail outright — so CI's "Build all apps" job should also be red on main today. Fix is one word (rename the script to `type-check`), but it will surface all 63 errors at once, so it needs its own story.
+status: open
+
+### DW-275: `apps/client/tsconfig.json` still includes the dead `.next/types/**/*.ts` path.
+
+origin: review-deferred spec-migrate-middleware-to-proxy
+location: apps/client/tsconfig.json
+source_spec: `spec-migrate-middleware-to-proxy.md`
+severity: low
+reason: Next 16.1 moved generated route types to `.next/dev/types/` — the tracked `next-env.d.ts` already points at `./.next/dev/types/routes.d.ts` — but `tsconfig.json:16` still includes `.next/types/**/*.ts`, a directory that no longer exists locally. Typed-route declarations are therefore outside the `tsc --noEmit` program, silently, with no error to notice. Fallout of the Next 16.1 upgrade, not of the proxy rename; the `next-env.d.ts` line appears in this story's diff only because Next regenerates that file on `next dev`. Pairs naturally with DW-274, since neither is observable until the client is actually type-checked in CI.
+status: open

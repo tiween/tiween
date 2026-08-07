@@ -199,7 +199,7 @@ It works similarly to the public API client - for requests coming from the **ser
 
 The frontend app uses the `next-auth` package, which is configured in [src/lib/auth.ts](src/lib/auth.ts) and [src/app/api/auth/[...nextauth]/route.ts](src/app/api/auth/[...nextauth]/route.ts) to manage user sessions.
 
-In the [middleware.ts](src/middleware.ts) file, the `authMiddleware` is used to check whether the user is authenticated. A list called `authPages` contains the routes that require authentication. If a user is not authenticated and tries to access a private route, they are redirected to the login page.
+In the [proxy.ts](src/proxy.ts) file, the `authMiddleware` is used to check whether the user is authenticated. A list called `authPages` contains the routes that require authentication. If a user is not authenticated and tries to access a private route, they are redirected to the login page.
 
 To retrieve the session (logged-in user) in server components, use the `getAuth()` helper.
 
@@ -316,7 +316,7 @@ We use Next.js's built-in [draft mode](https://nextjs.org/docs/app/guides/draft-
 
 App is ready for localization. It uses `next-intl` package with basic configuration. For more in-depth configuration, see the [docs](https://next-intl-docs.vercel.app/docs/getting-started/app-router). Relevant files:
 
-- Next-intl plugin is defined in [src/lib/i18n.ts](src/lib/i18n.ts) and used by [src/middleware.ts](src/middleware.ts) and registered in [next.config.mjs](next.config.mjs)
+- Next-intl plugin is defined in [src/lib/i18n.ts](src/lib/i18n.ts) and used by [src/proxy.ts](src/proxy.ts) and registered in [next.config.mjs](next.config.mjs)
 - locales (messages) in [src/locales](locales/) directory
 - [augmented types](https://next-intl.dev/docs/workflows/typescript) are configured in `src/types/global.d.ts`
   - so messages keys in `useTranslation()` or `getTranslations()` are auto-completeable during development

@@ -19,7 +19,7 @@ export function isTicketPurchaseEnabled(): boolean {
 }
 
 /**
- * Purchase-route matcher used by the middleware rewrite-to-404 layer.
+ * Purchase-route matcher used by the Next proxy rewrite-to-404 layer.
  *
  * Matches (with an OPTIONAL locale prefix — `localePrefix: "as-needed"` means
  * the default locale ships unprefixed URLs):

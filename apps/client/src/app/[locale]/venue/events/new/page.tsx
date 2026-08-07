@@ -27,7 +27,7 @@ export async function generateMetadata({
 
 /**
  * Event-creation page (Story 7.3) — the AC's single creation surface. Same
- * three-gate doctrine as the other `/venue/*` pages: edge middleware, this
+ * three-gate doctrine as the other `/venue/*` pages: the Next proxy, this
  * session guard, and the Strapi policy that actually authorizes.
  */
 export default async function VenueEventNewPage({ params }: PageProps) {

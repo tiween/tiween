@@ -3,7 +3,7 @@
  *
  * Flag OFF (the default): each of the three server components must call
  * `notFound()` BEFORE doing any work — the belt-and-braces layer under the
- * middleware rewrite — and no Strapi fetch may happen.
+ * Next proxy rewrite — and no Strapi fetch may happen.
  *
  * Flag ON: the guard must be a no-op — the render proceeds into the real page
  * body (the event fetch is reached, `notFound` is not called by the gate), so

@@ -5,7 +5,7 @@
  * the raw string through `optionalZodBoolean`), so here the env module is
  * mocked to its post-validation shape: `true`, `false`, or `undefined`.
  *
- * `isTicketPurchasePath` is the middleware's rewrite predicate — the tests pin
+ * `isTicketPurchasePath` is the Next proxy's rewrite predicate — the tests pin
  * the boundary the spec draws: checkout/purchase routes and the ticketing
  * prototypes are gated; `/tickets` exact (Mes Billets viewing) is NOT.
  */

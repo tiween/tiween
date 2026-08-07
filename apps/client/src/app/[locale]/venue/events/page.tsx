@@ -29,8 +29,9 @@ export async function generateMetadata({
 /**
  * Venue-manager event list (Story 7.3) — the observable home of the story.
  *
- * Three independent gates, deliberately (the 7.2 doctrine): the edge
- * middleware (`/venue` prefix in `authPrefixes`) stops an anonymous render,
+ * Three independent gates, deliberately (the 7.2 doctrine): the Next proxy
+ * (`/venue` prefix in `authPrefixes`) stops an anonymous render before the
+ * route is entered,
  * this `getServerSession` check is the server-side belt, and Strapi's
  * `plugin::venues.is-venue-manager` policy is the only one that actually
  * authorizes anything.

@@ -34,8 +34,8 @@ export async function generateMetadata({
  * authenticate into Strapi's `/admin` (a disjoint `admin::user` store), so the
  * Next.js client is the only implementable panel — see the spec's Design Notes.
  *
- * Three independent gates, deliberately: the edge middleware (`authPages`)
- * stops an anonymous render, this `getServerSession` check is the server-side
+ * Three independent gates, deliberately: the Next proxy (`authPages`)
+ * stops an anonymous render before the route is entered, this `getServerSession` check is the server-side
  * belt, and Strapi's `plugin::venues.is-venue-manager` policy is the only one
  * that actually authorizes anything. A signed-in user WITHOUT the manager role
  * reaches this page and is answered by the empty state — the refusal is the

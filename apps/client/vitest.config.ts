@@ -84,10 +84,12 @@ export default defineConfig({
       "src/features/events/components/EventCard/**/*.test.tsx",
       // formatRelativeTime (Story 5.4).
       "src/lib/dates.test.ts",
-      // Purchase-gate flag + middleware path predicate (Story 3.12).
+      // Purchase-gate flag + its path predicate (Story 3.12).
       "src/lib/feature-flags.test.ts",
       "src/lib/feature-flags.env.test.ts",
-      "src/middleware.flag.test.ts",
+      // Every layer of the Next proxy: purchase gate (3.12), `/venue` auth
+      // gate (7.3), matcher coverage, and the HTTPS redirect.
+      "src/proxy.flag.test.ts",
       // Shared sign-out path — per-user watchlist cache eviction (Story 5.8),
       // plus the server branch of the query client that eviction depends on.
       // (The provider-wiring test is already covered by the

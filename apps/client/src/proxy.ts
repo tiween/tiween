@@ -14,7 +14,7 @@ const intlMiddleware = createMiddleware(routing)
 
 // List all pages that require authentication (non-public)
 // `/venue/profile` is the venue-manager dashboard (Story 7.2): it must not be
-// reachable anonymously at the edge. The page ALSO guards with
+// reachable anonymously through the proxy. The page ALSO guards with
 // `getServerSession`, and Strapi re-checks the role on every call — this entry
 // only stops an unauthenticated render from happening at all.
 const authPages = ["/auth/change-password", "/auth/signout", "/venue/profile"]
@@ -44,9 +44,19 @@ const authMiddleware = withAuth(
   }
 )
 
-export default function middleware(req: NextRequest) {
-  // Handle HTTPS redirection in production in Heroku servers
-  // Comment this block when running locally (using `next start`)
+// Next.js 16 renamed the `middleware` file convention to `proxy` (this file
+// used to be `src/middleware.ts`). Two consequences beyond the name: execution
+// moved from the edge runtime into the Node.js server process, and
+// route-segment config (e.g. `runtime`) is no longer allowed in `config`
+// below — only `matcher`.
+//
+// "Proxy" here means the Next request-interception convention. It is unrelated
+// to this app's Strapi `/api/public-proxy` and `/api/private-proxy` route
+// handlers, which share the word but nothing else.
+export default function proxy(req: NextRequest) {
+  // Handle HTTPS redirection in production, behind Heroku's TLS terminator.
+  // `isDevelopment()` already makes this dormant locally — do not comment the
+  // block out to run `next start`, the guard covers it.
   const xForwardedProtoHeader = req.headers.get("x-forwarded-proto")
   if (
     !isDevelopment() &&
