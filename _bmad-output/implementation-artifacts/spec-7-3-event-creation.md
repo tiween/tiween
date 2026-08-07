@@ -2,7 +2,7 @@
 title: "Story 7.3: Event Creation"
 type: "feature"
 created: "2026-08-07"
-status: "done"
+status: "blocked"
 baseline_revision: "609af8cce206835874acadecccbfb10692138258"
 review_loop_iteration: 0
 followup_review_recommended: true
@@ -385,7 +385,8 @@ Verbatim replication is deliberate: an aggregation platform needs the event find
 
 ## Auto Run Result
 
-Status: done (see Blocking condition below — the review itself completed)
+Status: blocked (the review pass itself COMPLETED — all 8 patches applied,
+verified and committed as `dc72696`; only the clean-tree finalization gate failed)
 Blocking condition: finalization left repository dirty — a CONCURRENT bmad-loop
 run is mid-edit in `apps/client` (untracked `spec-fix-rsc-function-labels.md`;
 in-flight edits to `BottomNav.tsx`, `EventCard.tsx`, `EventDetailPage.tsx`,
