@@ -1775,9 +1775,9 @@ status: open
 
 origin: spec-deferred e40dece0e02d
 location: .github/workflows/ci.yml
-source\*spec: `4-7-fix-users-permissions-auth-controller-factory-wiring.md`
+source_spec: `4-7-fix-users-permissions-auth-controller-factory-wiring.md`
 severity: medium
-reason: .github/workflows/ci.yml runs only the default `yarn test` gate (testMatch \*\*/\_.unit.test.ts); no workflow or merge gate invokes `test:integration` / the \*.service.test.ts suites. The suite itself is green and self-contained (SQLite + build:test-dist), so wiring it into CI is feasible but is a CI-infrastructure decision beyond this story's ACs.
+reason: .github/workflows/ci.yml runs only the default `yarn test` gate (testMatch `**/*.unit.test.ts`); no workflow or merge gate invokes `test:integration` / the `*.service.test.ts` suites. The suite itself is green and self-contained (SQLite + build:test-dist), so wiring it into CI is feasible but is a CI-infrastructure decision beyond this story's ACs.
 status: open
 
 ### DW-251: The two production-deploy actions from Behavior Activation (confirm BREVO_SENDER_EMAIL/BREVO_SENDER_NAME before setting BREVO_API_KEY in prod, and run the firstName-NULL backfill query + decision on t
@@ -1793,9 +1793,9 @@ status: open
 
 origin: spec-deferred e40dece0e02d
 location: .github/workflows/ci.yml
-source*spec: `4-7-fix-users-permissions-auth-controller-factory-wiring.md`
+source_spec: `4-7-fix-users-permissions-auth-controller-factory-wiring.md`
 severity: medium
-reason: .github/workflows/ci.yml runs only the default `yarn test` gate (testMatch \**/\_.unit.test.ts); no workflow or merge gate invokes `test:integration` / the \*.service.test.ts suites. The suite itself is green and self-contained (SQLite + build:test-dist), so wiring it into CI is feasible but is a CI-infrastructure decision beyond this story's ACs.
+reason: .github/workflows/ci.yml runs only the default `yarn test` gate (testMatch `**/*.unit.test.ts`); no workflow or merge gate invokes `test:integration` / the `*.service.test.ts` suites. Duplicate of DW-250 (same spec-deferred source e40dece0e02d). The suite itself is green and self-contained (SQLite + build:test-dist), so wiring it into CI is feasible but is a CI-infrastructure decision beyond this story's ACs.
 status: open
 
 ### DW-253: Follow-up review still recommended for 4-7-fix-users-permissions-auth-controller-factory-wiring after the damping cap was spent
