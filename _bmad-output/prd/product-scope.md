@@ -1,11 +1,17 @@
 # Product Scope
 
+> **Revised 2026-08-06 (sprint-change-proposal-2026-08-06):** v1 is a
+> multi-category **content & event aggregation platform** — cinema, theater,
+> concerts, exhibitions. All ticketing/purchase functionality is post-v1; the
+> partial ticketing build delivered 2026-07 (payments, QR, email) is held
+> dormant behind a feature flag until then.
+
 ## MVP Strategy
 
-**Parity-First Relaunch** - Match legacy tiween.com functionality with modern tech stack, then iterate. Focus exclusively on **cinema showtimes** to validate the platform before expanding.
+**Aggregation-First Relaunch** - Match legacy tiween.com functionality with modern tech stack, then iterate. V1 aggregates **content and events across all categories**; ticketing follows post-v1 once aggregation demand is validated.
 
-**Core Value (MVP):**
-"Find what's playing at cinemas across Tunisia"
+**Core Value (V1):**
+"Find what's happening — films, theater, concerts, exhibitions — across Tunisia"
 
 ## MVP - Minimum Viable Product
 
@@ -16,8 +22,9 @@
 - PWA with offline support (cached listings)
 - Multilingual (AR/FR/EN) with RTL support
 
-**Consumer Features (B2C) - Cinema Focus:**
+**Consumer Features (B2C) - Multi-Category Aggregation:**
 
+- Category browsing: cinema, theater, concerts, exhibitions (widened 2026-08-06)
 - Movie showtimes: browse films currently showing
 - Filter by date: select date to see showtimes
 - Filter by cinema/venue: see what's playing where
@@ -34,15 +41,19 @@
 
 **Explicitly Descoped from MVP:**
 
-| Feature                      | Moved To | Rationale                                  |
-| ---------------------------- | -------- | ------------------------------------------ |
-| Watchlist                    | Phase 2  | Nice-to-have, not core discovery           |
-| Ticketing/Payment            | Phase 2  | Complex integration, validate demand first |
-| QR ticket delivery           | Phase 2  | Depends on ticketing                       |
-| B2B venue dashboard          | Phase 2  | Focus on B2C relaunch first                |
-| QR scanner                   | Phase 2  | Depends on ticketing                       |
-| Theater/concerts/exhibitions | Phase 2  | Cinema-first, expand categories later      |
-| Ratings/reviews              | Phase 2  | Community features after user base         |
+| Feature              | Moved To | Rationale                                                                      |
+| -------------------- | -------- | ------------------------------------------------------------------------------ |
+| Watchlist            | Post-V1  | Nice-to-have, not core discovery (delivered early, 2026-07)                    |
+| Ticketing/Payment    | Post-V1  | Aggregation-first; partial build (Konnect/QR/email) delivered 2026-07, dormant |
+| QR ticket delivery   | Post-V1  | Depends on ticketing (delivered 2026-07, dormant)                              |
+| B2B ticketing config | Post-V1  | Depends on ticketing; B2B venue/event management itself is in v1               |
+| QR scanner           | Post-V1  | Depends on ticketing                                                           |
+| Ratings/reviews      | Post-V1  | Community features after user base                                             |
+
+_Removed from this table 2026-08-06: "Theater/concerts/exhibitions" — now in
+v1 scope (multi-category aggregation). "B2B venue dashboard" — venue
+registration/profile/event management is in v1 as the content-supply channel;
+only its ticketing features are post-v1._
 
 ## Growth Features (Phase 2)
 

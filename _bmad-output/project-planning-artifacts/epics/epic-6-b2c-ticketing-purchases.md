@@ -1,6 +1,12 @@
-# Epic 6: B2C Ticketing & Purchases [Phase 2]
+# Epic 6: B2C Ticketing & Purchases [Post-V1]
 
-> **Deferred to Phase 2:** Ticketing and payment integration descoped from MVP to focus on cinema showtimes discovery. Will be implemented after validating user demand.
+> **DEFERRED POST-V1 (2026-08-06, sprint-change-proposal-2026-08-06):** v1 is
+> an aggregation-only platform. Stories 6.1–6.5 (ticket display, quantity
+> selection, Konnect payments, QR generation, email delivery) were delivered
+> 2026-07 and remain in the codebase **dormant, no rollback**; their
+> user-facing surfaces are gated off by Epic 3 story 3.12. Stories 6.6–6.10
+> are `deferred` in sprint-status and skipped by the loop. The draft
+> spec-6-6-in-app-ticket-viewing.md is parked unstarted.
 
 > **Prerequisite (2026-06-12):** Epic 2C.4 (ticketing Unit of Work + atomic
 > inventory facade) must be done before stories 6.1/6.3 start. Story 6.10

@@ -1,6 +1,11 @@
-# Epic 7: B2B Venue Management [Phase 2]
+# Epic 7: B2B Venue Management [MVP-partial]
 
-> **Deferred to Phase 2:** B2B venue self-service dashboard descoped from MVP. Admin manages venue data manually in MVP.
+> **Split 2026-08-06 (sprint-change-proposal-2026-08-06):** venues supplying
+> event content is core to the v1 aggregation platform. **V1:** 7.1
+> registration and 7.2 profile (delivered, awaiting-operator), 7.3 event
+> creation, 7.4 event editing/cancellation, 7.8 event analytics. **Post-V1
+> (deferred):** 7.5 ticketing configuration, 7.6 multiple ticket types, 7.7
+> ticket sales reports, 7.9 real-time sales updates.
 
 > **Prerequisite (2026-06-12):** Epic 2C.1 (venues plugin extraction) must be
 > done before this epic starts. All venue stories target the `venues` plugin —

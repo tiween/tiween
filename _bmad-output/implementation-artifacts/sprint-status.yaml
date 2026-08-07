@@ -144,10 +144,15 @@ development_status:
   # Phase-2 stories 3-2 (category filtering) and 3-9 (geolocation near-me) are
   # marked `deferred` so the loop skips them during MVP (only backlog/
   # ready-for-dev are actionable); they stay tracked here for visibility.
+  # 2026-08-06 REVISION (sprint-change-proposal-2026-08-06): v1 pivots to a
+  # multi-category aggregation platform; all ticketing is post-v1. 3-2 returns
+  # to backlog (theater/concerts/exhibitions now v1 scope). New story 3-12
+  # gates the already-shipped purchase surfaces (6-1/6-2/6-3) behind a
+  # default-off feature flag so the aggregation-only v1 exposes no checkout.
   epic-3: backlog
   3-1-public-events-browse-api-and-data-foundation: done
   3-11-homepage-with-curated-event-listings: done
-  3-2-category-filtering: deferred
+  3-2-category-filtering: backlog
   3-3-date-range-filtering: done
   3-4-region-and-city-filtering: done
   3-5-venue-filtering: done
@@ -156,6 +161,7 @@ development_status:
   3-8-venue-location-on-map: done
   3-9-geolocation-near-me-filtering: deferred
   3-10-share-event-details: done
+  3-12-gate-ticketing-entry-points-for-v1: backlog
   epic-3-retrospective: optional
 
   # Epic 4: User Authentication & Profiles
@@ -191,6 +197,11 @@ development_status:
   epic-5-retrospective: done
 
   # Epic 6: B2C Ticketing & Purchases
+  # 2026-08-06 DEFERRED POST-V1 (sprint-change-proposal-2026-08-06): v1 is an
+  # aggregation-only platform. 6-1..6-5 stay done/dormant (no rollback); the
+  # remaining stories are deferred so the loop skips them. The untracked draft
+  # spec-6-6-in-app-ticket-viewing.md is parked unstarted. Client-side purchase
+  # surfaces from 6-1/6-2/6-3 are gated off by story 3-12.
   epic-6: backlog
   6-1-view-ticket-types-and-prices: done
   6-2-select-ticket-quantity: done
@@ -201,14 +212,18 @@ development_status:
   6-3-konnect-payment-gateway-integration: done
   6-4-qr-code-ticket-generation: done
   6-5-email-ticket-delivery: done
-  6-6-in-app-ticket-viewing: backlog
-  6-7-offline-qr-code-access: backlog
-  6-8-purchase-confirmation-with-celebration: backlog
-  6-9-purchase-history: backlog
-  6-10-real-time-ticket-availability: backlog
+  6-6-in-app-ticket-viewing: deferred
+  6-7-offline-qr-code-access: deferred
+  6-8-purchase-confirmation-with-celebration: deferred
+  6-9-purchase-history: deferred
+  6-10-real-time-ticket-availability: deferred
   epic-6-retrospective: optional
 
   # Epic 7: B2B Venue Management
+  # 2026-08-06 SPLIT (sprint-change-proposal-2026-08-06): aggregation stories
+  # (7-1..7-4, 7-8) stay v1 — venues supplying event content is core to the
+  # aggregation platform. Ticketing stories (7-5, 7-6, 7-7, 7-9) deferred
+  # post-v1.
   epic-7: in-progress
   # 7-1 landed 2026-08-03. Code complete and reviewed; spec status is
   # awaiting-operator because delivery of the confirmation/admin emails, the
@@ -225,21 +240,23 @@ development_status:
   7-2-venue-profile-management: awaiting-operator
   7-3-event-creation: backlog
   7-4-event-editing-and-cancellation: backlog
-  7-5-ticketing-configuration: backlog
-  7-6-multiple-ticket-types-configuration: backlog
-  7-7-ticket-sales-reports: backlog
+  7-5-ticketing-configuration: deferred
+  7-6-multiple-ticket-types-configuration: deferred
+  7-7-ticket-sales-reports: deferred
   7-8-event-analytics: backlog
-  7-9-real-time-sales-updates: backlog
+  7-9-real-time-sales-updates: deferred
   epic-7-retrospective: optional
 
   # Epic 8: B2B Ticket Validation (Scanner)
+  # 2026-08-06 DEFERRED POST-V1 entirely (sprint-change-proposal-2026-08-06):
+  # scanner depends on ticket sales, which are post-v1.
   epic-8: backlog
-  8-1-qr-code-scanning-interface: backlog
-  8-2-validation-result-display: backlog
-  8-3-ticket-details-display: backlog
-  8-4-duplicate-scan-prevention: backlog
-  8-5-real-time-attendance-counts: backlog
-  8-6-offline-scanning-capability: backlog
+  8-1-qr-code-scanning-interface: deferred
+  8-2-validation-result-display: deferred
+  8-3-ticket-details-display: deferred
+  8-4-duplicate-scan-prevention: deferred
+  8-5-real-time-attendance-counts: deferred
+  8-6-offline-scanning-capability: deferred
   epic-8-retrospective: optional
 
   # Epic 9: Platform Administration
@@ -253,12 +270,15 @@ development_status:
   epic-9-retrospective: optional
 
   # Epic 10: PWA & Offline Experience
+  # 2026-08-06 (sprint-change-proposal-2026-08-06): 10-5 (offline ticket
+  # display) deferred post-v1 with ticketing; 10-6 stays but its ticket-queue
+  # sync portion is out of v1 scope.
   epic-10: backlog
   10-1-pwa-installation: backlog
   10-2-event-listing-caching: backlog
   10-3-offline-browsing: backlog
   10-4-offline-watchlist-access: backlog
-  10-5-offline-ticket-display: backlog
+  10-5-offline-ticket-display: deferred
   10-6-background-sync: backlog
   10-7-install-prompts: backlog
   10-8-offline-status-indicators: backlog

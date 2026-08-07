@@ -2,9 +2,13 @@
 
 > **Phase Tags:**
 >
-> - **[MVP]** = Relaunch scope (cinema showtimes)
-> - **[MVP-partial]** = Some stories in MVP, others deferred
-> - **[Phase 2]** = Post-relaunch features
+> - **[MVP]** = V1 relaunch scope (multi-category content & event aggregation)
+> - **[MVP-partial]** = Some stories in v1, others deferred
+> - **[Post-V1]** = Deferred until after the v1 aggregation launch (formerly [Phase 2])
+>
+> **2026-08-06 revision (sprint-change-proposal-2026-08-06):** v1 is an
+> aggregation-only platform — all ticketing is Post-V1; v1 scope widens from
+> cinema-only to all event categories.
 
 ---
 
@@ -138,7 +142,7 @@ Venue Manager roles (RBAC seeded in 2C.1).
 
 Users can browse and search cinema showtimes across Tunisia without creating an account.
 
-**MVP Scope (Cinema Focus):**
+**MVP Scope (Multi-category aggregation — widened 2026-08-06):**
 
 - Homepage with movie listings ("À l'affiche", "Prochainement")
 - Date filtering (Aujourd'hui, Demain, specific date)
@@ -149,10 +153,13 @@ Users can browse and search cinema showtimes across Tunisia without creating an 
 - Keyword search (film titles)
 - Share functionality (Web Share API)
 - SEO optimization (SSR, structured data)
+- Category filtering (theater, concerts, exhibitions) — story 3.2, un-deferred 2026-08-06
+- Gate ticketing entry points behind a default-off feature flag — story 3.12
+  (new 2026-08-06; hides the purchase surfaces shipped by 6.1/6.2/6.3 so the
+  aggregation-only v1 exposes no checkout)
 
-**Phase 2 Scope (Deferred):**
+**Post-V1 Scope (Deferred):**
 
-- Category filtering (theater, concerts, exhibitions)
 - Regional expansion (Sfax, Sousse)
 - Geolocation "near me" filtering
 
@@ -204,7 +211,13 @@ Authenticated users can save events to their watchlist, access it offline, and s
 
 ---
 
-## Epic 6: B2C Ticketing & Purchases [Phase 2]
+## Epic 6: B2C Ticketing & Purchases [Post-V1]
+
+> **2026-08-06:** Deferred post-v1 (sprint-change-proposal-2026-08-06).
+> Stories 6.1–6.5 (prices/quantity UI, Konnect, QR generation, email delivery)
+> were delivered 2026-07 and remain in the codebase **dormant**; their
+> user-facing surfaces are gated off by story 3.12. Stories 6.6–6.10 are
+> deferred.
 
 Users can purchase tickets for events, receive QR codes, and access them offline on event night.
 
@@ -230,7 +243,13 @@ Users can purchase tickets for events, receive QR codes, and access them offline
 
 ---
 
-## Epic 7: B2B Venue Management [Phase 2]
+## Epic 7: B2B Venue Management [MVP-partial]
+
+> **2026-08-06 split (sprint-change-proposal-2026-08-06):** aggregation
+> stories stay in v1 — 7.1 registration, 7.2 profile (both delivered,
+> awaiting-operator), 7.3 event creation, 7.4 event editing, 7.8 event
+> analytics. Venues supplying event content is core to the v1 aggregation
+> platform. Ticketing stories 7.5, 7.6, 7.7, 7.9 are **Post-V1**.
 
 Venue managers can register, manage their venue profile, create/edit events, configure ticketing, and view analytics via Strapi Admin.
 
@@ -252,7 +271,10 @@ Venue managers can register, manage their venue profile, create/edit events, con
 
 ---
 
-## Epic 8: B2B Ticket Validation (Scanner) [Phase 2]
+## Epic 8: B2B Ticket Validation (Scanner) [Post-V1]
+
+> **2026-08-06:** Deferred post-v1 entirely (sprint-change-proposal-2026-08-06)
+> — the scanner depends on ticket sales, which are post-v1.
 
 Venue staff can scan and validate tickets at event entry, track attendance, and operate with intermittent connectivity.
 
@@ -312,11 +334,11 @@ Users can install the app and browse cached content offline.
 - Offline status indicators
 - Graceful degradation messaging
 
-**Phase 2 Scope (Deferred):**
+**Post-V1 Scope (Deferred):**
 
 - Offline watchlist access
-- Offline ticket QR display
-- Background sync for queued actions
+- Offline ticket QR display (10.5 — deferred with ticketing, 2026-08-06)
+- Background sync for queued actions (ticket-queue portion post-v1)
 - Post-purchase install prompts
 
 **FRs covered:** FR59, FR60, FR63

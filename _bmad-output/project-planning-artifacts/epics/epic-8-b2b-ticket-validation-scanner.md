@@ -1,6 +1,8 @@
-# Epic 8: B2B Ticket Validation (Scanner) [Phase 2]
+# Epic 8: B2B Ticket Validation (Scanner) [Post-V1]
 
-> **Deferred to Phase 2:** Scanner depends on ticketing (Epic 6), which is deferred from MVP.
+> **DEFERRED POST-V1 (2026-08-06, sprint-change-proposal-2026-08-06):** the
+> scanner depends on ticket sales, which are post-v1. All stories are
+> `deferred` in sprint-status.
 
 Venue staff can scan and validate tickets at event entry, track attendance, and operate with intermittent connectivity.
 

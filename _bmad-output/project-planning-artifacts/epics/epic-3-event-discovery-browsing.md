@@ -2,7 +2,13 @@
 
 Users can browse and search cinema showtimes across Tunisia without creating an account.
 
-> **MVP Focus:** Cinema showtimes only. Category filtering for theater/concerts deferred to Phase 2.
+> **MVP Focus (revised 2026-08-06, sprint-change-proposal-2026-08-06):**
+> Multi-category aggregation — story 3.2 (category filtering: theater,
+> concerts, exhibitions) is back in v1 scope. New story 3.12 gates the
+> purchase surfaces shipped by Epic 6 stories 6.1/6.2/6.3 behind a
+> default-off feature flag: no route or visible control in the v1 client may
+> initiate a purchase; flipping the flag restores them without code changes;
+> existing ticketing tests keep passing. Geolocation (3.9) remains deferred.
 
 > **Story 3.1 split (2026-07-05):** The original "Homepage with Curated Event
 > Listings" was a full-stack vertical slice that exceeded a single unattended
@@ -60,9 +66,10 @@ So that I can quickly discover what's happening culturally in Tunisia.
 
 ---
 
-## Story 3.2: Category Filtering [Phase 2]
+## Story 3.2: Category Filtering [MVP]
 
-> **Deferred:** MVP focuses on cinema only. Multi-category filtering added in Phase 2.
+> **Un-deferred 2026-08-06 (sprint-change-proposal-2026-08-06):** v1 widened
+> to multi-category aggregation; this story is back in v1 scope.
 
 As a **visitor**,
 I want to filter events by category,
@@ -230,5 +237,34 @@ So that we can plan to attend together.
 **And** shared preview includes event image and title (Open Graph tags)
 **And** if Web Share API is not available, copy-to-clipboard fallback is shown
 **And** sharing to WhatsApp/Facebook/Twitter works correctly
+
+---
+
+## Story 3.12: Gate Ticketing Entry Points for V1 [MVP]
+
+> **Added 2026-08-06 (sprint-change-proposal-2026-08-06):** v1 is an
+> aggregation-only platform, but Epic 6 stories 6.1/6.2/6.3 already shipped
+> live purchase surfaces (ticket type/price display, quantity selection,
+> Konnect checkout). This story hides them behind a feature flag, default off,
+> without removing or breaking the underlying code.
+
+As a **platform operator**,
+I want all ticket-purchase entry points hidden behind a default-off feature flag,
+So that the v1 aggregation launch exposes no checkout while the shipped ticketing code stays intact for post-v1.
+
+**Acceptance Criteria:**
+
+**Given** the ticketing feature flag is off (default)
+**When** a visitor browses any event, showtime, or venue page in the v1 client
+**Then** no ticket prices, quantity selectors, purchase CTAs, or checkout routes are rendered or reachable
+**And** direct navigation to checkout/purchase routes returns a not-found or redirect (no live payment flow)
+**And** event and venue pages remain fully informational (dates, times, details, map, share)
+
+**Given** the ticketing feature flag is turned on
+**When** the same pages are loaded
+**Then** the 6.1/6.2/6.3 purchase surfaces are restored without code changes
+
+**And** existing ticketing unit/integration tests continue to pass with the flag on
+**And** the flag state is configurable per environment (env var or Strapi config), not hardcoded
 
 ---
