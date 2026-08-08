@@ -2261,3 +2261,58 @@ These entries are that project's roadmap, not plugin-local chores.
   summary: `rrule ^2.8.1` is an unused dependency in two manifests.
   evidence: Added in commit `485ea10` alongside BigCalendar, with zero `.ts`/`.tsx`/`.js` references anywhere under `apps/strapi/src`. It was never paired with `@fullcalendar/rrule`, which was never installed in this app — the FullCalendar-era code lived in `legacy/backend`. Safe to remove; verify no seed or script imports it first.
   status: open
+
+## Deferred from: code review (2026-08-08, planning surface rebuild)
+
+Three-layer adversarial review of the events-manager planning surface rebuild.
+Correctness findings were patched in the same pass; these are the ones judged
+real but out of the story's scope.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-events-manager-planning-surface-rebuild.md`
+  location: apps/strapi/src/plugins/events-manager/admin/src/components/{ContentSearchPanel,MovieCard}/, hooks/useTMDB.ts
+  severity: low
+  summary: `ContentSearchPanel`, `MovieCard` and `useTMDB` are orphaned now that `EventCreationModal` is deleted.
+  evidence: `ContentSearchPanel/` has zero references anywhere in the plugin; `MovieCard/` is referenced only by its own `__tests__/MovieCard.test.tsx`, and `MovieCardData`'s only remaining consumer is that test. All three existed to serve the deleted `EventCreationModal`. They are the TMDB import path, so removing them is a scope call rather than a cleanup — either wire the TMDB search into the new `SubEventModal` work picker, or delete the three together with their tests.
+  status: open
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-events-manager-planning-surface-rebuild.md`
+  location: apps/strapi/src/plugins/events-manager/admin/src/hooks/{subEventPopulate.ts,useCreativeWorks.ts,useVenuesEnhanced.ts}, components/Catalog/i18n.ts
+  severity: low
+  summary: Content-manager URL/UID knowledge now exists in three places, and the scoped-translator helper in two.
+  evidence: `cmUrl` is defined in `subEventPopulate.ts` and again privately in `useCreativeWorks.ts:24`, while `useVenuesEnhanced.ts` hardcodes `SUB_EVENT_CM_PATHS` with the two full literal URLs that `SUB_EVENT_UID` + `cmUrl` now express. `subEventPopulate.ts` is the natural single source. Separately, `usePlanningT` is a verbatim copy of `Catalog/i18n.ts:useCatalogT` with one string changed — a shared `usePrefixedT(prefix)` would cover both. Consolidating touches files outside this story.
+  status: open
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-events-manager-planning-surface-rebuild.md`
+  location: apps/strapi/src/plugins/events-manager/admin/src/components/SubEventModal/index.tsx (delete path)
+  severity: low
+  summary: Deleting the last sub-event of an event leaves a container event with no showings.
+  evidence: The delete path removes only the screening/performance. An event whose every sub-event has been deleted lingers with nothing to render, invisible on the planning grid and unreachable from it — so it can never be cleaned up through this surface. Whether the parent should be deleted, flagged, or deliberately kept (a venue may re-add showings later) is a product decision, so it was not inferred.
+  status: open
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-events-manager-planning-surface-rebuild.md`
+  location: apps/strapi/src/plugins/events-manager/admin/src/hooks/subEventTransform.ts (KIND_COLORS)
+  severity: low
+  summary: Colouring blocks by kind lost the per-title colour that made adjacent different showings distinguishable.
+  evidence: The old `transformShowtimesToEvents` used `generateColorFromString(title)`, so every distinct film got its own block colour. Blocks are now coloured per kind, so on a dense day every screening is the same colour and only the title text separates them. The spec asked for colour per kind, so this is spec-compliant rather than a defect — but blending kind hue with a per-title variation would keep both signals.
+  status: open
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-events-manager-planning-surface-rebuild.md`
+  location: apps/strapi/src/plugins/events-manager/server/src/content-types/event/schedule-update-handler.ts
+  severity: medium
+  summary: Rescheduling a showing from the planning grid does not notify watchers.
+  evidence: The modal writes only the sub-event's `startDateTime` — deliberately, since one event can hold several sub-events and syncing the parent from one child would be wrong. But the watcher notification fan-out fires on `event` updates only, so a time change made on the planning grid reaches the public surface without notifying anyone who saved it. The deleted `EventEditModal` behaved the same way, so this is pre-existing rather than a regression, but nothing records the boundary. Epic 5's story 5-6 owns schedule-change notifications.
+  status: open
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-events-manager-planning-surface-rebuild.md`
+  location: apps/strapi/src/plugins/events-manager/admin/src/components/PlanningCalendarNew/index.tsx (empty state)
+  severity: low
+  summary: A week whose rows are all unscheduled shows "no showings" while unreachable rows exist.
+  evidence: Sub-events with a null `startDateTime` are kept by the transform but excluded from the grid, so `events.length === 0` while `subEvents.length > 0`. The empty-state message then claims nothing is scheduled, and the unscheduled rows cannot be reached or fixed from this surface. Distinguishing the two states needs a decision about where unscheduled rows should be edited.
+  status: open
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-events-manager-planning-surface-rebuild.md`
+  location: apps/strapi/src/plugins/events-manager/admin/src/components/SubEventModal/validate.ts (toStartDateTimeIso)
+  severity: low
+  summary: A wall-clock time that does not exist on a DST spring-forward day is silently shifted.
+  evidence: `setHours` on a nonexistent local time rolls forward, so the stored instant differs from what the editor typed with no warning. Near-theoretical for this product — Tunisia abolished DST in 2009 — and it shares a root cause with the DST entry already logged against BigCalendar in the calendar build-vs-buy audit. Guard by re-reading `getHours()` after `setHours` if the admin is ever used from a DST-observing timezone.
+  status: open

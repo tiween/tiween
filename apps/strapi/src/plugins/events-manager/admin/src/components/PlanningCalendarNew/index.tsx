@@ -1,49 +1,52 @@
 /**
  * PlanningCalendarNew
  *
- * Integration layer between BigCalendar and the events-manager data layer.
- * Handles data fetching, event transformation, and modal interactions.
+ * Integration layer between `BigCalendar` (UID-agnostic, reused verbatim) and
+ * the events-manager data layer.
  *
- * This replaces the FullCalendar-based PlanningCalendar.
+ * Retargeted after story 2C.3: the single `showtime` collection is gone, so the
+ * grid is fed by `useSubEvents`, which merges `screening` + `performance`
+ * client-side. Every block carries its `kind` in `extendedProps`, and clicks are
+ * routed on it — an edit can therefore never write to the wrong collection.
  */
 
-import { useCallback, useEffect, useMemo, useReducer, useState } from "react"
+import { useCallback, useMemo, useReducer, useState } from "react"
 import { Box, Loader, Typography } from "@strapi/design-system"
-import { useFetchClient } from "@strapi/strapi/admin"
 
-import type { ShowtimeWithEvent } from "../../hooks/useShowtimes"
+import type { SubEvent } from "../../hooks/subEventTransform"
 import type { CalendarEvent, CalendarView, SlotDuration } from "../BigCalendar"
 
+import { readSubEvent, toCalendarEvents } from "../../hooks/subEventTransform"
+import { usePlanningT } from "../../hooks/usePlanningT"
+import { useSubEvents } from "../../hooks/useSubEvents"
 import { BigCalendar } from "../BigCalendar"
-import {
-  addDays,
-  generateColorFromString,
-  getContrastColor,
-  startOfWeek,
-} from "../BigCalendar/utils"
-import { EventCreationModal } from "../EventCreationModal"
-import { EventEditModal } from "../EventEditModal"
+import { addDays, startOfWeek } from "../BigCalendar/utils"
+import { SubEventModal } from "../SubEventModal"
 
 interface PlanningCalendarNewProps {
   venueId: string
   eventGroupId?: string
 }
 
-// Calendar state management
+/**
+ * One modal serves both directions, so the state is one slot: `subEvent` set
+ * means edit, `date` set means create.
+ */
 interface CalendarState {
-  creationModal: { isOpen: boolean; date: Date | null }
-  editModal: { isOpen: boolean; showtime: ShowtimeWithEvent | null }
+  modal: {
+    isOpen: boolean
+    date: Date | null
+    subEvent: SubEvent | null
+  }
 }
 
 type CalendarAction =
-  | { type: "OPEN_CREATION_MODAL"; payload: Date }
-  | { type: "CLOSE_CREATION_MODAL" }
-  | { type: "OPEN_EDIT_MODAL"; payload: ShowtimeWithEvent }
-  | { type: "CLOSE_EDIT_MODAL" }
+  | { type: "OPEN_CREATE_MODAL"; payload: Date }
+  | { type: "OPEN_EDIT_MODAL"; payload: SubEvent }
+  | { type: "CLOSE_MODAL" }
 
 const initialState: CalendarState = {
-  creationModal: { isOpen: false, date: null },
-  editModal: { isOpen: false, showtime: null },
+  modal: { isOpen: false, date: null, subEvent: null },
 }
 
 function calendarReducer(
@@ -51,196 +54,120 @@ function calendarReducer(
   action: CalendarAction
 ): CalendarState {
   switch (action.type) {
-    case "OPEN_CREATION_MODAL":
-      return { ...state, creationModal: { isOpen: true, date: action.payload } }
-    case "CLOSE_CREATION_MODAL":
-      return { ...state, creationModal: { isOpen: false, date: null } }
+    case "OPEN_CREATE_MODAL":
+      return {
+        ...state,
+        modal: { isOpen: true, date: action.payload, subEvent: null },
+      }
     case "OPEN_EDIT_MODAL":
       return {
         ...state,
-        editModal: { isOpen: true, showtime: action.payload },
+        modal: { isOpen: true, date: null, subEvent: action.payload },
       }
-    case "CLOSE_EDIT_MODAL":
-      return { ...state, editModal: { isOpen: false, showtime: null } }
+    case "CLOSE_MODAL":
+      return { ...state, modal: { isOpen: false, date: null, subEvent: null } }
     default:
       return state
   }
-}
-
-// Map showtime ID to showtime object for click handling
-type ShowtimeMap = Map<string | number, ShowtimeWithEvent>
-
-/**
- * Transform showtimes to calendar events
- */
-function transformShowtimesToEvents(
-  showtimes: ShowtimeWithEvent[],
-  showtimeMap: ShowtimeMap
-): CalendarEvent[] {
-  return showtimes.map((showtime) => {
-    const startDate = new Date(showtime.datetime)
-    const runtime = showtime.event?.creativeWork?.duration || 120
-    const endDate = new Date(startDate.getTime() + runtime * 60 * 1000)
-    const title = showtime.event?.title || "Untitled Event"
-    const color = generateColorFromString(title)
-
-    // Store in map for later retrieval
-    showtimeMap.set(showtime.id, showtime)
-
-    return {
-      id: showtime.id,
-      title: showtime.parentShowtimeId ? `🔄 ${title}` : title,
-      start: startDate,
-      end: endDate,
-      color,
-      textColor: getContrastColor(color),
-      extendedProps: {
-        format: showtime.format,
-        isRecurring: !!showtime.parentShowtimeId,
-        showtimeId: showtime.id,
-      },
-    }
-  })
 }
 
 export function PlanningCalendarNew({
   venueId,
   eventGroupId,
 }: PlanningCalendarNewProps) {
-  const { get } = useFetchClient()
+  const t = usePlanningT()
   const [state, dispatch] = useReducer(calendarReducer, initialState)
 
-  // Calendar state
   const [currentDate, setCurrentDate] = useState(() => new Date())
   const [view, setView] = useState<CalendarView>("week")
   const [slotDuration, setSlotDuration] = useState<SlotDuration>(15)
 
-  // Data state
-  const [events, setEvents] = useState<CalendarEvent[]>([])
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-
-  // Keep a map of showtime IDs to showtime objects
-  const showtimeMap = useMemo(
-    () => new Map<string | number, ShowtimeWithEvent>(),
-    []
-  )
-
-  // Calculate date range based on view
   const { rangeStart, rangeEnd } = useMemo(() => {
     if (view === "day") {
       const start = new Date(currentDate)
       start.setHours(0, 0, 0, 0)
-      const end = addDays(start, 1)
-      return { rangeStart: start, rangeEnd: end }
-    } else {
-      const start = startOfWeek(currentDate, 1) // Monday
-      const end = addDays(start, 7)
-      return { rangeStart: start, rangeEnd: end }
+      return { rangeStart: start, rangeEnd: addDays(start, 1) }
     }
+    const start = startOfWeek(currentDate, 1) // Monday
+    return { rangeStart: start, rangeEnd: addDays(start, 7) }
   }, [currentDate, view])
 
-  // Fetch events when date range or venue changes
-  useEffect(() => {
-    const fetchEvents = async () => {
-      setIsLoading(true)
-      setError(null)
-      showtimeMap.clear()
+  const { subEvents, isLoading, error, partialError, refetch } = useSubEvents({
+    venueId,
+    eventGroupId,
+    rangeStart,
+    rangeEnd,
+  })
 
-      try {
-        const filters: Record<string, unknown> = {
-          venue: { id: venueId },
-          datetime: {
-            $gte: rangeStart.toISOString(),
-            $lte: rangeEnd.toISOString(),
-          },
-        }
-
-        // Add event group filter if specified
-        if (eventGroupId) {
-          filters["event"] = { eventGroup: { id: eventGroupId } }
-        }
-
-        const params = {
-          page: 1,
-          pageSize: 500,
-          sort: "datetime:asc",
-          populate: ["event", "event.creativeWork", "event.eventGroup"],
-          filters,
-        }
-
-        const response = await get<{ results: ShowtimeWithEvent[] }>(
-          "/content-manager/collection-types/plugin::events-manager.showtime",
-          { params }
-        )
-
-        const calendarEvents = transformShowtimesToEvents(
-          response.data.results ?? [],
-          showtimeMap
-        )
-        setEvents(calendarEvents)
-      } catch (err) {
-        console.error("Failed to fetch events:", err)
-        setError("Failed to load events")
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    fetchEvents()
-  }, [venueId, eventGroupId, rangeStart, rangeEnd, get, showtimeMap])
-
-  // Handle slot click - open creation modal
-  const handleSlotClick = useCallback((date: Date) => {
-    // Don't allow creating events in the past
-    if (date < new Date()) {
-      return
-    }
-    dispatch({ type: "OPEN_CREATION_MODAL", payload: date })
-  }, [])
-
-  // Handle event click - open edit modal
-  const handleEventClick = useCallback(
-    (event: CalendarEvent) => {
-      const showtime = showtimeMap.get(event.id)
-      if (showtime) {
-        dispatch({ type: "OPEN_EDIT_MODAL", payload: showtime })
-      }
-    },
-    [showtimeMap]
+  // Translated here, where the translator lives, and handed to the transform:
+  // `EventBlock` renders the string it is given, so `BigCalendar` needs no
+  // knowledge of sub-event kinds and no strings of its own.
+  const mappingOptions = useMemo(
+    () => ({
+      kindLabels: {
+        screening: t("badge.screening", "SCREENING"),
+        performance: t("badge.performance", "THEATRE"),
+      },
+      fallbackTitle: t("untitled", "Untitled showing"),
+    }),
+    [t]
   )
 
-  // Modal handlers
-  const handleCreationModalClose = useCallback(() => {
-    dispatch({ type: "CLOSE_CREATION_MODAL" })
+  const events = useMemo(
+    () => toCalendarEvents(subEvents, mappingOptions),
+    [subEvents, mappingOptions]
+  )
+
+  const handleSlotClick = useCallback((date: Date) => {
+    // Past slots open the modal like any other. The "no scheduling in the past"
+    // rule lives in `validateSubEventForm` alone: enforcing it here as well
+    // meant the same user could be silently refused by a click yet allowed to
+    // pick yesterday in the DatePicker. One rule, one place — and a visible
+    // field error instead of a click that appears to do nothing.
+    dispatch({ type: "OPEN_CREATE_MODAL", payload: date })
   }, [])
 
-  const handleEventCreated = useCallback(() => {
-    dispatch({ type: "CLOSE_CREATION_MODAL" })
-    // Trigger refetch by updating a dependency
-    setCurrentDate(new Date(currentDate))
-  }, [currentDate])
-
-  const handleEditModalClose = useCallback(() => {
-    dispatch({ type: "CLOSE_EDIT_MODAL" })
+  const handleEventClick = useCallback((event: CalendarEvent) => {
+    // The row travels with the block, so the modal opens against the collection
+    // the block came from — no lookup, no chance of a kind mix-up.
+    const subEvent = readSubEvent(event)
+    if (subEvent) {
+      dispatch({ type: "OPEN_EDIT_MODAL", payload: subEvent })
+    }
   }, [])
 
-  const handleEventUpdated = useCallback(() => {
-    dispatch({ type: "CLOSE_EDIT_MODAL" })
-    // Trigger refetch
-    setCurrentDate(new Date(currentDate))
-  }, [currentDate])
+  const handleModalClose = useCallback(() => {
+    dispatch({ type: "CLOSE_MODAL" })
+  }, [])
+
+  // Replaces the old `setCurrentDate(new Date(currentDate))` nudge: the hook
+  // exposes a real refetch, so the window no longer has to be churned to
+  // reload it.
+  const handleModalSuccess = useCallback(() => {
+    dispatch({ type: "CLOSE_MODAL" })
+    refetch()
+  }, [refetch])
 
   if (error) {
     return (
       <Box padding={4} background="danger100" hasRadius>
-        <Typography textColor="danger700">{error}</Typography>
+        <Typography textColor="danger700">
+          {t("loadFailed", "Failed to load showings")}
+        </Typography>
       </Box>
     )
   }
 
   return (
     <>
+      {/* One collection failing must never blank the grid — the kind that
+          resolved still renders, with the failure surfaced above it. */}
+      {partialError && (
+        <Box padding={3} marginBottom={2} background="warning100" hasRadius>
+          <Typography textColor="warning700">{partialError}</Typography>
+        </Box>
+      )}
+
       <Box position="relative">
         {isLoading && (
           <Box
@@ -249,9 +176,18 @@ export function PlanningCalendarNew({
             left="50%"
             style={{ transform: "translate(-50%, -50%)", zIndex: 100 }}
           >
-            <Loader>Loading events...</Loader>
+            <Loader>{t("loading", "Loading…")}</Loader>
           </Box>
         )}
+
+        {!isLoading && events.length === 0 && (
+          <Box padding={3} background="neutral100" hasRadius marginBottom={2}>
+            <Typography textColor="neutral600">
+              {t("empty", "No showing scheduled in this period")}
+            </Typography>
+          </Box>
+        )}
+
         <Box style={{ opacity: isLoading ? 0.5 : 1 }}>
           <BigCalendar
             events={events}
@@ -271,24 +207,14 @@ export function PlanningCalendarNew({
         </Box>
       </Box>
 
-      {/* Event Creation Modal */}
-      {state.creationModal.isOpen && state.creationModal.date && (
-        <EventCreationModal
-          isOpen={state.creationModal.isOpen}
-          onClose={handleCreationModalClose}
-          onSuccess={handleEventCreated}
+      {state.modal.isOpen && (
+        <SubEventModal
+          isOpen={state.modal.isOpen}
+          onClose={handleModalClose}
+          onSuccess={handleModalSuccess}
           venueId={venueId}
-          prefilledDate={state.creationModal.date}
-        />
-      )}
-
-      {/* Event Edit Modal */}
-      {state.editModal.isOpen && state.editModal.showtime && (
-        <EventEditModal
-          isOpen={state.editModal.isOpen}
-          onClose={handleEditModalClose}
-          onSuccess={handleEventUpdated}
-          showtime={state.editModal.showtime}
+          prefilledDate={state.modal.date}
+          subEvent={state.modal.subEvent}
         />
       )}
     </>

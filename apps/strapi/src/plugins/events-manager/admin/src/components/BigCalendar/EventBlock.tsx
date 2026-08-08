@@ -52,6 +52,28 @@ const EventTitle = styled(Typography)<{ $textColor: string }>`
   text-overflow: ellipsis;
 `
 
+/**
+ * Optional category badge.
+ *
+ * The label arrives already translated through `extendedProps.kindLabel` — an
+ * optional, untyped passthrough — so this component renders whatever string it
+ * is handed and nothing when there is none. `BigCalendar` therefore stays
+ * generic (it never learns what a screening is) and gains no hardcoded strings
+ * of its own; its public props are unchanged, and a caller that sets no label
+ * renders exactly as before.
+ */
+const EventKind = styled(Typography)<{ $textColor: string }>`
+  color: ${({ $textColor }) => $textColor};
+  opacity: 0.85;
+  font-size: 0.6rem;
+  font-weight: ${({ theme }) => theme.fontWeights.bold};
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`
+
 const EventTime = styled(Typography)<{ $textColor: string }>`
   color: ${({ $textColor }) => $textColor};
   opacity: 0.9;
@@ -82,6 +104,9 @@ export function EventBlock({ event, position, onClick }: EventBlockProps) {
   const startTime = formatTime(new Date(event.start))
   const endTime = formatTime(new Date(event.end))
 
+  const rawKindLabel = event.extendedProps?.kindLabel
+  const kindLabel = typeof rawKindLabel === "string" ? rawKindLabel : null
+
   // Only show full content if we have enough height
   const isCompact = position.height < 3 // Less than 3% height
 
@@ -93,9 +118,16 @@ export function EventBlock({ event, position, onClick }: EventBlockProps) {
       $textColor={textColor}
       onClick={handleClick}
       onKeyDown={handleKeyDown}
-      aria-label={`${event.title}, ${startTime} - ${endTime}`}
+      aria-label={
+        kindLabel
+          ? `${kindLabel}, ${event.title}, ${startTime} - ${endTime}`
+          : `${event.title}, ${startTime} - ${endTime}`
+      }
     >
       <EventTitle $textColor={textColor}>{event.title}</EventTitle>
+      {!isCompact && kindLabel && (
+        <EventKind $textColor={textColor}>{kindLabel}</EventKind>
+      )}
       {!isCompact && (
         <EventTime $textColor={textColor}>
           {startTime} - {endTime}

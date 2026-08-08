@@ -5,7 +5,7 @@
  * (creative-work, person, genre) through the content-manager API.
  */
 
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { useFetchClient } from "@strapi/strapi/admin"
 
 import type { MediaAsset } from "../components/MediaInput"
@@ -241,6 +241,90 @@ export function useWorksList(options: UseWorksListOptions = {}) {
   }, [fetchWorks])
 
   return { works, pagination, isLoading, error, refetch: fetchWorks }
+}
+
+/**
+ * Search works restricted to a set of `type` values.
+ *
+ * `useWorksList` filters on a single type, but a screening may reference either
+ * a `film` or a `short-film` — and offering a work the sub-event lifecycle
+ * guard (`assertSubEventWorkKind`) would reject turns a picker choice into a
+ * server-side `ValidationError`. Hence the `$in` filter.
+ */
+export function useWorkSearch(term: string, types: readonly WorkType[]) {
+  const { get } = useFetchClient()
+  const [works, setWorks] = useState<CreativeWork[]>([])
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<Error | null>(null)
+
+  // `types` is typically an inline array literal, so keying the effect on the
+  // array identity would refetch on every render. The key is for CHANGE
+  // DETECTION only — the request is built from the array itself, since
+  // round-tripping values through a joined string would corrupt any type
+  // containing a comma.
+  const typeKey = [...types].sort().join(",")
+  const typesRef = useRef(types)
+  typesRef.current = types
+
+  useEffect(() => {
+    let cancelled = false
+
+    const search = async () => {
+      const activeTypes = [...typesRef.current]
+
+      // An empty `$in` either 400s or, worse, silently drops the constraint and
+      // offers works the sub-event lifecycle guard will reject. Ask for nothing
+      // instead.
+      if (activeTypes.length === 0) {
+        setWorks([])
+        setIsLoading(false)
+        setError(null)
+        return
+      }
+
+      setIsLoading(true)
+      setError(null)
+      try {
+        const filters: Record<string, unknown> = {
+          type: { $in: activeTypes },
+        }
+        if (term) {
+          filters["$or"] = [
+            { title: { $containsi: term } },
+            { originalTitle: { $containsi: term } },
+          ]
+        }
+
+        const response = await get<ListResponse<CreativeWork>>(
+          cmUrl(WORK_UID),
+          {
+            params: {
+              page: 1,
+              pageSize: 20,
+              sort: "title:asc",
+              populate: ["poster"],
+              filters,
+            },
+          }
+        )
+        if (!cancelled) setWorks(response.data.results ?? [])
+      } catch (err) {
+        if (!cancelled) {
+          setWorks([])
+          setError(err instanceof Error ? err : new Error(String(err)))
+        }
+      } finally {
+        if (!cancelled) setIsLoading(false)
+      }
+    }
+
+    search()
+    return () => {
+      cancelled = true
+    }
+  }, [get, term, typeKey])
+
+  return { works, isLoading, error }
 }
 
 /** Single creative work with all components populated */
