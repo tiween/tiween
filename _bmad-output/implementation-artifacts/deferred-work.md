@@ -2185,7 +2185,7 @@ Found while committing the uncommitted client work that predated this story.
   client reports 46 errors across ~25 files, overwhelmingly `noUncheckedIndexedAccess`
   fallout (`Object is possibly 'undefined'`, `string | undefined` not assignable), plus three
   real defects — `StrapiVenue` has no `latitude`/`longitude` yet `app/api/events/nearby/
-  route.ts` reads both; `Map/types.ts` declares `VenueType` without exporting it, breaking two
+route.ts` reads both; `Map/types.ts` declares `VenueType` without exporting it, breaking two
   importers; and `content/{geography,venues}.ts` pass unnarrowed `string` where the `Locale`
   union is required (the same bug `content/server.ts` just fixed via `asLocale`). This is the
   exact shape of the eslint-plugin-only-warn finding that became stories 1-10..1-13: a
@@ -2193,14 +2193,71 @@ Found while committing the uncommitted client work that predated this story.
   name in the same PR so the gate goes green and stays enforced.
   status: open
 
-- source_spec: none (pre-flight of the events-manager admin UI rebuild)
+- source*spec: none (pre-flight of the events-manager admin UI rebuild)
   location: apps/client/src/lib/strapi-api/content/server.ts (`toISODate`)
   severity: medium
   summary: Date-range filters are off by one day at positive UTC offsets, including Tunisia (UTC+1).
   evidence: `getDateRange` builds local midnight (`today.setHours(0,0,0,0)`) then formats it
-  through `toISOString()`, which converts to UTC and yields the _previous_ calendar day for
+  through `toISOString()`, which converts to UTC and yields the \_previous* calendar day for
   any positive offset. So "today" / "tomorrow" / "this weekend" browse filters select a range
   starting a day early for the platform's primary market. The 2026-08-08 commit centralised
   the conversion in `toISODate` and preserved the existing semantics on purpose, to keep that
   change a pure type fix — the behavioural fix is this entry.
+  status: open
+
+## Deferred from: calendar build-vs-buy audit (2026-08-08)
+
+Full evidence and the decision:
+`_bmad-output/project-planning-artifacts/calendar-build-vs-buy-2026-08-08.md`.
+Decision was to build on `BigCalendar` and, if it warrants investment, extract it
+as a standalone open-source project rather than adopt a third-party library.
+These entries are that project's roadmap, not plugin-local chores.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-events-manager-planning-surface-rebuild.md`
+  location: apps/strapi/src/plugins/events-manager/admin/src/components/BigCalendar/types.ts:107, BigCalendar.tsx:54-69
+  severity: high
+  summary: BigCalendar's `timezone` prop is declared and threaded through every view but never read, so the grid renders browser-local against UTC data.
+  evidence: `types.ts:107` declares `timezone?: string` and `types.ts:138,148,161` thread it into DayView/WeekView/TimeGrid props, but `BigCalendar.tsx:54-69` never destructures it and no consumer reads it. All grid math anchors on wall-clock local time (`utils.ts:30-38 setTimeOnDate` via `setHours`). A showtime stored in UTC therefore renders at the wrong hour for any admin outside UTC+1. The planning-surface rebuild works around this by converting explicitly in its own transform layer; the component itself is unfixed.
+  status: open
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-events-manager-planning-surface-rebuild.md`
+  location: apps/strapi/src/plugins/events-manager/admin/src/components/BigCalendar/utils.ts:276,285-288,353-356
+  severity: low
+  summary: DST transition days misalign events and the now-indicator against the time ruler by roughly one slot.
+  evidence: `utils.ts:276` computes `gridDuration` as an ms difference while slot boxes use fixed pixel heights (`types.ts:184`), and the slot loop (`utils.ts:148`) always emits a fixed count. On a 23- or 25-hour day the percentage-based positions from `calculateEventPosition` and `calculateNowIndicatorPosition` drift from the ruler and the shifted hour is unreachable. Severity is low for this product specifically: Tunisia abolished DST in 2009, so local admins never hit it. Raise the severity if the admin is ever used from a DST-observing timezone.
+  status: open
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-events-manager-planning-surface-rebuild.md`
+  location: apps/strapi/src/plugins/events-manager/admin/src/components/BigCalendar/{TimeGrid.tsx:143, WeekView.tsx:248, NowIndicator.tsx:43}
+  severity: medium
+  summary: BigCalendar cannot render right-to-left; all positioning is hard-coded to physical directions.
+  evidence: Event columns position via `left: ${position.left}%` (`TimeGrid.tsx:143`, `WeekView.tsx:248`), with `border-right`/`padding-right` throughout (`WeekView.tsx:58,64,96,113`; `TimeGrid.tsx:47,54`) and a `left:-4px` now-dot (`NowIndicator.tsx:43`). No `dir` handling and no logical properties anywhere. The plugin registers `translations/ar.json`, so an Arabic admin gets a mirrored chrome with a non-mirrored grid. Fixing it means rewriting the positioning layer to logical properties.
+  status: open
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-events-manager-planning-surface-rebuild.md`
+  location: apps/strapi/src/plugins/events-manager/admin/src/components/BigCalendar/utils.ts
+  severity: medium
+  summary: 399 lines of pure date math in BigCalendar have zero test coverage.
+  evidence: No test file exists anywhere under `BigCalendar/`, `PlanningCalendarNew/` or `Planning/`. `utils.ts` is entirely pure functions — overlap grouping, position math, slot generation, formatting — i.e. the cheapest possible thing to test and the highest-risk thing to leave untested. The rebuild adds tests at its own transform boundary only.
+  status: open
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-events-manager-planning-surface-rebuild.md`
+  location: apps/strapi/src/plugins/events-manager/admin/src/components/BigCalendar/{utils.ts:43,156, TimeSlot.tsx:67, NavigationBar.tsx:97,106,146}
+  severity: medium
+  summary: BigCalendar ignores its own `locale` prop and hardcodes French UI strings.
+  evidence: `locale = "fr-FR"` is a hardcoded default across five signatures, and `formatTime` (`utils.ts:43`) is invoked with no locale at all from `utils.ts:156` and `EventBlock.tsx:82-83`, so slot and event times are always fr-FR regardless of the prop. UI strings are French literals rather than i18n keys: `"aujourd'hui"` (`TimeSlot.tsx:67`), `"Période précédente"` / `"Période suivante"` / `"Durée des créneaux"` (`NavigationBar.tsx:97,106,146`), `"Grille horaire"` (`TimeGrid.tsx:128`). No `useIntl`/`getTranslation` usage.
+  status: open
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-events-manager-planning-surface-rebuild.md`
+  location: apps/strapi/src/plugins/events-manager/admin/src/components/BigCalendar/{TimeGrid.tsx:128, TimeSlot.tsx:61-67, WeekView.tsx}
+  severity: medium
+  summary: The calendar grid has an invalid ARIA tree and no keyboard navigation.
+  evidence: `TimeGrid.tsx:128` sets `role="grid"` but the tree contains only `role="gridcell"` (`TimeSlot.tsx:61-67`) with no intervening `role="row"`/`rowgroup`, which is not a valid grid. There is no roving tabindex, so every slot is a tab stop — a 30-minute 08:00–24:00 week grid is ~224 sequential stops. `WeekView.tsx` declares no `role="grid"` at all, and focus is not managed across view or date changes.
+  status: open
+
+- source_spec: none (incidental finding of the same audit)
+  location: apps/strapi/package.json, apps/strapi/src/plugins/events-manager/package.json
+  severity: low
+  summary: `rrule ^2.8.1` is an unused dependency in two manifests.
+  evidence: Added in commit `485ea10` alongside BigCalendar, with zero `.ts`/`.tsx`/`.js` references anywhere under `apps/strapi/src`. It was never paired with `@fullcalendar/rrule`, which was never installed in this app — the FullCalendar-era code lived in `legacy/backend`. Safe to remove; verify no seed or script imports it first.
   status: open
