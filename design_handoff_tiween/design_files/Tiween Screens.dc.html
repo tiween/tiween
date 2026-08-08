@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lalezar&family=Inter:wght@400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Cairo:wght@400;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/bold/style.css">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:#161015;font-family:Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+  .hsc{-ms-overflow-style:none;scrollbar-width:none}
+  .hsc::-webkit-scrollbar{display:none;height:0;width:0}
+</style>
+</helmet>
+
+<div style="width:max-content;min-width:100%;min-height:100vh;box-sizing:border-box;padding:56px 48px 80px;background:#161015;">
+
+  <div style="max-width:1280px;margin-bottom:44px;">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <img src="assets/tiween-wordmark-gold.png" alt="tiween · توين" style="height:46px;width:auto;display:block;" />
+      <span style="font:600 13px Inter;color:#6E6076;letter-spacing:.04em;text-transform:uppercase;margin-inline-start:6px;align-self:flex-end;padding-bottom:3px;">Écrans B2C · handoff</span>
+    </div>
+    <p style="margin:14px 0 0;max-width:760px;font:400 15px/1.6 Inter;color:#B0A6B8;">Aubergine Theatre × Gold&nbsp;Leaf — thème sombre unique, l'affiche mène, le doré signale l'action. Accueil &amp; Détail film en FR&nbsp;mobile, Arabe&nbsp;RTL et desktop ; plus Recherche et états Vide&nbsp;/&nbsp;Hors&nbsp;ligne. Tokens : champ <code style="font-family:'JetBrains Mono';color:#E0B563">#241326</code> · carte <code style="font-family:'JetBrains Mono';color:#E0B563">#31203A</code> · or <code style="font-family:'JetBrains Mono';color:#E0B563">#D4A24A</code>.</p>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:64px;">
+    <section>
+      <h2 style="margin:0 0 22px;font:700 22px Inter;color:#fff;display:flex;align-items:center;gap:12px;flex-wrap:wrap;"><span style="display:inline-block;width:8px;height:8px;border-radius:9999px;background:#D4A24A;"></span>Accueil / Home<span style="font:500 13px Inter;color:#6E6076;">discovery feed · pré-filtré « ce qui passe ce soir »</span></h2>
+      <div style="display:flex;gap:48px;align-items:flex-start;">
+
+        <!-- FR MOBILE -->
+        <div style="flex:none;display:flex;flex-direction:column;gap:14px;">
+          <div style="font:600 12px Inter;color:#8B7E94;letter-spacing:.08em;text-transform:uppercase;">FR · Mobile</div>
+          <div style="flex:none;width:390px;border-radius:40px;background:#241326;border:1px solid #4A3556;overflow:hidden;box-shadow:0 24px 60px -24px rgba(0,0,0,.8);">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 24px 4px;font:600 13px Inter;color:#fff;">
+              <span>9:41</span>
+              <span style="display:flex;align-items:center;gap:7px;font-size:11px;"><span style="font:500 11px 'JetBrains Mono';color:#B0A6B8;">5G</span><span style="letter-spacing:1px;">▮▮▮</span><span style="font:500 11px 'JetBrains Mono';">87%</span></span>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 18px 12px;">
+              <span style="width:38px;"></span>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <img src="assets/tiween-wordmark-gold.png" alt="tiween · توين" style="height:38px;width:auto;display:block;" />
+              </div>
+              <button style="width:38px;height:38px;border-radius:9999px;background:#31203A;border:none;color:#B0A6B8;display:flex;align-items:center;justify-content:center;position:relative;"><i class="ph ph-bell" style="font-size:18px;line-height:1;"></i><span style="position:absolute;top:8px;right:9px;width:7px;height:7px;border-radius:9999px;background:#FF8A8A;border:2px solid #31203A;"></span></button>
+            </div>
+            <div class="hsc" style="display:flex;gap:18px;padding:2px 18px 14px;overflow-x:auto;border-bottom:1px solid #2E1D37;">
+              <button style="position:relative;background:none;border:none;padding:4px 0 8px;font:700 15px Inter;color:#fff;cursor:pointer;">Tout<span style="position:absolute;left:0;right:0;bottom:0;height:3px;border-radius:2px;background:#D4A24A;"></span></button>
+              <button style="background:none;border:none;padding:4px 0 8px;font:500 15px Inter;color:#B0A6B8;cursor:pointer;white-space:nowrap;">Cinéma</button>
+              <button style="background:none;border:none;padding:4px 0 8px;font:500 15px Inter;color:#B0A6B8;cursor:pointer;white-space:nowrap;">Théâtre</button>
+              <button style="background:none;border:none;padding:4px 0 8px;font:500 15px Inter;color:#B0A6B8;cursor:pointer;white-space:nowrap;">Musique</button>
+            </div>
+
+            <div style="padding:18px 0 4px;">
+              <div style="display:flex;align-items:baseline;justify-content:space-between;padding:0 18px 12px;">
+                <h3 style="margin:0;font:700 18px Inter;color:#fff;">Films à venir</h3>
+                <span style="font:600 13px Inter;color:#E0B563;">Voir plus</span>
+              </div>
+              <div class="hsc" style="display:flex;gap:14px;overflow-x:auto;padding:0 18px;">
+                <sc-for list="{{ aVenir }}" as="f" hint-placeholder-count="4">
+                  <div style="flex:none;width:150px;">
+                    <div style="position:relative;aspect-ratio:2/3;border-radius:16px;overflow:hidden;background:repeating-linear-gradient(135deg,#31203A 0,#31203A 9px,#3A2742 9px,#3A2742 18px);">
+                      <span style="position:absolute;top:8px;inset-inline-start:8px;z-index:2;display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:8px;background:rgba(18,9,20,.72);font:600 10px Inter;color:#fff;"><span style="width:6px;height:6px;border-radius:9999px;background:{{ f.catColor }};"></span>{{ f.cat }}</span>
+                      <div style="position:absolute;top:8px;inset-inline-end:8px;z-index:2;width:28px;height:28px;border-radius:9999px;background:rgba(18,9,20,.5);display:flex;align-items:center;justify-content:center;">
+                        <i class="ph ph-heart" style="position:absolute;font-size:15px;color:rgba(255,255,255,.9);line-height:1;"></i>
+                        <sc-if value="{{ f.saved }}"><i class="ph-fill ph-heart" style="position:absolute;font-size:15px;color:#D4A24A;line-height:1;"></i></sc-if>
+                      </div>
+                      <span style="position:absolute;top:44%;left:0;right:0;text-align:center;font-family:'JetBrains Mono';font-size:10px;letter-spacing:.12em;color:#7B6E83;">AFFICHE 2:3</span>
+                      <div style="position:absolute;inset-inline:0;bottom:0;padding:30px 11px 11px;background:linear-gradient(to top,rgba(12,6,14,.96) 0%,rgba(12,6,14,.84) 42%,rgba(12,6,14,0) 100%);">
+                        <div style="display:flex;align-items:center;gap:4px;margin-bottom:3px;font:600 11px Inter;color:#E0B563;"><i class="ph-fill ph-star" style="font-size:0.95em;vertical-align:-1px;"></i> {{ f.rating }}</div>
+                        <div style="font:600 14px Inter;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><bdi>{{ f.title }}</bdi></div>
+                        <div style="margin-top:1px;font:400 11px Inter;color:#C9C0D0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><bdi>{{ f.venue }}</bdi> · <bdi>{{ f.date }}</bdi></div>
+                        <div style="margin-top:3px;font:700 13px Inter;color:#E0B563;"><bdi>{{ f.price }} DT</bdi></div>
+                      </div>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+
+            <div style="padding:18px 0 4px;">
+              <div style="display:flex;align-items:baseline;justify-content:space-between;padding:0 18px 12px;">
+                <h3 style="margin:0;font:700 18px Inter;color:#fff;">Les mieux notés</h3>
+                <span style="font:600 13px Inter;color:#E0B563;">Voir plus</span>
+              </div>
+              <div class="hsc" style="display:flex;gap:14px;overflow-x:auto;padding:0 18px;">
+                <sc-for list="{{ notes }}" as="f" hint-placeholder-count="4">
+                  <div style="flex:none;width:150px;">
+                    <div style="position:relative;aspect-ratio:2/3;border-radius:16px;overflow:hidden;background:repeating-linear-gradient(135deg,#31203A 0,#31203A 9px,#3A2742 9px,#3A2742 18px);">
+                      <span style="position:absolute;top:8px;inset-inline-start:8px;z-index:2;display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:8px;background:rgba(18,9,20,.72);font:600 10px Inter;color:#fff;"><span style="width:6px;height:6px;border-radius:9999px;background:{{ f.catColor }};"></span>{{ f.cat }}</span>
+                      <div style="position:absolute;top:8px;inset-inline-end:8px;z-index:2;width:28px;height:28px;border-radius:9999px;background:rgba(18,9,20,.5);display:flex;align-items:center;justify-content:center;">
+                        <i class="ph ph-heart" style="position:absolute;font-size:15px;color:rgba(255,255,255,.9);line-height:1;"></i>
+                        <sc-if value="{{ f.saved }}"><i class="ph-fill ph-heart" style="position:absolute;font-size:15px;color:#D4A24A;line-height:1;"></i></sc-if>
+                      </div>
+                      <span style="position:absolute;top:44%;left:0;right:0;text-align:center;font-family:'JetBrains Mono';font-size:10px;letter-spacing:.12em;color:#7B6E83;">AFFICHE 2:3</span>
+                      <div style="position:absolute;inset-inline:0;bottom:0;padding:30px 11px 11px;background:linear-gradient(to top,rgba(12,6,14,.96) 0%,rgba(12,6,14,.84) 42%,rgba(12,6,14,0) 100%);">
+                        <div style="display:flex;align-items:center;gap:4px;margin-bottom:3px;font:600 11px Inter;color:#E0B563;"><i class="ph-fill ph-star" style="font-size:0.95em;vertical-align:-1px;"></i> {{ f.rating }}</div>
+                        <div style="font:600 14px Inter;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><bdi>{{ f.title }}</bdi></div>
+                        <div style="margin-top:1px;font:400 11px Inter;color:#C9C0D0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><bdi>{{ f.venue }}</bdi> · <bdi>{{ f.date }}</bdi></div>
+                        <div style="margin-top:3px;font:700 13px Inter;color:#E0B563;"><bdi>{{ f.price }} DT</bdi></div>
+                      </div>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+
+            <div style="padding:18px 0 16px;">
+              <div style="display:flex;align-items:baseline;justify-content:space-between;padding:0 18px 12px;">
+                <h3 style="margin:0;font:700 18px Inter;color:#fff;">Sélection musique</h3>
+                <span style="font:600 13px Inter;color:#E0B563;">Voir plus</span>
+              </div>
+              <div class="hsc" style="display:flex;gap:14px;overflow-x:auto;padding:0 18px;">
+                <sc-for list="{{ musique }}" as="f" hint-placeholder-count="4">
+                  <div style="flex:none;width:150px;">
+                    <div style="position:relative;aspect-ratio:2/3;border-radius:16px;overflow:hidden;background:repeating-linear-gradient(135deg,#31203A 0,#31203A 9px,#3A2742 9px,#3A2742 18px);">
+                      <span style="position:absolute;top:8px;inset-inline-start:8px;z-index:2;display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:8px;background:rgba(18,9,20,.72);font:600 10px Inter;color:#fff;"><span style="width:6px;height:6px;border-radius:9999px;background:{{ f.catColor }};"></span>{{ f.cat }}</span>
+                      <div style="position:absolute;top:8px;inset-inline-end:8px;z-index:2;width:28px;height:28px;border-radius:9999px;background:rgba(18,9,20,.5);display:flex;align-items:center;justify-content:center;">
+                        <i class="ph ph-heart" style="position:absolute;font-size:15px;color:rgba(255,255,255,.9);line-height:1;"></i>
+                        <sc-if value="{{ f.saved }}"><i class="ph-fill ph-heart" style="position:absolute;font-size:15px;color:#D4A24A;line-height:1;"></i></sc-if>
+                      </div>
+                      <span style="position:absolute;top:44%;left:0;right:0;text-align:center;font-family:'JetBrains Mono';font-size:10px;letter-spacing:.12em;color:#7B6E83;">AFFICHE 2:3</span>
+                      <div style="position:absolute;inset-inline:0;bottom:0;padding:30px 11px 11px;background:linear-gradient(to top,rgba(12,6,14,.96) 0%,rgba(12,6,14,.84) 42%,rgba(12,6,14,0) 100%);">
+                        <div style="display:flex;align-items:center;gap:4px;margin-bottom:3px;font:600 11px Inter;color:#E0B563;"><i class="ph-fill ph-star" style="font-size:0.95em;vertical-align:-1px;"></i> {{ f.rating }}</div>
+                        <div style="font:600 14px Inter;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><bdi>{{ f.title }}</bdi></div>
+                        <div style="margin-top:1px;font:400 11px Inter;color:#C9C0D0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><bdi>{{ f.venue }}</bdi> · <bdi>{{ f.date }}</bdi></div>
+                        <div style="margin-top:3px;font:700 13px Inter;color:#E0B563;"><bdi>{{ f.price }} DT</bdi></div>
+                      </div>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+
+            <nav style="display:flex;justify-content:space-around;align-items:center;height:64px;border-top:1px solid #4A3556;background:#241326;">
+              <div style="display:flex;flex-direction:column;align-items:center;gap:4px;color:#D4A24A;"><i class="ph-fill ph-house" style="font-size:22px;line-height:1;"></i><span style="font:600 10px Inter;">Accueil</span></div>
+              <div style="display:flex;flex-direction:column;align-items:center;gap:4px;color:#B0A6B8;"><i class="ph ph-magnifying-glass" style="font-size:22px;line-height:1;"></i><span style="font:500 10px Inter;">Recherche</span></div>
+              <div style="display:flex;flex-direction:column;align-items:center;gap:4px;color:#B0A6B8;position:relative;"><i class="ph ph-ticket" style="font-size:22px;line-height:1;"></i><span style="font:500 10px Inter;">Billets</span><span style="position:absolute;top:-2px;right:14px;width:7px;height:7px;border-radius:9999px;background:#FF8A8A;border:2px solid #241326;"></span></div>
+              <div style="display:flex;flex-direction:column;align-items:center;gap:4px;color:#B0A6B8;"><i class="ph ph-user" style="font-size:22px;line-height:1;"></i><span style="font:500 10px Inter;">Compte</span></div>
+            </nav>
+          </div>
+        </div>
+
+        <!-- AR RTL MOBILE -->
+        <div style="flex:none;display:flex;flex-direction:column;gap:14px;">
+          <div style="font:600 12px Inter;color:#8B7E94;letter-spacing:.08em;text-transform:uppercase;">AR · RTL · Mobile</div>
+          <div dir="rtl" lang="ar" style="flex:none;width:390px;border-radius:40px;background:#241326;border:1px solid #4A3556;overflow:hidden;box-shadow:0 24px 60px -24px rgba(0,0,0,.8);font-family:'IBM Plex Sans Arabic',Inter,sans-serif;">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 24px 4px;font:600 13px Inter;color:#fff;">
+              <span dir="ltr">9:41</span>
+              <span style="display:flex;align-items:center;gap:7px;font-size:11px;"><span style="font:500 11px 'JetBrains Mono';color:#B0A6B8;">5G</span><span style="letter-spacing:1px;">▮▮▮</span><span style="font:500 11px 'JetBrains Mono';">87%</span></span>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 18px 12px;">
+              <span style="width:38px;"></span>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <img src="assets/tiween-wordmark-gold.png" alt="tiween · توين" style="height:38px;width:auto;display:block;" />
+              </div>
+              <button style="width:38px;height:38px;border-radius:9999px;background:#31203A;border:none;color:#B0A6B8;display:flex;align-items:center;justify-content:center;position:relative;"><i class="ph ph-bell" style="font-size:18px;line-height:1;"></i><span style="position:absolute;top:8px;left:9px;width:7px;height:7px;border-radius:9999px;background:#FF8A8A;border:2px solid #31203A;"></span></button>
+            </div>
+            <div class="hsc" style="display:flex;gap:18px;padding:2px 18px 14px;overflow-x:auto;border-bottom:1px solid #2E1D37;">
+              <button style="position:relative;background:none;border:none;padding:4px 0 8px;font:700 16px 'IBM Plex Sans Arabic';color:#fff;cursor:pointer;">الكل<span style="position:absolute;left:0;right:0;bottom:0;height:3px;border-radius:2px;background:#D4A24A;"></span></button>
+              <button style="background:none;border:none;padding:4px 0 8px;font:500 16px 'IBM Plex Sans Arabic';color:#B0A6B8;cursor:pointer;white-space:nowrap;">سينما</button>
+              <button style="background:none;border:none;padding:4px 0 8px;font:500 16px 'IBM Plex Sans Arabic';color:#B0A6B8;cursor:pointer;white-space:nowrap;">مسرح</button>
+              <button style="background:none;border:none;padding:4px 0 8px;font:500 16px 'IBM Plex Sans Arabic';color:#B0A6B8;cursor:pointer;white-space:nowrap;">موسيقى</button>
+            </div>
+
+            <div style="padding:18px 0 4px;">
+              <div style="display:flex;align-items:baseline;justify-content:space-between;padding:0 18px 12px;">
+                <h3 style="margin:0;font:700 18px 'IBM Plex Sans Arabic';color:#fff;">أفلام قادمة</h3>
+                <span style="font:600 13px 'IBM Plex Sans Arabic';color:#E0B563;">عرض الكل</span>
+              </div>
+              <div class="hsc" style="display:flex;gap:14px;overflow-x:auto;padding:0 18px;">
+                <sc-for list="{{ arFilms }}" as="f" hint-placeholder-count="4">
+                  <div style="flex:none;width:150px;">
+                    <div style="position:relative;aspect-ratio:2/3;border-radius:16px;overflow:hidden;background:repeating-linear-gradient(135deg,#31203A 0,#31203A 9px,#3A2742 9px,#3A2742 18px);">
+                      <span style="position:absolute;top:8px;inset-inline-start:8px;z-index:2;display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:8px;background:rgba(18,9,20,.72);font:600 11px 'IBM Plex Sans Arabic';color:#fff;"><span style="width:6px;height:6px;border-radius:9999px;background:{{ f.catColor }};"></span>{{ f.cat }}</span>
+                      <div style="position:absolute;top:8px;inset-inline-end:8px;z-index:2;width:28px;height:28px;border-radius:9999px;background:rgba(18,9,20,.5);display:flex;align-items:center;justify-content:center;">
+                        <i class="ph ph-heart" style="position:absolute;font-size:15px;color:rgba(255,255,255,.9);line-height:1;"></i>
+                        <sc-if value="{{ f.saved }}"><i class="ph-fill ph-heart" style="position:absolute;font-size:15px;color:#D4A24A;line-height:1;"></i></sc-if>
+                      </div>
+                      <span style="position:absolute;top:44%;left:0;right:0;text-align:center;font-family:'JetBrains Mono';font-size:10px;letter-spacing:.12em;color:#7B6E83;">2:3</span>
+                      <div style="position:absolute;inset-inline:0;bottom:0;padding:30px 11px 11px;background:linear-gradient(to top,rgba(12,6,14,.96) 0%,rgba(12,6,14,.84) 42%,rgba(12,6,14,0) 100%);">
+                        <div style="display:flex;align-items:center;gap:4px;margin-bottom:3px;font:600 11px Inter;color:#E0B563;"><bdi><i class="ph-fill ph-star" style="font-size:0.95em;vertical-align:-1px;"></i> {{ f.rating }}</bdi></div>
+                        <div style="font:600 15px 'IBM Plex Sans Arabic';color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><bdi>{{ f.title }}</bdi></div>
+                        <div style="margin-top:1px;font:400 12px 'IBM Plex Sans Arabic';color:#C9C0D0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><bdi>{{ f.venue }}</bdi> · <bdi>{{ f.date }}</bdi> · <bdi>{{ f.fmt }}</bdi></div>
+                        <div style="margin-top:3px;font:700 13px Inter;color:#E0B563;"><bdi>{{ f.price }} DT</bdi></div>
+                      </div>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+
+            <div style="padding:18px 0 16px;">
+              <div style="display:flex;align-items:baseline;justify-content:space-between;padding:0 18px 12px;">
+                <h3 style="margin:0;font:700 18px 'IBM Plex Sans Arabic';color:#fff;">الأعلى تقييماً</h3>
+                <span style="font:600 13px 'IBM Plex Sans Arabic';color:#E0B563;">عرض الكل</span>
+              </div>
+              <div class="hsc" style="display:flex;gap:14px;overflow-x:auto;padding:0 18px;">
+                <sc-for list="{{ arNotes }}" as="f" hint-placeholder-count="3">
+                  <div style="flex:none;width:150px;">
+                    <div style="position:relative;aspect-ratio:2/3;border-radius:16px;overflow:hidden;background:repeating-linear-gradient(135deg,#31203A 0,#31203A 9px,#3A2742 9px,#3A2742 18px);">
+                      <span style="position:absolute;top:8px;inset-inline-start:8px;z-index:2;display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:8px;background:rgba(18,9,20,.72);font:600 11px 'IBM Plex Sans Arabic';color:#fff;"><span style="width:6px;height:6px;border-radius:9999px;background:{{ f.catColor }};"></span>{{ f.cat }}</span>
+                      <div style="position:absolute;top:8px;inset-inline-end:8px;z-index:2;width:28px;height:28px;border-radius:9999px;background:rgba(18,9,20,.5);display:flex;align-items:center;justify-content:center;">
+                        <i class="ph ph-heart" style="position:absolute;font-size:15px;color:rgba(255,255,255,.9);line-height:1;"></i>
+                        <sc-if value="{{ f.saved }}"><i class="ph-fill ph-heart" style="position:absolute;font-size:15px;color:#D4A24A;line-height:1;"></i></sc-if>
+                      </div>
+                      <span style="position:absolute;top:44%;left:0;right:0;text-align:center;font-family:'JetBrains Mono';font-size:10px;letter-spacing:.12em;color:#7B6E83;">2:3</span>
+                      <div style="position:absolute;inset-inline:0;bottom:0;padding:30px 11px 11px;background:linear-gradient(to top,rgba(12,6,14,.96) 0%,rgba(12,6,14,.84) 42%,rgba(12,6,14,0) 100%);">
+                        <div style="display:flex;align-items:center;gap:4px;margin-bottom:3px;font:600 11px Inter;color:#E0B563;"><bdi><i class="ph-fill ph-star" style="font-size:0.95em;vertical-align:-1px;"></i> {{ f.rating }}</bdi></div>
+                        <div style="font:600 15px 'IBM Plex Sans Arabic';color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><bdi>{{ f.title }}</bdi></div>
+                        <div style="margin-top:1px;font:400 12px 'IBM Plex Sans Arabic';color:#C9C0D0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><bdi>{{ f.venue }}</bdi> · <bdi>{{ f.date }}</bdi></div>
+                        <div style="margin-top:3px;font:700 13px Inter;color:#E0B563;"><bdi>{{ f.price }} DT</bdi></div>
+                      </div>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+
+            <nav style="display:flex;justify-content:space-around;align-items:center;height:64px;border-top:1px solid #4A3556;background:#241326;">
+              <div style="display:flex;flex-direction:column;align-items:center;gap:4px;color:#D4A24A;"><i class="ph-fill ph-house" style="font-size:22px;line-height:1;"></i><span style="font:600 11px 'IBM Plex Sans Arabic';">الرئيسية</span></div>
+              <div style="display:flex;flex-direction:column;align-items:center;gap:4px;color:#B0A6B8;"><i class="ph ph-magnifying-glass" style="font-size:22px;line-height:1;"></i><span style="font:500 11px 'IBM Plex Sans Arabic';">بحث</span></div>
+              <div style="display:flex;flex-direction:column;align-items:center;gap:4px;color:#B0A6B8;position:relative;"><i class="ph ph-ticket" style="font-size:22px;line-height:1;"></i><span style="font:500 11px 'IBM Plex Sans Arabic';">تذاكر</span><span style="position:absolute;top:-2px;left:14px;width:7px;height:7px;border-radius:9999px;background:#FF8A8A;border:2px solid #241326;"></span></div>
+              <div style="display:flex;flex-direction:column;align-items:center;gap:4px;color:#B0A6B8;"><i class="ph ph-user" style="font-size:22px;line-height:1;"></i><span style="font:500 11px 'IBM Plex Sans Arabic';">حساب</span></div>
+            </nav>
+          </div>
+        </div>
+
+        <!-- DESKTOP -->
+        <sc-if value="{{ showDesktop }}" hint-placeholder-val="{{ true }}">
+        <div style="flex:none;display:flex;flex-direction:column;gap:14px;">
+          <div style="font:600 12px Inter;color:#8B7E94;letter-spacing:.08em;text-transform:uppercase;">FR · Desktop &gt;1024 · 12-col / max 1280</div>
+          <div style="flex:none;width:1180px;border-radius:18px;background:#241326;border:1px solid #4A3556;overflow:hidden;box-shadow:0 24px 60px -24px rgba(0,0,0,.8);">
+            <div style="display:flex;align-items:center;gap:10px;padding:14px 18px;background:#1E0F22;border-bottom:1px solid #2E1D37;">
+              <span style="width:11px;height:11px;border-radius:9999px;background:#4A3556;"></span><span style="width:11px;height:11px;border-radius:9999px;background:#4A3556;"></span><span style="width:11px;height:11px;border-radius:9999px;background:#4A3556;"></span>
+              <span style="margin-inline-start:14px;flex:1;font:500 12px 'JetBrains Mono';color:#6E6076;">tiween.com</span>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:18px 32px;">
+              <div style="display:flex;align-items:center;gap:9px;">
+                <img src="assets/tiween-wordmark-gold.png" alt="tiween · توين" style="height:42px;width:auto;display:block;" />
+              </div>
+              <div style="display:flex;align-items:center;gap:32px;">
+                <span style="font:700 15px Inter;color:#D4A24A;">Accueil</span>
+                <span style="font:500 15px Inter;color:#B0A6B8;">Recherche</span>
+                <span style="font:500 15px Inter;color:#B0A6B8;">Billets</span>
+                <span style="font:500 15px Inter;color:#B0A6B8;">Compte</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:14px;">
+                <div style="display:flex;align-items:center;gap:8px;width:230px;height:40px;padding:0 14px;border-radius:9999px;background:#31203A;border:1px solid #4A3556;color:#8B7E94;"><i class="ph ph-magnifying-glass" style="font-size:16px;line-height:1;"></i><span style="font:400 14px Inter;">Rechercher…</span></div>
+                <div style="width:40px;height:40px;border-radius:9999px;background:repeating-linear-gradient(135deg,#3E2A48 0,#3E2A48 5px,#4A3556 5px,#4A3556 10px);"></div>
+              </div>
+            </div>
+            <div style="display:flex;gap:22px;padding:0 32px 18px;border-bottom:1px solid #2E1D37;">
+              <button style="position:relative;background:none;border:none;padding:6px 0 12px;font:700 15px Inter;color:#fff;cursor:pointer;">Tout<span style="position:absolute;left:0;right:0;bottom:0;height:3px;border-radius:2px;background:#D4A24A;"></span></button>
+              <button style="background:none;border:none;padding:6px 0 12px;font:500 15px Inter;color:#B0A6B8;cursor:pointer;">Cinéma</button>
+              <button style="background:none;border:none;padding:6px 0 12px;font:500 15px Inter;color:#B0A6B8;cursor:pointer;">Théâtre</button>
+              <button style="background:none;border:none;padding:6px 0 12px;font:500 15px Inter;color:#B0A6B8;cursor:pointer;">Musique</button>
+              <button style="background:none;border:none;padding:6px 0 12px;font:500 15px Inter;color:#B0A6B8;cursor:pointer;">Expos</button>
+            </div>
+
+            <div style="padding:26px 32px 8px;">
+              <div style="position:relative;height:300px;border-radius:18px;overflow:hidden;background:repeating-linear-gradient(115deg,#2b2530 0,#2b2530 13px,#383240 13px,#383240 26px);">
+                <span style="position:absolute;top:50%;inset-inline-end:9%;transform:translateY(-50%);font-family:Lalezar;font-size:300px;line-height:.8;color:#D4A24A;opacity:.95;">ت</span>
+                <div style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(20,9,22,.94) 28%,rgba(20,9,22,.55) 55%,rgba(20,9,22,.15));"></div>
+                <span style="position:absolute;top:18px;inset-inline-start:24px;font:500 11px 'JetBrains Mono';letter-spacing:.1em;color:#9A8DA2;background:rgba(18,9,20,.5);padding:5px 10px;border-radius:8px;">PORTRAIT DUOTONE — découpe ت or</span>
+                <div style="position:absolute;bottom:30px;inset-inline-start:34px;max-width:560px;">
+                  <span style="display:inline-flex;align-items:center;gap:6px;padding:4px 11px;border-radius:8px;background:rgba(18,9,20,.6);font:600 12px Inter;color:#fff;"><span style="width:7px;height:7px;border-radius:9999px;background:#E0B563;"></span>Cinéma · À l'affiche</span>
+                  <h2 style="margin:14px 0 4px;font-family:Lalezar;font-size:62px;line-height:1;color:#fff;">Bullet Train</h2>
+                  <p style="margin:0 0 18px;font:500 16px Inter;color:#B0A6B8;">David Leitch · Action · 2h07</p>
+                  <div style="display:flex;gap:12px;">
+                    <button style="height:48px;padding:0 30px;border:none;border-radius:9999px;background:#D4A24A;color:#2A1A06;font:700 16px Inter;cursor:pointer;box-shadow:inset 0 0 0 1px rgba(42,26,6,.22);">Réserver</button>
+                    <button style="height:48px;padding:0 24px;border:1.5px solid #D4A24A;border-radius:9999px;background:transparent;color:#E0B563;font:600 15px Inter;cursor:pointer;"><i class="ph-fill ph-play" style="font-size:0.9em;vertical-align:-1px;"></i> Bande annonce</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div style="padding:24px 32px 8px;">
+              <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:16px;">
+                <h3 style="margin:0;font:700 20px Inter;color:#fff;">Films à venir</h3>
+                <span style="font:600 14px Inter;color:#E0B563;">Voir plus</span>
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:18px;">
+                <sc-for list="{{ aVenir }}" as="f" hint-placeholder-count="4">
+                  <div>
+                    <div style="position:relative;aspect-ratio:2/3;border-radius:16px;overflow:hidden;background:repeating-linear-gradient(135deg,#31203A 0,#31203A 9px,#3A2742 9px,#3A2742 18px);">
+                      <span style="position:absolute;top:8px;inset-inline-start:8px;z-index:2;display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:8px;background:rgba(18,9,20,.72);font:600 10px Inter;color:#fff;"><span style="width:6px;height:6px;border-radius:9999px;background:{{ f.catColor }};"></span>{{ f.cat }}</span>
+                      <span style="position:absolute;top:44%;left:0;right:0;text-align:center;font-family:'JetBrains Mono';font-size:10px;letter-spacing:.12em;color:#7B6E83;">AFFICHE 2:3</span>
+                      <div style="position:absolute;inset-inline:0;bottom:0;padding:34px 12px 12px;background:linear-gradient(to top,rgba(12,6,14,.96) 0%,rgba(12,6,14,.84) 44%,rgba(12,6,14,0) 100%);">
+                        <div style="display:flex;align-items:center;gap:4px;margin-bottom:3px;font:600 12px Inter;color:#E0B563;"><i class="ph-fill ph-star" style="font-size:0.95em;vertical-align:-1px;"></i> {{ f.rating }}</div>
+                        <div style="font:600 15px Inter;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><bdi>{{ f.title }}</bdi></div>
+                        <div style="margin-top:1px;font:400 12px Inter;color:#C9C0D0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><bdi>{{ f.venue }}</bdi> · <bdi>{{ f.date }}</bdi></div>
+                      </div>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+
+            <div style="padding:24px 32px 32px;">
+              <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:16px;">
+                <h3 style="margin:0;font:700 20px Inter;color:#fff;">Les mieux notés</h3>
+                <span style="font:600 14px Inter;color:#E0B563;">Voir plus</span>
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:18px;">
+                <sc-for list="{{ notes }}" as="f" hint-placeholder-count="4">
+                  <div>
+                    <div style="position:relative;aspect-ratio:2/3;border-radius:16px;overflow:hidden;background:repeating-linear-gradient(135deg,#31203A 0,#31203A 9px,#3A2742 9px,#3A2742 18px);">
+                      <span style="position:absolute;top:8px;inset-inline-start:8px;z-index:2;display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:8px;background:rgba(18,9,20,.72);font:600 10px Inter;color:#fff;"><span style="width:6px;height:6px;border-radius:9999px;background:{{ f.catColor }};"></span>{{ f.cat }}</span>
+                      <span style="position:absolute;top:44%;left:0;right:0;text-align:center;font-family:'JetBrains Mono';font-size:10px;letter-spacing:.12em;color:#7B6E83;">AFFICHE 2:3</span>
+                      <div style="position:absolute;inset-inline:0;bottom:0;padding:34px 12px 12px;background:linear-gradient(to top,rgba(12,6,14,.96) 0%,rgba(12,6,14,.84) 44%,rgba(12,6,14,0) 100%);">
+                        <div style="display:flex;align-items:center;gap:4px;margin-bottom:3px;font:600 12px Inter;color:#E0B563;"><i class="ph-fill ph-star" style="font-size:0.95em;vertical-align:-1px;"></i> {{ f.rating }}</div>
+                        <div style="font:600 15px Inter;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><bdi>{{ f.title }}</bdi></div>
+                        <div style="margin-top:1px;font:400 12px Inter;color:#C9C0D0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><bdi>{{ f.venue }}</bdi> · <bdi>{{ f.date }}</bdi></div>
+                      </div>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+        </div>
+        </sc-if>
+
+      </div>
+    </section>
+
+    <section>
+      <h2 style="margin:0 0 22px;font:700 22px Inter;color:#fff;display:flex;align-items:center;gap:12px;flex-wrap:wrap;"><span style="display:inline-block;width:8px;height:8px;border-radius:9999px;background:#D4A24A;"></span>Détail film<span style="font:500 13px Inter;color:#6E6076;">duotone cut-out hero · séances cross-venue · <i class="ph-fill ph-sparkle" style="font-size:0.95em;vertical-align:-1px;"></i> recommandé</span></h2>
+      <div style="display:flex;gap:48px;align-items:flex-start;">
+
+        <!-- FR MOBILE -->
+        <div style="flex:none;display:flex;flex-direction:column;gap:14px;">
+          <div style="font:600 12px Inter;color:#8B7E94;letter-spacing:.08em;text-transform:uppercase;">FR · Mobile</div>
+          <div style="flex:none;width:390px;border-radius:40px;background:#241326;border:1px solid #4A3556;overflow:hidden;box-shadow:0 24px 60px -24px rgba(0,0,0,.8);">
+            <div style="position:relative;">
+              <div style="position:relative;aspect-ratio:3/4;background:repeating-linear-gradient(115deg,#2b2530 0,#2b2530 13px,#383240 13px,#383240 26px);overflow:hidden;">
+                <span style="position:absolute;top:46%;inset-inline-end:-6%;transform:translateY(-50%);font-family:Lalezar;font-size:300px;line-height:.8;color:#D4A24A;opacity:.95;">ت</span>
+                <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(20,9,22,.55) 0,rgba(20,9,22,.05) 24%,rgba(20,9,22,.35) 62%,rgba(20,9,22,.96));"></div>
+                <span style="position:absolute;top:64px;inset-inline-start:18px;font:500 10px 'JetBrains Mono';letter-spacing:.08em;color:#9A8DA2;background:rgba(18,9,20,.55);padding:5px 9px;border-radius:8px;">PORTRAIT DUOTONE — découpe ت or</span>
+                <div style="position:absolute;top:16px;inset-inline-start:14px;width:40px;height:40px;border-radius:9999px;background:rgba(18,9,20,.55);display:flex;align-items:center;justify-content:center;color:#fff;"><i class="ph ph-caret-left" style="font-size:20px;line-height:1;"></i></div>
+                <div style="position:absolute;top:16px;inset-inline-end:14px;display:flex;gap:8px;">
+                  <div style="width:40px;height:40px;border-radius:9999px;background:rgba(18,9,20,.55);display:flex;align-items:center;justify-content:center;color:#fff;"><i class="ph ph-share-network" style="font-size:18px;line-height:1;"></i></div>
+                  <div style="width:40px;height:40px;border-radius:9999px;background:rgba(18,9,20,.55);display:flex;align-items:center;justify-content:center;color:#fff;"><i class="ph ph-heart" style="font-size:20px;line-height:1;"></i></div>
+                </div>
+                <span style="position:absolute;top:16px;left:50%;transform:translateX(-50%);font:600 11px 'JetBrains Mono';color:#fff;background:rgba(18,9,20,.55);padding:4px 10px;border-radius:9999px;">01 / 05</span>
+                <div style="position:absolute;bottom:74px;left:50%;transform:translateX(-50%);display:flex;gap:6px;">
+                  <span style="width:18px;height:4px;border-radius:2px;background:#D4A24A;"></span><span style="width:4px;height:4px;border-radius:2px;background:rgba(255,255,255,.45);"></span><span style="width:4px;height:4px;border-radius:2px;background:rgba(255,255,255,.45);"></span><span style="width:4px;height:4px;border-radius:2px;background:rgba(255,255,255,.45);"></span><span style="width:4px;height:4px;border-radius:2px;background:rgba(255,255,255,.45);"></span>
+                </div>
+                <div style="position:absolute;bottom:18px;inset-inline-start:20px;inset-inline-end:20px;">
+                  <span style="display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:8px;background:rgba(18,9,20,.6);font:600 11px Inter;color:#fff;"><span style="width:6px;height:6px;border-radius:9999px;background:#E0B563;"></span>Cinéma</span>
+                  <h1 style="margin:10px 0 2px;font-family:Lalezar;font-size:44px;line-height:1;color:#fff;">Bullet Train</h1>
+                  <p style="margin:0;font:500 14px Inter;color:#B0A6B8;">David Leitch</p>
+                </div>
+              </div>
+            </div>
+
+            <div style="padding:16px 18px 0;">
+              <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                <span style="padding:6px 12px;border-radius:8px;background:#31203A;border:1px solid #4A3556;font:500 12px Inter;color:#E5E0E9;">Action</span>
+                <span style="padding:6px 12px;border-radius:8px;background:#31203A;border:1px solid #4A3556;font:500 12px Inter;color:#E5E0E9;">2h07</span>
+                <span style="padding:6px 12px;border-radius:8px;background:#31203A;border:1px solid #4A3556;font:500 12px Inter;color:#E5E0E9;"><bdi>12/06/2026</bdi></span>
+                <span style="padding:6px 12px;border-radius:8px;background:#31203A;border:1px solid #4A3556;font:500 12px Inter;color:#E5E0E9;">VF · VOST</span>
+              </div>
+              <div style="display:flex;gap:12px;margin-top:18px;">
+                <button style="flex:1;height:48px;border:none;border-radius:9999px;background:#D4A24A;color:#2A1A06;font:700 16px Inter;cursor:pointer;box-shadow:inset 0 0 0 1px rgba(42,26,6,.22);">Réserver</button>
+                <button style="flex:none;height:48px;padding:0 20px;border:1.5px solid #D4A24A;border-radius:9999px;background:transparent;color:#E0B563;font:600 14px Inter;cursor:pointer;display:flex;align-items:center;gap:7px;"><i class="ph-fill ph-play" style="font-size:0.9em;vertical-align:-1px;"></i> Annonce</button>
+              </div>
+            </div>
+
+            <div style="padding:22px 18px 0;">
+              <h3 style="margin:0 0 8px;font:700 17px Inter;color:#fff;">Synopsis</h3>
+              <p style="margin:0;font:400 14px/1.6 Inter;color:#C9C0D0;">Cinq tueurs à gages se retrouvent à bord d'un train à grande vitesse filant de Tokyo à Morioka, sans savoir que leurs missions s'entrecroisent. Une comédie d'action étourdissante, orchestrée comme une horloge.</p>
+            </div>
+
+            <div style="padding:22px 18px 0;">
+              <h3 style="margin:0 0 12px;font:700 17px Inter;color:#fff;">Distribution</h3>
+              <div class="hsc" style="display:flex;gap:16px;overflow-x:auto;">
+                <div style="flex:none;width:62px;text-align:center;"><div style="width:62px;height:62px;border-radius:9999px;background:repeating-linear-gradient(135deg,#31203A 0,#31203A 6px,#3E2A48 6px,#3E2A48 12px);margin-bottom:6px;"></div><span style="font:500 11px Inter;color:#C9C0D0;display:block;line-height:1.2;">Brad Pitt</span></div>
+                <div style="flex:none;width:62px;text-align:center;"><div style="width:62px;height:62px;border-radius:9999px;background:repeating-linear-gradient(135deg,#31203A 0,#31203A 6px,#3E2A48 6px,#3E2A48 12px);margin-bottom:6px;"></div><span style="font:500 11px Inter;color:#C9C0D0;display:block;line-height:1.2;">Joey King</span></div>
+                <div style="flex:none;width:62px;text-align:center;"><div style="width:62px;height:62px;border-radius:9999px;background:repeating-linear-gradient(135deg,#31203A 0,#31203A 6px,#3E2A48 6px,#3E2A48 12px);margin-bottom:6px;"></div><span style="font:500 11px Inter;color:#C9C0D0;display:block;line-height:1.2;">A. Taylor-J.</span></div>
+                <div style="flex:none;width:62px;text-align:center;"><div style="width:62px;height:62px;border-radius:9999px;background:repeating-linear-gradient(135deg,#31203A 0,#31203A 6px,#3E2A48 6px,#3E2A48 12px);margin-bottom:6px;"></div><span style="font:500 11px Inter;color:#C9C0D0;display:block;line-height:1.2;">B. T. Henry</span></div>
+                <div style="flex:none;width:62px;text-align:center;"><div style="width:62px;height:62px;border-radius:9999px;background:repeating-linear-gradient(135deg,#31203A 0,#31203A 6px,#3E2A48 6px,#3E2A48 12px);margin-bottom:6px;"></div><span style="font:500 11px Inter;color:#C9C0D0;display:block;line-height:1.2;">Bad Bunny</span></div>
+              </div>
+            </div>
+
+            <div style="padding:24px 18px 24px;">
+              <h3 style="margin:0 0 12px;font:700 17px Inter;color:#fff;">Séances</h3>
+              <div class="hsc" style="display:flex;gap:10px;overflow-x:auto;margin-bottom:18px;">
+                <button style="flex:none;padding:8px 16px;border-radius:9999px;background:#D4A24A;color:#2A1A06;border:none;font:700 13px Inter;cursor:pointer;">Aujourd'hui</button>
+                <button style="flex:none;padding:8px 16px;border-radius:9999px;background:#31203A;color:#B0A6B8;border:1px solid #4A3556;font:500 13px Inter;cursor:pointer;">Demain</button>
+                <button style="flex:none;padding:8px 16px;border-radius:9999px;background:#31203A;color:#B0A6B8;border:1px solid #4A3556;font:500 13px Inter;cursor:pointer;"><bdi>Ven 20/06</bdi></button>
+              </div>
+
+              <div style="margin-bottom:18px;">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;"><i class="ph ph-map-pin" style="font-size:15px;line-height:1;color:#B0A6B8;"></i><span style="font:600 14px Inter;color:#fff;">Ciné Alhambra Zéphyr</span></div>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                  <button style="position:relative;min-width:86px;padding:9px 12px 8px;border-radius:8px;background:#31203A;border:1px solid #4A3556;text-align:start;cursor:pointer;"><span style="position:absolute;top:6px;inset-inline-start:9px;font:700 9px Inter;color:#B0A6B8;letter-spacing:.04em;">VF</span><div style="margin-top:13px;font:700 17px Inter;color:#fff;">16h00</div><div style="font:400 11px Inter;color:#8B7E94;">fin 18h07</div></button>
+                  <button style="position:relative;min-width:86px;padding:9px 12px 8px;border-radius:8px;background:#D4A24A;border:1px solid #D4A24A;text-align:start;cursor:pointer;box-shadow:0 0 0 2px #241326, 0 0 0 4px #D4A24A;"><span style="position:absolute;top:6px;inset-inline-start:9px;font:700 9px Inter;color:#2A1A06;letter-spacing:.04em;">VF</span><span style="position:absolute;top:5px;inset-inline-end:7px;font-size:13px;color:#2A1A06;"><i class="ph-bold ph-check" style="font-size:13px;line-height:1;"></i></span><div style="margin-top:13px;font:700 17px Inter;color:#2A1A06;">19h30</div><div style="font:600 11px Inter;color:#5A4412;"><i class="ph-fill ph-sparkle" style="font-size:0.95em;vertical-align:-1px;"></i> recommandé</div></button>
+                  <button style="position:relative;min-width:86px;padding:9px 12px 8px;border-radius:8px;background:#31203A;border:1px solid #4A3556;text-align:start;cursor:pointer;"><span style="position:absolute;top:6px;inset-inline-start:9px;font:700 9px Inter;color:#B0A6B8;letter-spacing:.04em;">VOST</span><div style="margin-top:13px;font:700 17px Inter;color:#fff;">21h45</div><div style="font:400 11px Inter;color:#8B7E94;">fin 23h52</div></button>
+                </div>
+              </div>
+
+              <div style="margin-bottom:18px;">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;"><i class="ph ph-map-pin" style="font-size:15px;line-height:1;color:#B0A6B8;"></i><span style="font:600 14px Inter;color:#fff;">CinéMadart</span></div>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                  <button style="position:relative;min-width:86px;padding:9px 12px 8px;border-radius:8px;background:#31203A;border:1px solid #4A3556;text-align:start;cursor:pointer;"><span style="position:absolute;top:6px;inset-inline-start:9px;font:700 9px Inter;color:#B0A6B8;letter-spacing:.04em;">VOST</span><div style="margin-top:13px;font:700 17px Inter;color:#fff;">18h15</div><div style="font:400 11px Inter;color:#8B7E94;">fin 20h22</div></button>
+                  <button style="position:relative;min-width:86px;padding:9px 12px 8px;border-radius:8px;background:#31203A;border:1px solid #4A3556;text-align:start;cursor:pointer;"><span style="position:absolute;top:6px;inset-inline-start:9px;font:700 9px Inter;color:#B0A6B8;letter-spacing:.04em;">VOST</span><div style="margin-top:13px;font:700 17px Inter;color:#fff;">20h30</div><div style="font:400 11px Inter;color:#8B7E94;">fin 22h37</div></button>
+                </div>
+              </div>
+
+              <div>
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;"><i class="ph ph-map-pin" style="font-size:15px;line-height:1;color:#B0A6B8;"></i><span style="font:600 14px Inter;color:#fff;">Pathé Tunis City</span></div>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                  <button style="position:relative;min-width:86px;padding:9px 12px 8px;border-radius:8px;background:#31203A;border:1px solid #4A3556;text-align:start;cursor:pointer;"><span style="position:absolute;top:6px;inset-inline-start:9px;font:700 9px Inter;color:#B0A6B8;letter-spacing:.04em;">3D</span><div style="margin-top:13px;font:700 17px Inter;color:#fff;">17h00</div><div style="font:400 11px Inter;color:#8B7E94;">fin 19h07</div></button>
+                  <button style="position:relative;min-width:86px;padding:9px 12px 8px;border-radius:8px;background:#31203A;border:1px solid #4A3556;text-align:start;cursor:pointer;"><span style="position:absolute;top:6px;inset-inline-start:9px;font:700 9px Inter;color:#B0A6B8;letter-spacing:.04em;">3D</span><div style="margin-top:13px;font:700 17px Inter;color:#fff;">19h00</div><div style="font:400 11px Inter;color:#8B7E94;">fin 21h07</div></button>
+                  <button aria-disabled="true" style="position:relative;min-width:86px;padding:9px 12px 8px;border-radius:8px;background:#241326;border:1px dashed #4A3556;text-align:start;cursor:not-allowed;opacity:.6;"><span style="position:absolute;top:6px;inset-inline-start:9px;font:700 9px Inter;color:#8B7E94;letter-spacing:.04em;">VF</span><div style="margin-top:13px;font:700 17px Inter;color:#8B7E94;text-decoration:line-through;">22h00</div><div style="font:600 11px Inter;color:#FF8A8A;">Complet</div></button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- AR RTL MOBILE -->
+        <div style="flex:none;display:flex;flex-direction:column;gap:14px;">
+          <div style="font:600 12px Inter;color:#8B7E94;letter-spacing:.08em;text-transform:uppercase;">AR · RTL · Mobile</div>
+          <div dir="rtl" lang="ar" style="flex:none;width:390px;border-radius:40px;background:#241326;border:1px solid #4A3556;overflow:hidden;box-shadow:0 24px 60px -24px rgba(0,0,0,.8);font-family:'IBM Plex Sans Arabic',Inter,sans-serif;">
+            <div style="position:relative;aspect-ratio:3/4;background:repeating-linear-gradient(115deg,#2b2530 0,#2b2530 13px,#383240 13px,#383240 26px);overflow:hidden;">
+              <span style="position:absolute;top:46%;inset-inline-end:-6%;transform:translateY(-50%);font-family:Lalezar;font-size:300px;line-height:.8;color:#D4A24A;opacity:.95;">ت</span>
+              <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(20,9,22,.55) 0,rgba(20,9,22,.05) 24%,rgba(20,9,22,.35) 62%,rgba(20,9,22,.96));"></div>
+              <div style="position:absolute;top:16px;inset-inline-start:14px;width:40px;height:40px;border-radius:9999px;background:rgba(18,9,20,.55);display:flex;align-items:center;justify-content:center;color:#fff;"><i class="ph ph-caret-right" style="font-size:20px;line-height:1;"></i></div>
+              <span style="position:absolute;top:16px;inset-inline-end:14px;font:600 11px 'JetBrains Mono';color:#fff;background:rgba(18,9,20,.55);padding:4px 10px;border-radius:9999px;">01 / 05</span>
+              <div style="position:absolute;bottom:18px;inset-inline-start:20px;inset-inline-end:20px;">
+                <span style="display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:8px;background:rgba(18,9,20,.6);font:600 12px 'IBM Plex Sans Arabic';color:#fff;"><span style="width:6px;height:6px;border-radius:9999px;background:#E0B563;"></span>سينما</span>
+                <h1 style="margin:10px 0 2px;font-family:Lalezar;font-size:40px;line-height:1.05;color:#fff;">الرصاصة السريعة</h1>
+                <p style="margin:0;font:500 14px 'IBM Plex Sans Arabic';color:#B0A6B8;">ديفيد لايتش</p>
+              </div>
+            </div>
+
+            <div style="padding:16px 18px 0;">
+              <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                <span style="padding:6px 12px;border-radius:8px;background:#31203A;border:1px solid #4A3556;font:500 13px 'IBM Plex Sans Arabic';color:#E5E0E9;">أكشن</span>
+                <span style="padding:6px 12px;border-radius:8px;background:#31203A;border:1px solid #4A3556;font:500 12px Inter;color:#E5E0E9;"><bdi>2:07</bdi></span>
+                <span style="padding:6px 12px;border-radius:8px;background:#31203A;border:1px solid #4A3556;font:500 12px Inter;color:#E5E0E9;"><bdi>12/06/2026</bdi></span>
+              </div>
+              <div style="display:flex;gap:12px;margin-top:18px;">
+                <button style="flex:1;height:48px;border:none;border-radius:9999px;background:#D4A24A;color:#2A1A06;font:700 16px 'IBM Plex Sans Arabic';cursor:pointer;box-shadow:inset 0 0 0 1px rgba(42,26,6,.22);">احجز الآن</button>
+                <button style="flex:none;height:48px;padding:0 20px;border:1.5px solid #D4A24A;border-radius:9999px;background:transparent;color:#E0B563;font:600 14px 'IBM Plex Sans Arabic';cursor:pointer;"><i class="ph-fill ph-play" style="font-size:0.9em;vertical-align:-1px;"></i> الإعلان</button>
+              </div>
+            </div>
+
+            <div style="padding:22px 18px 0;">
+              <h3 style="margin:0 0 8px;font:700 17px 'IBM Plex Sans Arabic';color:#fff;">القصة</h3>
+              <p style="margin:0;font:400 15px/1.7 'IBM Plex Sans Arabic';color:#C9C0D0;">خمسة قتلة محترفين يجدون أنفسهم على متن قطار فائق السرعة من طوكيو إلى موريوكا، دون أن يدركوا أن مهامهم متشابكة.</p>
+            </div>
+
+            <div style="padding:24px 18px 24px;">
+              <h3 style="margin:0 0 12px;font:700 17px 'IBM Plex Sans Arabic';color:#fff;">العروض</h3>
+              <div class="hsc" style="display:flex;gap:10px;overflow-x:auto;margin-bottom:18px;">
+                <button style="flex:none;padding:8px 16px;border-radius:9999px;background:#D4A24A;color:#2A1A06;border:none;font:700 14px 'IBM Plex Sans Arabic';cursor:pointer;">اليوم</button>
+                <button style="flex:none;padding:8px 16px;border-radius:9999px;background:#31203A;color:#B0A6B8;border:1px solid #4A3556;font:500 14px 'IBM Plex Sans Arabic';cursor:pointer;">غدا</button>
+                <button style="flex:none;padding:8px 16px;border-radius:9999px;background:#31203A;color:#B0A6B8;border:1px solid #4A3556;font:500 13px Inter;cursor:pointer;"><bdi>20/06</bdi></button>
+              </div>
+              <div style="margin-bottom:18px;">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;"><i class="ph ph-map-pin" style="font-size:15px;line-height:1;color:#B0A6B8;"></i><span style="font:600 15px 'IBM Plex Sans Arabic';color:#fff;">سيني الحمراء</span></div>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                  <button style="position:relative;min-width:86px;padding:9px 12px 8px;border-radius:8px;background:#31203A;border:1px solid #4A3556;text-align:start;cursor:pointer;"><span style="position:absolute;top:6px;inset-inline-start:9px;font:700 9px Inter;color:#B0A6B8;">VF</span><div style="margin-top:13px;font:700 17px Inter;color:#fff;"><bdi>16:00</bdi></div></button>
+                  <button style="position:relative;min-width:96px;padding:9px 12px 8px;border-radius:8px;background:#D4A24A;border:1px solid #D4A24A;text-align:start;cursor:pointer;box-shadow:0 0 0 2px #241326, 0 0 0 4px #D4A24A;"><span style="position:absolute;top:6px;inset-inline-start:9px;font:700 9px Inter;color:#2A1A06;">VF</span><span style="position:absolute;top:5px;inset-inline-end:7px;font-size:13px;color:#2A1A06;"><i class="ph-bold ph-check" style="font-size:13px;line-height:1;"></i></span><div style="margin-top:13px;font:700 17px Inter;color:#2A1A06;"><bdi>19:30</bdi></div><div style="font:600 11px 'IBM Plex Sans Arabic';color:#5A4412;"><i class="ph-fill ph-sparkle" style="font-size:0.95em;vertical-align:-1px;"></i> موصى به</div></button>
+                  <button style="position:relative;min-width:86px;padding:9px 12px 8px;border-radius:8px;background:#31203A;border:1px solid #4A3556;text-align:start;cursor:pointer;"><span style="position:absolute;top:6px;inset-inline-start:9px;font:700 9px Inter;color:#B0A6B8;">VOST</span><div style="margin-top:13px;font:700 17px Inter;color:#fff;"><bdi>21:45</bdi></div></button>
+                </div>
+              </div>
+              <div>
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;"><i class="ph ph-map-pin" style="font-size:15px;line-height:1;color:#B0A6B8;"></i><span style="font:600 15px 'IBM Plex Sans Arabic';color:#fff;">باثي تونس سيتي</span></div>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                  <button style="position:relative;min-width:86px;padding:9px 12px 8px;border-radius:8px;background:#31203A;border:1px solid #4A3556;text-align:start;cursor:pointer;"><span style="position:absolute;top:6px;inset-inline-start:9px;font:700 9px Inter;color:#B0A6B8;">3D</span><div style="margin-top:13px;font:700 17px Inter;color:#fff;"><bdi>19:00</bdi></div></button>
+                  <button aria-disabled="true" style="position:relative;min-width:86px;padding:9px 12px 8px;border-radius:8px;background:#241326;border:1px dashed #4A3556;text-align:start;cursor:not-allowed;opacity:.6;"><span style="position:absolute;top:6px;inset-inline-start:9px;font:700 9px Inter;color:#8B7E94;">VF</span><div style="margin-top:13px;font:700 17px Inter;color:#8B7E94;text-decoration:line-through;"><bdi>22:00</bdi></div><div style="font:600 11px 'IBM Plex Sans Arabic';color:#FF8A8A;">مكتمل</div></button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- DESKTOP -->
+        <sc-if value="{{ showDesktop }}" hint-placeholder-val="{{ true }}">
+        <div style="flex:none;display:flex;flex-direction:column;gap:14px;">
+          <div style="font:600 12px Inter;color:#8B7E94;letter-spacing:.08em;text-transform:uppercase;">FR · Desktop · héro + rail séances</div>
+          <div style="flex:none;width:1180px;border-radius:18px;background:#241326;border:1px solid #4A3556;overflow:hidden;box-shadow:0 24px 60px -24px rgba(0,0,0,.8);">
+            <div style="display:flex;align-items:center;gap:10px;padding:14px 18px;background:#1E0F22;border-bottom:1px solid #2E1D37;">
+              <span style="width:11px;height:11px;border-radius:9999px;background:#4A3556;"></span><span style="width:11px;height:11px;border-radius:9999px;background:#4A3556;"></span><span style="width:11px;height:11px;border-radius:9999px;background:#4A3556;"></span>
+              <span style="margin-inline-start:14px;flex:1;font:500 12px 'JetBrains Mono';color:#6E6076;">tiween.com/film/bullet-train</span>
+            </div>
+            <div style="display:flex;gap:32px;padding:32px;">
+              <div style="flex:1;min-width:0;">
+                <div style="position:relative;aspect-ratio:16/10;border-radius:18px;overflow:hidden;background:repeating-linear-gradient(115deg,#2b2530 0,#2b2530 13px,#383240 13px,#383240 26px);">
+                  <span style="position:absolute;top:50%;inset-inline-end:6%;transform:translateY(-50%);font-family:Lalezar;font-size:260px;line-height:.8;color:#D4A24A;opacity:.95;">ت</span>
+                  <div style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(20,9,22,.92) 26%,rgba(20,9,22,.4) 56%,rgba(20,9,22,.1));"></div>
+                  <span style="position:absolute;top:16px;inset-inline-start:18px;font:500 10px 'JetBrains Mono';letter-spacing:.08em;color:#9A8DA2;background:rgba(18,9,20,.5);padding:5px 9px;border-radius:8px;">PORTRAIT DUOTONE — découpe ت or</span>
+                  <span style="position:absolute;top:16px;inset-inline-end:18px;font:600 11px 'JetBrains Mono';color:#fff;background:rgba(18,9,20,.55);padding:4px 10px;border-radius:9999px;">01 / 05</span>
+                  <div style="position:absolute;bottom:28px;inset-inline-start:30px;">
+                    <span style="display:inline-flex;align-items:center;gap:6px;padding:4px 11px;border-radius:8px;background:rgba(18,9,20,.6);font:600 12px Inter;color:#fff;"><span style="width:7px;height:7px;border-radius:9999px;background:#E0B563;"></span>Cinéma</span>
+                    <h1 style="margin:12px 0 2px;font-family:Lalezar;font-size:58px;line-height:1;color:#fff;">Bullet Train</h1>
+                    <p style="margin:0;font:500 16px Inter;color:#B0A6B8;">David Leitch · Action · 2h07</p>
+                  </div>
+                </div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:20px;">
+                  <span style="padding:7px 14px;border-radius:8px;background:#31203A;border:1px solid #4A3556;font:500 13px Inter;color:#E5E0E9;">Action</span>
+                  <span style="padding:7px 14px;border-radius:8px;background:#31203A;border:1px solid #4A3556;font:500 13px Inter;color:#E5E0E9;">Comédie</span>
+                  <span style="padding:7px 14px;border-radius:8px;background:#31203A;border:1px solid #4A3556;font:500 13px Inter;color:#E5E0E9;">2h07</span>
+                  <span style="padding:7px 14px;border-radius:8px;background:#31203A;border:1px solid #4A3556;font:500 13px Inter;color:#E5E0E9;"><bdi>12/06/2026</bdi></span>
+                </div>
+                <h3 style="margin:24px 0 8px;font:700 19px Inter;color:#fff;">Synopsis</h3>
+                <p style="margin:0;font:400 15px/1.7 Inter;color:#C9C0D0;max-width:620px;">Cinq tueurs à gages se retrouvent à bord d'un train à grande vitesse filant de Tokyo à Morioka, sans savoir que leurs missions s'entrecroisent. Une comédie d'action étourdissante, orchestrée comme une horloge — chaque wagon réserve sa surprise.</p>
+                <h3 style="margin:24px 0 12px;font:700 19px Inter;color:#fff;">Distribution</h3>
+                <div style="display:flex;gap:20px;">
+                  <div style="text-align:center;"><div style="width:64px;height:64px;border-radius:9999px;background:repeating-linear-gradient(135deg,#31203A 0,#31203A 6px,#3E2A48 6px,#3E2A48 12px);margin-bottom:6px;"></div><span style="font:500 11px Inter;color:#C9C0D0;">Brad Pitt</span></div>
+                  <div style="text-align:center;"><div style="width:64px;height:64px;border-radius:9999px;background:repeating-linear-gradient(135deg,#31203A 0,#31203A 6px,#3E2A48 6px,#3E2A48 12px);margin-bottom:6px;"></div><span style="font:500 11px Inter;color:#C9C0D0;">Joey King</span></div>
+                  <div style="text-align:center;"><div style="width:64px;height:64px;border-radius:9999px;background:repeating-linear-gradient(135deg,#31203A 0,#31203A 6px,#3E2A48 6px,#3E2A48 12px);margin-bottom:6px;"></div><span style="font:500 11px Inter;color:#C9C0D0;">A. Taylor-J.</span></div>
+                  <div style="text-align:center;"><div style="width:64px;height:64px;border-radius:9999px;background:repeating-linear-gradient(135deg,#31203A 0,#31203A 6px,#3E2A48 6px,#3E2A48 12px);margin-bottom:6px;"></div><span style="font:500 11px Inter;color:#C9C0D0;">B. T. Henry</span></div>
+                </div>
+              </div>
+
+              <div style="flex:none;width:340px;">
+                <div style="background:#31203A;border:1px solid #4A3556;border-radius:16px;padding:20px;">
+                  <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:14px;">
+                    <h3 style="margin:0;font:700 18px Inter;color:#fff;">Séances</h3>
+                    <span style="font:600 13px Inter;color:#E0B563;">Aujourd'hui <i class="ph ph-caret-down" style="font-size:0.8em;"></i></span>
+                  </div>
+                  <div style="display:flex;gap:8px;margin-bottom:18px;">
+                    <button style="flex:1;padding:8px 0;border-radius:9999px;background:#D4A24A;color:#2A1A06;border:none;font:700 12px Inter;cursor:pointer;">Auj.</button>
+                    <button style="flex:1;padding:8px 0;border-radius:9999px;background:#3E2A48;color:#B0A6B8;border:1px solid #4A3556;font:500 12px Inter;cursor:pointer;">Demain</button>
+                    <button style="flex:1;padding:8px 0;border-radius:9999px;background:#3E2A48;color:#B0A6B8;border:1px solid #4A3556;font:500 12px Inter;cursor:pointer;"><bdi>Ven</bdi></button>
+                  </div>
+
+                  <div style="margin-bottom:16px;">
+                    <div style="font:600 13px Inter;color:#fff;margin-bottom:9px;">Ciné Alhambra Zéphyr</div>
+                    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                      <button style="position:relative;min-width:78px;padding:8px 10px 7px;border-radius:8px;background:#3E2A48;border:1px solid #4A3556;text-align:start;cursor:pointer;"><span style="position:absolute;top:5px;inset-inline-start:8px;font:700 8px Inter;color:#B0A6B8;">VF</span><div style="margin-top:11px;font:700 15px Inter;color:#fff;">16h00</div></button>
+                      <button style="position:relative;min-width:88px;padding:8px 10px 7px;border-radius:8px;background:#D4A24A;border:1px solid #D4A24A;text-align:start;cursor:pointer;box-shadow:0 0 0 2px #31203A, 0 0 0 4px #D4A24A;"><span style="position:absolute;top:5px;inset-inline-start:8px;font:700 8px Inter;color:#2A1A06;">VF</span><span style="position:absolute;top:4px;inset-inline-end:6px;font-size:12px;color:#2A1A06;"><i class="ph-bold ph-check" style="font-size:13px;line-height:1;"></i></span><div style="margin-top:11px;font:700 15px Inter;color:#2A1A06;">19h30</div><div style="font:600 9px Inter;color:#5A4412;"><i class="ph-fill ph-sparkle" style="font-size:0.95em;vertical-align:-1px;"></i> recommandé</div></button>
+                      <button style="position:relative;min-width:78px;padding:8px 10px 7px;border-radius:8px;background:#3E2A48;border:1px solid #4A3556;text-align:start;cursor:pointer;"><span style="position:absolute;top:5px;inset-inline-start:8px;font:700 8px Inter;color:#B0A6B8;">VOST</span><div style="margin-top:11px;font:700 15px Inter;color:#fff;">21h45</div></button>
+                    </div>
+                  </div>
+                  <div style="margin-bottom:18px;">
+                    <div style="font:600 13px Inter;color:#fff;margin-bottom:9px;">Pathé Tunis City</div>
+                    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                      <button style="position:relative;min-width:78px;padding:8px 10px 7px;border-radius:8px;background:#3E2A48;border:1px solid #4A3556;text-align:start;cursor:pointer;"><span style="position:absolute;top:5px;inset-inline-start:8px;font:700 8px Inter;color:#B0A6B8;">3D</span><div style="margin-top:11px;font:700 15px Inter;color:#fff;">19h00</div></button>
+                      <button aria-disabled="true" style="position:relative;min-width:78px;padding:8px 10px 7px;border-radius:8px;background:#241326;border:1px dashed #4A3556;text-align:start;cursor:not-allowed;opacity:.6;"><span style="position:absolute;top:5px;inset-inline-start:8px;font:700 8px Inter;color:#8B7E94;">VF</span><div style="margin-top:11px;font:700 15px Inter;color:#8B7E94;text-decoration:line-through;">22h00</div></button>
+                    </div>
+                  </div>
+                  <button style="width:100%;height:48px;border:none;border-radius:9999px;background:#D4A24A;color:#2A1A06;font:700 16px Inter;cursor:pointer;box-shadow:inset 0 0 0 1px rgba(42,26,6,.22);">Réserver · 19h30</button>
+                  <button style="width:100%;height:44px;margin-top:10px;border:1.5px solid #D4A24A;border-radius:9999px;background:transparent;color:#E0B563;font:600 14px Inter;cursor:pointer;"><i class="ph-fill ph-play" style="font-size:0.9em;vertical-align:-1px;"></i> Voir la bande annonce</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        </sc-if>
+
+      </div>
+    </section>
+
+    <section>
+      <h2 style="margin:0 0 22px;font:700 22px Inter;color:#fff;display:flex;align-items:center;gap:12px;flex-wrap:wrap;"><span style="display:inline-block;width:8px;height:8px;border-radius:9999px;background:#D4A24A;"></span>Recherche &amp; états<span style="font:500 13px Inter;color:#6E6076;">instant search · vide encourageant · hors-ligne confiant</span></h2>
+      <div style="display:flex;gap:48px;align-items:flex-start;">
+
+        <!-- SEARCH -->
+        <div style="flex:none;display:flex;flex-direction:column;gap:14px;">
+          <div style="font:600 12px Inter;color:#8B7E94;letter-spacing:.08em;text-transform:uppercase;">Recherche · Mobile</div>
+          <div style="flex:none;width:390px;border-radius:40px;background:#241326;border:1px solid #4A3556;overflow:hidden;box-shadow:0 24px 60px -24px rgba(0,0,0,.8);">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 24px 4px;font:600 13px Inter;color:#fff;">
+              <span>9:41</span>
+              <span style="display:flex;align-items:center;gap:7px;font-size:11px;"><span style="font:500 11px 'JetBrains Mono';color:#B0A6B8;">5G</span><span style="letter-spacing:1px;">▮▮▮</span><span style="font:500 11px 'JetBrains Mono';">87%</span></span>
+            </div>
+            <div style="padding:10px 18px 14px;">
+              <div style="display:flex;align-items:center;gap:10px;height:48px;padding:0 14px;border-radius:9999px;background:#31203A;border:1.5px solid #D4A24A;box-shadow:0 0 0 3px rgba(212,162,74,.18);">
+                <i class="ph ph-magnifying-glass" style="font-size:18px;line-height:1;color:#E0B563;"></i>
+                <span style="font:500 16px Inter;color:#fff;">bul<span style="display:inline-block;width:2px;height:18px;background:#D4A24A;vertical-align:-3px;margin-inline-start:1px;"></span></span>
+                <span style="margin-inline-start:auto;width:22px;height:22px;border-radius:9999px;background:#4A3556;color:#B0A6B8;display:flex;align-items:center;justify-content:center;"><i class="ph ph-x" style="font-size:12px;line-height:1;"></i></span>
+              </div>
+            </div>
+            <div class="hsc" style="display:flex;gap:8px;padding:0 18px 14px;overflow-x:auto;border-bottom:1px solid #2E1D37;">
+              <button style="flex:none;display:flex;align-items:center;gap:5px;padding:7px 13px;border-radius:9999px;background:#31203A;border:1px solid #4A3556;font:500 13px Inter;color:#E5E0E9;cursor:pointer;">Catégorie <i class="ph ph-caret-down" style="font-size:0.8em;"></i></button>
+              <button style="flex:none;padding:7px 13px;border-radius:9999px;background:#31203A;border:1px solid #4A3556;font:500 13px Inter;color:#E5E0E9;cursor:pointer;">Date <i class="ph ph-caret-down" style="font-size:0.8em;"></i></button>
+              <button style="flex:none;padding:7px 13px;border-radius:9999px;background:#31203A;border:1px solid #4A3556;font:500 13px Inter;color:#E5E0E9;cursor:pointer;">Lieu <i class="ph ph-caret-down" style="font-size:0.8em;"></i></button>
+              <button style="flex:none;display:flex;align-items:center;gap:6px;padding:7px 13px;border-radius:9999px;background:#31203A;border:1px solid #4A3556;font:500 13px Inter;color:#E5E0E9;cursor:pointer;"><i class="ph ph-map-pin" style="font-size:13px;line-height:1;"></i>Près de moi</button>
+            </div>
+
+            <div style="padding:16px 18px 8px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+                <span style="font:600 12px Inter;color:#8B7E94;letter-spacing:.04em;text-transform:uppercase;">Recherches récentes</span>
+                <span style="font:600 12px Inter;color:#E0B563;">Effacer</span>
+              </div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                <sc-for list="{{ recents }}" as="r" hint-placeholder-count="4">
+                  <span style="display:inline-flex;align-items:center;gap:7px;padding:7px 12px;border-radius:9999px;background:#2E1D37;font:500 13px Inter;color:#C9C0D0;"><i class="ph ph-clock" style="font-size:12px;line-height:1;color:#8B7E94;"></i><bdi>{{ r }}</bdi></span>
+                </sc-for>
+              </div>
+            </div>
+
+            <div style="padding:16px 18px 16px;">
+              <span style="font:600 12px Inter;color:#8B7E94;letter-spacing:.04em;text-transform:uppercase;">Résultats</span>
+              <div style="margin-top:6px;">
+                <sc-for list="{{ searchResults }}" as="r" hint-placeholder-count="3">
+                  <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #2E1D37;">
+                    <div style="flex:none;width:44px;height:58px;border-radius:8px;background:repeating-linear-gradient(135deg,#31203A 0,#31203A 7px,#3A2742 7px,#3A2742 14px);"></div>
+                    <div style="flex:1;min-width:0;">
+                      <div style="font:600 15px Inter;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><bdi>{{ r.title }}</bdi></div>
+                      <div style="font:400 12px Inter;color:#B0A6B8;margin-top:2px;">{{ r.sub }}</div>
+                      <div style="font:500 11px Inter;color:#E0B563;margin-top:3px;"><bdi>{{ r.meta }}</bdi></div>
+                    </div>
+                    <span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:9999px;background:{{ r.catColor }};"></span><i class="ph ph-caret-right" style="font-size:16px;line-height:1;color:#6E6076;"></i></span>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+
+            <nav style="display:flex;justify-content:space-around;align-items:center;height:64px;border-top:1px solid #4A3556;background:#241326;">
+              <div style="display:flex;flex-direction:column;align-items:center;gap:4px;color:#B0A6B8;"><i class="ph ph-house" style="font-size:22px;line-height:1;"></i><span style="font:500 10px Inter;">Accueil</span></div>
+              <div style="display:flex;flex-direction:column;align-items:center;gap:4px;color:#D4A24A;"><i class="ph-fill ph-magnifying-glass" style="font-size:22px;line-height:1;"></i><span style="font:600 10px Inter;">Recherche</span></div>
+              <div style="display:flex;flex-direction:column;align-items:center;gap:4px;color:#B0A6B8;"><i class="ph ph-ticket" style="font-size:22px;line-height:1;"></i><span style="font:500 10px Inter;">Billets</span></div>
+              <div style="display:flex;flex-direction:column;align-items:center;gap:4px;color:#B0A6B8;"><i class="ph ph-user" style="font-size:22px;line-height:1;"></i><span style="font:500 10px Inter;">Compte</span></div>
+            </nav>
+          </div>
+        </div>
+
+        <!-- EMPTY (watchlist) -->
+        <div style="flex:none;display:flex;flex-direction:column;gap:14px;">
+          <div style="font:600 12px Inter;color:#8B7E94;letter-spacing:.08em;text-transform:uppercase;">État vide · Favoris</div>
+          <div style="flex:none;width:390px;border-radius:40px;background:#241326;border:1px solid #4A3556;overflow:hidden;box-shadow:0 24px 60px -24px rgba(0,0,0,.8);display:flex;flex-direction:column;">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 24px 4px;font:600 13px Inter;color:#fff;">
+              <span>9:41</span>
+              <span style="display:flex;align-items:center;gap:7px;font-size:11px;"><span style="font:500 11px 'JetBrains Mono';color:#B0A6B8;">5G</span><span style="letter-spacing:1px;">▮▮▮</span><span style="font:500 11px 'JetBrains Mono';">87%</span></span>
+            </div>
+            <div style="padding:8px 18px 0;"><h2 style="margin:0;font:700 22px Inter;color:#fff;">Mes favoris</h2></div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:48px 32px;">
+              <div style="width:96px;height:96px;border-radius:9999px;border:2px dashed #4A3556;display:flex;align-items:center;justify-content:center;margin-bottom:24px;">
+                <span style="font-family:Lalezar;font-size:48px;color:#6E6076;line-height:1;padding-bottom:4px;">ت</span>
+              </div>
+              <h3 style="margin:0 0 10px;font-family:Lalezar;font-size:34px;line-height:1.05;color:#fff;">Aucun favori… pour l'instant</h3>
+              <p style="margin:0 0 28px;font:400 15px/1.6 Inter;color:#B0A6B8;max-width:280px;">Touchez le ♡ sur une affiche pour la garder ici. Et si vous exploriez ce qui passe ce soir&nbsp;?</p>
+              <button style="height:48px;padding:0 26px;border:none;border-radius:9999px;background:#D4A24A;color:#2A1A06;font:700 16px Inter;cursor:pointer;box-shadow:inset 0 0 0 1px rgba(42,26,6,.22);">Explorer ce soir →</button>
+            </div>
+            <nav style="display:flex;justify-content:space-around;align-items:center;height:64px;border-top:1px solid #4A3556;background:#241326;">
+              <div style="display:flex;flex-direction:column;align-items:center;gap:4px;color:#B0A6B8;"><i class="ph ph-house" style="font-size:22px;line-height:1;"></i><span style="font:500 10px Inter;">Accueil</span></div>
+              <div style="display:flex;flex-direction:column;align-items:center;gap:4px;color:#B0A6B8;"><i class="ph ph-magnifying-glass" style="font-size:22px;line-height:1;"></i><span style="font:500 10px Inter;">Recherche</span></div>
+              <div style="display:flex;flex-direction:column;align-items:center;gap:4px;color:#B0A6B8;"><i class="ph ph-ticket" style="font-size:22px;line-height:1;"></i><span style="font:500 10px Inter;">Billets</span></div>
+              <div style="display:flex;flex-direction:column;align-items:center;gap:4px;color:#D4A24A;"><i class="ph-fill ph-user" style="font-size:22px;line-height:1;"></i><span style="font:600 10px Inter;">Compte</span></div>
+            </nav>
+          </div>
+        </div>
+
+        <!-- OFFLINE -->
+        <div style="flex:none;display:flex;flex-direction:column;gap:14px;">
+          <div style="font:600 12px Inter;color:#8B7E94;letter-spacing:.08em;text-transform:uppercase;">État hors-ligne · Feed</div>
+          <div style="flex:none;width:390px;border-radius:40px;background:#241326;border:1px solid #4A3556;overflow:hidden;box-shadow:0 24px 60px -24px rgba(0,0,0,.8);">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 24px 4px;font:600 13px Inter;color:#fff;">
+              <span>9:41</span>
+              <span style="display:flex;align-items:center;gap:7px;font-size:11px;"><span style="font:500 11px 'JetBrains Mono';color:#FF8A8A;">hors ligne</span><span style="letter-spacing:1px;color:#8B7E94;">▮▯▯</span><span style="font:500 11px 'JetBrains Mono';">87%</span></span>
+            </div>
+            <div style="margin:10px 18px 0;padding:12px 14px;border-radius:12px;background:#2A2114;border:1px solid #5A4412;display:flex;align-items:center;gap:11px;">
+              <i class="ph ph-wifi-slash" style="font-size:20px;line-height:1;color:#E8B24C;"></i>
+              <div><div style="font:600 13px Inter;color:#fff;">Vous êtes hors ligne</div><div style="font:400 12px Inter;color:#B0A6B8;">Le contenu en cache reste disponible · vos billets restent valides.</div></div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;padding:16px 18px 6px;">
+              <span style="display:inline-flex;align-items:center;gap:7px;padding:6px 11px;border-radius:9999px;background:#16331F;border:1px solid #2E5E3C;font:600 12px Inter;color:#5BD08A;"><i class="ph ph-check" style="font-size:13px;line-height:1;"></i>Fonctionne hors ligne</span>
+            </div>
+            <div style="padding:6px 0 4px;">
+              <div style="padding:0 18px 12px;"><h3 style="margin:0;font:700 18px Inter;color:#fff;">En cache · Films à venir</h3></div>
+              <div class="hsc" style="display:flex;gap:14px;overflow-x:auto;padding:0 18px;">
+                <sc-for list="{{ aVenir }}" as="f" hint-placeholder-count="4">
+                  <div style="flex:none;width:150px;">
+                    <div style="position:relative;aspect-ratio:2/3;border-radius:16px;overflow:hidden;background:repeating-linear-gradient(135deg,#31203A 0,#31203A 9px,#3A2742 9px,#3A2742 18px);">
+                      <span style="position:absolute;top:8px;inset-inline-start:8px;z-index:2;display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:8px;background:rgba(18,9,20,.72);font:600 10px Inter;color:#fff;"><span style="width:6px;height:6px;border-radius:9999px;background:{{ f.catColor }};"></span>{{ f.cat }}</span>
+                      <span style="position:absolute;top:44%;left:0;right:0;text-align:center;font-family:'JetBrains Mono';font-size:10px;letter-spacing:.12em;color:#7B6E83;">AFFICHE 2:3</span>
+                      <div style="position:absolute;inset-inline:0;bottom:0;padding:30px 11px 11px;background:linear-gradient(to top,rgba(12,6,14,.96) 0%,rgba(12,6,14,.84) 42%,rgba(12,6,14,0) 100%);">
+                        <div style="font:600 14px Inter;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><bdi>{{ f.title }}</bdi></div>
+                        <div style="margin-top:1px;font:400 11px Inter;color:#C9C0D0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><bdi>{{ f.venue }}</bdi> · <bdi>{{ f.date }}</bdi></div>
+                      </div>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+            <div style="padding:18px 18px 18px;">
+              <div style="padding:16px;border-radius:12px;background:#31203A;border:1px dashed #4A3556;display:flex;align-items:center;gap:12px;">
+                <i class="ph ph-arrow-counter-clockwise" style="font-size:22px;color:#8B7E94;line-height:1;"></i>
+                <div><div style="font:600 13px Inter;color:#C9C0D0;">« Sélection musique » se mettra à jour</div><div style="font:400 12px Inter;color:#8B7E94;">dès le retour de la connexion.</div></div>
+              </div>
+            </div>
+            <nav style="display:flex;justify-content:space-around;align-items:center;height:64px;border-top:1px solid #4A3556;background:#241326;">
+              <div style="display:flex;flex-direction:column;align-items:center;gap:4px;color:#D4A24A;"><i class="ph-fill ph-house" style="font-size:22px;line-height:1;"></i><span style="font:600 10px Inter;">Accueil</span></div>
+              <div style="display:flex;flex-direction:column;align-items:center;gap:4px;color:#B0A6B8;"><i class="ph ph-magnifying-glass" style="font-size:22px;line-height:1;"></i><span style="font:500 10px Inter;">Recherche</span></div>
+              <div style="display:flex;flex-direction:column;align-items:center;gap:4px;color:#B0A6B8;"><i class="ph ph-ticket" style="font-size:22px;line-height:1;"></i><span style="font:500 10px Inter;">Billets</span></div>
+              <div style="display:flex;flex-direction:column;align-items:center;gap:4px;color:#B0A6B8;"><i class="ph ph-user" style="font-size:22px;line-height:1;"></i><span style="font:500 10px Inter;">Compte</span></div>
+            </nav>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <section>
+      <h2 style="margin:0 0 22px;font:700 22px Inter;color:#fff;display:flex;align-items:center;gap:12px;flex-wrap:wrap;"><span style="display:inline-block;width:8px;height:8px;border-radius:9999px;background:#5FD0C2;"></span>Courts métrages<span style="font:500 13px Inter;color:#6E6076;">écran complet · interactif · hero + directory filtrable · FR / AR / desktop</span></h2>
+      <div style="display:flex;gap:48px;align-items:flex-start;">
+
+        <!-- FR MOBILE (live) -->
+        <div style="flex:none;display:flex;flex-direction:column;gap:14px;">
+          <div style="font:600 12px Inter;color:#8B7E94;letter-spacing:.08em;text-transform:uppercase;">FR · Mobile · interactif</div>
+          <div style="flex:none;width:390px;height:824px;border-radius:40px;overflow:hidden;border:1px solid #4A3556;background:#241326;box-shadow:0 24px 60px -24px rgba(0,0,0,.8);display:flex;flex-direction:column;">
+            <div style="flex:none;display:flex;align-items:center;justify-content:space-between;padding:13px 24px 8px;font:600 13px Inter;color:#fff;background:#241326;"><span>9:41</span><span style="display:flex;align-items:center;gap:7px;font-size:11px;"><span style="font:500 11px 'JetBrains Mono';color:#B0A6B8;">5G</span><span style="letter-spacing:1px;">▮▮▮</span><span style="font:500 11px 'JetBrains Mono';">87%</span></span></div>
+            <div class="hsc" style="flex:1;position:relative;overflow-y:auto;transform:translateZ(0);">
+              <dc-import name="Courts Métrages" locale="fr" view-state="auto" hint-size="390px,1600px" style="display:block;width:100%;"></dc-import>
+            </div>
+          </div>
+        </div>
+
+        <!-- AR RTL MOBILE (live) -->
+        <div style="flex:none;display:flex;flex-direction:column;gap:14px;">
+          <div style="font:600 12px Inter;color:#8B7E94;letter-spacing:.08em;text-transform:uppercase;">AR · RTL · Mobile · interactif</div>
+          <div style="flex:none;width:390px;height:824px;border-radius:40px;overflow:hidden;border:1px solid #4A3556;background:#241326;box-shadow:0 24px 60px -24px rgba(0,0,0,.8);display:flex;flex-direction:column;">
+            <div style="flex:none;display:flex;align-items:center;justify-content:space-between;padding:13px 24px 8px;font:600 13px Inter;color:#fff;background:#241326;"><span>9:41</span><span style="display:flex;align-items:center;gap:7px;font-size:11px;"><span style="font:500 11px 'JetBrains Mono';color:#B0A6B8;">5G</span><span style="letter-spacing:1px;">▮▮▮</span><span style="font:500 11px 'JetBrains Mono';">87%</span></span></div>
+            <div class="hsc" style="flex:1;position:relative;overflow-y:auto;transform:translateZ(0);">
+              <dc-import name="Courts Métrages" locale="ar" view-state="auto" hint-size="390px,1600px" style="display:block;width:100%;"></dc-import>
+            </div>
+          </div>
+        </div>
+
+        <!-- DESKTOP (live, responsive) -->
+        <sc-if value="{{ showDesktop }}" hint-placeholder-val="{{ true }}">
+        <div style="flex:none;display:flex;flex-direction:column;gap:14px;">
+          <div style="font:600 12px Inter;color:#8B7E94;letter-spacing:.08em;text-transform:uppercase;">Desktop · responsive (grille jusqu'à 6 col)</div>
+          <div style="flex:none;width:1180px;height:824px;border-radius:18px;overflow:hidden;border:1px solid #4A3556;background:#241326;box-shadow:0 24px 60px -24px rgba(0,0,0,.8);display:flex;flex-direction:column;">
+            <div style="flex:none;display:flex;align-items:center;gap:10px;padding:14px 18px;background:#1E0F22;border-bottom:1px solid #2E1D37;">
+              <span style="width:11px;height:11px;border-radius:9999px;background:#4A3556;"></span><span style="width:11px;height:11px;border-radius:9999px;background:#4A3556;"></span><span style="width:11px;height:11px;border-radius:9999px;background:#4A3556;"></span>
+              <span style="margin-inline-start:14px;flex:1;font:500 12px 'JetBrains Mono';color:#6E6076;">tiween.com/courts-metrages</span>
+            </div>
+            <div class="hsc" style="flex:1;position:relative;overflow-y:auto;transform:translateZ(0);">
+              <dc-import name="Courts Métrages" locale="fr" view-state="auto" hint-size="1180px,1400px" style="display:block;width:100%;"></dc-import>
+            </div>
+          </div>
+        </div>
+        </sc-if>
+
+      </div>
+    </section>
+
+    <sc-if value="{{ showAnnotations }}" hint-placeholder-val="{{ true }}">
+    <section>
+      <h2 style="margin:0 0 22px;font:700 22px Inter;color:#fff;display:flex;align-items:center;gap:12px;flex-wrap:wrap;"><span style="display:inline-block;width:8px;height:8px;border-radius:9999px;background:#E5478A;"></span>Décisions résolues<span style="font:500 13px Inter;color:#6E6076;">les questions ouvertes du brief, tranchées</span></h2>
+      <div style="display:flex;gap:32px;align-items:flex-start;flex-wrap:wrap;">
+
+        <!-- CTA contrast aid -->
+        <div style="flex:none;width:420px;background:#1C0F20;border:1px solid #2E1D37;border-radius:16px;padding:26px;">
+          <div style="font:700 16px Inter;color:#fff;margin-bottom:4px;">Aide de contraste du CTA or</div>
+          <p style="margin:0 0 22px;font:400 13px/1.5 Inter;color:#B0A6B8;">Sur le champ aubergine, le bord du pill or se ferme avec une <b style="color:#E0B563;">hairline interne</b> <code style="font-family:'JetBrains Mono';font-size:11px;">inset 0 0 0 1px rgba(42,26,6,.22)</code> — pas d'ombre. Sur une carte <code style="font-family:'JetBrains Mono';font-size:11px;color:#E0B563;">#31203A</code>, le contraste suffit, aucune aide nécessaire.</p>
+          <div style="display:flex;flex-direction:column;gap:18px;">
+            <div style="background:#241326;border-radius:12px;padding:18px;">
+              <div style="font:600 11px Inter;color:#8B7E94;text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px;">sur le champ #241326 — avec hairline</div>
+              <button style="width:100%;height:48px;border:none;border-radius:9999px;background:#D4A24A;color:#2A1A06;font:700 16px Inter;box-shadow:inset 0 0 0 1px rgba(42,26,6,.22);">Réserver</button>
+            </div>
+            <div style="background:#241326;border-radius:12px;padding:18px;">
+              <div style="font:600 11px Inter;color:#8B7E94;text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px;">sur une carte #31203A — sans aide</div>
+              <div style="background:#31203A;border-radius:12px;padding:14px;">
+                <button style="width:100%;height:48px;border:none;border-radius:9999px;background:#D4A24A;color:#2A1A06;font:700 16px Inter;">Réserver</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Elevation by color-shift -->
+        <div style="flex:none;width:420px;background:#1C0F20;border:1px solid #2E1D37;border-radius:16px;padding:26px;">
+          <div style="font:700 16px Inter;color:#fff;margin-bottom:4px;">Élévation par décalage de surface</div>
+          <p style="margin:0 0 22px;font:400 13px/1.5 Inter;color:#B0A6B8;">Aucune ombre dans le chrome produit. La profondeur se lit par la couleur : champ → carte → survol.</p>
+          <div style="background:#241326;border-radius:14px;padding:26px;">
+            <div style="background:#31203A;border-radius:14px;padding:22px;">
+              <div style="background:#3E2A48;border:1px solid #4A3556;border-radius:12px;padding:20px;">
+                <div style="display:flex;flex-direction:column;gap:10px;">
+                  <div style="display:flex;align-items:center;gap:10px;"><span style="width:34px;height:18px;border-radius:5px;background:#241326;"></span><code style="font-family:'JetBrains Mono';font-size:12px;color:#B0A6B8;">#241326 · champ</code></div>
+                  <div style="display:flex;align-items:center;gap:10px;"><span style="width:34px;height:18px;border-radius:5px;background:#31203A;"></span><code style="font-family:'JetBrains Mono';font-size:12px;color:#B0A6B8;">#31203A · carte</code></div>
+                  <div style="display:flex;align-items:center;gap:10px;"><span style="width:34px;height:18px;border-radius:5px;background:#3E2A48;border:1px solid #4A3556;"></span><code style="font-family:'JetBrains Mono';font-size:12px;color:#B0A6B8;">#3E2A48 · survol / élevé</code></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Category legend -->
+        <div style="flex:none;width:300px;background:#1C0F20;border:1px solid #2E1D37;border-radius:16px;padding:26px;">
+          <div style="font:700 16px Inter;color:#fff;margin-bottom:4px;">Code couleur catégories</div>
+          <p style="margin:0 0 20px;font:400 13px/1.5 Inter;color:#B0A6B8;">Repère de navigation sur le badge de carte uniquement — ne remplace jamais le signal d'action or.</p>
+          <div style="display:flex;flex-direction:column;gap:13px;">
+            <div style="display:flex;align-items:center;gap:11px;"><span style="width:14px;height:14px;border-radius:9999px;background:#E0B563;"></span><span style="font:500 14px Inter;color:#E5E0E9;">Cinéma</span></div>
+            <div style="display:flex;align-items:center;gap:11px;"><span style="width:14px;height:14px;border-radius:9999px;background:#E5478A;"></span><span style="font:500 14px Inter;color:#E5E0E9;">Théâtre</span></div>
+            <div style="display:flex;align-items:center;gap:11px;"><span style="width:14px;height:14px;border-radius:9999px;background:#5FD0C2;"></span><span style="font:500 14px Inter;color:#E5E0E9;">Courts métrages</span></div>
+            <div style="display:flex;align-items:center;gap:11px;"><span style="width:14px;height:14px;border-radius:9999px;background:#7B9CFF;"></span><span style="font:500 14px Inter;color:#E5E0E9;">Musique</span></div>
+            <div style="display:flex;align-items:center;gap:11px;"><span style="width:14px;height:14px;border-radius:9999px;background:#C98AE8;"></span><span style="font:500 14px Inter;color:#E5E0E9;">Expositions</span></div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+    </sc-if>
+
+    <!-- @more -->
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;showAnnotations&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;},&quot;showDesktop&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    const C = { cinema:'#E0B563', theatre:'#E5478A', musique:'#7B9CFF', court:'#5FD0C2', expo:'#C98AE8' };
+    return {
+      showAnnotations: this.props.showAnnotations ?? true,
+      showDesktop: this.props.showDesktop ?? true,
+
+      aVenir: [
+        { title:'Bullet Train', cat:'Cinéma', catColor:C.cinema, rating:'4.6', venue:'Ciné Alhambra', date:'Auj. 19h30', price:'12,20', fmt:'VF', saved:true },
+        { title:"Les Filles d'Olfa", cat:'Cinéma', catColor:C.cinema, rating:'4.8', venue:'CinéMadart', date:'Auj. 20h00', price:'10,00', fmt:'VOST', saved:false },
+        { title:'Dune: Part Two', cat:'Cinéma', catColor:C.cinema, rating:'4.7', venue:'Pathé Tunis City', date:'Auj. 21h15', price:'15,00', fmt:'3D', saved:false },
+        { title:'Hedi', cat:'Cinéma', catColor:C.cinema, rating:'4.3', venue:'Le Rio', date:'Dem. 18h00', price:'9,00', fmt:'VOST', saved:false }
+      ],
+      notes: [
+        { title:'Le Dernier Roi', cat:'Théâtre', catColor:C.theatre, rating:'4.9', venue:'Théâtre Municipal', date:'Sam. 20h30', price:'18,00', fmt:'', saved:false },
+        { title:'Solitude', cat:'Courts', catColor:C.court, rating:'4.7', venue:'Cité de la Culture', date:'Auj. 17h00', price:'5,00', fmt:'VOST', saved:false },
+        { title:'Aziz Maraka', cat:'Musique', catColor:C.musique, rating:'4.8', venue:'El Teatro', date:'Dim. 21h00', price:'30,00', fmt:'', saved:true },
+        { title:'Persepolis', cat:'Cinéma', catColor:C.cinema, rating:'4.6', venue:'CinéMadart', date:'Dem. 19h00', price:'10,00', fmt:'VOST', saved:false }
+      ],
+      musique: [
+        { title:'Emel Mathlouthi', cat:'Musique', catColor:C.musique, rating:'4.9', venue:'Cité de la Culture', date:'22/06 21h00', price:'45,00', fmt:'', saved:false },
+        { title:'Dhafer Youssef', cat:'Musique', catColor:C.musique, rating:'4.8', venue:'Théâtre Romain', date:'25/06 21h30', price:'60,00', fmt:'', saved:false },
+        { title:'Anouar Brahem', cat:'Musique', catColor:C.musique, rating:'5.0', venue:'Acropolium', date:'28/06 20h00', price:'50,00', fmt:'', saved:false },
+        { title:'Soap&Skin', cat:'Musique', catColor:C.musique, rating:'4.5', venue:'El Teatro', date:'30/06 21h00', price:'35,00', fmt:'', saved:false }
+      ],
+      arFilms: [
+        { title:'الرصاصة السريعة', cat:'سينما', catColor:C.cinema, rating:'4.6', venue:'سيني الحمراء', date:'اليوم 19:30', price:'12,20', fmt:'VF', saved:true },
+        { title:'بنات ألفة', cat:'سينما', catColor:C.cinema, rating:'4.8', venue:'سيني مدار', date:'اليوم 20:00', price:'10,00', fmt:'VOST', saved:false },
+        { title:'الكثبان', cat:'سينما', catColor:C.cinema, rating:'4.7', venue:'باثي تونس', date:'اليوم 21:15', price:'15,00', fmt:'3D', saved:false },
+        { title:'هادي', cat:'سينما', catColor:C.cinema, rating:'4.3', venue:'الريو', date:'غدا 18:00', price:'9,00', fmt:'VOST', saved:false }
+      ],
+      arNotes: [
+        { title:'الملك الأخير', cat:'مسرح', catColor:C.theatre, rating:'4.9', venue:'المسرح البلدي', date:'السبت 20:30', price:'18,00', fmt:'', saved:false },
+        { title:'وحدة', cat:'أفلام قصيرة', catColor:C.court, rating:'4.7', venue:'مدينة الثقافة', date:'اليوم 17:00', price:'5,00', fmt:'VOST', saved:false },
+        { title:'عزيز مرقة', cat:'موسيقى', catColor:C.musique, rating:'4.8', venue:'التياترو', date:'الأحد 21:00', price:'30,00', fmt:'', saved:true }
+      ],
+      recents: ['Bullet Train', 'Théâtre Municipal', 'Concerts ce soir', 'CinéMadart'],
+      searchResults: [
+        { title:'Bullet Train', cat:'Cinéma', catColor:C.cinema, sub:'Film · 2h07 · Action', meta:'Ciné Alhambra · 4 séances' },
+        { title:'Bull', cat:'Courts', catColor:C.court, sub:'Court métrage · 18 min', meta:'Cité de la Culture · Auj.' },
+        { title:'Le Bûcher', cat:'Théâtre', catColor:C.theatre, sub:'Pièce · 1h30', meta:'Théâtre Municipal · Sam.' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

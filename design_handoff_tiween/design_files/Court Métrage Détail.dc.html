@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lalezar&family=Inter:wght@400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/bold/style.css">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:#241326}
+  .hsc{-ms-overflow-style:none;scrollbar-width:none}
+  .hsc::-webkit-scrollbar{display:none;height:0;width:0}
+  @keyframes pulseHeart{0%{transform:scale(1)}35%{transform:scale(1.45)}70%{transform:scale(.9)}100%{transform:scale(1)}}
+  @media (prefers-reduced-motion: reduce){*{animation:none !important}}
+</style>
+</helmet>
+
+<div dir="{{ dir }}" lang="{{ locale }}" style="min-height:100vh;background:#241326;color:#fff;font-family:Inter,system-ui,sans-serif;">
+
+  <header style="position:sticky;top:0;z-index:30;background:rgba(36,19,38,.86);backdrop-filter:blur(12px);border-bottom:1px solid #2E1D37;">
+    <div style="max-width:920px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:11px 16px;gap:10px;">
+      <button style="width:40px;height:40px;border-radius:9999px;background:#31203A;border:none;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;"><i class="ph ph-caret-left" style="font-size:20px;"></i></button>
+      <img src="assets/tiween-wordmark-gold.png" alt="tiween · توين" style="height:34px;width:auto;display:block;" />
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div style="display:flex;gap:3px;background:#31203A;border:1px solid #4A3556;border-radius:9999px;padding:3px;">
+          <button onClick="{{ toFr }}" style="border:none;cursor:pointer;border-radius:9999px;min-width:32px;height:28px;font:700 11px Inter;background:{{ frBg }};color:{{ frFg }};">FR</button>
+          <button onClick="{{ toAr }}" style="border:none;cursor:pointer;border-radius:9999px;min-width:32px;height:28px;font:700 13px 'IBM Plex Sans Arabic';background:{{ arBg }};color:{{ arFg }};">ع</button>
+        </div>
+        <button style="width:40px;height:40px;border-radius:9999px;background:#31203A;border:none;color:#B0A6B8;display:flex;align-items:center;justify-content:center;cursor:pointer;"><i class="ph ph-share-network" style="font-size:18px;"></i></button>
+      </div>
+    </div>
+  </header>
+
+  <main style="max-width:920px;margin:0 auto;padding:0 0 116px;">
+
+    <!-- HERO -->
+    <section style="position:relative;height:clamp(440px,62vw,580px);background:repeating-linear-gradient(115deg,#2b2530 0,#2b2530 14px,#383240 14px,#383240 28px);overflow:hidden;">
+      <span style="position:absolute;top:48%;inset-inline-end:-4%;transform:translateY(-50%);font-family:Lalezar;font-size:clamp(300px,46vw,520px);line-height:.8;color:#D4A24A;opacity:.95;">ت</span>
+      <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(14,7,16,.98) 5%,rgba(14,7,16,.5) 44%,rgba(14,7,16,.12) 100%);"></div>
+      <span style="position:absolute;top:14px;inset-inline-start:16px;font:500 10px 'JetBrains Mono';letter-spacing:.08em;color:#9A8DA2;background:rgba(14,7,16,.5);padding:5px 9px;border-radius:8px;">PORTRAIT DUOTONE — découpe ت or</span>
+
+      <button style="position:absolute;top:42%;left:50%;transform:translate(-50%,-50%);width:74px;height:74px;border-radius:9999px;background:#D4A24A;border:none;color:#2A1A06;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 0 0 10px rgba(212,162,74,.18);"><i class="ph-fill ph-play" style="font-size:30px;margin-inline-start:3px;"></i></button>
+
+      <div style="position:absolute;inset-inline:0;bottom:0;padding:clamp(18px,3.5vw,32px);">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
+          <span style="display:inline-flex;align-items:center;gap:6px;padding:4px 11px;border-radius:8px;background:rgba(14,7,16,.6);border:1px solid #2E5E58;font:600 11px Inter;color:#5FD0C2;"><span style="width:6px;height:6px;border-radius:9999px;background:#5FD0C2;"></span>{{ t.short }}</span>
+          <span style="display:inline-flex;align-items:center;gap:5px;padding:4px 11px;border-radius:8px;background:rgba(212,162,74,.16);border:1px solid #6E551E;font:600 11px Inter;color:#E0B563;"><i class="ph-fill ph-trophy" style="font-size:12px;"></i>{{ t.awarded }}</span>
+          <span style="padding:4px 9px;border-radius:8px;background:rgba(14,7,16,.6);border:1px solid #4A3556;font:600 11px Inter;color:#B0A6B8;"><bdi>{{ film.ageRating }}</bdi></span>
+        </div>
+        <h1 style="margin:0;font-family:Lalezar;font-size:clamp(44px,8vw,72px);line-height:.98;color:#fff;">{{ film.title }}</h1>
+        <p style="margin:8px 0 0;font:500 15px {{ titleFont }};color:#C9C0D0;"><bdi>{{ film.director }}</bdi> · <bdi>{{ film.year }}</bdi> · <bdi>{{ film.dur }} min</bdi> · <bdi>{{ film.genresLabel }}</bdi></p>
+      </div>
+    </section>
+
+    <div style="padding:0 16px;">
+
+      <!-- ACTIONS -->
+      <div style="display:flex;gap:12px;margin-top:20px;align-items:stretch;">
+        <button style="flex:none;width:52px;border-radius:9999px;border:1.5px solid #4A3556;background:#31203A;color:{{ heartColor }};display:flex;align-items:center;justify-content:center;cursor:pointer;" onClick="{{ toggleSave }}" aria-label="{{ t.watchlist }}">
+          <span style="position:relative;display:flex;"><i class="ph ph-heart" style="font-size:22px;{{ heartOutline }}"></i><sc-if value="{{ saved }}"><i class="ph-fill ph-heart" style="position:absolute;left:0;top:0;font-size:22px;color:#D4A24A;{{ pulse }}"></i></sc-if></span>
+        </button>
+        <button style="flex:1;height:52px;border:none;border-radius:9999px;background:#D4A24A;color:#2A1A06;font:700 16px {{ titleFont }};cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px;box-shadow:inset 0 0 0 1px rgba(42,26,6,.22);"><i class="ph-fill ph-play" style="font-size:18px;"></i>{{ t.watch }}</button>
+        <button style="flex:none;padding:0 20px;border:1.5px solid #D4A24A;border-radius:9999px;background:transparent;color:#E0B563;font:600 14px {{ titleFont }};cursor:pointer;display:flex;align-items:center;gap:7px;"><i class="ph ph-film-slate" style="font-size:17px;"></i>{{ t.trailer }}</button>
+      </div>
+
+      <!-- SYNOPSIS -->
+      <section style="margin-top:30px;">
+        <h2 style="margin:0 0 10px;font:700 18px {{ titleFont }};color:#fff;">{{ t.synopsis }}</h2>
+        <p style="margin:0;font:400 15px/1.65 {{ titleFont }};color:#C9C0D0;max-width:660px;text-wrap:pretty;">{{ film.synopsis }}</p>
+      </section>
+
+      <!-- DISTINCTIONS -->
+      <section style="margin-top:30px;">
+        <h2 style="margin:0 0 12px;font:700 18px {{ titleFont }};color:#fff;">{{ t.distinctions }}</h2>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <sc-for list="{{ awards }}" as="a" hint-placeholder-count="3">
+            <div style="display:flex;align-items:center;gap:12px;padding:13px 15px;border-radius:12px;background:#31203A;border:1px solid #4A3556;">
+              <i class="ph-fill ph-trophy" style="font-size:19px;color:#D4A24A;flex:none;"></i>
+              <span style="font:500 14px {{ titleFont }};color:#E5E0E9;">{{ a }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+
+      <!-- WHERE TO WATCH -->
+      <section style="margin-top:30px;">
+        <h2 style="margin:0 0 12px;font:700 18px {{ titleFont }};color:#fff;">{{ t.whereToWatch }}</h2>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <sc-for list="{{ streaming }}" as="s" hint-placeholder-count="3">
+            <div style="display:flex;align-items:center;gap:13px;padding:12px 15px;border-radius:12px;background:#31203A;border:1px solid #4A3556;">
+              <div style="flex:none;width:44px;height:44px;border-radius:11px;background:repeating-linear-gradient(135deg,#3E2A48 0,#3E2A48 6px,#4A3556 6px,#4A3556 12px);"></div>
+              <div style="flex:1;min-width:0;">
+                <div style="font:600 15px {{ titleFont }};color:#fff;"><bdi>{{ s.name }}</bdi></div>
+                <div style="font:500 12px {{ titleFont }};color:#5FD0C2;">{{ s.kind }}</div>
+              </div>
+              <button style="flex:none;display:flex;align-items:center;gap:6px;padding:9px 16px;border-radius:9999px;border:1px solid #D4A24A;background:transparent;color:#E0B563;font:600 13px {{ titleFont }};cursor:pointer;">{{ t.watchOn }}<i class="ph ph-arrow-up-right" style="font-size:13px;"></i></button>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+
+      <!-- TEAM -->
+      <section style="margin-top:30px;">
+        <h2 style="margin:0 0 14px;font:700 18px {{ titleFont }};color:#fff;">{{ t.team }}</h2>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px 24px;">
+          <sc-for list="{{ credits }}" as="c" hint-placeholder-count="5">
+            <div>
+              <div style="font:500 12px {{ titleFont }};color:#8B7E94;letter-spacing:.03em;">{{ c.role }}</div>
+              <div style="margin-top:2px;font:600 15px {{ titleFont }};color:#fff;"><bdi>{{ c.name }}</bdi></div>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+
+      <!-- CAST -->
+      <section style="margin-top:30px;">
+        <h2 style="margin:0 0 14px;font:700 18px {{ titleFont }};color:#fff;">{{ t.cast }}</h2>
+        <div class="hsc" style="display:flex;gap:18px;overflow-x:auto;padding-bottom:4px;">
+          <sc-for list="{{ cast }}" as="p" hint-placeholder-count="3">
+            <div style="flex:none;width:88px;text-align:center;">
+              <div style="width:88px;height:88px;border-radius:9999px;background:repeating-linear-gradient(135deg,#31203A 0,#31203A 7px,#3E2A48 7px,#3E2A48 14px);margin-bottom:8px;"></div>
+              <div style="font:600 13px {{ titleFont }};color:#fff;line-height:1.2;"><bdi>{{ p.name }}</bdi></div>
+              <div style="margin-top:2px;font:400 12px {{ titleFont }};color:#B0A6B8;line-height:1.2;"><bdi>{{ p.character }}</bdi></div>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+
+      <!-- RELATED -->
+      <sc-if value="{{ showRelated }}" hint-placeholder-val="{{ true }}">
+      <section style="margin-top:34px;">
+        <h2 style="margin:0 0 14px;font:700 18px {{ titleFont }};color:#fff;">{{ t.related }}</h2>
+        <div class="hsc" style="display:flex;gap:16px;overflow-x:auto;padding-bottom:4px;">
+          <sc-for list="{{ related }}" as="f" hint-placeholder-count="4">
+            <div style="flex:none;width:160px;cursor:pointer;">
+              <div style="position:relative;aspect-ratio:2/3;border-radius:16px;overflow:hidden;background:repeating-linear-gradient(135deg,#31203A 0,#31203A 9px,#3A2742 9px,#3A2742 18px);">
+                <span style="position:absolute;top:8px;inset-inline-start:8px;z-index:2;display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:8px;background:rgba(14,7,16,.74);font:600 10px {{ titleFont }};color:#fff;"><span style="width:6px;height:6px;border-radius:9999px;background:#5FD0C2;"></span>{{ f.genre }}</span>
+                <span style="position:absolute;top:42%;left:0;right:0;text-align:center;font-family:'JetBrains Mono';font-size:10px;letter-spacing:.12em;color:#7B6E83;">AFFICHE 2:3</span>
+                <div style="position:absolute;inset-inline:0;bottom:0;padding:30px 11px 11px;background:linear-gradient(to top,rgba(12,6,14,.96) 0%,rgba(12,6,14,.82) 44%,rgba(12,6,14,0) 100%);">
+                  <div style="display:flex;align-items:center;gap:4px;margin-bottom:3px;font:600 11px Inter;color:#E0B563;"><i class="ph-fill ph-star" style="font-size:.95em;vertical-align:-1px;"></i> <bdi>{{ f.rating }}</bdi></div>
+                  <div style="font:600 14px {{ titleFont }};color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><bdi>{{ f.title }}</bdi></div>
+                  <div style="margin-top:1px;font:400 11px Inter;color:#C9C0D0;"><bdi>{{ f.year }}</bdi> · <bdi>{{ f.dur }} min</bdi></div>
+                </div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+      </sc-if>
+
+    </div>
+  </main>
+
+  <!-- STICKY WATCH BAR -->
+  <div style="position:fixed;inset-inline:0;bottom:0;z-index:40;background:rgba(36,19,38,.94);backdrop-filter:blur(12px);border-top:1px solid #4A3556;padding-bottom:env(safe-area-inset-bottom);">
+    <div style="max-width:920px;margin:0 auto;display:flex;align-items:center;gap:12px;padding:12px 16px;">
+      <div style="flex:1;min-width:0;">
+        <div style="font:600 14px {{ titleFont }};color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><bdi>{{ film.title }}</bdi></div>
+        <div style="font:500 12px {{ titleFont }};color:#5FD0C2;">{{ t.availableNow }}</div>
+      </div>
+      <button style="flex:none;height:48px;padding:0 26px;border:none;border-radius:9999px;background:#D4A24A;color:#2A1A06;font:700 15px {{ titleFont }};cursor:pointer;display:flex;align-items:center;gap:9px;box-shadow:inset 0 0 0 1px rgba(42,26,6,.22);"><i class="ph-fill ph-play" style="font-size:17px;"></i>{{ t.watch }}</button>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:420,&quot;height&quot;:900},&quot;locale&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;fr&quot;,&quot;ar&quot;],&quot;default&quot;:&quot;fr&quot;,&quot;tsType&quot;:&quot;'fr' | 'ar'&quot;},&quot;showRelated&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;}}">
+class Component extends DCLogic {
+  state = { locale: this.props.locale || 'fr', saved:false, justSaved:false };
+
+  STR = {
+    fr:{ short:'Court métrage', awarded:'Primé', watch:'Regarder le film', trailer:'Bande-annonce', watchlist:'Ma liste', synopsis:'Synopsis', distinctions:'Distinctions', whereToWatch:'Où regarder', team:'Équipe artistique', cast:'Distribution', related:'Dans la même veine', watchOn:'Regarder', availableNow:'Disponible — 21 min' },
+    ar:{ short:'فيلم قصير', awarded:'حائز على جائزة', watch:'شاهد الفيلم', trailer:'الإعلان', watchlist:'قائمتي', synopsis:'القصة', distinctions:'الجوائز والتكريمات', whereToWatch:'أين تشاهد', team:'الفريق الفني', cast:'التمثيل', related:'في نفس السياق', watchOn:'شاهد', availableNow:'متاح — 21 دقيقة' }
+  };
+
+  FILM = {
+    title:{ fr:'Communion', ar:'تواصل' },
+    director:{ fr:'Yasmine Ben Ali', ar:'ياسمين بن علي' },
+    year:2024, dur:21, ageRating:'12+',
+    genres:{ fr:'Drame · Famille', ar:'دراما · عائلي' },
+    synopsis:{
+      fr:"À la veille d'un enterrement, trois générations d'une même famille se retrouvent dans la maison de Sidi Bou Saïd. Entre rancœurs tues et tendresse retrouvée, une nuit suffit pour que les masques tombent — et qu'une forme de communion renaisse.",
+      ar:'عشية جنازة، تجتمع ثلاثة أجيال من العائلة نفسها في بيت بسيدي بوسعيد. بين ضغائن مكتومة وحنانٍ مستعاد، تكفي ليلة واحدة لتسقط الأقنعة، ويُولد شكلٌ من التواصل من جديد.'
+    }
+  };
+
+  AWARDS = [
+    { fr:'Sélection officielle — JCC Carthage 2024', ar:'اختيار رسمي — أيام قرطاج السينمائية 2024' },
+    { fr:'Prix du jury — Clermont-Ferrand', ar:'جائزة لجنة التحكيم — كليرمون فيران' },
+    { fr:'Meilleur court — Gabès Cinéma Fen', ar:'أفضل فيلم قصير — قابس سينما فن' }
+  ];
+
+  STREAMING = [
+    { name:{ fr:'Tiween Play', ar:'تيوين بلاي' }, kind:{ fr:'Inclus', ar:'مشمول' } },
+    { name:{ fr:'Artify', ar:'أرتيفاي' }, kind:{ fr:'Gratuit', ar:'مجاني' } },
+    { name:{ fr:'YouTube', ar:'يوتيوب' }, kind:{ fr:'VOST', ar:'VOST' } }
+  ];
+
+  CREDITS = [
+    { role:{ fr:'Réalisation', ar:'الإخراج' }, name:{ fr:'Yasmine Ben Ali', ar:'ياسمين بن علي' } },
+    { role:{ fr:'Scénario', ar:'السيناريو' }, name:{ fr:'Yasmine Ben Ali', ar:'ياسمين بن علي' } },
+    { role:{ fr:'Image', ar:'التصوير' }, name:{ fr:'Karim Souaki', ar:'كريم السواقي' } },
+    { role:{ fr:'Montage', ar:'المونتاج' }, name:{ fr:'Ines Ben Othman', ar:'إيناس بن عثمان' } },
+    { role:{ fr:'Musique', ar:'الموسيقى' }, name:{ fr:'Anouar Brahem', ar:'أنور إبراهم' } }
+  ];
+
+  CAST = [
+    { name:{ fr:'Hend Sabri', ar:'هند صبري' }, character:{ fr:'Leïla', ar:'ليلى' } },
+    { name:{ fr:"Dhafer L'Abidine", ar:'ظافر العابدين' }, character:{ fr:'Sami', ar:'سامي' } },
+    { name:{ fr:'Fatma Ben Saïdane', ar:'فاطمة بن سعيدان' }, character:{ fr:'La grand-mère', ar:'الجدة' } },
+    { name:{ fr:'Majd Mastoura', ar:'مجد مستورة' }, character:{ fr:'Karim', ar:'كريم' } }
+  ];
+
+  RELATED = [
+    { title:{ fr:'Brotherhood', ar:'أخوة' }, genre:{ fr:'Drame', ar:'دراما' }, year:2018, dur:25, rating:'4.8' },
+    { title:{ fr:'Wissam', ar:'وسام' }, genre:{ fr:'Animation', ar:'تحريك' }, year:2021, dur:9, rating:'4.7' },
+    { title:{ fr:'Refuge', ar:'ملاذ' }, genre:{ fr:'Drame', ar:'دراما' }, year:2023, dur:22, rating:'4.4' },
+    { title:{ fr:'Black Mamba', ar:'بلاك مامبا' }, genre:{ fr:'Drame', ar:'دراما' }, year:2017, dur:20, rating:'4.5' }
+  ];
+
+  setLocale = (l) => () => this.setState({ locale:l });
+  toggleSave = () => this.setState(s => { const saved=!s.saved; if(saved){ clearTimeout(this._p); this._p=setTimeout(()=>this.setState({justSaved:false}),680);} return { saved, justSaved:saved }; });
+
+  renderVals() {
+    const loc = this.state.locale;
+    const t = this.STR[loc];
+    const dir = loc==='ar' ? 'rtl' : 'ltr';
+    const titleFont = loc==='ar' ? "'IBM Plex Sans Arabic'" : 'Inter';
+    const L = (o) => o ? o[loc] : '';
+    const chip = (a) => a ? { bg:'#D4A24A', fg:'#2A1A06' } : { bg:'#31203A', fg:'#C9C0D0' };
+    const aFr = chip(loc==='fr'), aAr = chip(loc==='ar');
+
+    return {
+      t, dir, locale:loc, titleFont,
+      toFr:this.setLocale('fr'), toAr:this.setLocale('ar'),
+      frBg:aFr.bg, frFg:aFr.fg, arBg:aAr.bg, arFg:aAr.fg,
+      film: { title:L(this.FILM.title), director:L(this.FILM.director), year:this.FILM.year, dur:this.FILM.dur, ageRating:this.FILM.ageRating, genresLabel:L(this.FILM.genres), synopsis:L(this.FILM.synopsis) },
+      awards: this.AWARDS.map(L),
+      streaming: this.STREAMING.map(s => ({ name:L(s.name), kind:L(s.kind) })),
+      credits: this.CREDITS.map(c => ({ role:L(c.role), name:L(c.name) })),
+      cast: this.CAST.map(p => ({ name:L(p.name), character:L(p.character) })),
+      related: this.RELATED.map(f => ({ title:L(f.title), genre:L(f.genre), year:f.year, dur:f.dur, rating:f.rating })),
+      saved: this.state.saved,
+      heartColor: this.state.saved ? '#D4A24A' : '#B0A6B8',
+      heartOutline: this.state.saved ? 'opacity:0;' : '',
+      pulse: this.state.justSaved ? 'animation:pulseHeart .6s ease;' : '',
+      toggleSave: this.toggleSave,
+      showRelated: this.props.showRelated ?? true
+    };
+  }
+}
+</script>
+</body>
+</html>

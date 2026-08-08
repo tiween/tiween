@@ -1,5 +1,6 @@
 import { Metadata } from "next"
 import { notFound } from "next/navigation"
+import { ShortFilmDetail } from "@/features/shorts/components"
 import {
   getMockLatestShortFilms,
   getMockShortFilmBySlug,
@@ -7,8 +8,6 @@ import {
 } from "@/features/shorts/data"
 import { Locale } from "next-intl"
 import { setRequestLocale } from "next-intl/server"
-
-import { ShortFilmDetailPage } from "./ShortFilmDetailPage"
 
 interface PageProps {
   params: Promise<{ locale: Locale; slug: string }>
@@ -75,9 +74,6 @@ export default async function ShortFilmPage({ params }: PageProps) {
   )
 
   return (
-    <ShortFilmDetailPage
-      film={film}
-      relatedShorts={filteredRelated.slice(0, 5)}
-    />
+    <ShortFilmDetail film={film} relatedShorts={filteredRelated.slice(0, 5)} />
   )
 }

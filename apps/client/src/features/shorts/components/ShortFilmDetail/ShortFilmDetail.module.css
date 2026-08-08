@@ -1,0 +1,794 @@
+/**
+ * Short-film detail — 2026 design handoff (`Court Métrage Détail.dc.html`).
+ *
+ * Every value here comes from the handoff. Layout uses CSS LOGICAL properties
+ * only (`inset-inline-*`, `margin-inline-*`, `padding-inline-*`, `border-*-start`)
+ * so the AR-RTL rendering mirrors with zero per-direction overrides.
+ */
+
+/* ------------------------------------------------------------------
+ * Route-scoped handoff palette.
+ *
+ * The handoff palette contradicts the live brand tokens in `styles/theme.css`
+ * (green/yellow), and the global rebrand is its own story. EVERY colour used
+ * below is declared here — no raw hex or rgba() literal appears anywhere else
+ * in this file — so that story rebases the page by replacing the values in
+ * this ONE block, with no markup and no rule-level edits.
+ * ------------------------------------------------------------------ */
+.root[data-tiween-shorts-detail] {
+  --sfd-bg-root: #161015;
+  --sfd-bg-raised: #241326;
+  --sfd-control: #31203a;
+  --sfd-control-alt: #3a2742;
+  --sfd-border-hairline: #2e1d37;
+  --sfd-border-strong: #4a3556;
+  --sfd-gold: #d4a24a;
+  --sfd-gold-text: #e0b563;
+  --sfd-gold-ink: #2a1a06;
+  --sfd-gold-border-soft: #6e551e;
+  --sfd-gold-wash: rgba(212, 162, 74, 0.16);
+  --sfd-gold-halo: rgba(212, 162, 74, 0.18);
+  --sfd-gold-hover: rgba(212, 162, 74, 0.12);
+  --sfd-gold-inner-edge: rgba(42, 26, 6, 0.22);
+  --sfd-accent: #5fd0c2; /* shorts category accent — the file, not the README */
+  --sfd-accent-border: #2e5e58;
+  --sfd-text-primary: #ffffff;
+  --sfd-text-secondary: #c9c0d0;
+  --sfd-text-muted: #b0a6b8;
+  --sfd-text-faint: #8b7e94;
+  --sfd-text-dim: #7b6e83;
+  --sfd-text-award: #e5e0e9;
+
+  /* Translucent bars & scrims */
+  --sfd-bar-bg: rgba(36, 19, 38, 0.86);
+  --sfd-bar-bg-strong: rgba(36, 19, 38, 0.94);
+  --sfd-scrim: rgba(14, 7, 16, 0.6);
+  --sfd-scrim-badge: rgba(14, 7, 16, 0.74);
+  --sfd-hero-scrim-bottom: rgba(14, 7, 16, 0.98);
+  --sfd-hero-scrim-mid: rgba(14, 7, 16, 0.5);
+  --sfd-hero-scrim-top: rgba(14, 7, 16, 0.12);
+  --sfd-card-scrim-bottom: rgba(12, 6, 14, 0.96);
+  --sfd-card-scrim-mid: rgba(12, 6, 14, 0.82);
+  --sfd-card-scrim-top: rgba(12, 6, 14, 0);
+
+  /* Reserved-artwork stripe pairs */
+  --sfd-stripe-hero-a: #2b2530;
+  --sfd-stripe-hero-b: #383240;
+  --sfd-stripe-poster-a: #31203a;
+  --sfd-stripe-poster-b: #3a2742;
+  --sfd-stripe-avatar-a: #31203a;
+  --sfd-stripe-avatar-b: #3e2a48;
+  --sfd-stripe-logo-a: #3e2a48;
+  --sfd-stripe-logo-b: #4a3556;
+
+  --sfd-radius-chip: 8px;
+  --sfd-radius-row: 12px;
+  --sfd-radius-poster: 16px;
+  --sfd-motion-color: 160ms ease;
+  --sfd-motion-transform: 220ms cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+
+/* ---------------------------------------------------------------- Shell -- */
+
+.root {
+  /* `100vh` overshoots on mobile Safari (the URL bar), which pushes content
+     under the fixed watch bar; `100dvh` tracks the visible viewport. */
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: var(--sfd-bg-raised);
+  color: var(--sfd-text-primary);
+  font-family: var(--font-inter), system-ui, sans-serif;
+}
+
+/* Arabic swaps the UI stack to the project's Noto Sans Arabic (the handoff's
+   IBM Plex Sans Arabic is not loaded by this app). */
+.root[dir="rtl"] {
+  font-family: var(--font-noto-arabic), var(--font-inter), system-ui, sans-serif;
+}
+
+/* Accessibility floor: a visible 2px gold ring, 2px offset, on EVERY
+   interactive element inside the page. */
+.root :focus-visible {
+  /* Outline only — setting a radius here would square off the pill controls
+     (play disc, heart, watch/trailer/streaming/sticky CTAs) while focused. */
+  outline: 2px solid var(--sfd-gold);
+  outline-offset: 2px;
+}
+
+/* --------------------------------------------------------------- Header -- */
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background: var(--sfd-bar-bg);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--sfd-border-hairline);
+}
+
+.headerInner {
+  max-width: 920px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 11px 16px;
+}
+
+.iconButton {
+  /* 44×44 touch target; the visible disc is the handoff's 40px. */
+  width: 44px;
+  height: 44px;
+  padding: 2px;
+  border: none;
+  border-radius: 9999px;
+  background: transparent;
+  color: var(--sfd-text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.iconButtonDisc {
+  width: 40px;
+  height: 40px;
+  border-radius: 9999px;
+  background: var(--sfd-control);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color var(--sfd-motion-color);
+}
+
+.iconButton:hover .iconButtonDisc {
+  background: var(--sfd-control-alt);
+}
+
+.backButton {
+  color: var(--sfd-text-primary);
+}
+
+.wordmark {
+  height: 34px;
+  width: auto;
+  display: block;
+}
+
+/* ----------------------------------------------------------------- Main -- */
+
+.main {
+  max-width: 920px;
+  margin: 0 auto;
+  /* Room for the fixed watch bar, which itself grows by the safe-area inset
+     on a notched device — without the inset here the last section is clipped. */
+  padding-block: 0 calc(116px + env(safe-area-inset-bottom));
+}
+
+.content {
+  padding-inline: 16px;
+}
+
+/* ----------------------------------------------------------------- Hero -- */
+
+.hero {
+  position: relative;
+  height: clamp(440px, 62vw, 580px);
+  overflow: hidden;
+  background: var(--sfd-bg-root);
+}
+
+.heroImage {
+  object-fit: cover;
+}
+
+/* Reserved-artwork fill — renders ONLY when the record carries no media. */
+.heroPlaceholder {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    115deg,
+    var(--sfd-stripe-hero-a) 0,
+    var(--sfd-stripe-hero-a) 14px,
+    var(--sfd-stripe-hero-b) 14px,
+    var(--sfd-stripe-hero-b) 28px
+  );
+}
+
+.heroGlyph {
+  position: absolute;
+  top: 48%;
+  inset-inline-end: -4%;
+  transform: translateY(-50%);
+  font-family: var(--font-lalezar), serif;
+  font-size: clamp(300px, 46vw, 520px);
+  line-height: 0.8;
+  color: var(--sfd-gold);
+  opacity: 0.95;
+  pointer-events: none;
+  user-select: none;
+}
+
+.heroScrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    var(--sfd-hero-scrim-bottom) 5%,
+    var(--sfd-hero-scrim-mid) 44%,
+    var(--sfd-hero-scrim-top) 100%
+  );
+}
+
+.heroPlay {
+  position: absolute;
+  top: 42%;
+  inset-inline-start: 50%;
+  transform: translate(-50%, -50%);
+  width: 74px;
+  height: 74px;
+  border: none;
+  border-radius: 9999px;
+  background: var(--sfd-gold);
+  color: var(--sfd-gold-ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 0 0 10px var(--sfd-gold-halo);
+  transition: transform var(--sfd-motion-transform);
+}
+
+/* `translate(-50%)` is direction-agnostic only when the writing mode is LTR;
+   under RTL the inline-start 50% anchor needs the mirrored shift. */
+.root[dir="rtl"] .heroPlay {
+  transform: translate(50%, -50%);
+}
+
+.heroPlay:hover {
+  transform: translate(-50%, -50%) scale(1.04);
+}
+
+.root[dir="rtl"] .heroPlay:hover {
+  transform: translate(50%, -50%) scale(1.04);
+}
+
+.heroPlayGlyph {
+  margin-inline-start: 3px;
+}
+
+.heroBottom {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  padding: clamp(18px, 3.5vw, 32px);
+}
+
+.chipRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 11px;
+  border-radius: var(--sfd-radius-chip);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.chipCategory {
+  background: var(--sfd-scrim);
+  border: 1px solid var(--sfd-accent-border);
+  color: var(--sfd-accent);
+}
+
+.chipDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  background: var(--sfd-accent);
+}
+
+.chipAwarded {
+  gap: 5px;
+  background: var(--sfd-gold-wash);
+  border: 1px solid var(--sfd-gold-border-soft);
+  color: var(--sfd-gold-text);
+}
+
+.chipAge {
+  padding: 4px 9px;
+  background: var(--sfd-scrim);
+  border: 1px solid var(--sfd-border-strong);
+  color: var(--sfd-text-muted);
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-lalezar), serif;
+  font-size: clamp(44px, 8vw, 72px);
+  line-height: 0.98;
+  font-weight: 400;
+  color: var(--sfd-text-primary);
+}
+
+.root[dir="rtl"] .title {
+  line-height: 1.05;
+}
+
+.metaLine {
+  margin: 8px 0 0;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--sfd-text-secondary);
+}
+
+/* -------------------------------------------------------------- Actions -- */
+
+.actions {
+  display: flex;
+  align-items: stretch;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.heartButton {
+  flex: none;
+  width: 52px;
+  min-height: 52px;
+  border: 1.5px solid var(--sfd-border-strong);
+  border-radius: 9999px;
+  background: var(--sfd-control);
+  color: var(--sfd-text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: color var(--sfd-motion-color);
+}
+
+.heartButtonActive {
+  color: var(--sfd-gold);
+}
+
+/* Both glyphs are stacked in the same box, so the fill crossfades over the
+   outline with ZERO layout shift. */
+.heartStack {
+  position: relative;
+  display: flex;
+  width: 22px;
+  height: 22px;
+}
+
+.heartOutline,
+.heartFill {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  transition: opacity var(--sfd-motion-color);
+}
+
+.heartFill {
+  color: var(--sfd-gold);
+  opacity: 0;
+}
+
+.heartOutlineHidden {
+  opacity: 0;
+}
+
+.heartFillVisible {
+  opacity: 1;
+}
+
+.watchButton {
+  flex: 1;
+  min-height: 52px;
+  border: none;
+  border-radius: 9999px;
+  background: var(--sfd-gold);
+  color: var(--sfd-gold-ink);
+  font-size: 16px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  cursor: pointer;
+  box-shadow: inset 0 0 0 1px var(--sfd-gold-inner-edge);
+  transition: opacity var(--sfd-motion-color);
+}
+
+.watchButton:hover {
+  opacity: 0.92;
+}
+
+.trailerButton {
+  flex: none;
+  min-height: 52px;
+  padding-inline: 20px;
+  border: 1.5px solid var(--sfd-gold);
+  border-radius: 9999px;
+  background: transparent;
+  color: var(--sfd-gold-text);
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  cursor: pointer;
+  transition: background-color var(--sfd-motion-color);
+}
+
+.trailerButton:hover {
+  background: var(--sfd-gold-hover);
+}
+
+/* ------------------------------------------------------------- Sections -- */
+
+.section {
+  margin-top: 30px;
+}
+
+.sectionTitle {
+  margin: 0 0 12px;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--sfd-text-primary);
+}
+
+.synopsis {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.65;
+  color: var(--sfd-text-secondary);
+  max-width: 660px;
+  text-wrap: pretty;
+  white-space: pre-line;
+}
+
+.rowList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.awardRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 15px;
+  border-radius: var(--sfd-radius-row);
+  background: var(--sfd-control);
+  border: 1px solid var(--sfd-border-strong);
+}
+
+.awardIcon {
+  flex: none;
+  color: var(--sfd-gold);
+}
+
+.awardText {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--sfd-text-award);
+}
+
+/* A selection / nomination reads as an accolade, not a win. */
+.awardIconMuted {
+  color: var(--sfd-text-muted);
+}
+
+.awardTextMuted {
+  color: var(--sfd-text-muted);
+}
+
+/* --------------------------------------------------------- Where to watch */
+
+.streamingRow {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 12px 15px;
+  border-radius: var(--sfd-radius-row);
+  background: var(--sfd-control);
+  border: 1px solid var(--sfd-border-strong);
+}
+
+.streamingLogo {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 11px;
+  background: repeating-linear-gradient(
+    135deg,
+    var(--sfd-stripe-logo-a) 0,
+    var(--sfd-stripe-logo-a) 6px,
+    var(--sfd-stripe-logo-b) 6px,
+    var(--sfd-stripe-logo-b) 12px
+  );
+}
+
+.streamingInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.streamingName {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--sfd-text-primary);
+}
+
+.streamingCta {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 9px 16px;
+  border-radius: 9999px;
+  border: 1px solid var(--sfd-gold);
+  background: transparent;
+  color: var(--sfd-gold-text);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color var(--sfd-motion-color);
+}
+
+.streamingCta:hover {
+  background: var(--sfd-gold-hover);
+}
+
+/* ----------------------------------------------------------------- Cast -- */
+
+.scroller {
+  display: flex;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scroll-snap-type: inline mandatory;
+}
+
+.castScroller {
+  gap: 18px;
+}
+
+.castItem {
+  flex: none;
+  width: 88px;
+  text-align: center;
+  scroll-snap-align: start;
+}
+
+.castAvatar {
+  position: relative;
+  width: 88px;
+  height: 88px;
+  border-radius: 9999px;
+  overflow: hidden;
+  margin-bottom: 8px;
+  background: repeating-linear-gradient(
+    135deg,
+    var(--sfd-stripe-avatar-a) 0,
+    var(--sfd-stripe-avatar-a) 7px,
+    var(--sfd-stripe-avatar-b) 7px,
+    var(--sfd-stripe-avatar-b) 14px
+  );
+}
+
+.castPhoto {
+  object-fit: cover;
+}
+
+.castName {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--sfd-text-primary);
+}
+
+.castRole {
+  margin-top: 2px;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.2;
+  color: var(--sfd-text-muted);
+}
+
+/* -------------------------------------------------------------- Related -- */
+
+.relatedScroller {
+  gap: 16px;
+}
+
+.relatedItem {
+  flex: none;
+  width: 160px;
+  display: block;
+  text-decoration: none;
+  scroll-snap-align: start;
+  transition: transform var(--sfd-motion-transform);
+}
+
+.relatedItem:hover {
+  transform: translateY(-2px);
+}
+
+.relatedItem:active {
+  transform: scale(0.985);
+}
+
+.relatedFrame {
+  position: relative;
+  aspect-ratio: 2 / 3;
+  border-radius: var(--sfd-radius-poster);
+  overflow: hidden;
+  background: repeating-linear-gradient(
+    135deg,
+    var(--sfd-stripe-poster-a) 0,
+    var(--sfd-stripe-poster-a) 9px,
+    var(--sfd-stripe-poster-b) 9px,
+    var(--sfd-stripe-poster-b) 18px
+  );
+}
+
+.relatedPoster {
+  object-fit: cover;
+}
+
+.relatedBadge {
+  position: absolute;
+  top: 8px;
+  inset-inline-start: 8px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: var(--sfd-radius-chip);
+  background: var(--sfd-scrim-badge);
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--sfd-text-primary);
+}
+
+.relatedMetaBlock {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  padding: 30px 11px 11px;
+  background: linear-gradient(
+    to top,
+    var(--sfd-card-scrim-bottom) 0%,
+    var(--sfd-card-scrim-mid) 44%,
+    var(--sfd-card-scrim-top) 100%
+  );
+}
+
+.relatedRating {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 3px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--sfd-gold-text);
+}
+
+.relatedTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--sfd-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.relatedSub {
+  margin-top: 1px;
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--sfd-text-secondary);
+}
+
+/* ----------------------------------------------------------- Sticky bar -- */
+
+.stickyBar {
+  position: fixed;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 40;
+  background: var(--sfd-bar-bg-strong);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid var(--sfd-border-strong);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.stickyInner {
+  max-width: 920px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+}
+
+.stickyInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.stickyTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--sfd-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.stickySub {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--sfd-accent);
+}
+
+.stickyCta {
+  flex: none;
+  min-height: 48px;
+  padding-inline: 26px;
+  border: none;
+  border-radius: 9999px;
+  background: var(--sfd-gold);
+  color: var(--sfd-gold-ink);
+  font-size: 15px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  cursor: pointer;
+  box-shadow: inset 0 0 0 1px var(--sfd-gold-inner-edge);
+  transition: opacity var(--sfd-motion-color);
+}
+
+.stickyCta:hover {
+  opacity: 0.92;
+}
+
+/* --------------------------------------------------------------- Motion -- */
+
+@media (prefers-reduced-motion: reduce) {
+  .root *,
+  .root *::before,
+  .root *::after {
+    animation: none !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .relatedItem:hover {
+    transform: none;
+  }
+
+  /* `transform: none` here would drop the centering translate and jump the
+     play disc off-centre — keep the translate, drop only the scale. */
+  .heroPlay:hover {
+    transform: translate(-50%, -50%);
+  }
+
+  .root[dir="rtl"] .heroPlay:hover {
+    transform: translate(50%, -50%);
+  }
+}

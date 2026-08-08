@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lalezar&family=Inter:wght@400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/bold/style.css">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:#241326}
+  .hsc{-ms-overflow-style:none;scrollbar-width:none}
+  .hsc::-webkit-scrollbar{display:none;height:0;width:0}
+  @keyframes pulseHeart{0%{transform:scale(1)}35%{transform:scale(1.45)}70%{transform:scale(.9)}100%{transform:scale(1)}}
+  @media (prefers-reduced-motion: reduce){*{animation:none !important}}
+</style>
+</helmet>
+
+<div dir="{{ dir }}" lang="{{ locale }}" style="min-height:100vh;background:#241326;color:#fff;font-family:Inter,system-ui,sans-serif;">
+
+  <header style="position:sticky;top:0;z-index:30;background:rgba(36,19,38,.86);backdrop-filter:blur(12px);border-bottom:1px solid #2E1D37;">
+    <div style="max-width:920px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:11px 16px;gap:10px;">
+      <button style="width:40px;height:40px;border-radius:9999px;background:#31203A;border:none;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;"><i class="ph ph-caret-left" style="font-size:20px;"></i></button>
+      <img src="assets/tiween-wordmark-gold.png" alt="tiween · توين" style="height:34px;width:auto;display:block;" />
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div style="display:flex;gap:3px;background:#31203A;border:1px solid #4A3556;border-radius:9999px;padding:3px;">
+          <button onClick="{{ toFr }}" style="border:none;cursor:pointer;border-radius:9999px;min-width:32px;height:28px;font:700 11px Inter;background:{{ frBg }};color:{{ frFg }};">FR</button>
+          <button onClick="{{ toAr }}" style="border:none;cursor:pointer;border-radius:9999px;min-width:32px;height:28px;font:700 13px 'IBM Plex Sans Arabic';background:{{ arBg }};color:{{ arFg }};">ع</button>
+        </div>
+        <button style="width:40px;height:40px;border-radius:9999px;background:#31203A;border:none;color:#B0A6B8;display:flex;align-items:center;justify-content:center;cursor:pointer;"><i class="ph ph-share-network" style="font-size:18px;"></i></button>
+      </div>
+    </div>
+  </header>
+
+  <main style="max-width:920px;margin:0 auto;padding:0 0 120px;">
+
+    <!-- HERO -->
+    <section style="position:relative;height:clamp(440px,62vw,580px);background:repeating-linear-gradient(115deg,#2b2530 0,#2b2530 14px,#383240 14px,#383240 28px);overflow:hidden;">
+      <span style="position:absolute;top:48%;inset-inline-end:-4%;transform:translateY(-50%);font-family:Lalezar;font-size:clamp(300px,46vw,520px);line-height:.8;color:#D4A24A;opacity:.95;">ت</span>
+      <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(14,7,16,.98) 5%,rgba(14,7,16,.5) 44%,rgba(14,7,16,.12) 100%);"></div>
+      <span style="position:absolute;top:14px;inset-inline-start:16px;font:500 10px 'JetBrains Mono';letter-spacing:.08em;color:#9A8DA2;background:rgba(14,7,16,.5);padding:5px 9px;border-radius:8px;">PORTRAIT DUOTONE — découpe ت or</span>
+
+      <div style="position:absolute;inset-inline:0;bottom:0;padding:clamp(18px,3.5vw,32px);">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
+          <span style="display:inline-flex;align-items:center;gap:6px;padding:4px 11px;border-radius:8px;background:rgba(14,7,16,.6);border:1px solid #5E2A45;font:600 11px Inter;color:#E5478A;"><span style="width:6px;height:6px;border-radius:9999px;background:#E5478A;"></span>{{ t.short }}</span>
+          <span style="display:inline-flex;align-items:center;gap:5px;padding:4px 11px;border-radius:8px;background:rgba(212,162,74,.16);border:1px solid #6E551E;font:600 11px Inter;color:#E0B563;">{{ t.creation }}</span>
+          <span style="padding:4px 9px;border-radius:8px;background:rgba(14,7,16,.6);border:1px solid #4A3556;font:600 11px Inter;color:#B0A6B8;"><bdi>{{ play.ageRating }}</bdi></span>
+        </div>
+        <h1 style="margin:0;font-family:Lalezar;font-size:clamp(44px,8vw,72px);line-height:.98;color:#fff;">{{ play.title }}</h1>
+        <p style="margin:8px 0 0;font:500 15px {{ titleFont }};color:#C9C0D0;">{{ t.director }} · <bdi>{{ play.director }}</bdi></p>
+        <p style="margin:3px 0 0;font:400 13px {{ titleFont }};color:#B0A6B8;"><bdi>{{ play.genre }}</bdi> · <bdi>{{ play.duration }}</bdi> · <bdi>{{ play.langue }}</bdi></p>
+      </div>
+    </section>
+
+    <div style="padding:0 16px;">
+
+      <!-- ACTIONS -->
+      <div style="display:flex;gap:12px;margin-top:20px;align-items:stretch;">
+        <button style="flex:none;width:52px;border-radius:9999px;border:1.5px solid #4A3556;background:#31203A;display:flex;align-items:center;justify-content:center;cursor:pointer;" onClick="{{ toggleSave }}" aria-label="{{ t.watchlist }}">
+          <span style="position:relative;display:flex;"><i class="ph ph-heart" style="font-size:22px;color:#B0A6B8;{{ heartOutline }}"></i><sc-if value="{{ saved }}"><i class="ph-fill ph-heart" style="position:absolute;left:0;top:0;font-size:22px;color:#D4A24A;{{ pulse }}"></i></sc-if></span>
+        </button>
+        <button onClick="{{ goBook }}" style="flex:1;height:52px;border:none;border-radius:9999px;background:#D4A24A;color:#2A1A06;font:700 16px {{ titleFont }};cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px;box-shadow:inset 0 0 0 1px rgba(42,26,6,.22);"><i class="ph-fill ph-ticket" style="font-size:18px;"></i>{{ t.book }}</button>
+        <button style="flex:none;padding:0 20px;border:1.5px solid #D4A24A;border-radius:9999px;background:transparent;color:#E0B563;font:600 14px {{ titleFont }};cursor:pointer;display:flex;align-items:center;gap:7px;"><i class="ph-fill ph-play" style="font-size:15px;"></i>{{ t.teaser }}</button>
+      </div>
+
+      <!-- SYNOPSIS -->
+      <section style="margin-top:30px;">
+        <h2 style="margin:0 0 10px;font:700 18px {{ titleFont }};color:#fff;">{{ t.synopsis }}</h2>
+        <p style="margin:0;font:400 15px/1.65 {{ titleFont }};color:#C9C0D0;max-width:660px;text-wrap:pretty;">{{ play.synopsis }}</p>
+      </section>
+
+      <!-- REPRÉSENTATIONS -->
+      <section style="margin-top:32px;">
+        <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:14px;">
+          <h2 style="margin:0;font:700 18px {{ titleFont }};color:#fff;">{{ t.representations }}</h2>
+          <span style="font:500 13px {{ titleFont }};color:#B0A6B8;"><bdi>{{ play.dates }}</bdi></span>
+        </div>
+
+        <div class="hsc" style="display:flex;gap:10px;overflow-x:auto;padding-bottom:16px;">
+          <sc-for list="{{ dateTabs }}" as="d" hint-placeholder-count="4">
+            <button onClick="{{ d.onClick }}" style="flex:none;min-width:74px;padding:9px 14px;border-radius:12px;border:1px solid;cursor:pointer;text-align:center;background:{{ d.bg }};color:{{ d.fg }};border-color:{{ d.border }};">
+              <div style="font:600 13px {{ titleFont }};">{{ d.day }}</div>
+              <div style="font:500 11px Inter;opacity:.85;margin-top:2px;"><bdi>{{ d.date }}</bdi></div>
+            </button>
+          </sc-for>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:18px;">
+          <sc-for list="{{ venues }}" as="v" hint-placeholder-count="2">
+            <div>
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:11px;flex-wrap:wrap;">
+                <div style="display:flex;align-items:center;gap:8px;min-width:0;">
+                  <i class="ph ph-map-pin" style="font-size:15px;color:#B0A6B8;flex:none;"></i>
+                  <span style="font:600 15px {{ titleFont }};color:#fff;"><bdi>{{ v.name }}</bdi></span>
+                  <span style="font:400 12px {{ titleFont }};color:#8B7E94;"><bdi>{{ v.hall }}</bdi></span>
+                </div>
+                <span style="font:600 12px {{ titleFont }};color:#E0B563;">{{ t.from }} <bdi>{{ v.price }} DT</bdi></span>
+              </div>
+              <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                <sc-for list="{{ v.sessions }}" as="s" hint-placeholder-count="3">
+                  <button onClick="{{ s.onClick }}" aria-disabled="{{ s.sold }}" style="position:relative;min-width:96px;padding:9px 13px 8px;border-radius:8px;border:1px solid;text-align:start;cursor:{{ s.cursor }};background:{{ s.bg }};border-color:{{ s.border }};">
+                    <span style="position:absolute;top:6px;inset-inline-start:9px;font:700 9px Inter;letter-spacing:.04em;color:{{ s.langueColor }};">{{ s.langue }}</span>
+                    <sc-if value="{{ s.selected }}"><span style="position:absolute;top:5px;inset-inline-end:7px;color:#2A1A06;"><i class="ph-bold ph-check" style="font-size:13px;"></i></span></sc-if>
+                    <div style="margin-top:13px;font:700 17px Inter;color:{{ s.timeColor }};text-decoration:{{ s.strike }};"><bdi>{{ s.time }}</bdi></div>
+                    <sc-if value="{{ s.sold }}"><div style="font:600 11px {{ titleFont }};color:#FF8A8A;">{{ t.sold }}</div></sc-if>
+                    <sc-if value="{{ s.isRec }}"><div style="display:flex;align-items:center;gap:3px;font:600 11px {{ titleFont }};color:{{ s.subColor }};"><i class="ph-fill ph-sparkle" style="font-size:11px;"></i>{{ t.recommended }}</div></sc-if>
+                    <sc-if value="{{ s.plain }}"><div style="font:400 11px {{ titleFont }};color:{{ s.subColor }};">{{ t.endAt }} <bdi>{{ s.end }}</bdi></div></sc-if>
+                  </button>
+                </sc-for>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+
+      <!-- TEAM -->
+      <section style="margin-top:32px;">
+        <h2 style="margin:0 0 14px;font:700 18px {{ titleFont }};color:#fff;">{{ t.team }}</h2>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px 24px;">
+          <sc-for list="{{ credits }}" as="c" hint-placeholder-count="5">
+            <div>
+              <div style="font:500 12px {{ titleFont }};color:#8B7E94;letter-spacing:.03em;">{{ c.role }}</div>
+              <div style="margin-top:2px;font:600 15px {{ titleFont }};color:#fff;"><bdi>{{ c.name }}</bdi></div>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+
+      <!-- CAST -->
+      <section style="margin-top:30px;">
+        <h2 style="margin:0 0 14px;font:700 18px {{ titleFont }};color:#fff;">{{ t.cast }}</h2>
+        <div class="hsc" style="display:flex;gap:18px;overflow-x:auto;padding-bottom:4px;">
+          <sc-for list="{{ cast }}" as="p" hint-placeholder-count="4">
+            <div style="flex:none;width:88px;text-align:center;">
+              <div style="width:88px;height:88px;border-radius:9999px;background:repeating-linear-gradient(135deg,#31203A 0,#31203A 7px,#3E2A48 7px,#3E2A48 14px);margin-bottom:8px;"></div>
+              <div style="font:600 13px {{ titleFont }};color:#fff;line-height:1.2;"><bdi>{{ p.name }}</bdi></div>
+              <div style="margin-top:2px;font:400 12px {{ titleFont }};color:#B0A6B8;line-height:1.2;"><bdi>{{ p.character }}</bdi></div>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+
+      <!-- RELATED -->
+      <sc-if value="{{ showRelated }}" hint-placeholder-val="{{ true }}">
+      <section style="margin-top:34px;">
+        <h2 style="margin:0 0 14px;font:700 18px {{ titleFont }};color:#fff;">{{ t.related }}</h2>
+        <div class="hsc" style="display:flex;gap:16px;overflow-x:auto;padding-bottom:4px;">
+          <sc-for list="{{ related }}" as="f" hint-placeholder-count="4">
+            <div style="flex:none;width:160px;cursor:pointer;">
+              <div style="position:relative;aspect-ratio:2/3;border-radius:16px;overflow:hidden;background:repeating-linear-gradient(135deg,#31203A 0,#31203A 9px,#3A2742 9px,#3A2742 18px);">
+                <span style="position:absolute;top:8px;inset-inline-start:8px;z-index:2;display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:8px;background:rgba(14,7,16,.74);font:600 10px {{ titleFont }};color:#fff;"><span style="width:6px;height:6px;border-radius:9999px;background:#E5478A;"></span>{{ f.genre }}</span>
+                <span style="position:absolute;top:42%;left:0;right:0;text-align:center;font-family:'JetBrains Mono';font-size:10px;letter-spacing:.12em;color:#7B6E83;">AFFICHE 2:3</span>
+                <div style="position:absolute;inset-inline:0;bottom:0;padding:30px 11px 11px;background:linear-gradient(to top,rgba(12,6,14,.96) 0%,rgba(12,6,14,.82) 44%,rgba(12,6,14,0) 100%);">
+                  <div style="display:flex;align-items:center;gap:4px;margin-bottom:3px;font:600 11px Inter;color:#E0B563;"><i class="ph-fill ph-star" style="font-size:.95em;vertical-align:-1px;"></i> <bdi>{{ f.rating }}</bdi></div>
+                  <div style="font:600 14px {{ titleFont }};color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><bdi>{{ f.title }}</bdi></div>
+                  <div style="margin-top:1px;font:400 11px Inter;color:#C9C0D0;"><bdi>{{ f.year }}</bdi> · <bdi>{{ f.dur }}</bdi></div>
+                </div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+      </sc-if>
+
+    </div>
+  </main>
+
+  <!-- STICKY BOOK BAR -->
+  <div style="position:fixed;inset-inline:0;bottom:0;z-index:40;background:rgba(36,19,38,.94);backdrop-filter:blur(12px);border-top:1px solid #4A3556;padding-bottom:env(safe-area-inset-bottom);">
+    <div style="max-width:920px;margin:0 auto;display:flex;align-items:center;gap:12px;padding:12px 16px;">
+      <div style="flex:1;min-width:0;">
+        <div style="font:600 14px {{ titleFont }};color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ sel.line1 }}</div>
+        <div style="font:500 12px {{ titleFont }};color:#E0B563;">{{ t.from }} <bdi>{{ sel.price }} DT</bdi></div>
+      </div>
+      <button style="flex:none;height:48px;padding:0 26px;border:none;border-radius:9999px;background:#D4A24A;color:#2A1A06;font:700 15px {{ titleFont }};cursor:pointer;display:flex;align-items:center;gap:9px;box-shadow:inset 0 0 0 1px rgba(42,26,6,.22);"><i class="ph-fill ph-ticket" style="font-size:17px;"></i>{{ t.book }}</button>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:420,&quot;height&quot;:900},&quot;locale&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;fr&quot;,&quot;ar&quot;],&quot;default&quot;:&quot;fr&quot;,&quot;tsType&quot;:&quot;'fr' | 'ar'&quot;},&quot;showRelated&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;}}">
+class Component extends DCLogic {
+  state = { locale: this.props.locale || 'fr', saved:false, justSaved:false, date:'d20', sel:'d20|muni|20h30' };
+
+  STR = {
+    fr:{ short:'Théâtre', creation:'Création 2026', director:'Mise en scène', book:'Réserver', teaser:'Teaser', watchlist:'Ma liste', synopsis:'Synopsis', representations:'Représentations', team:'Équipe artistique', cast:'Distribution', related:'À voir aussi', from:'dès', recommended:'recommandé', sold:'Complet', endAt:'fin', noSel:'Choisissez une représentation' },
+    ar:{ short:'مسرح', creation:'إنتاج 2026', director:'إخراج', book:'احجز', teaser:'مقتطف', watchlist:'قائمتي', synopsis:'القصة', representations:'العروض', team:'الفريق الفني', cast:'التوزيع', related:'شاهد أيضاً', from:'ابتداءً من', recommended:'موصى به', sold:'مكتمل', endAt:'تنتهي', noSel:'اختر عرضاً' }
+  };
+
+  PLAY = {
+    title:{ fr:'Le Dernier Roi', ar:'الملك الأخير' },
+    director:{ fr:'Fadhel Jaïbi', ar:'فاضل الجعايبي' },
+    genre:{ fr:'Théâtre · Tragédie', ar:'مسرح · تراجيديا' },
+    duration:{ fr:'1h40', ar:'1:40' },
+    dates:{ fr:'18 – 21 juin', ar:'18 – 21 جوان' },
+    langue:{ fr:'AR · surtitré FR', ar:'عربي · ترجمة فرنسية' },
+    ageRating:'10+',
+    synopsis:{ fr:"Au crépuscule d'un règne, un vieux monarque s'accroche au pouvoir tandis que sa cour complote et que son royaume se fissure. Une fable politique féroce sur l'orgueil, la transmission et la chute — portée par un chœur d'acteurs sur un plateau nu.", ar:'في غسق عهدٍ آفل، يتشبّث ملكٌ عجوز بالسلطة بينما يتآمر بلاطه ويتصدّع مُلكه. حكاية سياسية قاسية عن الكبرياء والتوريث والسقوط، تحملها جوقة من الممثلين على ركحٍ عارٍ.' }
+  };
+
+  VENUES = {
+    muni:{ fr:'Théâtre Municipal de Tunis', ar:'المسرح البلدي بتونس', hall:{ fr:'Grande salle', ar:'القاعة الكبرى' }, price:'25,00' },
+    art4:{ fr:'Le 4ème Art', ar:'المسرح الرابع', hall:{ fr:'Salle principale', ar:'القاعة الرئيسية' }, price:'18,00' },
+    teatro:{ fr:'El Teatro', ar:'التياترو', hall:{ fr:'Salle', ar:'القاعة' }, price:'20,00' }
+  };
+
+  DATES = [
+    { id:'d18', fr:'Mer', ar:'الأربعاء', date:'18/06' },
+    { id:'d19', fr:'Jeu', ar:'الخميس', date:'19/06' },
+    { id:'d20', fr:'Ven', ar:'الجمعة', date:'20/06' },
+    { id:'d21', fr:'Sam', ar:'السبت', date:'21/06' }
+  ];
+
+  SESSIONS = [
+    { date:'d18', v:'muni', time:'20h30', end:'22h10', langue:'AR', rec:true },
+    { date:'d18', v:'art4', time:'19h00', end:'20h40', langue:'AR' },
+    { date:'d19', v:'muni', time:'20h30', end:'22h10', langue:'AR' },
+    { date:'d19', v:'teatro', time:'21h00', end:'22h40', langue:'FR' },
+    { date:'d20', v:'muni', time:'20h30', end:'22h10', langue:'AR', rec:true },
+    { date:'d20', v:'art4', time:'19h00', end:'20h40', langue:'AR' },
+    { date:'d20', v:'teatro', time:'21h00', end:'22h40', langue:'FR', sold:true },
+    { date:'d21', v:'muni', time:'17h00', end:'18h40', langue:'AR' },
+    { date:'d21', v:'muni', time:'20h30', end:'22h10', langue:'AR', rec:true },
+    { date:'d21', v:'teatro', time:'21h00', end:'22h40', langue:'FR' }
+  ];
+
+  CREDITS = [
+    { role:{ fr:'Mise en scène', ar:'الإخراج' }, name:{ fr:'Fadhel Jaïbi', ar:'فاضل الجعايبي' } },
+    { role:{ fr:'Texte', ar:'النص' }, name:{ fr:'Jalila Baccar', ar:'جليلة بكار' } },
+    { role:{ fr:'Scénographie', ar:'السينوغرافيا' }, name:{ fr:'Kaïs Rostom', ar:'قيس رستم' } },
+    { role:{ fr:'Lumière', ar:'الإضاءة' }, name:{ fr:'Sabri Atrous', ar:'صبري عطروس' } },
+    { role:{ fr:'Musique', ar:'الموسيقى' }, name:{ fr:'Khaled Besbes', ar:'خالد بسباس' } }
+  ];
+
+  CAST = [
+    { name:{ fr:'Jalila Baccar', ar:'جليلة بكار' }, character:{ fr:'La Reine', ar:'الملكة' } },
+    { name:{ fr:'M. A. Ben Jemaa', ar:'محمد علي بن جمعة' }, character:{ fr:'Le Roi', ar:'الملك' } },
+    { name:{ fr:'Fatma Ben Saïdane', ar:'فاطمة بن سعيدان' }, character:{ fr:'La Nourrice', ar:'المربية' } },
+    { name:{ fr:'Marwen Chouchane', ar:'مروان شوشان' }, character:{ fr:'Le Fils', ar:'الابن' } }
+  ];
+
+  RELATED = [
+    { title:{ fr:'Tsunami', ar:'تسونامي' }, genre:{ fr:'Théâtre', ar:'مسرح' }, year:2023, dur:{ fr:'1h30', ar:'1:30' }, rating:'4.7' },
+    { title:{ fr:'Violence(s)', ar:'عنف' }, genre:{ fr:'Théâtre', ar:'مسرح' }, year:2022, dur:{ fr:'1h15', ar:'1:15' }, rating:'4.5' },
+    { title:{ fr:'Macbeth', ar:'ماكبث' }, genre:{ fr:'Théâtre', ar:'مسرح' }, year:2024, dur:{ fr:'1h50', ar:'1:50' }, rating:'4.6' },
+    { title:{ fr:'Solwen', ar:'صلوان' }, genre:{ fr:'Théâtre', ar:'مسرح' }, year:2021, dur:{ fr:'1h20', ar:'1:20' }, rating:'4.3' }
+  ];
+
+  setLocale = (l) => () => this.setState({ locale:l });
+  toggleSave = () => this.setState(s => { const saved=!s.saved; if(saved){ clearTimeout(this._p); this._p=setTimeout(()=>this.setState({justSaved:false}),680);} return { saved, justSaved:saved }; });
+  goBook = () => {};
+
+  _defaultSel(dateId){
+    const ss = this.SESSIONS.filter(s => s.date===dateId);
+    const pick = ss.find(s => s.rec && !s.sold) || ss.find(s => !s.sold) || ss[0];
+    return pick ? (dateId+'|'+pick.v+'|'+pick.time) : null;
+  }
+  setDate = (id) => () => this.setState({ date:id, sel:this._defaultSel(id) });
+  selectSession = (key, sold) => () => { if(sold) return; this.setState({ sel:key }); };
+
+  renderVals() {
+    const loc = this.state.locale;
+    const t = this.STR[loc];
+    const dir = loc==='ar' ? 'rtl' : 'ltr';
+    const titleFont = loc==='ar' ? "'IBM Plex Sans Arabic'" : 'Inter';
+    const L = (o) => o ? o[loc] : '';
+    const fmtT = (x) => loc==='ar' ? x.replace('h',':') : x;
+    const chip = (a) => a ? { bg:'#D4A24A', fg:'#2A1A06' } : { bg:'#31203A', fg:'#C9C0D0' };
+    const aFr = chip(loc==='fr'), aAr = chip(loc==='ar');
+
+    const dateTabs = this.DATES.map(d => {
+      const active = d.id===this.state.date;
+      return { day:d[loc], date:d.date, onClick:this.setDate(d.id),
+        bg: active?'#D4A24A':'#31203A', fg: active?'#2A1A06':'#C9C0D0', border: active?'#D4A24A':'#4A3556' };
+    });
+
+    const inDate = this.SESSIONS.filter(s => s.date===this.state.date);
+    const order = ['muni','art4','teatro'];
+    const venues = order.filter(vid => inDate.some(s => s.v===vid)).map(vid => {
+      const V = this.VENUES[vid];
+      return {
+        name:L(V), hall:L(V.hall), price:V.price,
+        sessions: inDate.filter(s => s.v===vid).map(s => {
+          const key = s.date+'|'+s.v+'|'+s.time;
+          const selected = key===this.state.sel && !s.sold;
+          const sold = !!s.sold;
+          const isRec = !!s.rec && !sold;
+          const plain = !sold && !s.rec;
+          return {
+            time:fmtT(s.time), end:fmtT(s.end), langue:s.langue,
+            onClick:this.selectSession(key, sold),
+            sold, selected, isRec, plain,
+            cursor: sold?'not-allowed':'pointer',
+            bg: selected?'#D4A24A':(sold?'#241326':'#31203A'),
+            border: selected?'#D4A24A':(sold?'#4A3556':'#4A3556'),
+            langueColor: selected?'#2A1A06':'#B0A6B8',
+            timeColor: selected?'#2A1A06':(sold?'#8B7E94':'#fff'),
+            strike: sold?'line-through':'none',
+            subColor: selected?'#5A4412':(isRec?'#E0B563':'#8B7E94')
+          };
+        })
+      };
+    });
+
+    const selParts = (this.state.sel||'').split('|');
+    const selS = this.SESSIONS.find(s => s.date===selParts[0] && s.v===selParts[1] && s.time===selParts[2]);
+    const selDate = selS ? this.DATES.find(d=>d.id===selS.date) : null;
+    const sel = selS ? {
+      line1: (selDate?selDate[loc]:'') + ' ' + (selDate?selDate.date:'') + ' · ' + fmtT(selS.time) + ' · ' + L(this.VENUES[selS.v]),
+      price: this.VENUES[selS.v].price
+    } : { line1: t.noSel, price: this.VENUES.art4.price };
+
+    return {
+      t, dir, locale:loc, titleFont,
+      toFr:this.setLocale('fr'), toAr:this.setLocale('ar'),
+      frBg:aFr.bg, frFg:aFr.fg, arBg:aAr.bg, arFg:aAr.fg,
+      play: { title:L(this.PLAY.title), director:L(this.PLAY.director), genre:L(this.PLAY.genre), duration:L(this.PLAY.duration), dates:L(this.PLAY.dates), langue:L(this.PLAY.langue), ageRating:this.PLAY.ageRating, synopsis:L(this.PLAY.synopsis) },
+      dateTabs, venues, sel,
+      credits: this.CREDITS.map(c => ({ role:L(c.role), name:L(c.name) })),
+      cast: this.CAST.map(p => ({ name:L(p.name), character:L(p.character) })),
+      related: this.RELATED.map(f => ({ title:L(f.title), genre:L(f.genre), year:f.year, dur:L(f.dur), rating:f.rating })),
+      saved:this.state.saved, heartOutline:this.state.saved?'opacity:0;':'', pulse:this.state.justSaved?'animation:pulseHeart .6s ease;':'',
+      toggleSave:this.toggleSave, goBook:this.goBook,
+      showRelated: this.props.showRelated ?? true
+    };
+  }
+}
+</script>
+</body>
+</html>

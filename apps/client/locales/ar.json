@@ -1148,5 +1148,27 @@
         "INTERNAL_ERROR": "حدث خطأ غير متوقع. يرجى المحاولة مجددا."
       }
     }
+  },
+  "shorts": {
+    "back": "رجوع",
+    "share": "مشاركة",
+    "category": "فيلم قصير",
+    "awarded": "حائز على جائزة",
+    "watch": "شاهد الفيلم",
+    "play": "تشغيل الفيلم",
+    "watchFromBar": "شاهد الفيلم الآن",
+    "trailer": "الإعلان",
+    "watchlist": "قائمتي",
+    "removeFromWatchlist": "إزالة من قائمتي",
+    "synopsis": "القصة",
+    "distinctions": "الجوائز والتكريمات",
+    "whereToWatch": "أين تشاهد",
+    "watchOn": "شاهد",
+    "cast": "التمثيل",
+    "related": "في نفس السياق",
+    "minutes": "دقيقة",
+    "available": "متاح",
+    "availableDuration": "متاح — {duration} دقيقة",
+    "otherPlatform": "منصة أخرى"
   }
 }

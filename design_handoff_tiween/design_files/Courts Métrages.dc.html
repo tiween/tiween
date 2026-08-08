@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lalezar&family=Inter:wght@400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/bold/style.css">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:#241326}
+  .hsc{-ms-overflow-style:none;scrollbar-width:none}
+  .hsc::-webkit-scrollbar{display:none;height:0;width:0}
+  input::placeholder{color:#7B6E83}
+  @keyframes pulseHeart{0%{transform:scale(1)}35%{transform:scale(1.45)}70%{transform:scale(.9)}100%{transform:scale(1)}}
+  @keyframes skel{0%{opacity:.5}50%{opacity:.85}100%{opacity:.5}}
+  .skel{animation:skel 1.3s ease-in-out infinite}
+  @media (prefers-reduced-motion: reduce){.skel{animation:none}*{animation:none !important}}
+</style>
+</helmet>
+
+<div dir="{{ dir }}" lang="{{ locale }}" style="min-height:100vh;background:#241326;color:#fff;font-family:Inter,system-ui,sans-serif;">
+
+  <header style="position:sticky;top:0;z-index:30;background:rgba(36,19,38,.88);backdrop-filter:blur(12px);border-bottom:1px solid #2E1D37;">
+    <div style="max-width:1280px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:11px 18px;gap:12px;">
+      <div style="display:flex;gap:3px;background:#31203A;border:1px solid #4A3556;border-radius:9999px;padding:3px;">
+        <button onClick="{{ toFr }}" style="border:none;cursor:pointer;border-radius:9999px;min-width:34px;height:30px;font:700 12px Inter;background:{{ frBg }};color:{{ frFg }};">FR</button>
+        <button onClick="{{ toAr }}" style="border:none;cursor:pointer;border-radius:9999px;min-width:34px;height:30px;font:700 14px 'IBM Plex Sans Arabic';background:{{ arBg }};color:{{ arFg }};">ع</button>
+      </div>
+      <img src="assets/tiween-wordmark-gold.png" alt="tiween · توين" style="height:38px;width:auto;display:block;" />
+      <button style="width:38px;height:38px;border-radius:9999px;background:#31203A;border:none;color:#B0A6B8;display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer;"><i class="ph ph-bell" style="font-size:18px;"></i><span style="position:absolute;top:8px;inset-inline-end:9px;width:7px;height:7px;border-radius:9999px;background:#FF8A8A;border:2px solid #31203A;"></span></button>
+    </div>
+  </header>
+
+  <main style="max-width:1280px;margin:0 auto;padding:0 18px 104px;">
+
+    <sc-if value="{{ isOffline }}" hint-placeholder-val="{{ false }}">
+      <div style="margin-top:14px;padding:12px 14px;border-radius:12px;background:#2A2114;border:1px solid #5A4412;display:flex;align-items:center;gap:11px;">
+        <i class="ph ph-wifi-slash" style="font-size:20px;color:#E8B24C;"></i>
+        <div style="font:500 13px Inter;color:#E5E0E9;">{{ t.offlineBanner }}</div>
+      </div>
+    </sc-if>
+
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:12px;padding:22px 0 16px;flex-wrap:wrap;">
+      <div>
+        <div style="display:flex;align-items:center;gap:9px;margin-bottom:5px;">
+          <span style="width:9px;height:9px;border-radius:9999px;background:#5FD0C2;"></span>
+          <span style="font:600 12px Inter;letter-spacing:.1em;text-transform:uppercase;color:#5FD0C2;">{{ t.kicker }}</span>
+        </div>
+        <h1 style="margin:0;font:700 30px Inter;line-height:1.05;color:#fff;">{{ t.screenTitle }}</h1>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <sc-if value="{{ isOffline }}" hint-placeholder-val="{{ false }}"><span style="display:inline-flex;align-items:center;gap:6px;padding:6px 11px;border-radius:9999px;background:#16331F;border:1px solid #2E5E3C;font:600 12px Inter;color:#5BD08A;"><i class="ph-bold ph-check" style="font-size:13px;"></i>{{ t.offline }}</span></sc-if>
+        <span style="font:500 13px Inter;color:#B0A6B8;"><bdi>{{ resultsCount }}</bdi> {{ t.results }}</span>
+      </div>
+    </div>
+
+    <!-- HERO -->
+    <section style="position:relative;border-radius:20px;overflow:hidden;height:clamp(400px,56vw,520px);background:repeating-linear-gradient(115deg,#2b2530 0,#2b2530 14px,#383240 14px,#383240 28px);">
+      <span style="position:absolute;top:50%;inset-inline-end:4%;transform:translateY(-50%);font-family:Lalezar;font-size:clamp(280px,42vw,460px);line-height:.8;color:#D4A24A;opacity:.95;">ت</span>
+      <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(14,7,16,.97) 4%,rgba(14,7,16,.55) 42%,rgba(14,7,16,.12) 100%);"></div>
+      <div style="position:absolute;inset:0;background:linear-gradient(to right,rgba(14,7,16,.85),rgba(14,7,16,0) 62%);"></div>
+      <span style="position:absolute;top:16px;inset-inline-start:18px;font:500 10px 'JetBrains Mono';letter-spacing:.08em;color:#9A8DA2;background:rgba(14,7,16,.5);padding:5px 9px;border-radius:8px;">PORTRAIT DUOTONE — découpe ت or</span>
+
+      <button onClick="{{ heroPrev }}" style="position:absolute;top:50%;inset-inline-start:14px;transform:translateY(-50%);width:42px;height:42px;border-radius:9999px;background:rgba(14,7,16,.55);border:1px solid #4A3556;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;"><i class="ph ph-caret-left" style="font-size:20px;"></i></button>
+      <button onClick="{{ heroNext }}" style="position:absolute;top:50%;inset-inline-end:14px;transform:translateY(-50%);width:42px;height:42px;border-radius:9999px;background:rgba(14,7,16,.55);border:1px solid #4A3556;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;"><i class="ph ph-caret-right" style="font-size:20px;"></i></button>
+
+      <div style="position:absolute;inset-inline:0;bottom:0;padding:clamp(20px,4vw,40px);max-width:640px;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
+          <span style="display:inline-flex;align-items:center;gap:6px;padding:4px 11px;border-radius:8px;background:rgba(14,7,16,.6);border:1px solid #2E5E58;font:600 11px Inter;color:#5FD0C2;"><span style="width:6px;height:6px;border-radius:9999px;background:#5FD0C2;"></span>{{ hero.genre }}</span>
+          <sc-if value="{{ hero.award }}" hint-placeholder-val="{{ true }}"><span style="display:inline-flex;align-items:center;gap:5px;padding:4px 11px;border-radius:8px;background:rgba(212,162,74,.16);border:1px solid #6E551E;font:600 11px Inter;color:#E0B563;"><i class="ph-fill ph-trophy" style="font-size:12px;"></i>{{ t.awarded }}</span></sc-if>
+        </div>
+        <h2 style="margin:0;font-family:Lalezar;font-size:clamp(40px,7vw,68px);line-height:.98;color:#fff;">{{ hero.title }}</h2>
+        <p style="margin:8px 0 0;font:500 15px Inter;color:#C9C0D0;"><bdi>{{ hero.director }}</bdi> · <bdi>{{ hero.year }}</bdi> · <bdi>{{ hero.dur }} min</bdi></p>
+        <p style="margin:10px 0 0;font:400 14px/1.55 Inter;color:#B0A6B8;max-width:480px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">{{ hero.synopsis }}</p>
+        <div style="display:flex;gap:12px;margin-top:20px;flex-wrap:wrap;">
+          <button style="height:48px;padding:0 24px;border:none;border-radius:9999px;background:#D4A24A;color:#2A1A06;font:700 15px Inter;cursor:pointer;display:flex;align-items:center;gap:9px;box-shadow:inset 0 0 0 1px rgba(42,26,6,.22);"><i class="ph-fill ph-play" style="font-size:16px;"></i>{{ t.watchTrailer }}</button>
+          <button style="height:48px;padding:0 22px;border:1.5px solid #D4A24A;border-radius:9999px;background:transparent;color:#E0B563;font:600 14px Inter;cursor:pointer;">{{ t.details }}</button>
+        </div>
+        <div style="display:flex;gap:7px;margin-top:22px;">
+          <sc-for list="{{ heroDots }}" as="d" hint-placeholder-count="3">
+            <button onClick="{{ d.onClick }}" style="height:5px;border-radius:3px;border:none;cursor:pointer;padding:0;width:{{ d.w }};background:{{ d.bg }};"></button>
+          </sc-for>
+        </div>
+      </div>
+    </section>
+
+    <!-- DERNIERS AJOUTS -->
+    <section style="margin-top:34px;">
+      <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:14px;">
+        <h3 style="margin:0;font:700 20px Inter;color:#fff;">{{ t.recent }}</h3>
+        <button style="background:none;border:none;cursor:pointer;font:600 14px Inter;color:#E0B563;display:flex;align-items:center;gap:5px;">{{ t.seeAll }}<i class="ph ph-caret-right" style="font-size:14px;"></i></button>
+      </div>
+      <div class="hsc" style="display:flex;gap:16px;overflow-x:auto;padding-bottom:4px;">
+        <sc-for list="{{ derniers }}" as="f" hint-placeholder-count="6">
+          <div style="flex:none;width:168px;cursor:pointer;">
+            <div style="position:relative;aspect-ratio:2/3;border-radius:16px;overflow:hidden;background:repeating-linear-gradient(135deg,#31203A 0,#31203A 9px,#3A2742 9px,#3A2742 18px);">
+              <span style="position:absolute;top:8px;inset-inline-start:8px;z-index:2;display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:8px;background:rgba(14,7,16,.74);font:600 10px Inter;color:#fff;"><span style="width:6px;height:6px;border-radius:9999px;background:#5FD0C2;"></span>{{ f.genre }}</span>
+              <div onClick="{{ f.onSave }}" style="position:absolute;top:8px;inset-inline-end:8px;z-index:2;width:30px;height:30px;border-radius:9999px;background:rgba(14,7,16,.5);display:flex;align-items:center;justify-content:center;cursor:pointer;">
+                <i class="ph ph-heart" style="position:absolute;font-size:16px;color:rgba(255,255,255,.9);"></i>
+                <sc-if value="{{ f.saved }}"><i class="ph-fill ph-heart" style="position:absolute;font-size:16px;color:#D4A24A;{{ f.pulse }}"></i></sc-if>
+              </div>
+              <span style="position:absolute;top:42%;left:0;right:0;text-align:center;font-family:'JetBrains Mono';font-size:10px;letter-spacing:.12em;color:#7B6E83;">AFFICHE 2:3</span>
+              <div style="position:absolute;inset-inline:0;bottom:0;padding:30px 11px 11px;background:linear-gradient(to top,rgba(12,6,14,.96) 0%,rgba(12,6,14,.82) 44%,rgba(12,6,14,0) 100%);">
+                <div style="display:flex;align-items:center;gap:4px;margin-bottom:3px;font:600 11px Inter;color:#E0B563;"><i class="ph-fill ph-star" style="font-size:.95em;vertical-align:-1px;"></i> <bdi>{{ f.rating }}</bdi></div>
+                <div style="font:600 14px {{ f.titleFont }};color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><bdi>{{ f.title }}</bdi></div>
+                <div style="margin-top:1px;font:400 11px Inter;color:#C9C0D0;"><bdi>{{ f.year }}</bdi> · <bdi>{{ f.dur }} min</bdi></div>
+              </div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+
+    <!-- TOUS LES COURTS -->
+    <section style="margin-top:38px;">
+      <h3 style="margin:0 0 14px;font:700 20px Inter;color:#fff;">{{ t.allShorts }}</h3>
+
+      <button style="width:100%;display:flex;align-items:center;justify-content:center;gap:9px;height:50px;margin-bottom:18px;border:1.5px dashed #5A4566;border-radius:14px;background:#2A1A33;color:#E0B563;font:600 14px Inter;cursor:pointer;"><i class="ph ph-plus-circle" style="font-size:19px;"></i>{{ t.suggest }}</button>
+
+      <!-- FILTERS -->
+      <div style="display:flex;align-items:center;gap:10px;height:48px;padding:0 16px;border-radius:9999px;background:#31203A;border:1px solid #4A3556;margin-bottom:12px;">
+        <i class="ph ph-magnifying-glass" style="font-size:18px;color:#B0A6B8;"></i>
+        <input type="text" value="{{ rawQ }}" onInput="{{ onSearch }}" placeholder="{{ t.searchPlaceholder }}" style="flex:1;min-width:0;background:transparent;border:none;outline:none;color:#fff;font:500 15px Inter;" />
+        <sc-if value="{{ hasQuery }}"><button onClick="{{ clearQuery }}" style="border:none;cursor:pointer;width:24px;height:24px;border-radius:9999px;background:#4A3556;color:#B0A6B8;display:flex;align-items:center;justify-content:center;"><i class="ph ph-x" style="font-size:12px;"></i></button></sc-if>
+      </div>
+
+      <div class="hsc" style="display:flex;gap:8px;overflow-x:auto;padding-bottom:10px;">
+        <sc-for list="{{ genresView }}" as="g" hint-placeholder-count="6">
+          <button onClick="{{ g.onClick }}" style="flex:none;padding:8px 15px;border-radius:8px;border:1px solid;cursor:pointer;font:600 13px {{ g.font }};white-space:nowrap;background:{{ g.bg }};color:{{ g.fg }};border-color:{{ g.border }};">{{ g.label }}</button>
+        </sc-for>
+      </div>
+
+      <div class="hsc" style="display:flex;gap:8px;overflow-x:auto;padding-bottom:14px;align-items:center;">
+        <button onClick="{{ toggleOnline }}" style="flex:none;display:flex;align-items:center;gap:7px;padding:8px 14px;border-radius:8px;border:1px solid;cursor:pointer;font:600 13px Inter;white-space:nowrap;background:{{ onlineBg }};color:{{ onlineFg }};border-color:{{ onlineBorder }};"><i class="ph ph-monitor-play" style="font-size:15px;"></i>{{ t.online }}</button>
+        <button onClick="{{ toggleAwards }}" style="flex:none;display:flex;align-items:center;gap:7px;padding:8px 14px;border-radius:8px;border:1px solid;cursor:pointer;font:600 13px Inter;white-space:nowrap;background:{{ awardsBg }};color:{{ awardsFg }};border-color:{{ awardsBorder }};"><i class="ph ph-trophy" style="font-size:15px;"></i>{{ t.awards }}</button>
+        <span style="flex:none;width:1px;height:22px;background:#4A3556;margin:0 4px;"></span>
+        <span style="flex:none;font:600 12px Inter;color:#8B7E94;">{{ t.sort }}:</span>
+        <sc-for list="{{ sortView }}" as="s" hint-placeholder-count="3">
+          <button onClick="{{ s.onClick }}" style="flex:none;padding:8px 13px;border-radius:8px;border:1px solid;cursor:pointer;font:600 13px {{ s.font }};white-space:nowrap;background:{{ s.bg }};color:{{ s.fg }};border-color:{{ s.border }};">{{ s.label }}</button>
+        </sc-for>
+      </div>
+
+      <!-- GRID / STATES -->
+      <sc-if value="{{ showLoading }}" hint-placeholder-val="{{ true }}">
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:16px;margin-top:6px;">
+          <sc-for list="{{ skeletons }}" as="k" hint-placeholder-count="8">
+            <div>
+              <div class="skel" style="aspect-ratio:2/3;border-radius:16px;background:#31203A;"></div>
+              <div class="skel" style="height:13px;width:80%;border-radius:5px;background:#31203A;margin-top:9px;"></div>
+              <div class="skel" style="height:11px;width:55%;border-radius:5px;background:#2C1B35;margin-top:7px;"></div>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ showError }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;align-items:center;text-align:center;padding:56px 24px;">
+          <div style="width:72px;height:72px;border-radius:9999px;background:#3A1A22;border:1px solid #6E2E38;display:flex;align-items:center;justify-content:center;margin-bottom:18px;"><i class="ph ph-warning-circle" style="font-size:34px;color:#FF8A8A;"></i></div>
+          <h4 style="margin:0 0 8px;font:700 18px Inter;color:#fff;">{{ t.errorTitle }}</h4>
+          <p style="margin:0 0 22px;font:400 14px/1.5 Inter;color:#B0A6B8;max-width:300px;">{{ t.errorBody }}</p>
+          <button onClick="{{ retry }}" style="height:46px;padding:0 24px;border:none;border-radius:9999px;background:#D4A24A;color:#2A1A06;font:700 15px Inter;cursor:pointer;display:flex;align-items:center;gap:8px;box-shadow:inset 0 0 0 1px rgba(42,26,6,.22);"><i class="ph ph-arrow-clockwise" style="font-size:16px;"></i>{{ t.retry }}</button>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ showEmpty }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;align-items:center;text-align:center;padding:52px 24px;">
+          <div style="width:88px;height:88px;border-radius:9999px;border:2px dashed #4A3556;display:flex;align-items:center;justify-content:center;margin-bottom:20px;"><i class="ph ph-film-strip" style="font-size:40px;color:#6E6076;"></i></div>
+          <h4 style="margin:0 0 9px;font-family:Lalezar;font-size:30px;line-height:1.05;color:#fff;">{{ t.emptyTitle }}</h4>
+          <p style="margin:0 0 24px;font:400 15px/1.55 Inter;color:#B0A6B8;max-width:300px;">{{ t.emptyBody }}</p>
+          <button onClick="{{ reset }}" style="height:46px;padding:0 24px;border:none;border-radius:9999px;background:#D4A24A;color:#2A1A06;font:700 15px Inter;cursor:pointer;box-shadow:inset 0 0 0 1px rgba(42,26,6,.22);">{{ t.reset }}</button>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ showGrid }}" hint-placeholder-val="{{ true }}">
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:16px;margin-top:6px;">
+          <sc-for list="{{ visibleFilms }}" as="f" hint-placeholder-count="8">
+            <div role="article" style="cursor:pointer;transition:transform .18s ease;" style-hover="transform:translateY(-3px)">
+              <div style="position:relative;aspect-ratio:2/3;border-radius:16px;overflow:hidden;background:repeating-linear-gradient(135deg,#31203A 0,#31203A 9px,#3A2742 9px,#3A2742 18px);">
+                <span style="position:absolute;top:8px;inset-inline-start:8px;z-index:2;display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:8px;background:rgba(14,7,16,.74);font:600 10px Inter;color:#fff;"><span style="width:6px;height:6px;border-radius:9999px;background:#5FD0C2;"></span>{{ f.genre }}</span>
+                <div onClick="{{ f.onSave }}" style="position:absolute;top:8px;inset-inline-end:8px;z-index:2;width:30px;height:30px;border-radius:9999px;background:rgba(14,7,16,.5);display:flex;align-items:center;justify-content:center;cursor:pointer;">
+                  <i class="ph ph-heart" style="position:absolute;font-size:16px;color:rgba(255,255,255,.9);"></i>
+                  <sc-if value="{{ f.saved }}"><i class="ph-fill ph-heart" style="position:absolute;font-size:16px;color:#D4A24A;{{ f.pulse }}"></i></sc-if>
+                </div>
+                <span style="position:absolute;top:42%;left:0;right:0;text-align:center;font-family:'JetBrains Mono';font-size:10px;letter-spacing:.12em;color:#7B6E83;">AFFICHE 2:3</span>
+                <div style="position:absolute;inset-inline:0;bottom:0;padding:32px 11px 11px;background:linear-gradient(to top,rgba(12,6,14,.96) 0%,rgba(12,6,14,.82) 44%,rgba(12,6,14,0) 100%);">
+                  <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">
+                    <span style="display:inline-flex;align-items:center;gap:3px;font:600 11px Inter;color:#E0B563;"><i class="ph-fill ph-star" style="font-size:.95em;vertical-align:-1px;"></i> <bdi>{{ f.rating }}</bdi></span>
+                    <sc-if value="{{ f.award }}"><span style="display:inline-flex;align-items:center;gap:3px;font:600 10px Inter;color:#E0B563;"><i class="ph-fill ph-trophy" style="font-size:11px;"></i>{{ t.awarded }}</span></sc-if>
+                    <sc-if value="{{ f.online }}"><i class="ph ph-monitor-play" style="font-size:13px;color:#5FD0C2;" title="En ligne"></i></sc-if>
+                  </div>
+                  <div style="font:600 14px {{ f.titleFont }};color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><bdi>{{ f.title }}</bdi></div>
+                  <div style="margin-top:1px;font:400 11px Inter;color:#C9C0D0;"><bdi>{{ f.year }}</bdi> · <bdi>{{ f.dur }} min</bdi></div>
+                </div>
+              </div>
+            </div>
+          </sc-for>
+
+          <sc-if value="{{ loadingMore }}" hint-placeholder-val="{{ false }}">
+            <sc-for list="{{ skeletons }}" as="k" hint-placeholder-count="3">
+              <div>
+                <div class="skel" style="aspect-ratio:2/3;border-radius:16px;background:#31203A;"></div>
+                <div class="skel" style="height:13px;width:80%;border-radius:5px;background:#31203A;margin-top:9px;"></div>
+              </div>
+            </sc-for>
+          </sc-if>
+        </div>
+
+        <sc-if value="{{ showLoadMore }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;justify-content:center;margin-top:26px;">
+            <button onClick="{{ loadMore }}" style="height:48px;padding:0 30px;border:1.5px solid #4A3556;border-radius:9999px;background:#31203A;color:#E5E0E9;font:600 15px Inter;cursor:pointer;display:flex;align-items:center;gap:9px;" style-hover="background:#3E2A48;border-color:#5A4566">{{ t.loadMore }}<i class="ph ph-arrow-down" style="font-size:15px;"></i></button>
+          </div>
+        </sc-if>
+      </sc-if>
+
+    </section>
+  </main>
+
+  <nav style="position:fixed;inset-inline:0;bottom:0;z-index:40;display:flex;justify-content:space-around;align-items:center;height:64px;border-top:1px solid #4A3556;background:rgba(36,19,38,.94);backdrop-filter:blur(12px);padding-bottom:env(safe-area-inset-bottom);">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:4px;color:#D4A24A;"><i class="ph-fill ph-house" style="font-size:22px;"></i><span style="font:600 10px {{ navFont }};">{{ t.navHome }}</span></div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:4px;color:#B0A6B8;"><i class="ph ph-magnifying-glass" style="font-size:22px;"></i><span style="font:500 10px {{ navFont }};">{{ t.navSearch }}</span></div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:4px;color:#B0A6B8;"><i class="ph ph-ticket" style="font-size:22px;"></i><span style="font:500 10px {{ navFont }};">{{ t.navTickets }}</span></div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:4px;color:#B0A6B8;"><i class="ph ph-user" style="font-size:22px;"></i><span style="font:500 10px {{ navFont }};">{{ t.navAccount }}</span></div>
+  </nav>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:420,&quot;height&quot;:900},&quot;locale&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;fr&quot;,&quot;ar&quot;],&quot;default&quot;:&quot;fr&quot;,&quot;tsType&quot;:&quot;'fr' | 'ar'&quot;},&quot;viewState&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;auto&quot;,&quot;loading&quot;,&quot;empty&quot;,&quot;error&quot;,&quot;offline&quot;],&quot;default&quot;:&quot;auto&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+class Component extends DCLogic {
+  state = { locale: this.props.locale || 'fr', rawQ:'', q:'', genre:'all', online:false, awards:false, sort:'recent', visible:8, loadingMore:false, heroIndex:0, saved:{}, justSaved:null };
+
+  STR = {
+    fr:{ kicker:'Directory', screenTitle:'Courts métrages', results:'résultats', recent:'Derniers ajouts', seeAll:'Voir tout', allShorts:'Tous les courts métrages', suggest:'Suggérer un court métrage', searchPlaceholder:'Rechercher un court métrage…', sort:'Trier', online:'En ligne', awards:'Primés', awarded:'Primé', loadMore:'Charger plus', watchTrailer:'Regarder la bande-annonce', details:'Voir les détails', emptyTitle:'Aucun court métrage trouvé', emptyBody:'Aucun résultat pour ces filtres. Réinitialisez pour tout revoir.', reset:'Réinitialiser les filtres', offline:'Fonctionne hors ligne', offlineBanner:'Vous êtes hors ligne — le contenu en cache reste disponible.', errorTitle:'Impossible de charger', errorBody:'Une erreur est survenue. Vérifiez votre connexion et réessayez.', retry:'Réessayer', navHome:'Accueil', navSearch:'Recherche', navTickets:'Billets', navAccount:'Compte', sortRecent:'Récents', sortRated:'Mieux notés', sortAZ:'A–Z' },
+    ar:{ kicker:'الدليل', screenTitle:'أفلام قصيرة', results:'نتيجة', recent:'أحدث الإضافات', seeAll:'عرض الكل', allShorts:'كل الأفلام القصيرة', suggest:'اقترح فيلماً قصيراً', searchPlaceholder:'ابحث عن فيلم قصير…', sort:'ترتيب', online:'متاح أونلاين', awards:'حائز على جوائز', awarded:'حائز', loadMore:'تحميل المزيد', watchTrailer:'شاهد الإعلان', details:'عرض التفاصيل', emptyTitle:'لم يتم العثور على أفلام', emptyBody:'لا نتائج لهذه المرشحات. أعد الضبط لرؤية الكل.', reset:'إعادة ضبط المرشحات', offline:'يعمل دون اتصال', offlineBanner:'أنت غير متصل — المحتوى المخزّن لا يزال متاحاً.', errorTitle:'تعذّر التحميل', errorBody:'حدث خطأ. تحقق من اتصالك وحاول مجدداً.', retry:'إعادة المحاولة', navHome:'الرئيسية', navSearch:'بحث', navTickets:'تذاكر', navAccount:'حساب', sortRecent:'الأحدث', sortRated:'الأعلى تقييماً', sortAZ:'أ–ي' }
+  };
+
+  GENRES = [
+    { id:'all', fr:'Tous', ar:'الكل' },
+    { id:'drame', fr:'Drame', ar:'دراما' },
+    { id:'doc', fr:'Documentaire', ar:'وثائقي' },
+    { id:'anim', fr:'Animation', ar:'تحريك' },
+    { id:'exp', fr:'Expérimental', ar:'تجريبي' },
+    { id:'comedie', fr:'Comédie', ar:'كوميديا' }
+  ];
+
+  FILMS = [
+    { id:'communion', fr:'Communion', ar:'تواصل', g:'drame', year:2024, dur:21, rating:4.6, online:true, award:true, dirFr:'Yasmine Ben Ali', dirAr:'ياسمين بن علي', synFr:"Au seuil d'un deuil, une famille se rassemble une dernière fois autour d'un rituel.", synAr:'على عتبة الفقد، تجتمع عائلة لمرة أخيرة حول طقس جامع.' },
+    { id:'brotherhood', fr:'Brotherhood', ar:'أخوة', g:'drame', year:2018, dur:25, rating:4.8, online:true, award:true, dirFr:'Meryam Joobeur', dirAr:'مريم جعبر', synFr:"Le retour d'un fils aîné bouleverse l'équilibre d'une famille du nord tunisien.", synAr:'عودة الابن البكر تقلب توازن عائلة في الشمال التونسي.' },
+    { id:'wissam', fr:'Wissam', ar:'وسام', g:'anim', year:2021, dur:9, rating:4.7, online:true, award:true, dirFr:'Sarra Belghith', dirAr:'سارة بالغيث', synFr:"Une médaille, un grand-père, et tout un quartier qui retient son souffle.", synAr:'وسام، جدّ، وحيّ بأكمله يحبس أنفاسه.' },
+    { id:'mamba', fr:'Black Mamba', ar:'بلاك مامبا', g:'drame', year:2017, dur:20, rating:4.5, online:false, award:true, dirFr:'Amel Guellaty', dirAr:'آمال ڨلاتي' },
+    { id:'aya', fr:'Aya', ar:'آية', g:'drame', year:2021, dur:19, rating:4.3, online:false, award:false, dirFr:'Moufida Trabelsi', dirAr:'مفيدة الطرابلسي' },
+    { id:'khdma', fr:'Khdma', ar:'خدمة', g:'comedie', year:2022, dur:14, rating:4.1, online:true, award:false, dirFr:'Nidhal Guiga', dirAr:'نضال ڨيڨة' },
+    { id:'hadra', fr:'La Hadra', ar:'الحضرة', g:'doc', year:2020, dur:28, rating:4.6, online:false, award:false, dirFr:'Karim Souaki', dirAr:'كريم السواقي' },
+    { id:'sselfie', fr:'Sselfie', ar:'سيلفي', g:'comedie', year:2019, dur:12, rating:4.0, online:true, award:false, dirFr:'Walid Mattar', dirAr:'وليد مطر' },
+    { id:'refuge', fr:'Refuge', ar:'ملاذ', g:'drame', year:2023, dur:22, rating:4.4, online:false, award:true, dirFr:'Ines Ben Othman', dirAr:'إيناس بن عثمان' },
+    { id:'bidoun', fr:'Bidoun 2', ar:'بدون 2', g:'exp', year:2016, dur:18, rating:4.2, online:false, award:false, dirFr:'Jilani Saadi', dirAr:'الجيلاني السعدي' },
+    { id:'stade', fr:'Le Stade', ar:'الملعب', g:'doc', year:2022, dur:24, rating:4.1, online:true, award:false, dirFr:'Ali Hassouna', dirAr:'علي حسونة' },
+    { id:'bobbo', fr:'Bobbo', ar:'بوبو', g:'anim', year:2018, dur:8, rating:4.5, online:false, award:false, dirFr:'Zeineb Naoui', dirAr:'زينب الناوي' },
+    { id:'semaine', fr:'Semaine 23', ar:'الأسبوع 23', g:'exp', year:2020, dur:16, rating:3.9, online:false, award:false, dirFr:'Hamza Ouni', dirAr:'حمزة العوني' },
+    { id:'hijra', fr:'Hijra', ar:'هجرة', g:'doc', year:2019, dur:30, rating:4.3, online:true, award:false, dirFr:'Sonia Chamkhi', dirAr:'سنية شمخي' }
+  ];
+  HERO = ['communion','brotherhood','wissam'];
+
+  onSearch = (e) => { const v = e.target.value; this.setState({ rawQ:v }); clearTimeout(this._t); this._t = setTimeout(() => this.setState({ q:v, visible:8 }), 300); };
+  clearQuery = () => { clearTimeout(this._t); this.setState({ rawQ:'', q:'', visible:8 }); };
+  setGenre = (g) => () => this.setState({ genre:g, visible:8 });
+  setSort = (s) => () => this.setState({ sort:s });
+  toggleOnline = () => this.setState(s => ({ online:!s.online, visible:8 }));
+  toggleAwards = () => this.setState(s => ({ awards:!s.awards, visible:8 }));
+  setLocale = (l) => () => this.setState({ locale:l });
+  reset = () => { clearTimeout(this._t); this.setState({ q:'', rawQ:'', genre:'all', online:false, awards:false, visible:8 }); };
+  retry = () => this.setState({ retried:true });
+  loadMore = () => { this.setState({ loadingMore:true }); clearTimeout(this._l); this._l = setTimeout(() => this.setState(s => ({ loadingMore:false, visible:s.visible+6 })), 750); };
+  toggleSave = (id) => (e) => { if(e&&e.stopPropagation) e.stopPropagation(); this.setState(s => { const saved = { ...s.saved, [id]:!s.saved[id] }; const now = saved[id]; if(now){ clearTimeout(this._p); this._p = setTimeout(() => this.setState({ justSaved:null }), 680); } return { saved, justSaved: now ? id : (s.justSaved===id?null:s.justSaved) }; }); };
+  heroPrev = () => this.setState(s => ({ heroIndex: (s.heroIndex + this.HERO.length - 1) % this.HERO.length }));
+  heroNext = () => this.setState(s => ({ heroIndex: (s.heroIndex + 1) % this.HERO.length }));
+  setHero = (i) => () => this.setState({ heroIndex:i });
+
+  renderVals() {
+    const loc = this.state.locale;
+    const t = this.STR[loc];
+    const dir = loc === 'ar' ? 'rtl' : 'ltr';
+    const titleFont = loc === 'ar' ? "'IBM Plex Sans Arabic'" : 'Inter';
+    const gMap = {}; this.GENRES.forEach(g => gMap[g.id] = g[loc]);
+    const view = this.props.viewState || 'auto';
+
+    const vm = (f) => ({
+      id:f.id, title:f[loc], genre:gMap[f.g], year:f.year, dur:f.dur, rating:f.rating.toFixed(1),
+      online:f.online, award:f.award, saved:!!this.state.saved[f.id], titleFont,
+      pulse: this.state.justSaved===f.id ? 'animation:pulseHeart .6s ease;' : '',
+      onSave: this.toggleSave(f.id)
+    });
+
+    // filter + sort
+    const q = (this.state.q||'').trim().toLowerCase();
+    let list = this.FILMS.filter(f =>
+      (this.state.genre==='all' || f.g===this.state.genre) &&
+      (!this.state.online || f.online) &&
+      (!this.state.awards || f.award) &&
+      (!q || f.fr.toLowerCase().includes(q) || f.ar.includes(this.state.q.trim()))
+    );
+    if(this.state.sort==='recent') list.sort((a,b)=>b.year-a.year);
+    else if(this.state.sort==='rated') list.sort((a,b)=>b.rating-a.rating);
+    else list.sort((a,b)=>a[loc].localeCompare(b[loc]));
+
+    const autoMode = view==='auto' || view==='offline';
+    const showLoading = view==='loading';
+    const showError = view==='error';
+    const showEmpty = view==='empty' || (autoMode && list.length===0);
+    const showGrid = !showLoading && !showError && !showEmpty;
+    const visibleFilms = list.slice(0, this.state.visible).map(vm);
+
+    const heroF = this.FILMS.find(f=>f.id===this.HERO[this.state.heroIndex]) || this.FILMS[0];
+
+    const chip = (active) => active
+      ? { bg:'#D4A24A', fg:'#2A1A06', border:'#D4A24A' }
+      : { bg:'#31203A', fg:'#C9C0D0', border:'#4A3556' };
+
+    const sorts = [['recent',t.sortRecent],['rated',t.sortRated],['az',t.sortAZ]];
+
+    const aFr = chip(loc==='fr'), aAr = chip(loc==='ar');
+    const on = chip(this.state.online), aw = chip(this.state.awards);
+
+    return {
+      t, dir, locale:loc, navFont:titleFont,
+      toFr:this.setLocale('fr'), toAr:this.setLocale('ar'),
+      frBg:aFr.bg, frFg:aFr.fg, arBg:aAr.bg, arFg:aAr.fg,
+      rawQ:this.state.rawQ, hasQuery: !!this.state.rawQ, onSearch:this.onSearch, clearQuery:this.clearQuery,
+      genresView: this.GENRES.map(g => { const c=chip(this.state.genre===g.id); return { id:g.id, label:g[loc], onClick:this.setGenre(g.id), font:(loc==='ar'?"'IBM Plex Sans Arabic'":'Inter'), bg:c.bg, fg:c.fg, border:c.border }; }),
+      sortView: sorts.map(([id,label]) => { const c=chip(this.state.sort===id); return { id, label, onClick:this.setSort(id), font:(loc==='ar'?"'IBM Plex Sans Arabic'":'Inter'), bg:c.bg, fg:c.fg, border:c.border }; }),
+      toggleOnline:this.toggleOnline, onlineBg:on.bg, onlineFg:on.fg, onlineBorder:on.border,
+      toggleAwards:this.toggleAwards, awardsBg:aw.bg, awardsFg:aw.fg, awardsBorder:aw.border,
+      derniers: [...this.FILMS].sort((a,b)=>b.year-a.year).slice(0,7).map(vm),
+      hero: { title:heroF[loc], genre:gMap[heroF.g], year:heroF.year, dur:heroF.dur, award:heroF.award, director:loc==='ar'?heroF.dirAr:heroF.dirFr, synopsis:(loc==='ar'?(heroF.synAr||''):(heroF.synFr||'')) },
+      heroDots: this.HERO.map((id,i) => ({ onClick:this.setHero(i), w: i===this.state.heroIndex ? '22px' : '6px', bg: i===this.state.heroIndex ? '#D4A24A' : 'rgba(255,255,255,.4)' })),
+      heroPrev:this.heroPrev, heroNext:this.heroNext,
+      resultsCount: String(list.length),
+      isOffline: view==='offline',
+      showLoading, showError, showEmpty, showGrid,
+      visibleFilms, skeletons: Array.from({length:8}),
+      loadingMore: this.state.loadingMore,
+      showLoadMore: showGrid && !this.state.loadingMore && this.state.visible < list.length,
+      loadMore:this.loadMore, reset:this.reset, retry:this.retry
+    };
+  }
+}
+</script>
+</body>
+</html>

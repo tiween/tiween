@@ -1,5 +1,2 @@
 export { ShortFilmDetail } from "./ShortFilmDetail"
-export type {
-  ShortFilmDetailProps,
-  ShortFilmDetailLabels,
-} from "./ShortFilmDetail"
+export type { ShortFilmDetailProps } from "./ShortFilmDetail"

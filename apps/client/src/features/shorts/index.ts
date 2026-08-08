@@ -17,7 +17,6 @@ export type {
   GenreOption,
   SuggestionFormProps,
   ShortFilmDetailProps,
-  ShortFilmDetailLabels,
   ShortsDirectoryProps,
   ShortsDirectoryLabels,
 } from "./components"

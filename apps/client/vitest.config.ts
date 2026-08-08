@@ -64,6 +64,7 @@ export default defineConfig({
         inline: [
           /@testing-library\//,
           /@radix-ui\//,
+          /@phosphor-icons\//,
           /react-day-picker/,
           /cmdk/,
           /@floating-ui\//,
@@ -71,6 +72,11 @@ export default defineConfig({
       },
     },
     include: [
+      // Route-level files that sit directly under `src/app` (sitemap, robots).
+      // Without this line no glob below reaches them — `src/app/**/page.test.tsx`
+      // needs the `page` basename and `src/app/api/**` needs the `api` segment,
+      // so a `src/app/sitemap.test.ts` would silently never run.
+      "src/app/*.test.ts",
       "src/features/events/utils/**/*.test.ts",
       // Contribute-route Strapi payload contract (DW-10).
       "src/app/api/**/*.test.ts",
@@ -108,6 +114,9 @@ export default defineConfig({
       "src/features/events/components/FilmHero/**/*.test.tsx",
       // EventDetailPage toggle wiring + in-flight guard (Story 5.2).
       "src/features/events/components/EventDetailPage/**/*.test.tsx",
+      // Short-film detail page — conditional-section omission + share
+      // fallbacks (2026 design handoff).
+      "src/features/shorts/components/ShortFilmDetail/**/*.test.tsx",
       // Watchlist page composition + seed-then-remove wiring (Story 5.3).
       // `[locale]` is a glob char-class, so match the segment via `**`.
       "src/app/**/watchlist/**/*.test.tsx",

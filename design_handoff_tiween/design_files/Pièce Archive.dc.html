@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lalezar&family=Inter:wght@400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/bold/style.css">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:#241326}
+  .hsc{-ms-overflow-style:none;scrollbar-width:none}
+  .hsc::-webkit-scrollbar{display:none;height:0;width:0}
+  @keyframes pulseHeart{0%{transform:scale(1)}35%{transform:scale(1.45)}70%{transform:scale(.9)}100%{transform:scale(1)}}
+  @media (prefers-reduced-motion: reduce){*{animation:none !important}}
+</style>
+</helmet>
+
+<div dir="{{ dir }}" lang="{{ locale }}" style="min-height:100vh;background:#241326;color:#fff;font-family:Inter,system-ui,sans-serif;">
+
+  <header style="position:sticky;top:0;z-index:30;background:rgba(36,19,38,.86);backdrop-filter:blur(12px);border-bottom:1px solid #2E1D37;">
+    <div style="max-width:920px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:11px 16px;gap:10px;">
+      <button style="width:40px;height:40px;border-radius:9999px;background:#31203A;border:none;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;"><i class="ph ph-caret-left" style="font-size:20px;"></i></button>
+      <img src="assets/tiween-wordmark-gold.png" alt="tiween · توين" style="height:34px;width:auto;display:block;" />
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div style="display:flex;gap:3px;background:#31203A;border:1px solid #4A3556;border-radius:9999px;padding:3px;">
+          <button onClick="{{ toFr }}" style="border:none;cursor:pointer;border-radius:9999px;min-width:32px;height:28px;font:700 11px Inter;background:{{ frBg }};color:{{ frFg }};">FR</button>
+          <button onClick="{{ toAr }}" style="border:none;cursor:pointer;border-radius:9999px;min-width:32px;height:28px;font:700 13px 'IBM Plex Sans Arabic';background:{{ arBg }};color:{{ arFg }};">ع</button>
+        </div>
+        <button style="width:40px;height:40px;border-radius:9999px;background:#31203A;border:none;color:#B0A6B8;display:flex;align-items:center;justify-content:center;cursor:pointer;"><i class="ph ph-share-network" style="font-size:18px;"></i></button>
+      </div>
+    </div>
+  </header>
+
+  <main style="max-width:920px;margin:0 auto;padding:0 0 120px;">
+
+    <!-- HERO -->
+    <section style="position:relative;height:clamp(420px,56vw,540px);background:repeating-linear-gradient(115deg,#2b2530 0,#2b2530 14px,#383240 14px,#383240 28px);overflow:hidden;">
+      <span style="position:absolute;top:48%;inset-inline-end:-4%;transform:translateY(-50%);font-family:Lalezar;font-size:clamp(280px,44vw,500px);line-height:.8;color:#D4A24A;opacity:.95;">ت</span>
+      <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(14,7,16,.98) 5%,rgba(14,7,16,.5) 44%,rgba(14,7,16,.12) 100%);"></div>
+      <span style="position:absolute;top:14px;inset-inline-start:16px;font:500 10px 'JetBrains Mono';letter-spacing:.08em;color:#9A8DA2;background:rgba(14,7,16,.5);padding:5px 9px;border-radius:8px;">PORTRAIT DUOTONE — découpe ت or</span>
+      <span style="position:absolute;top:14px;inset-inline-end:16px;display:inline-flex;align-items:center;gap:6px;font:600 11px Inter;color:#B0A6B8;background:rgba(14,7,16,.6);border:1px solid #4A3556;padding:6px 11px;border-radius:9999px;"><i class="ph ph-archive" style="font-size:13px;"></i>{{ t.archived }}</span>
+
+      <div style="position:absolute;inset-inline:0;bottom:0;padding:clamp(18px,3.5vw,32px);">
+        <div style="display:flex;align-items:flex-end;gap:clamp(14px,3vw,22px);">
+          <div style="flex:none;width:clamp(106px,21vw,150px);aspect-ratio:2/3;border-radius:14px;overflow:hidden;position:relative;border:1px solid #5A4566;background:repeating-linear-gradient(135deg,#31203A 0,#31203A 9px,#3A2742 9px,#3A2742 18px);box-shadow:0 12px 32px -10px rgba(0,0,0,.75);">
+            <span style="position:absolute;top:8px;inset-inline-start:8px;width:7px;height:7px;border-radius:9999px;background:#E5478A;"></span>
+            <span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono';font-size:9px;letter-spacing:.12em;color:#7B6E83;">AFFICHE 2:3</span>
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:11px;flex-wrap:wrap;">
+              <span style="display:inline-flex;align-items:center;gap:6px;padding:4px 11px;border-radius:8px;background:rgba(14,7,16,.6);border:1px solid #5E2A45;font:600 11px Inter;color:#E5478A;"><span style="width:6px;height:6px;border-radius:9999px;background:#E5478A;"></span>{{ t.category }}</span>
+              <span style="padding:4px 11px;border-radius:8px;background:rgba(14,7,16,.6);border:1px solid #4A3556;font:600 11px Inter;color:#B0A6B8;"><bdi>{{ play.creationYear }}</bdi></span>
+            </div>
+            <h1 style="margin:0;font-family:Lalezar;font-size:clamp(40px,7vw,68px);line-height:.98;color:#fff;">{{ play.title }}</h1>
+            <p style="margin:8px 0 0;font:500 15px {{ titleFont }};color:#C9C0D0;"><bdi>{{ play.company }}</bdi> · {{ t.director }} <bdi>{{ play.director }}</bdi></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div style="padding:0 16px;">
+
+      <!-- ARCHIVE STATUS -->
+      <div style="margin-top:18px;display:flex;align-items:center;gap:13px;padding:14px 16px;border-radius:14px;background:#2A1A33;border:1px solid #4A3556;">
+        <i class="ph ph-archive-box" style="font-size:24px;color:#E0B563;flex:none;"></i>
+        <div style="flex:1;min-width:0;">
+          <div style="font:600 14px {{ titleFont }};color:#fff;">{{ t.notScheduled }}</div>
+          <div style="font:400 12px {{ titleFont }};color:#B0A6B8;margin-top:1px;">{{ t.notifyHint }}</div>
+        </div>
+      </div>
+
+      <!-- ACTIONS -->
+      <div style="display:flex;gap:12px;margin-top:14px;align-items:stretch;">
+        <button style="flex:none;width:52px;border-radius:9999px;border:1.5px solid #4A3556;background:#31203A;display:flex;align-items:center;justify-content:center;cursor:pointer;" onClick="{{ toggleSave }}" aria-label="{{ t.save }}">
+          <span style="position:relative;display:flex;"><i class="ph ph-heart" style="font-size:22px;color:#B0A6B8;{{ heartOutline }}"></i><sc-if value="{{ saved }}"><i class="ph-fill ph-heart" style="position:absolute;left:0;top:0;font-size:22px;color:#D4A24A;{{ heartPulse }}"></i></sc-if></span>
+        </button>
+        <button onClick="{{ toggleFollow }}" style="flex:1;height:52px;border-radius:9999px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px;font:700 16px {{ titleFont }};border:{{ followBorder }};background:{{ followBg }};color:{{ followFg }};box-shadow:{{ followShadow }};">
+          <span style="position:relative;display:flex;"><i class="ph ph-bell" style="font-size:18px;{{ bellOutline }}"></i><sc-if value="{{ following }}"><i class="ph-fill ph-bell" style="position:absolute;left:0;top:0;font-size:18px;{{ bellPulse }}"></i></sc-if></span>
+          {{ followLabel }}
+        </button>
+        <button style="flex:none;padding:0 18px;border:1.5px solid #4A3556;border-radius:9999px;background:#31203A;color:#C9C0D0;font:600 14px {{ titleFont }};cursor:pointer;display:flex;align-items:center;gap:7px;"><i class="ph-fill ph-play" style="font-size:14px;"></i>{{ t.teaser }}</button>
+      </div>
+
+      <!-- FICHE TECHNIQUE -->
+      <section style="margin-top:30px;">
+        <h2 style="margin:0 0 14px;font:700 18px {{ titleFont }};color:#fff;">{{ t.facts }}</h2>
+        <div style="border-radius:16px;background:#31203A;border:1px solid #4A3556;padding:6px 18px;">
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:0 24px;">
+            <sc-for list="{{ facts }}" as="f" hint-placeholder-count="10">
+              <div style="display:flex;flex-direction:column;gap:2px;padding:13px 0;border-bottom:1px solid #3A2742;">
+                <span style="font:500 12px {{ titleFont }};color:#8B7E94;">{{ f.label }}</span>
+                <span style="font:600 15px {{ titleFont }};color:#fff;"><bdi>{{ f.value }}</bdi></span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </section>
+
+      <!-- SYNOPSIS -->
+      <section style="margin-top:30px;">
+        <h2 style="margin:0 0 10px;font:700 18px {{ titleFont }};color:#fff;">{{ t.synopsis }}</h2>
+        <p style="margin:0;font:400 15px/1.65 {{ titleFont }};color:#C9C0D0;max-width:660px;text-wrap:pretty;">{{ play.synopsis }}</p>
+      </section>
+
+      <!-- DISTINCTIONS -->
+      <section style="margin-top:30px;">
+        <h2 style="margin:0 0 12px;font:700 18px {{ titleFont }};color:#fff;">{{ t.distinctions }}</h2>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <sc-for list="{{ awards }}" as="a" hint-placeholder-count="2">
+            <div style="display:flex;align-items:center;gap:12px;padding:13px 15px;border-radius:12px;background:#31203A;border:1px solid #4A3556;">
+              <i class="ph-fill ph-trophy" style="font-size:19px;color:#D4A24A;flex:none;"></i>
+              <span style="font:500 14px {{ titleFont }};color:#E5E0E9;">{{ a }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+
+      <!-- HISTORIQUE -->
+      <section style="margin-top:32px;">
+        <h2 style="margin:0 0 16px;font:700 18px {{ titleFont }};color:#fff;">{{ t.history }}</h2>
+        <div>
+          <sc-for list="{{ history }}" as="h" hint-placeholder-count="5">
+            <div style="display:flex;gap:14px;padding-bottom:18px;">
+              <div style="flex:none;width:14px;display:flex;flex-direction:column;align-items:center;">
+                <span style="width:11px;height:11px;border-radius:9999px;background:#D4A24A;margin-top:4px;flex:none;"></span>
+                <span style="flex:1;width:2px;background:#3E2A48;margin-top:4px;"></span>
+              </div>
+              <div style="padding-bottom:4px;">
+                <div style="font:700 13px Inter;color:#E0B563;"><bdi>{{ h.date }}</bdi></div>
+                <div style="margin-top:2px;font:600 15px {{ titleFont }};color:#fff;"><bdi>{{ h.venue }}</bdi></div>
+                <div style="margin-top:1px;display:flex;align-items:center;gap:9px;flex-wrap:wrap;">
+                  <span style="font:400 13px {{ titleFont }};color:#B0A6B8;"><bdi>{{ h.city }}</bdi></span>
+                  <sc-if value="{{ h.hasTag }}"><span style="font:600 10px {{ titleFont }};color:#E0B563;background:rgba(212,162,74,.14);border:1px solid #6E551E;padding:2px 8px;border-radius:9999px;">{{ h.tag }}</span></sc-if>
+                </div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+
+      <!-- ÉQUIPE -->
+      <section style="margin-top:24px;">
+        <h2 style="margin:0 0 14px;font:700 18px {{ titleFont }};color:#fff;">{{ t.team }}</h2>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px 24px;">
+          <sc-for list="{{ credits }}" as="c" hint-placeholder-count="5">
+            <div>
+              <div style="font:500 12px {{ titleFont }};color:#8B7E94;letter-spacing:.03em;">{{ c.role }}</div>
+              <div style="margin-top:2px;font:600 15px {{ titleFont }};color:#fff;"><bdi>{{ c.name }}</bdi></div>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+
+      <!-- DISTRIBUTION -->
+      <section style="margin-top:30px;">
+        <h2 style="margin:0 0 14px;font:700 18px {{ titleFont }};color:#fff;">{{ t.cast }}</h2>
+        <div class="hsc" style="display:flex;gap:18px;overflow-x:auto;padding-bottom:4px;">
+          <sc-for list="{{ cast }}" as="p" hint-placeholder-count="4">
+            <div style="flex:none;width:88px;text-align:center;">
+              <div style="width:88px;height:88px;border-radius:9999px;background:repeating-linear-gradient(135deg,#31203A 0,#31203A 7px,#3E2A48 7px,#3E2A48 14px);margin-bottom:8px;"></div>
+              <div style="font:600 13px {{ titleFont }};color:#fff;line-height:1.2;"><bdi>{{ p.name }}</bdi></div>
+              <div style="margin-top:2px;font:400 12px {{ titleFont }};color:#B0A6B8;line-height:1.2;"><bdi>{{ p.character }}</bdi></div>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+
+      <!-- GALERIE -->
+      <section style="margin-top:30px;">
+        <h2 style="margin:0 0 14px;font:700 18px {{ titleFont }};color:#fff;">{{ t.gallery }}</h2>
+        <div class="hsc" style="display:flex;gap:14px;overflow-x:auto;padding-bottom:4px;">
+          <sc-for list="{{ gallery }}" as="g" hint-placeholder-count="5">
+            <div style="flex:none;width:248px;aspect-ratio:3/2;border-radius:14px;overflow:hidden;background:repeating-linear-gradient(115deg,#2b2530 0,#2b2530 11px,#383240 11px,#383240 22px);display:flex;align-items:center;justify-content:center;position:relative;">
+              <span style="font-family:'JetBrains Mono';font-size:10px;letter-spacing:.12em;color:#7B6E83;">{{ t.photoLabel }}</span>
+              <span style="position:absolute;bottom:8px;inset-inline-start:10px;font:500 10px {{ titleFont }};color:#9A8DA2;"><bdi>{{ g }}</bdi></span>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+
+      <!-- PRESSE -->
+      <section style="margin-top:30px;">
+        <h2 style="margin:0 0 14px;font:700 18px {{ titleFont }};color:#fff;">{{ t.press }}</h2>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;">
+          <sc-for list="{{ press }}" as="q" hint-placeholder-count="2">
+            <div style="padding:18px;border-radius:14px;background:#31203A;border:1px solid #4A3556;">
+              <i class="ph-fill ph-quotes" style="font-size:22px;color:#E5478A;"></i>
+              <p style="margin:8px 0 12px;font:500 15px/1.5 {{ titleFont }};color:#E5E0E9;">{{ q.quote }}</p>
+              <span style="font:600 12px {{ titleFont }};color:#B0A6B8;">— <bdi>{{ q.source }}</bdi></span>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+
+      <!-- RELATED -->
+      <sc-if value="{{ showRelated }}" hint-placeholder-val="{{ true }}">
+      <section style="margin-top:34px;">
+        <h2 style="margin:0 0 14px;font:700 18px {{ titleFont }};color:#fff;">{{ t.related }}</h2>
+        <div class="hsc" style="display:flex;gap:16px;overflow-x:auto;padding-bottom:4px;">
+          <sc-for list="{{ related }}" as="f" hint-placeholder-count="4">
+            <div style="flex:none;width:160px;cursor:pointer;">
+              <div style="position:relative;aspect-ratio:2/3;border-radius:16px;overflow:hidden;background:repeating-linear-gradient(135deg,#31203A 0,#31203A 9px,#3A2742 9px,#3A2742 18px);">
+                <span style="position:absolute;top:8px;inset-inline-start:8px;z-index:2;display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:8px;background:rgba(14,7,16,.74);font:600 10px {{ titleFont }};color:#fff;"><span style="width:6px;height:6px;border-radius:9999px;background:#E5478A;"></span>{{ f.genre }}</span>
+                <span style="position:absolute;top:42%;left:0;right:0;text-align:center;font-family:'JetBrains Mono';font-size:10px;letter-spacing:.12em;color:#7B6E83;">AFFICHE 2:3</span>
+                <div style="position:absolute;inset-inline:0;bottom:0;padding:30px 11px 11px;background:linear-gradient(to top,rgba(12,6,14,.96) 0%,rgba(12,6,14,.82) 44%,rgba(12,6,14,0) 100%);">
+                  <div style="font:600 14px {{ titleFont }};color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><bdi>{{ f.title }}</bdi></div>
+                  <div style="margin-top:1px;font:400 11px Inter;color:#C9C0D0;"><bdi>{{ f.year }}</bdi></div>
+                </div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+      </sc-if>
+
+      <!-- SOURCES / CONTRIBUTE -->
+      <div style="margin-top:34px;padding:16px;border-radius:14px;border:1px dashed #4A3556;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+        <i class="ph ph-users-three" style="font-size:20px;color:#8B7E94;"></i>
+        <span style="flex:1;min-width:160px;font:400 13px {{ titleFont }};color:#B0A6B8;">{{ t.sources }}</span>
+        <button style="background:none;border:none;cursor:pointer;font:600 13px {{ titleFont }};color:#E0B563;display:flex;align-items:center;gap:6px;"><i class="ph ph-pencil-simple" style="font-size:14px;"></i>{{ t.suggest }}</button>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- STICKY NOTIFY BAR -->
+  <div style="position:fixed;inset-inline:0;bottom:0;z-index:40;background:rgba(36,19,38,.94);backdrop-filter:blur(12px);border-top:1px solid #4A3556;padding-bottom:env(safe-area-inset-bottom);">
+    <div style="max-width:920px;margin:0 auto;display:flex;align-items:center;gap:12px;padding:12px 16px;">
+      <div style="flex:1;min-width:0;">
+        <div style="font:600 14px {{ titleFont }};color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ t.notScheduled }}</div>
+        <div style="font:500 12px {{ titleFont }};color:#B0A6B8;">{{ play.runsLine }}</div>
+      </div>
+      <button onClick="{{ toggleFollow }}" style="flex:none;height:48px;padding:0 22px;border-radius:9999px;cursor:pointer;display:flex;align-items:center;gap:9px;font:700 15px {{ titleFont }};border:{{ followBorder }};background:{{ followBg }};color:{{ followFg }};box-shadow:{{ followShadow }};"><i class="ph-fill ph-bell" style="font-size:16px;"></i>{{ followLabel }}</button>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:420,&quot;height&quot;:900},&quot;locale&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;fr&quot;,&quot;ar&quot;],&quot;default&quot;:&quot;fr&quot;,&quot;tsType&quot;:&quot;'fr' | 'ar'&quot;},&quot;showRelated&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;}}">
+class Component extends DCLogic {
+  state = { locale: this.props.locale || 'fr', saved:false, justSaved:false, following:false, justFollow:false };
+
+  STR = {
+    fr:{ category:'Théâtre', archived:'Archive', director:'mise en scène', notScheduled:'Pièce non programmée actuellement', notifyHint:'Vous serez prévenu si la pièce est reprogrammée.', save:'Ma liste', teaser:'Teaser', follow:"M'alerter d'une reprise", following:'Alerte activée', facts:'Fiche technique', synopsis:'Synopsis', distinctions:'Distinctions', history:'Historique des représentations', team:'Équipe artistique', cast:'Distribution', gallery:'Galerie', press:'Revue de presse', related:'Du même collectif', sources:'Fiche d’archive enrichie par la communauté Tiween.', suggest:'Suggérer une modification', photoLabel:'PHOTO DE SCÈNE', runsLine:'Archivée · +40 représentations (2013–2015)' },
+    ar:{ category:'مسرح', archived:'أرشيف', director:'إخراج', notScheduled:'العرض غير مبرمج حالياً', notifyHint:'سيتم إعلامك عند إعادة برمجة العرض.', save:'قائمتي', teaser:'مقتطف', follow:'أعلمني عند العودة', following:'التنبيه مُفعّل', facts:'البطاقة الفنية', synopsis:'القصة', distinctions:'الجوائز', history:'سجلّ العروض', team:'الفريق الفني', cast:'التوزيع', gallery:'معرض الصور', press:'الصحافة', related:'من نفس الفرقة', sources:'بطاقة أرشيفية أثراها مجتمع تيوين.', suggest:'اقترح تعديلاً', photoLabel:'صورة من العرض', runsLine:'مؤرشف · +40 عرضاً (2013–2015)' }
+  };
+
+  PLAY = {
+    title:{ fr:'Tsunami', ar:'تسونامي' },
+    company:{ fr:'Familia Productions', ar:'فاميليا للإنتاج' },
+    director:{ fr:'Fadhel Jaïbi', ar:'فاضل الجعايبي' },
+    creationYear:'2013',
+    synopsis:{ fr:"Une vague qui emporte tout : Tsunami sonde une société tunisienne en mutation, prise entre désir d'émancipation et retour de l'ordre. Sur un plateau dépouillé, un chœur d'acteurs porte une parole politique brûlante, entre fresque collective et destins intimes brisés.", ar:'موجة تجرف كل شيء: «تسونامي» يسبر مجتمعاً تونسياً في تحوّل، عالقاً بين التوق إلى التحرّر وعودة النظام. على ركحٍ عارٍ، تحمل جوقة من الممثلين خطاباً سياسياً ملتهباً، بين جدارية جماعية ومصائر حميمة محطّمة.' }
+  };
+
+  FACTS = [
+    { l:{ fr:'Création', ar:'سنة الإنتاج' }, v:{ fr:'2013', ar:'2013' } },
+    { l:{ fr:'Production', ar:'الإنتاج' }, v:{ fr:'Familia Productions', ar:'فاميليا للإنتاج' } },
+    { l:{ fr:'Mise en scène', ar:'الإخراج' }, v:{ fr:'Fadhel Jaïbi', ar:'فاضل الجعايبي' } },
+    { l:{ fr:'Texte', ar:'النص' }, v:{ fr:'Jalila Baccar', ar:'جليلة بكار' } },
+    { l:{ fr:'Genre', ar:'النوع' }, v:{ fr:'Drame politique', ar:'دراما سياسية' } },
+    { l:{ fr:'Durée', ar:'المدة' }, v:{ fr:'1h50', ar:'1:50' } },
+    { l:{ fr:'Langue', ar:'اللغة' }, v:{ fr:'Arabe · surtitré', ar:'عربي · مترجم' } },
+    { l:{ fr:'Pays', ar:'البلد' }, v:{ fr:'Tunisie', ar:'تونس' } },
+    { l:{ fr:'Première', ar:'العرض الأول' }, v:{ fr:'Oct. 2013 · TNT', ar:'أكتوبر 2013 · المسرح الوطني' } },
+    { l:{ fr:'Représentations', ar:'عدد العروض' }, v:{ fr:'+40 dates', ar:'+40 عرضاً' } }
+  ];
+
+  AWARDS = [
+    { fr:'Prix de la meilleure mise en scène — JTC 2014', ar:'جائزة أفضل إخراج — أيام قرطاج المسرحية 2014' },
+    { fr:"Sélection officielle — Festival d'Avignon 2014", ar:'اختيار رسمي — مهرجان أفينيون 2014' }
+  ];
+
+  HISTORY = [
+    { date:{ fr:'Oct. 2013', ar:'أكتوبر 2013' }, venue:{ fr:'Théâtre National Tunisien', ar:'المسرح الوطني التونسي' }, city:{ fr:'Tunis', ar:'تونس' }, tag:{ fr:'Première', ar:'العرض الأول' } },
+    { date:{ fr:'Nov. 2013', ar:'نوفمبر 2013' }, venue:{ fr:"Festival d'Automne", ar:'مهرجان الخريف' }, city:{ fr:'Paris', ar:'باريس' }, tag:null },
+    { date:{ fr:'Mars 2014', ar:'مارس 2014' }, venue:{ fr:'Journées Théâtrales de Carthage', ar:'أيام قرطاج المسرحية' }, city:{ fr:'Tunis', ar:'تونس' }, tag:null },
+    { date:{ fr:'Juil. 2014', ar:'جويلية 2014' }, venue:{ fr:"Festival d'Avignon", ar:'مهرجان أفينيون' }, city:{ fr:'Avignon', ar:'أفينيون' }, tag:null },
+    { date:{ fr:'2015', ar:'2015' }, venue:{ fr:'Tournée internationale', ar:'جولة دولية' }, city:{ fr:'Beyrouth · Berlin · Le Caire', ar:'بيروت · برلين · القاهرة' }, tag:null }
+  ];
+
+  CREDITS = [
+    { role:{ fr:'Mise en scène', ar:'الإخراج' }, name:{ fr:'Fadhel Jaïbi', ar:'فاضل الجعايبي' } },
+    { role:{ fr:'Texte & dramaturgie', ar:'النص والدراماتورجيا' }, name:{ fr:'Jalila Baccar', ar:'جليلة بكار' } },
+    { role:{ fr:'Scénographie', ar:'السينوغرافيا' }, name:{ fr:'Kaïs Rostom', ar:'قيس رستم' } },
+    { role:{ fr:'Lumière', ar:'الإضاءة' }, name:{ fr:'Sabri Atrous', ar:'صبري عطروس' } },
+    { role:{ fr:'Musique', ar:'الموسيقى' }, name:{ fr:'Khaled Besbes', ar:'خالد بسباس' } }
+  ];
+
+  CAST = [
+    { name:{ fr:'Jalila Baccar', ar:'جليلة بكار' }, character:{ fr:'Hayet', ar:'حياة' } },
+    { name:{ fr:'Fatma Ben Saïdane', ar:'فاطمة بن سعيدان' }, character:{ fr:'Om Ennour', ar:'أم النور' } },
+    { name:{ fr:'M. A. Ben Jemaa', ar:'محمد علي بن جمعة' }, character:{ fr:'Le Juge', ar:'القاضي' } },
+    { name:{ fr:'Marwen Chouchane', ar:'مروان شوشان' }, character:{ fr:'Aziz', ar:'عزيز' } },
+    { name:{ fr:'Lobna Mlika', ar:'لبنى مليكة' }, character:{ fr:'Salma', ar:'سلمى' } }
+  ];
+
+  GALLERY = [
+    { fr:'Acte I — le tribunal', ar:'الفصل الأول — المحكمة' },
+    { fr:'Acte II — la vague', ar:'الفصل الثاني — الموجة' },
+    { fr:'Final — le chœur', ar:'الختام — الجوقة' },
+    { fr:'Répétitions, 2013', ar:'بروفات، 2013' },
+    { fr:'Avignon, 2014', ar:'أفينيون، 2014' }
+  ];
+
+  PRESS = [
+    { quote:{ fr:'« Un théâtre de la lucidité, magistral et sans concession. »', ar:'«مسرحٌ من الوضوح، بديعٌ بلا مهادنة.»' }, source:{ fr:'La Presse', ar:'لابراس' } },
+    { quote:{ fr:'« Jaïbi signe une fresque politique d’une rare intensité. »', ar:'«جعايبي يوقّع جدارية سياسية نادرة الكثافة.»' }, source:{ fr:'Le Théâtre aujourd’hui', ar:'المسرح اليوم' } }
+  ];
+
+  RELATED = [
+    { title:{ fr:'Junun', ar:'جنون' }, genre:{ fr:'Théâtre', ar:'مسرح' }, year:2001 },
+    { title:{ fr:'Khamsoun', ar:'خمسون' }, genre:{ fr:'Théâtre', ar:'مسرح' }, year:2006 },
+    { title:{ fr:'Amnesia', ar:'أمنيزيا' }, genre:{ fr:'Théâtre', ar:'مسرح' }, year:2010 },
+    { title:{ fr:'Violence(s)', ar:'عنف' }, genre:{ fr:'Théâtre', ar:'مسرح' }, year:2015 }
+  ];
+
+  setLocale = (l) => () => this.setState({ locale:l });
+  toggleSave = () => this.setState(s => { const saved=!s.saved; if(saved){ clearTimeout(this._ps); this._ps=setTimeout(()=>this.setState({justSaved:false}),680);} return { saved, justSaved:saved }; });
+  toggleFollow = () => this.setState(s => { const following=!s.following; if(following){ clearTimeout(this._pf); this._pf=setTimeout(()=>this.setState({justFollow:false}),680);} return { following, justFollow:following }; });
+
+  renderVals() {
+    const loc = this.state.locale;
+    const t = this.STR[loc];
+    const dir = loc==='ar' ? 'rtl' : 'ltr';
+    const titleFont = loc==='ar' ? "'IBM Plex Sans Arabic'" : 'Inter';
+    const L = (o) => o ? o[loc] : '';
+    const chip = (a) => a ? { bg:'#D4A24A', fg:'#2A1A06' } : { bg:'#31203A', fg:'#C9C0D0' };
+    const aFr = chip(loc==='fr'), aAr = chip(loc==='ar');
+    const fol = this.state.following;
+
+    return {
+      t, dir, locale:loc, titleFont,
+      toFr:this.setLocale('fr'), toAr:this.setLocale('ar'),
+      frBg:aFr.bg, frFg:aFr.fg, arBg:aAr.bg, arFg:aAr.fg,
+      play: { title:L(this.PLAY.title), company:L(this.PLAY.company), director:L(this.PLAY.director), creationYear:this.PLAY.creationYear, synopsis:L(this.PLAY.synopsis), runsLine:t.runsLine },
+      facts: this.FACTS.map(f => ({ label:L(f.l), value:L(f.v) })),
+      awards: this.AWARDS.map(L),
+      history: this.HISTORY.map(h => ({ date:L(h.date), venue:L(h.venue), city:L(h.city), tag:L(h.tag), hasTag: !!h.tag })),
+      credits: this.CREDITS.map(c => ({ role:L(c.role), name:L(c.name) })),
+      cast: this.CAST.map(p => ({ name:L(p.name), character:L(p.character) })),
+      gallery: this.GALLERY.map(L),
+      press: this.PRESS.map(q => ({ quote:L(q.quote), source:L(q.source) })),
+      related: this.RELATED.map(f => ({ title:L(f.title), genre:L(f.genre), year:f.year })),
+      saved:this.state.saved, heartOutline:this.state.saved?'opacity:0;':'', heartPulse:this.state.justSaved?'animation:pulseHeart .6s ease;':'',
+      following:fol, followLabel: fol ? t.following : t.follow,
+      followBg: fol ? 'transparent' : '#D4A24A',
+      followFg: fol ? '#E0B563' : '#2A1A06',
+      followBorder: fol ? '1.5px solid #D4A24A' : 'none',
+      followShadow: fol ? 'none' : 'inset 0 0 0 1px rgba(42,26,6,.22)',
+      bellOutline: fol ? 'opacity:0;' : '',
+      bellPulse: this.state.justFollow ? 'animation:pulseHeart .6s ease;' : '',
+      toggleSave:this.toggleSave, toggleFollow:this.toggleFollow,
+      showRelated: this.props.showRelated ?? true
+    };
+  }
+}
+</script>
+</body>
+</html>

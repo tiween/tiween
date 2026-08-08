@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { useRouter } from "next/navigation"
 import { ChevronRight, Film } from "lucide-react"
 import { useLocale } from "next-intl"
 
@@ -12,7 +13,6 @@ import { Button } from "@/components/ui/button"
 
 import { toShortFilmCard } from "../../types"
 import { ShortFilmCard, ShortFilmCardSkeleton } from "../ShortFilmCard"
-import { ShortFilmDetail } from "../ShortFilmDetail"
 import { ShortsFilters } from "../ShortsFilters"
 import { ShortsHero } from "../ShortsHero"
 import { SuggestionForm } from "../SuggestionForm"
@@ -75,6 +75,7 @@ export function ShortsDirectory({
   labels = defaultLabels,
 }: ShortsDirectoryProps) {
   const locale = useLocale()
+  const router = useRouter()
   const isRTL = locale === "ar"
 
   // State
@@ -85,8 +86,6 @@ export function ShortsDirectory({
   const [page, setPage] = React.useState(1)
   const [isLoading, setIsLoading] = React.useState(false)
   const [isLoadingMore, setIsLoadingMore] = React.useState(false)
-  const [selectedFilm, setSelectedFilm] = React.useState<ShortFilm | null>(null)
-  const [isDetailOpen, setIsDetailOpen] = React.useState(false)
 
   const hasMore = shorts.length < total
 
@@ -175,10 +174,10 @@ export function ShortsDirectory({
     }
   }, [isLoadingMore, hasMore, fetchShorts, filters, page])
 
-  // Handle film click
+  // Handle film click — the short-film detail is a full PAGE (the 2026 design
+  // handoff), not a modal, so a card tap routes to it.
   const handleFilmClick = (film: ShortFilm) => {
-    setSelectedFilm(film)
-    setIsDetailOpen(true)
+    router.push(`/${locale}/shorts/${film.slug}`)
   }
 
   // Handle play trailer
@@ -186,11 +185,6 @@ export function ShortsDirectory({
     if (film.trailer) {
       window.open(film.trailer, "_blank", "noopener,noreferrer")
     }
-  }
-
-  // Handle watch link
-  const handleWatch = (film: ShortFilm, url: string) => {
-    window.open(url, "_blank", "noopener,noreferrer")
   }
 
   // Handle suggestion submission
@@ -367,15 +361,6 @@ export function ShortsDirectory({
           )}
         </div>
       </section>
-
-      {/* Detail modal */}
-      <ShortFilmDetail
-        film={selectedFilm}
-        isOpen={isDetailOpen}
-        onClose={() => setIsDetailOpen(false)}
-        onPlayTrailer={handlePlayTrailer}
-        onWatch={handleWatch}
-      />
     </div>
   )
 }

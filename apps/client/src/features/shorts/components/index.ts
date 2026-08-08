@@ -11,10 +11,7 @@ export { SuggestionForm } from "./SuggestionForm"
 export type { SuggestionFormProps } from "./SuggestionForm"
 
 export { ShortFilmDetail } from "./ShortFilmDetail"
-export type {
-  ShortFilmDetailProps,
-  ShortFilmDetailLabels,
-} from "./ShortFilmDetail"
+export type { ShortFilmDetailProps } from "./ShortFilmDetail"
 
 export { ShortsDirectory } from "./ShortsDirectory"
 export type {

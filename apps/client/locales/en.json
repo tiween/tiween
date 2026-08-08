@@ -1148,5 +1148,27 @@
         "INTERNAL_ERROR": "An unexpected error occurred. Please try again."
       }
     }
+  },
+  "shorts": {
+    "back": "Back",
+    "share": "Share",
+    "category": "Short film",
+    "awarded": "Award-winning",
+    "watch": "Watch the film",
+    "play": "Play the film",
+    "watchFromBar": "Watch the film now",
+    "trailer": "Trailer",
+    "watchlist": "My list",
+    "removeFromWatchlist": "Remove from my list",
+    "synopsis": "Synopsis",
+    "distinctions": "Awards & honours",
+    "whereToWatch": "Where to watch",
+    "watchOn": "Watch",
+    "cast": "Cast",
+    "related": "In the same vein",
+    "minutes": "min",
+    "available": "Available",
+    "availableDuration": "Available — {duration} min",
+    "otherPlatform": "Other platform"
   }
 }

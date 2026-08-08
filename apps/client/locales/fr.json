@@ -1148,5 +1148,27 @@
         "INTERNAL_ERROR": "Une erreur inattendue est survenue. Veuillez réessayer."
       }
     }
+  },
+  "shorts": {
+    "back": "Retour",
+    "share": "Partager",
+    "category": "Court métrage",
+    "awarded": "Primé",
+    "watch": "Regarder le film",
+    "play": "Lancer la lecture",
+    "watchFromBar": "Regarder le film maintenant",
+    "trailer": "Bande-annonce",
+    "watchlist": "Ma liste",
+    "removeFromWatchlist": "Retirer de ma liste",
+    "synopsis": "Synopsis",
+    "distinctions": "Distinctions",
+    "whereToWatch": "Où regarder",
+    "watchOn": "Regarder",
+    "cast": "Distribution",
+    "related": "Dans la même veine",
+    "minutes": "min",
+    "available": "Disponible",
+    "availableDuration": "Disponible — {duration} min",
+    "otherPlatform": "Autre plateforme"
   }
 }

@@ -2138,3 +2138,33 @@ fixed by later stories (2D-1, 7.2, 7.3) and was dismissed rather than logged.
   summary: Seed data nits - constant sub-event `order` and a UTC/local hour skew.
   evidence: Every sub-event of an event is written with a hard-coded `order: 1` instead of an incrementing index, making the field useless for the ordering it exists for; and `setUTCHours` is used to build showtimes, putting Tunisian (UTC+1) times an hour off local. Dev-seed realism only - no production path.
   status: open
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-short-film-detail-design-handoff.md`
+  summary: The short-film detail watchlist heart is local-only state and forgets on navigation.
+  evidence: The spec Ask-First'd wiring the heart to `useAddToWatchlist`/`useRemoveFromWatchlist` and the human chose local optimistic state, because shorts run on `mock-shorts.ts` with synthetic `documentId`s that would POST garbage to the creative-work-keyed watchlist API. The heart therefore toggles, animates, and resets on every navigation or back-button return. `WatchlistButton` and the hooks already exist. Wire it when shorts move from mock data to Strapi creative works; until then a visibly-toggling heart that silently forgets is arguably worse than none.
+  status: open
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-short-film-detail-design-handoff.md`
+  summary: `/[locale]/shorts/[slug]` metadata is hardcoded French for every locale, with no canonical and no JSON-LD.
+  evidence: The spec deliberately left `generateMetadata` untouched, so this is pre-existing. `page.tsx` emits "Court métrage non trouvé - Tiween" and "Découvrez {title}..." for `ar` and `en` alike, even though the page body is now fully translated through the new `shorts` namespace. It also sets `robots: { index: false, follow: false }` with no `alternates.canonical`, while the page's own share button publishes a canonical-looking URL. Event detail pages already emit JSON-LD via `src/lib/seo/structured-data.ts`; a Movie/ShortFilm schema is the obvious peer. Fix with `getTranslations` in the same pass.
+  status: open
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-short-film-detail-design-handoff.md`
+  summary: `originalTitle`, `country`, `language` and the film's own `rating` are no longer surfaced anywhere on the short-film detail page.
+  evidence: The 2026 handoff has no "Informations" block, so the rebuild dropped the fields the previous implementation rendered (Langue / Pays / Année / Durée plus a rating star and the original title under the H1). All four remain populated on `ShortFilm` and in `mock-shorts.ts`. Note the inconsistency this creates: related cards show a rating but the film being viewed does not, and for a bilingual FR/AR site the Arabic `originalTitle` next to the French title is a plausible omission rather than dead data. Product decision - either fold them into the hero meta line or drop them from the type.
+  status: open
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-short-film-detail-design-handoff.md`
+  summary: `ShortsDirectory` is unreachable dead code, and its new router-push navigation is untested with no glob that would run a test.
+  evidence: The spec asserted `ShortFilmDetail` had zero consumers; that was wrong - `ShortsDirectory` rendered it as a modal, so the rebuild forced a minimal change there (card tap now `router.push`es to `/{locale}/shorts/{slug}`, dead modal block removed). But no route renders `ShortsDirectory` - `/[locale]/shorts` renders `_components/ShortsShowcase` instead, and every other reference is a barrel re-export. There is no `ShortsDirectory` test and the vitest include added by this story is scoped to `ShortFilmDetail/**`, so a test placed there would silently never run. Either delete the component or wire it up, test it, and widen the glob to `src/features/shorts/components/**/*.test.tsx`.
+  status: open
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-short-film-detail-design-handoff.md`
+  summary: The short-film detail page has no forced-colors / Windows High Contrast handling.
+  evidence: Every affordance in `ShortFilmDetail.module.css` is carried by a gradient or a translucent background - the hero placeholder stripes, the scrim, the streaming logo tile, the cast avatars, the related-card frame and its meta scrim. Under `forced-colors: active` all of them collapse to flat system colors and the card/hero structure disappears. The reduced-motion block is the file's only accessibility media query. The spec's accessibility floor covered contrast, focus rings, touch targets, bdi and reduced motion, but not forced colors.
+  status: open
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-short-film-detail-design-handoff.md`
+  summary: The client app now ships two icon libraries - `@phosphor-icons/react` alongside `lucide-react`.
+  evidence: The human explicitly chose Phosphor for handoff fidelity (the design specifies Phosphor v2.1.1 and the handoff README prescribes the native package). But lucide-react is used across ~127 files and Phosphor is currently consumed by one component, so both now ship. Decide whether this is the start of a migration - in which case it needs a decision record and a plan - or whether Phosphor stays scoped to handoff-derived screens. Also note `vitest.config.ts` needed `/@phosphor-icons\//` added to `server.deps.inline` for the existing single-React aliasing scheme.
+  status: open
