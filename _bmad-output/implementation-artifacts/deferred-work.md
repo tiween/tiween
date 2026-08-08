@@ -2004,3 +2004,77 @@ source_spec: `spec-migrate-middleware-to-proxy.md`
 severity: low
 reason: Next 16.1 moved generated route types to `.next/dev/types/` — the tracked `next-env.d.ts` already points at `./.next/dev/types/routes.d.ts` — but `tsconfig.json:16` still includes `.next/types/**/*.ts`, a directory that no longer exists locally. Typed-route declarations are therefore outside the `tsc --noEmit` program, silently, with no error to notice. Fallout of the Next 16.1 upgrade, not of the proxy rename; the `next-env.d.ts` line appears in this story's diff only because Next regenerates that file on `next dev`. Pairs naturally with DW-274, since neither is observable until the client is actually type-checked in CI.
 status: open
+
+## Deferred from: code review of 1-1-initialize-monorepo-from-starter-template.md (2026-08-08)
+
+- source_spec: `1-1-initialize-monorepo-from-starter-template.md`
+  location: apps/client/src/lib/strapi-api/content/server.ts:37-39
+  severity: medium
+  summary: `getDateRange` shifts every date range back one day at positive UTC offsets.
+  evidence: `today.setHours(0,0,0,0)` yields local midnight, then `.toISOString().split("T")[0]` converts to UTC — at UTC+1 (Tunisia) that resolves to yesterday. Affects every branch of `getDateRange` and `buildDateFilter`. Currently masked because its only callers are the three dead fetchers; becomes live the moment they are reused. A tested `@/lib/dates` module already exists and should be the route.
+  status: open
+
+- source_spec: `1-1-initialize-monorepo-from-starter-template.md`
+  location: apps/client/src/lib/strapi-api/base.ts:153-182
+  severity: medium
+  summary: `fetchAll` fans out unbounded concurrent requests, crashes on missing pagination meta, and returns misleading synthetic meta.
+  evidence: Every remaining page is requested at once via `Promise.all` with no concurrency cap and no per-page error handling, so one rejection loses all succeeded pages. `firstPage.meta.pagination.pageCount` is read unguarded. `pageCount === 1` should be `<= 1` so an empty result set short-circuits. The returned meta sets `pageSize` to the total row count.
+  status: open
+
+- source_spec: `1-1-initialize-monorepo-from-starter-template.md`
+  location: apps/client/src/lib/strapi-api/base.ts:214
+  severity: low
+  summary: `fetchOneBySlug` returns the oldest matching entry rather than the newest.
+  evidence: Sorts `publishedAt: "desc"` then calls `response.data.pop()`, taking the last element of a descending list — the opposite of its "return last published entry" comment. `fetchOneByFullPath` shares the bug but is masked by `pageSize: 1`. No consumers in `apps/client` today.
+  status: open
+
+- source_spec: `1-1-initialize-monorepo-from-starter-template.md`
+  location: apps/client/src/components/elementary/ImageWithPlaiceholder.tsx:13,51,62
+  severity: low
+  summary: `ImageWithPlaiceholder` can never generate a placeholder for locally-uploaded media, and renders an unusable src in its error branch.
+  evidence: `formatStrapiMediaUrl` returns a relative path for local uploads; Node's `fetch` throws `TypeError: Failed to parse URL` on relative input, so every local upload falls to the 50x50 fallback. `imageProps` is derived from raw `props`, so the `plaiceholderError` branch renders the unformatted Strapi path. No `response.ok` check and no fetch timeout. Component has zero importers.
+  status: open
+
+- source_spec: `1-1-initialize-monorepo-from-starter-template.md`
+  location: apps/client/src/lib/strapi-api/
+  severity: medium
+  summary: No test coverage for `base.ts`, `content/server.ts`, or `sitemap.ts`.
+  evidence: `getDateRange`/`buildDateFilter` (pure, five branches, carrying a timezone bug), `fetchAll` pagination, `fetchOneBySlug` ordering, and `buildUrl`/`buildAlternates` are all trivially unit-testable and all contain defects found in this review. The event detail page test mocks `content/server` wholesale, so query construction never executes.
+  status: open
+
+- source_spec: `1-1-initialize-monorepo-from-starter-template.md`
+  location: apps/client/src/lib/strapi-api/content/server.ts:155,218,322,399
+  severity: medium
+  summary: Fetch failures are swallowed into empty results, making an outage indistinguishable from "no data".
+  evidence: Every fetcher catches and returns `null`/`[]`/`{events: [], total: 0}` with only a `console.error`. The UI renders a confident empty state, pages cache as empty, and nothing reaches an error boundary or monitoring. This is exactly what hid the sitemap 400 for months.
+  status: open
+
+- source_spec: `1-1-initialize-monorepo-from-starter-template.md`
+  location: apps/client/src/app/sitemap.ts
+  severity: low
+  summary: Sitemap coverage and correctness gaps beyond the 400-error bug.
+  evidence: No `x-default` hreflang anchor; `venues/`, `venue/`, `shorts/`, and `events/` index routes are never listed; a hard `pageSize: 500` single request with no pagination loop silently truncates once the catalogue grows; category query-string URLs are emitted as distinct entries, inviting duplicate-content handling; rejected locale promises are dropped without logging.
+  status: open
+
+- source_spec: `1-1-initialize-monorepo-from-starter-template.md`
+  location: apps/client/src/app/[locale]/layout.tsx:107-119
+  severity: low
+  summary: Document has no `<main>` landmark or skip-to-content link.
+  evidence: Children are wrapped in `<div className="flex-1"><div>{children}</div></div>`. With navbar and footer still TODO at lines 108 and 118, the document currently has no landmarks at all. Worth fixing the `<main>` independently of the navbar work.
+  status: open
+
+- source_spec: `1-1-initialize-monorepo-from-starter-template.md`
+  location: apps/client/src/lib/strapi-api/content/server.ts:266-408
+  severity: medium
+  summary: `getFeaturedEvents`, `getUpcomingEvents` and `getTodayEvents` send a query shape the backend rejects.
+  evidence: All three send nested `filters`/`populate`/`pagination` plus an array-form `sort`, which the 3.1a browse endpoint strips or 400s on (verified live: the equivalent shape returns INVALID_QUERY). Their `filters.status`/`startDate`/`endDate` also target fields the event schema does not declare (`startDateTime`/`endDateTime` are the real ones). Zero consumers today — `events-extended.ts` (`fetchEvents`, `getFeaturedSlice`) already supersedes them with a working implementation, which is why the defect went unnoticed.
+  reason_deferred: Superseded, zero consumers — delete as part of a dedicated cleanup pass, not a 7-month-old story.
+  status: open
+
+- source_spec: `1-1-initialize-monorepo-from-starter-template.md`
+  location: apps/client/src/app/[locale]/layout.tsx:23-64
+  severity: medium
+  summary: The locale layout ships hardcoded English metadata to `ar` and `fr`, while a translated helper sits unused.
+  evidence: `metadata` is a static object on a `[locale]` layout, so titles and OG/Twitter copy are English for every locale — violating the project-context i18n rule "Use `useTranslations` — Never hardcode strings". `getMetadataFromStrapi` (`lib/metadata/index.ts:13`) already reads the `seo` translation namespace but has zero callers. The object is also missing `metadataBase`, `alternates`, and any OG image. Routes without their own `generateMetadata` (`/search`, `/watchlist`, `/shorts`) are affected.
+  reason_deferred: Superseded, zero consumers — belongs with the i18n metadata story rather than monorepo initialization.
+  status: open

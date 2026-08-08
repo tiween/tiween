@@ -40,7 +40,7 @@ _This file contains critical rules and patterns that AI agents must follow when 
 
 - **Strict mode is mandatory** - No `any` types, use `unknown` and narrow
 - **Use Zod for runtime validation** - All API inputs must be validated
-- **Export types from `packages/shared-types/`** - Never duplicate type definitions
+- **Types live per-feature** - `apps/client/src/features/<domain>/types.ts` is the home for a domain's types; re-export from the feature barrel rather than duplicating across components. (There is no `packages/shared-types` package — corrected 2026-08-08; the earlier rule pointed at a package that was never created.)
 - **Use `satisfies` for type inference** - Preserve literal types where needed
 - **Prefer `interface` for objects, `type` for unions** - Consistent type definitions
 
@@ -55,7 +55,7 @@ _This file contains critical rules and patterns that AI agents must follow when 
 ### Strapi v5 Rules
 
 - **Use Document Service API** - Entity Service is deprecated
-- **Never transform API responses** - Use `data.attributes` pattern directly
+- **Never transform API responses** - Read the Strapi v5 shape directly: `{ data, meta }` with fields flat on each entry (`response.data.title`), no `attributes` wrapper
 - **Use `documentId` not `id`** - Strapi v5 breaking change
 - **Enable i18n on content types** - AR/FR/EN locales required
 - **Use REST, not GraphQL** - Architecture decision
@@ -119,12 +119,16 @@ accounts on a shared device. Clear the cache on logout.
 - **Handle Strapi response format directly:**
 
 ```typescript
-// CORRECT
-const title = response.data.attributes.title
+// CORRECT — Strapi v5 returns fields flat on the entry
+const title = response.data.title
 
-// WRONG - never transform
-const title = response.title
+// WRONG — `attributes` is the Strapi v4 shape; it does not exist in v5
+const title = response.data.attributes.title
 ```
+
+> Corrected 2026-08-08 (code review of story 1.1): this section previously
+> mandated the v4 `data.attributes` pattern, contradicting every call site in
+> `apps/client/src/lib/strapi-api/`, which correctly reads the v5 flat shape.
 
 ### Testing Rules
 
@@ -165,7 +169,7 @@ apps/client/src/
 
 ### NEVER Do These:
 
-1. **Transform Strapi responses** - Use `data.attributes` directly
+1. **Transform Strapi responses** - Read the v5 flat shape directly; do not remap into a v4 `attributes` wrapper
 2. **Hardcode error messages** - Return codes, translate in UI
 3. **Use `any` type** - Use `unknown` and narrow
 4. **Put feature code in `components/`** - Use `features/` folder

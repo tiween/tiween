@@ -1,6 +1,6 @@
 # Story 1.1: Initialize Monorepo from Starter Template
 
-Status: review
+Status: in-progress
 
 ---
 
@@ -19,16 +19,27 @@ So that I have a solid foundation with Turborepo, TypeScript, and project struct
    **Then** the monorepo is created with the following structure:
 
    - `apps/client` (renamed from `apps/ui`) - Next.js frontend
-   - `apps/strapi` - Strapi v5 backend
-   - `packages/shared-types` - Shared TypeScript types
+   - `apps/strapi` - Strapi v5 backend (package name `@tiween/admin`)
    - `packages/eslint-config` - Shared ESLint configuration
+   - `packages/prettier-config` - Shared Prettier configuration
    - `packages/typescript-config` - Shared TypeScript configuration
+
+   > Amended 2026-08-08 (code review): `packages/shared-types` was listed here
+   > but has never existed in this repo. Shared types live per-feature instead
+   > (see `apps/client/src/features/*/types.ts`). The corresponding rule in
+   > `project-context.md` was corrected to match.
 
 2. **And** `turbo.json` is configured with build pipeline for all apps
 
 3. **And** root `package.json` has workspace configuration with Yarn
 
-4. **And** `.nvmrc` specifies Node.js 22
+4. **And** Node.js 22 is pinned via `.tool-versions` (asdf is the project's
+   version manager — this is the authoritative pin, per Task 5). A `.nvmrc`
+   is also present for CI and Docker steps that key on that convention.
+
+   > Amended 2026-08-08 (code review): this AC originally named `.nvmrc` as the
+   > sole mechanism, while Task 5.1 had silently switched to `.tool-versions`.
+   > Both now exist and the AC states which one is authoritative.
 
 5. **And** all dependencies install without errors using `yarn install`
 
@@ -80,6 +91,49 @@ So that I have a solid foundation with Turborepo, TypeScript, and project struct
   - [ ] 6.4 Verify apps start: `yarn dev` (both client and strapi) - not tested
   - [ ] 6.5 Create initial git commit - pending
 
+### Review Findings
+
+_Code review 2026-08-08. Scope: acceptance audit against current repo state + adversarial review of the 7 files in this story's File List (the story's own diff is the 1,601-file initial commit `051a028`, not reviewable as a diff). 4 layers: blind-hunter, edge-case-hunter, verification-gap, acceptance-auditor._
+
+**Decisions taken (all 6 resolved 2026-08-08):**
+
+- [x] [Review][Decision] Client TypeScript errors and nothing runs them — RESOLVED: wire up the script and fix this story's own errors; the rest tracked as follow-up. Measured on a pristine tree the client had **72** errors, none of them executed by CI. After this pass: **46**, with **0** remaining in this story's files and **0** new errors introduced.
+- [x] [Review][Decision] `packages/shared-types` has never existed — RESOLVED: amend the docs to match reality. AC #1 and the `project-context.md` rule now describe the per-feature type convention actually in use.
+- [x] [Review][Decision] `.nvmrc` does not exist (AC #4) — RESOLVED: do both. `.nvmrc` (`22.21.1`) added for CI/Docker idioms, and AC #4 amended to name `.tool-versions` as the authoritative asdf pin.
+- [x] [Review][Decision] Three dead fetchers send the pre-3.1a v4 query shape — DEFERRED (see below): superseded, zero consumers.
+- [x] [Review][Decision] Locale layout ships hardcoded English metadata to `ar`/`fr` — DEFERRED (see below): superseded, zero consumers.
+- [x] [Review][Decision] `project-context.md` teaches Strapi v4 response handling — RESOLVED: doc corrected to the v5 flat shape, including the code example and anti-pattern #1.
+
+**Patches (all 13 applied 2026-08-08):**
+
+- [x] [Review][Patch] `yarn type-check` silently skips the client — root runs `turbo type-check`, but the client script was named `typecheck`, so `turbo run type-check` reported "2 successful, 2 total" (admin only). Renamed. [apps/client/package.json]
+- [x] [Review][Patch] Sitemap event query returned HTTP 400, so `/sitemap.xml` shipped zero event URLs — verified live: the old param shape yields `{"error":{"status":400,"message":"INVALID_QUERY"}}`; the new one yields 200. Realigned to flat allowlisted params with a pagination loop. [apps/client/src/app/sitemap.ts:104-155]
+- [x] [Review][Patch] `TypeError` on an empty non-JSON response — `const { error } = json` destructured `undefined` when the body was empty with a non-JSON content-type. Now `json?.error`. [apps/client/src/lib/strapi-api/base.ts:79-83]
+- [x] [Review][Patch] `maximumScale: 1` disabled pinch-zoom (WCAG 2.1 SC 1.4.4) — removed. [apps/client/src/app/[locale]/layout.tsx:67-72]
+- [x] [Review][Patch] `setRequestLocale(locale)` ran before the locale was validated — order swapped. [apps/client/src/app/[locale]/layout.tsx:80-86]
+- [x] [Review][Patch] `package-lock.json` (1.4 MB) tracked alongside `yarn.lock` despite `only-allow yarn` — `git rm`'d. [package-lock.json]
+- [x] [Review][Patch] `page-builder/index.tsx` dead empty registry with `any` and a React UMD reference — directory deleted. [apps/client/src/components/page-builder/]
+- [x] [Review][Patch] No vitest `include` glob reached `src/app/*.test.ts` — glob added, so a sitemap test can actually run. [apps/client/vitest.config.ts:73-78]
+- [x] [Review][Patch] Spec contradicted itself on the Strapi package name (`@tiween/strapi` vs `@tiween/admin`) — Dev Notes corrected. [this file]
+- [x] [Review][Patch] `base.ts:253` stale `@ts-expect-error` (TS2578) — directive removed. [apps/client/src/lib/strapi-api/base.ts]
+- [x] [Review][Patch] 12 `noUncheckedIndexedAccess` errors in `getDateRange` — centralised through a `toISODate` helper. [apps/client/src/lib/strapi-api/content/server.ts:37-51]
+- [x] [Review][Patch] 4 `locale: string` vs `Locale` union errors — narrowed via a local `asLocale` helper mirroring `events-extended.ts`. [apps/client/src/lib/strapi-api/content/server.ts]
+- [x] [Review][Patch] AC #1 / AC #4 / `project-context.md` doc corrections — applied as described in the decisions above.
+
+**Verification after patching:** `yarn lint` clean · `yarn test` 1107 passed / 106 files · `type-check` 72 → 46 with 0 new errors · sitemap query 400 → 200 against live Strapi.
+
+- [x] [Review][Defer] Three dead fetchers send a query shape the backend rejects — `getFeaturedEvents`, `getUpcomingEvents`, `getTodayEvents` [apps/client/src/lib/strapi-api/content/server.ts:266-408] — deferred: superseded, zero consumers
+- [x] [Review][Defer] Locale layout ships hardcoded English metadata to `ar`/`fr`, while the translated `getMetadataFromStrapi` sits unused [apps/client/src/app/[locale]/layout.tsx:23-64, apps/client/src/lib/metadata/index.ts:13] — deferred: superseded, zero consumers
+
+- [x] [Review][Defer] `getDateRange` shifts every date range back one day at UTC+1 [apps/client/src/lib/strapi-api/content/server.ts:37-39] — deferred, pre-existing
+- [x] [Review][Defer] `fetchAll` fans out unbounded concurrent page requests, crashes on missing `meta`, returns synthetic `pageSize` [apps/client/src/lib/strapi-api/base.ts:153-182] — deferred, pre-existing
+- [x] [Review][Defer] `fetchOneBySlug` returns the oldest match, not the newest (`pop()` on a `desc` sort) [apps/client/src/lib/strapi-api/base.ts:214] — deferred, pre-existing
+- [x] [Review][Defer] `ImageWithPlaiceholder` can never succeed for locally-uploaded media (relative URL passed to `fetch`) and renders a raw Strapi path in its error branch [apps/client/src/components/elementary/ImageWithPlaiceholder.tsx:13,51,62] — deferred, pre-existing
+- [x] [Review][Defer] No test coverage for `base.ts`, `content/server.ts`, or `sitemap.ts` despite pure, defect-carrying helpers [apps/client/src/lib/strapi-api/] — deferred, pre-existing
+- [x] [Review][Defer] Fetch failures are swallowed into `[]`/`null`, making an outage indistinguishable from "no events" [apps/client/src/lib/strapi-api/content/server.ts:155,218,322,399] — deferred, pre-existing
+- [x] [Review][Defer] Sitemap gaps: no `x-default`, missing `venues`/`shorts`/`events` index routes, hard 500-item cap with no pagination, query-string URLs as distinct entries [apps/client/src/app/sitemap.ts] — deferred, pre-existing
+- [x] [Review][Defer] Document has no `<main>` landmark or skip-link; navbar/footer still TODO in the layout [apps/client/src/app/[locale]/layout.tsx:107-119] — deferred, pre-existing
+
 ---
 
 ## Dev Notes
@@ -103,11 +157,16 @@ So that I have a solid foundation with Turborepo, TypeScript, and project struct
 ```
 Root package: tiween
 apps/client: @tiween/client
-apps/strapi: @tiween/strapi
-packages/shared-types: @tiween/shared-types
+apps/strapi: @tiween/admin
 packages/eslint-config: @tiween/eslint-config
+packages/prettier-config: @tiween/prettier-config
 packages/typescript-config: @tiween/typescript-config
 ```
+
+> Corrected 2026-08-08 (code review): this block previously said
+> `apps/strapi: @tiween/strapi`, contradicting Task 2.4 and the actual package
+> name `@tiween/admin` that every root script filters on. `shared-types` was
+> also removed — see the AC #1 note below.
 
 ### Architecture Compliance
 

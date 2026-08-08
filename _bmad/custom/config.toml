@@ -5,3 +5,10 @@
 #
 # [agents.bmad-agent-pm]
 # description = "Prefers short, bulleted PRDs over narrative drafts."
+
+[modules.bmm]
+# The installer defaults this to _bmad-output/planning-artifacts, which has never
+# existed in this repo — the real directory is _bmad-output/project-planning-artifacts
+# (epics/, prds/, architecture.md, ux-designs/, research/). Pinned here so a
+# re-install cannot point the planning skills at an empty path again.
+planning_artifacts = "{project-root}/_bmad-output/project-planning-artifacts"

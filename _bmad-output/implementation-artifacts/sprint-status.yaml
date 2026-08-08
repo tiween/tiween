@@ -42,7 +42,7 @@ story_location: /Users/ayoub/projects/tiween-bmad-version/_bmad-output/implement
 development_status:
   # Epic 1: Project Foundation & Infrastructure
   epic-1: in-progress
-  1-1-initialize-monorepo-from-starter-template: review
+  1-1-initialize-monorepo-from-starter-template: in-progress
   1-2-upgrade-to-nextjs-16-1-with-turbopack: review
   1-3-configure-tiween-design-tokens-and-tailwind-theme: review
   1-4-setup-shadcn-ui-with-brand-customization: review
@@ -238,7 +238,7 @@ development_status:
   # still ready-for-dev, so 7.2 was built on the Next.js client instead — the
   # accounts 7.1 creates are users-permissions users and cannot reach /admin.
   7-2-venue-profile-management: awaiting-operator
-  7-3-event-creation: backlog
+  7-3-event-creation: done
   7-4-event-editing-and-cancellation: backlog
   7-5-ticketing-configuration: deferred
   7-6-multiple-ticket-types-configuration: deferred
@@ -284,7 +284,7 @@ development_status:
   10-8-offline-status-indicators: backlog
   epic-10-retrospective: optional
 
-last_updated: 2026-08-06
+last_updated: 08-08-2026 11:50
 
 # Action items from retrospectives. See epic-{N}-retro-{date}.md for full context.
 action_items:
