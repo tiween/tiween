@@ -1,0 +1,45 @@
+# Project override for bmad-build (merged over the skill's customize.toml).
+#
+# Why: this repo ships pre-launch straight from main — no PRs, no feature
+# branches. Build already creates a LOCAL commit; nothing ever pushed it, so
+# finished stories sat unpublished until someone remembered. `on_complete`
+# closes that gap: it commits whatever is left in the tree and pushes main once
+# the story is actually flagged done.
+
+[workflow]
+
+on_complete = """
+Publish the finished work to `origin/main`. Run these steps in order and report
+each outcome in the completion summary — never stay silent about a step that
+failed or was skipped.
+
+1. Confirm the repository is on `main` (`git rev-parse --abbrev-ref HEAD`). If it
+   is not, STOP: commit nothing, push nothing, and tell the user which branch is
+   checked out and that this override only publishes from `main`.
+
+2. Commit any remaining work. Run `git status --porcelain`. If the tree is dirty,
+   `git add -A` and commit everything with a Conventional Commits message derived
+   from the spec title — commitlint (`@commitlint/config-conventional`) runs on
+   every commit, so the header must be `type(scope): subject`, lower-case
+   subject, no trailing period, and at most 100 characters; keep detail in the
+   body with each line at most 100 characters. Never add AI/Claude attribution
+   trailers. If the tree is clean, say so and move on — the Commit and Complete
+   step above may already have made the commit.
+
+3. Decide whether to push. Read `development_status[{story_key}]` in
+   `{{.implementation_artifacts}}/sprint-status.yaml` (fall back to the spec
+   frontmatter `status:` when `story_key` is unset or the file is absent). Push
+   ONLY when that value is `done`. For any other value — `review` is the usual
+   one, since Build's own sprint sync marks a finished story `review` and a human
+   promotes it to `done` — skip the push, leave the commit local, and tell the
+   user in one line that the story is at `<status>` so nothing was pushed, plus
+   the exact `git push origin main` they can run once it is done.
+
+4. Push when step 3 says to: `git push origin main`. If it fails (non-fast-forward,
+   no network, rejected hook), do NOT force, do NOT rewrite history, and do NOT
+   retry blindly — report the exact git error, note that the commit is safe
+   locally, and suggest `git pull --rebase origin main` as the usual fix.
+
+5. Report the commit hash (short), the branch, and whether the push happened, in
+   the completion summary.
+"""
