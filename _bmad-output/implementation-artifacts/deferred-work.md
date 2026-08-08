@@ -2168,3 +2168,39 @@ fixed by later stories (2D-1, 7.2, 7.3) and was dismissed rather than logged.
   summary: The client app now ships two icon libraries - `@phosphor-icons/react` alongside `lucide-react`.
   evidence: The human explicitly chose Phosphor for handoff fidelity (the design specifies Phosphor v2.1.1 and the handoff README prescribes the native package). But lucide-react is used across ~127 files and Phosphor is currently consumed by one component, so both now ship. Decide whether this is the start of a migration - in which case it needs a decision record and a plan - or whether Phosphor stays scoped to handoff-derived screens. Also note `vitest.config.ts` needed `/@phosphor-icons\//` added to `server.deps.inline` for the existing single-React aliasing scheme.
   status: open
+
+## Deferred from: bmad-build pre-flight (2026-08-08, events-manager admin UI rebuild)
+
+Found while committing the uncommitted client work that predated this story.
+
+- source_spec: none (pre-flight of the events-manager admin UI rebuild)
+  location: apps/client/package.json (`typecheck` script), .github/workflows/ci.yml:112
+  severity: high
+  summary: The client app has never been type-checked by CI, and now carries 46 TypeScript errors.
+  evidence: Root `package.json:23` runs `turbo type-check` and `turbo.json:20` defines a
+  `type-check` task, but the client workspace named its script `typecheck` (no hyphen), so
+  turbo matched nothing and CI's `yarn type-check` step passed while skipping the client
+  entirely. Renaming the script to `type-check` was staged in the working tree and is
+  deliberately NOT committed here, because it turns CI red immediately: `tsc --noEmit` on the
+  client reports 46 errors across ~25 files, overwhelmingly `noUncheckedIndexedAccess`
+  fallout (`Object is possibly 'undefined'`, `string | undefined` not assignable), plus three
+  real defects — `StrapiVenue` has no `latitude`/`longitude` yet `app/api/events/nearby/
+  route.ts` reads both; `Map/types.ts` declares `VenueType` without exporting it, breaking two
+  importers; and `content/{geography,venues}.ts` pass unnarrowed `string` where the `Locale`
+  union is required (the same bug `content/server.ts` just fixed via `asLocale`). This is the
+  exact shape of the eslint-plugin-only-warn finding that became stories 1-10..1-13: a
+  disabled gate hiding accumulated debt. Needs a story to fix the errors, then flip the script
+  name in the same PR so the gate goes green and stays enforced.
+  status: open
+
+- source_spec: none (pre-flight of the events-manager admin UI rebuild)
+  location: apps/client/src/lib/strapi-api/content/server.ts (`toISODate`)
+  severity: medium
+  summary: Date-range filters are off by one day at positive UTC offsets, including Tunisia (UTC+1).
+  evidence: `getDateRange` builds local midnight (`today.setHours(0,0,0,0)`) then formats it
+  through `toISOString()`, which converts to UTC and yields the _previous_ calendar day for
+  any positive offset. So "today" / "tomorrow" / "this weekend" browse filters select a range
+  starting a day early for the platform's primary market. The 2026-08-08 commit centralised
+  the conversion in `toISODate` and preserved the existing semantics on purpose, to keep that
+  change a pure type fix — the behavioural fix is this entry.
+  status: open
