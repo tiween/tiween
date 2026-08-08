@@ -4,11 +4,20 @@ import { cache } from "react"
 import { mapCategoryToType } from "@/features/events/utils"
 
 import type { StrapiEvent } from "@/features/events/types"
+import type { Locale } from "next-intl"
 
 import { PublicStrapiClient } from "@/lib/strapi-api"
 
 // Re-export for convenience
 export type { StrapiEvent }
+
+/**
+ * Coerce a raw locale string to the frontend `Locale` union expected by the
+ * client. Mirrors the helper in `events-extended.ts`.
+ */
+function asLocale(locale?: string): Locale | undefined {
+  return locale as Locale | undefined
+}
 
 /**
  * Date filter type for event queries
@@ -26,6 +35,22 @@ export type DateFilterType =
   | string
 
 /**
+ * `Date` → `YYYY-MM-DD`.
+ *
+ * `toISOString().split("T")[0]` is `string | undefined` under
+ * `noUncheckedIndexedAccess`, which is why every caller below used to fail
+ * type-checking. Centralising the conversion narrows it once.
+ *
+ * NOTE: this deliberately preserves the existing UTC semantics. Converting a
+ * local midnight through `toISOString()` yields the *previous* day at positive
+ * UTC offsets (Tunisia is UTC+1) — a real off-by-one-day bug, tracked as
+ * deferred work rather than fixed here so this stays a pure type fix.
+ */
+function toISODate(date: Date): string {
+  return date.toISOString().slice(0, 10)
+}
+
+/**
  * Calculate date range based on filter type
  * Returns { startDate, endDate } in YYYY-MM-DD format
  */
@@ -36,7 +61,7 @@ function getDateRange(
 
   const today = new Date()
   today.setHours(0, 0, 0, 0)
-  const todayStr = today.toISOString().split("T")[0]
+  const todayStr = toISODate(today)
 
   switch (dateFilter) {
     case "today": {
@@ -46,7 +71,7 @@ function getDateRange(
     case "tomorrow": {
       const tomorrow = new Date(today)
       tomorrow.setDate(tomorrow.getDate() + 1)
-      const tomorrowStr = tomorrow.toISOString().split("T")[0]
+      const tomorrowStr = toISODate(tomorrow)
       return { startDate: tomorrowStr, endDate: tomorrowStr }
     }
 
@@ -58,7 +83,7 @@ function getDateRange(
       endOfWeek.setDate(today.getDate() + daysUntilSunday)
       return {
         startDate: todayStr,
-        endDate: endOfWeek.toISOString().split("T")[0],
+        endDate: toISODate(endOfWeek),
       }
     }
 
@@ -76,7 +101,7 @@ function getDateRange(
       if (dayOfWeek === 6) {
         return {
           startDate: todayStr,
-          endDate: sunday.toISOString().split("T")[0],
+          endDate: toISODate(sunday),
         }
       }
       if (dayOfWeek === 0) {
@@ -87,8 +112,8 @@ function getDateRange(
       }
 
       return {
-        startDate: saturday.toISOString().split("T")[0],
-        endDate: sunday.toISOString().split("T")[0],
+        startDate: toISODate(saturday),
+        endDate: toISODate(sunday),
       }
     }
 
@@ -147,7 +172,7 @@ export const getEventByDocumentId = cache(async function getEventByDocumentId(
     // of truth for the deep detail graph (Story 3.7). Send only `locale`.
     const response = await PublicStrapiClient.fetchAPI(
       `/events-manager/events/${documentId}`,
-      { locale },
+      { locale: asLocale(locale) },
       { next: { revalidate: 60 } }
     )
 
@@ -200,7 +225,7 @@ export async function getRelatedEventsByParams(
     const response = await PublicStrapiClient.fetchAPI(
       "/events-manager/events",
       {
-        locale,
+        locale: asLocale(locale),
         venue: venueDocumentId,
         startDate: new Date().toISOString(),
         sort: "startDateTime:asc",
@@ -266,7 +291,7 @@ export async function getFeaturedEvents(
     const response = await PublicStrapiClient.fetchAPI(
       "/events-manager/events",
       {
-        locale,
+        locale: asLocale(locale),
         filters: {
           featured: { $eq: true },
           status: { $in: ["scheduled", "active"] },
@@ -349,7 +374,7 @@ export async function getUpcomingEvents(
     const response = await PublicStrapiClient.fetchAPI(
       "/events-manager/events",
       {
-        locale,
+        locale: asLocale(locale),
         filters: {
           status: { $in: ["scheduled", "active"] },
           ...buildDateFilter(dateFilter),

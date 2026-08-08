@@ -68,7 +68,8 @@ export const viewport: Viewport = {
   themeColor: "#032523",
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
+  // No `maximumScale` — capping zoom at 1 blocks pinch-to-zoom and fails
+  // WCAG 2.1 SC 1.4.4 (Resize Text).
 }
 
 export default async function RootLayout({
@@ -77,13 +78,15 @@ export default async function RootLayout({
 }: LayoutProps<"/[locale]">) {
   const { locale } = (await params) as { locale: Locale }
 
-  // Enable static rendering
-  // https://next-intl-docs.vercel.app/docs/getting-started/app-router/with-i18n-routing#static-rendering
-  setRequestLocale(locale)
-
+  // Validate before use — `setRequestLocale` registers the value with
+  // next-intl's request store, so an unknown locale must be rejected first.
   if (!routing.locales.includes(locale)) {
     notFound()
   }
+
+  // Enable static rendering
+  // https://next-intl-docs.vercel.app/docs/getting-started/app-router/with-i18n-routing#static-rendering
+  setRequestLocale(locale)
 
   // Determine text direction based on locale
   const dir = locale === "ar" ? "rtl" : "ltr"

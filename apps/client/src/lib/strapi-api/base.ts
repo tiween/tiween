@@ -77,7 +77,10 @@ export default abstract class BaseStrapiClient {
     }
 
     if (!response.ok) {
-      const { error } = json
+      // `json` is undefined when the body was neither JSON nor non-empty text
+      // (an empty 204, or an empty 502/504 from a proxy) — destructuring it
+      // directly threw a TypeError that masked the real HTTP failure.
+      const error = json?.error
       const appError: AppError = {
         name: error?.name,
         message: error?.message,
@@ -250,7 +253,6 @@ export default abstract class BaseStrapiClient {
 
     // return last published entry
     return {
-      // @ts-expect-error localizations TODO @dominik-juriga
       data: response.data.pop() ?? null,
       meta: response.meta,
     }

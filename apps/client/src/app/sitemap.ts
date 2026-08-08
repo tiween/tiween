@@ -104,33 +104,53 @@ async function generateLocalizedSitemap(
   // Dynamic event pages
   let eventPages: MetadataRoute.Sitemap = []
   try {
-    const response = await PublicStrapiClient.fetchAPI(
-      "/events-manager/events",
-      {
-        locale,
-        filters: {
-          status: { $in: ["scheduled", "active"] },
-          endDate: { $gte: new Date().toISOString().split("T")[0] },
-        },
-        fields: ["documentId", "updatedAt", "startDate"],
-        sort: ["updatedAt:desc"],
-        pagination: {
-          page: 1,
-          pageSize: 500, // Reasonable limit for sitemap
-        },
-      },
-      { next: { revalidate: 3600 } } // Cache for 1 hour
-    )
-
-    const events = (response.data || []) as Array<{
+    // The 3.1a public browse endpoint takes only flat, allowlisted params and
+    // strips everything else. The previous `filters`/`fields`/`pagination`
+    // shape was silently dropped, and the array-form `sort` (`sort[0]=…`) was
+    // rejected outright by its `z.enum` — every request 400'd, the catch below
+    // swallowed it, and the sitemap shipped with zero event URLs.
+    //
+    // Constraints this query works within:
+    //  - sort must be one of startDateTime|title × asc|desc — `updatedAt:desc`
+    //    is not sortable, and sitemap entry order is not significant anyway.
+    //  - pageSize caps at MAX_PAGE_SIZE (100), so we page through instead.
+    //  - `eventStatus` takes a single value, so the old
+    //    `$in: ["scheduled", "active"]` has no equivalent; we omit it rather
+    //    than narrow to one status and drop legitimately rescheduled events.
+    const events: Array<{
       documentId: string
       updatedAt?: string
-      startDate: string
-    }>
+      startDateTime?: string
+      startDate?: string
+    }> = []
+    const PAGE_SIZE = 100
+    const MAX_PAGES = 50 // 5,000 URLs per locale; revisit via a sitemap index
+
+    for (let page = 1; page <= MAX_PAGES; page++) {
+      const response = await PublicStrapiClient.fetchAPI(
+        "/events-manager/events",
+        {
+          locale,
+          // Upcoming events only — an ISO datetime range on `startDateTime`.
+          startDate: new Date().toISOString(),
+          sort: "startDateTime:asc",
+          page,
+          pageSize: PAGE_SIZE,
+        },
+        { next: { revalidate: 3600 } } // Cache for 1 hour
+      )
+
+      events.push(...(response.data || []))
+
+      const pageCount = response.meta?.pagination?.pageCount ?? 1
+      if (page >= pageCount) break
+    }
 
     eventPages = events.map((event) => ({
       url: buildUrl(`/events/${event.documentId}`),
-      lastModified: new Date(event.updatedAt || event.startDate),
+      lastModified: new Date(
+        event.updatedAt ?? event.startDateTime ?? event.startDate ?? Date.now()
+      ),
       changeFrequency: "weekly" as const,
       priority: 0.6,
       alternates: buildAlternates(`/events/${event.documentId}`),
