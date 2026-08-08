@@ -61,7 +61,7 @@
     "styled-components": "^6.0.0",
     "tmdb-ts": "^2.0.0",
     "use-debounce": "^10.0.0",
-    "zod": "^3.25.67"
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.0",
