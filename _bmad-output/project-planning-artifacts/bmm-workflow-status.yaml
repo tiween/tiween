@@ -31,14 +31,14 @@ workflow_status:
   product-brief: "_bmad-output/project-planning-artifacts/product-brief-tiween-bmad-version-2025-12-25.md"
 
   # Phase 1: Planning
-  prd: "_bmad-output/prd.md"
+  prd: "_bmad-output/project-planning-artifacts/prds/prd-tiween-bmad-version-2026-06-17/prd.md"
   create-ux-design: conditional
 
   # Phase 2: Solutioning
   create-architecture: "_bmad-output/architecture"
   create-epics-and-stories: "_bmad-output/project-planning-artifacts/epics"
   test-design: "_bmad-output/test-design-system.md"
-  implementation-readiness: "_bmad-output/project-planning-artifacts/implementation-readiness-report-2025-12-26.md"
+  implementation-readiness: "_bmad-output/project-planning-artifacts/implementation-readiness-2026-08-08.md"
 
   # Phase 3: Implementation
   sprint-planning: "_bmad-output/implementation-artifacts/sprint-status.yaml"

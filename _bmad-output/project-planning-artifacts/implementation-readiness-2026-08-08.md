@@ -1,0 +1,151 @@
+# Implementation Readiness — 2026-08-08
+
+**Verdict: CONCERNS** — the plan is implementable; one recorded-but-unplanned
+piece of work has no story home, and two artifact-hygiene issues could send a
+developer to the wrong document.
+
+Supersedes nothing. The earlier `implementation-readiness-report-2025-12-26.md`
+predates epics 2C and 2D and the 2026-08-06 v1 rescope; it is kept as history.
+
+## Scope of this gate
+
+Run as part of `bmad-sprint-planning` (sprint-planning intent) by Ayoub.
+Artifacts inventoried: product brief (2025-12-25), PRD
+(`prds/prd-tiween-bmad-version-2026-06-17/`), two UX design sets, six
+competitive-research documents, the architecture baseline (`architecture/`, 8
+documents) plus the 2026-06-12 plugin-decomposition amendment, 13 epic files,
+`requirements-inventory.md`, `epic-dependencies.md`, six sprint-change
+proposals, `test-design-system.md`, and `sprint-status.yaml`.
+
+## What is in good shape
+
+- **Full FR traceability.** All 66 functional requirements map to an epic in the
+  `requirements-inventory.md` coverage table, with no unmapped FR and no epic
+  inventing requirements that trace back to nothing.
+- **Dependencies are explicit.** `epic-dependencies.md` carries both an MVP and
+  a full dependency graph, internal sequencing rules for epic 2C, and a dated
+  revision note reflecting the 2026-08-06 rescope of v1 to aggregation without
+  ticketing.
+- **Tracking matches the epics.** `sprint-status.yaml` reflects the rescope
+  accurately: 3.2 un-deferred, 3.12 added, epic 2D present, Post-V1 stories in
+  epics 6/7/8 marked `deferred`.
+- **NFRs are itemized and testable** across performance, security, scalability,
+  reliability, accessibility, i18n, integration and privacy.
+
+## Finding 1 — events-manager admin UI rebuild has no story home
+
+**Severity: medium-high. Blocks the v1 critical path.**
+
+Three planning artifacts name this work as required and gate it on story 2C.3:
+
+- `epics/epic-2c-plugin-architecture-decomposition.md:28`
+- `epics/epic-dependencies.md:56`
+- `epics/epic-list.md:107`
+
+> "⚠️ The events-manager admin UI rebuild (formerly OpenSpec
+> `add-events-manager-admin-ui`, retired) is re-planned AFTER 2C.3 against
+> post-move UIDs"
+
+**2C.3 is complete, so the gate has fired — but no epic or story owns the
+re-planned work.** Epic 2D is scoped to the _venues_ plugin admin UI. Story 9.2
+covers Strapi-admin content management, a different surface.
+
+This is not hypothetical. A code review on 2026-08-08 confirmed the surface is
+currently broken: `useShowtimes.ts:86`,
+`components/PlanningCalendarNew/index.tsx:173`,
+`components/EventEditModal/index.tsx:80,102,109` and
+`components/EventCreationModal/index.tsx:99` all still request
+`plugin::events-manager.showtime`, a content type story 2C.3 deleted. The
+surface is reachable from `pages/Planning/index.tsx:158` and
+`components/PlanningTab.tsx:95`. Logged in `deferred-work.md` under
+"Deferred from: code review (2026-08-08)".
+
+MVP critical path step 6 in `epic-dependencies.md:69` reads "Epic 9 → Admin
+content management (partial, **for showtimes entry**)", so v1 depends on a
+working showtime-entry surface.
+
+**Why a developer cannot just build it:** the decisions are not recorded. 2C.3
+split `showtime` into two heterogeneous types — `screening` (with
+`videoFormat`, `subtitleLanguage`) and `performance` (with `surtitleLanguage`,
+no video format) — and nothing states how one calendar should render both, or
+which of the diverged fields each modal exposes.
+
+**Fix:** plan it with `bmad-create-epics-and-stories` (a story under epic 9, or
+a new epic sibling to 2D), or `bmad-correct-course` if it changes the v1 scope.
+
+## Finding 2 — dangling PRD pointer
+
+**Severity: low.**
+
+`bmm-workflow-status.yaml:47` sets `prd: "_bmad-output/prd.md"`. That file does
+not exist. The actual PRD is
+`project-planning-artifacts/prds/prd-tiween-bmad-version-2026-06-17/prd.md`
+(with an `addendum.md` alongside it). Any tooling or agent that resolves the
+PRD through the workflow-status file finds nothing.
+
+**Fix:** update the pointer.
+
+## Finding 3 — two UX design versions, no recorded winner
+
+**Severity: low.**
+
+Three UX artifacts exist with no statement of precedence:
+
+- `ux-designs/ux-tiween-bmad-version-2026-06-16/` (DESIGN.md, EXPERIENCE.md, imports, reviews)
+- `ux-designs/ux-tiween-bmad-version-2026-06-18/` (DESIGN.md, EXPERIENCE.md, handoff, mockups, design-export)
+- `ux-design-specification.md` at the planning root
+
+Epic 2A and epic 3 stories bind to UX decisions. A developer opening the wrong
+directory builds against superseded design.
+
+**Fix:** mark the authoritative set (a note in `index.md`, or archive the
+superseded directory).
+
+## Checked and cleared
+
+Story 9.2's acceptance criteria mention "featured films". This looked like it
+might have been invalidated by the 2C model changes, but `event.featured` still
+exists in `events-manager/server/src/content-types/event/schema.json`. The
+criteria hold.
+
+## Separate: sprint-status.yaml cannot be regenerated by the script
+
+Not a readiness finding — a tooling mismatch, recorded here so it is not
+rediscovered.
+
+`sprint_plan.py` hard-codes the key grammar as `EPIC_KEY_RE = ^epic-(\d+)$` and
+`STORY_KEY_RE = ^(\d+)-(\d+)([a-z]?)-.+` (lines 54-56). Letter-suffixed **epics**
+(2A, 2B, 2C, 2D) have no representation — the optional trailing letter applies
+to the story number, not the epic. `EPIC_RE` (line 44) likewise matches
+`Epic\s+(\d+)`, so `## Epic 2A:` parses as "Epic 2" and all four collapse into
+one `epic-2` key, leaving all 47 of their stories unparsed.
+
+A `--dry-run` on 2026-08-08 reported it would drop 89 entries and cut `done`
+from 58 to 19. It was **not** applied. Two further mismatches ride along:
+story-title tags (`[MVP]`, `[Phase 2]`) slugify into derived keys, renaming
+every story in epics 3/9/10; and the project's `deferred` (17 entries, encoding
+the 2026-08-06 Post-V1 rescope) and `awaiting-operator` (7-1, 7-2) statuses are
+outside the template vocabulary and would be reset to `backlog`.
+
+`sprint_plan.py validate` already reports the current file as invalid for the
+same reason, so this predates this run. Making the script usable would require
+renumbering epics 2A-2D to distinct integers — renaming 55 tracking keys and 44
+story files on disk — or patching the parser. Until then `sprint-status.yaml`
+is maintained by hand, which it has been, accurately.
+
+## Orphan stories — planning and tracking disagree
+
+Seven stories are `done` in `sprint-status.yaml` but appear in no epic file.
+They were added during development (bmad-loop sweeps, correct-course runs) and
+never written back:
+
+- `1-10-restore-client-eslint-enforcement`
+- `1-11-bring-strapi-backend-under-lint`
+- `1-12-i18n-western-numeral-lint-guard`
+- `1-13-repo-hygiene-encoding-ci-guard`
+- `4-7-fix-users-permissions-auth-controller-factory-wiring`
+- `5-7-watchlist-atomic-dedupe`
+- `5-8-user-scoped-watchlist-cache`
+
+The work is done and shipped; only the planning record is missing. Worth
+back-filling so the epics remain a truthful account of what was built.
