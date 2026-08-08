@@ -117,11 +117,21 @@ describe("events-manager bootstrap: ensureInventoryCheckConstraint (unit)", () =
     )
   })
 
-  it("still registers the schedule-change lifecycle subscriber", async () => {
+  it("registers both lifecycle subscribers", async () => {
     const { strapi, subscribe } = buildStrapi()
 
     await bootstrap({ strapi })
 
-    expect(subscribe).toHaveBeenCalledTimes(1)
+    // 1. the schedule-change subscriber on `event`
+    // 2. the sub-event work-kind guard on `screening` + `performance`
+    //    (added by the 2C.1/2C.3 code review)
+    expect(subscribe).toHaveBeenCalledTimes(2)
+
+    const models = subscribe.mock.calls.map((c: any[]) => c[0].models)
+    expect(models).toContainEqual(["plugin::events-manager.event"])
+    expect(models).toContainEqual([
+      "plugin::events-manager.screening",
+      "plugin::events-manager.performance",
+    ])
   })
 })

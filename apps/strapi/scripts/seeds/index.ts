@@ -708,14 +708,28 @@ async function seedUsers(strapi: any): Promise<SeedResult> {
 }
 
 /**
- * Seed entity properties
+ * Seed venue property categories + definitions.
+ *
+ * The property catalog moved out of `entity-properties` and into the `venues`
+ * plugin in story 2C.1 (architecture amendment D6); the old
+ * `entity-properties` service registry is now an empty shell (`export default
+ * {}`) and its `seedAll` entry point no longer exists. Calling it threw a
+ * TypeError here and aborted the whole pipeline before any content was seeded.
+ *
+ * `seedPropertyDefinitions` seeds the categories itself (it needs their id map
+ * to link each definition), so it is the single correct entry point.
  */
 async function seedEntityProperties(strapi: any): Promise<void> {
-  console.log("🏷️ Seeding entity properties...")
+  console.log("🏷️ Seeding venue properties...")
 
-  // Use the existing seed service from entity-properties plugin
-  const seedService = strapi.plugin("entity-properties").service("seed")
-  await seedService.seedAll("en")
+  const venuesPlugin = strapi.plugin("venues")
+  if (!venuesPlugin) {
+    throw new Error(
+      "venues plugin is not enabled — cannot seed venue property definitions"
+    )
+  }
+
+  await venuesPlugin.service("seed").seedPropertyDefinitions("en")
 
   console.log("   Done")
 }

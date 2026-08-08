@@ -2078,3 +2078,63 @@ status: open
   evidence: `metadata` is a static object on a `[locale]` layout, so titles and OG/Twitter copy are English for every locale — violating the project-context i18n rule "Use `useTranslations` — Never hardcode strings". `getMetadataFromStrapi` (`lib/metadata/index.ts:13`) already reads the `seo` translation namespace but has zero callers. The object is also missing `metadataBase`, `alternates`, and any OG image. Routes without their own `generateMetadata` (`/search`, `/watchlist`, `/shorts`) are affected.
   reason_deferred: Superseded, zero consumers — belongs with the i18n metadata story rather than monorepo initialization.
   status: open
+
+- source_spec: none
+  summary: Rebrand the global theme to the 2026-08-08 design handoff palette (aubergine/gold) in apps/client/src/styles/theme.css.
+  evidence: Split from the "Court Métrage Détail" design-handoff build on 2026-08-08. The handoff (design_handoff_tiween/README.md) specifies a single dark aubergine/gold system (bg/root #161015, bg/raised #241326, gold/primary #D4A24A, gold/text #E0B563) that contradicts the current Tiween brand tokens (--color-tiween-green #032523, --color-tiween-yellow #F8EB06) and the shadcn HSL mappings built on them. A global swap re-skins all ~10 client features plus every Storybook story, and only 5 B2C screens have handoff coverage — so it is independently shippable and needs its own visual review pass. The short-film detail page ships first with the palette scoped to its route; this story then hoists those declarations into theme.css and removes the local scope.
+  status: open
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-short-film-detail-design-handoff.md`
+  summary: Add the "Équipe artistique" crew grid and the streaming access sub-label to the short-film detail page.
+  evidence: Split out on 2026-08-08 to bring the parent spec under the 1600-token scope ceiling. Both need a data-model extension that the page rebuild does not otherwise require - `ShortFilm` has no `crew` field (only `directors`), so the handoff's role/name grid (Réalisation, Scénario, Image, Montage, Musique - `Court Métrage Détail.dc.html:208-214`) has nothing to read; and `StreamingLink` has no access-type field, so the teal "Inclus / Gratuit / VOST" sub-label under each platform name (`:103`) cannot be rendered. Work: add `crew?: Array<{ role: string; person: StrapiPerson }>` to `ShortFilm` and `accessType?: "free" | "included" | "subscription" | "rental"` to `StreamingLink` (deprecating the hardcoded-FR `StreamingLink.label`), populate both on the mock films, add the `shorts.crew.*` and `shorts.access.*` i18n keys, and render the two sections in `ShortFilmDetail`.
+  status: open
+
+## Deferred from: code review (2026-08-08)
+
+Adversarial review of Epic 2C — stories `2c-1-extract-venues-plugin` (commit
+`446f578`) and `2c-3-catalog-move-into-creative-works` (commits `1058c76`,
+`1f4fb82`) — run in no-spec mode. Findings were re-verified against HEAD
+(`0b18c9d`); the majority of what the review layers raised had already been
+fixed by later stories (2D-1, 7.2, 7.3) and was dismissed rather than logged.
+
+- source_spec: n/a (no-spec code review of 2C.1 / 2C.3)
+  location: apps/strapi/src/plugins/events-manager/admin/src/hooks/useShowtimes.ts:86, components/PlanningCalendarNew/index.tsx:173, components/EventEditModal/index.tsx:80,102,109, components/EventCreationModal/index.tsx:99
+  severity: high
+  summary: The admin planning surface is still built entirely on the retired `showtime` content type and cannot be mechanically retargeted.
+  evidence: 2C.3 split `showtime` into `screening` + `performance` and dropped the `showtime` registration, but these four components still GET/PUT/POST `/content-manager/collection-types/plugin::events-manager.showtime`, which now 404s. This is not a UID swap - the whole field model changed: `datetime` -> `startDateTime`, `format` -> `videoFormat` (screening only, new enum values), `language` -> `audioLanguage`, `subtitles` -> `subtitleLanguage` (screening) / `surtitleLanguage` (performance), and `premiere` / `parentShowtimeId` / `event.creativeWork` are gone entirely. The venue link also moved: sub-events now reach a venue via `event.venue`, not a direct `venue` field. Reachable from the Planning page (`pages/Planning/index.tsx:158`) and `components/PlanningTab.tsx:95`. Fixing it requires product decisions - how one calendar renders two heterogeneous sub-event types, and which of the diverging fields each modal exposes - so it is a story, not a patch. The one unambiguous instance (the venue delete guard in `useVenuesEnhanced.ts`) was fixed during this review.
+  status: open
+
+- source_spec: n/a (no-spec code review of 2C.1 / 2C.3)
+  location: apps/strapi/src/plugins/entity-properties/admin/src/pages/{App,HomePage,Categories,Definitions}.tsx
+  severity: low
+  summary: Placeholder admin UI still ships in the `entity-properties` plugin that 2C.5 deletes, while the `venues` admin has no replacement property management.
+  evidence: 2C.1 added a SideNav plus three placeholder pages to a plugin its own config marks "DEPRECATED ... removed entirely in story 2C.5", and `HomePage`'s subtitle points at venues from the wrong plugin. The venues admin (`venues/admin/src/pages/App.tsx`) is a bare stub with no property-category/definition screens. Resolves itself when 2C.5 lands, provided the replacement screens are part of that story.
+  status: open
+
+- source_spec: n/a (no-spec code review of 2C.1 / 2C.3)
+  location: apps/strapi/src/components/common/video.json
+  severity: low
+  summary: `video` carries two overlapping enums (`type` and `videoType`) with no backfill from the old to the new.
+  evidence: 2C.3 added lowercase `videoType` alongside the legacy uppercase `type` (`FULL_LENGTH`/`TEASER`/`CLIP`), and `1f4fb82` dropped `videoType`'s default. Existing rows therefore read `videoType: null`. The schema description now documents this as deliberate ("kept for historic rows only; leave it as it is"), so this is planned debt rather than a defect - logged so the eventual backfill-and-drop is not forgotten.
+  status: open
+
+- source_spec: n/a (no-spec code review of 2C.1 / 2C.3)
+  location: apps/strapi/src/plugins/venues/admin/src/index.tsx:14
+  severity: low
+  summary: The venues admin menu link declares `permissions: []`, making the plugin visible to every admin role.
+  evidence: Copied from the `geography` sibling during the 2C.1 scaffold. Epic 7 gives Venue Manager a real permission boundary, so the menu entry should carry the matching RBAC condition rather than an empty allow-all array.
+  status: open
+
+- source_spec: n/a (no-spec code review of 2C.1 / 2C.3)
+  location: apps/strapi/tests/fixtures/events.ts:155-160
+  severity: low
+  summary: `cleanupContent` can loop forever, and never cleans the person/genre documents its own factories create.
+  evidence: The teardown re-queries `findMany({ limit: 100 })` inside `while (items.length > 0)` with no iteration cap and no per-item error handling, so a single undeletable document spins the loop indefinitely. The UID list also omits person and genre, which works created via the fixtures pull in - leaving cross-test residue and unique-slug collisions on repeated runs. Not yet biting because the boot-based suites that use these fixtures are opt-in (`yarn test:integration`).
+  status: open
+
+- source_spec: n/a (no-spec code review of 2C.1 / 2C.3)
+  location: apps/strapi/scripts/seeds/index.ts
+  severity: low
+  summary: Seed data nits - constant sub-event `order` and a UTC/local hour skew.
+  evidence: Every sub-event of an event is written with a hard-coded `order: 1` instead of an incrementing index, making the field useless for the ordering it exists for; and `setUTCHours` is used to build showtimes, putting Tunisian (UTC+1) times an hour off local. Dev-seed realism only - no production path.
+  status: open

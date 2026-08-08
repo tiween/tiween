@@ -94,9 +94,11 @@ export function VenuesPage() {
   } = useVenueMutations()
 
   // Delete protection state
+  // `showtimeCount: null` means the count could not be established — the
+  // deletion is blocked anyway rather than allowed on an unverified check.
   const [deleteBlockedVenue, setDeleteBlockedVenue] = useState<{
     venue: Venue
-    showtimeCount: number
+    showtimeCount: number | null
   } | null>(null)
 
   // Selection handlers
@@ -167,9 +169,10 @@ export function VenuesPage() {
 
   const handleDelete = useCallback(
     async (venue: Venue) => {
-      // Check if venue has associated showtimes
+      // Check if venue has associated séances (screenings + performances).
+      // `null` = the check failed; block rather than delete on an unknown.
       const showtimeCount = await checkVenueShowtimes(venue.documentId)
-      if (showtimeCount > 0) {
+      if (showtimeCount === null || showtimeCount > 0) {
         setDeleteBlockedVenue({ venue, showtimeCount })
       } else {
         setDeleteConfirm(venue)
@@ -612,13 +615,17 @@ export function VenuesPage() {
           isLoading={isMutating}
         />
 
-        {/* Delete Blocked Dialog (venue has showtimes) */}
+        {/* Delete Blocked Dialog (venue has séances, or the check failed) */}
         <ConfirmDialog
           isOpen={!!deleteBlockedVenue}
           onClose={() => setDeleteBlockedVenue(null)}
           onConfirm={() => setDeleteBlockedVenue(null)}
           title="Suppression impossible"
-          message={`Le lieu "${deleteBlockedVenue?.venue.name}" ne peut pas être supprimé car il a ${deleteBlockedVenue?.showtimeCount} séance${(deleteBlockedVenue?.showtimeCount ?? 0) > 1 ? "s" : ""} programmée${(deleteBlockedVenue?.showtimeCount ?? 0) > 1 ? "s" : ""}. Supprimez d'abord les séances associées.`}
+          message={
+            deleteBlockedVenue?.showtimeCount == null
+              ? `Impossible de vérifier les séances programmées du lieu "${deleteBlockedVenue?.venue.name}". Par sécurité, la suppression est bloquée — réessayez.`
+              : `Le lieu "${deleteBlockedVenue.venue.name}" ne peut pas être supprimé car il a ${deleteBlockedVenue.showtimeCount} séance${deleteBlockedVenue.showtimeCount > 1 ? "s" : ""} programmée${deleteBlockedVenue.showtimeCount > 1 ? "s" : ""}. Supprimez d'abord les séances associées.`
+          }
           confirmLabel="Compris"
           variant="warning"
         />

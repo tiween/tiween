@@ -111,7 +111,9 @@ export default ({ env }) => {
       resolve: "./src/plugins/tmdb-integration",
     },
 
-    // Events Manager plugin - events, venues, showtimes (depends on geography, creative-works, tmdb-integration)
+    // Events Manager plugin - events, screenings, performances (venues moved to
+    // the venues plugin in 2C.1; showtime split into screening/performance in
+    // 2C.3). Depends on geography, venues, creative-works, tmdb-integration.
     "events-manager": {
       enabled: true,
       resolve: "./src/plugins/events-manager",

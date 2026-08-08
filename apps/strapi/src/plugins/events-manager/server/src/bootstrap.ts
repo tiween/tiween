@@ -1,7 +1,13 @@
 import type { Core } from "@strapi/strapi"
 import type { Knex } from "knex"
+import type { GuardedUid } from "./content-types/sub-event-work-kind"
 
 import { handleEventScheduleUpdate } from "./content-types/event/schedule-update-handler"
+import {
+  assertSubEventWorkKind,
+  PERFORMANCE_UID,
+  SCREENING_UID,
+} from "./content-types/sub-event-work-kind"
 
 const EVENT_UID = "plugin::events-manager.event"
 
@@ -136,6 +142,30 @@ const bootstrap = async ({ strapi }: { strapi: Core.Strapi }) => {
       } catch (err) {
         strapi.log.error("[schedule-notification] afterUpdate failed", err)
       }
+    },
+  })
+
+  // Sub-event ↔ catalog-kind invariant. 2C.3 collapsed `movie`/`play` into the
+  // single `creative-work` type, so the schema alone can no longer stop a play
+  // being attached to a screening; `creative-work.type` is now the only
+  // discriminator. Unlike the subscriber above, this one is allowed to throw —
+  // a ValidationError is exactly the intended outcome of a wrong-kind link.
+  // The guard itself fails open whenever it cannot positively resolve the work.
+  strapi.db.lifecycles.subscribe({
+    models: [SCREENING_UID, PERFORMANCE_UID],
+    async beforeCreate(event: any) {
+      await assertSubEventWorkKind({
+        strapi,
+        uid: event.model?.uid as GuardedUid,
+        data: event.params?.data,
+      })
+    },
+    async beforeUpdate(event: any) {
+      await assertSubEventWorkKind({
+        strapi,
+        uid: event.model?.uid as GuardedUid,
+        data: event.params?.data,
+      })
     },
   })
 

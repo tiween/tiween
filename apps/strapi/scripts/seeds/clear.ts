@@ -26,6 +26,9 @@ const CONTENT_TYPES = [
   "plugin::events-manager.performance",
   "plugin::events-manager.event",
   "plugin::events-manager.event-group",
+  // Cleared after screening/performance: `feature` is the manyToMany target of
+  // both, so the join rows must go first.
+  "plugin::events-manager.feature",
 
   // Venues
   "plugin::venues.venue",

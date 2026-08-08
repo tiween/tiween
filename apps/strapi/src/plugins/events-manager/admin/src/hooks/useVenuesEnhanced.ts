@@ -11,6 +11,15 @@ import { useFetchClient } from "@strapi/strapi/admin"
 const VENUE_UID = "plugin::venues.venue"
 const VENUE_CM_PATH = `/content-manager/collection-types/${VENUE_UID}`
 
+/**
+ * The two sub-event types that replaced `showtime` in story 2C.3. Both must be
+ * counted wherever "séances for this venue" is asked for.
+ */
+const SUB_EVENT_CM_PATHS = [
+  "/content-manager/collection-types/plugin::events-manager.screening",
+  "/content-manager/collection-types/plugin::events-manager.performance",
+] as const
+
 /** Venue status options */
 export type VenueStatus = "pending" | "approved" | "suspended"
 
@@ -378,11 +387,24 @@ export function useVenueMutations() {
   )
 
   /**
-   * Check if a venue has associated showtimes
-   * Returns the count of showtimes for the venue
+   * Count the scheduled sub-events (séances) attached to a venue.
+   *
+   * Story 2C.3 split `showtime` into `screening` + `performance` and dropped
+   * the `showtime` content type, so the old single-UID query 404'd — and
+   * because the failure was swallowed into `0`, the delete guard silently
+   * passed for EVERY venue, including venues with live screenings. Both UIDs
+   * are now counted.
+   *
+   * The venue link also moved: screenings/performances hang off `event`, and
+   * `venue` lives on the event — hence the nested `event.venue` filter rather
+   * than a direct `venue` one.
+   *
+   * Returns `null` when the count could not be established. A destructive
+   * action must not be unblocked by a failed check, so the caller treats
+   * `null` as "blocked", not as "zero".
    */
   const checkVenueShowtimes = useCallback(
-    async (documentId: string): Promise<number> => {
+    async (documentId: string): Promise<number | null> => {
       try {
         // First get the venue's id from documentId
         const venueResponse = await get<{ data: { id: number } }>(
@@ -391,22 +413,26 @@ export function useVenueMutations() {
         )
         const venueId = venueResponse.data.data?.id ?? venueResponse.data?.id
 
-        if (!venueId) return 0
+        if (!venueId) return null
 
-        // Count showtimes for this venue
-        const response = await get<{ pagination: { total: number } }>(
-          "/content-manager/collection-types/plugin::events-manager.showtime",
-          {
-            params: {
-              pageSize: 1,
-              filters: { venue: { id: venueId } },
-            },
-          }
+        const counts = await Promise.all(
+          SUB_EVENT_CM_PATHS.map(async (path) => {
+            const response = await get<{ pagination: { total: number } }>(
+              path,
+              {
+                params: {
+                  pageSize: 1,
+                  filters: { event: { venue: { id: venueId } } },
+                },
+              }
+            )
+            return response.data.pagination?.total ?? 0
+          })
         )
 
-        return response.data.pagination?.total ?? 0
+        return counts.reduce((sum, n) => sum + n, 0)
       } catch {
-        return 0
+        return null
       }
     },
     [get]
