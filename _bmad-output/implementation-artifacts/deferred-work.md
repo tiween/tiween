@@ -2316,3 +2316,37 @@ real but out of the story's scope.
   summary: A wall-clock time that does not exist on a DST spring-forward day is silently shifted.
   evidence: `setHours` on a nonexistent local time rolls forward, so the stored instant differs from what the editor typed with no warning. Near-theoretical for this product — Tunisia abolished DST in 2009 — and it shares a root cause with the DST entry already logged against BigCalendar in the calendar build-vs-buy audit. Guard by re-reading `getHours()` after `setHours` if the admin is ever used from a DST-observing timezone.
   status: open
+
+## Deferred from: integration verification (2026-08-09, planning surface writes)
+
+Found by running the planning surface's real payloads against a booted Strapi
+(`src/plugins/events-manager/server/src/__tests__/planning-surface-writes.service.test.ts`).
+All four are server-side or product decisions outside the planning-surface spec.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-events-manager-planning-surface-rebuild.md`
+  location: apps/strapi/src/plugins/events-manager/server/src/content-types/sub-event-work-kind.ts (extractWorkDocumentId), bootstrap.ts:154-167
+  severity: high
+  summary: `assertSubEventWorkKind` has never fired — the work-kind guard is dead code, and a play can be attached to a screening.
+  evidence: The guard is wired through `strapi.db.lifecycles.subscribe`, the database layer, which runs AFTER the Document Service has resolved the relation. The payload it inspects is therefore `movie: { set: [{ id: 2 }] }`. `extractWorkDocumentId` handles `string`, arrays, `{ connect }`, `{ documentId }` and `{ id }` only when `id` is a string — it has no `set` branch, and deliberately returns `undefined` for numeric ids ("skip rather than guess"), so the fail-open path is taken on every write. Verified end to end: a `play` linked to a `screening` is accepted (201) and persists, through both the content-manager and the Document Service. Its unit tests pass because they call the function directly with documentId-shaped payloads the DB layer never produces — the tests are at the wrong layer, not wrong in themselves. `findWork` resolves correctly; only the extraction is broken. Fix by either adding a `set` branch plus numeric-id resolution, or moving the guard to the Document Service middleware layer where documentIds are still present. Until then the client-side picker filter and `validateSubEventForm`'s `work.kindMismatch` rule are the ONLY protection, and the modal's server-error routing is correct but unreachable.
+  status: open
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-events-manager-planning-surface-rebuild.md`
+  location: apps/strapi/src/plugins/events-manager/server/src/content-types/event/schema.json
+  severity: medium
+  summary: `required: true` is not enforced on create, only on publish — a malformed row is accepted and stored empty.
+  evidence: Posting the pre-2C.3 payload (`startDate`, no `category`) returns 201 and stores `category: null, startDateTime: null`; it fails only at the publish call. Two consequences. First, the publish step this rebuild added is not only about public visibility — it is the first moment the server validates the row at all, so a surface that skipped publishing would also skip validation. Second, any code path that creates events without publishing can silently accumulate invalid rows. Separately, `status: "scheduled"` fails earlier for an unrelated reason: `status` is a RESERVED content-manager parameter (draft/published selection), not an unknown field.
+  status: open
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-events-manager-planning-surface-rebuild.md`
+  location: content-manager write path (all events-manager admin hooks)
+  severity: medium
+  summary: The content-manager silently drops unknown fields instead of rejecting them.
+  evidence: Posting the retired `datetime` / `format` keys returns 201 and discards them — a payload drifting from the schema announces nothing and writes a row quietly missing data. This is how the pre-2C.3 payload bugs survived unnoticed. It retroactively justifies keeping the whole request body inside one unit-tested builder: fields spliced in at a call site can never be caught by the server. Worth a lint or review convention that admin write payloads are constructed only in tested builders.
+  status: open
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-events-manager-planning-surface-rebuild.md`
+  location: apps/strapi/src/plugins/events-manager/admin/src/components/SubEventModal/index.tsx (publish path), useCreativeWorks (work picker)
+  severity: medium
+  summary: Publishing a showing whose creative-work is still a draft yields a public showing with no film attached.
+  evidence: A published screening pointing at a draft `creative-work` is returned by the public API with no `movie` at all — a showing on the site with nothing to show. Publishing the work afterwards does NOT repair it: the published screening snapshotted a link to the draft entry. Publishing the work first works correctly. The planning surface publishes the sub-event and its container event but never the work, and the picker offers draft works, so an editor can today publish a filmless showing while every success indicator says it saved. Fix is a product decision — auto-publish the linked work on save, restrict the picker to published works, or warn — so it was not inferred. This is the gap between "saved successfully" and "correct on the site" and belongs in the next iteration of the planning spec.
+  status: open
