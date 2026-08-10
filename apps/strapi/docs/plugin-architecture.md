@@ -71,21 +71,23 @@ Use `register` for setup, `bootstrap` for runtime initialization, `destroy` for 
 
 ### 2. events-manager
 
-**Purpose:** Schedule events, manage venues, and handle showtimes.
+**Purpose:** Schedule events and handle showtimes.
 
 **Content Types:**
 | Name | UID | Description |
 |------|-----|-------------|
 | Event | `plugin::events-manager.event` | Events linking works to venues |
 | Event Group | `plugin::events-manager.event-group` | Festivals, seasons, series |
-| Venue | `plugin::events-manager.venue` | Physical locations |
 | Showtime | `plugin::events-manager.showtime` | Individual screening times |
+
+> Venue moved out of this plugin in Story 2C.1 — it is now
+> `plugin::venues.venue` (see § venues below). `event.venue` targets it as a
+> sanctioned cross-plugin relation.
 
 **Services:**
 
 - `event` - Event CRUD, status management, recurrence
 - `event-group` - Festival/season management
-- `venue` - Venue CRUD, capacity management
 - `showtime` - Showtime CRUD, bulk creation, availability
 - `calendar` - Calendar view data aggregation
 
@@ -93,13 +95,43 @@ Use `register` for setup, `bootstrap` for runtime initialization, `destroy` for 
 
 - Calendar view for scheduling
 - Bulk showtime creation with recurrence rules
-- Venue capacity and availability management
 - Event group (festival) management
 
 **Dependencies:**
 
 - `creative-works` (events reference creative works)
-- `geography` (venues reference cities)
+- `venues` (events reference venues)
+
+---
+
+### 2b. venues
+
+**Purpose:** Own the venue domain — venue records, the property/amenity
+vocabulary, and the Venue Manager permission boundary.
+
+**Content Types:**
+| Name | UID | Description |
+|------|-----|-------------|
+| Venue | `plugin::venues.venue` | Physical locations |
+| Property Category | `plugin::venues.property-category` | Amenity groupings |
+| Property Definition | `plugin::venues.property-definition` | Amenity vocabulary |
+
+**Services:**
+
+- `venue` - Venue reads (list, by documentId, by slug, selector feed)
+- `venue-profile` - Venue Manager self-service profile read/update
+- `registration` - Public venue application (creates pending venue + manager)
+- `property-catalog` - Amenity vocabulary reads
+- `public-api` - Facade; the only sanctioned cross-plugin entry point
+- `seed` - Venue + property/category seeding
+
+**Policies:**
+
+- `is-venue-manager` - Caller owns the venue they are acting on
+
+**Dependencies:**
+
+- `geography` (venues reference cities via `cityRef`)
 
 ---
 

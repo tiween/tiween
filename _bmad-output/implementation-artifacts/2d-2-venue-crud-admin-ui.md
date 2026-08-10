@@ -190,14 +190,18 @@ Next.js client.
 - Additive only — do not alter the 2D.1 schema. If the UI needs a field the schema lacks,
   STOP and flag it (don't silently add a phantom field).
 
-### ⚠️ Dependency risk — prerequisite gate not fully closed
+### ✅ Dependency gate — CLOSED 2026-08-10
 
-Epic 2D's stated prerequisite is **"2C.1 (venues plugin extraction) stable."** Per
-`sprint-status.yaml`, **`2c-1-extract-venues-plugin` is currently `review`, not `done`**
-(likewise `2c-3` is in `review`). This story builds directly on the extracted venues
-plugin. **Recommended:** close out `2c-1` review (run `code-review`) before `dev-story`
-on this, so the admin UI isn't built on an unverified extraction. If `2c-1` review surfaces
-changes to the plugin's structure or routes, revisit Task 1 here.
+Epic 2D's stated prerequisite is **"2C.1 (venues plugin extraction) stable."**
+`2c-1-extract-venues-plugin` is now **`done`**: its three open review findings were
+resolved (seed pipeline already repaired by later work; venues controllers typed
+`ctx: Context` with prose errors replaced by CODES; stale `plugin::events-manager.venue`
+UID corrected in `apps/strapi/docs/plugin-architecture.md`). Grep gate clean,
+`yarn type-check` clean, strapi suite 1132/1132 green. No structural or route changes
+came out of the closure, so **Task 1 below stands as written**.
+
+`2c-3-catalog-move-into-creative-works` remains in `review` but is the catalog move, not
+the venues extraction — it does not gate this story.
 
 ### Project Structure Notes
 

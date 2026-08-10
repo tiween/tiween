@@ -1,6 +1,7 @@
 import { z } from "zod"
 
 import type { Core } from "@strapi/strapi"
+import type { Context } from "koa"
 
 import { validate } from "../../../../../shared/validation"
 import { venueProfileUpdateSchema } from "../validation/profile"
@@ -105,7 +106,7 @@ const venueController = ({ strapi }: { strapi: Core.Strapi }) => ({
    * GET /venues
    * Returns all venues
    */
-  async findVenues(ctx) {
+  async findVenues(ctx: Context) {
     const { locale } = ctx.query
     const venues = await strapi
       .plugin(PLUGIN_ID)
@@ -145,7 +146,7 @@ const venueController = ({ strapi }: { strapi: Core.Strapi }) => ({
    * GET /venues/:documentId
    * Returns a single venue by documentId
    */
-  async findVenue(ctx) {
+  async findVenue(ctx: Context) {
     const { documentId } = ctx.params
     const { locale } = ctx.query
 
@@ -155,7 +156,9 @@ const venueController = ({ strapi }: { strapi: Core.Strapi }) => ({
       .findVenue(documentId, locale)
 
     if (!venue) {
-      return ctx.notFound("Venue not found")
+      // A CODE, not prose — the client translates it (mirrors
+      // `findVenueBySlug` below, which already answers `VENUE_NOT_FOUND`).
+      return ctx.notFound("VENUE_NOT_FOUND")
     }
 
     ctx.body = {
@@ -218,7 +221,7 @@ const venueController = ({ strapi }: { strapi: Core.Strapi }) => ({
 })
 
 const seedController = ({ strapi }: { strapi: Core.Strapi }) => ({
-  async seedVenues(ctx) {
+  async seedVenues(ctx: Context) {
     try {
       const results = await strapi
         .plugin(PLUGIN_ID)
@@ -232,7 +235,7 @@ const seedController = ({ strapi }: { strapi: Core.Strapi }) => ({
       }
     } catch (error) {
       strapi.log.error("[venues:seed] Error seeding venues:", error)
-      ctx.throw(500, "Failed to seed venues")
+      ctx.throw(500, "VENUE_SEED_FAILED")
     }
   },
 })

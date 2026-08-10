@@ -118,7 +118,7 @@ development_status:
   # directory; ticketing post-GTM). See sprint-change-proposal-2026-06-15.
   # 2c-2 superseded (history kept); 2c-3 rewritten; 2c-4 done & independent.
   epic-2c: in-progress
-  2c-1-extract-venues-plugin: review
+  2c-1-extract-venues-plugin: done
   2c-2-catalog-collision-data-audit: done
   2c-3-catalog-move-into-creative-works: review
   2c-4-ticketing-unit-of-work-and-atomic-inventory: done
@@ -284,7 +284,7 @@ development_status:
   10-8-offline-status-indicators: backlog
   epic-10-retrospective: optional
 
-last_updated: 08-08-2026 11:50
+last_updated: 08-10-2026
 
 # Action items from retrospectives. See epic-{N}-retro-{date}.md for full context.
 action_items:
