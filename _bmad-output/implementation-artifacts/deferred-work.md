@@ -2350,3 +2350,38 @@ All four are server-side or product decisions outside the planning-surface spec.
   summary: Publishing a showing whose creative-work is still a draft yields a public showing with no film attached.
   evidence: A published screening pointing at a draft `creative-work` is returned by the public API with no `movie` at all — a showing on the site with nothing to show. Publishing the work afterwards does NOT repair it: the published screening snapshotted a link to the draft entry. Publishing the work first works correctly. The planning surface publishes the sub-event and its container event but never the work, and the picker offers draft works, so an editor can today publish a filmless showing while every success indicator says it saved. Fix is a product decision — auto-publish the linked work on save, restrict the picker to published works, or warn — so it was not inferred. This is the gap between "saved successfully" and "correct on the site" and belongs in the next iteration of the planning spec.
   status: open
+
+- source_spec: `_bmad-output/implementation-artifacts/2d-2-venue-crud-admin-ui.md`
+  location: .github/workflows/ci.yml (test job)
+  severity: medium
+  summary: `yarn test:integration` runs in no CI workflow, so every booted-Strapi integration suite — including 2D.2's new venue-admin HTTP CRUD test — never gates a merge.
+  evidence: `jest.config.cjs` limits the default `yarn test` run to `**/*.unit.test.ts` + `**/*.test.tsx`; `.github/workflows/ci.yml` invokes only `yarn test`. The 2D.2 smoke test (`server/src/__tests__/venue-admin-crud.service.test.ts`) is the only end-to-end proof that the plugin's RBAC actions are registered and the admin routes answer, and it runs locally on demand only. Pre-existing condition, surfaced because 2D.2 is the first story to place a security-relevant gate in that suite.
+  status: open
+
+- source_spec: `_bmad-output/implementation-artifacts/2d-2-venue-crud-admin-ui.md`
+  location: apps/strapi/src/plugins/venues/server/src/content-types/venue/schema.json
+  severity: medium
+  summary: `status` is a reserved attribute name under `draftAndPublish`, colliding with Strapi's own draft/published selector.
+  evidence: Surfaced by `yarn generate:types` during 2D.2 and worked around correctly in the admin service (the D&P `status` param is kept distinct from `filters.status`), but the collision is in the schema, not the workaround. The same reservation already bit the events-manager event schema (see the entry above: `status: "scheduled"` failing as a reserved content-manager parameter). A rename to `moderationStatus` is a 2D.1-owned schema change with a data migration, so it was flagged rather than smuggled into an additive-only story.
+  status: open
+
+- source_spec: `_bmad-output/implementation-artifacts/2d-2-venue-crud-admin-ui.md`
+  location: apps/strapi/src/plugins/venues/admin/src/pages/Venues/index.tsx
+  severity: medium
+  summary: Bulk approve/suspend moderation was retired with the events-manager venues page and has no replacement in the venues-plugin list.
+  evidence: The deleted `events-manager/admin/src/pages/Venues/BulkActionsDropdown.tsx` offered a `bulkUpdateStatus` action; 2D.2's list ships bulk DELETE only, because AC 2 names only delete. Moderating a queue of `pending` venues now requires opening each one. Not a defect against the story's ACs — a capability the relocation dropped, which belongs in a follow-up (natural fit alongside 2D.3).
+  status: open
+
+- source_spec: `_bmad-output/implementation-artifacts/2d-2-venue-crud-admin-ui.md`
+  location: apps/strapi/src/plugins/venues/server/src/services/venue-admin.ts (tenant scoping)
+  severity: high
+  summary: Venue-manager tenant scoping joins on `manager.email` because `venue.manager` targets a users-permissions user while an admin route authenticates an `admin::user` — two tables, two id spaces.
+  evidence: `buildScopeFilter` filters `manager: { email: { $eqi: scope.email } }` and `isRowInScope` compares lowercased emails, documented in the service header. Email is the only identifier shared between the two account systems, so it is correct today, but it makes the security boundary depend on an editable, non-unique-by-design field: an admin user whose email is changed silently loses access, and two accounts sharing an email would collide. The clean fix is an `adminUser` relation on the venue schema — a 2D.1 schema change, out of scope for an additive-only story.
+  status: open
+
+- source_spec: `_bmad-output/implementation-artifacts/2d-2-venue-crud-admin-ui.md`
+  location: apps/strapi (tooling)
+  severity: low
+  summary: AC 11's DS conformance gate was never machine-verified — `strapi-ui-reviewer` and the strapi-ui-design v1.2.0 PostToolUse hook are not installed in this workspace.
+  evidence: AC 11 requires the DS conformance check to report no violations. The tools do not exist here, so the constraint set (no `ModalLayout`, `Field.Root` around every input, no hex colours, no native controls) was applied by hand against `handoff/ds-component-binding.md`. Hand application is not the same evidence as a machine gate; either install the tooling or amend the AC in a follow-up.
+  status: open

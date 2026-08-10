@@ -128,6 +128,116 @@ export default {
           policies: [],
         },
       },
+      // ----------------------------------------------------------------
+      // Venue CRUD for the venues-plugin admin UI (Story 2D.2).
+      //
+      // WHY THE `/admin/venues` PREFIX rather than a bare `/venues`:
+      // `@strapi/core`'s `register-routes.js` mounts BOTH routers of a plugin
+      // under the same `/<pluginName>` prefix, so an admin `GET /venues` and
+      // the existing content-api `GET /venues` would resolve to the same URL
+      // (`/venues/venues`) and the first router registered wins. The public,
+      // `auth: false` route would silently shadow the authenticated one — the
+      // exact failure that looks like "the admin list ignores my permissions".
+      // The extra segment keeps the two namespaces disjoint by construction.
+      //
+      // Every route carries TWO policies, and both are load-bearing:
+      //   1. `admin::hasPermissions` — the RBAC grant check against the
+      //      actions registered in `../register.ts`. Without it any
+      //      authenticated admin user, whatever their role, could write venues.
+      //   2. `plugin::venues.venues-admin-scope` — resolves `manage-all` into
+      //      `ctx.state.venuesAdminScope`, which `services/venue-admin.ts`
+      //      turns into the `manager.email` tenant filter (AC 7).
+      //
+      // `bulk-delete` is registered BEFORE `/admin/venues/:documentId` for the
+      // same reason `/venues/selector` precedes `/venues/:documentId` above:
+      // ordering is what stops a literal segment being read as an id. It is a
+      // POST so the id routes cannot actually swallow it today — the ordering
+      // is explicit so a future method change cannot break it silently.
+      // ----------------------------------------------------------------
+      {
+        method: "GET",
+        path: "/admin/venues",
+        handler: "venue-admin.find",
+        config: {
+          policies: [
+            {
+              name: "admin::hasPermissions",
+              config: { actions: ["plugin::venues.read"] },
+            },
+            "plugin::venues.venues-admin-scope",
+          ],
+        },
+      },
+      {
+        method: "POST",
+        path: "/admin/venues/bulk-delete",
+        handler: "venue-admin.bulkDelete",
+        config: {
+          policies: [
+            {
+              name: "admin::hasPermissions",
+              config: { actions: ["plugin::venues.delete"] },
+            },
+            "plugin::venues.venues-admin-scope",
+          ],
+        },
+      },
+      {
+        method: "POST",
+        path: "/admin/venues",
+        handler: "venue-admin.create",
+        config: {
+          policies: [
+            {
+              name: "admin::hasPermissions",
+              config: { actions: ["plugin::venues.create"] },
+            },
+            "plugin::venues.venues-admin-scope",
+          ],
+        },
+      },
+      {
+        method: "GET",
+        path: "/admin/venues/:documentId",
+        handler: "venue-admin.findOne",
+        config: {
+          policies: [
+            {
+              name: "admin::hasPermissions",
+              config: { actions: ["plugin::venues.read"] },
+            },
+            "plugin::venues.venues-admin-scope",
+          ],
+        },
+      },
+      {
+        method: "PUT",
+        path: "/admin/venues/:documentId",
+        handler: "venue-admin.update",
+        config: {
+          policies: [
+            {
+              name: "admin::hasPermissions",
+              config: { actions: ["plugin::venues.update"] },
+            },
+            "plugin::venues.venues-admin-scope",
+          ],
+        },
+      },
+      {
+        method: "DELETE",
+        path: "/admin/venues/:documentId",
+        handler: "venue-admin.delete",
+        config: {
+          policies: [
+            {
+              name: "admin::hasPermissions",
+              config: { actions: ["plugin::venues.delete"] },
+            },
+            "plugin::venues.venues-admin-scope",
+          ],
+        },
+      },
     ],
   },
 }

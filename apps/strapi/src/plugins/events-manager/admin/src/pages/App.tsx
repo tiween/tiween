@@ -11,7 +11,6 @@ import { PluginLayout } from "../components/PluginLayout"
 import { DashboardPage } from "./Dashboard"
 import { ImportPage } from "./Import"
 import { PlanningPage } from "./Planning"
-import { VenuesPage } from "./Venues"
 
 const App = () => {
   return (
@@ -23,7 +22,11 @@ const App = () => {
         {/* Main sections */}
         <Route path="dashboard" element={<DashboardPage />} />
         <Route path="planning" element={<PlanningPage />} />
-        <Route path="venues" element={<VenuesPage />} />
+        {/*
+          `venues` is GONE from this plugin (story 2D.2): the venue list and
+          form now live in the venues plugin, once. The catch-all below sends
+          any stale bookmark to the dashboard rather than to a blank route.
+        */}
         <Route path="import" element={<ImportPage />} />
 
         {/* Catch-all redirect */}

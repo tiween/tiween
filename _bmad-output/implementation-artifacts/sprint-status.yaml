@@ -130,7 +130,7 @@ development_status:
   # 2d-1 (schema extension) gates 2d-2/2d-3/2d-4.
   epic-2d: in-progress
   2d-1-extend-venue-schema-to-rich-model: done
-  2d-2-venue-crud-admin-ui: ready-for-dev
+  2d-2-venue-crud-admin-ui: review
   2d-3-property-authoring-ui: backlog
   2d-4-attach-properties-to-venue: backlog
   epic-2d-retrospective: optional

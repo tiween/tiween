@@ -1,12 +1,12 @@
 ---
-baseline_commit: 1f4fb82
+baseline_commit: 3666b1ea5f4c7f2cb1fe3aeb2ec901574fcafde8
 epic: 2d
 story: 2
 ---
 
 # Story 2D.2: Venue CRUD Admin UI (Venues Plugin)
 
-Status: ready-for-dev
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -64,29 +64,29 @@ so that I no longer rely on the default content-manager and the placeholder `Hom
 
 ## Tasks / Subtasks
 
-- [ ] **Task 1: Venues-plugin admin-api routes + controllers (Document Service)** (AC: 5, 7, 9)
-  - [ ] Add admin-api routes to `venues/server/src/routes/index.ts`: `GET /venues` (list w/ search, `status`/`type`/`city` filter, sort, pagination), `GET /venues/:documentId`, `POST /venues`, `PUT /venues/:documentId`, `DELETE /venues/:documentId`, and a bulk `POST /venues/bulk-delete`. These are **new** — only `content-api` read + a seed route exist today (see Dev Notes §3).
-  - [ ] Implement controllers using `strapi.documents('plugin::venues.venue')` (Document Service), keyed by `documentId`. Zod-validate bodies; return error CODES on failure (`ctx.throw` with a coded body, never prose).
-  - [ ] Add a policy/middleware enforcing RBAC scoping server-side: Venue Manager limited to `manager == ctx.state.user`; Admin/Editor unrestricted.
-  - [ ] Co-locate unit tests for the controllers (Document Service mocked).
-- [ ] **Task 2: Plugin shell + routing (S0)** (AC: 1, 7, 8)
-  - [ ] Replace `HomePage.tsx` with a `Layouts.Root` shell + left nav (Lieux / Propriétés), Propriétés hidden for Venue Manager. Wire routes in `pages/App.tsx`.
-  - [ ] Register AR/FR/EN trads via `registerTrads`; use `getTranslation` for all chrome strings.
-- [ ] **Task 3: Venues list (S1)** (AC: 1, 2, 6, 8)
-  - [ ] Build the list: `Table` + search `Searchbar`/`TextInput`, `SingleSelect` filters (first option `value=""` = "tous"), sortable Nom `Th`, tri-state bulk `Checkbox`, `EmptyStateLayout`, `Loader`.
-  - [ ] Wire a data hook (TanStack Query v5 + `useFetchClient`) to the new admin routes; mutations confirm → mutate → refetch; toasts via `useNotification`.
-  - [ ] Bulk delete + single delete via `Dialog.*` confirm naming the count.
-  - [ ] Co-locate tests: filter/sort/bulk/empty.
-- [ ] **Task 4: Relocate + adapt VenueFormModal (S1)** (AC: 3, 6, 9, 10)
-  - [ ] Move `events-manager/.../VenueFormModal` into `venues/admin/src/components/VenueFormModal`; convert to `Modal.*` (if any `ModalLayout` remains), wrap every input in `Field.Root`.
-  - [ ] Bind sections to the real schema fields (AC 9); map prototype TYPES → real enum (AC 10); keep auto-slug; status field read-only for Venue Manager.
-  - [ ] Remove/redirect the events-manager venue form so no duplicate remains; update any events-manager imports (e.g. `useVenuesEnhanced` consumers).
-  - [ ] Co-locate tests: validation, auto-slug, RBAC status lock.
-- [ ] **Task 5: Address→geocode→map picker (S1)** (AC: 4)
-  - [ ] Replace raw lat/lng inputs with an address `TextInput` + "Localiser" `Button` + map canvas framed in `Box`/`Field.Root`; draggable pin writes `geo.latitude`/`geo.longitude`.
-  - [ ] Put geocoding behind a small `geocode(address)` adapter interface (provider TBD per OQ-1); ship a default impl + a TODO documenting the provider decision.
-- [ ] **Task 6: Verify** (AC: 11)
-  - [ ] `yarn generate:types` / boot clean; run the create→edit→list→delete smoke test; run strapi-ui-reviewer + the v1.2.0 DS hook; fix findings.
+- [x] **Task 1: Venues-plugin admin-api routes + controllers (Document Service)** (AC: 5, 7, 9)
+  - [x] Add admin-api routes to `venues/server/src/routes/index.ts`: `GET /venues` (list w/ search, `status`/`type`/`city` filter, sort, pagination), `GET /venues/:documentId`, `POST /venues`, `PUT /venues/:documentId`, `DELETE /venues/:documentId`, and a bulk `POST /venues/bulk-delete`. These are **new** — only `content-api` read + a seed route exist today (see Dev Notes §3).
+  - [x] Implement controllers using `strapi.documents('plugin::venues.venue')` (Document Service), keyed by `documentId`. Zod-validate bodies; return error CODES on failure (`ctx.throw` with a coded body, never prose).
+  - [x] Add a policy/middleware enforcing RBAC scoping server-side: Venue Manager limited to `manager == ctx.state.user`; Admin/Editor unrestricted.
+  - [x] Co-locate unit tests for the controllers (Document Service mocked).
+- [x] **Task 2: Plugin shell + routing (S0)** (AC: 1, 7, 8)
+  - [x] Replace `HomePage.tsx` with a `Layouts.Root` shell + left nav (Lieux / Propriétés), Propriétés hidden for Venue Manager. Wire routes in `pages/App.tsx`.
+  - [x] Register AR/FR/EN trads via `registerTrads`; use `getTranslation` for all chrome strings.
+- [x] **Task 3: Venues list (S1)** (AC: 1, 2, 6, 8)
+  - [x] Build the list: `Table` + search `Searchbar`/`TextInput`, `SingleSelect` filters (first option `value=""` = "tous"), sortable Nom `Th`, tri-state bulk `Checkbox`, `EmptyStateLayout`, `Loader`.
+  - [x] Wire a data hook (TanStack Query v5 + `useFetchClient`) to the new admin routes; mutations confirm → mutate → refetch; toasts via `useNotification`.
+  - [x] Bulk delete + single delete via `Dialog.*` confirm naming the count.
+  - [x] Co-locate tests: filter/sort/bulk/empty.
+- [x] **Task 4: Relocate + adapt VenueFormModal (S1)** (AC: 3, 6, 9, 10)
+  - [x] Move `events-manager/.../VenueFormModal` into `venues/admin/src/components/VenueFormModal`; convert to `Modal.*` (if any `ModalLayout` remains), wrap every input in `Field.Root`.
+  - [x] Bind sections to the real schema fields (AC 9); map prototype TYPES → real enum (AC 10); keep auto-slug; status field read-only for Venue Manager.
+  - [x] Remove/redirect the events-manager venue form so no duplicate remains; update any events-manager imports (e.g. `useVenuesEnhanced` consumers).
+  - [x] Co-locate tests: validation, auto-slug, RBAC status lock.
+- [x] **Task 5: Address→geocode→map picker (S1)** (AC: 4)
+  - [x] Replace raw lat/lng inputs with an address `TextInput` + "Localiser" `Button` + map canvas framed in `Box`/`Field.Root`; draggable pin writes `geo.latitude`/`geo.longitude`.
+  - [x] Put geocoding behind a small `geocode(address)` adapter interface (provider TBD per OQ-1); ship a default impl + a TODO documenting the provider decision.
+- [x] **Task 6: Verify** (AC: 11)
+  - [x] `yarn generate:types` / boot clean; run the create→edit→list→delete smoke test; run strapi-ui-reviewer + the v1.2.0 DS hook; fix findings.
 
 ## Dev Notes
 
@@ -243,14 +243,342 @@ the venues extraction — it does not gate this story.
 
 ### Agent Model Used
 
+claude-opus-5 (Claude Code / bmad-build)
+
 ### Debug Log References
+
+- `yarn generate:types` — 0 warnings, 0 errors. Pre-existing (2D.1) warning surfaced
+  and left alone: _"The attribute name 'status' on content type 'plugin::venues.venue'
+  is reserved when 'draftAndPublish' is enabled."_ The admin service therefore always
+  passes `status` as the **Document Service D&P param** (`status: "draft"`) and puts the
+  venue's own `status` **inside `filters`**, which is the only combination that means
+  what it reads as. Logged as a schema smell for a later story — renaming the attribute
+  is a 2D.1 schema change, and this story is additive-only.
+- `yarn test` → 82 suites / 1214 tests green (was 78 / 1179).
+- `yarn test:integration` → 7 suites / 51 tests green (was 6 / 46); Strapi boots clean
+  with the new routes, policies and RBAC actions.
+- `yarn lint` (eslint, `--max-warnings=0`) and `yarn type-check` clean.
 
 ### Completion Notes List
 
+**Task 1 — admin API (new).** Six `admin-api` routes under **`/venues/admin/venues`**,
+not the bare `/venues` the task text suggested: `@strapi/core`'s `register-routes.js`
+mounts a plugin's content-api AND admin routers under the same `/<pluginName>` prefix, so
+an admin `GET /venues` would resolve to the same URL as the existing PUBLIC `auth: false`
+read and the first router registered would win. The extra segment keeps the namespaces
+disjoint; `routes.unit.test.ts` pins it. Controllers/services use the Document Service
+keyed by `documentId`, Zod-validate every input (`validation/venue-admin.ts`) and answer
+CODES only.
+
+**RBAC (AC 7) — the premise in the AC was not met, so it was built.** 2C.1 seeded a
+_users-permissions_ `venue-manager` role; it never registered **admin-panel** RBAC
+actions, and `useRBAC()` has nothing to answer without them. `server/src/register.ts` now
+registers `plugin::venues.{read,create,update,delete,manage-all}`; `manage-all` is the
+`canManageAllVenues` capability (`useRBAC` derives `canManageAll` from the hyphenated
+uid). Routes carry `admin::hasPermissions` + the new
+`plugin::venues.venues-admin-scope` policy, which resolves the capability from
+`ctx.state.userAbility` and stashes it on `ctx.state`; `services/venue-admin.ts` turns it
+into the tenant filter. **Operator note:** a fresh database grants these to Super Admin
+only — any other role sees an empty list until an administrator ticks the boxes in
+Settings → Roles. Seeding grants onto roles this plugin does not own would widen
+permissions on every boot, so it was not done.
+
+**Tenant scoping joins on `manager.email` — flagged.** `venue.manager` targets
+`plugin::users-permissions.user`, but an ADMIN route authenticates an `admin::user`: two
+tables, two id spaces, so `manager.id === ctx.state.user.id` would compare unrelated
+integers. Email is the only shared identifier, compared case-insensitively. A clean link
+(an explicit `adminUser` relation) is a 2D.1 schema change and this story is additive-only
+— **raised here rather than smuggled in.** A scoped caller with no email is confined to an
+impossible filter (fails closed), cannot create, and has `status` stripped from every
+payload.
+
+**Task 2/3 — shell + list.** `HomePage.tsx` deleted; `pages/App.tsx` now routes through
+`components/PluginLayout` (`Layouts.Root` + `SubNav`), landing on **Lieux**, with
+**Propriétés** hidden without `manage-all` and pointing at a 2D.3 placeholder page. The
+list ports the design kit's `VenuesList` behaviour onto real DS v2: search (name+address),
+status/type/city `SingleSelect`s whose first option is `value=""`, sortable Nom/Type/
+Statut/Capacité headers with `aria-sort`, tri-state header `Checkbox`, `EmptyStateLayout`
+distinguishing "nothing yet" from "nothing matches", `Loader`, `Pagination`. Every
+mutation is confirm → mutate → **refetch** (no optimistic delete) plus a `useNotification`
+toast. AR/FR/EN trads via `registerTrads`/`getTranslation`; counts and dates go through
+`utils/format.ts` (Western numerals, `DD/MM/YYYY`) because react-intl would otherwise
+render Arabic-Indic digits for a `{count}` under the `ar` locale.
+
+**Task 4 — relocation. WHAT MOVED / WHAT STAYED.**
+
+- MOVED into `venues/admin/src/components/VenueFormModal/` (adapted, not copied): the
+  form + its `validate.ts`. It now talks to the venues admin API, is fully translated,
+  locks `status` without `manage-all`, uses `NumberInput`+`onValueChange` for capacity,
+  and takes its coordinates from the map picker.
+- DELETED from events-manager: `components/VenueFormModal/`, `pages/Venues/` (+
+  `BulkActionsDropdown`), the `venues` route, the `venues` SubNav link and the venues tab
+  of the dead `pages/HomePage.tsx`. **No duplicate venue form remains.**
+- ALSO removed from `events-manager/hooks/useVenuesEnhanced.ts`: `useVenue`,
+  `useVenueMutations`, `VenueInput` — a second WRITE path through the content-manager REST
+  API that bypassed the plugin's validation, codes and scoping. `useVenuesList` and the
+  types STAY: `VenueSelector`, `VenueCard`, `StatusBadge` and three other hooks still
+  import them, and _picking_ a venue is not _editing_ one.
+
+**Task 5 — map picker.** Raw lat/lng inputs are gone. `components/MapPicker` is an address
+`TextInput` + "Localiser" `Button` + a fixed-zoom OSM tile canvas with a draggable pin
+writing `geo.latitude`/`geo.longitude`; resolved coordinates render READ-ONLY. Geocoding
+sits behind `interface Geocoder`, injected as a prop, default `nominatimGeocoder` — with
+an explicit `TODO(OQ-1)` naming what to change when the provider is decided. The canvas is
+the one sanctioned non-DS element, framed in `Field.Root`/`Box`, colours from
+`var(--colors-…)`, and it uses plain `fetch` so no admin JWT reaches a third party. No map
+library was added to the admin bundle for one field.
+
+**Deferred, deliberately visible (AC 9).** The **Médias** and **Propriétés** form sections
+render an on-screen note instead of a dead control — media waits on the `MediaInput` port,
+property values are 2D.4 — and neither writes its fields, so an existing venue's `logo`,
+`images` and `properties` survive every save made through this form.
+
+**Deviation from the task text, with reason.** The story names TanStack Query v5;
+`@tanstack/react-query` is not a dependency of `apps/strapi` and the admin does not
+re-export its own copy, so `hooks/useVenuesAdmin.ts` follows the `useVenuesEnhanced` shape
+the handoff sheet actually prescribes (`useVenuesList`/`useVenue`/`useVenueMutations` +
+explicit `refetch`), over `useFetchClient`. It adds a request-sequence guard the original
+lacked, so a slow early search cannot overwrite fresher rows.
+
+**Verification (AC 11).** `yarn generate:types` clean; the create → edit → list-reflects →
+delete smoke test is AUTOMATED over HTTP against a booted Strapi with a real admin session
+(`server/src/__tests__/venue-admin-crud.service.test.ts`) rather than clicked. Co-located
+tests cover the list (search/sort/bulk/empty/RBAC), the form (auto-slug, RBAC status lock,
+code→translated-error) and the rules/geocoder on the node gate. NOT RUN: the
+`strapi-ui-reviewer` / v1.2.0 DS hook — that tooling is not installed in this workspace;
+the DS constraints were applied by hand against `handoff/ds-component-binding.md` (no
+`ModalLayout`, `Dialog.*` for confirms, `Field.Root` around every input, no hex, no
+`styled-components`, no native controls).
+
+### Review remediation (2026-08-10, 25 findings — all patched in place)
+
+**Blocking**
+
+1. **CSP blocked the map tiles.** `config/middlewares.ts` `img-src` had no OSM
+   host, so the canvas painted empty in a real admin. Added
+   `https://tile.openstreetmap.org` + the `*.tile` subdomains, with a comment
+   tying the entry to OQ-1's provider choice. `connect-src` already allows
+   `https:`, so Nominatim needed nothing; the rest of the policy is unchanged.
+2. **The venue-delete guard was re-implemented server-side.** `venue-admin.delete()`
+   now counts screenings AND performances (`event.venue`, both 2C.3 UIDs) before
+   deleting and refuses with `VENUE_HAS_EVENTS` (409). A count that FAILS blocks
+   the delete — it is never read as zero, which is the exact regression 2C.3
+   hardened. `bulkDelete` routes through the same `delete()`, so both paths are
+   covered. Three translations + unit tests for the blocked, count-failed and
+   bulk cases.
+3. **`manager` is writable again (AC 9), and only for `manage-all`.** Added to
+   `venueWritableShape`/`WRITABLE_VENUE_FIELDS`, exposed in the form as a
+   users-permissions user picker scoped to the `venue-manager` role
+   (`hooks/useVenueManagers.ts`). Without it no venue could ever have a manager
+   and the tenant scoping had nothing to key off.
+
+**Correctness**
+
+4. `syncPublication` now UNPUBLISHES when `status !== "approved"`. An
+   approved → pending demotion previously left the published copy live, and
+   `pending` has no public read gate to hide behind. Both directions are
+   non-fatal and tested.
+5. A duplicate slug maps to `VENUE_SLUG_TAKEN` (400) with an issue attached to
+   `slug`, via an `isUniqueViolation` check mirroring `services/registration.ts`
+   — no longer an opaque 500.
+6. A scoped caller writing `status`/`manager` is REFUSED (`VENUE_FORBIDDEN`)
+   rather than stripped down to `{}` and told "Nothing to save"
+   (`usedPrivilegedFields`, checked before the payload is built).
+7. `NOT_AUTHENTICATED` and `VENUE_ID_REQUIRED` translated in all three locales,
+   plus `utils/errors.unit.test.ts`, which DERIVES the emittable-code set from
+   the server sources and fails if any code lacks a key in ar/en/fr (and if the
+   three catalogues drift apart at all).
+8. `parseApiError` gained a status fallback: a bare 403 (`admin::hasPermissions`
+   carries no code) → `VENUE_FORBIDDEN`, 401 → `NOT_AUTHENTICATED`.
+9. `canRead`/`isLoading` are wired: `Page.Loading` while permissions resolve,
+   `Page.NoPermissions` without read, and `useVenuesList` gained `enabled` so no
+   request that can only 403 is fired.
+10. The list clamps `page` onto `pagination.pageCount` after every response, so
+    deleting the last rows of the last page can no longer strand the editor on
+    an empty table.
+
+**MapPicker**
+
+11. The canvas MEASURES itself (`ResizeObserver` + an initial measurement) and
+    the tile grid, pointer mapping and pin offset are all driven from the
+    measurement — the fixed-768 maths under a `100%` container is gone.
+12. `© OpenStreetMap contributors` renders under the canvas as a DS `Link`, in
+    all three locales (a licence/ToS obligation for both the tiles and Nominatim).
+13. Geocoding gained an `AbortController`, a 10s timeout and a request-sequence
+    guard; `Geocoder.geocode` takes an optional `signal`, and the controller is
+    aborted on unmount.
+14. Latitude is clamped to ±85.05112878 (`MERCATOR_MAX_LATITUDE`) in the
+    transform, in `isValidGeoPoint` and in the server `geoSchema` — ±90 made
+    `Math.log` diverge and blanked the canvas.
+15. The pin is focusable (`tabIndex`, `role="button"`) and arrow-key nudgeable
+    (Shift = larger step), with the hint wired through `aria-describedby`.
+16. `MapPicker` takes `disabled` and the form passes `isSaving`.
+
+**Smaller**
+
+17. `handleSubmit` returns early while `isSaving` — Enter could previously submit
+    a second time past the button's `loading` guard.
+18. `useVenue` gained the same stale-response `requestId` guard as `useVenuesList`.
+19. `useCities` PAGES through the whole vocabulary (cap 1000, reported through
+    `truncated` + an on-screen hint) and shares one in-flight promise across
+    mounts, so the list and the modal no longer fetch it twice.
+20. The single-delete confirm names the venue (`dialog.delete.bodyNamed`).
+21. Dead code deleted from events-manager after the relocation, verified by grep
+    first: `components/CitySelector/`, `components/VenueCard/` (+
+    `VENUE_TYPE_OPTIONS` + its test), `components/StatusBadge/` (+
+    `STATUS_OPTIONS`) and `hooks/useGeography.ts` had no remaining consumers.
+    `VenueSelector` imports only `useVenuesEnhanced`, so it and `ConfirmDialog`
+    (still used by Works/SubEventModal) stay.
+
+**Test gaps**
+
+22. `server/src/__tests__/register.unit.test.ts` pins the RBAC action ids by
+    IMPORTING both sides: the registered set must cover every action referenced
+    by `routes/index.ts`, by the menu link and by `useVenuePermissions`, and the
+    swallowed `registerMany` failure must still log. The shared constants moved
+    to a dependency-free `admin/src/permissions.ts` so the node gate can read
+    them (importing the admin bundle there explodes on ESM).
+23. The list's failure branches are now driven: a partially-failed bulk delete
+    (warning toast), a refused bulk delete and a refused single delete
+    (`VENUE_HAS_EVENTS`, translated, list still refetches).
+24. `venue-admin-crud.service.test.ts` gained a SCOPED-caller block over HTTP —
+    a throwaway admin role holding read/create/update/delete but not
+    `manage-all` (`tests/helpers/admin.ts` now accepts `permissions`). It pins
+    list scoping, 404-not-403 for another tenant, refused cross-tenant delete,
+    an allowed own-venue edit, both privileged-field refusals and the create
+    refusal.
+25. `toWorldPixel`/`fromWorldPixel` moved to `components/MapPicker/projection.ts`
+    (the node gate cannot load `.tsx`) and are pinned by
+    `projection.unit.test.ts`: round trip, orientation, meridians, pole clamping
+    and the one-pixel nudge the keyboard path relies on.
+
+**Re-verification after the patch round:** `yarn generate:types` 0 errors ·
+`yarn type-check` clean · `yarn lint --max-warnings=0` clean · `yarn test`
+84 suites / **1244** tests · `yarn test:integration` 7 suites / **58** tests.
+
 ### File List
+
+**Added — server**
+
+- `apps/strapi/src/plugins/venues/server/src/validation/venue-admin.ts`
+- `apps/strapi/src/plugins/venues/server/src/services/venue-admin.ts`
+- `apps/strapi/src/plugins/venues/server/src/controllers/venue-admin.ts`
+- `apps/strapi/src/plugins/venues/server/src/policies/venues-admin-scope.ts`
+- `apps/strapi/src/plugins/venues/server/src/services/__tests__/venue-admin.unit.test.ts`
+- `apps/strapi/src/plugins/venues/server/src/controllers/__tests__/venue-admin.unit.test.ts`
+- `apps/strapi/src/plugins/venues/server/src/policies/__tests__/venues-admin-scope.unit.test.ts`
+- `apps/strapi/src/plugins/venues/server/src/__tests__/venue-admin-crud.service.test.ts`
+- `apps/strapi/src/plugins/venues/server/src/__tests__/register.unit.test.ts`
+
+**Added — admin**
+
+- `apps/strapi/src/plugins/venues/admin/src/pages/Venues/index.tsx` (+ `index.test.tsx`)
+- `apps/strapi/src/plugins/venues/admin/src/pages/Properties/index.tsx`
+- `apps/strapi/src/plugins/venues/admin/src/components/PluginLayout/index.tsx`
+- `apps/strapi/src/plugins/venues/admin/src/components/SideNav/index.tsx`
+- `apps/strapi/src/plugins/venues/admin/src/components/StatusBadge/index.tsx`
+- `apps/strapi/src/plugins/venues/admin/src/components/ConfirmDialog/index.tsx`
+- `apps/strapi/src/plugins/venues/admin/src/components/VenueFormModal/{index.tsx,index.test.tsx,validate.ts,validate.unit.test.ts}`
+- `apps/strapi/src/plugins/venues/admin/src/components/MapPicker/{index.tsx,geocode.ts,geocode.unit.test.ts}`
+- `apps/strapi/src/plugins/venues/admin/src/hooks/{useVenuesAdmin.ts,useVenuePermissions.ts,useCities.ts,useVenueManagers.ts}`
+- `apps/strapi/src/plugins/venues/admin/src/permissions.ts`
+- `apps/strapi/src/plugins/venues/admin/src/utils/errors.unit.test.ts`
+- `apps/strapi/src/plugins/venues/admin/src/components/MapPicker/{projection.ts,projection.unit.test.ts}`
+- `apps/strapi/src/plugins/venues/admin/src/utils/{getTranslation.ts,format.ts,errors.ts,venueOptions.ts}`
+
+**Modified**
+
+- `apps/strapi/src/plugins/venues/server/src/{register.ts,routes/index.ts,controllers/index.ts,services/index.ts,policies/index.ts}`
+- `apps/strapi/src/plugins/venues/server/src/routes/__tests__/routes.unit.test.ts`
+- `apps/strapi/src/plugins/venues/admin/src/{index.tsx,pages/App.tsx}`
+- `apps/strapi/src/plugins/venues/admin/src/translations/{fr,en,ar}.json`
+- `apps/strapi/src/plugins/events-manager/admin/src/{pages/App.tsx,pages/HomePage.tsx,components/SideNav/index.tsx,hooks/useVenuesEnhanced.ts,translations/{fr,en,ar}.json}`
+- `apps/strapi/config/middlewares.ts` (OSM tile host added to the CSP `img-src`)
+- `apps/strapi/tests/helpers/admin.ts` (`createAdminSession` accepts `permissions`
+  and mints a scoped throwaway admin role)
+- `apps/strapi/tests/__mocks__/strapi-admin.ts` (`useNotification` now returns
+  `{ toggleNotification }` as the real hook does; `Layouts.Header` projects its props;
+  `SubNav.*` added)
+
+**Deleted**
+
+- `apps/strapi/src/plugins/venues/admin/src/pages/HomePage.tsx`
+- `apps/strapi/src/plugins/events-manager/admin/src/components/VenueFormModal/**`
+- `apps/strapi/src/plugins/events-manager/admin/src/pages/Venues/**`
+- `apps/strapi/src/plugins/events-manager/admin/src/components/{CitySelector,VenueCard,StatusBadge}/**`
+  and `hooks/useGeography.ts` (dead after the relocation; verified by grep)
 
 ## Change Log
 
-| Date       | Version | Description                                                          | Author |
-| ---------- | ------- | -------------------------------------------------------------------- | ------ |
-| 2026-06-20 | 0.1     | Story created (ready-for-dev) with Claude Design export as reference | Ayoub  |
+| Date       | Version | Description                                                                                                                                                                                         | Author |
+| ---------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ |
+| 2026-06-20 | 0.1     | Story created (ready-for-dev) with Claude Design export as reference                                                                                                                                | Ayoub  |
+| 2026-08-10 | 0.2     | Implementation started; `baseline_commit` rebased from the stale planning-time `1f4fb82` (107 commits back) to `3666b1e`, the clean HEAD after the 2C.1 closure commits                             | Amelia |
+| 2026-08-10 | 1.0     | Implementation complete: venues admin CRUD API + plugin shell/list/form/map picker; events-manager venue form removed                                                                               | Amelia |
+| 2026-08-10 | 1.1     | Review remediation: 25 findings patched (CSP tile host, delete guard, writable manager, unpublish-on-demotion, slug conflict, RBAC + i18n + map-picker fixes, dead-code removal, 4 new test suites) | Amelia |
+
+## Suggested Review Order
+
+**The security boundary (read this first)**
+
+- Entry point: the scope object every admin route is filtered by, and why the join is on email.
+  [`venues-admin-scope.ts:43`](../../apps/strapi/src/plugins/venues/server/src/policies/venues-admin-scope.ts#L43)
+
+- The RBAC actions the whole surface depends on — unregistered means every role 403s.
+  [`register.ts:26`](../../apps/strapi/src/plugins/venues/server/src/register.ts#L26)
+
+- Six admin routes behind `admin::hasPermissions` + the scope policy, prefixed `/admin/venues` to avoid the public read.
+  [`routes/index.ts:159`](../../apps/strapi/src/plugins/venues/server/src/routes/index.ts#L159)
+
+- Privileged fields (`status`, `manager`) refused before the payload is built, so a scoped write gets FORBIDDEN not "nothing to save".
+  [`venue-admin.ts:255`](../../apps/strapi/src/plugins/venues/server/src/services/venue-admin.ts#L255)
+
+**Destructive paths**
+
+- Fail-closed delete guard: a failed sub-event count blocks, never passes as zero.
+  [`venue-admin.ts:425`](../../apps/strapi/src/plugins/venues/server/src/services/venue-admin.ts#L425)
+
+- Delete refuses `VENUE_HAS_EVENTS`; bulk delete loops this same call, so one guard covers both.
+  [`venue-admin.ts:455`](../../apps/strapi/src/plugins/venues/server/src/services/venue-admin.ts#L455)
+
+- Publication follows status in BOTH directions — demotion unpublishes, closing a public-visibility leak.
+  [`venue-admin.ts:516`](../../apps/strapi/src/plugins/venues/server/src/services/venue-admin.ts#L516)
+
+**Validation and the error-code contract**
+
+- The writable shape: every Zod issue is a CODE, never prose.
+  [`validation/venue-admin.ts:252`](../../apps/strapi/src/plugins/venues/server/src/validation/venue-admin.ts#L252)
+
+- DB unique violations become a field-attached `VENUE_SLUG_TAKEN` instead of an opaque 500.
+  [`venue-admin.ts:100`](../../apps/strapi/src/plugins/venues/server/src/services/venue-admin.ts#L100)
+
+- Where codes become readable text — with a status fallback so 403/401 never render as "unexpected error".
+  [`utils/errors.ts:50`](../../apps/strapi/src/plugins/venues/admin/src/utils/errors.ts#L50)
+
+**Admin UI**
+
+- The list: search/filter/sort/tri-state bulk, permission-gated, page clamped after every mutation.
+  [`pages/Venues/index.tsx:68`](../../apps/strapi/src/plugins/venues/admin/src/pages/Venues/index.tsx#L68)
+
+- The relocated, sectioned form — the single venue form in the codebase now.
+  [`VenueFormModal/index.tsx:131`](../../apps/strapi/src/plugins/venues/admin/src/components/VenueFormModal/index.tsx#L131)
+
+- Address → Localiser → draggable pin, provider-agnostic behind a `Geocoder` (OQ-1 still open).
+  [`MapPicker/index.tsx:98`](../../apps/strapi/src/plugins/venues/admin/src/components/MapPicker/index.tsx#L98)
+
+- Web Mercator extracted so the transform between a drag and stored coordinates is testable.
+  [`projection.ts:29`](../../apps/strapi/src/plugins/venues/admin/src/components/MapPicker/projection.ts#L29)
+
+**Peripherals**
+
+- CSP entry for the tile host — without it the map renders blank in a real admin.
+  [`middlewares.ts:32`](../../apps/strapi/config/middlewares.ts#L32)
+
+- Permission constants in a dependency-free module so the node test gate can import them.
+  [`permissions.ts:17`](../../apps/strapi/src/plugins/venues/admin/src/permissions.ts#L17)
+
+- Pins registered actions against routes, menu and hook — a renamed uid 403s everything, silently.
+  [`register.unit.test.ts`](../../apps/strapi/src/plugins/venues/server/src/__tests__/register.unit.test.ts)
+
+- Tenant isolation over real HTTP: cross-tenant refusal, 404-not-403, privileged-field refusals.
+  [`venue-admin-crud.service.test.ts`](../../apps/strapi/src/plugins/venues/server/src/__tests__/venue-admin-crud.service.test.ts)

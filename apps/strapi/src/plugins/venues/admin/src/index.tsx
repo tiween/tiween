@@ -1,5 +1,6 @@
 import { Store } from "@strapi/icons"
 
+import { VENUES_MENU_PERMISSIONS } from "./permissions"
 import { PLUGIN_ID } from "./pluginId"
 
 export default {
@@ -11,7 +12,12 @@ export default {
         id: `${PLUGIN_ID}.plugin.name`,
         defaultMessage: "Venues",
       },
-      permissions: [],
+      // Only a role granted `plugin::venues.read` (the action registered in
+      // `server/src/register.ts`) sees the menu entry at all. An empty array —
+      // the placeholder this replaced — showed the link to every admin user and
+      // then answered 403 on the first request, which reads as a broken plugin
+      // rather than as a missing permission.
+      permissions: [...VENUES_MENU_PERMISSIONS],
       Component: async () => {
         const component = await import(
           /* webpackChunkName: "venues" */ "./pages/App"

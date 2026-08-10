@@ -249,3 +249,114 @@ describe("venues plugin story 7.2 routes", () => {
     expect(typeof venue.findVenueBySlug).toBe("function")
   })
 })
+
+/**
+ * Story 2D.2 — the venues-plugin admin CRUD routes.
+ *
+ * Three properties are only observable from the route table and would ship
+ * broken with an otherwise-green suite:
+ *
+ * 1. THE `/admin/venues` PREFIX. `@strapi/core`'s `register-routes.js` mounts a
+ *    plugin's content-api AND admin routers under the SAME `/<pluginName>`
+ *    prefix, so an admin `GET /venues` would collide with the existing PUBLIC
+ *    `GET /venues` (`auth: false`) and the first router registered would win.
+ *    A drift back to a bare `/venues` path silently exposes (or shadows) the
+ *    admin surface.
+ * 2. THE TWO POLICIES. `admin::hasPermissions` is the RBAC grant check and
+ *    `plugin::venues.venues-admin-scope` is the tenant gate; dropping either
+ *    leaves the routes writable by any authenticated admin user, or unscoped.
+ * 3. THE HANDLER NAMES resolve against the plugin's exported controller map —
+ *    the unit gate never boots Strapi, so a rename is otherwise invisible.
+ */
+describe("venues plugin story 2D.2 admin CRUD routes", () => {
+  const adminRoutes = routes["admin-api"].routes as any[]
+
+  const find = (method: string, path: string) =>
+    adminRoutes.find((r) => r.method === method && r.path === path)
+
+  const SCOPE_POLICY = "plugin::venues.venues-admin-scope"
+
+  const EXPECTED: [string, string, string, string][] = [
+    ["GET", "/admin/venues", "venue-admin.find", "plugin::venues.read"],
+    [
+      "GET",
+      "/admin/venues/:documentId",
+      "venue-admin.findOne",
+      "plugin::venues.read",
+    ],
+    ["POST", "/admin/venues", "venue-admin.create", "plugin::venues.create"],
+    [
+      "PUT",
+      "/admin/venues/:documentId",
+      "venue-admin.update",
+      "plugin::venues.update",
+    ],
+    [
+      "DELETE",
+      "/admin/venues/:documentId",
+      "venue-admin.delete",
+      "plugin::venues.delete",
+    ],
+    [
+      "POST",
+      "/admin/venues/bulk-delete",
+      "venue-admin.bulkDelete",
+      "plugin::venues.delete",
+    ],
+  ]
+
+  it.each(EXPECTED)(
+    "%s %s → %s, gated by %s AND the scope policy",
+    (method, path, handler, action) => {
+      const route = find(method, path)
+
+      expect(route).toBeDefined()
+      expect(route.handler).toBe(handler)
+      // Admin routes are authenticated by the router `type: "admin"`; no route
+      // may re-declare `auth` (see the boot guard above).
+      expect(route.config).not.toHaveProperty("auth")
+
+      const permission = route.config.policies.find(
+        (p: any) => p?.name === "admin::hasPermissions"
+      )
+      expect(permission).toBeDefined()
+      expect(permission.config.actions).toEqual([action])
+
+      expect(route.config.policies).toContain(SCOPE_POLICY)
+    }
+  )
+
+  it("keeps every admin CRUD path under the /admin prefix (no collision with the public reads)", () => {
+    const contentApiPaths = new Set(
+      (routes["content-api"].routes as any[]).map(
+        (r) => `${r.method} ${r.path}`
+      )
+    )
+
+    for (const route of adminRoutes) {
+      expect(contentApiPaths.has(`${route.method} ${route.path}`)).toBe(false)
+    }
+  })
+
+  it("declares POST /admin/venues/bulk-delete before the :documentId routes", () => {
+    const bulk = adminRoutes.indexOf(find("POST", "/admin/venues/bulk-delete"))
+    const detail = adminRoutes.indexOf(find("GET", "/admin/venues/:documentId"))
+
+    expect(bulk).toBeGreaterThanOrEqual(0)
+    expect(bulk).toBeLessThan(detail)
+  })
+
+  it("resolves the scope policy name against the plugin's exported map", () => {
+    expect(typeof (policies as any)["venues-admin-scope"]).toBe("function")
+  })
+
+  it("wires the admin handlers to controller actions that actually exist", () => {
+    const controllers = (plugin as any).controllers
+    const controller = controllers["venue-admin"]({ strapi: {} as any })
+
+    for (const [, , handler] of EXPECTED) {
+      const action = handler.split(".")[1]
+      expect(typeof controller[action]).toBe("function")
+    }
+  })
+})

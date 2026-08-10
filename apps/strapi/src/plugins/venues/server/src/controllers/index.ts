@@ -6,6 +6,7 @@ import type { Context } from "koa"
 import { validate } from "../../../../../shared/validation"
 import { venueProfileUpdateSchema } from "../validation/profile"
 import { venueRegistrationSchema } from "../validation/registration"
+import venueAdminController from "./venue-admin"
 
 const PLUGIN_ID = "venues"
 
@@ -431,6 +432,7 @@ const venueProfileController = ({ strapi }: { strapi: Core.Strapi }) => ({
 
 export default {
   venue: venueController,
+  "venue-admin": venueAdminController,
   "venue-profile": venueProfileController,
   registration: registrationController,
   seed: seedController,

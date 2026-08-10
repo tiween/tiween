@@ -1,11 +1,10 @@
 import { useState } from "react"
 import { Box, Button, Main, Tabs } from "@strapi/design-system"
-import { Calendar, Database, House, Upload } from "@strapi/icons"
+import { Calendar, Database, Upload } from "@strapi/icons"
 import { Layouts, useFetchClient, useNotification } from "@strapi/strapi/admin"
 
 import { ImportTab } from "../components/ImportTab"
 import { PlanningTab } from "../components/PlanningTab"
-import { VenuesPage } from "./Venues"
 
 const HomePage = () => {
   const { post } = useFetchClient()
@@ -68,12 +67,6 @@ const HomePage = () => {
                   </Box>
                   Planning
                 </Tabs.Trigger>
-                <Tabs.Trigger value="venues">
-                  <Box paddingRight={2} style={{ display: "inline-flex" }}>
-                    <House width={16} height={16} />
-                  </Box>
-                  Lieux
-                </Tabs.Trigger>
                 <Tabs.Trigger value="import">
                   <Box paddingRight={2} style={{ display: "inline-flex" }}>
                     <Upload width={16} height={16} />
@@ -85,10 +78,6 @@ const HomePage = () => {
               <Box paddingTop={6}>
                 <Tabs.Content value="planning">
                   <PlanningTab />
-                </Tabs.Content>
-
-                <Tabs.Content value="venues">
-                  <VenuesPage />
                 </Tabs.Content>
 
                 <Tabs.Content value="import">

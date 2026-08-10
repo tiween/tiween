@@ -21,6 +21,16 @@ export default [
             "blob:",
             "data:",
             "ik.imagekit.io", // ImageKit CDN
+            // OpenStreetMap raster tiles — the venues plugin's map picker
+            // (`plugins/venues/admin/src/components/MapPicker`) paints its
+            // canvas from this host. Without it the CSP blocks every tile and
+            // the picker renders an empty grey box, with the failure visible
+            // only in the browser console. The provider is OQ-1's default
+            // (see `MapPicker/geocode.ts`): swapping it means changing this
+            // entry too. Geocoding itself needs no entry — it is a `fetch`,
+            // and `connect-src` already allows `https:`.
+            "https://tile.openstreetmap.org",
+            "https://*.tile.openstreetmap.org",
             "https://maps.gstatic.com",
             "https://maps.googleapis.com",
             "khmdb0.google.com",

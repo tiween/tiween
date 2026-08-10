@@ -18,6 +18,15 @@ import type { Core } from "@strapi/strapi"
 /** Role code every permission check short-circuits on. */
 const SUPER_ADMIN_CODE = "strapi-super-admin"
 
+export interface CreateAdminSessionOptions {
+  /**
+   * Admin RBAC action ids to grant. OMIT for a super-admin session (every check
+   * short-circuits); PASS a list to get a role holding exactly those actions —
+   * the only way to exercise a permission-scoped path over HTTP.
+   */
+  permissions?: string[]
+}
+
 export interface AdminSession {
   /** The created admin user row. */
   user: { id: number; email: string }
@@ -30,6 +39,36 @@ export interface AdminSession {
 let counter = 0
 
 /**
+ * Create a throwaway admin ROLE granting exactly `actions` and nothing else.
+ *
+ * Needed because a super-admin short-circuits every permission check, so a
+ * suite that only ever runs as super admin cannot observe an RBAC-scoped path
+ * at all — the boundary would be tested exclusively against hand-built mocks.
+ */
+async function createScopedRole(
+  anyStrapi: any,
+  actions: string[],
+  seq: number
+): Promise<{ id: number }> {
+  const role = await anyStrapi.service("admin::role").create({
+    name: `Integration Scoped ${seq}-${Date.now()}`,
+    description: "Created by an integration test; deleted with the session.",
+  })
+
+  await anyStrapi.service("admin::role").assignPermissions(
+    role.id,
+    actions.map((action) => ({
+      action,
+      subject: null,
+      properties: {},
+      conditions: [],
+    }))
+  )
+
+  return role
+}
+
+/**
  * Create a super-admin and a live session for it.
  *
  * Super-admin specifically: `permission.engine` grants that role everything
@@ -37,21 +76,24 @@ let counter = 0
  * behaviour rather than an RBAC fixture of its own making.
  */
 export async function createAdminSession(
-  strapi: Core.Strapi
+  strapi: Core.Strapi,
+  options: CreateAdminSessionOptions = {}
 ): Promise<AdminSession> {
   const anyStrapi = strapi as any
 
-  const role = await anyStrapi.db.query("admin::role").findOne({
-    where: { code: SUPER_ADMIN_CODE },
-  })
+  counter += 1
+
+  const role = options.permissions
+    ? await createScopedRole(anyStrapi, options.permissions, counter)
+    : await anyStrapi.db.query("admin::role").findOne({
+        where: { code: SUPER_ADMIN_CODE },
+      })
 
   if (!role) {
     throw new Error(
       `Super-admin role (${SUPER_ADMIN_CODE}) is missing — admin bootstrap did not run.`
     )
   }
-
-  counter += 1
   const email = `integration-admin-${counter}-${Date.now()}@tiween.test`
 
   const user = await anyStrapi.service("admin::user").create({
@@ -89,6 +131,11 @@ export async function createAdminSession(
     token: access.token,
     destroy: async () => {
       await anyStrapi.db.query("admin::user").delete({ where: { id: user.id } })
+      if (options.permissions) {
+        await anyStrapi.db
+          .query("admin::role")
+          .delete({ where: { id: role.id } })
+      }
     },
   }
 }
