@@ -1,6 +1,12 @@
+---
+baseline_commit: 322cff3c9af4319d2355f1693456760ba60cee45
+epic: 1
+story: 1
+---
+
 # Story 1.1: Initialize Monorepo from Starter Template
 
-Status: in-progress
+Status: done
 
 ---
 
@@ -88,8 +94,17 @@ So that I have a solid foundation with Turborepo, TypeScript, and project struct
   - [x] 6.1 Run `yarn install` - completed without errors
   - [x] 6.2 Run `yarn build` - completed without errors (after fixing legacy code)
   - [x] 6.3 Fixed legacy starter template code that referenced non-existent Strapi content types
-  - [ ] 6.4 Verify apps start: `yarn dev` (both client and strapi) - not tested
-  - [ ] 6.5 Create initial git commit - pending
+  - [x] 6.4 Verify apps start: `yarn dev` (both client and strapi) - verified
+        2026-08-11 at baseline `322cff3`. Both workspaces came up under one
+        `turbo dev`: `@tiween/client` Next.js 16.1.1 (Turbopack) "Ready in
+        1224ms" on `localhost:4716`, and `@tiween/admin` Strapi 5.51.2 "Strapi
+        started successfully" on `localhost:4349` after a 5482 ms launch
+        against the `tiween` Postgres database. Confirmed serving, not just
+        logging ready: `GET /` on the client returned HTTP 200 and
+        `GET /admin` on Strapi returned HTTP 200.
+  - [x] 6.5 Create initial git commit - satisfied by `051a028` ("Initial
+        commit: Tiween monorepo setup"), the 1,601-file import this story
+        produced. The checkbox predated that commit and was never cleared.
 
 ### Review Findings
 
@@ -104,9 +119,9 @@ _Code review 2026-08-08. Scope: acceptance audit against current repo state + ad
 - [x] [Review][Decision] Locale layout ships hardcoded English metadata to `ar`/`fr` — DEFERRED (see below): superseded, zero consumers.
 - [x] [Review][Decision] `project-context.md` teaches Strapi v4 response handling — RESOLVED: doc corrected to the v5 flat shape, including the code example and anti-pattern #1.
 
-**Patches (all 13 applied 2026-08-08):**
+**Patches (13 applied 2026-08-08; 1 since reverted — 12 stand on main):**
 
-- [x] [Review][Patch] `yarn type-check` silently skips the client — root runs `turbo type-check`, but the client script was named `typecheck`, so `turbo run type-check` reported "2 successful, 2 total" (admin only). Renamed. [apps/client/package.json]
+- [ ] [Review][Patch] `yarn type-check` silently skips the client — root runs `turbo type-check`, but the client script is named `typecheck`, so `turbo run type-check` reports "2 successful, 2 total" (admin only). **REVERTED — not on main.** The rename was applied here on 2026-08-08, landed as `49de000`, then deliberately reverted by `ddf6880`: renaming alone enrolls `apps/client` in the turbo `type-check` graph and turns CI red on 46 pre-existing client type errors. The paydown must land first, as its own story, then the rename with it. Tracked as DW-159 / DW-185 / DW-274 in `deferred-work.md`. Re-checked 2026-08-11: `apps/client/package.json` on main still reads `"typecheck"`, so this finding is **open**, not fixed. [apps/client/package.json]
 - [x] [Review][Patch] Sitemap event query returned HTTP 400, so `/sitemap.xml` shipped zero event URLs — verified live: the old param shape yields `{"error":{"status":400,"message":"INVALID_QUERY"}}`; the new one yields 200. Realigned to flat allowlisted params with a pagination loop. [apps/client/src/app/sitemap.ts:104-155]
 - [x] [Review][Patch] `TypeError` on an empty non-JSON response — `const { error } = json` destructured `undefined` when the body was empty with a non-JSON content-type. Now `json?.error`. [apps/client/src/lib/strapi-api/base.ts:79-83]
 - [x] [Review][Patch] `maximumScale: 1` disabled pinch-zoom (WCAG 2.1 SC 1.4.4) — removed. [apps/client/src/app/[locale]/layout.tsx:67-72]
@@ -121,6 +136,12 @@ _Code review 2026-08-08. Scope: acceptance audit against current repo state + ad
 - [x] [Review][Patch] AC #1 / AC #4 / `project-context.md` doc corrections — applied as described in the decisions above.
 
 **Verification after patching:** `yarn lint` clean · `yarn test` 1107 passed / 106 files · `type-check` 72 → 46 with 0 new errors · sitemap query 400 → 200 against live Strapi.
+
+> The 72 → 46 figure was measured by invoking `tsc --noEmit` inside
+> `apps/client` directly. It was never gated: the script rename that would have
+> put the client into `turbo type-check` is reverted on main (see the first
+> patch above), so CI still type-checks `@tiween/admin` alone. The 46 errors are
+> real and unguarded.
 
 - [x] [Review][Defer] Three dead fetchers send a query shape the backend rejects — `getFeaturedEvents`, `getUpcomingEvents`, `getTodayEvents` [apps/client/src/lib/strapi-api/content/server.ts:266-408] — deferred: superseded, zero consumers
 - [x] [Review][Defer] Locale layout ships hardcoded English metadata to `ar`/`fr`, while the translated `getMetadataFromStrapi` sits unused [apps/client/src/app/[locale]/layout.tsx:23-64, apps/client/src/lib/metadata/index.ts:13] — deferred: superseded, zero consumers
@@ -368,3 +389,34 @@ Files removed:
 - `apps/client/src/hooks/useAppForm.ts`
 - `apps/client/src/components/elementary/PagesCatalog.tsx`
 - `apps/client/src/components/elementary/forms/ContactForm.tsx`
+
+---
+
+## Suggested Review Order
+
+This pass changed no source code — it closed the story's last verification gap
+and corrected the record where it disagreed with `main`. Review accordingly.
+
+**What this pass established**
+
+- The only real remaining work: both apps proven to boot and serve, not just log ready.
+  [`1-1-...:97`](1-1-initialize-monorepo-from-starter-template.md#L97)
+
+- Closed as already-satisfied; the checkbox predated the commit that satisfied it.
+  [`1-1-...:105`](1-1-initialize-monorepo-from-starter-template.md#L105)
+
+**Where the record disagreed with `main`**
+
+- Highest-leverage stop: a patch marked applied that `ddf6880` deliberately reverted.
+  [`1-1-...:124`](1-1-initialize-monorepo-from-starter-template.md#L124)
+
+- The 46 client type errors were measured but never gated; says so plainly now.
+  [`1-1-...:140`](1-1-initialize-monorepo-from-starter-template.md#L140)
+
+- Header count corrected: 13 applied, 1 reverted, 12 standing.
+  [`1-1-...:122`](1-1-initialize-monorepo-from-starter-template.md#L122)
+
+**Peripheral**
+
+- New deferral: dev servers run on Node 22.22.0, not the pinned 22.21.1.
+  [`deferred-work.md:2560`](deferred-work.md#L2560)
