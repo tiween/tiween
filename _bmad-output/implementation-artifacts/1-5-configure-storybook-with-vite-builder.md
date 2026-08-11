@@ -410,3 +410,14 @@ Claude Opus 4.5 (claude-opus-4-5-20251101)
 ### Change Log
 
 - 2025-12-28: Configured Storybook 9.1.17 with Vite builder for Next.js, including dark theme, RTL support, and viewport presets
+
+### Review Findings
+
+From the 2026-08-11 adversarial code review of all stories in `review` status.
+Target was the CURRENT codebase audited against this spec's acceptance criteria
+(no `baseline_commit`, and the original commits have largely been rewritten).
+Only high-severity findings are recorded; see `deferred-work.md` for full detail.
+
+- [ ] [Review][Patch] Storybook has not built since a version skew — `@storybook/addon-docs` floats to 10.4.6 against pinned core 10.1.11, whose `storybook/internal/core-server` does not export `Tag`. Both `storybook dev` and `build-storybook` exit before serving. Committed state, so `--frozen-lockfile` reproduces it in CI. One-line fix: pin addon-docs to 10.1.11 [apps/client/package.json:96]
+- [ ] [Review][Patch] The Chromatic job runs `build-storybook` on every client PR, so it is currently failing and has published no baselines — all visual-regression coverage is dark [.github/workflows/chromatic.yml:63]
+- [x] [Review][Defer] "Storybook stories for all visual components" does not hold — 58 story files against ~118 components with no story, including all of components/forms, components/elementary, and the features/contribute wizard — deferred, later-epic debt

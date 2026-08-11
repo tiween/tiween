@@ -2385,3 +2385,171 @@ All four are server-side or product decisions outside the planning-surface spec.
   summary: AC 11's DS conformance gate was never machine-verified — `strapi-ui-reviewer` and the strapi-ui-design v1.2.0 PostToolUse hook are not installed in this workspace.
   evidence: AC 11 requires the DS conformance check to report no violations. The tools do not exist here, so the constraint set (no `ModalLayout`, `Field.Root` around every input, no hex colours, no native controls) was applied by hand against `handoff/ds-component-binding.md`. Hand application is not the same evidence as a machine gate; either install the tooling or amend the AC in a follow-up.
   status: open
+
+## Deferred from: code review (2026-08-11, 30 stories in `review` status)
+
+Adversarial review of every story parked in `review` (Epics 1, 2A, 2B, 2C.3).
+Because 27 of the 30 specs carry no `baseline_commit` and their original commits
+have been largely rewritten, the review target was the CURRENT codebase audited
+against each spec's acceptance criteria, not a historical diff. 29 of 30 came back
+`gaps-found`. Only the high-severity findings are recorded here; the medium and
+quality-level findings (dead components, hardcoded FR labels, missing co-located
+tests, `ctx: any`) stayed in the review report by explicit decision.
+
+Every entry below was re-verified against the code by the reviewing session before
+being rated — these are confirmed, not reported.
+
+- source_spec: `_bmad-output/implementation-artifacts/2b-1-strapi-v5-upgrade-and-project-setup.md`
+  location: apps/strapi/.env.example:14-23, package.json (postinstall → setup:apps)
+  severity: high
+  summary: Real signing secrets are committed and auto-copied into live `.env` files on install.
+  evidence: `APP_KEYS`, `API_TOKEN_SALT`, `ADMIN_JWT_SECRET`, `JWT_SECRET` and the DB password are concrete tracked values, not placeholders. Root `postinstall` runs `setup:apps`, which is `find . -name '*.example' -exec cp -n "$1" "${1%.example}"`, so a fresh clone materialises `.env` with these exact secrets. Any environment that does not explicitly override them runs on publicly known admin-JWT and session-cookie signing keys, permitting admin JWT forgery and session forgery. Fix requires BOTH scrubbing the file to placeholders AND rotating the keys anywhere they are already deployed — scrubbing alone is not sufficient, since the values are in git history.
+  status: open
+
+- source_spec: `_bmad-output/implementation-artifacts/2b-1-strapi-v5-upgrade-and-project-setup.md`
+  location: apps/strapi/config/env/production/database.ts:12-14
+  severity: high
+  summary: Production Postgres TLS accepts any certificate.
+  evidence: `ssl: env.bool("DATABASE_SSL", true) ? { rejectUnauthorized: false } : false`. The default is true, so production connects encrypted but unauthenticated and will accept a MITM's certificate on the database channel.
+  status: open
+
+- source_spec: `_bmad-output/implementation-artifacts/2b-8-events-manager-plugin-recreation-for-v5.md`
+  location: apps/strapi/src/plugins/events-manager/server/src/routes/index.ts:160-168
+  severity: high
+  summary: `POST /events-manager/seed` is unauthenticated in every environment.
+  evidence: The route is declared on the plugin's `type: "admin"` router with `auth: false` and no environment guard, so any unauthenticated caller can drive `seedService.seedAll()` and create published venues and event groups. Every sibling seed route (`/seed/event-groups`, venues' `/seed/venues`) is correctly authenticated, so this is an oversight rather than a design choice. Also reported independently against 2b-9.
+  status: open
+
+- source_spec: `_bmad-output/implementation-artifacts/2b-8-events-manager-plugin-recreation-for-v5.md`
+  location: apps/strapi/src/plugins/events-manager/server/src/routes/index.ts:127-158
+  severity: high
+  summary: All four event-manager admin routes carry empty `policies`, so any admin can rewrite any venue's inventory.
+  evidence: `policies: []` on every route and `permissions: []` on the menu link. AC#4's venue-manager scoping was never implemented on this plugin's own surfaces; the only venue-manager gating (`plugin::venues.is-venue-manager`) sits on the later Story 7.3 `/venue/*` content-api routes, which do not cover bulk screening creation, event duplication, or ticket-inventory writes.
+  status: open
+
+- source_spec: `_bmad-output/implementation-artifacts/2b-11-imagekit-provider-configuration.md`
+  location: apps/client/next.config.mjs:64-67
+  severity: high
+  summary: `next/image` is configured as an open proxy for any HTTPS origin.
+  evidence: `remotePatterns: [{ protocol: "https", hostname: "*" }]` rather than the ImageKit host. The Next image optimizer will fetch and re-serve arbitrary remote images on request, which is both an SSRF-adjacent surface and a bandwidth/cost amplification vector.
+  status: open
+
+- source_spec: `_bmad-output/implementation-artifacts/1-8-configure-docker-and-dokploy-deployment.md`
+  location: .dockerignore
+  severity: high
+  summary: Root `.dockerignore` omits `.env*` and `.git`, so secrets and full history are copied into image layers.
+  evidence: The file is six lines (`node_modules`, `.next`, `.strapi`, `.tmp`, `dist`, `out`). Both Dockerfiles build from the repo root with `COPY . .`, so a local `docker compose build` pulls the real `.env` (~30 populated secrets), `apps/strapi/.env`, `apps/client/.env.local` and all of `.git` into a layer; the strapi runner then does a blanket `COPY --from=installer /app .`. CI is a clean checkout so it does not leak there today, but `deploy.yml` exports every stage with `cache-to: type=gha,mode=max`. The per-app `.dockerignore` files are dead: Docker reads only `<context>/.dockerignore`, and the context is the root.
+  status: open
+
+- source_spec: `_bmad-output/implementation-artifacts/2b-2-core-content-types-event-and-creativework.md`
+  location: apps/client/src/app/api/contribute/play/route.ts:76,356
+  severity: high
+  summary: The client contribute flow POSTs to `/api/creative-works` and `/api/persons`, which no longer route after the plugin decomposition.
+  evidence: The creative-works plugin registers only `/creative-works/featured`, `/creative-works/type/:type`, `/creative-works/search` and `/persons/search`, all under the `/api/creative-works/` prefix, and none of them accept POST. Every play submission and person create 404s. A test masks this by mocking `url.includes("/api/persons")` and returning a fake success, so the suite is green against endpoints that do not exist. `apps/client/src/lib/strapi-api/base.ts:22-32` carries the same dead mappings, including UIDs retired by 2c-3. Also reported against 2b-4.
+  status: open
+
+- source*spec: `_bmad-output/implementation-artifacts/2b-10-redis-integration-for-sessions-and-caching.md`
+  location: apps/strapi (whole story), apps/strapi/src/shared/rate-limit.ts:50
+  severity: high
+  summary: The entire story is unimplemented — no Redis anywhere — while project-context mandates Redis-backed rate limiting.
+  evidence: No `redis` service in any of the three compose files, no `ioredis` / `@strapi-community/plugin-rest-cache` / `provider-rest-cache-redis` in any package.json, no `apps/strapi/config/redis.ts`, no `rest-cache` plugin entry, no `/health/redis` route. Tasks 3 and 4 are checked `[x]` for work that was never done. Consequently rate limiting runs on a per-process `Map`, so limits multiply by instance count and reset on every restart, and `trending-cache.ts:16` documents itself as a stopgap awaiting this story. `.env.example` documents `REDIS*_` vars that nothing reads, so operators will provision a Redis nothing connects to.
+status: resolved-by-descope 2026-08-11
+resolution: Story 2B.10 formally DEFERRED post-v1 (`sprint-change-proposal-2026-08-11.md`). The discrepancy was closed by reconciling the documentation to reality rather than by implementing Redis: sessions are stateless JWT (never needed a store), inventory locks are PostgreSQL-atomic via 2C.4, and rate limiting + response caching are in-process — correct at the v1 `replicas: 1`deployment. All 30 false`[x]`task marks corrected;`REDIS\__`and`CACHE_ENABLED`stripped from`.env.example`; the dokploy Redis section replaced with a do-not-provision note; the single-instance constraint recorded in `project-context.md`and`architecture.md`. The in-process limiter is now the SANCTIONED v1 design — do not "fix" it by adding Redis. Re-entry trigger: horizontal scaling, or Epic 6 un-deferral needing FR64 checkout reservations.
+
+- source*spec: `_bmad-output/implementation-artifacts/2b-12-email-configuration-with-brevo.md`
+  location: docker-compose.prod.yml:84-87, packages/strapi-provider-email-brevo/index.js:74
+  severity: high
+  summary: All transactional email silently no-ops in production, and callers observe success.
+  evidence: The production compose file still forwards `MAILGUN_API_KEY/DOMAIN/HOST/EMAIL` and never passes `BREVO_API_KEY` or `BREVO_SENDER*\*`, so the provider takes its keyless branch. That branch `console.log`s and RESOLVES NORMALLY, so `order-email.ts`still sets its exactly-once`confirmationEmailSentAt`marker and the ticket/QR mail is permanently lost with no error recorded. The same silent path covers password reset, welcome and venue-registration confirmation mail. The fallback should throw (or be gated on`NODE_ENV !== "production"`). There is also no retry or dead-letter: a single Brevo 429 permanently drops the message.
+  status: open
+
+- source*spec: `_bmad-output/implementation-artifacts/2b-11-imagekit-provider-configuration.md`
+  location: apps/strapi/config/plugins.ts:158-159,206; docker-compose.prod.yml:80-83,147
+  severity: high
+  summary: ImageKit is hardcoded disabled and uploads fall back to disk inside an ephemeral container — all media is lost on every redeploy.
+  evidence: `enabled: false` is literal, not `!!env("IMAGEKIT_PUBLIC_KEY")` as the spec required, so the admin integration is dead code shipped as a dependency. Uploads actually run through `strapi-provider-upload-imagekit` (Option B, which the spec explicitly rejected, and which appears in neither the File List nor the Completion Notes). Production compose passes `IMAGEKIT*\*`with empty defaults and mounts a volume only for postgres, so an unset key drops Strapi to`public/uploads`in a container with no persistent storage, announced only by a`console.info`. This destroys story-7.1 venue-registration uploads on redeploy.
+  status: open
+
+- source_spec: `_bmad-output/implementation-artifacts/2b-7-reference-content-types-region-city-category.md`
+  location: apps/strapi/scripts/seeds/index.ts:93,132,209; scripts/seeds/data/{regions,cities}.json
+  severity: high
+  summary: Region/city/category reference data is seeded only in `fr`, so Arabic and English geography filtering returns nothing.
+  evidence: The seed data carries `name_ar` but the seeder writes only `name`/`slug` in the default locale and never issues a second create with `locale`. The geography service passes `locale` straight through to the Document Service, so `GET /api/geography/regions?locale=ar` returns an empty set — Epic 3's region and city filtering is non-functional in two of three locales. The dataset is also a token subset (6 macro-regions, 14 cities): Centre-Ouest (Kairouan, Kasserine, Sidi Bouzid, Gafsa) and most of the South-East/North-West interior are absent, and Bizerte is misfiled under `NO` (Nord-Ouest). `category.order` is declared with a default but never populated, so category sorting is inert.
+  status: open
+
+- source_spec: `_bmad-output/implementation-artifacts/1-2-upgrade-to-nextjs-16-1-with-turbopack.md`
+  location: apps/client/src/app/[locale]/desktop-prototypes/ticketing-quantity/page.tsx:146
+  severity: high
+  summary: `yarn build` fails, so there is no deployable client build.
+  evidence: Turbopack compiles successfully, then the TypeScript pass aborts with `Type error: Object is possibly 'undefined'` and the Next build worker exits 1. AC5 ("`yarn build` completes without errors") is unsatisfiable in the current tree, and AC6 is unverifiable because no production output is produced. The offending file is a desktop PROTOTYPE route, so the cheapest fix may be to guard the index access or remove the prototype from the build.
+  status: open
+
+- source_spec: `_bmad-output/implementation-artifacts/1-9-setup-ci-cd-pipeline-with-github-actions.md`
+  location: apps/client/package.json:16, .github/workflows/ci.yml:112
+  severity: high
+  summary: The Next.js client is silently excluded from the CI type-check gate, hiding 46 real type errors.
+  evidence: CI runs `yarn type-check` → `turbo type-check`, but the committed `apps/client/package.json` names the script `typecheck` (commit `ddf6880` reverted the rename). Turbo reports `@tiween/client#type-check :: <NONEXISTENT>` and exits 0, so only `@tiween/admin` is checked. Running `tsc --noEmit` in `apps/client` directly yields 46 errors. This is a SILENT SKIP, not a script-not-found error, which is why it never surfaced as a red build. NOTE FOR WHOEVER FIXES THIS: the working tree currently carries the uncommitted rename; committing it alone turns CI red. It must land together with the type-error paydown tracked as DW-159 / DW-185 / DW-274, or AC1 must be amended to record the exclusion as an explicit deferral.
+  status: open
+
+- source_spec: `_bmad-output/implementation-artifacts/1-9-setup-ci-cd-pipeline-with-github-actions.md`
+  location: .github/workflows/deploy.yml:3,25,117
+  severity: high
+  summary: On `workflow_run`, deploy.yml mis-resolves the branch and tags staging images as `latest`.
+  evidence: For `workflow_run` events `github.ref_name` is the default branch, not the triggering branch; only the `setup` job correctly reads `github.event.workflow_run.head_branch`. So `type=raw,value=latest,enable=${{ github.ref_name == 'main' }}` tags develop/staging images `latest`, which production infrastructure may pull. The same bug puts staging and production deploys in one concurrency group and labels every CI-triggered deploy "Production".
+  status: open
+
+- source_spec: `_bmad-output/implementation-artifacts/1-5-configure-storybook-with-vite-builder.md`
+  location: apps/client/package.json:96, yarn.lock:6039-6042, .github/workflows/chromatic.yml:63
+  severity: high
+  summary: Storybook has not built since a version skew; the Chromatic job is failing and has published no baselines.
+  evidence: `storybook`, `@storybook/nextjs-vite`, `@storybook/addon-a11y` and `eslint-plugin-storybook` are pinned to exact `10.1.11`, but `@storybook/addon-docs` is `^10.1.11` and the lockfile resolves 10.4.6, whose preset imports `Tag` from `storybook/internal/core-server` — an export core 10.1.11 does not provide. Both `storybook dev` and `build-storybook` exit before serving. This is committed state, so `yarn install --frozen-lockfile` reproduces it in CI. One-line fix: pin `@storybook/addon-docs` to `10.1.11` (or bump the whole set together). All visual-regression coverage is dark until then.
+  status: open
+
+- source_spec: `_bmad-output/implementation-artifacts/1-7-setup-serwist-pwa-configuration.md`
+  location: apps/client/next.config.mjs:10-17, apps/client/src/app/sw.ts
+  severity: high
+  summary: The service worker is never generated — Serwist is a no-op under Next 16 Turbopack, so the PWA does not exist.
+  evidence: `@serwist/next@9.4.2` works only through its webpack plugin, and Next 16.1 builds with Turbopack by default. A production build prints `[@serwist/next] WARNING: Serwist doesn't support Turbopack at the moment` three times and emits no `public/sw.js` and no `swe-worker-*.js`. With no SW there is no registration injection and no fetch handler, so the app is not installable (`beforeinstallprompt` never fires). Separately, even if it built, the `/offline` fallback would fail: Serwist resolves fallbacks exclusively via `matchPrecache`, `@serwist/next` globs only `.next/static` and `public/`, and no `additionalPrecacheEntries` adds the route — so the offline page is never precached. This blocks all of Epic 10.
+  status: open
+
+- source_spec: `_bmad-output/implementation-artifacts/2b-3-core-content-types-venue-and-showtime.md`
+  location: apps/strapi/src/plugins/venues/server/src/services/venue-admin.ts:455
+  severity: high
+  summary: The fail-closed venue delete guard is bypassable from the core Content Manager.
+  evidence: `countScheduledSubEvents` is enforced only in the plugin's admin service. There is no `beforeDelete` lifecycle hook and no `pluginOptions["content-manager"].visible: false` on the venue schema, so deleting a venue through the standard Content Manager skips the guard entirely and nulls `event.venue` on live events. Related: `shared.geo-point` declares bare optional decimals with no bounds and no pairing rule, so latitude-only or out-of-range points can be persisted by any non-zod writer; and admin CRUD clamps latitude to Mercator ±85.05 while public registration allows ±90, so a venue self-registered at lat 87 is accepted and then permanently unsavable in the admin form.
+  status: open
+
+- source_spec: `_bmad-output/implementation-artifacts/2b-5-ticketing-content-types-ticketorder-and-ticket.md`
+  location: apps/strapi/src/plugins/ticketing/server/src/services/{qr,ticket,public-api,order}.ts
+  severity: high
+  summary: Ticketing has four independent integrity defects. Contained for now only because Epic 6 is deferred post-v1 and story 3-12 flags the purchase surfaces off.
+  evidence: (1) `qr.verify()` — a correct HMAC-SHA256 constant-time implementation — has ZERO production callers, and the only entry paths key off a guessable `ticketNumber` (`TW-<base36 ts>-<4 chars>-N`), so the signature currently protects nothing at the door. (2) The admin scan endpoint filters by `ticketNumber` while the controller passes the route's `documentId`, so every scan 400s with `TICKET_NOT_FOUND`; were it fixed, validate-then-`scan()` is check-then-act with no `WHERE status='valid'` CAS, so two concurrent scans both admit the same ticket. (3) Reservation guards only sub-event totals — each tier's own `ticketsAvailable`/`ticketsSold` is never decremented, so a VIP tier can sell past its allocation while the venue total holds. (4) `refunded` is in the enum and in `TERMINAL_STATUSES` but no code path sets it, and `ticket.cancel()` never calls `adjustInventory` to release, so cancelled seats are burned permanently. All four MUST be closed before Epic 6 is un-deferred.
+  status: open
+
+- source_spec: `_bmad-output/implementation-artifacts/2c-3-catalog-move-into-creative-works.md`
+  location: apps/client/src/lib/strapi-api/content/shorts.ts:22-23,55-68,359
+  severity: high
+  summary: AC9's client reconciliation never happened — the shorts surface queries fields that do not exist on `creative-work`, producing 400s.
+  evidence: `SHORT_FILM_POPULATE` requests `directors`, `directors.photo` and `facts`, and search builds `filters: { directors: { name: { $containsi } } }`; none exist post-inversion. Strapi v5 rejects unknown filter keys with a 400, not an empty result, so this is a hard failure rather than silent degradation. The mapper additionally reads `work.trailer/country/language/featured`, all absent. The shorts client was described in the spec as "already built on creative-work and ~production-ready", which is what allowed the reconciliation step to be skipped.
+  status: open
+
+- source_spec: `_bmad-output/implementation-artifacts/2c-3-catalog-move-into-creative-works.md`
+  location: apps/strapi/database/migrations/ (absent), src/plugins/events-manager/server/src/content-types/screening/schema.json:56-60
+  severity: high
+  summary: AC12 proved only a fresh-DB boot; there is no migration for retargeting an existing database.
+  evidence: Retargeting `screening.movie` / `performance.play` renames the link table's inverse FK column (`movie_id` → `creative_work_id`, per `@strapi/database`'s `createJoinTable`) and orphans the `movies`, `plays`, and events-manager `credits`/`people`/`characters` tables, but `apps/strapi/database/migrations/` contains nothing for it. The spec's "both catalogs confirmed EMPTY → pure schema change, no data migration" holds only for a database that was empty at the time; any environment already carrying rows needs a migration that does not exist. Related: `1f4fb82` patched the wrong side of the videoType split-brain — legacy `"type": { "default": "TEASER" }` remains in `src/components/common/video.json:14-19`, so new rows are still stamped with the legacy enum while `videoType` stays null.
+  status: open
+
+- source_spec: `_bmad-output/implementation-artifacts/2b-9-user-roles-and-permissions-configuration.md`
+  location: apps/strapi/src/bootstrap/venue-manager-role.ts:39,44; apps/strapi/docs/PERMISSIONS.md:63
+  severity: high
+  summary: Public and Authenticated role permissions are documented but never applied by any bootstrap, and venue managers get unscoped media-library write.
+  evidence: `ensureVenueManagerRole` is the only code that seeds permission rows, and only for the venue-manager role. The Public and Authenticated matrices (watchlist, notifications, `User.updateMe`, `Auth.confirmEmailChange`) exist solely as admin-panel instructions in PERMISSIONS.md, so a fresh database 403s on those routes with nothing in code or test to detect a misconfigured environment. Separately, `plugin::upload.content-api.upload` is granted to venue-manager with no scope, so any approved manager can upload arbitrary files to the shared media library. PERMISSIONS.md is also stale: it still documents a Public CRUD matrix and endpoints (`GET /api/venues/:id`, `/api/showtimes`, `/api/persons`) that no longer exist. Positive: no privilege-escalation path was found — self-registration provisions the role with `blocked: true` on an unpublished `pending` venue, and publish is gated on admin approval.
+  status: open
+
+- source_spec: `_bmad-output/implementation-artifacts/2b-16-events-manager-plugin-test-coverage.md`
+  location: apps/strapi/jest.config.cjs:55, .github/workflows/ci.yml:151
+  severity: high
+  summary: The backend suites this story exists to provide are never executed by CI, and the ≥80% coverage gate is neither measured nor enforced.
+  evidence: The server jest project's `testMatch` is `["**/*.unit.test.ts"]` only, so `event-manager.service.test.ts`, `event-manager.controller.test.ts` and `tests/app.test.js` are silently skipped by `yarn test` — the only test command CI runs. `test:integration` is invoked by no workflow and begins `(yarn build:test-dist || true)`, which swallows build failure. No `coverageThreshold` or `collectCoverage` exists anywhere. The controller AC was also substituted: it requires Supertest against `strapi.server.httpServer` with no manual `ctx` construction, but the suite builds its own Koa stub and asserts on jest mocks, so route wiring, admin auth and policies are untested. The tests that DO run (24 cases in `event-manager.unit.test.ts`) are genuine and not tautological.
+  status: open

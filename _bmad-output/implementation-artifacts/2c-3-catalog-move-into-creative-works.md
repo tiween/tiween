@@ -221,3 +221,15 @@ claude-opus-4-8 (Opus 4.8, 1M context)
 | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 2026-06-16 | Implemented 2C.3 catalog consolidation: retired events-manager movie/play/credit/person/character + XOR lifecycle; established creative-work as catalog of record with relation-based cast[]/credits[] components, new character/credit-role content-types, videoType enum; retargeted screening.movie/performance.play → creative-work. Unit suite green (50/50); type-gen 0 errors. |
 | 2026-06-17 | DoD re-verification: re-ran AC11/AC12 gates independently — unit suite 50/50 green; `rm -rf dist .strapi && yarn generate:types` boots clean (0 warnings/0 errors); grep gate confirms zero `plugin::events-manager.(movie\|play)` refs and no `role`-named credit type. All tasks + review follow-ups complete. Status → review.                                                     |
+
+### Review Findings
+
+From the 2026-08-11 adversarial code review of all stories in `review` status.
+Target was the CURRENT codebase audited against this spec's acceptance criteria
+(no `baseline_commit`, and the original commits have largely been rewritten).
+Only high-severity findings are recorded; see `deferred-work.md` for full detail.
+
+- [ ] [Review][Patch] AC9 client reconciliation never happened — the shorts surface requests `directors`, `directors.photo`, `facts` and filters on `directors.name`, none of which exist post-inversion; Strapi v5 rejects unknown filter keys with a 400, so this is a hard failure, not silent degradation [apps/client/src/lib/strapi-api/content/shorts.ts:22-23,55-68]
+- [ ] [Review][Decision] AC12 proved only a fresh-DB boot. Retargeting `screening.movie` / `performance.play` renames the link table's inverse FK column and orphans the `movies`/`plays`/`credits`/`people`/`characters` tables, but no migration exists. Decide whether any environment already carries rows; if so, a migration must be written before deploy [apps/strapi/database/migrations/]
+- [ ] [Review][Patch] The videoType split-brain fix patched the wrong side — legacy `"type": { "default": "TEASER" }` remains, so new rows are stamped with the legacy enum while `videoType` stays null [apps/strapi/src/components/common/video.json:14-19]
+- [x] [Review][Defer] `character` and `credit-role` have no routes or service/controller exports, so the now-required `credit.creditRole` relation cannot be resolved by any public consumer [apps/strapi/src/plugins/creative-works/server/src/routes/content-api.ts] — deferred, pre-existing

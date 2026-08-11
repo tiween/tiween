@@ -344,3 +344,14 @@ Claude Opus 4.5 (claude-opus-4-5-20251101)
 | Date       | Change                                                                        | Author          |
 | ---------- | ----------------------------------------------------------------------------- | --------------- |
 | 2025-12-26 | Upgraded Next.js 15.5.9 → 16.1.1, React 18.3.1 → 19.2.3, configured Turbopack | Claude Opus 4.5 |
+
+### Review Findings
+
+From the 2026-08-11 adversarial code review of all stories in `review` status.
+Target was the CURRENT codebase audited against this spec's acceptance criteria
+(no `baseline_commit`, and the original commits have largely been rewritten).
+Only high-severity findings are recorded; see `deferred-work.md` for full detail.
+
+- [ ] [Review][Patch] `yarn build` fails, so there is no deployable client build — Turbopack compiles, then the TS pass aborts with `Object is possibly 'undefined'` and the build worker exits 1. AC5 is unsatisfiable and AC6 unverifiable. The file is a desktop PROTOTYPE route, so guarding the index access or dropping the prototype from the build is the cheap fix [apps/client/src/app/[locale]/desktop-prototypes/ticketing-quantity/page.tsx:146]
+- [x] [Review][Defer] `yarn dev` depends on the undeclared global binary `portless`, absent from every package.json — on a fresh clone it exits "command not found" [apps/client/package.json:8] — deferred, pre-existing
+- [x] [Review][Defer] Dead `webpack()` hook retained under a Turbopack-default build; Task 2.3 incomplete [apps/client/next.config.mjs:88] — deferred, pre-existing

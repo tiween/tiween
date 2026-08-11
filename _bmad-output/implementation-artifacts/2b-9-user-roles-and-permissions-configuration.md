@@ -212,3 +212,15 @@ N/A
 - `apps/strapi/src/bootstrap/venue-manager-role.ts` - Bootstrap script for Venue Manager role
 - `apps/strapi/src/index.ts` - Updated to call ensureVenueManagerRole on bootstrap
 - `apps/strapi/src/api/venue/content-types/venue/schema.json` - Added manager relation
+
+### Review Findings
+
+From the 2026-08-11 adversarial code review of all stories in `review` status.
+Target was the CURRENT codebase audited against this spec's acceptance criteria
+(no `baseline_commit`, and the original commits have largely been rewritten).
+Only high-severity findings are recorded; see `deferred-work.md` for full detail.
+
+- [ ] [Review][Patch] Public and Authenticated role permissions are documented in PERMISSIONS.md but applied by no bootstrap — a fresh database 403s on watchlist/notifications/updateMe with nothing to detect it [apps/strapi/src/bootstrap/venue-manager-role.ts:39]
+- [ ] [Review][Patch] Venue managers receive unscoped `plugin::upload.content-api.upload` — any approved manager can write arbitrary files to the shared media library [apps/strapi/src/bootstrap/venue-manager-role.ts:44]
+- [x] [Review][Defer] PERMISSIONS.md documents a Public CRUD matrix and endpoints that no longer exist post-decomposition [apps/strapi/docs/PERMISSIONS.md:27] — deferred, pre-existing
+- Verified clean: no privilege-escalation path. Self-registration provisions venue-manager with `blocked: true` on an unpublished `pending` venue; publish is gated on admin approval.

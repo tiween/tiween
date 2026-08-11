@@ -218,3 +218,15 @@ N/A
 - `apps/strapi/.env.example` - Added ImageKit environment variables
 - `apps/strapi/config/plugins.ts` - Added imagekit plugin configuration
 - `apps/strapi/config/middlewares.ts` - Added ImageKit domains to CSP
+
+### Review Findings
+
+From the 2026-08-11 adversarial code review of all stories in `review` status.
+Target was the CURRENT codebase audited against this spec's acceptance criteria
+(no `baseline_commit`, and the original commits have largely been rewritten).
+Only high-severity findings are recorded; see `deferred-work.md` for full detail.
+
+- [ ] [Review][Patch] `next/image` configured as an open proxy for any HTTPS origin — `hostname: "*"` rather than the ImageKit host [apps/client/next.config.mjs:64-67]
+- [ ] [Review][Patch] ImageKit hardcoded `enabled: false` (spec required `!!env("IMAGEKIT_PUBLIC_KEY")`), and uploads fall back to `public/uploads` in an ephemeral container — all media, including story-7.1 venue uploads, is lost on every redeploy [apps/strapi/config/plugins.ts:158-159]
+- [ ] [Review][Patch] Story record does not describe the code that runs — uploads use `strapi-provider-upload-imagekit` (Option B, explicitly rejected by the spec), absent from the File List and Completion Notes [apps/strapi/config/plugins.ts:206]
+- [x] [Review][Defer] AC4 transformations have no code behind them; no `tr=` builder exists on the client [apps/client/src/lib/strapi-helpers.ts:36] — deferred, pre-existing

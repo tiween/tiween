@@ -79,7 +79,7 @@
   - [Story 2B.7: Reference Content-Types - Region, City, Category](./epic-2b-strapi-v5-migration-backend-foundation-parallel-track-b.md#story-2b7-reference-content-types-region-city-category) [MVP]
   - [Story 2B.8: Events Manager Plugin Recreation for v5](./epic-2b-strapi-v5-migration-backend-foundation-parallel-track-b.md#story-2b8-events-manager-plugin-recreation-for-v5) [MVP]
   - [Story 2B.9: User Roles and Permissions Configuration](./epic-2b-strapi-v5-migration-backend-foundation-parallel-track-b.md#story-2b9-user-roles-and-permissions-configuration) [MVP-partial]
-  - [Story 2B.10: Redis Integration for Sessions and Caching](./epic-2b-strapi-v5-migration-backend-foundation-parallel-track-b.md#story-2b10-redis-integration-for-sessions-and-caching) [MVP]
+  - [Story 2B.10: Redis Integration for Sessions and Caching](./epic-2b-strapi-v5-migration-backend-foundation-parallel-track-b.md#story-2b10-redis-integration-for-sessions-and-caching) [POST-V1]
   - [Story 2B.11: ImageKit Provider Configuration](./epic-2b-strapi-v5-migration-backend-foundation-parallel-track-b.md#story-2b11-imagekit-provider-configuration) [MVP]
   - [Story 2B.12: Email Configuration with Brevo](./epic-2b-strapi-v5-migration-backend-foundation-parallel-track-b.md#story-2b12-email-configuration-with-resend) [MVP]
   - [Story 2B.13: API Documentation with OpenAPI](./epic-2b-strapi-v5-migration-backend-foundation-parallel-track-b.md#story-2b13-api-documentation-with-openapi) [MVP]

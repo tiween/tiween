@@ -474,3 +474,15 @@ Claude Opus 4.5 (claude-opus-4-5-20251101)
 ### Change Log
 
 - 2025-12-29: Configured CI/CD pipeline with GitHub Actions for lint, type-check, test, build, and deployment
+
+### Review Findings
+
+From the 2026-08-11 adversarial code review of all stories in `review` status.
+Target was the CURRENT codebase audited against this spec's acceptance criteria
+(no `baseline_commit`, and the original commits have largely been rewritten).
+Only high-severity findings are recorded; see `deferred-work.md` for full detail.
+
+- [x] [Review][Defer] The Next.js client is SILENTLY excluded from the CI type-check gate, hiding 46 real type errors — CI runs `type-check` but the committed script is `typecheck`, so Turbo reports `<NONEXISTENT>` and exits 0. The working tree currently carries the uncommitted rename; committing it ALONE turns CI red. It must land with the type-error paydown [apps/client/package.json:16] — deferred, tracked as DW-159 / DW-185 / DW-274
+- [ ] [Review][Patch] On `workflow_run`, deploy.yml mis-resolves the branch — `github.ref_name` is the default branch, so develop/staging images are tagged `latest`, staging and production share a concurrency group, and every CI-triggered deploy is labelled "Production" [.github/workflows/deploy.yml:117]
+- [x] [Review][Defer] Strapi integration suites run in no workflow — jest matches only `*.unit.test.ts`, and `test:integration` begins `(yarn build:test-dist || true)` [apps/strapi/jest.config.cjs:47-56] — deferred, pre-existing
+- [x] [Review][Defer] AC4/AC5 are obsolete — no `deploy-staging.yml` / `deploy-production.yml`; the unified `deploy.yml` supersedes them and is strictly better. Amend the spec's File Structure section [.github/workflows/deploy.yml:32-137] — deferred, superseded

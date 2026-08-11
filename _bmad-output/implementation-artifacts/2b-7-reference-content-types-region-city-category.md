@@ -304,3 +304,15 @@ None
 - `apps/strapi/src/extensions/users-permissions/content-types/user/schema.json` (added defaultRegion)
 - `apps/strapi/src/api/venue/content-types/venue/schema.json` (added cityRef)
 - `apps/strapi/types/generated/contentTypes.d.ts` (auto-generated)
+
+### Review Findings
+
+From the 2026-08-11 adversarial code review of all stories in `review` status.
+Target was the CURRENT codebase audited against this spec's acceptance criteria
+(no `baseline_commit`, and the original commits have largely been rewritten).
+Only high-severity findings are recorded; see `deferred-work.md` for full detail.
+
+- [ ] [Review][Patch] Geography is seeded only in `fr` — the seeder carries `name_ar` but never issues a second create with `locale`, so `?locale=ar` returns empty and Epic 3 region/city filtering is non-functional in two of three locales [apps/strapi/scripts/seeds/index.ts:93,132]
+- [ ] [Review][Patch] Reference data is a token subset — 6 macro-regions, 14 cities; Centre-Ouest (Kairouan, Kasserine, Sidi Bouzid, Gafsa) and most of the interior are absent, and Bizerte is misfiled under `NO` [apps/strapi/scripts/seeds/data/regions.json]
+- [x] [Review][Defer] `category.order` is declared with a default but never populated, so category sorting is inert [apps/strapi/scripts/seeds/index.ts:209] — deferred, pre-existing
+- [x] [Review][Defer] Category collection is dead taxonomy under the multi-category pivot — no content-api route, no relation; `event.category` is a hardcoded 5-value enum diverging from the 8 seeded categories [apps/strapi/src/plugins/events-manager/server/src/content-types/event/schema.json:36] — deferred, pre-existing

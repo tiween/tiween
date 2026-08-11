@@ -101,7 +101,12 @@ development_status:
   2b-7-reference-content-types-region-city-category: review
   2b-8-events-manager-plugin-recreation-for-v5: review
   2b-9-user-roles-and-permissions-configuration: review
-  2b-10-redis-integration-for-sessions-and-caching: review
+  # 2026-08-11 DEFERRED POST-V1 (sprint-change-proposal-2026-08-11): never
+  # implemented. Sessions are stateless JWT; inventory locks are PostgreSQL-atomic
+  # (2C.4); rate limiting + response caching are in-process, correct at the v1
+  # single-instance deployment (replicas: 1). Redis is the prerequisite for
+  # horizontal scaling, not a v1 need.
+  2b-10-redis-integration-for-sessions-and-caching: deferred
   2b-11-imagekit-provider-configuration: review
   2b-12-email-configuration-with-brevo: review
   2b-13-api-documentation-with-openapi: ready-for-dev
@@ -284,7 +289,7 @@ development_status:
   10-8-offline-status-indicators: backlog
   epic-10-retrospective: optional
 
-last_updated: 08-10-2026
+last_updated: 08-11-2026
 
 # Action items from retrospectives. See epic-{N}-retro-{date}.md for full context.
 action_items:

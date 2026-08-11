@@ -277,3 +277,15 @@ None
 - `apps/strapi/src/api/event/content-types/event/schema.json` (added venue and showtimes relations)
 - `apps/strapi/types/generated/contentTypes.d.ts` (auto-generated)
 - `apps/strapi/types/generated/components.d.ts` (auto-generated)
+
+### Review Findings
+
+From the 2026-08-11 adversarial code review of all stories in `review` status.
+Target was the CURRENT codebase audited against this spec's acceptance criteria
+(no `baseline_commit`, and the original commits have largely been rewritten).
+Only high-severity findings are recorded; see `deferred-work.md` for full detail.
+
+- [ ] [Review][Patch] The fail-closed venue delete guard is bypassable from the core Content Manager — no `beforeDelete` lifecycle and no `content-manager: { visible: false }`, so deleting a venue there skips the guard and nulls `event.venue` on live events [apps/strapi/src/plugins/venues/server/src/services/venue-admin.ts:455]
+- [ ] [Review][Patch] `shared.geo-point` accepts invalid/half coordinates — bare optional decimals, no bounds, no pairing rule [apps/strapi/src/components/shared/geo-point.json:9]
+- [ ] [Review][Patch] Two contradictory latitude ranges — admin clamps to Mercator ±85.05 while public registration allows ±90, so a venue self-registered at lat 87 is accepted then permanently unsavable in the admin form [apps/strapi/src/plugins/venues/server/src/validation/venue-admin.ts:143]
+- [x] [Review][Defer] Sub-event `startDateTime` lost its required flag, so a séance can persist with a null start and silently vanish from the grid [apps/strapi/src/plugins/events-manager/server/src/content-types/screening/schema.json:18] — deferred, pre-existing

@@ -195,7 +195,7 @@
 - **Storybook Integration:** Add Storybook with `@storybook/nextjs-vite` to client app
 - **Serwist PWA Configuration:** Configure Serwist for PWA/service worker (next-pwa successor)
 - **Dokploy Deployment:** Configure for Dokploy self-hosted deployment
-- **Redis Integration:** Required for session management, ticket inventory locks, rate limiting
+- **Redis Integration:** DEFERRED post-v1 (2026-08-11). Sessions are stateless JWT; ticket inventory locks are PostgreSQL-atomic (story 2C.4); rate limiting and response caching are in-process and correct at the v1 single-instance deployment. Redis is the prerequisite for horizontal scaling — see `sprint-change-proposal-2026-08-11.md`.
 - **Konnect Payment Gateway:** Integrate with Konnect Network for Tunisian payments (e-Dinar, Sobflous, D17, Flouci, Visa, Mastercard)
 - **Algolia Search:** Evaluate vs native Strapi v5 search, configure if retained
 - **ImageKit Media:** Preserve existing ImageKit integration for media storage/CDN

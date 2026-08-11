@@ -232,3 +232,19 @@ None
 **Modified Files:**
 
 - `apps/strapi/types/generated/contentTypes.d.ts` (auto-generated)
+
+### Review Findings
+
+From the 2026-08-11 adversarial code review of all stories in `review` status.
+Target was the CURRENT codebase audited against this spec's acceptance criteria
+(no `baseline_commit`, and the original commits have largely been rewritten).
+Only high-severity findings are recorded; see `deferred-work.md` for full detail.
+
+NOTE: this story's own ACs are MET; all four findings belong to later 2c-4 / Epic-6
+code. Contained for now only because Epic 6 is deferred post-v1 and story 3-12 flags
+the purchase surfaces off. ALL FOUR MUST BE CLOSED BEFORE EPIC 6 IS UN-DEFERRED.
+
+- [x] [Review][Defer] `qr.verify()` — correct HMAC-SHA256, constant-time — has ZERO production callers; entry paths key off a guessable `ticketNumber`, so the signature protects nothing at the door [apps/strapi/src/plugins/ticketing/server/src/services/qr.ts:182] — deferred, Epic 6 post-v1
+- [x] [Review][Defer] Admin scan endpoint filters by `ticketNumber` while the controller passes `documentId`, so every scan 400s; if fixed, validate-then-scan is check-then-act with no CAS, so two concurrent scans both admit the same ticket [apps/strapi/src/plugins/ticketing/server/src/controllers/ticket.ts:30] — deferred, Epic 6 post-v1
+- [x] [Review][Defer] Tier inventory can oversell — reservation guards only sub-event totals; each tier's own `ticketsAvailable`/`ticketsSold` is never decremented [apps/strapi/src/plugins/ticketing/server/src/services/public-api.ts:126-138] — deferred, Epic 6 post-v1
+- [x] [Review][Defer] Refund/cancel never returns inventory — no code path sets `refunded`, and `ticket.cancel()` never releases, so cancelled seats are burned permanently [apps/strapi/src/plugins/ticketing/server/src/services/ticket.ts:85] — deferred, Epic 6 post-v1

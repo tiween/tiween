@@ -161,3 +161,15 @@ Claude Opus 4.5 (claude-opus-4-5-20251101)
 | Date       | Change                                                          |
 | ---------- | --------------------------------------------------------------- |
 | 2026-01-03 | Story implemented - Brevo email provider created and configured |
+
+### Review Findings
+
+From the 2026-08-11 adversarial code review of all stories in `review` status.
+Target was the CURRENT codebase audited against this spec's acceptance criteria
+(no `baseline_commit`, and the original commits have largely been rewritten).
+Only high-severity findings are recorded; see `deferred-work.md` for full detail.
+
+- [ ] [Review][Patch] All transactional email silently no-ops in production — prod compose forwards MAILGUN*\* and never BREVO*\*, so the provider takes its keyless branch [docker-compose.prod.yml:84-87]
+- [ ] [Review][Patch] The keyless fallback RESOLVES SUCCESSFULLY, so `confirmationEmailSentAt` is stamped and the ticket/QR mail is permanently lost with no error; should throw or be gated on `NODE_ENV !== "production"` [packages/strapi-provider-email-brevo/index.js:74]
+- [x] [Review][Defer] No retry or dead-letter — a single Brevo 429 permanently drops a purchase confirmation [packages/strapi-provider-email-brevo/index.js:194] — deferred, pre-existing
+- [x] [Review][Defer] Provider package declares no scripts, so `turbo lint` / `turbo test` skip it entirely [packages/strapi-provider-email-brevo/package.json] — deferred, pre-existing

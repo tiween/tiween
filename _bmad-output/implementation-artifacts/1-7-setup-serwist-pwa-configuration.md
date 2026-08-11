@@ -411,3 +411,15 @@ Claude Opus 4.5 (claude-opus-4-5-20251101)
 ### Change Log
 
 - 2025-12-29: Configured Serwist PWA with service worker, manifest, icons, and offline page
+
+### Review Findings
+
+From the 2026-08-11 adversarial code review of all stories in `review` status.
+Target was the CURRENT codebase audited against this spec's acceptance criteria
+(no `baseline_commit`, and the original commits have largely been rewritten).
+Only high-severity findings are recorded; see `deferred-work.md` for full detail.
+
+- [ ] [Review][Patch] The service worker is never generated — `@serwist/next` works only via its webpack plugin, and Next 16.1 builds with Turbopack, so no `public/sw.js` is emitted and the build warns three times. No SW means no registration and no fetch handler, so the app is not installable [apps/client/next.config.mjs:10-17]
+- [ ] [Review][Patch] The `/offline` fallback would fail even once the SW builds — Serwist resolves fallbacks only via `matchPrecache`, `@serwist/next` globs only `.next/static` and `public/`, and no `additionalPrecacheEntries` adds the route [apps/client/src/app/sw.ts:15-24]
+- [x] [Review][Defer] `public/sw.js` is a build output in a tracked, non-ignored directory — once the SW builds, every build dirties the tree [.gitignore] — deferred, pre-existing
+- [x] [Review][Defer] Maskable icons are byte-identical to the standard icons, so Android will crop them inside the circular mask [apps/client/public/icons/icon-maskable-192x192.png] — deferred, cosmetic

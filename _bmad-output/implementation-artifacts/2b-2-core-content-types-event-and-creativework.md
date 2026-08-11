@@ -294,3 +294,14 @@ None
 
 - `apps/strapi/types/generated/contentTypes.d.ts` (auto-generated)
 - `apps/strapi/types/generated/components.d.ts` (auto-generated)
+
+### Review Findings
+
+From the 2026-08-11 adversarial code review of all stories in `review` status.
+Target was the CURRENT codebase audited against this spec's acceptance criteria
+(no `baseline_commit`, and the original commits have largely been rewritten).
+Only high-severity findings are recorded; see `deferred-work.md` for full detail.
+
+- [ ] [Review][Patch] Client contribute flow POSTs to `/api/creative-works`, which no longer routes after the plugin decomposition — the plugin registers only featured / type / search under the `/api/creative-works/` prefix, none accepting POST [apps/client/src/app/api/contribute/play/route.ts:76]
+- [ ] [Review][Patch] A test masks the breakage by mocking `url.includes("/api/persons")` and returning fake success, so the suite is green against endpoints that do not exist [apps/client/src/app/api/contribute/play/route.test.ts:72]
+- [x] [Review][Defer] `genres` is the only attribute on localized `creative-work` without `pluginOptions.i18n`, so genre links entered in `fr` are absent from `ar`/`en` [apps/strapi/src/plugins/creative-works/server/src/content-types/creative-work/schema.json:79-83] — deferred, pre-existing

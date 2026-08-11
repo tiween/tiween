@@ -255,3 +255,14 @@ None
 - `apps/strapi/src/components/creative-works/credit.json` (changed name to person relation)
 - `apps/strapi/types/generated/contentTypes.d.ts` (auto-generated)
 - `apps/strapi/types/generated/components.d.ts` (auto-generated)
+
+### Review Findings
+
+From the 2026-08-11 adversarial code review of all stories in `review` status.
+Target was the CURRENT codebase audited against this spec's acceptance criteria
+(no `baseline_commit`, and the original commits have largely been rewritten).
+Only high-severity findings are recorded; see `deferred-work.md` for full detail.
+
+- [ ] [Review][Patch] `/api/persons` and `/api/genres` do not exist — person/genre are plugin content-types with no auto-generated content-API routes, but the client still fetches and POSTs to them [apps/client/src/app/api/contribute/play/route.ts:356]
+- [x] [Review][Defer] `person.roles` JSON is vestigial and violates the hub rule — a second, unsynchronized source of truth now that role is contextual via `credit-role` [apps/strapi/src/plugins/creative-works/server/src/content-types/person/schema.json:72-79] — deferred, pre-existing
+- Verified clean: the `credit-role` naming successfully avoids the Strapi RBAC `role` collision.

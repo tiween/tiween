@@ -288,6 +288,12 @@ So that B2C users, venue managers, and admins have correct access.
 
 ## Story 2B.10: Redis Integration for Sessions and Caching
 
+> **DEFERRED POST-V1 (2026-08-11)** — see `sprint-change-proposal-2026-08-11.md`.
+> Sessions are stateless JWT; inventory locks are PostgreSQL-atomic (2C.4); rate
+> limiting and response caching run in-process, which is correct at the v1
+> single-instance deployment (`replicas: 1`). Redis returns as the prerequisite
+> for horizontal scaling, not as a v1 requirement.
+
 As a **developer**,
 I want to integrate Redis for session management and caching,
 So that the application has fast session handling and cache invalidation.

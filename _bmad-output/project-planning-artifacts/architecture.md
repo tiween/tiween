@@ -203,8 +203,16 @@ Target plugin map — 8 plugins, each one bounded context:
 | `tmdb-integration`     | none                                                                       | Unchanged; reference ACL implementation                                                                                                    |
 
 Database/cache/search decisions inherited unchanged from original architecture
-(PostgreSQL 16, Redis 7, Algolia). All content-type moves preserve
+(PostgreSQL 16, ~~Redis 7~~, Algolia). All content-type moves preserve
 `collectionName` — **no table migrations**, only UID reference updates.
+
+> **AMENDED 2026-08-11 — Redis deferred post-v1.** Story 2B.10 was descoped
+> (`sprint-change-proposal-2026-08-11.md`). There is no cache tier in v1: sessions
+> are stateless JWT, inventory locks are PostgreSQL-atomic (see the sanctioned raw-SQL
+> exception under Implementation Patterns), and rate limiting plus response caching
+> run in-process. This is consistent with the existing note that DB-level atomicity
+> is "the correctness floor and needs no new moving parts". **Binding constraint:
+> see Infrastructure & Deployment below.**
 
 ### Authentication & Security
 
@@ -243,6 +251,18 @@ response format rule unaffected).
 
 Inherited unchanged (Dokploy, Docker, GitHub Actions). No new containers;
 plugin moves are code-level only.
+
+#### v1 Constraint — single instance (2026-08-11)
+
+v1 runs `replicas: 1` (`docker-compose.prod.yml:39,104`). With Redis deferred
+post-v1, rate limiting (`apps/strapi/src/shared/rate-limit.ts`) and the trending
+cache are **in-process**, and correct only at one instance.
+
+**Horizontal scaling is blocked on story 2B.10.** At N instances without a shared
+store: per-IP rate limits multiply by N, trending caches diverge per instance, and
+cache invalidation reaches only the instance that handled the write. Treat this as
+an invariant of the v1 spine — scaling the deployment is a correctness change, not
+a capacity change.
 
 ### Decision Impact Analysis
 

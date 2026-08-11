@@ -531,3 +531,17 @@ Claude Opus 4.5 (claude-opus-4-5-20251101)
 ### Change Log
 
 - 2025-12-29: Configured Docker and docker-compose for development and production deployment
+
+### Review Findings
+
+From the 2026-08-11 adversarial code review of all stories in `review` status.
+Target was the CURRENT codebase audited against this spec's acceptance criteria
+(no `baseline_commit`, and the original commits have largely been rewritten).
+Only high-severity findings are recorded; see `deferred-work.md` for full detail.
+
+- [ ] [Review][Patch] Root `.dockerignore` omits `.env*` and `.git` — both Dockerfiles `COPY . .` from the repo root, so a local build pulls real secrets and full history into a layer, and `deploy.yml` exports every stage with `cache-to: mode=max`. The per-app `.dockerignore` files are dead: Docker reads only the context root's [.dockerignore]
+- [x] [Review][Defer] AC1's Redis service does not exist in any compose file, though `.env.example` and docs/dokploy-setup.md document it fully — operators will provision a Redis nothing connects to [docker-compose.yml:93] — **RESOLVED 2026-08-11: this is now BY DESIGN, not a defect.** Story 2B.10 was deferred post-v1 (`sprint-change-proposal-2026-08-11.md`) and the Redis container was removed from the Epic 1 AC. The `.env.example` and dokploy docs have been reconciled. This AC no longer fails.
+- [ ] [Review][Patch] Prod compose passes MAILGUN*\* and omits BREVO*\* entirely, so email fails silently in production [docker-compose.prod.yml:84]
+- [ ] [Review][Patch] Client image build likely breaks on a clean checkout — `output: env.NEXT_OUTPUT` is set to `standalone` only in the gitignored `.env.local`, so CI/Dokploy emits no `.next/standalone` and the COPY fails [apps/client/Dockerfile:90]
+- [x] [Review][Defer] Dev compose services cannot start: both dev commands resolve to the undeclared global binary `portless` [docker-compose.yml:67] — deferred, pre-existing
+- [x] [Review][Defer] Two compose projects both named `tiween` with conflicting Postgres definitions (5432/postgres_data vs 5437/data) [apps/strapi/docker-compose.yml:4] — deferred, pre-existing

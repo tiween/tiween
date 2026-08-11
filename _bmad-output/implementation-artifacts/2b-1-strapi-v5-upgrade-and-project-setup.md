@@ -555,3 +555,15 @@ Claude Opus 4.5 (claude-opus-4-5-20251101)
 **Created:**
 
 - docs/strapi-admin-credentials.md - Development admin credentials
+
+### Review Findings
+
+From the 2026-08-11 adversarial code review of all stories in `review` status.
+Target was the CURRENT codebase audited against this spec's acceptance criteria
+(no `baseline_commit`, and the original commits have largely been rewritten).
+Only high-severity findings are recorded; see `deferred-work.md` for full detail.
+
+- [ ] [Review][Patch] Real signing secrets committed and auto-copied into live `.env` on install — APP_KEYS / API_TOKEN_SALT / ADMIN_JWT_SECRET / JWT_SECRET are concrete values; `postinstall` → `setup:apps` materialises them. Scrubbing is NOT sufficient: rotate wherever deployed, the values are in git history [apps/strapi/.env.example:14-23]
+- [ ] [Review][Patch] Production Postgres TLS accepts any certificate — `ssl: { rejectUnauthorized: false }`, defaulting on [apps/strapi/config/env/production/database.ts:12-14]
+- [x] [Review][Defer] AC8 (TypeScript strict mode) not met — `strict: false` with 203 explicit `any` in src/ [apps/strapi/tsconfig.json:6] — deferred, pre-existing
+- [x] [Review][Defer] Sentry plugin hard-disabled in every environment, so backend errors are never reported [apps/strapi/config/plugins.ts:33-40] — deferred, pre-existing

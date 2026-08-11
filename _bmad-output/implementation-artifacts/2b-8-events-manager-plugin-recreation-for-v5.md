@@ -221,3 +221,14 @@ None
 **Modified Files:**
 
 - `apps/strapi/config/plugins.ts` (added events-manager plugin registration)
+
+### Review Findings
+
+From the 2026-08-11 adversarial code review of all stories in `review` status.
+Target was the CURRENT codebase audited against this spec's acceptance criteria
+(no `baseline_commit`, and the original commits have largely been rewritten).
+Only high-severity findings are recorded; see `deferred-work.md` for full detail.
+
+- [ ] [Review][Patch] `POST /events-manager/seed` is unauthenticated in every environment — declared `auth: false` with no env guard, while every sibling seed route is authenticated [apps/strapi/src/plugins/events-manager/server/src/routes/index.ts:160-168]
+- [ ] [Review][Patch] All four event-manager admin routes carry empty `policies`, so any admin can bulk-create screenings and rewrite ticket inventory for any venue [apps/strapi/src/plugins/events-manager/server/src/routes/index.ts:127-158]
+- [x] [Review][Defer] `duplicateEvent` offsets dates unvalidated and in local time on UTC instants [apps/strapi/src/plugins/events-manager/server/src/services/event-manager.ts:163-170] — deferred, pre-existing

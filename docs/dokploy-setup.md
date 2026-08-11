@@ -104,8 +104,6 @@ DATABASE_NAME=tiween_staging
 DATABASE_USERNAME=<staging-db-user>
 DATABASE_PASSWORD=<staging-db-password>
 DATABASE_SSL=true
-REDIS_HOST=<staging-redis-host>
-REDIS_PORT=6379
 APP_KEYS=<staging-app-keys>
 API_TOKEN_SALT=<staging-api-token-salt>
 ADMIN_JWT_SECRET=<staging-admin-jwt>
@@ -143,8 +141,6 @@ DATABASE_NAME=tiween_production
 DATABASE_USERNAME=<production-db-user>
 DATABASE_PASSWORD=<production-db-password>
 DATABASE_SSL=true
-REDIS_HOST=<production-redis-host>
-REDIS_PORT=6379
 APP_KEYS=<production-app-keys>
 API_TOKEN_SALT=<production-api-token-salt>
 ADMIN_JWT_SECRET=<production-admin-jwt>
@@ -332,17 +328,15 @@ Create separate databases for staging and production.
 4. Create two instances: one for staging, one for production
 5. Use internal hostnames for applications
 
-## Redis Setup
+## Redis Setup — NOT REQUIRED FOR v1
 
-### Option A: Managed Redis
+**Do not provision Redis.** Story 2B.10 was deferred post-v1 on 2026-08-11: nothing
+in the application connects to Redis. Sessions are stateless JWT, ticket inventory
+locks are PostgreSQL-atomic, and rate limiting plus response caching run in-process,
+which is correct at the v1 single-instance deployment (`replicas: 1`).
 
-- **Upstash** (free tier, serverless)
-- **Redis Cloud**
-
-### Option B: Self-Hosted via Dokploy
-
-1. Create a Redis service for each environment
-2. Use internal hostnames
+Redis becomes a prerequisite only when scaling horizontally. See
+`_bmad-output/project-planning-artifacts/sprint-change-proposal-2026-08-11.md`.
 
 ## Monitoring
 

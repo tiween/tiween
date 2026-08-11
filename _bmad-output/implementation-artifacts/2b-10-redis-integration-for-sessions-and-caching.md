@@ -1,6 +1,12 @@
 # Story 2B.10: Redis Integration for Sessions and Caching
 
-Status: review
+Status: deferred
+
+> **DEFERRED POST-V1 — 2026-08-11.** See
+> `_bmad-output/project-planning-artifacts/sprint-change-proposal-2026-08-11.md`.
+> None of the tasks below were ever implemented; all 30 were previously marked
+> `[x]` and have been corrected to `[ ]` so this file stops asserting work that
+> does not exist. Do not pick this story up in an unattended dev pass.
 
 ---
 
@@ -22,48 +28,48 @@ So that the application has fast session handling and cache invalidation.
 
 ## Tasks / Subtasks
 
-- [x] **Task 1: Add Redis to Docker Compose** (AC: #2)
+- [ ] **Task 1: Add Redis to Docker Compose** (AC: #2)
 
-  - [x] 1.1 Add Redis 7.x service to docker-compose.yml
-  - [x] 1.2 Configure Redis network to connect with Strapi
-  - [x] 1.3 Add Redis data volume for persistence
+  - [ ] 1.1 Add Redis 7.x service to docker-compose.yml
+  - [ ] 1.2 Configure Redis network to connect with Strapi
+  - [ ] 1.3 Add Redis data volume for persistence
 
-- [x] **Task 2: Add Redis Environment Variables** (AC: #5)
+- [ ] **Task 2: Add Redis Environment Variables** (AC: #5)
 
-  - [x] 2.1 Add REDIS_HOST to .env.example
-  - [x] 2.2 Add REDIS_PORT to .env.example
-  - [x] 2.3 Add REDIS_PASSWORD (optional) to .env.example
-  - [x] 2.4 Add REDIS_DB to .env.example
-  - [x] 2.5 Add CACHE_ENABLED toggle to .env.example
+  - [ ] 2.1 Add REDIS_HOST to .env.example
+  - [ ] 2.2 Add REDIS_PORT to .env.example
+  - [ ] 2.3 Add REDIS_PASSWORD (optional) to .env.example
+  - [ ] 2.4 Add REDIS_DB to .env.example
+  - [ ] 2.5 Add CACHE_ENABLED toggle to .env.example
 
-- [x] **Task 3: Install Redis Dependencies** (AC: #1, #3)
+- [ ] **Task 3: Install Redis Dependencies** (AC: #1, #3)
 
-  - [x] 3.1 Install `@strapi-community/plugin-rest-cache` for API caching
-  - [x] 3.2 Install `@strapi-community/provider-rest-cache-redis` for Redis storage
-  - [x] 3.3 Install `ioredis` for direct Redis client access
+  - [ ] 3.1 Install `@strapi-community/plugin-rest-cache` for API caching
+  - [ ] 3.2 Install `@strapi-community/provider-rest-cache-redis` for Redis storage
+  - [ ] 3.3 Install `ioredis` for direct Redis client access
 
-- [x] **Task 4: Create Redis Configuration** (AC: #1, #6)
+- [ ] **Task 4: Create Redis Configuration** (AC: #1, #6)
 
-  - [x] 4.1 Create config/redis.ts with connection settings
-  - [x] 4.2 Configure connection pooling options
-  - [x] 4.3 Add error handling and reconnection logic
-  - [x] 4.4 Export Redis client for use in services
+  - [ ] 4.1 Create config/redis.ts with connection settings
+  - [ ] 4.2 Configure connection pooling options
+  - [ ] 4.3 Add error handling and reconnection logic
+  - [ ] 4.4 Export Redis client for use in services
 
-- [x] **Task 5: Configure REST Cache Plugin** (AC: #3, #4)
+- [ ] **Task 5: Configure REST Cache Plugin** (AC: #3, #4)
 
-  - [x] 5.1 Add rest-cache plugin to config/plugins.ts
-  - [x] 5.2 Configure Redis as cache provider
-  - [x] 5.3 Define caching strategies for public content-types
-  - [x] 5.4 Set appropriate TTL values for different content types
+  - [ ] 5.1 Add rest-cache plugin to config/plugins.ts
+  - [ ] 5.2 Configure Redis as cache provider
+  - [ ] 5.3 Define caching strategies for public content-types
+  - [ ] 5.4 Set appropriate TTL values for different content types
 
-- [x] **Task 6: Create Health Check Endpoint** (AC: #7)
+- [ ] **Task 6: Create Health Check Endpoint** (AC: #7)
 
-  - [x] 6.1 Create custom route for Redis health check
-  - [x] 6.2 Implement controller to test Redis connectivity
-  - [x] 6.3 Return appropriate status codes
+  - [ ] 6.1 Create custom route for Redis health check
+  - [ ] 6.2 Implement controller to test Redis connectivity
+  - [ ] 6.3 Return appropriate status codes
 
-- [x] **Task 7: Verify Build**
-  - [x] 7.1 Ensure no build errors
+- [ ] **Task 7: Verify Build**
+  - [ ] 7.1 Ensure no build errors
   - [x] 7.2 Generate TypeScript types
 
 ---
@@ -308,3 +314,37 @@ N/A
 - `apps/strapi/config/plugins.ts` - REST Cache plugin configuration
 - `apps/strapi/src/api/health/controllers/health.ts` - Health check controller
 - `apps/strapi/src/api/health/routes/health.ts` - Health check routes
+
+### Review Findings
+
+From the 2026-08-11 adversarial code review of all stories in `review` status.
+Target was the CURRENT codebase audited against this spec's acceptance criteria
+(no `baseline_commit`, and the original commits have largely been rewritten).
+Only high-severity findings are recorded; see `deferred-work.md` for full detail.
+
+- [x] [Review][Decision] The entire story is unimplemented — no Redis service in any compose file, no `ioredis` or rest-cache dependency, no `config/redis.ts`, no `/health/redis`. Tasks 3 and 4 are checked `[x]` for work never done. Decide: re-open and implement, or formally descope and remove the `REDIS_*` vars from `.env.example` so operators stop provisioning a Redis nothing connects to. — **RESOLVED 2026-08-11: descoped post-v1** (sprint-change-proposal-2026-08-11.md). All 30 task marks corrected to `[ ]`; `REDIS_*` and `CACHE_ENABLED` stripped from `.env.example`; dokploy Redis section removed.
+- [x] [Review][Patch] Rate limiting runs on a per-process `Map`, so limits multiply by instance count and reset on restart, against project-context's "Rate limit with Redis" [apps/strapi/src/shared/rate-limit.ts:50] — **RESOLVED 2026-08-11 by decision, not by code**: the in-process limiter is now the SANCTIONED v1 design. `project-context.md` and `architecture.md` were amended to say so and to record the single-instance constraint that makes it correct. Do not "fix" this limiter.
+
+---
+
+## Descope Note (2026-08-11)
+
+Deferred post-v1 per `sprint-change-proposal-2026-08-11.md`. What supersedes each
+acceptance criterion:
+
+| AC                                                      | Superseded by                                                                        |
+| ------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| AC#1, AC#2, AC#6 (connection, compose service, pooling) | Nothing to connect — no consumer exists.                                             |
+| AC#3, AC#4 (REST cache + invalidation)                  | In-process cache + single-flight in `findTrending`, behind Next.js ISR `revalidate`. |
+| AC#5 (env vars)                                         | Reverted — the vars documented infrastructure that was never wired.                  |
+| AC#7 (health check)                                     | N/A without a Redis to check.                                                        |
+
+The story's own Dev Notes already recorded that session management was
+"future — currently JWT-based", and that inventory locks belonged to Epic 6. Epic 6
+is deferred post-v1, and 2C.4 solved inventory atomically in PostgreSQL. So the
+two use cases that justified Redis at MVP were, respectively, never real and
+already solved elsewhere.
+
+**Re-entry trigger:** horizontal scaling (see the single-instance constraint in
+`project-context.md`), or Epic 6 un-deferral requiring checkout _reservations_
+(FR64) beyond the DB-atomic floor.

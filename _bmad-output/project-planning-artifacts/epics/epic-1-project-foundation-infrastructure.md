@@ -189,7 +189,9 @@ So that the application can be deployed to production infrastructure.
 - Next.js client container
 - Strapi container
 - PostgreSQL container
-- Redis container
+  <!-- Redis container removed 2026-08-11: story 2B.10 deferred post-v1
+       (sprint-change-proposal-2026-08-11.md). This AC was the reason story 1-8
+       scored as failing AC1 in the 2026-08-11 code review. -->
   **And** `docker-compose.prod.yml` is created for production with:
 - Optimized multi-stage builds
 - Environment variable configuration
@@ -197,7 +199,7 @@ So that the application can be deployed to production infrastructure.
   **And** `Dockerfile` is created for each app (`apps/client`, `apps/strapi`)
   **And** `.env.example` files document all required environment variables
   **And** `docker-compose up` starts all services locally
-  **And** containers can communicate (client → strapi → postgres/redis)
+  **And** containers can communicate (client → strapi → postgres)
 
 ---
 

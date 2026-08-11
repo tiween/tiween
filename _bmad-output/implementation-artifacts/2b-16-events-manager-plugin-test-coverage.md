@@ -255,3 +255,16 @@ claude-opus-4-7 (1M context)
 - [ ] [Review][Patch] Synchronous file operations in test teardown [apps/strapi/tests/helpers/strapi.ts]
 - [x] [Review][Defer] Missing validation for date/time strings in service [apps/strapi/src/plugins/events-manager/server/src/services/event-manager.ts] — RESOLVED 2026-06-11: `createBulkShowtimes` now validates dates (YYYY-MM-DD + calendar round-trip check), time (HH:mm), price and ticketsAvailable up front (no partial writes); 9 unit tests added
 - [x] [Review][Defer] Missing bounds check for ticket inventory [apps/strapi/src/plugins/events-manager/server/src/services/event-manager.ts] — RESOLVED 2026-06-11: `updateTicketInventory` now enforces non-negative integers, rejects ticketsSold > ticketsAvailable, fetches the showtime to prevent lowering capacity below already-sold tickets, and 404s on missing showtime; 7 unit tests added
+
+### Review Findings
+
+From the 2026-08-11 adversarial code review of all stories in `review` status.
+Target was the CURRENT codebase audited against this spec's acceptance criteria
+(no `baseline_commit`, and the original commits have largely been rewritten).
+Only high-severity findings are recorded; see `deferred-work.md` for full detail.
+
+- [ ] [Review][Patch] The backend suites this story exists to provide never execute in CI — the server jest project matches only `**/*.unit.test.ts`, so `event-manager.service.test.ts`, `event-manager.controller.test.ts` and `tests/app.test.js` are silently skipped by `yarn test`, the only command CI runs [apps/strapi/jest.config.cjs:55]
+- [ ] [Review][Patch] The ≥80% coverage gate is neither measured nor enforced — no `coverageThreshold` or `collectCoverage` anywhere [apps/strapi/jest.config.cjs:130]
+- [ ] [Review][Patch] AC3 substituted — it requires Supertest against `strapi.server.httpServer` with no manual `ctx` construction, but the suite builds a Koa stub and asserts on jest mocks, so route wiring, admin auth and policies are untested [apps/strapi/src/plugins/events-manager/server/src/controllers/__tests__/event-manager.controller.test.ts:59-78]
+- [x] [Review][Defer] `tests/README.md` is stale and now misleading — wrong `yarn test` scope, references `jest.config.ts` (now `.cjs`) and `seedShowtime()` (now `seedScreening`) [apps/strapi/tests/README.md:13] — deferred, pre-existing
+- Verified clean: the 24 cases that DO run in `event-manager.unit.test.ts` are genuine — they mock only `strapi.documents()` and assert real validation/bounds behavior, not tautologies.

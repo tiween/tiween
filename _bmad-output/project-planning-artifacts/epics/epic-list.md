@@ -69,7 +69,7 @@ Fully migrated Strapi v5 backend with core content-types ready for frontend inte
 - Events Manager plugin recreation for v5
 - Basic user permissions (public, authenticated, admin)
 - Data migration scripts from legacy Strapi v4
-- Redis integration (sessions, caching)
+- ~~Redis integration (sessions, caching)~~ — DEFERRED post-v1 (2026-08-11)
 - ImageKit provider configuration
 - Brevo email configuration (basic)
 - Database seeding for development
@@ -180,7 +180,7 @@ Users can register, login, and set basic preferences.
 - Basic profile management (name, email)
 - Language preference setting (AR/FR/EN)
 - Default region setting
-- Session management with Redis
+- Session management (stateless JWT — never Redis-backed)
 
 **Phase 2 Scope (Deferred):**
 

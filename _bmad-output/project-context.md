@@ -14,23 +14,23 @@ _This file contains critical rules and patterns that AI agents must follow when 
 
 ## Technology Stack & Versions
 
-| Category           | Technology           | Version     | Notes                                     |
-| ------------------ | -------------------- | ----------- | ----------------------------------------- |
-| **Frontend**       | Next.js (App Router) | 16.x        | Turbopack; React 19; use RSC by default   |
-| **Backend**        | Strapi               | v5.x        | Document Service API (not Entity Service) |
-| **Language**       | TypeScript           | strict mode | No `any` types                            |
-| **Styling**        | Tailwind CSS         | v4          | Use `@theme` directive                    |
-| **Components**     | shadcn/ui            | latest      | Copy model, not npm package               |
-| **State (client)** | Zustand              | latest      | With devtools + persist                   |
-| **State (server)** | TanStack Query       | v5          | react-query; for Strapi data fetching     |
-| **Auth**           | NextAuth.js          | v4          | JWT strategy                              |
-| **i18n**           | next-intl            | latest      | AR/FR/EN locales                          |
-| **PWA**            | Serwist              | latest      | next-pwa successor                        |
-| **Testing**        | Vitest + Playwright  | latest      | Co-located tests                          |
-| **Database**       | PostgreSQL           | 16.x        | Via Strapi                                |
-| **Cache**          | Redis                | 7.x         | Sessions, rate limiting                   |
-| **Monorepo**       | Turborepo            | latest      | Yarn workspaces                           |
-| **Node**           | Node.js              | 22.x        | Required by starter                       |
+| Category           | Technology            | Version     | Notes                                                        |
+| ------------------ | --------------------- | ----------- | ------------------------------------------------------------ |
+| **Frontend**       | Next.js (App Router)  | 16.x        | Turbopack; React 19; use RSC by default                      |
+| **Backend**        | Strapi                | v5.x        | Document Service API (not Entity Service)                    |
+| **Language**       | TypeScript            | strict mode | No `any` types                                               |
+| **Styling**        | Tailwind CSS          | v4          | Use `@theme` directive                                       |
+| **Components**     | shadcn/ui             | latest      | Copy model, not npm package                                  |
+| **State (client)** | Zustand               | latest      | With devtools + persist                                      |
+| **State (server)** | TanStack Query        | v5          | react-query; for Strapi data fetching                        |
+| **Auth**           | NextAuth.js           | v4          | JWT strategy                                                 |
+| **i18n**           | next-intl             | latest      | AR/FR/EN locales                                             |
+| **PWA**            | Serwist               | latest      | next-pwa successor                                           |
+| **Testing**        | Vitest + Playwright   | latest      | Co-located tests                                             |
+| **Database**       | PostgreSQL            | 16.x        | Via Strapi                                                   |
+| **Cache**          | _(none — in-process)_ | —           | Redis DEFERRED post-v1 (2026-08-11); v1 runs single-instance |
+| **Monorepo**       | Turborepo             | latest      | Yarn workspaces                                              |
+| **Node**           | Node.js               | 22.x        | Required by starter                                          |
 
 ---
 
@@ -185,8 +185,30 @@ apps/client/src/
 - **Never expose API keys in client** - Use server actions or API routes
 - **Validate all user inputs** - Zod schemas required
 - **Use HMAC-SHA256 for QR tickets** - Cryptographic signing
-- **Rate limit with Redis** - Protect sensitive endpoints
+- **Rate limit in-process** - `apps/strapi/src/shared/rate-limit.ts` (per-IP fixed window). Redis-backed limiting is post-v1. VALID ONLY AT SINGLE-INSTANCE — see the deployment constraint below.
 - **Sanitize user content** - XSS prevention
+
+---
+
+## v1 Deployment Constraint — single instance
+
+v1 runs `replicas: 1` (`docker-compose.prod.yml:39,104`). Rate limiting
+(`src/shared/rate-limit.ts`) and the trending cache
+(`events-manager/.../utils/trending-cache.ts`) are **in-process**, and are correct
+only under that assumption.
+
+**Do NOT scale horizontally without first implementing story 2B.10 (Redis).** With
+N instances:
+
+- per-IP rate limits multiply by N (an intended 100/min ceiling becomes N×100/min)
+- each instance keeps a divergent trending cache, so users see inconsistent ordering
+- cache invalidation on content update reaches only the instance that handled the write
+
+Redis was deferred post-v1 on 2026-08-11
+(`project-planning-artifacts/sprint-change-proposal-2026-08-11.md`). Sessions are
+stateless JWT and never needed a store; ticket inventory locks are
+PostgreSQL-atomic via story 2C.4. **Do not "fix" the in-process limiter or cache by
+adding Redis** — that is a deliberate deferral, not an oversight.
 
 ---
 
