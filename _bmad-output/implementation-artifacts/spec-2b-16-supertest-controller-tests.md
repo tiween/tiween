@@ -2,7 +2,8 @@
 title: "2B.16 AC#3 — replace ctx-stub controller tests with real Supertest HTTP tests"
 type: "chore"
 created: "2026-08-11"
-status: "ready-for-dev"
+baseline_commit: 4fd47dc678aa81b4348b08eef3a10967b3e88144
+status: "done"
 review_loop_iteration: 0
 context: []
 ---
@@ -96,9 +97,9 @@ for the first time.
 
 **Execution:**
 
-- [ ] `apps/strapi/src/plugins/events-manager/server/src/controllers/__tests__/event-manager.controller.test.ts` -- rewrite as a Supertest suite: `request(strapi.server.httpServer)`, admin token from `createAdminSession`, one `describe` per endpoint covering every Matrix row -- delivers AC#3 and removes the forbidden `ctx` stub in one move.
-- [ ] same file -- add the unauthenticated 401 case for all four routes -- the boundary the stub pattern structurally could not reach.
-- [ ] same file -- replace the stale scope-note header with a short note recording that AC#3 is now met and why the original deviation lapsed -- keeps the file self-explaining.
+- [x] `apps/strapi/src/plugins/events-manager/server/src/controllers/__tests__/event-manager.controller.test.ts` -- rewrite as a Supertest suite: `request(strapi.server.httpServer)`, admin token from `createAdminSession`, one `describe` per endpoint covering every Matrix row -- delivers AC#3 and removes the forbidden `ctx` stub in one move.
+- [x] same file -- add the unauthenticated 401 case for all four routes -- the boundary the stub pattern structurally could not reach.
+- [x] same file -- replace the stale scope-note header with a short note recording that AC#3 is now met and why the original deviation lapsed -- keeps the file self-explaining.
 
 **Acceptance Criteria:**
 
@@ -139,3 +140,35 @@ over the `(strapi as any)` cast in the venues suite — AC#7 forbids `any`.
 - `cd apps/strapi && yarn test:integration` -- expected: all boot-based suites pass; the rewritten controller suite reports the same or a greater test count than the 12 cases the stub suite carried.
 - `grep -n "makeCtx\|badRequest: jest.fn\|controller(\"event-manager\")" apps/strapi/src/plugins/events-manager/server/src/controllers/__tests__/event-manager.controller.test.ts` -- expected: no matches.
 - `cd apps/strapi && yarn lint` -- expected: clean, no `any` introduced.
+
+## Suggested Review Order
+
+**The boundary that was previously untestable**
+
+- Start here: authentication is now proven at the transport, not assumed in prose.
+  [`event-manager.controller.test.ts:75`](../../apps/strapi/src/plugins/events-manager/server/src/controllers/__tests__/event-manager.controller.test.ts#L75)
+
+- The claim that justified the whole admin-helper detour, finally asserted.
+  [`event-manager.controller.test.ts:381`](../../apps/strapi/src/plugins/events-manager/server/src/controllers/__tests__/event-manager.controller.test.ts#L381)
+
+**How the ctx stub was replaced**
+
+- Real HTTP handle; typed, so AC#7's no-`any` rule holds.
+  [`event-manager.controller.test.ts:72`](../../apps/strapi/src/plugins/events-manager/server/src/controllers/__tests__/event-manager.controller.test.ts#L72)
+
+- Header records why the original deviation lapsed and the two stale-AC corrections.
+  [`event-manager.controller.test.ts:10`](../../apps/strapi/src/plugins/events-manager/server/src/controllers/__tests__/event-manager.controller.test.ts#L10)
+
+- Null-safe error reads: a 500 or HTML body reports itself instead of a TypeError.
+  [`event-manager.controller.test.ts:97`](../../apps/strapi/src/plugins/events-manager/server/src/controllers/__tests__/event-manager.controller.test.ts#L97)
+
+- Teardown ordering: cleanup runs even when the admin delete rejects.
+  [`event-manager.controller.test.ts:122`](../../apps/strapi/src/plugins/events-manager/server/src/controllers/__tests__/event-manager.controller.test.ts#L122)
+
+**Records reconciled with reality**
+
+- The deviation this work reverses, marked resolved rather than deleted.
+  [`2b-16-...md`](2b-16-events-manager-plugin-test-coverage.md)
+
+- Ledger entry re-partitioned into still-true / now-false / overstated claims.
+  [`deferred-work.md`](deferred-work.md)

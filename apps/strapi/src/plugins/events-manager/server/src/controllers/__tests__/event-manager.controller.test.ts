@@ -1,24 +1,36 @@
 /**
- * Controller tests for events-manager.event-manager.
+ * The events-manager admin endpoints, over real HTTP, against a Strapi booted
+ * on SQLite.
  *
- * Exercises the controller layer directly via the Strapi service registry —
- * we construct a minimal `ctx` (Koa context) stub and invoke the controller
- * handler, then assert on its response. This isolates controller logic
- * (request body shape, validation, response envelope) from HTTP transport.
+ * WHICH LAYER THIS TESTS: `request(strapi.server.httpServer)` with a real admin
+ * session token — the same transport the admin panel uses. Route registration,
+ * the admin-auth boundary and the response envelope are all exercised, so a
+ * handler that is never routed, or a route left publicly reachable, fails here.
  *
- * SCOPE NOTE (deviation from story 2B.16): the original story spec described
- * Supertest end-to-end tests against admin-authenticated HTTP routes
- * (`POST /events-manager/events`, etc.). The plugin's actual routes are
- * mounted under the admin namespace (`/admin/events-manager/...`) and
- * require an admin JWT — not a users-permissions JWT. Seeding an admin
- * user and issuing an admin JWT for Supertest is ~30 lines of helper
- * setup we have not yet built. To keep this story shippable we test the
- * controller surface directly via `ctx` stubs, which proves the same
- * request/response contract without the auth plumbing. End-to-end HTTP
- * round-trips can be added in a follow-up story (or as part of the
- * Strapi upgrade story).
+ * SCOPE NOTE (story 2B.16 AC#3): an earlier revision of this file built a Koa
+ * `ctx` stub and invoked the handler through the plugin controller registry,
+ * justified at the time by the absence of an admin-JWT helper — an admin route
+ * rejects a users-permissions JWT, so there was no way to authenticate. That
+ * helper now exists (`tests/helpers/admin.ts` → `createAdminSession`), so the
+ * deviation has lapsed and AC#3 is met directly: no `ctx` is constructed and no
+ * handler is reached through the registry.
+ *
+ * Two facts worth not re-deriving:
+ *  - the handler is `createBulkScreenings`, not `createBulkShowtimes` (the AC
+ *    text in 2B.16 is stale);
+ *  - admin-type plugin routes mount at `/events-manager/…` — with NO `/admin`
+ *    and NO `/api` segment (the admin UI calls `post("/events-manager/seed")`).
+ *
+ * Named `*.controller.test.ts` so it stays in the opt-in integration project
+ * (`yarn test:integration`) and never runs in the default `yarn test` gate.
+ * Run it through that script, never bare `jest`: the plugin resolves from
+ * `dist/`, and the script refreshes the build first.
  */
+
+import request from "supertest"
+
 import type { Core } from "@strapi/strapi"
+import type { Response } from "supertest"
 
 import {
   cleanupContent,
@@ -27,102 +39,104 @@ import {
   seedScreening,
   seedVenue,
 } from "../../../../../../../tests/fixtures/events"
+import { createAdminSession } from "../../../../../../../tests/helpers/admin"
+import { seedUserAndJwt } from "../../../../../../../tests/helpers/auth"
 import {
   cleanupStrapi,
   setupStrapi,
 } from "../../../../../../../tests/helpers/strapi"
 
-jest.setTimeout(60000)
+// Booting Strapi costs 5-15s and minting the admin session adds a bcrypt user
+// create plus a refresh/access token exchange, all inside the first test's
+// budget. 60s left almost no headroom on a cold dist/ build; 120s matches the
+// two sibling boot-based suites.
+jest.setTimeout(120000)
+
+const SCREENING_UID = "plugin::events-manager.screening"
+const EVENT_UID = "plugin::events-manager.event"
+
+const BULK_SCREENINGS = "/events-manager/bulk-screenings"
+const DUPLICATE_EVENT = "/events-manager/duplicate-event"
+const TICKET_INVENTORY = "/events-manager/ticket-inventory"
+const EVENT_STATS = "/events-manager/event-stats"
+
+/** Read-back page size, matching `cleanupContent`'s own explicit limit. */
+const READ_BACK_LIMIT = 100
+/** Every fixture and every handler below writes drafts; never rely on the default. */
+const DRAFT = "draft" as const
 
 let strapi: Core.Strapi
+let adminToken: string
+let destroyAdmin: () => Promise<void>
 
-interface EventManagerController {
-  createBulkScreenings: (ctx: CtxLike) => Promise<void>
-  duplicateEvent: (ctx: CtxLike) => Promise<void>
-  updateTicketInventory: (ctx: CtxLike) => Promise<void>
-  getEventStats: (ctx: CtxLike) => Promise<void>
+const api = () => request(strapi.server.httpServer)
+
+/** Attach the admin session token. A users-permissions JWT is NOT accepted. */
+const auth = <T extends { set: (key: string, value: string) => T }>(req: T) =>
+  req.set("Authorization", `Bearer ${adminToken}`)
+
+/** Raw response summary, for failure output when an assertion does not hold. */
+const detail = (res: Response): string =>
+  `HTTP ${res.status} — body: ${res.text || JSON.stringify(res.body)}`
+
+/**
+ * Null-safe read of Strapi's error envelope.
+ *
+ * `res.body.error.message` read directly throws a TypeError whenever the
+ * response is not the expected 400 envelope (a 500, an HTML error page, an
+ * empty body) — and that TypeError then MASKS the real status and payload,
+ * which is the one thing worth seeing when the test fails.
+ */
+const errorMessage = (res: Response): string | undefined => {
+  const body = res.body as { error?: { message?: unknown } } | undefined
+  const message = body?.error?.message
+  return typeof message === "string" ? message : undefined
 }
 
-function controller(): EventManagerController {
-  return (strapi as any).plugin("events-manager").controller("event-manager")
-}
-
-interface CtxLike {
-  request: { body: Record<string, unknown> }
-  params: Record<string, string>
-  body?: unknown
-  status?: number
-  send: jest.Mock
-  badRequest: jest.Mock
-}
-
-function makeCtx(
-  body: Record<string, unknown> = {},
-  params: Record<string, string> = {}
-): CtxLike {
-  const ctx: CtxLike = {
-    request: { body },
-    params,
-    send: jest.fn(function (payload: unknown) {
-      ctx.body = payload
-      ctx.status = 200
-      return payload
-    }) as jest.Mock,
-    badRequest: jest.fn(function (message: string) {
-      ctx.body = { error: message }
-      ctx.status = 400
-      return { error: message }
-    }) as jest.Mock,
-  }
-  return ctx
+/** Assert a 400 whose message matches, with the raw payload on failure. */
+function expectBadRequest(res: Response, pattern: RegExp): void {
+  expect(detail(res)).toContain("HTTP 400")
+  // Falls back to the raw summary so a missing envelope is reported as itself
+  // rather than as `undefined`.
+  expect(errorMessage(res) ?? detail(res)).toMatch(pattern)
 }
 
 beforeAll(async () => {
   strapi = await setupStrapi()
+  const session = await createAdminSession(strapi)
+  adminToken = session.token
+  destroyAdmin = session.destroy
+
+  // Without this, a minting failure surfaces later as `Bearer undefined` 401s
+  // that read as "the route rejected a valid admin" — the wrong diagnosis.
+  if (typeof adminToken !== "string" || adminToken.length === 0) {
+    throw new Error(
+      `Admin session token was not minted (got ${JSON.stringify(adminToken)}); every authenticated test below would fail for the wrong reason.`
+    )
+  }
 })
 
 afterAll(async () => {
-  await cleanupStrapi()
+  // `cleanupStrapi` MUST run even if user deletion throws: otherwise the booted
+  // instance, its DB pool and its cron timers leak and jest never exits.
+  try {
+    await destroyAdmin?.()
+  } finally {
+    await cleanupStrapi()
+  }
 })
 
 afterEach(async () => {
   await cleanupContent(strapi)
 })
 
-describe("event-manager controller: createBulkScreenings", () => {
-  it("400s when eventId is missing", async () => {
-    const ctx = makeCtx({
-      movieId: "m1",
-      dates: ["2026-07-01"],
-      time: "20:00",
-    })
-
-    await controller().createBulkScreenings(ctx)
-
-    expect(ctx.badRequest).toHaveBeenCalledWith(
-      expect.stringMatching(/missing required/i)
-    )
-    expect(ctx.send).not.toHaveBeenCalled()
-  })
-
-  it("400s when dates is missing", async () => {
-    const ctx = makeCtx({
-      eventId: "e1",
-      movieId: "m1",
-      time: "20:00",
-    })
-
-    await controller().createBulkScreenings(ctx)
-
-    expect(ctx.badRequest).toHaveBeenCalled()
-  })
-
-  it("200s and returns created screenings on happy path", async () => {
+describe("POST /events-manager/bulk-screenings", () => {
+  it("creates the screenings and returns them (200)", async () => {
     const venue = await seedVenue(strapi)
     const event = await seedEvent(strapi, { venueDocumentId: venue.documentId })
     const movie = await seedMovie(strapi)
 
-    const ctx = makeCtx({
+    const res = await auth(api().post(BULK_SCREENINGS)).send({
       eventId: event.documentId,
       movieId: movie.documentId,
       dates: ["2026-07-01", "2026-07-02"],
@@ -130,104 +144,179 @@ describe("event-manager controller: createBulkScreenings", () => {
       ticketsAvailable: 100,
     })
 
-    await controller().createBulkScreenings(ctx)
+    expect(res.status).toBe(200)
+    expect(res.body.message).toMatch(/created 2 screenings/i)
+    expect(res.body.data).toHaveLength(2)
 
-    expect(ctx.send).toHaveBeenCalledTimes(1)
-    const payload = (ctx.send.mock.calls[0]?.[0] ?? {}) as {
-      message: string
-      data: unknown[]
-    }
-    expect(payload.message).toMatch(/created 2 screenings/i)
-    expect(payload.data).toHaveLength(2)
+    // A 200 only says the request was shaped acceptably — read the rows back.
+    const saved = await strapi.documents(SCREENING_UID).findMany({
+      filters: { event: { documentId: event.documentId } },
+      populate: ["movie"],
+      limit: READ_BACK_LIMIT,
+      status: DRAFT,
+    })
+    expect(saved).toHaveLength(2)
+    expect(saved.every((s) => s.ticketsAvailable === 100)).toBe(true)
+    expect(
+      saved
+        .map((s) => s.startDateTime)
+        .sort((a, b) => String(a).localeCompare(String(b)))
+    ).toEqual(["2026-07-01T20:00:00.000Z", "2026-07-02T20:00:00.000Z"])
+  })
+
+  it("400s when eventId is missing", async () => {
+    const res = await auth(api().post(BULK_SCREENINGS)).send({
+      movieId: "m1",
+      dates: ["2026-07-01"],
+      time: "20:00",
+    })
+
+    expectBadRequest(res, /missing required/i)
+  })
+
+  it("400s when dates is missing", async () => {
+    const res = await auth(api().post(BULK_SCREENINGS)).send({
+      eventId: "e1",
+      movieId: "m1",
+      time: "20:00",
+    })
+
+    expectBadRequest(res, /missing required/i)
+  })
+
+  it("400s when the service rejects the payload (invalid date)", async () => {
+    const venue = await seedVenue(strapi)
+    const event = await seedEvent(strapi, { venueDocumentId: venue.documentId })
+    const movie = await seedMovie(strapi)
+
+    const res = await auth(api().post(BULK_SCREENINGS)).send({
+      eventId: event.documentId,
+      movieId: movie.documentId,
+      dates: ["2026-02-30"],
+      time: "20:00",
+    })
+
+    expectBadRequest(res, /not a valid calendar date/i)
+
+    // The up-front validation is what keeps a bad entry from writing partials.
+    const saved = await strapi
+      .documents(SCREENING_UID)
+      .findMany({ limit: READ_BACK_LIMIT, status: DRAFT })
+    expect(saved).toHaveLength(0)
   })
 })
 
-describe("event-manager controller: duplicateEvent", () => {
-  it("400s when eventId is missing", async () => {
-    const ctx = makeCtx({})
-
-    await controller().duplicateEvent(ctx)
-
-    expect(ctx.badRequest).toHaveBeenCalledWith(
-      expect.stringMatching(/missing required field: eventid/i)
-    )
-  })
-
-  it("200s and returns the duplicated event on happy path", async () => {
+describe("POST /events-manager/duplicate-event", () => {
+  it("returns the copy, with a new unique slug (200)", async () => {
     const venue = await seedVenue(strapi)
     const event = await seedEvent(strapi, { venueDocumentId: venue.documentId })
 
-    const ctx = makeCtx({ eventId: event.documentId, newTitle: "Encore" })
+    const res = await auth(api().post(DUPLICATE_EVENT)).send({
+      eventId: event.documentId,
+      newTitle: "Encore",
+    })
 
-    await controller().duplicateEvent(ctx)
+    expect(res.status).toBe(200)
+    expect(res.body.message).toMatch(/duplicated successfully/i)
+    expect(res.body.data.title).toBe("Encore")
+    expect(res.body.data.documentId).not.toBe(event.documentId)
+    expect(res.body.data.slug).not.toBe(event.slug)
+    expect(res.body.data.slug).toContain(`${event.slug}-copy-`)
 
-    expect(ctx.send).toHaveBeenCalledTimes(1)
-    const payload = (ctx.send.mock.calls[0]?.[0] ?? {}) as {
-      message: string
-      data: { title: string }
-    }
-    expect(payload.message).toMatch(/duplicated successfully/i)
-    expect(payload.data.title).toBe("Encore")
+    const events = await strapi
+      .documents(EVENT_UID)
+      .findMany({ limit: READ_BACK_LIMIT, status: DRAFT })
+    expect(events).toHaveLength(2)
   })
 
-  it("400s when given a non-existent eventId (service throws 'Event not found')", async () => {
-    const ctx = makeCtx({ eventId: "non-existent" })
+  it("400s when eventId is missing", async () => {
+    const res = await auth(api().post(DUPLICATE_EVENT)).send({})
 
-    await controller().duplicateEvent(ctx)
+    expectBadRequest(res, /missing required field: eventid/i)
+  })
 
-    expect(ctx.badRequest).toHaveBeenCalledWith(
-      expect.stringMatching(/event not found/i)
-    )
+  it("400s for a non-existent eventId (service throws 'Event not found')", async () => {
+    const res = await auth(api().post(DUPLICATE_EVENT)).send({
+      eventId: "non-existent",
+    })
+
+    expectBadRequest(res, /event not found/i)
   })
 })
 
-describe("event-manager controller: updateTicketInventory", () => {
-  it("400s when subEventId is missing", async () => {
-    const ctx = makeCtx({ ticketsAvailable: 100 })
-    await controller().updateTicketInventory(ctx)
-    expect(ctx.badRequest).toHaveBeenCalled()
-  })
-
-  it("400s when ticketsAvailable is undefined", async () => {
-    const ctx = makeCtx({ subEventId: "s1" })
-    await controller().updateTicketInventory(ctx)
-    expect(ctx.badRequest).toHaveBeenCalled()
-  })
-
-  it("200s on valid update", async () => {
+describe("PUT /events-manager/ticket-inventory", () => {
+  it("persists the new counts (200)", async () => {
     const venue = await seedVenue(strapi)
     const event = await seedEvent(strapi, { venueDocumentId: venue.documentId })
     const screening = await seedScreening(strapi, {
       eventDocumentId: event.documentId,
     })
 
-    const ctx = makeCtx({
+    const res = await auth(api().put(TICKET_INVENTORY)).send({
       subEventId: screening.documentId,
       kind: "screening",
       ticketsAvailable: 200,
       ticketsSold: 50,
     })
 
-    await controller().updateTicketInventory(ctx)
+    expect(res.status).toBe(200)
+    expect(res.body.data.ticketsAvailable).toBe(200)
+    expect(res.body.data.ticketsSold).toBe(50)
 
-    expect(ctx.send).toHaveBeenCalledTimes(1)
-    const payload = (ctx.send.mock.calls[0]?.[0] ?? {}) as {
-      message: string
-      data: { ticketsAvailable: number; ticketsSold: number }
-    }
-    expect(payload.data.ticketsAvailable).toBe(200)
-    expect(payload.data.ticketsSold).toBe(50)
+    const saved = await strapi.documents(SCREENING_UID).findOne({
+      documentId: screening.documentId,
+      status: DRAFT,
+    })
+    expect(saved?.ticketsAvailable).toBe(200)
+    expect(saved?.ticketsSold).toBe(50)
+  })
+
+  it("400s when subEventId is missing", async () => {
+    const res = await auth(api().put(TICKET_INVENTORY)).send({
+      ticketsAvailable: 100,
+    })
+
+    expectBadRequest(res, /missing required/i)
+  })
+
+  it("400s when ticketsAvailable is undefined", async () => {
+    const res = await auth(api().put(TICKET_INVENTORY)).send({
+      subEventId: "s1",
+    })
+
+    expectBadRequest(res, /missing required/i)
+  })
+
+  it("400s when ticketsSold exceeds ticketsAvailable (service bounds check)", async () => {
+    const venue = await seedVenue(strapi)
+    const event = await seedEvent(strapi, { venueDocumentId: venue.documentId })
+    const screening = await seedScreening(strapi, {
+      eventDocumentId: event.documentId,
+      ticketsAvailable: 50,
+      ticketsSold: 10,
+    })
+
+    const res = await auth(api().put(TICKET_INVENTORY)).send({
+      subEventId: screening.documentId,
+      kind: "screening",
+      ticketsAvailable: 20,
+      ticketsSold: 30,
+    })
+
+    expectBadRequest(res, /cannot exceed ticketsavailable/i)
+
+    // The rejected write left the row untouched.
+    const saved = await strapi.documents(SCREENING_UID).findOne({
+      documentId: screening.documentId,
+      status: DRAFT,
+    })
+    expect(saved?.ticketsAvailable).toBe(50)
+    expect(saved?.ticketsSold).toBe(10)
   })
 })
 
-describe("event-manager controller: getEventStats", () => {
-  it("400s when eventId param is missing", async () => {
-    const ctx = makeCtx({}, {})
-    await controller().getEventStats(ctx)
-    expect(ctx.badRequest).toHaveBeenCalled()
-  })
-
-  it("200s and returns stats on happy path", async () => {
+describe("GET /events-manager/event-stats/:eventId", () => {
+  it("returns the aggregate payload (200)", async () => {
     const venue = await seedVenue(strapi)
     const event = await seedEvent(strapi, { venueDocumentId: venue.documentId })
     await seedScreening(strapi, {
@@ -236,32 +325,72 @@ describe("event-manager controller: getEventStats", () => {
       ticketsSold: 25,
     })
 
-    const ctx = makeCtx({}, { eventId: event.documentId })
+    const res = await auth(api().get(`${EVENT_STATS}/${event.documentId}`))
 
-    await controller().getEventStats(ctx)
-
-    expect(ctx.send).toHaveBeenCalledTimes(1)
-    const payload = (ctx.send.mock.calls[0]?.[0] ?? {}) as {
-      data: {
-        eventId: string
-        screeningCount: number
-        subEventCount: number
-        totalTicketsAvailable: number
-        soldPercentage: number
-      }
-    }
-    expect(payload.data.eventId).toBe(event.documentId)
-    expect(payload.data.screeningCount).toBe(1)
-    expect(payload.data.subEventCount).toBe(1)
-    expect(payload.data.totalTicketsAvailable).toBe(100)
-    expect(payload.data.soldPercentage).toBe(25)
+    expect(res.status).toBe(200)
+    expect(res.body.data.eventId).toBe(event.documentId)
+    expect(res.body.data.screeningCount).toBe(1)
+    expect(res.body.data.subEventCount).toBe(1)
+    expect(res.body.data.totalTicketsAvailable).toBe(100)
+    expect(res.body.data.totalTicketsSold).toBe(25)
+    expect(res.body.data.remainingTickets).toBe(75)
+    expect(res.body.data.soldPercentage).toBe(25)
   })
 
-  it("400s when given a non-existent eventId (service throws)", async () => {
-    const ctx = makeCtx({}, { eventId: "non-existent" })
-    await controller().getEventStats(ctx)
-    expect(ctx.badRequest).toHaveBeenCalledWith(
-      expect.stringMatching(/event not found/i)
-    )
+  it("400s for a non-existent eventId (service throws)", async () => {
+    const res = await auth(api().get(`${EVENT_STATS}/non-existent`))
+
+    expectBadRequest(res, /event not found/i)
+  })
+
+  it("404s when the :eventId segment is absent — the router, not the handler", async () => {
+    // The old ctx-stub suite asserted 400 here by handing the handler an empty
+    // `params`. Over real HTTP that state is unreachable: with no segment the
+    // path does not match the route at all, so the guard inside the handler is
+    // dead code rather than a 400 the client can ever observe.
+    const res = await auth(api().get(`${EVENT_STATS}/`))
+
+    expect(res.status).toBe(404)
+  })
+})
+
+describe("admin-auth boundary", () => {
+  // The assertion the ctx-stub pattern structurally could not make: these four
+  // routes are admin-type with no `auth: false`, so an unauthenticated caller
+  // must never reach the handler. A route accidentally opened up fails here.
+  it("401s on bulk-screenings without an Authorization header", async () => {
+    const res = await api().post(BULK_SCREENINGS).send({})
+    expect(res.status).toBe(401)
+  })
+
+  it("401s on duplicate-event without an Authorization header", async () => {
+    const res = await api().post(DUPLICATE_EVENT).send({})
+    expect(res.status).toBe(401)
+  })
+
+  it("401s on ticket-inventory without an Authorization header", async () => {
+    const res = await api().put(TICKET_INVENTORY).send({})
+    expect(res.status).toBe(401)
+  })
+
+  it("401s on event-stats without an Authorization header", async () => {
+    const res = await api().get(`${EVENT_STATS}/some-id`)
+    expect(res.status).toBe(401)
+  })
+
+  it("rejects a users-permissions JWT — the reason the admin helper exists", async () => {
+    // The claim "an admin route does not accept a users-permissions JWT" is the
+    // entire justification for `tests/helpers/admin.ts`, and for the ctx-stub
+    // deviation that preceded this suite. It was asserted in prose and verified
+    // nowhere; a valid token from the OTHER auth system is the only way to tell
+    // "admin auth is enforced" apart from "any bearer token gets in".
+    const user = await seedUserAndJwt(strapi)
+
+    const res = await api()
+      .post(DUPLICATE_EVENT)
+      .set("Authorization", `Bearer ${user.jwt}`)
+      .send({ eventId: "irrelevant" })
+
+    expect(detail(res)).toContain("HTTP 401")
   })
 })
