@@ -2560,3 +2560,21 @@ resolution: Story 2B.10 formally DEFERRED post-v1 (`sprint-change-proposal-2026-
   summary: Both `yarn dev` workspaces execute on Node 22.22.0, not the 22.21.1 the project pins, because the `portless` wrapper is an asdf shim installed only under other Node versions.
   evidence: `.tool-versions` pins `nodejs 22.21.1` and `node --version` in the repo reports `v22.21.1`, but both dev scripts wrap their real command in `portless`, whose asdf shim declares `# asdf-plugin: nodejs 22.22.0` and `# asdf-plugin: nodejs 20.18.3` — 22.21.1 is absent. `asdf exec portless` therefore resolves through 22.22.0 and every child process inherits it: verified 2026-08-11, Strapi's startup banner reports `Version 5.51.2 (node v22.22.0)` in the same shell where `node --version` is `v22.21.1`. Harmless today (both are Node 22, and AC #4's pin is satisfied on its own terms), but it means the dev runtime silently diverges from the pin, so a version-specific regression could reproduce in `yarn dev` and not under the pinned toolchain, or vice versa. Related to but distinct from the already-deferred finding that `portless` is undeclared in every package.json (story 1-2 review): that one is about the binary being missing on a fresh clone, this one about which Node it drags in when present. Fix: install `portless` for the pinned version (`asdf install nodejs 22.21.1 && npm i -g portless` under it, then `asdf reshim nodejs`), or drop the wrapper from the dev scripts.
   status: open
+
+## Deferred from: scope split of 2b-16-events-manager-plugin-test-coverage (2026-08-11)
+
+- source_spec: none
+  summary: Measure and enforce the >=80% events-manager server coverage gate required by 2B.16 AC#7.
+  evidence: Split from the 2B.16 closeout intent, which failed the single-goal scope check with five independently shippable deliverables. `apps/strapi/jest.config.cjs` declares no `coverageThreshold` and no `collectCoverage`, and CI runs bare `yarn test` (`jest`), so the gate is neither measured nor enforced. A `test:coverage` script exists but no workflow invokes it. Strictly downstream of the first goal: coverage measured over suites that never execute is meaningless, so this must follow the `testMatch` fix rather than land beside it.
+
+- source_spec: none
+  summary: RETRACTED 2026-08-11 — no longer deferred; taken in scope as `spec-2b-16-supertest-controller-tests.md`.
+  evidence: Written earlier the same session when the scope split had selected a different first goal, then superseded when the chosen goal changed to this one. Retained rather than deleted so the ledger's append-only history stays readable. See the spec for the current plan.
+
+- source_spec: none
+  summary: Add the representative form and list/table admin component tests that 2B.16 AC#4 requires.
+  evidence: Split from the 2B.16 closeout intent. AC#4 requires one form component test (renders, validates input, calls submit handler) and one list/table test (renders rows from fetched data, handles empty state). Only atomic components are covered. The spec's File List also claims `VenueCard.test.tsx`, which no longer exists under the events-manager plugin — commit `ddf6880` removed it — so the File List overstates delivered coverage.
+
+- source_spec: none
+  summary: Test hygiene batch in the strapi test helpers — synchronous fs in teardown and a residual `any`/eslint-disable in the controller suite.
+  evidence: Split from the 2B.16 closeout intent as the low-severity remainder. `tests/helpers/strapi.ts:95` uses `fs.existsSync` in teardown, and one `any`/eslint-disable survives in `event-manager.controller.test.ts` against AC#7's no-`any` rule. Verified 2026-08-11 that three sibling findings from the same 2026-06 review are already resolved and need no work: the legacy `tests/helpers/strapi.js` is deleted, the test DB path is now `path.join`-anchored, and fixture cleanup paginates at `limit: 100` rather than capping at 1000.
