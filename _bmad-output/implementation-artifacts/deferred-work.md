@@ -2622,3 +2622,58 @@ resolution: Story 2B.10 formally DEFERRED post-v1 (`sprint-change-proposal-2026-
   severity: low
   summary: Duplicate-event slug uniqueness relies on `Date.now()`, so two duplications of the same event within one millisecond collide on a unique field.
   evidence: The generated slug embeds a millisecond timestamp; the database column is unique, so a same-millisecond retry surfaces as an opaque unique-constraint error rather than a handled condition. Not reachable by hand, but reachable by a script or a double-clicked admin button, and no test covers back-to-back duplication. Fix: derive the suffix from a counter or a collision-retry loop rather than wall-clock time.
+
+## Deferred from: bmad-review of 2B.16 AC#3 delivery, commit 9efac6a (2026-08-11)
+
+Three-lens review (adversarial / edge-case / verification-gap) of the Supertest
+rewrite. Findings that merely restated already-open entries above are not
+re-recorded here; these are the ones that were new.
+
+- source_spec: `_bmad-output/implementation-artifacts/2b-16-events-manager-plugin-test-coverage.md`
+  location: apps/strapi/src/plugins/events-manager/server/src/routes/index.ts:6-14,82-89
+  severity: high
+  summary: The plugin's content-api event routes — `GET /api/events-manager/events` (list, pagination, publication state), `/events/trending`, `/events/:documentId` and the six policy-gated `/venue/*` routes — have no HTTP-level test anywhere.
+  evidence: This is the surface AC#3's first two bullets actually described, mistakenly recorded in 2B.16 as non-existent; the record was corrected 2026-08-11 and AC#3 narrowed to the four admin routes instead. Searched every supertest importer under `apps/strapi` (four files: `venue-admin-crud.service.test.ts`, `planning-surface-writes.service.test.ts`, `event-manager.controller.test.ts`, `auth-wiring.service.test.ts`) — none touches these routes. Coverage today is mocked-strapi unit tests (`services/__tests__/events.unit.test.ts`, `controllers/__tests__/events.unit.test.ts`) plus a route-table assertion (`routes/__tests__/venue-routes.unit.test.ts`), so no router, no policy, no serialization is executed. The consumer is live: `apps/client/src/lib/strapi-api/content/server.ts:174,226,292` and `content/events-extended.ts:29-30` fetch these paths. A `sanitizePublicEvent` field drop, an inverted publication filter, or `plugin::venues.is-venue-manager` removed from a route would all ship green. Fix: a Supertest suite over the content-api group, following the pattern the admin-route suite now establishes.
+  status: open
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-2b-16-supertest-controller-tests.md`
+  location: apps/strapi/src/plugins/events-manager/server/src/controllers/**tests**/event-manager.controller.test.ts (expectBadRequest / errorMessage)
+  severity: medium
+  summary: `expectBadRequest` routes both its status and its message assertion through a string that embeds the raw response body, weakening both.
+  evidence: `expect(detail(res)).toContain("HTTP 400")` checks the status via `detail()`, whose value is `HTTP ${status} — body: ${res.text}`, so body content participates in the status assertion. More consequentially `expect(errorMessage(res) ?? detail(res)).toMatch(pattern)` falls back to that same body-bearing string when the error envelope is absent — so a 400 that returns bare text instead of `{error:{message}}` still matches, while the suite's header claims the response envelope is covered. The null-safety motive in the doc comment is sound; the fix keeps it: assert `res.status` directly, assert `errorMessage(res)` is defined, then match it, and use `detail(res)` only as failure output.
+  status: open
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-2b-16-supertest-controller-tests.md`
+  location: apps/strapi/tests/helpers/admin.ts:52,82,88,99
+  severity: medium
+  summary: The admin helper is built on `any` (`anyStrapi: any`, `strapi as any`), against 2B.16 AC#7's no-`any` rule for test code.
+  evidence: The ledger entry above records the `any`/eslint-disable in `event-manager.controller.test.ts` as overtaken by the rewrite — true, but the rewrite made that file depend on `tests/helpers/admin.ts`, which uses `any` in four places for registry access (`admin::role`, `admin::user`, `db.query`, `sessionManager`). The violation moved rather than cleared. Fix: narrow local interfaces for the two service calls and the two query calls, leaving at most one documented cast for `sessionManager` (genuinely absent from the public `Core.Strapi` type).
+  status: open
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-2b-16-supertest-controller-tests.md`
+  location: apps/strapi/tests/helpers/admin.ts:132-139, apps/strapi/tests/fixtures/events.ts:144-163
+  severity: low
+  summary: Two state leaks into the shared integration DB — `AdminSession.destroy` deletes the admin user but not its session rows, and the users-permissions user seeded by the auth-boundary test is never deleted.
+  evidence: `destroy` issues a single `db.query("admin::user").delete(...)`; the refresh and access tokens minted via `sessionManager("admin")` at :116-121 have no corresponding cleanup. Separately, the "rejects a users-permissions JWT" test calls `seedUserAndJwt(strapi)` and no teardown removes that row — `cleanupContent` covers screening / event / work / character / credit-role / venue and no user table. All seven boot-based suites share `.tmp/test.db` under `--runInBand`, so both leak forward. Distinct from the already-ledgered `performance`-UID omission in the same function, and cheapest to fix alongside it.
+  status: open
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-2b-16-supertest-controller-tests.md`
+  location: apps/strapi/package.json (`test:integration` --testMatch globs)
+  severity: medium
+  summary: Nothing verifies that the three `--testMatch` globs in `test:integration` still cover the boot-based suites on disk, so a rename drops a suite from every runner silently.
+  evidence: The script hardcodes `**/*.service.test.ts`, `**/*.controller.test.ts`, `**/tests/app.test.js`; the `server` jest project matches `**/*.unit.test.ts` and `admin` matches `**/*.test.tsx`. A suite renamed off those suffixes is collected by no project and produces no failing output — the same silent-drop failure mode the AC#3 rewrite was written to close, one level up. Grepped for any test asserting over the script or over `jest.config.cjs`: none exists. Fix: a `*.unit.test.ts` guard that globs for boot-based suites and asserts each is matched by one of the three patterns. Cheap, runs in the existing CI gate, no boot.
+  status: open
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-2b-16-supertest-controller-tests.md`
+  location: apps/strapi/src/plugins/events-manager/server/src/controllers/event-manager.ts:46,76,104,128
+  severity: medium
+  summary: All four handlers map every thrown error to `ctx.badRequest`, so infrastructure failures are reported to the admin panel as client validation errors — and the new suite now pins that behaviour.
+  evidence: Each handler's `catch (error: any) { return ctx.badRequest(error.message) }` makes no distinction between a service validation throw (`Invalid date …`, `Event not found`) and a DB or connectivity failure. The Supertest suite asserts 400 with message matches on the validation paths, which is correct for those, but the shape means a genuine 500-class fault also surfaces as 400 and would satisfy a loosely-written test. Fix: throw typed errors from the service (or check `instanceof`) so validation is 400 and everything else surfaces as 500 and alerts. Surfaced by the review, not caused by it.
+  status: open
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-2b-16-supertest-controller-tests.md`
+  location: apps/strapi/src/plugins/events-manager/server/src/controllers/**tests**/event-manager.controller.test.ts
+  severity: low
+  summary: Edge-case batch on the new suite — branches reachable from the four covered routes that no request exercises.
+  evidence: Enumerated by a path-tracing pass over the diff. `dates: []` (passes the controller's `!dates` guard, empty array being truthy) and `dates` sent as a scalar string both reach the service's array check untested over HTTP. Malformed `time` ("25:00") never hits `assertValidTime` over transport. `ticketsAvailable: 0` — the falsy-but-valid boundary the controller deliberately guards with `=== undefined` — is untested, so rewriting that guard as `!ticketsAvailable` would reject a legitimate sell-out with no failing test. A `subEventId` matching no row (the service's "Screening not found" path) is uncovered, though the equivalent path is covered for duplicate and stats. A malformed bearer token is uncovered (only a missing header and a valid foreign JWT are tested), so a strategy that 500s on an unparseable token instead of 401 would pass. Finally the two missing-required-field cases assert status only, with no read-back — a handler that writes rows and then 400s would pass them; the invalid-date case already demonstrates the read-back pattern to copy.
+  status: open
