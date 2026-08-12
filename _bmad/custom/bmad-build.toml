@@ -8,6 +8,11 @@
 
 [workflow]
 
+# Curated project context (bmad-project-context bundle). The kernel carries the
+# non-derivable rules — commands, conventions, landmines — that a build session
+# would otherwise violate.
+persistent_facts = ["file:{project-root}/docs/context/kernel.md"]
+
 on_complete = """
 Publish the finished work to `origin/main`. Run these steps in order and report
 each outcome in the completion summary — never stay silent about a step that

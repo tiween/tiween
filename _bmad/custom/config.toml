@@ -6,6 +6,11 @@
 # [agents.bmad-agent-pm]
 # description = "Prefers short, bulleted PRDs over narrative drafts."
 
+# bmad-project-context bundle: kernel + entries live in their own folder so the
+# curated context set stays separate from the hand-written docs/ files.
+project_knowledge = "{project-root}/docs/context"
+context_placement = "both"
+
 [modules.bmm]
 # The installer defaults this to _bmad-output/planning-artifacts, which has never
 # existed in this repo — the real directory is _bmad-output/project-planning-artifacts

@@ -23,3 +23,7 @@ ui-debug.log
 **/types/generated/**
 **/.strapi/client/**
 legacy/**
+# Curated context bundle: script-managed frontmatter and an append-only memlog.
+# Prettier re-wraps the `sources` arrays across lines, which breaks context.py's
+# flat-YAML parser, and rewrites .memlog.md.
+docs/context/**

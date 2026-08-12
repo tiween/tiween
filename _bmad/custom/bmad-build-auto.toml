@@ -12,6 +12,11 @@
 
 [workflow]
 
+# Curated project context (bmad-project-context bundle). The kernel carries the
+# non-derivable rules — commands, conventions, landmines — that an unattended
+# build session would otherwise violate.
+persistent_facts = ["file:{project-root}/docs/context/kernel.md"]
+
 activation_steps_append = [
   "Record the session baseline immediately: run `git rev-parse HEAD` and keep the full 40-character revision in memory as the session baseline. From now on, wherever this workflow captures or writes `baseline_revision` into spec frontmatter (step-03 phrases it as \"current HEAD\"), write this session-start revision instead. This rule is load-bearing: the run may commit preparatory work (refreshed epic context, planning artifacts) before implementation, and those commits must NOT move the baseline — the bmad-loop orchestrator verifies the spec's `baseline_revision` against the HEAD it recorded when the session started, and any other value fails its gate and discards the finished attempt. If version control is unavailable, use `NO_VCS` as before.",
 ]
