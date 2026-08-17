@@ -3934,6 +3934,11 @@
     "@parcel/watcher-win32-ia32" "2.5.1"
     "@parcel/watcher-win32-x64" "2.5.1"
 
+"@phosphor-icons/react@^2.1.10":
+  version "2.1.10"
+  resolved "https://registry.yarnpkg.com/@phosphor-icons/react/-/react-2.1.10.tgz#3a97ec5b7a4b8d53afeb29125bc17e74ed2daf92"
+  integrity sha512-vt8Tvq8GLjheAZZYa+YG/pW7HDbov8El/MANW8pOAz4eGxrwhnbfrQZq0Cp4q8zBEu8NIhHdnr+r8thnfRSNYA==
+
 "@pkgjs/parseargs@^0.11.0":
   version "0.11.0"
   resolved "https://registry.npmjs.org/@pkgjs/parseargs/-/parseargs-0.11.0.tgz"
@@ -3943,11 +3948,6 @@
   version "0.1.2"
   resolved "https://registry.npmjs.org/@pkgr/core/-/core-0.1.2.tgz"
   integrity sha512-fdDH1LSGfZdTH2sxdpVMw31BanV28K/Gry0cVFxaNP77neJSkd82mM8ErPNYs9e+0O7SdHBLTDzDgwUuy18RnQ==
-
-"@phosphor-icons/react@^2.1.10":
-  version "2.1.10"
-  resolved "https://registry.yarnpkg.com/@phosphor-icons/react/-/react-2.1.10.tgz#3a97ec5b7a4b8d53afeb29125bc17e74ed2daf92"
-  integrity sha512-vt8Tvq8GLjheAZZYa+YG/pW7HDbov8El/MANW8pOAz4eGxrwhnbfrQZq0Cp4q8zBEu8NIhHdnr+r8thnfRSNYA==
 
 "@plaiceholder/next@^3.0.0":
   version "3.0.0"
@@ -7319,6 +7319,36 @@
   dependencies:
     "@tufjs/canonical-json" "2.0.0"
     minimatch "^10.1.1"
+
+"@turbo/darwin-64@2.10.9":
+  version "2.10.9"
+  resolved "https://registry.yarnpkg.com/@turbo/darwin-64/-/darwin-64-2.10.9.tgz#5014b33cfb5c1a2c9e040148be1185a3cb51c95c"
+  integrity sha512-Jh+pTGXLNz8+1tkUU13TI/f+ZOI+OvC4YbHi1H+57iSpLt5DR3xgptd+4sA07RdjdRR/RX/01uQQu2OkbzIefA==
+
+"@turbo/darwin-arm64@2.10.9":
+  version "2.10.9"
+  resolved "https://registry.yarnpkg.com/@turbo/darwin-arm64/-/darwin-arm64-2.10.9.tgz#ef27a0851be095eab15120bc61995a2cb1a29489"
+  integrity sha512-aqtpPkiIC4IUas8Vv27oJ3aDfTuP1d5wofd01dZ7gfhHRrIKuFdqQb4imvNnVFahcOViF9Jh8Oi7feDoz8/ciA==
+
+"@turbo/linux-64@2.10.9":
+  version "2.10.9"
+  resolved "https://registry.yarnpkg.com/@turbo/linux-64/-/linux-64-2.10.9.tgz#6fbdcdca7fb514ca6cd4cb1e9b702496a6a0f812"
+  integrity sha512-XyAneUBsS5uNOUOjBSs81zyigMVwwhVUd3u7F2JFMKGQk6F7eNAiOEBASJ+aHLldjYsOEjhfW+5gWIqwziyFFw==
+
+"@turbo/linux-arm64@2.10.9":
+  version "2.10.9"
+  resolved "https://registry.yarnpkg.com/@turbo/linux-arm64/-/linux-arm64-2.10.9.tgz#5dc472063f6e4bab8b07dc458dca6d88bc1f070e"
+  integrity sha512-5jAcldLnkuWIjujGhCn2MGIeUwW8IVNOq9Sce4EEzzgLcxmhTasbV0RiW6ZkaRdOjmOCGzeNXPLkDJEOIucOLw==
+
+"@turbo/windows-64@2.10.9":
+  version "2.10.9"
+  resolved "https://registry.yarnpkg.com/@turbo/windows-64/-/windows-64-2.10.9.tgz#0c430c5a7c767c071a5a278fe9af38a8522b9094"
+  integrity sha512-u1xGpGlefzuhBedbt/VR2nWdftfFVZwPeDg9e5uZl68sV1fL3HNYTNr5VyHkzgtPK2VTYg1x4OKZuGrh1Gvhtg==
+
+"@turbo/windows-arm64@2.10.9":
+  version "2.10.9"
+  resolved "https://registry.yarnpkg.com/@turbo/windows-arm64/-/windows-arm64-2.10.9.tgz#e19bfebe62ec106ea919a9068c4813d8efbbad0d"
+  integrity sha512-W2Ub165Qv0iMFljbYKxxbZN+2dVSngnzEjQNEFXtnz5oJVx9XSypmNmUvMtuYMeZ3kdVC1zI7yd/rtuX+SDnbg==
 
 "@tybys/wasm-util@^0.10.0":
   version "0.10.1"
@@ -21416,47 +21446,17 @@ tunnel@^0.0.6:
   resolved "https://registry.npmjs.org/tunnel/-/tunnel-0.0.6.tgz"
   integrity sha512-1h/Lnq9yajKY2PEbBadPXj3VxsDDu844OnaAo52UVmIzIvwwtBPIuNvkjuzBlTWpfJyUbG3ez0KSBibQkj4ojg==
 
-turbo-darwin-64@2.5.2:
-  version "2.5.2"
-  resolved "https://registry.npmjs.org/turbo-darwin-64/-/turbo-darwin-64-2.5.2.tgz"
-  integrity sha512-2aIl0Sx230nLk+Cg2qSVxvPOBWCZpwKNuAMKoROTvWKif6VMpkWWiR9XEPoz7sHeLmCOed4GYGMjL1bqAiIS/g==
-
-turbo-darwin-arm64@2.5.2:
-  version "2.5.2"
-  resolved "https://registry.yarnpkg.com/turbo-darwin-arm64/-/turbo-darwin-arm64-2.5.2.tgz#c3a00bcba481f5baa24ce4b1302f09c2c50d4e30"
-  integrity sha512-MrFYhK/jYu8N6QlqZtqSHi3e4QVxlzqU3ANHTKn3/tThuwTLbNHEvzBPWSj5W7nZcM58dCqi6gYrfRz6bJZyAA==
-
-turbo-linux-64@2.5.2:
-  version "2.5.2"
-  resolved "https://registry.yarnpkg.com/turbo-linux-64/-/turbo-linux-64-2.5.2.tgz#1f366e0208b4da79d13d57df202dc5f49fb0367c"
-  integrity sha512-LxNqUE2HmAJQ/8deoLgMUDzKxd5bKxqH0UBogWa+DF+JcXhtze3UTMr6lEr0dEofdsEUYK1zg8FRjglmwlN5YA==
-
-turbo-linux-arm64@2.5.2:
-  version "2.5.2"
-  resolved "https://registry.yarnpkg.com/turbo-linux-arm64/-/turbo-linux-arm64-2.5.2.tgz#a48d9f1eddd279d523682eb74911b5c045ae1092"
-  integrity sha512-0MI1Ao1q8zhd+UUbIEsrM+yLq1BsrcJQRGZkxIsHFlGp7WQQH1oR3laBgfnUCNdCotCMD6w4moc9pUbXdOR3bg==
-
-turbo-windows-64@2.5.2:
-  version "2.5.2"
-  resolved "https://registry.yarnpkg.com/turbo-windows-64/-/turbo-windows-64-2.5.2.tgz#6ad0604fd7b1e53c54feca037de74e4303e23fa1"
-  integrity sha512-hOLcbgZzE5ttACHHyc1ajmWYq4zKT42IC3G6XqgiXxMbS+4eyVYTL+7UvCZBd3Kca1u4TLQdLQjeO76zyDJc2A==
-
-turbo-windows-arm64@2.5.2:
-  version "2.5.2"
-  resolved "https://registry.yarnpkg.com/turbo-windows-arm64/-/turbo-windows-arm64-2.5.2.tgz#8bf9e79d2f3adf92371ef79da89c04090f3ab914"
-  integrity sha512-fMU41ABhSLa18H8V3Z7BMCGynQ8x+wj9WyBMvWm1jeyRKgkvUYJsO2vkIsy8m0vrwnIeVXKOIn6eSe1ddlBVqw==
-
-turbo@^2.0.9:
-  version "2.5.2"
-  resolved "https://registry.npmjs.org/turbo/-/turbo-2.5.2.tgz"
-  integrity sha512-Qo5lfuStr6LQh3sPQl7kIi243bGU4aHGDQJUf6ylAdGwks30jJFloc9NYHP7Y373+gGU9OS0faA4Mb5Sy8X9Xw==
+turbo@^2.10.9:
+  version "2.10.9"
+  resolved "https://registry.yarnpkg.com/turbo/-/turbo-2.10.9.tgz#ce757993965ab915df059f685b8b257dd2d047f5"
+  integrity sha512-Yl9+ukxH+UmPtKidpDkjn82tvPoEvFNb9UACd9vUomN1Ft0cwl3rx0P8yC1D93W9EOsWRMjllvIDG8y25sFOog==
   optionalDependencies:
-    turbo-darwin-64 "2.5.2"
-    turbo-darwin-arm64 "2.5.2"
-    turbo-linux-64 "2.5.2"
-    turbo-linux-arm64 "2.5.2"
-    turbo-windows-64 "2.5.2"
-    turbo-windows-arm64 "2.5.2"
+    "@turbo/darwin-64" "2.10.9"
+    "@turbo/darwin-arm64" "2.10.9"
+    "@turbo/linux-64" "2.10.9"
+    "@turbo/linux-arm64" "2.10.9"
+    "@turbo/windows-64" "2.10.9"
+    "@turbo/windows-arm64" "2.10.9"
 
 tw-animate-css@^1.2.5:
   version "1.2.8"
