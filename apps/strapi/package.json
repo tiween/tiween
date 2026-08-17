@@ -75,7 +75,7 @@
     "@types/react-dom": "^18",
     "@types/supertest": "^6",
     "better-sqlite3": "^12.10.0",
-    "eslint": "^9.39.0",
+    "eslint": "^10.8.1",
     "eslint-config-prettier": "^10.1.5",
     "globals": "^16.2.0",
     "jest": "^29",
