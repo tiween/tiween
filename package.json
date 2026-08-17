@@ -48,10 +48,10 @@
     "@tiween/typescript-config": "*",
     "commitizen": "4.3.0",
     "cz-conventional-changelog": "^3.3.0",
-    "eslint": "^9.39.0",
+    "eslint": "^10.8.1",
     "husky": "^9.1.1",
-    "lint-staged": "15.2.7",
-    "prettier": "3.3.2",
+    "lint-staged": "17.3.0",
+    "prettier": "3.9.6",
     "semantic-release": "^25.0.2",
     "semantic-release-monorepo": "^8.0.2",
     "turbo": "^2.0.9"
