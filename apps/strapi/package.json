@@ -55,7 +55,7 @@
     "react-dom": "^18.0.0",
     "react-router-dom": "^6.0.0",
     "rrule": "^2.8.1",
-    "strapi-plugin-config-sync": "2.1.0",
+    "strapi-plugin-config-sync": "3.2.0",
     "strapi-plugin-imagekit": "^1.0.2",
     "strapi-provider-upload-imagekit": "^5.11.11",
     "styled-components": "^6.0.0",
