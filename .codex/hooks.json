@@ -5,17 +5,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 /Users/ayoub/projects/tiween-bmad-version/.bmad-loop/bmad_loop_hook.py SessionStart"
-          }
-        ]
-      }
-    ],
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 /Users/ayoub/projects/tiween-bmad-version/.bmad-loop/bmad_loop_hook.py Stop"
+            "command": "\"/Users/ayoub/.asdf/installs/nodejs/22.21.1/bin/node\" \"/Users/ayoub/projects/tiween-bmad-version/.codex/hooks/gsd-check-update.js\""
           }
         ]
       }

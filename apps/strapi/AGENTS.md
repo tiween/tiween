@@ -1,5 +1,3 @@
-<!-- bmad:context -->
-
 **What this is.** The Strapi v5 backend, serving both the public REST API and the
 B2B/admin back office. Nearly all behaviour lives in plugins under `src/plugins/`;
 `src/api/` holds only `health`.
@@ -32,5 +30,3 @@ and admin-component gates; the DB-booting suites need
 **Where to go next.** `_bmad-output/project-planning-artifacts/architecture.md` for the
 plugin-decomposition amendment and rules R1–R5 — but verify its plugin inventory
 against the tree, which is stale.
-
-<!-- /bmad:context -->

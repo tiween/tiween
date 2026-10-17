@@ -1,24 +1,22 @@
 # Agent Instructions
 
-**Single source of truth for planning: BMad** (`_bmad-output/`). OpenSpec was
-retired 2026-06-12 — do not recreate `openspec/`; plan new work as BMad
-epics/stories. History: `git log -- openspec/`; dispositions:
-`_bmad-output/project-planning-artifacts/openspec-retirement-ledger-2026-06-12.md`.
+**Planning system: GSD** (`.planning/`). BMad tooling was removed 2026-10-17;
+its output in `_bmad-output/` is kept as read-only reference material for
+`/gsd-ingest-docs`. Do not run, recreate, or write to BMad workflows. OpenSpec
+was retired 2026-06-12 — do not recreate `openspec/`. History:
+`git log -- openspec/ _bmad/`.
 
 When a request involves planning, proposals, architecture shifts, or new
 capabilities, consult:
 
-- `_bmad-output/project-context.md` — mandatory AI agent rules
+- `.planning/` — GSD project, roadmap, phases, and `codebase/` map
+- `_bmad-output/project-context.md` — mandatory AI agent rules (still in force)
 - `_bmad-output/project-planning-artifacts/architecture.md` — plugin
   decomposition amendment (supersedes `_bmad-output/architecture/` for backend
   module structure; dependency rules R1–R5 are review blockers)
-- `_bmad-output/project-planning-artifacts/epics/` — epics and stories
-- `_bmad-output/implementation-artifacts/sprint-status.yaml` — sprint tracking
-
-Implementation runs through `bmad-build` (and `bmad-build-auto` under bmad-loop).
-`bmad-create-story` and `bmad-dev-story` are deprecated.
-
-<!-- bmad:context -->
+- `_bmad-output/project-planning-artifacts/epics/` and
+  `_bmad-output/implementation-artifacts/sprint-status.yaml` — historical epics,
+  stories, and sprint status (frozen; new work is tracked in GSD)
 
 # Project Kernel — tiween
 
@@ -47,8 +45,8 @@ Implementation runs through `bmad-build` (and `bmad-build-auto` under bmad-loop)
 
 - Ship from `main` directly: no PRs, no feature branches: [commit-and-push-policy](docs/context/commit-and-push-policy.md)
 - Conventional Commits; never add AI attribution trailers or footers
-- Push only when the story reads `done` in sprint-status; never at `review`
-- Never let a generator write `_bmad-output/implementation-artifacts/sprint-status.yaml`: [sprint-status-hand-maintained](docs/context/sprint-status-hand-maintained.md)
+- Push only when the work is verified done; never at `review`
+- `_bmad-output/` is frozen reference — never edit it or let a generator write it
 - `_bmad-output/project-planning-artifacts/architecture.md` supersedes `_bmad-output/architecture/` for backend module structure only, and its plugin inventory is stale — trust the tree
 
 ## apps/strapi
@@ -69,4 +67,3 @@ Implementation runs through `bmad-build` (and `bmad-build-auto` under bmad-loop)
 - APIs return error codes, not prose; translate with `t('errors.<CODE>')`
 - Per-user query keys must carry `userId`; clear caches on logout via `signOutAndClearCache` in `src/lib/sign-out.ts`
 - Keep `import "server-only"` at the top of private Strapi fetchers
-<!-- /bmad:context -->

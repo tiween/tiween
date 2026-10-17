@@ -71,16 +71,11 @@ RALPH_PRD/
 
 # Playwright MCP browser artifacts (scratch)
 .playwright-mcp/
-.bmad-loop/runs/
-.bmad-loop/cache/
-.bmad-loop/archive/
 
 # CodeGraph index (generated)
 .codegraph/
-.bmad-loop/policy.toml
-_bmad/render/
 
-# Python bytecode caches (BMad skill scripts)
+# Python bytecode caches
 __pycache__/
 *.pyc
 
