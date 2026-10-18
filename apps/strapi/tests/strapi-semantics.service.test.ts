@@ -190,12 +190,15 @@ describe("A1: document middleware sees content-manager publish (steers 01-06 gua
     expect(probe.seen).toContainEqual({ action: "publish", locale: "fr" })
   })
 
+  // A film, not a short film: the creative-works publish guard (01-06) turns
+  // create({ status: 'published' }) of a short film into a draft create plus an
+  // explicit publish, which would hide the core behaviour this probe pins.
   it("sees only `create` (no nested `publish`) for create({ status: 'published' })", async () => {
     const slug = uniq("a1-create")
 
     probe.recording = true
     await strapi.documents(CW).create({
-      data: { title: `a1 create ${slug}`, slug, type: "short-film" } as any,
+      data: { title: `a1 create ${slug}`, slug, type: "film" } as any,
       locale: "fr",
       status: "published",
     } as any)
@@ -383,14 +386,24 @@ describe("A5: nested credits.person + creditRole.slug filter (steers 01-04 relat
     const director = await ensureRole("director", "Realisateur", "directing")
     const writer = await ensureRole("screenwriter", "Scenariste", "writing")
 
-    const publishShort = async (tag: string, credits: unknown[]) => {
+    // Published through the D-19 publish guard, so every short needs a poster,
+    // a watch source and a directing credit. `extraDirector` adds a director
+    // (a different, published person) to a short whose own credits have none.
+    const publishShort = async (
+      tag: string,
+      credits: unknown[],
+      extraDirector = false
+    ) => {
       const slug = uniq(tag)
+      const parts = await publishableShortParts(strapi, tag)
       return (await strapi.documents(CW).create({
         data: {
           title: `${tag} ${slug}`,
           slug,
           type: "short-film",
-          credits,
+          poster: parts.poster,
+          streamingLinks: parts.streamingLinks,
+          credits: extraDirector ? [...credits, ...parts.credits] : credits,
         } as any,
         locale: "fr",
         status: "published",
@@ -403,9 +416,17 @@ describe("A5: nested credits.person + creditRole.slug filter (steers 01-04 relat
         billing: 1,
       },
     ])
-    const wrote = await publishShort("a5-wrote", [
-      { person: person.documentId, creditRole: writer.documentId, billing: 1 },
-    ])
+    const wrote = await publishShort(
+      "a5-wrote",
+      [
+        {
+          person: person.documentId,
+          creditRole: writer.documentId,
+          billing: 1,
+        },
+      ],
+      true
+    )
     const otherDirected = await publishShort("a5-other-directed", [
       { person: other.documentId, creditRole: director.documentId, billing: 1 },
     ])

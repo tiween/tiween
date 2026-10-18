@@ -6,6 +6,9 @@
  * (loaded from compiled `dist/`) hold two separate copies of this module; a
  * module-local store would never match between them.
  */
+import { readdirSync, readFileSync, statSync } from "node:fs"
+import { join } from "node:path"
+
 import {
   getShortFilmPublishBypass,
   runWithShortFilmPublishBypass,
@@ -114,5 +117,30 @@ describe("short-film publish bypass scope", () => {
     ).rejects.toThrow("inner failure")
 
     expect(getShortFilmPublishBypass()).toBeUndefined()
+  })
+})
+
+describe("the bypass stays out of reach of HTTP-facing code (T-01-17)", () => {
+  const SRC_ROOT = join(__dirname, "..", "..")
+  const SHARED_ROOT = join(SRC_ROOT, "shared")
+
+  function sourceFiles(dir: string): string[] {
+    return readdirSync(dir).flatMap((entry) => {
+      const full = join(dir, entry)
+      if (full === SHARED_ROOT) return []
+      if (statSync(full).isDirectory()) return sourceFiles(full)
+      return /\.(ts|tsx|js|cjs|mjs)$/.test(entry) ? [full] : []
+    })
+  }
+
+  it("is never referenced from src outside src/shared (controllers, routes, policies, admin)", () => {
+    const files = sourceFiles(SRC_ROOT)
+    // Guard against a vacuous pass if the walk ever stops finding files.
+    expect(files.length).toBeGreaterThan(50)
+    const callers = files.filter((file) =>
+      readFileSync(file, "utf8").includes("runWithShortFilmPublishBypass")
+    )
+
+    expect(callers).toEqual([])
   })
 })

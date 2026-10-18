@@ -427,14 +427,17 @@ describe("publish paths other than a single content-manager publish", () => {
     // Observed: see BULK_PUBLISH_STATUS below.
     expect(res.status).toBe(BULK_PUBLISH_STATUS)
     expect(await publishedRows(blocked)).toHaveLength(0)
+    // The complete sibling is deliberately not asserted: how its publish
+    // interleaves with the aborted bulk transaction is not a guarantee of this
+    // guard (on Strapi 5.51.2 / SQLite it ended up published).
   })
 })
 
 /**
  * HTTP status of a bulk publish that contains a blocked short film, as observed
- * on Strapi 5.51.2: the ValidationError thrown for the blocked document aborts
- * the whole bulk publish transaction (`publishMany` wraps every publish in one
- * `strapi.db.transaction`), so the complete sibling is not published either.
+ * on Strapi 5.51.2: the ValidationError thrown for the blocked document
+ * surfaces as a 400 for the whole request (`publishMany` runs every publish in
+ * one `strapi.db.transaction`), and the blocked document stays unpublished.
  */
 const BULK_PUBLISH_STATUS = 400
 
