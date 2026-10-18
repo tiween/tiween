@@ -284,3 +284,7 @@ None beyond the plan's register. T-01-16 mitigated (single middleware on publish
 
 _Phase: 01-short-film-catalog-backend_
 _Completed: 2026-10-18_
+
+## Post-execution fix (orchestrator, security review)
+
+An automated security review flagged a fail-open path in `resolveWriteType`: an `update({ status: "published" })` on a document with no default-locale draft (for example an `ar`-only short) resolved its type as `undefined` and published without the D-19 rules. Fixed in `90d9737`: the lookup falls back to the requested locale, and a still-unresolved update takes the guarded draft-write-then-publish path. A new boot case ("…exists only in a non-default locale") failed against the old guard (verified) and passes now. Gate after the fix: 94 unit suites / 1431 tests, lint clean, `test:integration` 11 suites / 158 tests passed (1 suite skipped, pre-existing).
