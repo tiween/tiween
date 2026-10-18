@@ -92,6 +92,23 @@ const shortFilmController = ({ strapi }: { strapi: Core.Strapi }) => {
       }
     },
 
+    /** `GET /creative-works/short-films/:slug/related` */
+    async related(ctx: any) {
+      try {
+        const { slug } = validate(shortFilmSlugParamSchema, ctx.params ?? {})
+        const { locale } = validate(shortFilmDetailQuerySchema, ctx.query ?? {})
+        const data = await service().related(slug, locale)
+        if (!data) {
+          throw new errors.NotFoundError("Short film not found", {
+            code: "SHORT_FILM_NOT_FOUND",
+          })
+        }
+        ctx.body = { data }
+      } catch (err) {
+        respondError(strapi, ctx, err)
+      }
+    },
+
     /** `GET /creative-works/short-films/:slug` */
     async findOne(ctx: any) {
       try {

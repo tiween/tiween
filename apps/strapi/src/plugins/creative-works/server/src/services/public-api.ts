@@ -46,6 +46,16 @@ const publicApiService = ({ strapi }: { strapi: Core.Strapi }) => ({
       .findBySlug(slug, locale)
   },
 
+  /** Published featured short films in the D-05 order (locale falls back to the default). */
+  async findFeaturedShortFilms(locale?: string) {
+    return strapi.plugin(PLUGIN_ID).service("short-films").featured(locale)
+  },
+
+  /** Related published shorts for a slug (director, then genre), or null for an unknown short. */
+  async findRelatedShortFilms(slug: string, locale?: string) {
+    return strapi.plugin(PLUGIN_ID).service("short-films").related(slug, locale)
+  },
+
   /**
    * Create AND publish a catalog entry (localized fields replicated to every
    * configured locale). See `creative-work.createWork` for the rationale.

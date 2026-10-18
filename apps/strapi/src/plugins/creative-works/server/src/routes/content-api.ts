@@ -48,6 +48,15 @@ export default {
         auth: false,
       },
     },
+    {
+      method: "GET",
+      path: "/creative-works/short-films/:slug/related",
+      handler: "short-film.related",
+      config: {
+        policies: [],
+        auth: false,
+      },
+    },
     // Detail by slug: keep it the LAST short-films route.
     {
       method: "GET",

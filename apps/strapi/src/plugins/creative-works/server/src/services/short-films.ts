@@ -521,6 +521,114 @@ export function sortFeatured<T extends Row>(rows: T[]): T[] {
   })
 }
 
+/** A raw Document Service row that is known to carry its `documentId`. */
+type RelatedRow = Row & { documentId: string }
+
+/**
+ * Combine the two related groups (D-08): director matches first, then genre
+ * matches. The source film is removed, a row present in both groups appears once
+ * at its director position, and the result is cut to `limit`. Each group is
+ * expected newest first already. Returns a new array; inputs are not mutated.
+ */
+export function mergeRelated<T extends { documentId: string }>(
+  directorRows: T[],
+  genreRows: T[],
+  selfDocumentId: string,
+  limit: number
+): T[] {
+  const seen = new Set<string>([selfDocumentId])
+  const merged: T[] = []
+  for (const row of [...directorRows, ...genreRows]) {
+    if (merged.length >= limit) break
+    if (seen.has(row.documentId)) continue
+    seen.add(row.documentId)
+    merged.push(row)
+  }
+  return merged
+}
+
+/**
+ * Deterministic related films for a published short (D-08): other published
+ * shorts by the same director(s) first, then shorts sharing a genre, each group
+ * newest first (`publishedAt:desc`, `id:desc`), the source excluded, a film
+ * matching both listed once in the director group, capped at RELATED_LIMIT.
+ * Returns raw default-locale rows (summary populate); the caller overlays and
+ * projects them.
+ *
+ * Phase 3 (SRCH-03) serves this route from Meilisearch similar-documents and
+ * keeps this function as the fallback; the response contract must not change.
+ *
+ * The director query uses the nested Document Service filter on the credit
+ * component (`credits.person` + `credits.creditRole.slug`), which spike A5
+ * (01-01) confirmed on SQLite: the person and the directing role must belong to
+ * the SAME credit, so a person credited only as writer does not match. No
+ * in-memory fallback is needed.
+ */
+export async function findRelatedDeterministic(
+  strapi: Core.Strapi,
+  source: Row,
+  defaultLocale: string
+): Promise<RelatedRow[]> {
+  const directing = DIRECTING_ROLE_SLUGS as readonly string[]
+  const directorIds = [
+    ...new Set(
+      asArray(source.credits)
+        .filter((credit) => directing.includes(credit?.creditRole?.slug))
+        .map((credit) => credit?.person?.documentId)
+        .filter((id): id is string => typeof id === "string")
+    ),
+  ]
+  const genreIds = [
+    ...new Set(
+      asArray(source.genres)
+        .map((genre) => genre?.documentId)
+        .filter((id): id is string => typeof id === "string")
+    ),
+  ]
+
+  const base = {
+    status: "published",
+    locale: defaultLocale,
+    sort: ["publishedAt:desc", "id:desc"],
+    populate: SUMMARY_POPULATE,
+    limit: RELATED_LIMIT,
+  }
+
+  const directorRows =
+    directorIds.length > 0
+      ? ((await strapi.documents(CREATIVE_WORK_UID).findMany({
+          ...base,
+          filters: {
+            type: SHORT_FILM_TYPE,
+            documentId: { $ne: source.documentId },
+            credits: {
+              person: { documentId: { $in: directorIds } },
+              creditRole: { slug: { $in: [...DIRECTING_ROLE_SLUGS] } },
+            },
+          },
+        } as never)) as unknown as RelatedRow[])
+      : []
+
+  const genreRows =
+    genreIds.length > 0
+      ? ((await strapi.documents(CREATIVE_WORK_UID).findMany({
+          ...base,
+          filters: {
+            type: SHORT_FILM_TYPE,
+            documentId: {
+              $notIn: [
+                source.documentId,
+                ...directorRows.map((row) => row.documentId),
+              ],
+            },
+            genres: { documentId: { $in: genreIds } },
+          },
+        } as never)) as unknown as RelatedRow[])
+      : []
+
+  return mergeRelated(directorRows, genreRows, source.documentId, RELATED_LIMIT)
+}
+
 function pageCountOf(total: number, pageSize: number): number {
   return pageSize > 0 ? Math.ceil(total / pageSize) : 0
 }
@@ -679,6 +787,35 @@ const shortFilmsService = ({ strapi }: { strapi: Core.Strapi }) => {
         requested,
         defaultLocale
       )
+    },
+
+    /**
+     * Related published shorts for a slug (director first, then genre), or null
+     * when the slug is not a published short. Logic lives in
+     * `findRelatedDeterministic` so Phase 3 can swap the source.
+     */
+    async related(
+      slug: string,
+      locale?: string
+    ): Promise<ShortFilmSummary[] | null> {
+      const { requested, defaultLocale } = await resolveLocale(locale)
+
+      const source = await strapi.documents(CREATIVE_WORK_UID).findFirst({
+        status: "published",
+        locale: defaultLocale,
+        filters: { type: SHORT_FILM_TYPE, slug: { $eq: slug } },
+        populate: SUMMARY_POPULATE,
+      } as never)
+
+      if (!source) return null
+
+      const rows = await findRelatedDeterministic(
+        strapi,
+        source as unknown as Row,
+        defaultLocale
+      )
+
+      return localize(rows.map(toShortFilmSummary), requested, defaultLocale)
     },
 
     /**
