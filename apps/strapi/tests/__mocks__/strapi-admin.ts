@@ -45,6 +45,19 @@ export const useAuth = jest.fn(() => ({
   user: { id: 1, email: "admin@test", firstname: "Test", lastname: "Admin" },
 }))
 
+/**
+ * `useStrapiApp(name, selector)` reads the admin shell's registry. The real
+ * shell is absent under jest, so the default stand-in exposes an empty
+ * `components` map (nothing registered, e.g. no media-library dialog); a test
+ * that needs a registered component installs it with `mockImplementation`.
+ */
+export const useStrapiApp = jest.fn(
+  (
+    _name: string,
+    selector: (state: { components: Record<string, unknown> }) => unknown
+  ) => selector({ components: {} })
+)
+
 export const Page = {
   Title: ({ children }: { children?: React.ReactNode }) => children,
   Loading: () => null,
