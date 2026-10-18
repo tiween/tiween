@@ -682,3 +682,130 @@ describe("short-film fields — key sets against the real schemas (DW-13)", () =
     )
   })
 })
+
+describe("country, language and placement — form mapping (Task 2)", () => {
+  it("defaults to no countries, no languages, not featured", () => {
+    expect(DEFAULT_WORK_VALUES.country).toEqual([])
+    expect(DEFAULT_WORK_VALUES.language).toEqual([])
+    expect(DEFAULT_WORK_VALUES.featured).toBe(false)
+    expect(DEFAULT_WORK_VALUES.featuredRank).toBeNull()
+  })
+
+  it("round-trips country, language, featured and rank work -> form -> payload", () => {
+    const work = {
+      title: "A short",
+      type: "short-film",
+      country: ["TN", "FR"],
+      language: ["aeb", "fr"],
+      featured: true,
+      featuredRank: 2,
+    } as unknown as CreativeWork
+
+    const payload = workToApiPayload(workToFormValues(work))
+
+    expect(payload.country).toEqual(["TN", "FR"])
+    expect(payload.language).toEqual(["aeb", "fr"])
+    expect(payload.featured).toBe(true)
+    expect(payload.featuredRank).toBe(2)
+  })
+
+  it("loads null country, language and placement as empty values", () => {
+    const work = {
+      title: "A short",
+      type: "short-film",
+      country: null,
+      language: null,
+      featured: null,
+      featuredRank: null,
+    } as unknown as CreativeWork
+
+    const form = workToFormValues(work)
+
+    expect(form.country).toEqual([])
+    expect(form.language).toEqual([])
+    expect(form.featured).toBe(false)
+    expect(form.featuredRank).toBeNull()
+  })
+
+  it("sends a null featuredRank whenever the work is not featured", () => {
+    const payload = workToApiPayload(
+      values({ featured: false, featuredRank: 3 })
+    )
+
+    expect(payload.featured).toBe(false)
+    expect(payload.featuredRank).toBeNull()
+  })
+
+  it("rejects an unknown country code with INVALID_COUNTRY_CODES", () => {
+    const result = workFormSchema.safeParse(values({ country: ["TN", "XX"] }))
+
+    expect(result.success).toBe(false)
+    if (!result.success) {
+      expect(result.error.issues.map((issue) => issue.message)).toContain(
+        "INVALID_COUNTRY_CODES"
+      )
+      expect(result.error.issues.map((issue) => issue.path)).toContainEqual([
+        "country",
+      ])
+    }
+  })
+
+  it("rejects a lower-case country code (codes are never normalized)", () => {
+    expect(workFormSchema.safeParse(values({ country: ["tn"] })).success).toBe(
+      false
+    )
+  })
+
+  it("rejects an unknown language and none combined with another code", () => {
+    for (const language of [["klingon"], ["none", "fr"], ["fr", "none"]]) {
+      const result = workFormSchema.safeParse(values({ language }))
+
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error.issues.map((issue) => issue.message)).toContain(
+          "INVALID_LANGUAGE_CODES"
+        )
+      }
+    }
+    expect(
+      workFormSchema.safeParse(values({ language: ["none"] })).success
+    ).toBe(true)
+  })
+
+  it("accepts pinned and ordinary codes", () => {
+    expect(
+      workFormSchema.safeParse(
+        values({ country: ["TN", "FR"], language: ["aeb", "ar", "ber"] })
+      ).success
+    ).toBe(true)
+  })
+
+  it("rejects a featuredRank below 1 and a non-integer rank", () => {
+    for (const featuredRank of [0, -1, 1.5]) {
+      expect(
+        workFormSchema.safeParse(values({ featured: true, featuredRank }))
+          .success
+      ).toBe(false)
+    }
+    expect(
+      workFormSchema.safeParse(values({ featured: true, featuredRank: 1 }))
+        .success
+    ).toBe(true)
+  })
+
+  it("keeps every country/language/placement payload key on the real schema", () => {
+    const payload = workToApiPayload(
+      values({
+        country: ["TN"],
+        language: ["aeb"],
+        featured: true,
+        featuredRank: 1,
+      })
+    )
+
+    for (const key of ["country", "language", "featured", "featuredRank"]) {
+      expect(Object.keys(creativeWorkSchema.attributes)).toContain(key)
+      expect(Object.keys(payload)).toContain(key)
+    }
+  })
+})
