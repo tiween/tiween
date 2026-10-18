@@ -178,6 +178,39 @@ export interface CreativeWorksExternalIds extends Struct.ComponentSchema {
   }
 }
 
+export interface CreativeWorksStreamingLink extends Struct.ComponentSchema {
+  collectionName: "components_creative_works_streaming_links"
+  info: {
+    description: "Where a short film can be watched online through an official channel"
+    displayName: "Streaming Link"
+    icon: "play"
+  }
+  attributes: {
+    accessType: Schema.Attribute.Enumeration<
+      ["free", "included", "subscription", "rental"]
+    > &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<"free">
+    label: Schema.Attribute.String
+    platform: Schema.Attribute.Enumeration<
+      [
+        "youtube",
+        "vimeo",
+        "dailymotion",
+        "artify",
+        "arte",
+        "mubi",
+        "netflix",
+        "shahid",
+        "tv5monde",
+        "other",
+      ]
+    > &
+      Schema.Attribute.Required
+    url: Schema.Attribute.String & Schema.Attribute.Required
+  }
+}
+
 export interface CreativeWorksTheatreDetails extends Struct.ComponentSchema {
   collectionName: "components_creative_works_theatre_details"
   info: {
@@ -468,6 +501,7 @@ declare module "@strapi/strapi" {
       "creative-works.credit": CreativeWorksCredit
       "creative-works.distinction": CreativeWorksDistinction
       "creative-works.external-ids": CreativeWorksExternalIds
+      "creative-works.streaming-link": CreativeWorksStreamingLink
       "creative-works.theatre-details": CreativeWorksTheatreDetails
       "entity-properties.property-value": EntityPropertiesPropertyValue
       "seo-utilities.meta-social": SeoUtilitiesMetaSocial

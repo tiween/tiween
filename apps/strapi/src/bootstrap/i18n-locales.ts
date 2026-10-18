@@ -7,7 +7,11 @@ import type { Core } from "@strapi/strapi"
  */
 export async function ensureI18nLocales({ strapi }: { strapi: Core.Strapi }) {
   const DEFAULT_LOCALE = { code: "fr", name: "French (fr)" }
-  const REQUIRED_LOCALES = [DEFAULT_LOCALE, { code: "ar", name: "Arabic (ar)" }]
+  const REQUIRED_LOCALES = [
+    DEFAULT_LOCALE,
+    { code: "ar", name: "Arabic (ar)" },
+    { code: "en", name: "English (en)" },
+  ]
 
   const localesService = strapi.plugin("i18n").service("locales")
 

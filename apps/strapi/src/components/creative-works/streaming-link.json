@@ -1,0 +1,40 @@
+{
+  "collectionName": "components_creative_works_streaming_links",
+  "info": {
+    "displayName": "Streaming Link",
+    "icon": "play",
+    "description": "Where a short film can be watched online through an official channel"
+  },
+  "options": {},
+  "attributes": {
+    "platform": {
+      "type": "enumeration",
+      "enum": [
+        "youtube",
+        "vimeo",
+        "dailymotion",
+        "artify",
+        "arte",
+        "mubi",
+        "netflix",
+        "shahid",
+        "tv5monde",
+        "other"
+      ],
+      "required": true
+    },
+    "url": {
+      "type": "string",
+      "required": true
+    },
+    "accessType": {
+      "type": "enumeration",
+      "enum": ["free", "included", "subscription", "rental"],
+      "required": true,
+      "default": "free"
+    },
+    "label": {
+      "type": "string"
+    }
+  }
+}

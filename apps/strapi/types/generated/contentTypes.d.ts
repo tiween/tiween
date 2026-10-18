@@ -667,6 +667,12 @@ export interface PluginCreativeWorksCreativeWork
           localized: false
         }
       }>
+    country: Schema.Attribute.JSON &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: false
+        }
+      }>
     createdAt: Schema.Attribute.DateTime
     createdBy: Schema.Attribute.Relation<"oneToOne", "admin::user"> &
       Schema.Attribute.Private
@@ -700,10 +706,35 @@ export interface PluginCreativeWorksCreativeWork
           localized: false
         }
       }>
+    featured: Schema.Attribute.Boolean &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: false
+        }
+      }> &
+      Schema.Attribute.DefaultTo<false>
+    featuredRank: Schema.Attribute.Integer &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: false
+        }
+      }> &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 1
+        },
+        number
+      >
     genres: Schema.Attribute.Relation<
       "manyToMany",
       "plugin::creative-works.genre"
     >
+    language: Schema.Attribute.JSON &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: false
+        }
+      }>
     links: Schema.Attribute.Component<"common.link", true> &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
@@ -747,6 +778,15 @@ export interface PluginCreativeWorksCreativeWork
         }
       }>
     slug: Schema.Attribute.UID<"title"> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: false
+        }
+      }>
+    streamingLinks: Schema.Attribute.Component<
+      "creative-works.streaming-link",
+      true
+    > &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: false
