@@ -136,6 +136,19 @@ export interface VideoItem {
   videoType?: string | null
 }
 
+/**
+ * `creative-works.streaming-link` component — an official place to watch a
+ * short film. `platform` and `accessType` are enumerations on the schema;
+ * they are plain strings here because the server may return any stored value.
+ */
+export interface StreamingLinkItem {
+  id?: number
+  platform: string
+  url: string
+  accessType: string
+  label?: string | null
+}
+
 export interface CreativeWork {
   id: number
   documentId: string
@@ -156,6 +169,11 @@ export interface CreativeWork {
   externalIds?: ExternalIds | null
   links?: LinkItem[]
   videos?: VideoItem[]
+  streamingLinks?: StreamingLinkItem[]
+  country?: string[] | null
+  language?: string[] | null
+  featured?: boolean | null
+  featuredRank?: number | null
   poster?: MediaAsset | null
   backdrop?: MediaAsset | null
   photos?: MediaAsset[] | null

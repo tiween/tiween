@@ -12,6 +12,12 @@ import type { WorkFormValues } from "./schema"
 // Read straight from the component schema — this is the authority both the
 // admin dropdown and the client wizard have to agree with.
 import videoComponent from "../../../../../../components/common/video.json"
+import streamingLinkComponent from "../../../../../../components/creative-works/streaming-link.json"
+import {
+  STREAMING_ACCESS_TYPES,
+  STREAMING_PLATFORMS,
+} from "../../../../../../shared/short-film-rules"
+import creativeWorkSchema from "../../../../../creative-works/server/src/content-types/creative-work/schema.json"
 import { WORK_POPULATE } from "../../hooks/workPopulate"
 import { VIDEO_TYPES } from "../Catalog/options"
 import {
@@ -19,7 +25,9 @@ import {
   clampBilling,
   creditFormSchema,
   DEFAULT_WORK_VALUES,
+  EMPTY_STREAMING_LINK,
   EMPTY_VIDEO,
+  streamingLinkFormSchema,
   videoFormSchema,
   workFormSchema,
   workToApiPayload,
@@ -504,6 +512,173 @@ describe("WORK_POPULATE", () => {
         "cast.person",
         "cast.character",
       ])
+    )
+  })
+})
+
+describe("WORK_POPULATE — streamingLinks", () => {
+  // Components are re-sent wholesale and Strapi replaces them on write, so a
+  // path missing here silently deletes every link on the next save (Pitfall 9).
+  it("resolves streamingLinks so a load-then-save keeps the links", () => {
+    expect(WORK_POPULATE).toContain("streamingLinks")
+  })
+})
+
+describe("streaming links — form mapping", () => {
+  const STORED_LINKS = [
+    {
+      id: 11,
+      platform: "youtube",
+      url: "https://youtu.be/abc",
+      accessType: "free",
+      label: "Official channel",
+    },
+    {
+      id: 12,
+      platform: "arte",
+      url: "https://www.arte.tv/x",
+      accessType: "included",
+      label: null,
+    },
+  ]
+
+  interface StreamingLinkPayload {
+    platform: string
+    url: string
+    accessType: string
+    label: string | null
+  }
+
+  it("round-trips stored links work -> form -> payload without loss", () => {
+    const work = {
+      title: "A short",
+      type: "short-film",
+      streamingLinks: STORED_LINKS,
+    } as unknown as CreativeWork
+
+    const payload = workToApiPayload(workToFormValues(work))
+
+    expect(payload.streamingLinks).toEqual([
+      {
+        platform: "youtube",
+        url: "https://youtu.be/abc",
+        accessType: "free",
+        label: "Official channel",
+      },
+      {
+        platform: "arte",
+        url: "https://www.arte.tv/x",
+        accessType: "included",
+        label: null,
+      },
+    ])
+  })
+
+  it("loads a work without links as an empty list", () => {
+    const work = { title: "A short", type: "short-film" } as CreativeWork
+    expect(workToFormValues(work).streamingLinks).toEqual([])
+  })
+
+  it("sends a blank label as null and trims the url", () => {
+    const payload = workToApiPayload(
+      values({
+        type: "short-film",
+        streamingLinks: [
+          {
+            ...EMPTY_STREAMING_LINK,
+            url: "  https://vimeo.com/1  ",
+            label: "   ",
+          },
+        ],
+      })
+    )
+
+    expect((payload.streamingLinks as StreamingLinkPayload[])[0]).toEqual({
+      platform: "youtube",
+      url: "https://vimeo.com/1",
+      accessType: "free",
+      label: null,
+    })
+  })
+
+  it("rejects http:, javascript: and non-URL streaming urls", () => {
+    for (const url of [
+      "http://youtu.be/abc",
+      "javascript:void(0)",
+      "data:text/html,x",
+      "youtu.be/abc",
+      "",
+    ]) {
+      expect(
+        streamingLinkFormSchema.safeParse({ ...EMPTY_STREAMING_LINK, url })
+          .success
+      ).toBe(false)
+    }
+    expect(
+      streamingLinkFormSchema.safeParse({
+        ...EMPTY_STREAMING_LINK,
+        url: "https://youtu.be/abc",
+      }).success
+    ).toBe(true)
+  })
+
+  it("rejects an unknown platform or access type", () => {
+    const link = { ...EMPTY_STREAMING_LINK, url: "https://youtu.be/abc" }
+    expect(
+      streamingLinkFormSchema.safeParse({ ...link, platform: "tiktok" }).success
+    ).toBe(false)
+    expect(
+      streamingLinkFormSchema.safeParse({ ...link, accessType: "gift" }).success
+    ).toBe(false)
+  })
+
+  it("fails the whole form when one link is invalid", () => {
+    expect(
+      workFormSchema.safeParse(
+        values({
+          streamingLinks: [{ ...EMPTY_STREAMING_LINK, url: "http://x.tv" }],
+        })
+      ).success
+    ).toBe(false)
+  })
+})
+
+describe("short-film fields — key sets against the real schemas (DW-13)", () => {
+  const SCHEMA_KEYS = Object.keys(creativeWorkSchema.attributes)
+
+  it("every top-level payload key exists on the creative-work schema", () => {
+    const payload = workToApiPayload(
+      values({
+        streamingLinks: [{ ...EMPTY_STREAMING_LINK, url: "https://y.tv/1" }],
+      })
+    )
+
+    for (const key of Object.keys(payload)) {
+      expect(SCHEMA_KEYS).toContain(key)
+    }
+  })
+
+  it("every streaming-link payload key exists on the component", () => {
+    const payload = workToApiPayload(
+      values({
+        streamingLinks: [{ ...EMPTY_STREAMING_LINK, url: "https://y.tv/1" }],
+      })
+    )
+    const componentKeys = Object.keys(streamingLinkComponent.attributes)
+
+    for (const link of payload.streamingLinks as Record<string, unknown>[]) {
+      for (const key of Object.keys(link)) {
+        expect(componentKeys).toContain(key)
+      }
+    }
+  })
+
+  it("form platform and access vocab equal the component enums", () => {
+    expect([...STREAMING_PLATFORMS]).toEqual(
+      streamingLinkComponent.attributes.platform.enum
+    )
+    expect([...STREAMING_ACCESS_TYPES]).toEqual(
+      streamingLinkComponent.attributes.accessType.enum
     )
   })
 })

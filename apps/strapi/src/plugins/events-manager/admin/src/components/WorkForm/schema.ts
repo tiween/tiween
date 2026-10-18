@@ -10,6 +10,14 @@ import { z } from "zod"
 import type { CreativeWork } from "../../hooks/useCreativeWorks"
 import type { MediaAsset } from "../MediaInput"
 
+// One browser-safe rules module (zod only) shared with the server guard and
+// the importer, so the picker vocabularies cannot drift from what the server
+// accepts. Six `../` climb from WorkForm/ to `src/`.
+import {
+  STREAMING_ACCESS_TYPES,
+  STREAMING_PLATFORMS,
+} from "../../../../../../shared/short-film-rules"
+
 const personRefSchema = z.object({
   id: z.number().optional(),
   documentId: z.string(),
@@ -168,6 +176,26 @@ export const videoFormSchema = z.object({
   videoType: z.string().min(1),
 })
 
+/** True for an absolute `https:` URL; rejects `http:`, `javascript:`, `data:`. */
+function isHttpsUrl(value: string): boolean {
+  try {
+    return new URL(value).protocol === "https:"
+  } catch {
+    return false
+  }
+}
+
+/**
+ * `creative-works.streaming-link` (D-03): an official place to watch a short
+ * film. The URL ends up rendered as a public link, so only `https:` passes.
+ */
+export const streamingLinkFormSchema = z.object({
+  platform: z.enum(STREAMING_PLATFORMS),
+  url: z.string().trim().refine(isHttpsUrl, { message: "INVALID_HTTPS_URL" }),
+  accessType: z.enum(STREAMING_ACCESS_TYPES),
+  label: z.string(),
+})
+
 export const workFormSchema = z.object({
   title: z.string().trim().min(1),
   originalTitle: z.string(),
@@ -187,6 +215,7 @@ export const workFormSchema = z.object({
   imdbId: z.string(),
   links: z.array(linkFormSchema),
   videos: z.array(videoFormSchema),
+  streamingLinks: z.array(streamingLinkFormSchema),
   poster: mediaAssetSchema.nullable(),
   backdrop: mediaAssetSchema.nullable(),
   photos: z.array(mediaAssetSchema),
@@ -196,6 +225,7 @@ export type WorkFormValues = z.infer<typeof workFormSchema>
 export type CreditFormValues = z.infer<typeof creditFormSchema>
 export type CastFormValues = z.infer<typeof castFormSchema>
 export type VideoFormValues = z.infer<typeof videoFormSchema>
+export type StreamingLinkFormValues = z.infer<typeof streamingLinkFormSchema>
 export type DistinctionFormValues = z.infer<typeof distinctionFormSchema>
 
 /**
@@ -232,6 +262,13 @@ export const EMPTY_VIDEO: VideoFormValues = {
   url: "",
   legacyType: null,
   videoType: "trailer",
+}
+
+export const EMPTY_STREAMING_LINK: StreamingLinkFormValues = {
+  platform: "youtube",
+  url: "",
+  accessType: "free",
+  label: "",
 }
 
 export const EMPTY_DISTINCTION: DistinctionFormValues = {
@@ -277,6 +314,7 @@ export const DEFAULT_WORK_VALUES: WorkFormValues = {
   imdbId: "",
   links: [],
   videos: [],
+  streamingLinks: [],
   poster: null,
   backdrop: null,
   photos: [],
@@ -376,6 +414,14 @@ export function workToFormValues(work: CreativeWork): WorkFormValues {
         (video.type ? LEGACY_TYPE_TO_VIDEO_TYPE[video.type] : undefined) ??
         "trailer",
     })),
+    streamingLinks: (work.streamingLinks ?? []).map(
+      ({ platform, url, accessType, label }) => ({
+        platform: platform as StreamingLinkFormValues["platform"],
+        url,
+        accessType: accessType as StreamingLinkFormValues["accessType"],
+        label: label ?? "",
+      })
+    ),
     poster: work.poster ?? null,
     backdrop: work.backdrop ?? null,
     photos: work.photos ?? [],
@@ -456,6 +502,13 @@ export function workToApiPayload(
       // legacy enum echoed back exactly as loaded (null for new videos)
       type: video.legacyType ?? null,
       videoType: video.videoType || null,
+    })),
+    // Components are re-sent wholesale, exactly like videos and links.
+    streamingLinks: values.streamingLinks.map((link) => ({
+      platform: link.platform,
+      url: link.url.trim(),
+      accessType: link.accessType,
+      label: orNull(link.label),
     })),
     poster: values.poster?.id ?? null,
     backdrop: values.backdrop?.id ?? null,

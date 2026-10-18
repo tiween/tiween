@@ -22,7 +22,7 @@ import {
   TextInput,
   Typography,
 } from "@strapi/design-system"
-import { Film, PaperPlane, Stack } from "@strapi/icons"
+import { PaperPlane, Play, Stack } from "@strapi/icons"
 import { Layouts } from "@strapi/strapi/admin"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Controller, useForm } from "react-hook-form"
@@ -41,6 +41,7 @@ import { CastEditor } from "./CastEditor"
 import { CreditsEditor } from "./CreditsEditor"
 import { DistinctionsEditor } from "./DistinctionsEditor"
 import { DEFAULT_WORK_VALUES, workFormSchema } from "./schema"
+import { StreamingLinksEditor } from "./StreamingLinksEditor"
 import { TheatreDetailsFields } from "./TheatreDetailsFields"
 import { VideosEditor } from "./VideosEditor"
 
@@ -107,9 +108,10 @@ export function WorkForm({
 
   const workType = watch("type")
   const isPlay = workType === "play"
+  const isShort = workType === "short-film"
   const isCinema = !isPlay
 
-  const typeIcon = (type: WorkType) => (type === "play" ? <Stack /> : <Film />)
+  const typeIcon = (type: WorkType) => (type === "play" ? <Stack /> : <Play />)
 
   return (
     <form onSubmit={handleSubmit((values) => onSubmit(values))} noValidate>
@@ -423,6 +425,18 @@ export function WorkForm({
             hint={t("workForm.theatreHint", "Play-specific metadata.")}
           >
             <TheatreDetailsFields control={control} />
+          </FormSection>
+        )}
+
+        {isShort && (
+          <FormSection
+            title={t("workForm.streamingSection", "Where to watch")}
+            hint={t(
+              "workForm.streamingHint",
+              "Official channels only. No re-uploads."
+            )}
+          >
+            <StreamingLinksEditor control={control} />
           </FormSection>
         )}
 

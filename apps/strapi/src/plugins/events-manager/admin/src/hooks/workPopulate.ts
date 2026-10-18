@@ -27,4 +27,5 @@ export const WORK_POPULATE = [
   "externalIds",
   "videos",
   "links",
+  "streamingLinks",
 ]
