@@ -16,6 +16,10 @@ import request from "supertest"
 import type { Core } from "@strapi/strapi"
 
 import {
+  ALPHA_AR_SYNOPSIS,
+  ALPHA_AR_TITLE,
+  CHARLIE_AR_DRAFT_TITLE,
+  DRAME_AR_NAME,
   GENRE_SLUGS,
   PUBLISHED_SHORT_SLUGS,
   seedShortFilmFixtures,
@@ -398,6 +402,137 @@ describe("GET short-films/:slug (integration)", () => {
 
     for (const forbidden of FORBIDDEN_KEYS) {
       expect(keys.has(forbidden)).toBe(false)
+    }
+  })
+})
+
+describe("locale fallback (integration)", () => {
+  const byFr = (item: { slug: string }) => item.slug
+
+  it("serves the Arabic title where the ar row is published and French elsewhere", async () => {
+    const res = await api().get(LIST).query({ locale: "ar" })
+
+    expect(res.status).toBe(200)
+    const bySlug = Object.fromEntries(
+      res.body.data.map((i: any) => [i.slug, i])
+    )
+
+    expect(bySlug[S.alpha].title).toBe(ALPHA_AR_TITLE)
+    expect(bySlug[S.alpha].locale).toBe("ar")
+    for (const slug of [S.bravo, S.charlie, S.echo, S.foxtrot, S.golf]) {
+      expect(bySlug[slug].locale).toBe("fr")
+      expect(bySlug[slug].title).toBe(slug.replace("sf-", ""))
+    }
+  })
+
+  it("round-trips the Arabic title byte-identical", async () => {
+    const res = await api().get(LIST).query({ locale: "ar" })
+    const alpha = res.body.data.find((i: any) => i.slug === S.alpha)
+
+    expect(
+      Buffer.from(alpha.title, "utf8").equals(
+        Buffer.from(ALPHA_AR_TITLE, "utf8")
+      )
+    ).toBe(true)
+    expect(alpha.synopsis).toBe(ALPHA_AR_SYNOPSIS)
+  })
+
+  it("serves French for a film whose ar row is only a draft", async () => {
+    const res = await api().get(LIST).query({ locale: "ar" })
+    const charlie = res.body.data.find((i: any) => i.slug === S.charlie)
+
+    expect(charlie.title).toBe("charlie")
+    expect(charlie.title).not.toBe(CHARLIE_AR_DRAFT_TITLE)
+    expect(charlie.locale).toBe("fr")
+  })
+
+  it.each([["publishedAt:desc"], ["releaseYear:desc"], ["duration:asc"]])(
+    "keeps total and order identical to the French list (%s)",
+    async (sort) => {
+      const fr = await api().get(LIST).query({ sort })
+      const ar = await api().get(LIST).query({ sort, locale: "ar" })
+
+      expect(ar.body.data.map(byFr)).toEqual(fr.body.data.map(byFr))
+      expect(ar.body.meta.pagination).toEqual(fr.body.meta.pagination)
+    }
+  )
+
+  it("keeps page boundaries identical to the French walk", async () => {
+    const seen: string[] = []
+    for (const page of [1, 2, 3]) {
+      const res = await api()
+        .get(LIST)
+        .query({ locale: "ar", pageSize: 2, page })
+      seen.push(...res.body.data.map((i: any) => i.documentId))
+    }
+    const fr = await api().get(LIST).query({ pageSize: 48 })
+
+    expect(new Set(seen).size).toBe(6)
+    expect(seen).toEqual(fr.body.data.map((i: any) => i.documentId))
+  })
+
+  it("takes genres from the default-locale row and localizes their names with fallback", async () => {
+    const res = await api().get(LIST).query({ locale: "ar" })
+    const bySlug = Object.fromEntries(
+      res.body.data.map((i: any) => [i.slug, i])
+    )
+
+    expect(bySlug[S.alpha].genres).toEqual([
+      expect.objectContaining({ slug: GENRE_SLUGS.drame, name: DRAME_AR_NAME }),
+    ])
+    expect(bySlug[S.bravo].genres).toEqual([
+      expect.objectContaining({ slug: GENRE_SLUGS.comedie, name: "Comedie" }),
+    ])
+    // relations, directors and slug come from the default-locale row
+    expect(bySlug[S.alpha].slug).toBe(S.alpha)
+    expect(bySlug[S.alpha].directors).toHaveLength(1)
+  })
+
+  it("serves French for every item when locale=en", async () => {
+    const res = await api().get(LIST).query({ locale: "en" })
+
+    expect(res.status).toBe(200)
+    expect(res.body.data).toHaveLength(6)
+    for (const item of res.body.data) expect(item.locale).toBe("fr")
+    expect(res.body.data.find((i: any) => i.slug === S.alpha).title).toBe(
+      "alpha"
+    )
+  })
+
+  it("serves the Arabic synopsis on the detail with locale=ar", async () => {
+    const res = await api().get(`${LIST}/${S.alpha}`).query({ locale: "ar" })
+
+    expect(res.status).toBe(200)
+    expect(res.body.data.locale).toBe("ar")
+    expect(res.body.data.title).toBe(ALPHA_AR_TITLE)
+    expect(res.body.data.synopsis).toBe(ALPHA_AR_SYNOPSIS)
+    expect(res.body.data.slug).toBe(S.alpha)
+  })
+
+  it("serves French on the detail when the film has no ar row", async () => {
+    const res = await api().get(`${LIST}/${S.bravo}`).query({ locale: "ar" })
+
+    expect(res.status).toBe(200)
+    expect(res.body.data.locale).toBe("fr")
+    expect(res.body.data.title).toBe("bravo")
+  })
+
+  it("answers 400 UNSUPPORTED_LOCALE on the detail for an unlisted locale", async () => {
+    const res = await api().get(`${LIST}/${S.alpha}`).query({ locale: "de" })
+
+    expect(res.status).toBe(400)
+    expect(res.body.error.details.code).toBe("UNSUPPORTED_LOCALE")
+  })
+
+  it("never exposes internal keys with the overlay applied", async () => {
+    const list = await api().get(LIST).query({ locale: "ar" })
+    const detail = await api().get(`${LIST}/${S.alpha}`).query({ locale: "ar" })
+
+    for (const body of [list.body, detail.body]) {
+      const keys = collectKeys(body)
+      for (const forbidden of FORBIDDEN_KEYS) {
+        expect(keys.has(forbidden)).toBe(false)
+      }
     }
   })
 })

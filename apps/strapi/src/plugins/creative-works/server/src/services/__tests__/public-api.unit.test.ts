@@ -49,6 +49,49 @@ describe("creative-works public-api facade delegation (unit)", () => {
   })
 })
 
+describe("creative-works public-api facade: short films (unit)", () => {
+  function buildStrapi(internal: Record<string, jest.Mock>) {
+    const service = jest.fn(() => internal)
+    return {
+      strapi: { plugin: jest.fn(() => ({ service })) } as any,
+      service,
+    }
+  }
+
+  it("delegates findShortFilms to the short-films service list", async () => {
+    const internal = {
+      list: jest.fn(async () => ({ data: [], meta: { pagination: {} } })),
+    }
+    const { strapi, service } = buildStrapi(internal)
+    const facade = publicApiService({ strapi })
+    const query = {
+      sort: "publishedAt:desc",
+      page: 1,
+      pageSize: 24,
+    } as const
+
+    const result = await facade.findShortFilms(query as any)
+
+    expect(service).toHaveBeenCalledWith("short-films")
+    expect(internal.list).toHaveBeenCalledWith(query)
+    expect(result).toEqual({ data: [], meta: { pagination: {} } })
+  })
+
+  it("delegates findShortFilm to findBySlug with the slug and locale", async () => {
+    const internal = {
+      findBySlug: jest.fn(async () => ({ documentId: "w1" })),
+    }
+    const { strapi, service } = buildStrapi(internal)
+    const facade = publicApiService({ strapi })
+
+    const result = await facade.findShortFilm("sf-alpha", "ar")
+
+    expect(service).toHaveBeenCalledWith("short-films")
+    expect(internal.findBySlug).toHaveBeenCalledWith("sf-alpha", "ar")
+    expect(result).toEqual({ documentId: "w1" })
+  })
+})
+
 describe("creative-work.createWork (unit)", () => {
   function buildStrapi(options: { locales?: string[] } = {}) {
     const { locales = ["fr", "ar", "en"] } = options
