@@ -36,9 +36,12 @@ const emptyList = {
   },
 }
 const get = jest.fn(async (_url: string, _config?: unknown) => emptyList)
-const post = jest.fn(async (_url: string, _body?: unknown) => ({
-  data: { data: { documentId: "created-doc" } },
-}))
+const post = jest.fn(async (url: string, _body?: unknown) =>
+  // A blank slug is generated through the content-manager uid endpoint first.
+  url === "/content-manager/uid/generate"
+    ? { data: { data: "generated-slug" } }
+    : { data: { data: { documentId: "created-doc" } } }
+)
 const put = jest.fn(async () => ({ data: { data: {} } }))
 const del = jest.fn(async () => ({ data: { data: {} } }))
 
@@ -97,11 +100,19 @@ async function save() {
   })
 }
 
-function createdBody(): { data: Record<string, unknown> } {
-  expect(post).toHaveBeenCalledTimes(1)
-  const [url, body] = post.mock.calls[0]
-  expect(url).toBe(CREATE_URL)
-  return body as { data: Record<string, unknown> }
+/**
+ * The request body of the create call. The content-manager reads the body FLAT
+ * (the entity itself): a `{ data }` wrapper is silently dropped by the server.
+ */
+function createCalls() {
+  return post.mock.calls.filter(([url]) => url === CREATE_URL)
+}
+
+function createdBody(): Record<string, unknown> {
+  expect(createCalls()).toHaveLength(1)
+  const [, body] = createCalls()[0]
+  expect(body).not.toHaveProperty("data")
+  return body as Record<string, unknown>
 }
 
 describe("WorkForm — streaming links (Task 1)", () => {
@@ -119,10 +130,11 @@ describe("WorkForm — streaming links (Task 1)", () => {
     })
 
     await save()
-    await waitFor(() => expect(post).toHaveBeenCalledTimes(1))
+    await waitFor(() => expect(createCalls()).toHaveLength(1))
 
-    const { data } = createdBody()
+    const data = createdBody()
     expect(data.type).toBe("short-film")
+    expect(data.slug).toBe("generated-slug")
     expect(data.streamingLinks).toEqual([
       {
         platform: "youtube",
@@ -248,9 +260,9 @@ describe("WorkForm — country, language and placement (Task 2)", () => {
     })
 
     await save()
-    await waitFor(() => expect(post).toHaveBeenCalledTimes(1))
+    await waitFor(() => expect(createCalls()).toHaveLength(1))
 
-    const { data } = createdBody()
+    const data = createdBody()
     expect(data.country).toEqual(["TN"])
     expect(data.language).toEqual(["aeb"])
     expect(data.featured).toBe(true)
@@ -263,9 +275,9 @@ describe("WorkForm — country, language and placement (Task 2)", () => {
     chooseType("Short film")
 
     await save()
-    await waitFor(() => expect(post).toHaveBeenCalledTimes(1))
+    await waitFor(() => expect(createCalls()).toHaveLength(1))
 
-    const { data } = createdBody()
+    const data = createdBody()
     expect(data.featured).toBe(false)
     expect(data.featuredRank).toBeNull()
     expect(data.country).toEqual([])

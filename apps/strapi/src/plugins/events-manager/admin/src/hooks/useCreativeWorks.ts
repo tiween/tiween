@@ -149,9 +149,14 @@ export interface StreamingLinkItem {
   label?: string | null
 }
 
+/** Publication state the content-manager attaches to a loaded document */
+export type WorkStatus = "draft" | "published" | "modified"
+
 export interface CreativeWork {
   id: number
   documentId: string
+  /** Set by the content-manager on a single-document read */
+  status?: WorkStatus
   title: string
   originalTitle?: string | null
   slug?: string | null
@@ -183,6 +188,25 @@ export interface CreativeWork {
 }
 
 export { WORK_POPULATE }
+
+/** One other-locale row of the same document, from `meta.availableLocales` */
+export interface AvailableLocale {
+  documentId?: string
+  locale: string
+  status?: WorkStatus
+}
+
+/** The `meta` block of a content-manager single-document read */
+export interface WorkMeta {
+  availableLocales?: AvailableLocale[]
+}
+
+/** A locale configured in the i18n plugin */
+export interface LocaleInfo {
+  code: string
+  name: string
+  isDefault: boolean
+}
 
 interface ListResponse<T> {
   results: T[]
@@ -345,47 +369,179 @@ export function useWorkSearch(term: string, types: readonly WorkType[]) {
   return { works, isLoading, error }
 }
 
-/** Single creative work with all components populated */
-export function useWork(documentId: string | null) {
+/**
+ * Single creative work with all components populated.
+ *
+ * `locale` selects the row; the content-manager answers a locale that has no
+ * row yet with `data: {}`, which is returned as `work: null` so the caller can
+ * tell "not translated yet" from "loaded". `meta.availableLocales` lists the
+ * OTHER locale rows of the document with their status.
+ *
+ * Pass `null` as `documentId` to skip the request (a new work, or a tab that
+ * is not active).
+ */
+export function useWork(documentId: string | null, locale?: string | null) {
   const { get } = useFetchClient()
   const [work, setWork] = useState<CreativeWork | null>(null)
-  const [isLoading, setIsLoading] = useState(Boolean(documentId))
+  const [meta, setMeta] = useState<WorkMeta | null>(null)
+  // The request the current `work` answers. Comparing it with the wanted
+  // request keeps `isLoading` true on the very render a new document or locale
+  // is asked for, so a caller never paints the previous row for one frame. A
+  // refetch of the SAME request is silent: the form stays mounted.
+  const [loadedKey, setLoadedKey] = useState<string | null>(null)
   const [error, setError] = useState<Error | null>(null)
+
+  const wantedKey = documentId ? `${documentId}|${locale ?? ""}` : null
+  const latestKey = useRef(wantedKey)
+  latestKey.current = wantedKey
 
   const fetchWork = useCallback(async () => {
     if (!documentId) {
       setWork(null)
-      setIsLoading(false)
+      setMeta(null)
+      setLoadedKey(null)
       return
     }
 
-    setIsLoading(true)
+    const key = `${documentId}|${locale ?? ""}`
     setError(null)
 
     try {
-      const response = await get<{ data: CreativeWork }>(
+      const response = await get<{ data: CreativeWork; meta?: WorkMeta }>(
         `${cmUrl(WORK_UID)}/${documentId}`,
-        { params: { populate: WORK_POPULATE } }
+        { params: { populate: WORK_POPULATE, ...(locale ? { locale } : {}) } }
       )
-      setWork(response.data.data ?? null)
+      // A newer request (another document or tab) superseded this one.
+      if (latestKey.current !== key) return
+      const loaded = response.data.data
+      setWork(loaded && loaded.documentId ? loaded : null)
+      setMeta(response.data.meta ?? null)
+      setLoadedKey(key)
     } catch (err) {
+      if (latestKey.current !== key) return
       setError(err instanceof Error ? err : new Error(String(err)))
       setWork(null)
-    } finally {
-      setIsLoading(false)
+      setMeta(null)
+      setLoadedKey(key)
     }
-  }, [get, documentId])
+  }, [get, documentId, locale])
 
   useEffect(() => {
     fetchWork()
   }, [fetchWork])
 
-  return { work, isLoading, error, refetch: fetchWork }
+  const isLoading = wantedKey !== null && loadedKey !== wantedKey
+
+  return { work, meta, isLoading, error, refetch: fetchWork }
 }
 
-/** Create / update / delete / publish mutations for creative works */
+/**
+ * Locales configured in the i18n plugin, default first. The default locale is
+ * read from `isDefault`, never assumed.
+ */
+export function useLocales() {
+  const { get } = useFetchClient()
+  const [locales, setLocales] = useState<LocaleInfo[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    let cancelled = false
+
+    const load = async () => {
+      try {
+        const response = await get<LocaleInfo[]>("/i18n/locales")
+        const list = Array.isArray(response.data) ? response.data : []
+        if (!cancelled) {
+          setLocales(
+            [...list].sort((a, b) => Number(b.isDefault) - Number(a.isDefault))
+          )
+        }
+      } catch {
+        if (!cancelled) setLocales([])
+      } finally {
+        if (!cancelled) setIsLoading(false)
+      }
+    }
+
+    load()
+    return () => {
+      cancelled = true
+    }
+  }, [get])
+
+  const defaultLocale = locales.find((locale) => locale.isDefault)?.code ?? null
+
+  return { locales, defaultLocale, isLoading }
+}
+
+/** Request config carrying the locale as a query parameter */
+const localeConfig = (locale?: string | null) =>
+  locale ? { params: { locale } } : undefined
+
+/**
+ * Documents a translation row of a work points at. Creating a locale row of a
+ * work copies its non-localized `credits` and `cast`, whose person, credit-role
+ * and character targets are localized, so each target needs a row in that
+ * locale first or the server answers `locale "<code>" not found`.
+ */
+export interface TranslationTargets {
+  persons: string[]
+  roles: Array<{ documentId: string; name: string; slug?: string | null }>
+  characters: Array<{ documentId: string; name: string }>
+}
+
+/** Pure: the distinct credited documents of a work, by kind. */
+export function collectTranslationTargets(
+  work: CreativeWork
+): TranslationTargets {
+  const persons = new Set<string>()
+  const roles = new Map<
+    string,
+    { documentId: string; name: string; slug?: string | null }
+  >()
+  const characters = new Map<string, { documentId: string; name: string }>()
+
+  for (const credit of work.credits ?? []) {
+    if (credit.person?.documentId) persons.add(credit.person.documentId)
+    const role = credit.creditRole
+    if (role?.documentId && !roles.has(role.documentId)) {
+      roles.set(role.documentId, {
+        documentId: role.documentId,
+        name: role.name,
+        slug: role.slug ?? null,
+      })
+    }
+  }
+  for (const member of work.cast ?? []) {
+    if (member.person?.documentId) persons.add(member.person.documentId)
+    const character = member.character
+    if (character?.documentId && !characters.has(character.documentId)) {
+      characters.set(character.documentId, {
+        documentId: character.documentId,
+        name: character.name,
+      })
+    }
+  }
+
+  return {
+    persons: [...persons],
+    roles: [...roles.values()],
+    characters: [...characters.values()],
+  }
+}
+
+/** Page size of the "which targets already have this locale" lookups */
+const TARGET_LOOKUP_CHUNK = 50
+
+/**
+ * Create / update / delete / publish mutations for creative works.
+ *
+ * The content-manager collection-types routes read the request body FLAT (the
+ * entity itself). Wrapping it in `{ data }` makes the server drop the unknown
+ * `data` key and save an empty document, so payloads are sent as they are.
+ */
 export function useWorkMutations() {
-  const { post, put, del } = useFetchClient()
+  const { get, post, put, del } = useFetchClient()
   const [isLoading, setIsLoading] = useState(false)
 
   const run = useCallback(async <T>(fn: () => Promise<T>): Promise<T> => {
@@ -400,20 +556,22 @@ export function useWorkMutations() {
   const createWork = useCallback(
     (data: Record<string, unknown>) =>
       run(async () => {
-        const response = await post<{ data: CreativeWork }>(cmUrl(WORK_UID), {
-          data,
-        })
+        const response = await post<{ data: CreativeWork }>(
+          cmUrl(WORK_UID),
+          data
+        )
         return response.data.data
       }),
     [post, run]
   )
 
   const updateWork = useCallback(
-    (documentId: string, data: Record<string, unknown>) =>
+    (documentId: string, data: Record<string, unknown>, locale?: string) =>
       run(async () => {
         const response = await put<{ data: CreativeWork }>(
           `${cmUrl(WORK_UID)}/${documentId}`,
-          { data }
+          data,
+          localeConfig(locale)
         )
         return response.data.data
       }),
@@ -429,19 +587,118 @@ export function useWorkMutations() {
   )
 
   const publishWork = useCallback(
-    (documentId: string) =>
+    (documentId: string, locale?: string) =>
       run(async () => {
-        await post(`${cmUrl(WORK_UID)}/${documentId}/actions/publish`)
+        await post(
+          `${cmUrl(WORK_UID)}/${documentId}/actions/publish`,
+          {},
+          localeConfig(locale)
+        )
       }),
     [post, run]
   )
 
   const unpublishWork = useCallback(
-    (documentId: string) =>
+    (documentId: string, locale?: string) =>
       run(async () => {
-        await post(`${cmUrl(WORK_UID)}/${documentId}/actions/unpublish`)
+        await post(
+          `${cmUrl(WORK_UID)}/${documentId}/actions/unpublish`,
+          {},
+          localeConfig(locale)
+        )
       }),
     [post, run]
+  )
+
+  /**
+   * A slug for a work, generated from its title by the content-manager's uid
+   * generator (the server never generates one on its own).
+   */
+  const generateSlug = useCallback(
+    async (title: string): Promise<string> => {
+      const response = await post<{ data: string }>(
+        "/content-manager/uid/generate",
+        { contentTypeUID: WORK_UID, field: "slug", data: { title } }
+      )
+      const slug = response.data.data
+      if (typeof slug !== "string" || slug.trim() === "") {
+        throw new Error("SLUG_GENERATION_FAILED")
+      }
+      return slug
+    },
+    [post]
+  )
+
+  /**
+   * Make a work translatable into `locale`: give every credited person,
+   * credit-role and cast character a row in that locale (only the missing
+   * ones). Each new row starts from the default-locale values: persons copy
+   * their name on their own, roles and characters are named like the source.
+   */
+  const ensureTranslationTargets = useCallback(
+    (source: CreativeWork, locale: string) =>
+      run(async () => {
+        const targets = collectTranslationTargets(source)
+
+        const existingIds = async (uid: string, ids: string[]) => {
+          const found = new Set<string>()
+          for (let i = 0; i < ids.length; i += TARGET_LOOKUP_CHUNK) {
+            const chunk = ids.slice(i, i + TARGET_LOOKUP_CHUNK)
+            const response = await get<{
+              results?: Array<{ documentId: string }>
+            }>(cmUrl(uid), {
+              params: {
+                locale,
+                page: 1,
+                pageSize: TARGET_LOOKUP_CHUNK,
+                filters: { documentId: { $in: chunk } },
+              },
+            })
+            for (const row of response.data.results ?? []) {
+              found.add(row.documentId)
+            }
+          }
+          return found
+        }
+
+        const create = async (
+          uid: string,
+          documentId: string,
+          body: Record<string, unknown>
+        ) => {
+          await put(`${cmUrl(uid)}/${documentId}`, body, localeConfig(locale))
+        }
+
+        const havePersons = await existingIds(PERSON_UID, targets.persons)
+        for (const id of targets.persons) {
+          if (!havePersons.has(id)) await create(PERSON_UID, id, {})
+        }
+
+        const haveRoles = await existingIds(
+          CREDIT_ROLE_UID,
+          targets.roles.map((role) => role.documentId)
+        )
+        for (const role of targets.roles) {
+          if (haveRoles.has(role.documentId)) continue
+          // The uid `slug` is not copied to a new locale row and is required.
+          await create(CREDIT_ROLE_UID, role.documentId, {
+            name: role.name,
+            ...(role.slug ? { slug: role.slug } : {}),
+          })
+        }
+
+        const haveCharacters = await existingIds(
+          CHARACTER_UID,
+          targets.characters.map((character) => character.documentId)
+        )
+        for (const character of targets.characters) {
+          if (haveCharacters.has(character.documentId)) continue
+          await create(CHARACTER_UID, character.documentId, {
+            name: character.name,
+          })
+        }
+      }),
+    [get, put, run]
   )
 
   return {
@@ -450,6 +707,8 @@ export function useWorkMutations() {
     deleteWork,
     publishWork,
     unpublishWork,
+    generateSlug,
+    ensureTranslationTargets,
     isLoading,
   }
 }
