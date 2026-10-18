@@ -9,7 +9,6 @@ import {
 import {
   ACCEPTED_IMAGE_TYPES,
   ACCEPTED_IMAGE_TYPES_ATTR,
-  CREATIVE_WORK_TYPES,
   emptyShowtimeRow,
   emptyVenueEventFormValues,
   emptyVenueWorkFormValues,
@@ -21,6 +20,7 @@ import {
   showtimeKindOf,
   toVenueEventCreatePayload,
   toVenueWorkCreatePayload,
+  VENUE_CREATABLE_WORK_TYPES,
   venueEventFormSchema,
   venueWorkFormSchema,
 } from "@/features/venues/schemas/venue-events"
@@ -617,7 +617,7 @@ function CreateWorkDialog({
     defaultValues: emptyVenueWorkFormValues(),
   })
 
-  const typeOptions = CREATIVE_WORK_TYPES.map((value) => ({
+  const typeOptions = VENUE_CREATABLE_WORK_TYPES.map((value) => ({
     value,
     label: t(`workTypes.${value}`),
   }))

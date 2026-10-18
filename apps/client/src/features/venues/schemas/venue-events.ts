@@ -52,6 +52,14 @@ export const CREATIVE_WORK_TYPES = ["film", "play", "short-film"] as const
 
 export type CreativeWorkType = (typeof CREATIVE_WORK_TYPES)[number]
 
+/**
+ * The work types a venue manager may CREATE (mirrors the backend). Short films
+ * are admin-curated (D-21): the venue create-and-publish flow cannot satisfy
+ * the D-19 short-film publish rules. `CREATIVE_WORK_TYPES` stays the full list
+ * for showtime kinds and the display of existing works.
+ */
+export const VENUE_CREATABLE_WORK_TYPES = ["film", "play"] as const
+
 /** Work types that schedule SCREENINGS (the rest schedule performances). */
 export function showtimeKindOf(
   type: CreativeWorkType
@@ -368,7 +376,7 @@ export function toVenueEventCreatePayload(
 export const WORK_TYPE_UNSET = ""
 
 export const WORK_TYPE_FORM_VALUES = [
-  ...CREATIVE_WORK_TYPES,
+  ...VENUE_CREATABLE_WORK_TYPES,
   WORK_TYPE_UNSET,
 ] as const
 
