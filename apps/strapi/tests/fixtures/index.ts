@@ -80,9 +80,11 @@ export const fixtures = {
       type: "play",
       director: "Jalila Baccar",
     },
+    // Short films are not part of `yarn seed` (the publish guard rejects
+    // incomplete ones); the dedicated shorts importer owns this entry.
     shortFilm: {
-      title: "Fragments de Tunis",
-      slug: "fragments-tunis",
+      title: "Khalaa",
+      slug: "khalaa",
       type: "short-film",
     },
   },

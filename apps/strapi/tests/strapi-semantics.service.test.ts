@@ -2,6 +2,7 @@ import request from "supertest"
 
 import type { Core } from "@strapi/strapi"
 
+import { publishableShortParts } from "./fixtures/publishable-short"
 import { createAdminSession } from "./helpers/admin"
 import { cleanupStrapi, setupStrapi } from "./helpers/strapi"
 
@@ -103,11 +104,18 @@ async function createDraftShort(
   extra: Record<string, unknown> = {}
 ): Promise<{ documentId: string; slug: string }> {
   const slug = uniq(tag)
+  // Complete enough for the creative-works publish guard (D-19): the probes
+  // below characterize Strapi, not the guard, so their shorts must publish.
+  // `ar` target rows exist because the probes later create an `ar` work row.
+  const parts = await publishableShortParts(strapi, tag, { locales: ["ar"] })
   const doc: any = await strapi.documents(CW).create({
     data: {
       title: `${tag} ${slug}`,
       slug,
       type: "short-film",
+      poster: parts.poster,
+      credits: parts.credits,
+      streamingLinks: parts.streamingLinks,
       ...extra,
     } as any,
     locale: "fr",

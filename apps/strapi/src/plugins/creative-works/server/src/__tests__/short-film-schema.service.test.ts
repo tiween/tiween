@@ -11,6 +11,7 @@
  */
 import type { Core } from "@strapi/strapi"
 
+import { publishableShortParts } from "../../../../../../tests/fixtures/publishable-short"
 import {
   cleanupStrapi,
   setupStrapi,
@@ -54,6 +55,13 @@ describe("short-film schema delta (integration)", () => {
       label: null,
     }
 
+    // The short is published below, so it must satisfy the D-19 publish guard
+    // (poster, directing credit, watch source). Its `en` row copies the credits,
+    // so the director's person and credit-role need `en` rows first.
+    const parts = await publishableShortParts(strapi, "schema-roundtrip", {
+      locales: ["en"],
+    })
+
     const created: any = await strapi.documents(CW).create({
       data: {
         title: "Aller-retour",
@@ -64,6 +72,8 @@ describe("short-film schema delta (integration)", () => {
         streamingLinks: [link],
         featured: true,
         featuredRank: 1,
+        poster: parts.poster,
+        credits: parts.credits,
       } as any,
       locale: "fr",
     } as any)
