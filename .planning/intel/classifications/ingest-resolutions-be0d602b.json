@@ -1,0 +1,13 @@
+{
+  "source_path": "/Users/ayoub/projects/tiween-bmad-version/.planning/ingest-resolutions.md",
+  "type": "ADR",
+  "confidence": "high",
+  "manifest_override": true,
+  "title": "Ingest Resolutions",
+  "summary": "Owner's ratified answers to the 2026-10-18 ingest conflict report: blocker cycle fixes, brand palette, email provider, and v1 scope decisions.",
+  "scope": ["ingest conflicts", "DESIGN.md", "EXPERIENCE.md", "brand palette", "Brevo email provider", "Social Content Studio", "events-manager admin calendar", "post-v1 fee model", "Epic 9", "Epic 10", "venue-manager surface", "BMad cleanup"],
+  "cross_refs": ["INGEST-CONFLICTS.md", "ux-designs/ux-tiween-bmad-version-2026-06-16/DESIGN.md", "EXPERIENCE.md", "CLAUDE.md"],
+  "locked": false,
+  "precedence": 0,
+  "notes": "Type and precedence supplied by manifest (MANIFEST_TYPE=ADR, MANIFEST_PRECEDENCE=0); content was not used to override. Content is a resolutions log, not a single architectural decision: no Status field, no Context/Decision/Consequences structure, so locked is false. Hash suffix omitted: the classifier had no hashing tool available, so the file is named ingest-resolutions-nohash.json and should be renamed to ingest-resolutions-{sha256(source_path)[0:8]}.json by the orchestrator."
+}

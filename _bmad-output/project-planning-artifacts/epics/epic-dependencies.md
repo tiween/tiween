@@ -1,6 +1,6 @@
 # Epic Dependencies
 
-> **2026-08-06 revision (sprint-change-proposal-2026-08-06):** v1 = multi-
+> **2026-08-06 revision (2026-08-06 scope change):** v1 = multi-
 > category aggregation platform, no ticketing. Epic 6 (remaining stories) and
 > Epic 8 are Post-V1; Epic 7's aggregation subset (7.1–7.4, 7.8) joins the v1
 > path; Epic 3 widens to multi-category (3.2 un-deferred, 3.12 added).

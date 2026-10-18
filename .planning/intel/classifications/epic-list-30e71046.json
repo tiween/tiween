@@ -1,0 +1,13 @@
+{
+  "source_path": "/Users/ayoub/projects/tiween-bmad-version/_bmad-output/project-planning-artifacts/epics/epic-list.md",
+  "type": "SPEC",
+  "confidence": "medium",
+  "manifest_override": true,
+  "title": "Epic List",
+  "summary": "Index of v1 and post-v1 epics for the Tiween platform, listing scope, phase tags, deferred items, and covered FRs and NFRs.",
+  "scope": ["Tiween platform", "Strapi v5 backend", "Next.js frontend", "venues plugin", "events-manager plugin", "creative-works catalog", "ticketing", "B2B venue management", "ticket scanner", "PWA offline experience", "user authentication", "event discovery"],
+  "cross_refs": ["sprint-change-proposal-2026-06-16.md"],
+  "locked": false,
+  "precedence": null,
+  "notes": "MANIFEST_TYPE=SPEC applied as authoritative. Content reads as a PRD-style epic and scope listing (phase tags, FR/NFR coverage, deferred scope) with no endpoint tables, schemas, or protocol definitions, so the content signals do not match SPEC. Downstream consumers should be aware. Output filename uses UNHASHED because no shell was available to compute the SHA-256 path hash; the orchestrator should rename it to epic-list-<first 8 hex of sha256(source_path)>.json."
+}

@@ -1,0 +1,13 @@
+{
+  "source_path": "/Users/ayoub/projects/tiween-bmad-version/_bmad-output/project-planning-artifacts/architecture.md",
+  "type": "ADR",
+  "confidence": "medium",
+  "manifest_override": true,
+  "title": "Architecture Decision Document — Amendment: Strapi Plugin Decomposition",
+  "summary": "Amendment to the sharded architecture defining Strapi plugin decomposition: backend module boundaries, dependency rules, and migration sequencing.",
+  "scope": ["Strapi plugin decomposition", "backend module structure", "events-manager", "creative-works", "geography", "users-permissions", "user-engagement", "ticketing", "payments", "venues plugin", "Strapi admin roles"],
+  "cross_refs": ["_bmad-output/architecture/index.md", "_bmad-output/architecture/core-architectural-decisions.md", "_bmad-output/architecture/project-structure-boundaries.md", "_bmad-output/architecture/implementation-patterns-consistency-rules.md", "_bmad-output/prd/functional-requirements.md", "_bmad-output/prd/product-scope.md", "_bmad-output/project-planning-artifacts/epics/epic-dependencies.md", "_bmad-output/project-context.md"],
+  "locked": false,
+  "precedence": 1,
+  "notes": "Type forced to ADR by manifest (manifest_override: true). Locked is false: frontmatter status is 'complete', not 'Accepted', so the locked rule does not apply. Document is an amendment covering several decisions (plugin boundaries, dependency direction, migration sequencing) rather than a single ADR. It declares itself authoritative over _bmad-output/architecture/ for backend module structure. Output filename lacks the required source_hash suffix because no hashing tool was available to the classifier; the orchestrator should rename or re-run with hashing."
+}

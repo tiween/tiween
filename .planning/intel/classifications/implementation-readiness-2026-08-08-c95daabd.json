@@ -1,0 +1,30 @@
+{
+  "source_path": "/Users/ayoub/projects/tiween-bmad-version/_bmad-output/project-planning-artifacts/implementation-readiness-2026-08-08.md",
+  "type": "DOC",
+  "confidence": "medium",
+  "manifest_override": true,
+  "title": "Implementation Readiness — 2026-08-08",
+  "summary": "Readiness gate review of BMad planning artifacts with verdict CONCERNS, listing findings on unplanned work, dangling pointers, UX precedence, and sprint-status tooling.",
+  "scope": ["implementation readiness", "events-manager admin UI", "PRD pointer", "UX design versions", "sprint-status.yaml", "sprint_plan.py", "epics", "orphan stories", "epic dependencies", "requirements traceability"],
+  "cross_refs": [
+    "_bmad-output/project-planning-artifacts/prds/prd-tiween-bmad-version-2026-06-17/",
+    "implementation-readiness-report-2025-12-26.md",
+    "requirements-inventory.md",
+    "epic-dependencies.md",
+    "epics/epic-2c-plugin-architecture-decomposition.md",
+    "epics/epic-list.md",
+    "deferred-work.md",
+    "bmm-workflow-status.yaml",
+    "_bmad-output/prd.md",
+    "ux-designs/ux-tiween-bmad-version-2026-06-16/",
+    "ux-designs/ux-tiween-bmad-version-2026-06-18/",
+    "ux-design-specification.md",
+    "test-design-system.md",
+    "sprint-status.yaml",
+    "events-manager/server/src/content-types/event/schema.json",
+    "sprint_plan.py"
+  ],
+  "locked": false,
+  "precedence": null,
+  "notes": "Type DOC is taken from MANIFEST_TYPE (manifest_override true). Content is a point-in-time gate review: findings, severity ratings, and fix recommendations. It contains no ADR decision/consequences structure, no user stories or acceptance criteria, and no API/schema specification, so it carries context only."
+}

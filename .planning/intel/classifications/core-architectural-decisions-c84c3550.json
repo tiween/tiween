@@ -1,0 +1,13 @@
+{
+  "source_path": "/Users/ayoub/projects/tiween-bmad-version/_bmad-output/architecture/core-architectural-decisions.md",
+  "type": "ADR",
+  "confidence": "medium",
+  "manifest_override": true,
+  "title": "Core Architectural Decisions",
+  "summary": "Consolidated list of critical, important, and deferred architectural decisions with choices and rationale for data, auth, caching, real-time, PWA, search, and testing.",
+  "scope": ["PostgreSQL", "REST API", "NextAuth.js", "JWT", "Konnect Network", "WebSockets", "Socket.io", "Redis", "SWR", "IndexedDB", "Zustand", "RSC", "Serwist", "Algolia", "Vitest", "Playwright", "Strapi", "bcrypt", "Grafana", "Prometheus"],
+  "cross_refs": [],
+  "locked": false,
+  "precedence": 10,
+  "notes": "Type set by MANIFEST_TYPE (ADR). Document is a multi-decision summary with tables, not a single numbered ADR. No Status field seen in first 50 lines, so locked=false per rule (only Accepted ADRs are locked). Re-check if a full-file Status is found. Output filename uses placeholder suffix because SHA-256 could not be computed (no shell tool available to this agent)."
+}

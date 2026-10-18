@@ -1,0 +1,13 @@
+{
+  "source_path": "/Users/ayoub/projects/tiween-bmad-version/_bmad-output/prd/web-app-specific-requirements.md",
+  "type": "PRD",
+  "confidence": "medium",
+  "manifest_override": true,
+  "title": "Web App Specific Requirements",
+  "summary": "Platform requirements for the Next.js web app: rendering, browser support, responsive design, performance, SEO, real-time, accessibility, i18n, and PWA behavior.",
+  "scope": ["Next.js App Router", "Strapi v5 CMS", "PWA service worker", "browser support", "responsive design", "performance targets", "SEO", "real-time WebSocket features", "WCAG 2.1 AA accessibility", "i18n (ar, fr, en)", "offline capabilities"],
+  "cross_refs": [],
+  "locked": false,
+  "precedence": null,
+  "notes": "MANIFEST_TYPE PRD applied as authoritative (manifest_override true). Content has no user stories or acceptance criteria; it is mostly non-functional and technical requirements (performance targets, schema.org mapping, service worker strategy, data sync), which lean SPEC. Kept PRD per manifest. Source contains no ADR status or decision-record sections."
+}

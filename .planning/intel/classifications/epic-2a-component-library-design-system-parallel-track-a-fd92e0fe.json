@@ -1,0 +1,13 @@
+{
+  "source_path": "/Users/ayoub/projects/tiween-bmad-version/_bmad-output/project-planning-artifacts/epics/epic-2a-component-library-design-system-parallel-track-a.md",
+  "type": "SPEC",
+  "confidence": "medium",
+  "manifest_override": true,
+  "title": "Epic 2A: Component Library & Design System (PARALLEL TRACK A)",
+  "summary": "Epic defining a Storybook-documented UI component library, starting with layout components BottomNav, Header, and PageContainer, using dummy data.",
+  "scope": ["component library", "design system", "BottomNav", "Header", "PageContainer", "shadcn/ui", "Storybook", "RTL layout"],
+  "cross_refs": [],
+  "locked": false,
+  "precedence": null,
+  "notes": "Type SPEC supplied by MANIFEST_TYPE (manifest_override true). Only the first 50 lines were read. Acceptance criteria use Given/When/Then with component contracts (props, dimensions, colors), consistent with SPEC. No cross-references appear in the read portion. SHA-256 source_hash suffix could not be computed: this agent has no shell or hashing tool, so the file is written without the -{hash} suffix. Rename to epic-2a-component-library-design-system-parallel-track-a-{first 8 hex of SHA-256 of source path}.json before synthesis."
+}

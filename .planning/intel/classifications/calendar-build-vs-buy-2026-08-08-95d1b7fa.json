@@ -1,0 +1,18 @@
+{
+  "source_path": "/Users/ayoub/projects/tiween-bmad-version/_bmad-output/project-planning-artifacts/calendar-build-vs-buy-2026-08-08.md",
+  "type": "ADR",
+  "confidence": "medium",
+  "manifest_override": true,
+  "title": "Calendar build-vs-buy audit — 2026-08-08",
+  "summary": "Decides to keep the bespoke BigCalendar over FullCalendar, Schedule-X, and react-big-calendar, and to extract it as a standalone project later.",
+  "scope": ["BigCalendar", "events-manager plugin", "planning calendar", "FullCalendar", "Schedule-X", "react-big-calendar", "Strapi DS", "timezone handling", "RTL", "accessibility"],
+  "cross_refs": [
+    "openspec/changes/add-strapi-calendar-component/proposal.md",
+    "apps/strapi/src/plugins/events-manager/admin/src/components/BigCalendar/",
+    "apps/strapi/package.json",
+    "apps/strapi/src"
+  ],
+  "locked": false,
+  "precedence": 9,
+  "notes": "Type set by MANIFEST_TYPE=ADR (manifest_override=true). Content has a dated decision section ('Decision (2026-08-08, Ayoub)') with rationale and alternatives, matching ADR shape. No explicit Status field, so locked=false (only Accepted ADRs are locked). Filename lacks ADR numbering. Output filename lacks the SHA-256 path hash suffix because the classifier had no hashing tool; rename to {slug}-{sha256(source_path)[0:8]}.json before synthesis."
+}

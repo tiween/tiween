@@ -1,0 +1,13 @@
+{
+  "source_path": "/Users/ayoub/projects/tiween-bmad-version/_bmad-output/project-planning-artifacts/epics/epic-3-event-discovery-browsing.md",
+  "type": "SPEC",
+  "confidence": "high",
+  "manifest_override": true,
+  "title": "Epic 3: Event Discovery & Browsing [MVP]",
+  "summary": "Public browsing and search of cinema events without an account, backed by a public events REST API with featured and trending signals.",
+  "scope": ["events-manager plugin", "public content-api events endpoint", "event content-type", "featured boolean", "trending service", "screening.ticketsSold", "venue", "screenings", "creative-work", "homepage", "category filtering", "purchase feature flag"],
+  "cross_refs": ["sprint-change-proposal-2026-07-05.md", "Epic 6 stories 6.1, 6.2, 6.3"],
+  "locked": false,
+  "precedence": null,
+  "notes": "MANIFEST_TYPE SPEC applied as authoritative. Content is PRD-like (user story 'As a frontend consumer...', Given/When/Then acceptance criteria), which a heuristic pass would classify as PRD. Synthesizer may want to treat its requirements at PRD-level detail. Only the first 50 lines were read. cross_refs taken from the first 50 lines only. source_hash suffix omitted from filename: no hashing tool was available to this classifier, so the output file is named without the 8-char hash."
+}

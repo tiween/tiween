@@ -1,0 +1,13 @@
+{
+  "source_path": "/Users/ayoub/projects/tiween-bmad-version/_bmad-output/project-planning-artifacts/epics/epic-8-b2b-ticket-validation-scanner.md",
+  "type": "SPEC",
+  "confidence": "medium",
+  "manifest_override": true,
+  "title": "Epic 8: B2B Ticket Validation (Scanner) [Post-V1]",
+  "summary": "Venue staff QR-scan tickets at event entry for validation, with result display, ticket details, attendance tracking, and offline tolerance; deferred post-V1.",
+  "scope": ["venue staff", "QR code scanning", "ticket validation", "entry result display", "ticket details", "attendance tracking", "offline connectivity"],
+  "cross_refs": [],
+  "locked": false,
+  "precedence": null,
+  "notes": "Type set by MANIFEST_TYPE (SPEC), which is authoritative. Content is PRD-shaped (user stories with 'As venue staff, I want...' and Given/When/Then acceptance criteria), so the content signal disagrees with the manifest. Only lines 1-50 were read. Status is DEFERRED POST-V1 (2026-08-06 scope change); all stories are deferred in sprint-status. The SHA-256 source_hash suffix was not applied because this agent has no hashing tool; the file is written without the hash suffix."
+}

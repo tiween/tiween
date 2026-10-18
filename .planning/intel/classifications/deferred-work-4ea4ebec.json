@@ -1,0 +1,13 @@
+{
+  "source_path": "/Users/ayoub/projects/tiween-bmad-version/_bmad-output/implementation-artifacts/deferred-work.md",
+  "type": "DOC",
+  "confidence": "medium",
+  "manifest_override": true,
+  "title": "Deferred Work",
+  "summary": "Tracker of deferred work items from code reviews, each with status, resolution or blocker, covering the Strapi events-manager service and ticketing inventory.",
+  "scope": ["events-manager plugin", "event-manager service", "ticket inventory", "ticketing unit of work", "order service integration tests", "refund path in adjustInventory", "Strapi users-permissions extension"],
+  "cross_refs": ["2b-16-events-manager-plugin-test-coverage.md", "4-7-fix-users-permissions-auth-controller-factory-wiring.md"],
+  "locked": false,
+  "precedence": null,
+  "notes": "Type DOC taken from MANIFEST_TYPE (manifest_override true). Content is a work-item status ledger rather than prose guidance, so content-based classification would be weak; the manifest declaration was treated as authoritative. Only the first 50 lines were scanned; cross_refs come from those lines."
+}

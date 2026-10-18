@@ -1,0 +1,13 @@
+{
+  "source_path": "/Users/ayoub/projects/tiween-bmad-version/_bmad-output/project-planning-artifacts/sprint-change-proposal-2026-07-05.md",
+  "type": "ADR",
+  "confidence": "high",
+  "manifest_override": true,
+  "title": "Sprint Change Proposal — Split Story 3.1; Defer Phase-2 Discovery Stories",
+  "summary": "Proposes splitting Story 3.1 homepage into backend and frontend stories and deferring Phase-2 Epic 3 stories 3.2 and 3.9 after bmad-loop escalations.",
+  "scope": ["Story 3.1 homepage", "Story 3.2 category filtering", "Story 3.9 geolocation", "Epic 3 event discovery", "events-manager plugin", "sprint-status.yaml", "bmad-loop"],
+  "cross_refs": [],
+  "locked": false,
+  "precedence": 5,
+  "notes": "MANIFEST_TYPE=ADR is authoritative and was applied without content classification. Content does not match ADR taxonomy: it is a sprint change proposal with status 'proposed' (not Accepted, so locked=false), with no Context/Decision/Consequences structure and no numbered ADR filename. Content reads closer to a planning/change record than an architectural decision. Synthesizer may want to review the manifest declaration. Output filename uses a placeholder suffix because SHA-256 hashing was not available to this classifier (no shell tool); rename to the 8-hex hash of the source path before synthesis."
+}

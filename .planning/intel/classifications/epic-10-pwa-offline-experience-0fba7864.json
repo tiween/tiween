@@ -1,0 +1,13 @@
+{
+  "source_path": "/Users/ayoub/projects/tiween-bmad-version/_bmad-output/project-planning-artifacts/epics/epic-10-pwa-offline-experience.md",
+  "type": "SPEC",
+  "confidence": "high",
+  "manifest_override": true,
+  "title": "Epic 10: PWA & Offline Experience [MVP-partial]",
+  "summary": "Epic covering PWA installation, showtime listing caching, and offline browsing, with offline indicators in MVP scope.",
+  "scope": ["PWA installation", "showtime listings cache", "film posters cache", "offline browsing", "offline indicators", "background cache refresh"],
+  "cross_refs": [],
+  "locked": false,
+  "precedence": null,
+  "notes": "Type set by manifest (SPEC) and treated as authoritative. Content in the first 50 lines is user-story and Given/When/Then acceptance-criteria form, which matches PRD signals more than SPEC signals. No endpoint, schema, or protocol content seen in the first 50 lines. Synthesizer may want to review the manifest tag."
+}

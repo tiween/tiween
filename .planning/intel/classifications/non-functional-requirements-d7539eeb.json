@@ -1,0 +1,13 @@
+{
+  "source_path": "/Users/ayoub/projects/tiween-bmad-version/_bmad-output/prd/non-functional-requirements.md",
+  "type": "PRD",
+  "confidence": "high",
+  "manifest_override": true,
+  "title": "Non-Functional Requirements",
+  "summary": "Platform-wide non-functional requirements covering performance, security, scalability, reliability, accessibility, internationalization, integration, and data privacy.",
+  "scope": ["page performance", "Core Web Vitals", "ticket purchase flow", "QR code validation", "authentication", "payment processing", "venue manager access", "admin audit logging", "WebSocket connections", "offline sync", "backup and recovery", "WCAG accessibility", "Arabic/French/English localization", "TND currency display", "Strapi API caching", "email delivery", "social login", "GDPR-style data privacy", "venue analytics"],
+  "cross_refs": [],
+  "locked": false,
+  "precedence": null,
+  "notes": "Type set by MANIFEST_TYPE (PRD). Content is largely measurable targets and technical constraints (latency, encryption, caching TTL, WebSocket limits), which overlap SPEC-style content; PRD is retained as declared by the manifest."
+}

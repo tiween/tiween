@@ -1,0 +1,13 @@
+{
+  "source_path": "/Users/ayoub/projects/tiween-bmad-version/_bmad-output/project-planning-artifacts/research/competitive-summary-one-pager-2026-01-11.md",
+  "type": "DOC",
+  "confidence": "high",
+  "manifest_override": true,
+  "title": "Tiween Competitive Summary",
+  "summary": "One-page competitive analysis of Tunisia event ticketing rivals (Teskerti, BIP Events, EazyTick) with Tiween positioning, objection handlers, and action items.",
+  "scope": ["Tunisia event ticketing market", "Teskerti", "BIP Events", "EazyTick", "Tiween", "organizer fees", "buyer fees", "Arabic-first design", "AI analytics", "instant payouts", "offline scanning", "cultural events"],
+  "cross_refs": ["market-tunisia-event-ticketing-competitors-research-2026-01-11.md", "battle-card-[competitor]-2026-01-11.md"],
+  "locked": false,
+  "precedence": null,
+  "notes": ""
+}

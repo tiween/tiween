@@ -1,6 +1,6 @@
 # Product Scope
 
-> **Revised 2026-08-06 (sprint-change-proposal-2026-08-06):** v1 is a
+> **Revised 2026-08-06 (2026-08-06 scope change):** v1 is a
 > multi-category **content & event aggregation platform** — cinema, theater,
 > concerts, exhibitions. All ticketing/purchase functionality is post-v1; the
 > partial ticketing build delivered 2026-07 (payments, QR, email) is held

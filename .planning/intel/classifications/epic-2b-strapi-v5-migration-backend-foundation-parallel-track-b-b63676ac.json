@@ -1,0 +1,13 @@
+{
+  "source_path": "/Users/ayoub/projects/tiween-bmad-version/_bmad-output/project-planning-artifacts/epics/epic-2b-strapi-v5-migration-backend-foundation-parallel-track-b.md",
+  "type": "SPEC",
+  "confidence": "medium",
+  "manifest_override": true,
+  "title": "Epic 2B: Strapi v5 Migration & Backend Foundation (PARALLEL TRACK B)",
+  "summary": "Epic covering the Strapi v4 to v5 upgrade and backend content-types (Event, CreativeWork) with PostgreSQL, plugins, and data for frontend integration.",
+  "scope": ["Strapi v5", "apps/strapi", "content-types", "Event", "CreativeWork", "plugins", "PostgreSQL", "config/"],
+  "cross_refs": ["./epic-2c-plugin-architecture-decomposition.md", "architecture.md"],
+  "locked": false,
+  "precedence": null,
+  "notes": "Type SPEC set by MANIFEST_TYPE (authoritative); heuristic and content classification skipped. Only the first 50 lines were read. Content is an epic of user stories with Given/When/Then acceptance criteria, which carries PRD-style signals; the manifest tag was kept as declared. Status note marks the story texts as historical record, not current data-model truth; cross_refs taken from that note and the story text. Output filename lacks the required 8-char SHA-256 suffix because no hashing tool was available to this agent; rename needed."
+}

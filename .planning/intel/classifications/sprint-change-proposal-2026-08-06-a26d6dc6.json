@@ -1,0 +1,13 @@
+{
+  "source_path": "/Users/ayoub/projects/tiween-bmad-version/_bmad-output/project-planning-artifacts/sprint-change-proposal-2026-08-06.md",
+  "type": "ADR",
+  "confidence": "medium",
+  "manifest_override": true,
+  "title": "Sprint Change Proposal — 2026-08-06",
+  "summary": "Re-scopes V1 to multi-category event aggregation and defers ticketing to post-v1 via backlog status changes and PRD/epic edits.",
+  "scope": ["V1 scope", "event aggregation", "ticketing deferral", "Epic 3 discovery", "Epic 6 B2C ticketing", "Epic 7 B2B venue", "Epic 8 scanner", "Epic 10 PWA", "sprint-status.yaml", "product-scope PRD", "epic-list", "epic-dependencies"],
+  "cross_refs": ["sprint-status.yaml", "epics/epic-list.md", "epics/epic-dependencies.md", "epic-6-b2c-ticketing-purchases.md", "epic-8-b2b-ticket-validation-scanner.md", "epic-7-b2b-venue-management.md", "epic-3-event-discovery-browsing.md", "prd/product-scope.md", "spec-6-6-in-app-ticket-viewing.md", "3-12-gate-ticketing-entry-points-for-v1"],
+  "locked": false,
+  "precedence": 3,
+  "notes": "MANIFEST_TYPE=ADR applied as authoritative (manifest_override true). Content does not match ADR structure: no Context/Decision/Consequences sections and no ADR status field; the status line reads 'APPROVED by Ayoub 2026-08-06', not 'Accepted', so locked is false. Document is a sprint change proposal (backlog reorganization). Synthesizer should treat its decisions as manifest-declared ADR scope with that caveat. Output filename uses placeholder suffix 'HASHPENDING' because no shell/hash tool was available to compute the SHA-256 path hash; rename to the 8-hex-char hash before synthesis."
+}

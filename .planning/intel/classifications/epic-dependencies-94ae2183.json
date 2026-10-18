@@ -1,0 +1,13 @@
+{
+  "source_path": "/Users/ayoub/projects/tiween-bmad-version/_bmad-output/project-planning-artifacts/epics/epic-dependencies.md",
+  "type": "SPEC",
+  "confidence": "medium",
+  "manifest_override": true,
+  "title": "Epic Dependencies",
+  "summary": "Dependency graph and sequencing rules across Epics 1-10 for MVP and Phase 2, including Epic 2C internal ordering and the V1 critical path.",
+  "scope": ["Epic 1 Foundation", "Epic 2A Components", "Epic 2B Strapi", "Epic 2C Plugin Decomposition", "Epic 2D", "Epic 3 Discovery", "Epic 4 Auth", "Epic 5 Watchlist", "Epic 6 Ticketing", "Epic 7 B2B Venue", "Epic 8 Scanner", "Epic 9 Admin", "Epic 10 PWA", "MVP critical path", "events-manager admin UI sequencing"],
+  "cross_refs": ["openspec-retirement-ledger-2026-06-12.md"],
+  "locked": false,
+  "precedence": null,
+  "notes": "Type set by MANIFEST_TYPE (manifest_override true); content analysis skipped per manifest. Content is a dependency/sequencing map with no endpoint, schema, or protocol definitions, so the SPEC label is a weak fit. Source's own header says v1 scope was revised 2026-08-06. Filename hash suffix could not be computed (no hashing tool available to this classifier), so the output is written as epic-dependencies-UNHASHED.json and needs renaming to epic-dependencies-{first 8 hex of SHA-256 of source path}.json."
+}

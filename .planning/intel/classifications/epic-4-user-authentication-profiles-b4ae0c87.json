@@ -1,0 +1,23 @@
+{
+  "source_path": "/Users/ayoub/projects/tiween-bmad-version/_bmad-output/project-planning-artifacts/epics/epic-4-user-authentication-profiles.md",
+  "type": "SPEC",
+  "confidence": "medium",
+  "manifest_override": true,
+  "title": "Epic 4: User Authentication & Profiles",
+  "summary": "Epic covering registration, social login with Google and Facebook, and password reset, with profile and language/region preferences.",
+  "scope": [
+    "user registration",
+    "email/password auth",
+    "Google OAuth",
+    "Facebook OAuth",
+    "password reset",
+    "user profiles",
+    "language preferences",
+    "region preferences",
+    "Strapi"
+  ],
+  "cross_refs": [],
+  "locked": false,
+  "precedence": null,
+  "notes": "Manifest SPEC; content is PRD-style user stories. First 50 lines read."
+}

@@ -1,0 +1,13 @@
+{
+  "source_path": "/Users/ayoub/projects/tiween-bmad-version/_bmad-output/project-planning-artifacts/product-brief-tiween-bmad-version-2025-12-25.md",
+  "type": "DOC",
+  "confidence": "high",
+  "manifest_override": true,
+  "title": "Product Brief: Tiween",
+  "summary": "Product brief for Tiween, Tunisia's cultural agenda platform: unified event discovery, PWA, ticketing, venue dashboard, and Culture Pass subscription.",
+  "scope": ["Tiween", "cultural event discovery", "cinema", "theater", "concerts", "exhibitions", "PWA", "ticketing", "venue dashboard", "Culture Pass", "Strapi v4 to v5 migration", "Next.js frontend"],
+  "cross_refs": [],
+  "locked": false,
+  "precedence": null,
+  "notes": "Type set by MANIFEST_TYPE (DOC). Metadata taken from the first 50 lines only; cross_refs may be incomplete if the remainder of the document links other files."
+}

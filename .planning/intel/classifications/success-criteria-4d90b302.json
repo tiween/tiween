@@ -1,0 +1,13 @@
+{
+  "source_path": "/Users/ayoub/projects/tiween-bmad-version/_bmad-output/prd/success-criteria.md",
+  "type": "PRD",
+  "confidence": "high",
+  "manifest_override": true,
+  "title": "Success Criteria",
+  "summary": "Defines MVP and Phase 2 success metrics, launch targets, go/no-go signals, and business and technical success measures for the Tiween cinema-showtimes and events platform.",
+  "scope": ["MVP relaunch", "cinema showtimes", "event discovery", "watchlist", "credits system", "ticketing commission", "B2C consumers", "B2B venues", "venue dashboard", "PWA offline sync", "data freshness", "page load performance"],
+  "cross_refs": [],
+  "locked": false,
+  "precedence": null,
+  "notes": ""
+}

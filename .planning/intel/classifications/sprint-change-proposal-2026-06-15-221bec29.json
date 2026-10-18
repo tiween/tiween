@@ -1,0 +1,13 @@
+{
+  "source_path": "/Users/ayoub/projects/tiween-bmad-version/_bmad-output/project-planning-artifacts/sprint-change-proposal-2026-06-15.md",
+  "type": "ADR",
+  "confidence": "medium",
+  "manifest_override": true,
+  "title": "Sprint Change Proposal — Catalog Model Inversion (GTM = Read-Only Directory)",
+  "summary": "Inverts the 2C.2 catalog decision: creative-work (type enum) becomes the catalog of record and movie/play are retired, for a read-only GTM directory.",
+  "scope": ["catalog model", "creative-work", "movie", "play", "credit", "events-manager", "2C.2 catalog decision", "2C.3 catalog move", "watchlist relation (Epic 5)", "GTM read-only directory"],
+  "cross_refs": ["2c-2-catalog-collision-data-audit.md", "architecture.md", "deferred-work.md"],
+  "locked": false,
+  "precedence": 7,
+  "notes": "Manifest declared type ADR, applied as authoritative. Content is a sprint change proposal (YAML status: approved), not an ADR with Accepted status, so locked is false. It records a locked-in decision reversal (creative-work wins over normalized model), so it may need ADR-style precedence handling by the synthesizer. Output filename uses a placeholder suffix (HASH_UNCOMPUTED) because no shell or hashing tool was available to compute the SHA-256 source hash; the synthesizer should match on source_path. cross_refs contains only filenames named in the source; the '2c-3-...md' reference is elided in the source and was not included."
+}

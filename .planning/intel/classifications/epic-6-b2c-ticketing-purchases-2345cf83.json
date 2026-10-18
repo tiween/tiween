@@ -1,0 +1,13 @@
+{
+  "source_path": "/Users/ayoub/projects/tiween-bmad-version/_bmad-output/project-planning-artifacts/epics/epic-6-b2c-ticketing-purchases.md",
+  "type": "SPEC",
+  "confidence": "high",
+  "manifest_override": true,
+  "title": "Epic 6: B2C Ticketing & Purchases [Post-V1]",
+  "summary": "Epic defining B2C ticket types and prices, quantity selection, Konnect payments, QR code generation, email delivery, and offline access; deferred post-V1.",
+  "scope": ["ticket types and prices", "ticket quantity selection", "Konnect payments", "payments plugin", "QR codes", "email delivery", "offline ticket access", "real-time availability", "events-manager.public-api inventory facade", "ticketing Unit of Work"],
+  "cross_refs": ["spec-6-6-in-app-ticket-viewing.md"],
+  "locked": false,
+  "precedence": null,
+  "notes": ""
+}

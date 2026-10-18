@@ -1,0 +1,13 @@
+{
+  "source_path": "/Users/ayoub/projects/tiween-bmad-version/_bmad-output/project-planning-artifacts/ux-designs/ux-tiween-bmad-version-2026-06-16/DESIGN.md",
+  "type": "SPEC",
+  "confidence": "medium",
+  "manifest_override": true,
+  "title": "Tiween B2C",
+  "summary": "Tiween B2C design system tokens: Gold Leaf and Aubergine colors, category palette, daylight surfaces, and Lalezar/Inter/IBM Plex Sans Arabic typography.",
+  "scope": ["Tiween B2C design system", "color tokens", "typography", "category color-coding", "daylight surfaces"],
+  "cross_refs": ["ux-design-specification.md", "imports/brandbook_tiween.pdf", "imports/tiween_logo-composition.pdf", "imports/TIWEEN_*.png"],
+  "locked": false,
+  "precedence": null,
+  "notes": "Type SPEC set by MANIFEST_TYPE (authoritative). Content is design-system tokens (colors, typography, UI stack) rather than API/schema contracts, so the content signal is weak. Title taken from frontmatter name (no H1 in first 50 lines). Frontmatter status: final, updated 2026-06-16. Output filename uses placeholder 'hashpending' because no shell tool was available to compute the SHA-256 path hash; sibling 2026-06-18 DESIGN.md classification was not touched. Rename once the hash is computed."
+}

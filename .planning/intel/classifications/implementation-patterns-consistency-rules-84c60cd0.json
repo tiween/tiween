@@ -1,0 +1,13 @@
+{
+  "source_path": "/Users/ayoub/projects/tiween-bmad-version/_bmad-output/architecture/implementation-patterns-consistency-rules.md",
+  "type": "SPEC",
+  "confidence": "high",
+  "manifest_override": true,
+  "title": "Implementation Patterns & Consistency Rules",
+  "summary": "Naming, structure, and consistency rules AI agents must follow when implementing Tiween code; defers DB/API naming to Strapi conventions.",
+  "scope": ["Strapi v5", "REST API naming", "code naming conventions", "project folder structure (apps/ui)"],
+  "cross_refs": [],
+  "locked": false,
+  "precedence": null,
+  "notes": "Type taken from MANIFEST_TYPE (authoritative). Required SHA-256 source_hash could not be computed: this classifier has no Bash/hash tool. File written with slug-only name 'implementation-patterns-consistency-rules-NOHASH.json'; orchestrator should rename once hash is available. Only the first 50 lines were read; no cross-references matched in a full-file grep."
+}

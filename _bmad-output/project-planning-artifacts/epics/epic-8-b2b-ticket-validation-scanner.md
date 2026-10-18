@@ -1,6 +1,6 @@
 # Epic 8: B2B Ticket Validation (Scanner) [Post-V1]
 
-> **DEFERRED POST-V1 (2026-08-06, sprint-change-proposal-2026-08-06):** the
+> **DEFERRED POST-V1 (2026-08-06 scope change):** the
 > scanner depends on ticket sales, which are post-v1. All stories are
 > `deferred` in sprint-status.
 

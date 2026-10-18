@@ -6,7 +6,7 @@
 > - **[MVP-partial]** = Some stories in v1, others deferred
 > - **[Post-V1]** = Deferred until after the v1 aggregation launch (formerly [Phase 2])
 >
-> **2026-08-06 revision (sprint-change-proposal-2026-08-06):** v1 is an
+> **2026-08-06 revision (2026-08-06 scope change):** v1 is an
 > aggregation-only platform — all ticketing is Post-V1; v1 scope widens from
 > cinema-only to all event categories.
 
@@ -213,7 +213,7 @@ Authenticated users can save events to their watchlist, access it offline, and s
 
 ## Epic 6: B2C Ticketing & Purchases [Post-V1]
 
-> **2026-08-06:** Deferred post-v1 (sprint-change-proposal-2026-08-06).
+> **2026-08-06:** Deferred post-v1 (2026-08-06 scope change).
 > Stories 6.1–6.5 (prices/quantity UI, Konnect, QR generation, email delivery)
 > were delivered 2026-07 and remain in the codebase **dormant**; their
 > user-facing surfaces are gated off by story 3.12. Stories 6.6–6.10 are
@@ -245,7 +245,7 @@ Users can purchase tickets for events, receive QR codes, and access them offline
 
 ## Epic 7: B2B Venue Management [MVP-partial]
 
-> **2026-08-06 split (sprint-change-proposal-2026-08-06):** aggregation
+> **2026-08-06 split (2026-08-06 scope change):** aggregation
 > stories stay in v1 — 7.1 registration, 7.2 profile (both delivered,
 > awaiting-operator), 7.3 event creation, 7.4 event editing, 7.8 event
 > analytics. Venues supplying event content is core to the v1 aggregation
@@ -273,7 +273,7 @@ Venue managers can register, manage their venue profile, create/edit events, con
 
 ## Epic 8: B2B Ticket Validation (Scanner) [Post-V1]
 
-> **2026-08-06:** Deferred post-v1 entirely (sprint-change-proposal-2026-08-06)
+> **2026-08-06:** Deferred post-v1 entirely (2026-08-06 scope change)
 > — the scanner depends on ticket sales, which are post-v1.
 
 Venue staff can scan and validate tickets at event entry, track attendance, and operate with intermittent connectivity.

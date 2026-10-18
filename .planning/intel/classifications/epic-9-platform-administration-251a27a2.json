@@ -1,0 +1,13 @@
+{
+  "source_path": "/Users/ayoub/projects/tiween-bmad-version/_bmad-output/project-planning-artifacts/epics/epic-9-platform-administration.md",
+  "type": "SPEC",
+  "confidence": "high",
+  "manifest_override": true,
+  "title": "Epic 9: Platform Administration [MVP-partial]",
+  "summary": "Epic defining admin capabilities in Strapi Admin for managing films, showtimes, venues, and venue approval workflow; venue approval deferred to Phase 2.",
+  "scope": ["Strapi Admin", "films", "showtimes", "venues", "venue approval workflow", "venue manager accounts", "homepage featured films", "welcome and rejection emails"],
+  "cross_refs": [],
+  "locked": false,
+  "precedence": null,
+  "notes": "MANIFEST_TYPE SPEC applied as authoritative. Source content is user-story and acceptance-criteria format (PRD-style signals), not endpoint or schema specs. Type was taken from manifest per override rule; synthesizer may want to review."
+}

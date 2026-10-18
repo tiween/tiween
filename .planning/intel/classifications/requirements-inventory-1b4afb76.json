@@ -1,0 +1,13 @@
+{
+  "source_path": "/Users/ayoub/projects/tiween-bmad-version/_bmad-output/project-planning-artifacts/epics/requirements-inventory.md",
+  "type": "SPEC",
+  "confidence": "medium",
+  "manifest_override": true,
+  "title": "Requirements Inventory",
+  "summary": "Numbered functional requirements (FR1 onward) for event discovery, user accounts, watchlist, B2C ticketing, and B2B venue management.",
+  "scope": ["event discovery and browsing", "user accounts and profiles", "watchlist and personalization", "B2C ticketing and purchases", "B2B venue management", "geolocation", "offline access", "QR code tickets"],
+  "cross_refs": [],
+  "locked": false,
+  "precedence": null,
+  "notes": "Type set by MANIFEST_TYPE (SPEC), which is authoritative. Content in the first 50 lines reads as PRD-style functional requirements (user-perspective 'Users can...' statements) rather than technical contracts. Only the first 50 lines were read; the remainder was not reviewed, so cross_refs is empty and unverified."
+}

@@ -1,6 +1,6 @@
 # Epic 7: B2B Venue Management [MVP-partial]
 
-> **Split 2026-08-06 (sprint-change-proposal-2026-08-06):** venues supplying
+> **Split 2026-08-06 (2026-08-06 scope change):** venues supplying
 > event content is core to the v1 aggregation platform. **V1:** 7.1
 > registration and 7.2 profile (delivered, awaiting-operator), 7.3 event
 > creation, 7.4 event editing/cancellation, 7.8 event analytics. **Post-V1

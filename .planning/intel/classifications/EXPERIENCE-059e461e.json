@@ -1,0 +1,13 @@
+{
+  "source_path": "/Users/ayoub/projects/tiween-bmad-version/_bmad-output/project-planning-artifacts/ux-designs/ux-tiween-bmad-version-2026-06-18/EXPERIENCE.md",
+  "type": "SPEC",
+  "confidence": "high",
+  "manifest_override": true,
+  "title": "Venues Plugin Admin — Experience",
+  "summary": "Specifies behavior, states, interactions, and accessibility of the venues plugin admin in Strapi covering venues, properties, and attachments (Epic 2D).",
+  "scope": ["venues plugin admin", "venues list", "venue form modal", "property authoring", "property-category", "property-definition", "attach properties to venue", "plugin shell", "Strapi Design System v2", "Venue Manager role"],
+  "cross_refs": ["./DESIGN.md", "epics/epic-2d-venues-properties-admin-ui.md", "apps/strapi/src/plugins/venues", "apps/strapi/src/plugins/events-manager/admin"],
+  "locked": false,
+  "precedence": null,
+  "notes": ""
+}

@@ -1,0 +1,13 @@
+{
+  "source_path": "/Users/ayoub/projects/tiween-bmad-version/_bmad-output/project-planning-artifacts/sprint-change-proposal-2026-07-14.md",
+  "type": "ADR",
+  "confidence": "medium",
+  "manifest_override": true,
+  "title": "Sprint Change Proposal — ESLint Enforcement & Lint Coverage Hardening",
+  "summary": "Proposes ESLint enforcement hardening: remove only-warn, add lint gates, and four new Epic 1 stories after DW-21 pre-commit failures.",
+  "scope": ["ESLint", "eslint-plugin-only-warn", "turbo lint", "pre-commit hook", "lint-staged", "apps/client", "apps/strapi", "packages/eslint-config", "Epic 1", "sprint-status.yaml", "architecture.md"],
+  "cross_refs": ["architecture.md", "sprint-status.yaml", "project-context.md"],
+  "locked": false,
+  "precedence": 4,
+  "notes": "Type ADR and precedence 4 are set by MANIFEST_TYPE/MANIFEST_PRECEDENCE and were not verified against content. Content is a Sprint Change Proposal (Section 1-4 structure, impact analysis, story list, change routing), not an architectural decision record. No Status field is present, so locked is false. No Context/Decision/Consequences sections were found. Output filename uses the placeholder suffix NOHASH because the SHA-256 source-path hash could not be computed with the available tools (no shell); rename to {slug}-{first 8 hex of sha256(POSIX source path)}.json once a hash is available."
+}

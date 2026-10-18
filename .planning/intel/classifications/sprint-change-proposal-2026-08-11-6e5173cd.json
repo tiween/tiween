@@ -1,0 +1,30 @@
+{
+  "source_path": "/Users/ayoub/projects/tiween-bmad-version/_bmad-output/project-planning-artifacts/sprint-change-proposal-2026-08-11.md",
+  "type": "ADR",
+  "confidence": "medium",
+  "manifest_override": true,
+  "title": "Sprint Change Proposal — Defer Redis to post-v1",
+  "summary": "Proposes deferring Redis integration (Story 2B.10) to post-v1 since sessions, inventory locks, and rate limiting are already covered without it.",
+  "scope": ["Redis", "Story 2B.10", "session management (stateless JWT)", "ticket inventory locks (PostgreSQL)", "rate limiting (in-process)", "API response caching (in-process)", "single-instance deployment"],
+  "cross_refs": [
+    "requirements-inventory.md",
+    "architecture.md",
+    "docker-compose.prod.yml",
+    "apps/strapi/src/shared/rate-limit.ts",
+    "sprint-status.yaml",
+    "2b-10-redis-integration-for-sessions-and-caching.md",
+    "epic-2b-strapi-v5-migration-backend-foundation-parallel-track-b.md",
+    "epics/index.md",
+    "epics/epic-list.md",
+    "epics/requirements-inventory.md",
+    "epic-1-project-foundation-infrastructure.md",
+    "project-context.md",
+    ".env.example",
+    "docs/dokploy-setup.md",
+    "deferred-work.md",
+    "sprint-change-proposal-2026-08-11.md"
+  ],
+  "locked": false,
+  "precedence": 2,
+  "notes": "MANIFEST_TYPE=ADR is authoritative (manifest_override=true). Content is a change proposal, not an architectural decision record: no Context/Decision/Consequences structure, and Status is 'proposed' (not 'Accepted'), so locked=false. Content also contains user-level scope decisions and artifact-edit instructions. Filename lacks an ADR number. Output filename uses placeholder suffix because SHA-256 of the source path could not be computed with the available tools (Read/Write/Grep/Glob only); rename to {slug}-{first 8 hex of sha256(source path)}.json once computed."
+}

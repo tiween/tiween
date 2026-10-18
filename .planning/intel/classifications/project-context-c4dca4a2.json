@@ -1,0 +1,25 @@
+{
+  "source_path": "/Users/ayoub/projects/tiween-bmad-version/_bmad-output/project-context.md",
+  "type": "ADR",
+  "confidence": "low",
+  "manifest_override": true,
+  "title": "Project Context for AI Agents",
+  "summary": "Superseded pointer file directing agents to the curated context bundle in docs/context/ and listing rules, depth index, and backend orientation links.",
+  "scope": [
+    "AI agent project context",
+    "docs/context/kernel.md",
+    "docs/context/index.md",
+    "docs/context/compass/strapi.md",
+    "AGENTS.md managed block"
+  ],
+  "cross_refs": [
+    "../docs/context/",
+    "../docs/context/kernel.md",
+    "../docs/context/index.md",
+    "../docs/context/compass/strapi.md",
+    "../AGENTS.md"
+  ],
+  "locked": false,
+  "precedence": 0,
+  "notes": "MANIFEST_TYPE=ADR applied; content is a superseded navigation pointer to docs/context/ (status 'superseded'), not an ADR. Mandatory agent rules now live in AGENTS.md project kernel + docs/context/."
+}

@@ -1,0 +1,13 @@
+{
+  "source_path": "/Users/ayoub/projects/tiween-bmad-version/_bmad-output/prd/executive-summary.md",
+  "type": "PRD",
+  "confidence": "medium",
+  "manifest_override": true,
+  "title": "Executive Summary",
+  "summary": "Tiween is a Tunisian cultural agenda marketplace connecting culture enthusiasts with venues and professionals, with ticketing and a venue dashboard.",
+  "scope": ["Tiween", "cultural agenda platform", "consumer event discovery", "venue professional tools", "Culture Pass subscription", "integrated ticketing", "venue dashboard", "mobile PWA with offline support"],
+  "cross_refs": [],
+  "locked": false,
+  "precedence": null,
+  "notes": "Type set by MANIFEST_TYPE (PRD). Content is a product executive summary with no user stories or acceptance criteria; it reads as product vision rather than a requirement list, so confidence is medium."
+}

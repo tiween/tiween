@@ -1,0 +1,13 @@
+{
+  "source_path": "/Users/ayoub/projects/tiween-bmad-version/_bmad-output/project-planning-artifacts/ux-designs/ux-tiween-bmad-version-2026-06-18/DESIGN.md",
+  "type": "SPEC",
+  "confidence": "medium",
+  "manifest_override": true,
+  "title": "Venues Plugin Admin — Visual Identity",
+  "summary": "Visual identity deltas for the venues plugin admin UI: domain status-to-DS token mappings, icon vocabulary, and DS conformance guardrails on Strapi Design System v2.",
+  "scope": ["venues plugin admin", "Strapi Design System v2", "status badges", "admin components", "design tokens"],
+  "cross_refs": ["epics/epic-2d-venues-properties-admin-ui.md", "./mockups/"],
+  "locked": false,
+  "precedence": null,
+  "notes": "Type SPEC is from MANIFEST_TYPE (authoritative, manifest_override true). Design-system visual spine (token and component mappings). Frontmatter status 'final'; inherits DS tokens, no custom palette. Behavior/IA in peer spine EXPERIENCE.md, which is no longer cross-referenced from this file."
+}

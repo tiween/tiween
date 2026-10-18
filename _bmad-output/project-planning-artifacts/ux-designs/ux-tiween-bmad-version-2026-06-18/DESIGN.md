@@ -41,7 +41,7 @@ components:
 > the venues plugin needs — domain-semantic token mappings, the icon vocabulary, and
 > the do/don't guardrails that keep an implementing LLM inside DS conformance.
 >
-> Behavior, IA, and flows live in [EXPERIENCE.md](./EXPERIENCE.md). Both spines win
+> Behavior, IA, and flows live in the peer behavior spine. Both spines win
 > over any mock on conflict. The HTML mocks in [`mockups/`](./mockups/) are
 > **layout-only** — they approximate structure and reading order, not real DS pixels.
 > Build against the DS, not the mock CSS.
@@ -61,7 +61,7 @@ bleed into the admin.
 
 Voice in UI chrome is plain, operational French (the existing plugin chrome is
 French; AR/FR/EN are wired through `registerTrads`). Microcopy rules live in
-EXPERIENCE.md § Voice and Tone.
+the behavior spine (Voice and Tone).
 
 ---
 
@@ -141,7 +141,7 @@ radius. No custom corner values.
 All UI is composed from `@strapi/design-system` and `@strapi/strapi/admin`
 (`Layouts`). The exhaustive element→component binding is the **DS Component-Binding
 Cheatsheet** in [`handoff/ds-component-binding.md`](./handoff/ds-component-binding.md);
-EXPERIENCE.md § Component Patterns covers behavior. Canonical choices:
+the behavior spine (Component Patterns) covers behavior. Canonical choices:
 
 | Need                         | DS v2 component                                                     |
 | ---------------------------- | ------------------------------------------------------------------- |
@@ -197,7 +197,7 @@ For an implementing LLM, build in this order using these artifacts:
 
 | Artifact                                                             | Purpose                                                                                                                     |
 | -------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| [EXPERIENCE.md](./EXPERIENCE.md)                                     | IA, behavior, states, and flows — the peer spine. Wins over mocks.                                                          |
+| Behavior spine (peer doc)                                            | IA, behavior, states, and flows — the peer spine. Wins over mocks.                                                          |
 | [handoff/ds-component-binding.md](./handoff/ds-component-binding.md) | Element → DS-v2-component cheatsheet, "never use" list, API binding rules.                                                  |
 | [handoff/reference-map.md](./handoff/reference-map.md)               | Which events-manager components to relocate/copy vs. build net-new, plus build order.                                       |
 | [mockups/](./mockups/)                                               | Per-screen layout-only HTML (s0 shell, s1 list, s1 form, s2 authoring). Structure & reading order only — **not** DS pixels. |

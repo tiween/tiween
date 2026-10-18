@@ -1,0 +1,13 @@
+{
+  "source_path": "/Users/ayoub/projects/tiween-bmad-version/_bmad-output/project-planning-artifacts/epics/epic-5-watchlist-personalization.md",
+  "type": "SPEC",
+  "confidence": "medium",
+  "manifest_override": true,
+  "title": "Epic 5: Watchlist & Personalization [Phase 2]",
+  "summary": "Phase 2 epic letting authenticated users save events to a watchlist, view it, and sync it offline across devices.",
+  "scope": ["watchlist", "events", "authenticated users", "Strapi", "offline sync", "watchlist page"],
+  "cross_refs": [],
+  "locked": false,
+  "precedence": null,
+  "notes": "MANIFEST_TYPE SPEC applied as authoritative. Content is PRD-shaped (user stories with As/I want/So that and Given/When/Then acceptance criteria), which would otherwise classify as PRD. Epic is marked Deferred to Phase 2. Classification based on the first 50 lines and the manifest declaration; no cross-references were present in the read portion."
+}

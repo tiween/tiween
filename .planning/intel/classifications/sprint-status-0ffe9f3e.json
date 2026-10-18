@@ -1,0 +1,13 @@
+{
+  "source_path": "/Users/ayoub/projects/tiween-bmad-version/_bmad-output/implementation-artifacts/sprint-status.yaml",
+  "type": "DOC",
+  "confidence": "high",
+  "manifest_override": true,
+  "title": "sprint-status.yaml",
+  "summary": "Hand-maintained sprint tracking file recording epic and story statuses for the tiween project.",
+  "scope": ["sprint tracking", "epics", "stories", "story statuses", "retrospective status"],
+  "cross_refs": ["sprint_plan.py"],
+  "locked": false,
+  "precedence": null,
+  "notes": "MANIFEST_TYPE DOC applied as authoritative. Source is a YAML status tracker, not prose documentation; no ADR/PRD/SPEC content signals were checked beyond the header and maintenance comments. Header states the file is hand-maintained and must not be written by sprint_plan.py."
+}

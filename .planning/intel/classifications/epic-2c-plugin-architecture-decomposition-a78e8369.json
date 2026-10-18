@@ -1,0 +1,26 @@
+{
+  "source_path": "/Users/ayoub/projects/tiween-bmad-version/_bmad-output/project-planning-artifacts/epics/epic-2c-plugin-architecture-decomposition.md",
+  "type": "SPEC",
+  "confidence": "high",
+  "manifest_override": true,
+  "title": "Epic 2C: Plugin Architecture Decomposition (TRACK B continuation) [MVP-partial \u2192 Phase 2 gate]",
+  "summary": "Decomposes the Strapi backend into venues, creative-works, events-manager, and ticketing plugins, with sequencing rules and migration stories.",
+  "scope": [
+    "venues plugin",
+    "creative-works catalog",
+    "events-manager plugin",
+    "ticketing plugin",
+    "Strapi backend",
+    "venue schema",
+    "movie/play content types"
+  ],
+  "cross_refs": [
+    "_bmad-output/project-planning-artifacts/architecture.md",
+    "sprint-change-proposal-2026-06-15.md",
+    "_bmad-output/implementation-artifacts/2c-3-catalog-move-into-creative-works.md",
+    "openspec-retirement-ledger-2026-06-12.md"
+  ],
+  "locked": false,
+  "precedence": null,
+  "notes": "Manifest SPEC; self-described implementation spec for the architecture amendment."
+}

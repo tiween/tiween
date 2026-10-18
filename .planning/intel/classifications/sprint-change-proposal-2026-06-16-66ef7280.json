@@ -1,0 +1,13 @@
+{
+  "source_path": "/Users/ayoub/projects/tiween-bmad-version/_bmad-output/project-planning-artifacts/sprint-change-proposal-2026-06-16.md",
+  "type": "ADR",
+  "confidence": "low",
+  "manifest_override": true,
+  "title": "Sprint Change Proposal — Venues Plugin Admin UI (Venue + Property CRUD)",
+  "summary": "Proposes a new mini-epic to build a Strapi admin UI for creating and managing venues and properties in the venues plugin.",
+  "scope": ["venues plugin", "venue schema", "property-definition", "property-category", "events-manager admin UI", "VenueFormModal", "backlog reorganization"],
+  "cross_refs": ["apps/strapi/src/plugins/venues/admin/src/pages/HomePage.tsx", "apps/strapi/src/plugins/venues/server/src/content-types/venue/schema.json", "apps/strapi/src/plugins/events-manager/admin/src/components/VenueFormModal/index.tsx", "apps/strapi/src/plugins/events-manager/admin/src/hooks/useVenuesEnhanced.ts"],
+  "locked": false,
+  "precedence": 6,
+  "notes": "MANIFEST_TYPE=ADR applied as authoritative (manifest_override=true). Content does not match ADR taxonomy: it is a sprint change proposal (trigger, issue summary, backlog change), with status 'proposed' and no Context/Decision/Consequences trade-off record. Arguably closer to PRD/change-request. Not locked because status is 'proposed', not 'Accepted'. Epic references: epic-2c-plugin-architecture-decomposition, epic-7-b2b-venue-management. Output filename lacks the source_hash suffix because no hashing tool was available to this classifier; the orchestrator should rename or re-run."
+}

@@ -1,0 +1,13 @@
+{
+  "source_path": "/Users/ayoub/projects/tiween-bmad-version/_bmad-output/project-planning-artifacts/epics/epic-7-b2b-venue-management.md",
+  "type": "SPEC",
+  "confidence": "medium",
+  "manifest_override": true,
+  "title": "Epic 7: B2B Venue Management [MVP-partial]",
+  "summary": "Epic 7 defines B2B venue management stories: registration, profile, event creation and editing, and analytics via Strapi Admin, with ticketing deferred.",
+  "scope": ["venue registration", "venue profile", "event creation", "event editing and cancellation", "event analytics", "ticketing configuration (deferred)", "venues plugin", "venue manager RBAC", "Strapi Admin"],
+  "cross_refs": ["architecture.md", "sprint-change-proposal-2026-06-16.md"],
+  "locked": false,
+  "precedence": null,
+  "notes": "Type SPEC is taken from MANIFEST_TYPE (authoritative, manifest_override true). Content is epic-format: user stories with Given/When/Then acceptance criteria, which are PRD-style signals rather than endpoint/schema SPEC signals. Synthesizer should treat the requirements as manifest-declared SPEC. Hash suffix omitted from filename: no shell or hashing tool was available to compute SHA-256 of the source path."
+}

@@ -1,0 +1,13 @@
+{
+  "source_path": "/Users/ayoub/projects/tiween-bmad-version/_bmad-output/architecture/project-structure-boundaries.md",
+  "type": "SPEC",
+  "confidence": "high",
+  "manifest_override": true,
+  "title": "Project Structure & Boundaries",
+  "summary": "Maps the monorepo directory layout, API, component, and data boundaries, and requirement-to-structure mapping for the Next.js client, Strapi backend, and shared packages.",
+  "scope": ["monorepo directory structure", "apps/client (Next.js PWA)", "apps/strapi (Strapi v5 backend)", "packages/shared-types", "API boundaries", "component boundaries", "data boundaries", "external integrations (Konnect, Algolia, ImageKit, Resend, Sentry)", "deployment containers (Dokploy)"],
+  "cross_refs": [],
+  "locked": false,
+  "precedence": null,
+  "notes": "MANIFEST_TYPE SPEC supplied by manifest; manifest_override set true. Filename hash suffix could not be computed (no hashing tool available to this agent), so file is written as project-structure-boundaries-UNHASHED.json. Document references PRD functional requirements by ID (FR1-FR66) and domain name only, with no file paths, so cross_refs is empty."
+}

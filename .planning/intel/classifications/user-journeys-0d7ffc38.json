@@ -1,0 +1,13 @@
+{
+  "source_path": "/Users/ayoub/projects/tiween-bmad-version/_bmad-output/prd/user-journeys.md",
+  "type": "PRD",
+  "confidence": "high",
+  "manifest_override": true,
+  "title": "User Journeys",
+  "summary": "Seven user journeys for Tiween covering consumers, venues, institutions, guests, admins, and scanner staff, each listing the requirements it implies.",
+  "scope": ["event discovery", "watchlist", "ticketing", "QR ticket scanning", "PWA offline access", "regional filtering", "venue self-registration", "schedule management", "venue analytics", "institutional reporting", "guest checkout", "admin dashboard", "venue approval", "support tickets", "scanner app", "attendance tracking"],
+  "cross_refs": [],
+  "locked": false,
+  "precedence": null,
+  "notes": ""
+}

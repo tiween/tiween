@@ -1,0 +1,29 @@
+{
+  "source_path": "/Users/ayoub/projects/tiween-bmad-version/_bmad-output/project-planning-artifacts/sprint-change-proposal-2026-06-12.md",
+  "type": "ADR",
+  "confidence": "medium",
+  "manifest_override": true,
+  "title": "Sprint Change Proposal \u2014 Plugin Architecture Decomposition",
+  "summary": "Approved backlog reorganization adding Epic 2C to execute the 2026-06-12 Strapi plugin decomposition migration and amending dependent epics.",
+  "scope": [
+    "Strapi backend plugin decomposition",
+    "venues plugin",
+    "creative-works catalog",
+    "events-manager plugin",
+    "ticketing plugin",
+    "payments plugin",
+    "Epic 2B",
+    "Epic 2C",
+    "Epic 6",
+    "Epic 7"
+  ],
+  "cross_refs": [
+    "_bmad-output/project-planning-artifacts/architecture.md",
+    "epic-list.md",
+    "epic-dependencies.md",
+    "sprint-status.yaml"
+  ],
+  "locked": false,
+  "precedence": 8,
+  "notes": "Manifest ADR; content is a sprint change proposal approved 2026-06-12 (not 'Accepted'), so not locked."
+}

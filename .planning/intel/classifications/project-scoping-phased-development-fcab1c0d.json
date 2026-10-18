@@ -1,0 +1,13 @@
+{
+  "source_path": "/Users/ayoub/projects/tiween-bmad-version/_bmad-output/prd/project-scoping-phased-development.md",
+  "type": "PRD",
+  "confidence": "high",
+  "manifest_override": true,
+  "title": "Project Scoping & Phased Development",
+  "summary": "Defines the parity-first MVP relaunch focused on cinema showtimes, the Strapi v4 to v5 migration, phased post-MVP features, risks, and launch checklist.",
+  "scope": ["MVP relaunch", "cinema showtimes", "Strapi v4 to v5 migration", "Next.js frontend rebuild", "data migration", "plugin compatibility", "Phase 2 ticketing and payments", "risk mitigation", "MVP launch checklist"],
+  "cross_refs": [],
+  "locked": false,
+  "precedence": null,
+  "notes": ""
+}

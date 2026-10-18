@@ -1,6 +1,6 @@
 # Epic 6: B2C Ticketing & Purchases [Post-V1]
 
-> **DEFERRED POST-V1 (2026-08-06, sprint-change-proposal-2026-08-06):** v1 is
+> **DEFERRED POST-V1 (2026-08-06, 2026-08-06 scope change):** v1 is
 > an aggregation-only platform. Stories 6.1–6.5 (ticket display, quantity
 > selection, Konnect payments, QR generation, email delivery) were delivered
 > 2026-07 and remain in the codebase **dormant, no rollback**; their

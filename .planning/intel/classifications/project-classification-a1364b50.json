@@ -1,0 +1,13 @@
+{
+  "source_path": "/Users/ayoub/projects/tiween-bmad-version/_bmad-output/prd/project-classification.md",
+  "type": "PRD",
+  "confidence": "medium",
+  "manifest_override": true,
+  "title": "Project Classification",
+  "summary": "Classifies the tiween modernization as a medium-complexity PWA web app with offline-first, payment, and real-time schedule needs.",
+  "scope": ["web_app PWA", "offline-first architecture", "cached event listings", "watchlists", "tickets", "payment gateway integration", "real-time schedule updates", "hybrid data strategy"],
+  "cross_refs": [],
+  "locked": false,
+  "precedence": null,
+  "notes": "Type set by MANIFEST_TYPE (PRD), authoritative. Document is a short classification header with no user stories or acceptance criteria, so content signals are thin; confidence is medium on manifest authority alone."
+}

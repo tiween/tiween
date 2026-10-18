@@ -1,0 +1,109 @@
+docs:
+  - path: .planning/ingest-resolutions.md
+    type: ADR
+    precedence: 0
+  - path: _bmad-output/project-context.md
+    type: ADR
+    precedence: 1
+  - path: _bmad-output/project-planning-artifacts/architecture.md
+    type: ADR
+    precedence: 2
+  - path: _bmad-output/project-planning-artifacts/sprint-change-proposal-2026-08-11.md
+    type: ADR
+    precedence: 3
+  - path: _bmad-output/project-planning-artifacts/sprint-change-proposal-2026-08-06.md
+    type: ADR
+    precedence: 4
+  - path: _bmad-output/project-planning-artifacts/sprint-change-proposal-2026-07-14.md
+    type: ADR
+    precedence: 5
+  - path: _bmad-output/project-planning-artifacts/sprint-change-proposal-2026-07-05.md
+    type: ADR
+    precedence: 6
+  - path: _bmad-output/project-planning-artifacts/sprint-change-proposal-2026-06-16.md
+    type: ADR
+    precedence: 7
+  - path: _bmad-output/project-planning-artifacts/sprint-change-proposal-2026-06-15.md
+    type: ADR
+    precedence: 8
+  - path: _bmad-output/project-planning-artifacts/sprint-change-proposal-2026-06-12.md
+    type: ADR
+    precedence: 9
+  - path: _bmad-output/project-planning-artifacts/calendar-build-vs-buy-2026-08-08.md
+    type: ADR
+    precedence: 10
+  - path: _bmad-output/architecture/core-architectural-decisions.md
+    type: ADR
+    precedence: 11
+  - path: _bmad-output/architecture/implementation-patterns-consistency-rules.md
+    type: SPEC
+  - path: _bmad-output/architecture/project-structure-boundaries.md
+    type: SPEC
+  - path: _bmad-output/project-planning-artifacts/epics/epic-1-project-foundation-infrastructure.md
+    type: SPEC
+  - path: _bmad-output/project-planning-artifacts/epics/epic-2a-component-library-design-system-parallel-track-a.md
+    type: SPEC
+  - path: _bmad-output/project-planning-artifacts/epics/epic-2b-strapi-v5-migration-backend-foundation-parallel-track-b.md
+    type: SPEC
+  - path: _bmad-output/project-planning-artifacts/epics/epic-2c-plugin-architecture-decomposition.md
+    type: SPEC
+  - path: _bmad-output/project-planning-artifacts/epics/epic-2d-venues-properties-admin-ui.md
+    type: SPEC
+  - path: _bmad-output/project-planning-artifacts/epics/epic-3-event-discovery-browsing.md
+    type: SPEC
+  - path: _bmad-output/project-planning-artifacts/epics/epic-4-user-authentication-profiles.md
+    type: SPEC
+  - path: _bmad-output/project-planning-artifacts/epics/epic-5-watchlist-personalization.md
+    type: SPEC
+  - path: _bmad-output/project-planning-artifacts/epics/epic-6-b2c-ticketing-purchases.md
+    type: SPEC
+  - path: _bmad-output/project-planning-artifacts/epics/epic-7-b2b-venue-management.md
+    type: SPEC
+  - path: _bmad-output/project-planning-artifacts/epics/epic-8-b2b-ticket-validation-scanner.md
+    type: SPEC
+  - path: _bmad-output/project-planning-artifacts/epics/epic-9-platform-administration.md
+    type: SPEC
+  - path: _bmad-output/project-planning-artifacts/epics/epic-10-pwa-offline-experience.md
+    type: SPEC
+  - path: _bmad-output/project-planning-artifacts/epics/epic-dependencies.md
+    type: SPEC
+  - path: _bmad-output/project-planning-artifacts/epics/epic-list.md
+    type: SPEC
+  - path: _bmad-output/project-planning-artifacts/epics/requirements-inventory.md
+    type: SPEC
+  - path: _bmad-output/project-planning-artifacts/ux-designs/ux-tiween-bmad-version-2026-06-18/DESIGN.md
+    type: SPEC
+  - path: _bmad-output/project-planning-artifacts/ux-designs/ux-tiween-bmad-version-2026-06-18/EXPERIENCE.md
+    type: SPEC
+  - path: _bmad-output/project-planning-artifacts/ux-designs/ux-tiween-bmad-version-2026-06-16/DESIGN.md
+    type: SPEC
+  - path: _bmad-output/project-planning-artifacts/ux-designs/ux-tiween-bmad-version-2026-06-16/EXPERIENCE.md
+    type: SPEC
+  - path: _bmad-output/prd/executive-summary.md
+    type: PRD
+  - path: _bmad-output/prd/product-scope.md
+    type: PRD
+  - path: _bmad-output/prd/project-classification.md
+    type: PRD
+  - path: _bmad-output/prd/project-scoping-phased-development.md
+    type: PRD
+  - path: _bmad-output/prd/success-criteria.md
+    type: PRD
+  - path: _bmad-output/prd/user-journeys.md
+    type: PRD
+  - path: _bmad-output/prd/functional-requirements.md
+    type: PRD
+  - path: _bmad-output/prd/non-functional-requirements.md
+    type: PRD
+  - path: _bmad-output/prd/web-app-specific-requirements.md
+    type: PRD
+  - path: _bmad-output/project-planning-artifacts/product-brief-tiween-bmad-version-2025-12-25.md
+    type: DOC
+  - path: _bmad-output/implementation-artifacts/sprint-status.yaml
+    type: DOC
+  - path: _bmad-output/implementation-artifacts/deferred-work.md
+    type: DOC
+  - path: _bmad-output/project-planning-artifacts/implementation-readiness-2026-08-08.md
+    type: DOC
+  - path: _bmad-output/project-planning-artifacts/research/competitive-summary-one-pager-2026-01-11.md
+    type: DOC

@@ -1,0 +1,13 @@
+{
+  "source_path": "/Users/ayoub/projects/tiween-bmad-version/_bmad-output/project-planning-artifacts/ux-designs/ux-tiween-bmad-version-2026-06-16/EXPERIENCE.md",
+  "type": "SPEC",
+  "confidence": "high",
+  "manifest_override": true,
+  "title": "Tiween B2C — Experience",
+  "summary": "Behavioral spec for Tiween B2C: information architecture, component behavior, state patterns, accessibility floor, and key ticketing flows.",
+  "scope": ["Tiween B2C", "information architecture", "BottomNav", "Accueil", "Recherche", "Billets", "Compte", "EventCard", "ShowtimeButton", "TicketQR", "ticketing flow", "checkout", "offline PWA", "state patterns", "accessibility", "RTL"],
+  "cross_refs": ["./DESIGN.md", "ux-design-specification.md", "_bmad-output/prd/", "imports/TIWEEN_*.png"],
+  "locked": false,
+  "precedence": null,
+  "notes": "MANIFEST_TYPE=SPEC applied as authoritative. Content is a UX behavior spine (IA, states, flows) rather than API/schema contracts; the SPEC tag is the manifest's declaration, not a content-derived match. Output filename uses a descriptive suffix (EXPERIENCE-ux-2026-06-16.json) instead of the SHA-256 path hash because no shell was available to compute it; the sibling EXPERIENCE-059e461e.json is untouched."
+}

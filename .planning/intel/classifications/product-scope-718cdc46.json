@@ -1,0 +1,13 @@
+{
+  "source_path": "/Users/ayoub/projects/tiween-bmad-version/_bmad-output/prd/product-scope.md",
+  "type": "PRD",
+  "confidence": "medium",
+  "manifest_override": true,
+  "title": "Product Scope",
+  "summary": "Defines v1 as a multi-category content and event aggregation platform (cinema, theater, concerts, exhibitions), with ticketing deferred post-v1.",
+  "scope": ["content aggregation platform", "cinema", "theater", "concerts", "exhibitions", "showtimes", "venues", "user accounts", "PWA offline support", "multilingual AR/FR/EN", "admin content management", "ticketing (post-v1)", "watchlist (post-v1)"],
+  "cross_refs": [],
+  "locked": false,
+  "precedence": null,
+  "notes": "Type supplied by manifest (MANIFEST_TYPE=PRD), so manifest_override is true. Content is MVP scope, feature list, descoped table and phased roadmap; it has no user stories or acceptance criteria, so content signals are only moderate. The doc refers to 'sprint-change-proposal-2026-08-06' by name only, with no path, so cross_refs is empty."
+}

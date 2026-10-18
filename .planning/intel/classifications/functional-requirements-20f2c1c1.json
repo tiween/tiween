@@ -1,0 +1,13 @@
+{
+  "source_path": "/Users/ayoub/projects/tiween-bmad-version/_bmad-output/prd/functional-requirements.md",
+  "type": "PRD",
+  "confidence": "high",
+  "manifest_override": true,
+  "title": "Functional Requirements",
+  "summary": "Phased functional requirements (FR1-FR31) for discovery, accounts, watchlist, and ticketing across MVP, Phase 2, and Phase 3.",
+  "scope": ["movie discovery", "showtimes", "cinema venues", "film details", "user accounts", "profiles", "watchlist", "personalization", "ticketing", "purchases", "QR code tickets", "offline access"],
+  "cross_refs": [],
+  "locked": false,
+  "precedence": null,
+  "notes": ""
+}

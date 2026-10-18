@@ -89,7 +89,7 @@ components:
 
 # Tiween — Visual Identity (DESIGN.md)
 
-> **Tiween is Tunisia's cultural compass** — a discovery-first, mobile-first PWA for cinema, theater, short films, concerts, and exhibitions. This spine owns _how it looks_. [EXPERIENCE.md](./EXPERIENCE.md) owns _how it works_ and references these tokens by name. **The spines win on conflict** with any mock, import, or upstream doc.
+> **Tiween is Tunisia's cultural compass** — a discovery-first, mobile-first PWA for cinema, theater, short films, concerts, and exhibitions. This spine owns _how it looks_. The behavior spine owns _how it works_ and references these tokens by name. **The spines win on conflict** with any mock, import, or upstream doc.
 >
 > Status: this is the locked identity a design-handoff tool will **refine, not replace**. It already carries three approved evolutions of the inherited brand (two-accent color system, restrained display-font usage, daylight surfaces). See [`producer-prompt.md`](./producer-prompt.md).
 
@@ -101,7 +101,7 @@ components:
 
 **Logo.** A circular **taa (ت) monogram** — a gold-on-aubergine / aubergine-on-gold disc that reads as both an Arabic letter and a smiley face. Used as app avatar and favicon. The horizontal lockup `tiween.com` + monogram appears **gold, centered, on the aubergine field** in the app header. Reversible: aubergine-on-gold, gold-on-aubergine, white-on-aubergine, aubergine-on-white. A tiled-monogram pattern serves as a textile/background motif (marketing surfaces). Designed by Amen Okja / BLITS. _(Revised 2026-06-16 from the original yellow-on-teal mark; the gilt monogram is the matured form of the same shape.)_
 
-**Two voice registers** (microcopy specifics live in EXPERIENCE.md):
+**Two voice registers** (microcopy specifics live in the behavior spine):
 
 - **Marketing voice** — bold, playful, Tunisian-vernacular ("_tiween el forja el lilla?_"). High-saturation, streetwear energy. Lives on promo/social/event collateral.
 - **Product voice** — calm, clear, reassuring, French-default ("_Merci de votre confiance !_"). **Product voice governs all in-app screens.**
@@ -136,7 +136,7 @@ Single **dark theme** — _Gold Leaf × Aubergine_ (revised 2026-06-16). No ligh
 
 **Daylight CTA.** On white daylight surfaces, the gold CTA loses contrast (gold-on-white ≈ 1.6:1). The primary CTA there is an **aubergine `#241326` fill with white text** (full pill, same shape); reserve gold for a small accent (icon/check) only.
 
-**Daylight surfaces.** The **Ticket-QR screen and Checkout** render a high-brightness variant (`daylight-background #FFFFFF`, `daylight-foreground #241326`, black-on-white QR) for outdoor scanning. Everything else stays dark. See EXPERIENCE.md › State Patterns.
+**Daylight surfaces.** The **Ticket-QR screen and Checkout** render a high-brightness variant (`daylight-background #FFFFFF`, `daylight-foreground #241326`, black-on-white QR) for outdoor scanning. Everything else stays dark. See the behavior spine › State Patterns.
 
 ## Typography
 
@@ -179,7 +179,7 @@ Generous, soft geometry. Cards `16px`, chips/badges/inputs `8px`, **primary CTA 
 
 ## Components
 
-> Visual specs here; behavioral specs (states, focus order, interaction) live in [EXPERIENCE.md › Component Patterns](./EXPERIENCE.md). All extend shadcn/ui primitives.
+> Visual specs here; behavioral specs (states, focus order, interaction) live in the behavior spine › Component Patterns. All extend shadcn/ui primitives.
 
 - **EventCard** — discovery feed card. Poster **2:3 portrait** → category/rating badge → title → venue • date → watchlist heart + price (DT). Variants `default | compact | featured`. Dark `surface` bg, `card` radius. Watchlist heart fills gold when saved. Category badge uses the `cat-*` color for its type (cinema/théâtre/courts/concert/expo). **Bidi:** the title (Arabic) and Latin runs (`VOST`/`VF`, venue, `12,20 DT`) coexist on RTL lines — wrap each foreign run in `<bdi>` / `dir="auto"` so it doesn't reorder. **Currency:** `12,20 DT` — decimal comma, space before `DT`, isolated as a Latin run; trails the price in both directions.
 - **ShowtimeButton** — selectable tile. Format badge at the **top-start** corner (mirrors in RTL) (`VOST` `VF` `3D` `2D`) → time (e.g. `15h00`/`15:00`) → end-time → venue. Gold star marks the recommended showtime. States: default (surface), hover (raised), **selected (gold border + fill + dark ink + a check glyph ✓ — never color alone)**, unavailable (strikethrough), sold-out (`Complet`, `aria-disabled`). On selected/gold-filled controls the focus ring is **dark `#241326` (or white), not gold** (a gold ring is invisible on gold). `chip` radius.

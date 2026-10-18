@@ -1,0 +1,22 @@
+{
+  "source_path": "/Users/ayoub/projects/tiween-bmad-version/_bmad-output/project-planning-artifacts/epics/epic-2d-venues-properties-admin-ui.md",
+  "type": "SPEC",
+  "confidence": "medium",
+  "manifest_override": true,
+  "title": "Epic 2D: Venues & Properties Admin UI [MVP-back-office]",
+  "summary": "Epic adding venues plugin admin UI for venue and property CRUD, extending venue schema to rich model and relocating events-manager venue form.",
+  "scope": [
+    "venues plugin",
+    "venue content type",
+    "property-value component",
+    "events-manager venue form",
+    "Venue Manager role",
+    "admin UI"
+  ],
+  "cross_refs": [
+    "_bmad-output/project-planning-artifacts/sprint-change-proposal-2026-06-16.md"
+  ],
+  "locked": false,
+  "precedence": null,
+  "notes": "Manifest SPEC; content is PRD-style user stories. First 50 lines read."
+}
