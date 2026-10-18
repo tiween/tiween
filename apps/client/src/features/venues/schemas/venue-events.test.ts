@@ -9,15 +9,18 @@ import ar from "../../../../locales/ar.json"
 import en from "../../../../locales/en.json"
 import fr from "../../../../locales/fr.json"
 import {
+  CREATIVE_WORK_TYPES,
   emptyShowtimeRow,
   emptyVenueEventFormValues,
   extractVenueEventErrorCode,
   toPreviewStrapiEvent,
   toVenueEventCreatePayload,
   toVenueWorkCreatePayload,
+  VENUE_CREATABLE_WORK_TYPES,
   VENUE_EVENT_ERROR_CODES,
   venueEventFormSchema,
   venueWorkFormSchema,
+  WORK_TYPE_FORM_VALUES,
 } from "./venue-events"
 
 function validValues() {
@@ -201,6 +204,43 @@ describe("venueWorkFormSchema / toVenueWorkCreatePayload", () => {
       : result.error.issues.map((i) => i.message)
     expect(messages).toContain("WORK_TITLE_REQUIRED")
     expect(messages).toContain("WORK_TYPE_INVALID")
+  })
+
+  it.each(["film", "play"])("accepts type %s", (type) => {
+    const result = venueWorkFormSchema.safeParse({
+      title: "Dune",
+      type,
+      synopsis: "",
+      duration: "",
+      releaseYear: "",
+    })
+
+    expect(result.success).toBe(true)
+  })
+
+  it("rejects type short-film with WORK_TYPE_INVALID (D-21)", () => {
+    const result = venueWorkFormSchema.safeParse({
+      title: "Khalaa",
+      type: "short-film",
+      synopsis: "",
+      duration: "",
+      releaseYear: "",
+    })
+
+    expect(result.success).toBe(false)
+    const messages = result.success
+      ? []
+      : result.error.issues.map((i) => i.message)
+    expect(messages).toContain("WORK_TYPE_INVALID")
+  })
+
+  it("offers only film and play to venue managers", () => {
+    expect([...VENUE_CREATABLE_WORK_TYPES]).toEqual(["film", "play"])
+    expect(WORK_TYPE_FORM_VALUES).not.toContain("short-film")
+  })
+
+  it("keeps short-film in CREATIVE_WORK_TYPES for existing works", () => {
+    expect(CREATIVE_WORK_TYPES).toContain("short-film")
   })
 
   it("converts numeric strings and omits blanks", () => {
