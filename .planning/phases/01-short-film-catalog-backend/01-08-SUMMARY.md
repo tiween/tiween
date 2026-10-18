@@ -288,3 +288,7 @@ None. No new endpoint, auth path or dependency (T-01-SC: lockfile and manifests 
 
 _Phase: 01-short-film-catalog-backend_
 _Completed: 2026-10-18_
+
+## Post-execution fix (orchestrator, security review)
+
+An automated security review flagged that the https-only streaming URL check lived only in the WorkForm: content-manager and Document Service writes could store `javascript:` / `http:` URLs, and the public API returned them as links (stored XSS on the Phase 2 shorts pages). Fixed in `60b35eb`: `isHttpsUrl` moved to `src/shared/short-film-rules.ts` (the form reuses it); the creative-works Document Service guard rejects any non-https `streamingLinks[].url` on every create/update with `INVALID_STREAMING_URL` (path `streamingLinks.<i>.url`; `{ id }`-only references to stored components pass); the public projection drops stored non-https links and computes `availableOnline` from the safe list only. New tests: shared `isHttpsUrl` cases, guard unit cases, projection cases, and two boot cases (content-manager PUT with `javascript:` → 400 and nothing stored; Document Service create with `http:` → ValidationError). Gate: 96 unit suites / 1503 tests, lint clean, `test:integration` 11 suites / 160 tests passed (1 suite skipped, pre-existing).
