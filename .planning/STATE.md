@@ -5,16 +5,16 @@ milestone_name: Shorts Directory
 current_phase: 1
 current_phase_name: Short-Film Catalog Backend
 status: executing
-stopped_at: Completed 01-04-PLAN.md
-last_updated: "2026-10-18T20:13:01.365Z"
+stopped_at: Completed 01-09-PLAN.md
+last_updated: "2026-10-18T21:24:54.765Z"
 last_activity: 2026-10-18
 last_activity_desc: Phase 1 execution started
-state_head: 75ce30e90c69e3ae7654d8f7b5aff21395e78531
+state_head: 4591a03f7847ab72aa7d6c523ec94b8ecfce2cab
 progress:
   total_phases: 6
   completed_phases: 0
   total_plans: 14
-  completed_plans: 8
+  completed_plans: 9
 ---
 
 # Project State
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-10-18)
 ## Current Position
 
 Phase: 1 (Short-Film Catalog Backend) — EXECUTING
-Plan: 8 of 14
+Plan: 9 of 14
 Status: Ready to execute
 Last activity: 2026-10-18 — Phase 1 execution started
 
@@ -67,6 +67,7 @@ _Updated after each plan completion_
 | Phase 01 P06 | 36 min   | 2 tasks | 12 files |
 | Phase 01 P08 | 25 min   | 2 tasks | 10 files |
 | Phase 01 P04 | 15 min   | 2 tasks | 8 files  |
+| Phase 01 P09 | 64min    | 2 tasks | 12 files |
 
 ## Accumulated Context
 
@@ -96,6 +97,9 @@ Decisions are logged in PROJECT.md (Locked Decisions and Key Decisions table). R
 - [Phase 01]: 01-04: featured is ordered in JavaScript (rank asc, unranked last, publishedAt desc, id desc) over a capped, newest-first fetch of 100 so SQLite and Postgres cannot differ
 - [Phase 01]: 01-04: related logic is isolated in exported findRelatedDeterministic returning raw rows (director group, then genre group via mergeRelated) so Phase 3 can swap the source to Meilisearch and keep this as fallback
 - [Phase 01]: 01-04: related uses the nested credits.person + creditRole.slug filter confirmed by spike A5 on SQLite; Postgres behavior is unverified
+- [Phase 01]: Task 1 (01-09): content-manager collection-types bodies are sent flat; the { data } wrapper is silently dropped by the server (boot-proven), so createWork/updateWork send the entity itself
+- [Phase 01]: Task 2 (01-09): D-22 branch shipped is locale tabs creating rows (A3 confirmed); a first translation save of a credited work first creates person, credit-role and character rows in that locale, with a mapped sentence as safety net
+- [Phase 01]: Task 1 (01-09): the publish pre-check always evaluates the saved default-language draft, on every tab, because the server guard reads that draft whichever language is published; publish and unpublish are per language only (no bulk)
 
 ### Pending Todos
 
@@ -121,6 +125,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-10-18T20:13:01.267Z
-Stopped at: Completed 01-04-PLAN.md
+Last session: 2026-10-18T21:24:54.706Z
+Stopped at: Completed 01-09-PLAN.md
 Resume file: None
