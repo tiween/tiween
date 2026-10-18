@@ -37,6 +37,17 @@ export default {
         auth: false,
       },
     },
+    // Detail by slug: keep it the LAST short-films route (01-04 inserts
+    // `featured` and `:slug/related` above it so `:slug` cannot swallow them).
+    {
+      method: "GET",
+      path: "/creative-works/short-films/:slug",
+      handler: "short-film.findOne",
+      config: {
+        policies: [],
+        auth: false,
+      },
+    },
     {
       method: "GET",
       path: "/persons/search",

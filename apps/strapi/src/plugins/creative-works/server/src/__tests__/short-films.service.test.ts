@@ -246,7 +246,7 @@ describe("GET short-films list (integration)", () => {
       )
     })
 
-    it("answers 200 with an empty page past the end and the real total", async () => {
+    it("answers 200 with an empty page past the end (page=4) and the real total", async () => {
       const res = await api().get(LIST).query({ pageSize: 2, page: 4 })
 
       expect(res.status).toBe(200)

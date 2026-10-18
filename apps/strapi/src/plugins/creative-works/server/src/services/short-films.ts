@@ -60,6 +60,18 @@ const SUMMARY_POPULATE = {
   distinctions: true,
 }
 
+/** Populate used by the detail projection: the summary graph plus photos and cast. */
+const DETAIL_POPULATE = {
+  ...SUMMARY_POPULATE,
+  photos: { fields: MEDIA_FIELDS },
+  cast: {
+    populate: {
+      person: { fields: PERSON_FIELDS },
+      character: { fields: ["documentId", "name"] },
+    },
+  },
+}
+
 /* -------------------------------------------------------------------------- */
 /* Response types                                                             */
 /* -------------------------------------------------------------------------- */
@@ -111,6 +123,52 @@ export interface ShortFilmSummary {
   directors: PublicPerson[]
   availableOnline: boolean
   hasAwards: boolean
+}
+
+export interface PublicCredit {
+  person: PublicPerson
+  creditRole: { slug: string | null; department: string | null }
+  customRole: string | null
+  billing: number | null
+}
+
+export interface PublicCastMember {
+  person: PublicPerson
+  character: { documentId: string; name: string | null } | null
+  billing: number | null
+}
+
+export interface PublicDistinction {
+  name: string | null
+  edition: string | null
+  year: number | null
+  section: string | null
+  category: string | null
+  result: string | null
+  awardName: string | null
+}
+
+export interface PublicVideo {
+  url: string | null
+  videoType: string | null
+}
+
+export interface PublicStreamingLink {
+  platform: string | null
+  url: string | null
+  accessType: string | null
+  label: string | null
+}
+
+export interface ShortFilmDetail extends ShortFilmSummary {
+  rating: number | null
+  ageRating: string | null
+  photos: PublicMedia[]
+  credits: PublicCredit[]
+  cast: PublicCastMember[]
+  distinctions: PublicDistinction[]
+  videos: PublicVideo[]
+  streamingLinks: PublicStreamingLink[]
 }
 
 export interface ShortFilmListResult {
@@ -268,6 +326,81 @@ export function toShortFilmSummary(row: Row): ShortFilmSummary {
   }
 }
 
+function toPublicCredit(credit: Row): PublicCredit | null {
+  // A credit whose person is not published populates as null: drop it.
+  const person = toPublicPerson(credit?.person)
+  if (!person) return null
+  return {
+    person,
+    creditRole: {
+      slug: toStringOrNull(credit?.creditRole?.slug),
+      department: toStringOrNull(credit?.creditRole?.department),
+    },
+    customRole: toStringOrNull(credit?.customRole),
+    billing: toNumberOrNull(credit?.billing),
+  }
+}
+
+function toPublicCastMember(member: Row): PublicCastMember | null {
+  const person = toPublicPerson(member?.person)
+  if (!person) return null
+  const character = member?.character
+  return {
+    person,
+    character:
+      character && typeof character.documentId === "string"
+        ? {
+            documentId: character.documentId,
+            name: toStringOrNull(character.name),
+          }
+        : null,
+    billing: toNumberOrNull(member?.billing),
+  }
+}
+
+function isPresent<T>(value: T | null): value is T {
+  return value !== null
+}
+
+/** Detail projection: the summary keys plus the detail-only allowlisted keys. */
+export function toShortFilmDetail(row: Row): ShortFilmDetail {
+  return {
+    ...toShortFilmSummary(row),
+    rating: toNumberOrNull(row.rating),
+    ageRating: toStringOrNull(row.ageRating),
+    photos: asArray(row.photos).map(toPublicMedia).filter(isPresent),
+    credits: asArray(row.credits)
+      .slice()
+      .sort(byBilling)
+      .map(toPublicCredit)
+      .filter(isPresent),
+    cast: asArray(row.cast)
+      .slice()
+      .sort(byBilling)
+      .map(toPublicCastMember)
+      .filter(isPresent),
+    distinctions: asArray(row.distinctions).map((d) => ({
+      name: toStringOrNull(d.name),
+      edition: toStringOrNull(d.edition),
+      year: toNumberOrNull(d.year),
+      section: toStringOrNull(d.section),
+      category: toStringOrNull(d.category),
+      result: toStringOrNull(d.result),
+      awardName: toStringOrNull(d.awardName),
+    })),
+    videos: asArray(row.videos).map((v) => ({
+      url: toStringOrNull(v.url),
+      videoType: toStringOrNull(v.videoType),
+    })),
+    streamingLinks: asArray(row.streamingLinks).map((l) => ({
+      platform: toStringOrNull(l.platform),
+      url: toStringOrNull(l.url),
+      accessType: toStringOrNull(l.accessType),
+      label: toStringOrNull(l.label),
+    })),
+  }
+}
+
 /* -------------------------------------------------------------------------- */
 /* Service                                                                    */
 /* -------------------------------------------------------------------------- */
@@ -353,6 +486,28 @@ const shortFilmsService = ({ strapi }: { strapi: Core.Strapi }) => {
           },
         },
       }
+    },
+
+    /**
+     * One published short film by exact slug, or null (unknown slug, draft-only
+     * short, or a non-short work). The slug lives on the default-locale row only
+     * (a uid is not copied to a translation row), so the lookup is always made in
+     * the default locale.
+     */
+    async findBySlug(
+      slug: string,
+      locale?: string
+    ): Promise<ShortFilmDetail | null> {
+      const { defaultLocale } = await resolveLocale(locale)
+
+      const row = await strapi.documents(CREATIVE_WORK_UID).findFirst({
+        status: "published",
+        locale: defaultLocale,
+        filters: { type: SHORT_FILM_TYPE, slug: { $eq: slug } },
+        populate: DETAIL_POPULATE,
+      } as never)
+
+      return row ? toShortFilmDetail(row as unknown as Row) : null
     },
   }
 }

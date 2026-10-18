@@ -9,10 +9,16 @@
  *
  * Bodies: `{ data, meta }` for the list, `{ data }` for the detail.
  */
+import { errors } from "@strapi/utils"
+
 import type { Core } from "@strapi/strapi"
 
 import { validate } from "../../../../../shared/validation"
-import { shortFilmListQuerySchema } from "../validation/short-films"
+import {
+  shortFilmDetailQuerySchema,
+  shortFilmListQuerySchema,
+  shortFilmSlugParamSchema,
+} from "../validation/short-films"
 
 const PLUGIN_ID = "creative-works"
 
@@ -66,6 +72,23 @@ const shortFilmController = ({ strapi }: { strapi: Core.Strapi }) => {
         const query = validate(shortFilmListQuerySchema, ctx.query ?? {})
         const { data, meta } = await service().list(query)
         ctx.body = { data, meta }
+      } catch (err) {
+        respondError(strapi, ctx, err)
+      }
+    },
+
+    /** `GET /creative-works/short-films/:slug` */
+    async findOne(ctx: any) {
+      try {
+        const { slug } = validate(shortFilmSlugParamSchema, ctx.params ?? {})
+        const { locale } = validate(shortFilmDetailQuerySchema, ctx.query ?? {})
+        const data = await service().findBySlug(slug, locale)
+        if (!data) {
+          throw new errors.NotFoundError("Short film not found", {
+            code: "SHORT_FILM_NOT_FOUND",
+          })
+        }
+        ctx.body = { data }
       } catch (err) {
         respondError(strapi, ctx, err)
       }
