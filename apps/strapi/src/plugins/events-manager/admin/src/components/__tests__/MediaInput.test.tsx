@@ -203,7 +203,11 @@ describe("MediaInput dialog wiring", () => {
 
     const buttons = screen.getAllByRole("button")
     expect(buttons.length).toBeGreaterThan(0)
-    buttons.forEach((button) => expect(button).toBeDisabled())
+    // The Design System marks a disabled button with aria-disabled and ignores
+    // its clicks, rather than setting the native attribute.
+    buttons.forEach((button) =>
+      expect(button).toHaveAttribute("aria-disabled", "true")
+    )
   })
 
   it("renders neither an 'Add from URL' affordance nor a URL input, even after opening", () => {
@@ -218,10 +222,13 @@ describe("MediaInput dialog wiring", () => {
   })
 
   it("shows a disabled control and a message when the media library is not registered", () => {
-    registerDialog(undefined)
+    registerDialog(null)
     renderInput({})
 
-    expect(screen.getByRole("button", { name: /add/i })).toBeDisabled()
+    expect(screen.getByRole("button", { name: /add/i })).toHaveAttribute(
+      "aria-disabled",
+      "true"
+    )
     expect(
       screen.getByText("The media library is unavailable")
     ).toBeInTheDocument()

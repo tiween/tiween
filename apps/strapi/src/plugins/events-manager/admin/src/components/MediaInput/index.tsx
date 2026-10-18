@@ -1,25 +1,32 @@
 /**
  * MediaInput Component
  *
- * A simplified media picker for Strapi v5 that displays previews
- * and allows selecting/removing images via URL input or direct upload.
+ * Media picker backed by Strapi's own media-library dialog (FR57).
  *
- * Note: The full Media Library dialog integration requires additional
- * setup in Strapi v5. This simplified version provides basic functionality.
+ * `@strapi/upload` registers that dialog in the admin shell as the
+ * `media-library` component; Strapi's own WYSIWYG reads it the same way. Picking
+ * or uploading there goes through the configured upload provider (ImageKit when
+ * its keys are set, local disk otherwise) and yields real upload rows, so the
+ * assets held here keep their real `id`, `url` and `formats`.
+ *
+ * There is deliberately no URL-paste path and no id is ever invented: an asset
+ * can only come from the media library. When the dialog is not registered the
+ * input renders a disabled control and says so rather than fabricating one.
  */
 
 import { useCallback, useState } from "react"
 import {
   Box,
   Button,
-  Field,
   Flex,
   IconButton,
-  Modal,
-  TextInput,
   Typography,
 } from "@strapi/design-system"
-import { Image, Pencil, Plus, Trash } from "@strapi/icons"
+import { Image, Plus, Trash } from "@strapi/icons"
+import { useStrapiApp } from "@strapi/strapi/admin"
+import { styled } from "styled-components"
+
+import { useCatalogT } from "../Catalog/i18n"
 
 /** Media asset from Strapi */
 export interface MediaAsset {
@@ -37,6 +44,8 @@ export interface MediaAsset {
   }
 }
 
+type AllowedType = "images" | "videos" | "files" | "audios"
+
 interface MediaInputProps {
   /** Current value (single asset or array) */
   value: MediaAsset | MediaAsset[] | null
@@ -45,36 +54,134 @@ interface MediaInputProps {
   /** Allow multiple files */
   multiple?: boolean
   /** Allowed file types */
-  allowedTypes?: ("images" | "videos" | "files" | "audios")[]
+  allowedTypes?: AllowedType[]
   /** Label for the field */
   label?: string
   /** Disabled state */
   disabled?: boolean
 }
 
+/**
+ * A file as the media-library dialog hands it back. It carries the full upload
+ * row (hash, size, provider, ...); only the fields in `MediaAsset` are kept.
+ */
+export interface MediaLibraryFile {
+  id: number
+  documentId?: string
+  name: string
+  url: string
+  mime: string
+  width?: number | null
+  height?: number | null
+  formats?: Record<string, { url?: string } | undefined> | null
+  [key: string]: unknown
+}
+
+/** Props of the `media-library` dialog registered by `@strapi/upload`. */
+interface MediaLibraryDialogProps {
+  allowedTypes?: AllowedType[]
+  onClose: () => void
+  onSelectAssets: (files: MediaLibraryFile[]) => void
+}
+
+type MediaLibraryDialog = React.ComponentType<MediaLibraryDialogProps>
+
+const EmptyFrame = styled(Flex)`
+  min-height: 120px;
+  border: 1px dashed ${({ theme }) => theme.colors.neutral300};
+`
+
+const AssetFrame = styled(Box)<{ $size: number }>`
+  position: relative;
+  width: ${({ $size }) => $size}px;
+  height: ${({ $size }) => $size}px;
+  overflow: hidden;
+`
+
+const AssetImage = styled.img<{ $fit: "cover" | "contain" }>`
+  width: 100%;
+  height: 100%;
+  object-fit: ${({ $fit }) => $fit};
+`
+
+const RemoveSlot = styled(Box)`
+  position: absolute;
+  top: 4px;
+  right: 4px;
+`
+
+const FORMAT_KEYS = ["thumbnail", "small", "medium"] as const
+
+/**
+ * Reduce an upload row to the `MediaAsset` the form stores. Everything not in
+ * the interface (hash, size, provider, timestamps, other formats) is dropped,
+ * so the saved payload never carries upload internals.
+ */
+export function toMediaAsset(file: MediaLibraryFile): MediaAsset {
+  const asset: MediaAsset = {
+    id: file.id,
+    name: file.name,
+    url: file.url,
+    mime: file.mime,
+  }
+
+  if (file.documentId) asset.documentId = file.documentId
+  if (typeof file.width === "number") asset.width = file.width
+  if (typeof file.height === "number") asset.height = file.height
+
+  const formats: NonNullable<MediaAsset["formats"]> = {}
+  for (const key of FORMAT_KEYS) {
+    const url = file.formats?.[key]?.url
+    if (url) formats[key] = { url }
+  }
+  if (Object.keys(formats).length > 0) asset.formats = formats
+
+  return asset
+}
+
+/** Append `incoming` to `current`, skipping ids already present. */
+function mergeById(current: MediaAsset[], incoming: MediaAsset[]) {
+  const seen = new Set(current.map((asset) => asset.id))
+  const merged = [...current]
+  for (const asset of incoming) {
+    if (seen.has(asset.id)) continue
+    seen.add(asset.id)
+    merged.push(asset)
+  }
+  return merged
+}
+
+function previewUrl(asset: MediaAsset) {
+  return asset.formats?.thumbnail?.url || asset.formats?.small?.url || asset.url
+}
+
 export function MediaInput({
   value,
   onChange,
   multiple = false,
-  allowedTypes: _allowedTypes = ["images"],
+  allowedTypes = ["images"],
   label,
   disabled = false,
 }: MediaInputProps) {
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [urlInput, setUrlInput] = useState("")
+  const t = useCatalogT()
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
 
-  // Normalize value to array
+  const components = useStrapiApp(
+    "MediaInput",
+    (state: { components: Record<string, unknown> }) => state.components
+  )
+  const Dialog = components?.["media-library"] as MediaLibraryDialog | undefined
+
   const selectedAssets: MediaAsset[] = value
     ? Array.isArray(value)
       ? value
       : [value]
     : []
 
-  const handleRemoveAsset = useCallback(
+  const handleRemove = useCallback(
     (assetId: number) => {
       if (multiple) {
-        const filtered = selectedAssets.filter((a) => a.id !== assetId)
-        onChange(filtered.length > 0 ? filtered : null)
+        onChange(selectedAssets.filter((asset) => asset.id !== assetId))
       } else {
         onChange(null)
       }
@@ -82,32 +189,28 @@ export function MediaInput({
     [multiple, selectedAssets, onChange]
   )
 
-  const handleAddFromUrl = useCallback(() => {
-    if (!urlInput.trim()) return
+  const handleSelectAssets = useCallback(
+    (files: MediaLibraryFile[]) => {
+      const incoming = files.map(toMediaAsset)
+      setIsDialogOpen(false)
 
-    const newAsset: MediaAsset = {
-      id: Date.now(), // Temporary ID
-      name: urlInput.split("/").pop() || "image",
-      url: urlInput,
-      mime: "image/*",
-    }
+      if (incoming.length === 0) return
 
-    if (multiple) {
-      onChange([...selectedAssets, newAsset])
-    } else {
-      onChange(newAsset)
-    }
+      if (multiple) {
+        onChange(mergeById(selectedAssets, incoming))
+      } else {
+        // The dialog always allows multi-select; a single-value input takes
+        // the first asset.
+        onChange(incoming[0])
+      }
+    },
+    [multiple, selectedAssets, onChange]
+  )
 
-    setUrlInput("")
-    setIsModalOpen(false)
-  }, [urlInput, multiple, selectedAssets, onChange])
-
-  // Get preview URL for an asset
-  const getPreviewUrl = (asset: MediaAsset) => {
-    return (
-      asset.formats?.thumbnail?.url || asset.formats?.small?.url || asset.url
-    )
-  }
+  const hasSingleAsset = !multiple && selectedAssets.length > 0
+  const addLabel = hasSingleAsset
+    ? t("media.replace", "Replace")
+    : t("media.add", "Add from media library")
 
   return (
     <Box>
@@ -124,180 +227,70 @@ export function MediaInput({
 
       <Box marginTop={1}>
         {selectedAssets.length === 0 ? (
-          // Empty state
-          <Box
+          <EmptyFrame
             background="neutral100"
             hasRadius
             padding={6}
-            style={{
-              border: "1px dashed var(--strapi-color-neutral300)",
-              minHeight: 120,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
+            alignItems="center"
+            justifyContent="center"
           >
-            <Flex direction="column" gap={2} alignItems="center">
-              <Image width={32} height={32} fill="neutral500" />
-              <Typography variant="pi" textColor="neutral600">
-                {multiple ? "Aucune image sélectionnée" : "Aucune image"}
-              </Typography>
-              <Button
-                variant="secondary"
-                startIcon={<Plus />}
-                onClick={() => setIsModalOpen(true)}
-                disabled={disabled}
-                size="S"
-              >
-                {multiple ? "Ajouter des images" : "Sélectionner une image"}
-              </Button>
-            </Flex>
-          </Box>
-        ) : multiple ? (
-          // Multiple images grid
-          <Box>
-            <Flex wrap="wrap" gap={2}>
-              {selectedAssets.map((asset) => (
-                <Box
-                  key={asset.id}
-                  position="relative"
-                  background="neutral100"
-                  hasRadius
-                  style={{
-                    width: 100,
-                    height: 100,
-                    overflow: "hidden",
-                  }}
-                >
-                  <img
-                    src={getPreviewUrl(asset)}
-                    alt={asset.name}
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      objectFit: "cover",
-                    }}
-                  />
-                  <Box
-                    position="absolute"
-                    style={{
-                      top: 4,
-                      right: 4,
-                    }}
-                  >
-                    <IconButton
-                      label="Supprimer"
-                      onClick={() => handleRemoveAsset(asset.id)}
-                      variant="secondary"
-                      size="S"
-                    >
-                      <Trash />
-                    </IconButton>
-                  </Box>
-                </Box>
-              ))}
-              {!disabled && (
-                <Box
-                  as="button"
-                  type="button"
-                  onClick={() => setIsModalOpen(true)}
-                  background="neutral100"
-                  hasRadius
-                  style={{
-                    width: 100,
-                    height: 100,
-                    border: "1px dashed var(--strapi-color-neutral300)",
-                    cursor: "pointer",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <Flex direction="column" gap={1} alignItems="center">
-                    <Plus width={20} height={20} />
-                    <Typography variant="pi" textColor="neutral600">
-                      Ajouter
-                    </Typography>
-                  </Flex>
-                </Box>
-              )}
-            </Flex>
-          </Box>
+            <Image width={32} height={32} fill="neutral500" />
+          </EmptyFrame>
         ) : (
-          // Single image preview
-          <Box
-            position="relative"
-            background="neutral100"
-            hasRadius
-            style={{
-              minHeight: 120,
-              border: "1px dashed var(--strapi-color-neutral300)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              overflow: "hidden",
-            }}
-          >
-            <img
-              src={getPreviewUrl(selectedAssets[0])}
-              alt={selectedAssets[0].name}
-              style={{
-                maxWidth: "100%",
-                maxHeight: 200,
-                objectFit: "contain",
-              }}
-            />
-            {!disabled && (
-              <Flex position="absolute" gap={1} style={{ top: 8, right: 8 }}>
-                <IconButton
-                  label="Modifier"
-                  onClick={() => setIsModalOpen(true)}
-                  variant="secondary"
-                >
-                  <Pencil />
-                </IconButton>
-                <IconButton
-                  label="Supprimer"
-                  onClick={() => handleRemoveAsset(selectedAssets[0].id)}
-                  variant="secondary"
-                >
-                  <Trash />
-                </IconButton>
-              </Flex>
-            )}
-          </Box>
+          <Flex wrap="wrap" gap={2}>
+            {selectedAssets.map((asset) => (
+              <AssetFrame
+                key={asset.id}
+                $size={multiple ? 100 : 160}
+                background="neutral100"
+                hasRadius
+              >
+                <AssetImage
+                  src={previewUrl(asset)}
+                  alt={asset.name}
+                  $fit={multiple ? "cover" : "contain"}
+                />
+                <RemoveSlot>
+                  <IconButton
+                    label={t("media.remove", "Remove")}
+                    onClick={() => handleRemove(asset.id)}
+                    disabled={disabled}
+                    variant="secondary"
+                    size="S"
+                  >
+                    <Trash />
+                  </IconButton>
+                </RemoveSlot>
+              </AssetFrame>
+            ))}
+          </Flex>
         )}
       </Box>
 
-      {/* URL Input Modal */}
-      <Modal.Root open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <Modal.Content>
-          <Modal.Header>
-            <Modal.Title>Ajouter une image</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            <Field.Root>
-              <Field.Label>URL de l'image</Field.Label>
-              <TextInput
-                placeholder="https://example.com/image.jpg"
-                value={urlInput}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  setUrlInput(e.target.value)
-                }
-              />
-              <Field.Hint>Entrez l'URL d'une image existante</Field.Hint>
-            </Field.Root>
-          </Modal.Body>
-          <Modal.Footer>
-            <Modal.Close>
-              <Button variant="tertiary">Annuler</Button>
-            </Modal.Close>
-            <Button onClick={handleAddFromUrl} disabled={!urlInput.trim()}>
-              Ajouter
-            </Button>
-          </Modal.Footer>
-        </Modal.Content>
-      </Modal.Root>
+      <Flex gap={2} alignItems="center" marginTop={2}>
+        <Button
+          variant="secondary"
+          startIcon={<Plus />}
+          size="S"
+          onClick={() => setIsDialogOpen(true)}
+          disabled={disabled || !Dialog}
+        >
+          {addLabel}
+        </Button>
+        {!Dialog && (
+          <Typography variant="pi" textColor="neutral600">
+            {t("media.unavailable", "The media library is unavailable")}
+          </Typography>
+        )}
+      </Flex>
+
+      {Dialog && isDialogOpen && (
+        <Dialog
+          allowedTypes={allowedTypes}
+          onClose={() => setIsDialogOpen(false)}
+          onSelectAssets={handleSelectAssets}
+        />
+      )}
     </Box>
   )
 }
