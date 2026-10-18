@@ -11,6 +11,8 @@ import { PluginLayout } from "../components/PluginLayout"
 import { DashboardPage } from "./Dashboard"
 import { ImportPage } from "./Import"
 import { PlanningPage } from "./Planning"
+import { WorksListPage } from "./Works"
+import { WorkFormPage } from "./Works/WorkFormPage"
 
 const App = () => {
   return (
@@ -22,6 +24,17 @@ const App = () => {
         {/* Main sections */}
         <Route path="dashboard" element={<DashboardPage />} />
         <Route path="planning" element={<PlanningPage />} />
+
+        {/*
+          Works catalog: the list navigates to these four targets
+          (`works/new`, `works/:documentId`, `works/:documentId/edit`). Both
+          pages existed but were routed nowhere, so the catalog was
+          unreachable from the admin.
+        */}
+        <Route path="works" element={<WorksListPage />} />
+        <Route path="works/new" element={<WorkFormPage />} />
+        <Route path="works/:documentId" element={<WorkFormPage />} />
+        <Route path="works/:documentId/edit" element={<WorkFormPage />} />
         {/*
           `venues` is GONE from this plugin (story 2D.2): the venue list and
           form now live in the venues plugin, once. The catch-all below sends

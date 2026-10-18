@@ -20,6 +20,7 @@ interface NavItem {
 const NAV_ITEMS: NavItem[] = [
   { to: "dashboard", labelKey: "events-manager.sidenav.dashboard" },
   { to: "planning", labelKey: "events-manager.sidenav.planning" },
+  { to: "works", labelKey: "events-manager.sidenav.works" },
   { to: "import", labelKey: "events-manager.sidenav.import" },
 ]
 
