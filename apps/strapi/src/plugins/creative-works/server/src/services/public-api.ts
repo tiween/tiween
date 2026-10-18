@@ -1,4 +1,5 @@
 import type { Core } from "@strapi/strapi"
+import type { ShortFilmListQuery } from "../validation/short-films"
 import type { CreateWorkInput } from "./creative-work"
 
 const PLUGIN_ID = "creative-works"
@@ -27,6 +28,22 @@ const publicApiService = ({ strapi }: { strapi: Core.Strapi }) => ({
       .plugin(PLUGIN_ID)
       .service("creative-work")
       .findOneWithDetails(documentId)
+  },
+
+  /**
+   * Published short films, paged (public read contract, SDATA-03). Delegates to
+   * the `short-films` service; `query` must already be validated.
+   */
+  async findShortFilms(query: ShortFilmListQuery) {
+    return strapi.plugin(PLUGIN_ID).service("short-films").list(query)
+  },
+
+  /** One published short film by slug (locale falls back to the default), or null. */
+  async findShortFilm(slug: string, locale?: string) {
+    return strapi
+      .plugin(PLUGIN_ID)
+      .service("short-films")
+      .findBySlug(slug, locale)
   },
 
   /**

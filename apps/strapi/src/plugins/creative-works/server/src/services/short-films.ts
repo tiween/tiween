@@ -28,6 +28,7 @@ import {
 } from "../../../../../shared/short-film-rules"
 
 const CREATIVE_WORK_UID = "plugin::creative-works.creative-work"
+const GENRE_UID = "plugin::creative-works.genre"
 const SHORT_FILM_TYPE = "short-film"
 
 export const UNSUPPORTED_LOCALE = "UNSUPPORTED_LOCALE"
@@ -405,6 +406,73 @@ export function toShortFilmDetail(row: Row): ShortFilmDetail {
 /* Service                                                                    */
 /* -------------------------------------------------------------------------- */
 
+/**
+ * Overlay the localized fields of the requested locale onto already-projected
+ * items (French-fallback, research Pattern 3).
+ *
+ * A localized row counts as a translation only when it has a non-empty title:
+ * then `title`, `synopsis` (when it has one) and `poster` (when it has one)
+ * replace the base values and `locale` becomes `requested`. Otherwise the base
+ * item is kept as is, with its own (default) locale. Relations (genres,
+ * credits, directors), the slug and every derived field ALWAYS stay from the
+ * base row. Returns new objects; inputs are never mutated.
+ *
+ * `localizedRows` are raw Document Service rows of the requested locale
+ * ({ documentId, title, synopsis, poster }); the poster is run through
+ * `toPublicMedia` here, so no internal media column can leak.
+ */
+export function overlayLocalizedFields<T extends ShortFilmSummary>(
+  baseItems: T[],
+  localizedRows: Row[],
+  requested: string
+): T[] {
+  const byDocument = new Map<string, Row>()
+  for (const row of localizedRows) {
+    if (typeof row?.documentId === "string") byDocument.set(row.documentId, row)
+  }
+
+  return baseItems.map((item) => {
+    const localized = byDocument.get(item.documentId)
+    const title = toStringOrNull(localized?.title)
+    if (!localized || title === null || title.trim() === "") return { ...item }
+
+    const synopsis = toStringOrNull(localized.synopsis)
+    return {
+      ...item,
+      title,
+      synopsis:
+        synopsis !== null && synopsis.trim() !== "" ? synopsis : item.synopsis,
+      poster: toPublicMedia(localized.poster) ?? item.poster,
+      locale: requested,
+    }
+  })
+}
+
+/**
+ * Replace genre names with their translation in the requested locale; a genre
+ * with no (or an empty) translation keeps its base name. Returns new objects.
+ */
+export function overlayGenreNames<T extends ShortFilmSummary>(
+  items: T[],
+  genreRows: Row[]
+): T[] {
+  const names = new Map<string, string>()
+  for (const row of genreRows) {
+    const name = toStringOrNull(row?.name)
+    if (typeof row?.documentId === "string" && name && name.trim() !== "") {
+      names.set(row.documentId, name)
+    }
+  }
+
+  return items.map((item) => ({
+    ...item,
+    genres: item.genres.map((genre) => ({
+      ...genre,
+      name: names.get(genre.documentId) ?? genre.name,
+    })),
+  }))
+}
+
 function pageCountOf(total: number, pageSize: number): number {
   return pageSize > 0 ? Math.ceil(total / pageSize) : 0
 }
@@ -439,6 +507,52 @@ const shortFilmsService = ({ strapi }: { strapi: Core.Strapi }) => {
     return { requested: locale, defaultLocale }
   }
 
+  /**
+   * Overlay the requested locale onto default-locale items. A no-op for the
+   * default locale. Paging, sorting and counting never read the requested
+   * locale: this only runs on the already-selected page.
+   */
+  async function localize<T extends ShortFilmSummary>(
+    items: T[],
+    requested: string,
+    defaultLocale: string
+  ): Promise<T[]> {
+    if (requested === defaultLocale || items.length === 0) return items
+
+    const documentIds = items.map((item) => item.documentId)
+    const genreIds = [
+      ...new Set(items.flatMap((item) => item.genres.map((g) => g.documentId))),
+    ]
+
+    const [localizedRows, genreRows] = await Promise.all([
+      strapi.documents(CREATIVE_WORK_UID).findMany({
+        locale: requested,
+        status: "published",
+        filters: { documentId: { $in: documentIds } },
+        fields: ["documentId", "title", "synopsis"],
+        populate: { poster: { fields: MEDIA_FIELDS } },
+        limit: documentIds.length,
+      } as never),
+      genreIds.length > 0
+        ? strapi.documents(GENRE_UID).findMany({
+            locale: requested,
+            filters: { documentId: { $in: genreIds } },
+            fields: ["documentId", "name"],
+            limit: genreIds.length,
+          } as never)
+        : Promise.resolve([]),
+    ])
+
+    return overlayGenreNames(
+      overlayLocalizedFields(
+        items,
+        localizedRows as unknown as Row[],
+        requested
+      ),
+      genreRows as unknown as Row[]
+    )
+  }
+
   return {
     resolveLocale,
 
@@ -449,7 +563,7 @@ const shortFilmsService = ({ strapi }: { strapi: Core.Strapi }) => {
      */
     async list(query: ShortFilmListQuery): Promise<ShortFilmListResult> {
       const { page, pageSize, sort, genre } = query
-      const { defaultLocale } = await resolveLocale(query.locale)
+      const { requested, defaultLocale } = await resolveLocale(query.locale)
 
       const filters = {
         type: SHORT_FILM_TYPE,
@@ -473,7 +587,11 @@ const shortFilmsService = ({ strapi }: { strapi: Core.Strapi }) => {
         } as never),
       ])
 
-      const data = (rows as unknown as Row[]).map(toShortFilmSummary)
+      const data = await localize(
+        (rows as unknown as Row[]).map(toShortFilmSummary),
+        requested,
+        defaultLocale
+      )
 
       return {
         data,
@@ -498,7 +616,7 @@ const shortFilmsService = ({ strapi }: { strapi: Core.Strapi }) => {
       slug: string,
       locale?: string
     ): Promise<ShortFilmDetail | null> {
-      const { defaultLocale } = await resolveLocale(locale)
+      const { requested, defaultLocale } = await resolveLocale(locale)
 
       const row = await strapi.documents(CREATIVE_WORK_UID).findFirst({
         status: "published",
@@ -507,7 +625,14 @@ const shortFilmsService = ({ strapi }: { strapi: Core.Strapi }) => {
         populate: DETAIL_POPULATE,
       } as never)
 
-      return row ? toShortFilmDetail(row as unknown as Row) : null
+      if (!row) return null
+
+      const [detail] = await localize(
+        [toShortFilmDetail(row as unknown as Row)],
+        requested,
+        defaultLocale
+      )
+      return detail
     },
   }
 }
