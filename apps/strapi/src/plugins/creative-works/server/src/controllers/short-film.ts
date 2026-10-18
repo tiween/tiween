@@ -16,6 +16,7 @@ import type { Core } from "@strapi/strapi"
 import { validate } from "../../../../../shared/validation"
 import {
   shortFilmDetailQuerySchema,
+  shortFilmFeaturedQuerySchema,
   shortFilmListQuerySchema,
   shortFilmSlugParamSchema,
 } from "../validation/short-films"
@@ -72,6 +73,20 @@ const shortFilmController = ({ strapi }: { strapi: Core.Strapi }) => {
         const query = validate(shortFilmListQuerySchema, ctx.query ?? {})
         const { data, meta } = await service().list(query)
         ctx.body = { data, meta }
+      } catch (err) {
+        respondError(strapi, ctx, err)
+      }
+    },
+
+    /** `GET /creative-works/short-films/featured` */
+    async featured(ctx: any) {
+      try {
+        const { locale } = validate(
+          shortFilmFeaturedQuerySchema,
+          ctx.query ?? {}
+        )
+        const data = await service().featured(locale)
+        ctx.body = { data }
       } catch (err) {
         respondError(strapi, ctx, err)
       }

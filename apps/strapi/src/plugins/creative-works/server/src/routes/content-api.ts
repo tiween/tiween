@@ -37,8 +37,18 @@ export default {
         auth: false,
       },
     },
-    // Detail by slug: keep it the LAST short-films route (01-04 inserts
-    // `featured` and `:slug/related` above it so `:slug` cannot swallow them).
+    // `featured` MUST stay above `:slug`, or `:slug` captures "featured"
+    // (research Pitfall 12). Order: list, featured, :slug/related, :slug.
+    {
+      method: "GET",
+      path: "/creative-works/short-films/featured",
+      handler: "short-film.featured",
+      config: {
+        policies: [],
+        auth: false,
+      },
+    },
+    // Detail by slug: keep it the LAST short-films route.
     {
       method: "GET",
       path: "/creative-works/short-films/:slug",

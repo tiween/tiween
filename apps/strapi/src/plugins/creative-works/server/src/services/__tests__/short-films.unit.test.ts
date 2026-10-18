@@ -6,6 +6,7 @@
 import {
   overlayGenreNames,
   overlayLocalizedFields,
+  sortFeatured,
   toPublicMedia,
   toShortFilmDetail,
   toShortFilmSummary,
@@ -372,5 +373,71 @@ describe("overlayGenreNames", () => {
       { documentId: "g-drame", slug: "drame", name: "دراما" },
       { documentId: "g-comedie", slug: "comedie", name: "Comedie" },
     ])
+  })
+})
+
+describe("sortFeatured", () => {
+  const row = (
+    id: number,
+    featuredRank: unknown,
+    publishedAt: string | Date | null
+  ) => ({ id, featuredRank, publishedAt })
+
+  it("orders by featuredRank ascending", () => {
+    const sorted = sortFeatured([
+      row(1, 3, "2026-01-01T00:00:00.000Z"),
+      row(2, 1, "2026-01-01T00:00:00.000Z"),
+      row(3, 2, "2026-01-01T00:00:00.000Z"),
+    ])
+
+    expect(sorted.map((r) => r.id)).toEqual([2, 3, 1])
+  })
+
+  it("puts null, undefined and unparsable ranks after every ranked film", () => {
+    const sorted = sortFeatured([
+      row(1, null, "2026-09-01T00:00:00.000Z"),
+      row(2, undefined, "2026-08-01T00:00:00.000Z"),
+      row(3, 5, "2026-01-01T00:00:00.000Z"),
+      row(4, "oops", "2026-07-01T00:00:00.000Z"),
+    ])
+
+    expect(sorted.map((r) => r.id)).toEqual([3, 1, 2, 4])
+  })
+
+  it("reads a pg string rank as a number", () => {
+    const sorted = sortFeatured([
+      row(1, "10", "2026-01-01T00:00:00.000Z"),
+      row(2, "2", "2026-01-01T00:00:00.000Z"),
+    ])
+
+    expect(sorted.map((r) => r.id)).toEqual([2, 1])
+  })
+
+  it("breaks an equal rank by publishedAt descending", () => {
+    const sorted = sortFeatured([
+      row(1, 2, "2026-01-01T00:00:00.000Z"),
+      row(2, 2, new Date("2026-02-01T00:00:00.000Z")),
+    ])
+
+    expect(sorted.map((r) => r.id)).toEqual([2, 1])
+  })
+
+  it("breaks an equal rank and publishedAt by id descending", () => {
+    const sorted = sortFeatured([
+      row(4, 1, "2026-01-01T00:00:00.000Z"),
+      row(9, 1, "2026-01-01T00:00:00.000Z"),
+      row(7, 1, "2026-01-01T00:00:00.000Z"),
+    ])
+
+    expect(sorted.map((r) => r.id)).toEqual([9, 7, 4])
+  })
+
+  it("returns [] for an empty input and never mutates it", () => {
+    expect(sortFeatured([])).toEqual([])
+
+    const input = [row(1, 2, null), row(2, 1, null)]
+    const snapshot = JSON.stringify(input)
+    sortFeatured(input)
+    expect(JSON.stringify(input)).toBe(snapshot)
   })
 })

@@ -34,6 +34,13 @@ const SHORT_FILM_TYPE = "short-film"
 
 export const UNSUPPORTED_LOCALE = "UNSUPPORTED_LOCALE"
 
+/** Featured rail size (D-05). */
+export const FEATURED_LIMIT = 12
+/** Related rail size (D-08). */
+export const RELATED_LIMIT = 6
+/** Safety cap on rows fetched before the JavaScript featured ordering. */
+const FEATURED_FETCH_CAP = 100
+
 /** Media columns read from the upload plugin; provider internals are excluded. */
 const MEDIA_FIELDS = [
   "url",
@@ -483,6 +490,37 @@ export function overlayGenreNames<T extends ShortFilmSummary>(
   }))
 }
 
+function toTimestamp(value: unknown): number {
+  if (value instanceof Date) return value.getTime()
+  if (typeof value === "string") {
+    const t = Date.parse(value)
+    return Number.isNaN(t) ? 0 : t
+  }
+  return 0
+}
+
+/**
+ * Featured order (D-05): `featuredRank` ascending with unranked films last,
+ * then `publishedAt` descending, then numeric `id` descending. Computed in
+ * JavaScript on purpose: SQLite sorts NULLs first and Postgres last in an
+ * ascending sort, so a database `featuredRank:asc` would differ per engine
+ * (research Pattern 5). Returns a new array; the input is never mutated.
+ */
+export function sortFeatured<T extends Row>(rows: T[]): T[] {
+  return rows.slice().sort((a, b) => {
+    const rankA = toNumberOrNull(a?.featuredRank)
+    const rankB = toNumberOrNull(b?.featuredRank)
+    if (rankA !== rankB) {
+      if (rankA === null) return 1
+      if (rankB === null) return -1
+      return rankA - rankB
+    }
+    const published = toTimestamp(b?.publishedAt) - toTimestamp(a?.publishedAt)
+    if (published !== 0) return published
+    return (toNumberOrNull(b?.id) ?? 0) - (toNumberOrNull(a?.id) ?? 0)
+  })
+}
+
 function pageCountOf(total: number, pageSize: number): number {
   return pageSize > 0 ? Math.ceil(total / pageSize) : 0
 }
@@ -614,6 +652,33 @@ const shortFilmsService = ({ strapi }: { strapi: Core.Strapi }) => {
           },
         },
       }
+    },
+
+    /**
+     * Published, featured short films in the D-05 order, capped at
+     * FEATURED_LIMIT. A featured draft never appears: the default-locale row
+     * must be published. At most FEATURED_FETCH_CAP (newest first) rows are
+     * fetched, then ordered in JavaScript by `sortFeatured`.
+     */
+    async featured(locale?: string): Promise<ShortFilmSummary[]> {
+      const { requested, defaultLocale } = await resolveLocale(locale)
+
+      const rows = await strapi.documents(CREATIVE_WORK_UID).findMany({
+        status: "published",
+        locale: defaultLocale,
+        filters: { type: SHORT_FILM_TYPE, featured: true },
+        sort: ["publishedAt:desc", "id:desc"],
+        populate: SUMMARY_POPULATE,
+        limit: FEATURED_FETCH_CAP,
+      } as never)
+
+      return localize(
+        sortFeatured(rows as unknown as Row[])
+          .slice(0, FEATURED_LIMIT)
+          .map(toShortFilmSummary),
+        requested,
+        defaultLocale
+      )
     },
 
     /**

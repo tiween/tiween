@@ -536,3 +536,72 @@ describe("locale fallback (integration)", () => {
     }
   })
 })
+
+describe("GET short-films/featured (integration)", () => {
+  const FEATURED = `${LIST}/featured`
+
+  it("orders by rank, then newest, with unranked films last", async () => {
+    const res = await api().get(FEATURED)
+
+    expect(res.status).toBe(200)
+    expect(Array.isArray(res.body.data)).toBe(true)
+    // charlie rank 1; bravo and alpha share rank 2 (bravo is newer); echo unranked
+    expect(slugsOf(res)).toEqual([S.charlie, S.bravo, S.alpha, S.echo])
+  })
+
+  it("never serves a featured draft or a non-featured film", async () => {
+    const res = await api().get(FEATURED)
+    const slugs = slugsOf(res)
+
+    expect(slugs).not.toContain(S.deltaDraft)
+    expect(slugs).not.toContain(S.foxtrot)
+    expect(slugs).not.toContain(S.golf)
+    expect(slugs).not.toContain(S.film)
+  })
+
+  it("answers the summary shape with no internal keys", async () => {
+    const res = await api().get(FEATURED)
+
+    for (const item of res.body.data) {
+      expect(Object.keys(item).sort()).toEqual(SUMMARY_KEYS)
+    }
+    const keys = collectKeys(res.body)
+    for (const forbidden of FORBIDDEN_KEYS) {
+      expect(keys.has(forbidden)).toBe(false)
+    }
+  })
+
+  it("applies the locale overlay with locale=ar", async () => {
+    const res = await api().get(FEATURED).query({ locale: "ar" })
+
+    expect(res.status).toBe(200)
+    const alpha = res.body.data.find((i: any) => i.slug === S.alpha)
+    expect(alpha.title).toBe(ALPHA_AR_TITLE)
+    expect(alpha.locale).toBe("ar")
+    const bravo = res.body.data.find((i: any) => i.slug === S.bravo)
+    expect(bravo.locale).toBe("fr")
+    expect(slugsOf(res)).toEqual([S.charlie, S.bravo, S.alpha, S.echo])
+  })
+
+  it("answers 400 VALIDATION_FAILED for an unknown query key", async () => {
+    const res = await api().get(FEATURED).query({ foo: "1" })
+
+    expect(res.status).toBe(400)
+    expect(res.body.error.details.code).toBe("VALIDATION_FAILED")
+  })
+
+  it("answers 400 UNSUPPORTED_LOCALE for an unlisted locale", async () => {
+    const res = await api().get(FEATURED).query({ locale: "de" })
+
+    expect(res.status).toBe(400)
+    expect(res.body.error.details.code).toBe("UNSUPPORTED_LOCALE")
+  })
+
+  it("is not captured by the :slug detail route", async () => {
+    const res = await api().get(FEATURED)
+
+    expect(res.status).toBe(200)
+    expect(Array.isArray(res.body.data)).toBe(true)
+    expect(res.body.error).toBeUndefined()
+  })
+})

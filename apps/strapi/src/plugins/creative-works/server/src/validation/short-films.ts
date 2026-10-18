@@ -61,6 +61,13 @@ export const shortFilmDetailQuerySchema = z
   })
   .strict()
 
+/** `GET /short-films/featured` — only `locale` is accepted (D-05). */
+export const shortFilmFeaturedQuerySchema = z
+  .object({
+    locale: localeSchema.optional(),
+  })
+  .strict()
+
 /** The `:slug` route param: URL-safe unreserved characters only. */
 export const shortFilmSlugParamSchema = z.object({
   slug: z
@@ -72,3 +79,6 @@ export const shortFilmSlugParamSchema = z.object({
 
 export type ShortFilmListQuery = z.infer<typeof shortFilmListQuerySchema>
 export type ShortFilmDetailQuery = z.infer<typeof shortFilmDetailQuerySchema>
+export type ShortFilmFeaturedQuery = z.infer<
+  typeof shortFilmFeaturedQuerySchema
+>
