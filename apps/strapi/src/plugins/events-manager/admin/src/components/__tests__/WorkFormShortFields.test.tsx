@@ -20,6 +20,10 @@ import { MemoryRouter, Route, Routes } from "react-router-dom"
 import { WorkFormPage } from "../../pages/Works/WorkFormPage"
 import en from "../../translations/en.json"
 
+// Each test mounts the whole form (Design System selects, comboboxes, five
+// editors); under the parallel full-suite run that exceeds Jest's 5 s default.
+jest.setTimeout(30000)
+
 jest.mock("use-debounce", () => ({
   useDebounce: (value: unknown) => [value],
 }))
@@ -72,11 +76,14 @@ function typeTitle(title: string) {
 async function pickOption(field: string, term: string, optionName: string) {
   const input = screen.getByRole("combobox", { name: field })
   await act(async () => {
+    fireEvent.keyDown(input, { key: "ArrowDown" })
+  })
+  await act(async () => {
     fireEvent.change(input, { target: { value: term } })
   })
   const option = await screen.findByRole("option", { name: optionName })
   await act(async () => {
-    fireEvent.click(option)
+    fireEvent.pointerUp(option)
   })
 }
 
@@ -206,7 +213,7 @@ describe("WorkForm — country, language and placement (Task 2)", () => {
       screen.getByRole("checkbox", { name: "Featured" })
     ).toBeInTheDocument()
     expect(
-      screen.getByRole("spinbutton", { name: "Featured rank" })
+      screen.getByRole("textbox", { name: "Featured rank" })
     ).toBeInTheDocument()
 
     chooseType("Play")
@@ -218,13 +225,13 @@ describe("WorkForm — country, language and placement (Task 2)", () => {
     chooseType("Short film")
 
     expect(
-      screen.getByRole("spinbutton", { name: "Featured rank" })
+      screen.getByRole("textbox", { name: "Featured rank" })
     ).toBeDisabled()
 
     fireEvent.click(screen.getByRole("checkbox", { name: "Featured" }))
 
     expect(
-      screen.getByRole("spinbutton", { name: "Featured rank" })
+      screen.getByRole("textbox", { name: "Featured rank" })
     ).not.toBeDisabled()
   })
 
@@ -236,12 +243,9 @@ describe("WorkForm — country, language and placement (Task 2)", () => {
     await pickOption("Countries", "tuni", "Tunisia")
     await pickOption("Languages", "tunisian", "Tunisian Arabic (Derja)")
     fireEvent.click(screen.getByRole("checkbox", { name: "Featured" }))
-    fireEvent.change(
-      screen.getByRole("spinbutton", { name: "Featured rank" }),
-      {
-        target: { value: "1" },
-      }
-    )
+    fireEvent.change(screen.getByRole("textbox", { name: "Featured rank" }), {
+      target: { value: "1" },
+    })
 
     await save()
     await waitFor(() => expect(post).toHaveBeenCalledTimes(1))

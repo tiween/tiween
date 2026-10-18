@@ -20,6 +20,7 @@ import {
   SingleSelectOption,
   Textarea,
   TextInput,
+  Toggle,
   Typography,
 } from "@strapi/design-system"
 import { PaperPlane, Play, Stack } from "@strapi/icons"
@@ -38,6 +39,7 @@ import { LinksEditor } from "../Catalog/LinksEditor"
 import { AGE_RATINGS, WORK_TYPES } from "../Catalog/options"
 import { MediaInput } from "../MediaInput"
 import { CastEditor } from "./CastEditor"
+import { CountryLanguageFields } from "./CountryLanguageFields"
 import { CreditsEditor } from "./CreditsEditor"
 import { DistinctionsEditor } from "./DistinctionsEditor"
 import { DEFAULT_WORK_VALUES, workFormSchema } from "./schema"
@@ -109,6 +111,7 @@ export function WorkForm({
   const workType = watch("type")
   const isPlay = workType === "play"
   const isShort = workType === "short-film"
+  const featured = watch("featured")
   const isCinema = !isPlay
 
   const typeIcon = (type: WorkType) => (type === "play" ? <Stack /> : <Play />)
@@ -348,6 +351,12 @@ export function WorkForm({
               </Field.Root>
             </Grid.Item>
 
+            <Grid.Item col={12} alignItems="flex-start">
+              <Box width="100%">
+                <CountryLanguageFields control={control} />
+              </Box>
+            </Grid.Item>
+
             <Grid.Item col={8} s={12} alignItems="flex-start">
               <Field.Root width="100%">
                 <Field.Label>{t("workForm.genres", "Genres")}</Field.Label>
@@ -437,6 +446,69 @@ export function WorkForm({
             )}
           >
             <StreamingLinksEditor control={control} />
+          </FormSection>
+        )}
+
+        {isShort && (
+          <FormSection
+            title={t("workForm.placementSection", "Directory placement")}
+            hint={t(
+              "workForm.placementHint",
+              "Featured films appear in the shorts hero, lowest rank first; unranked featured films follow, newest first."
+            )}
+          >
+            <Grid.Root gap={4}>
+              <Grid.Item col={4} s={6} alignItems="flex-start">
+                <Controller
+                  control={control}
+                  name="featured"
+                  render={({ field }) => (
+                    <Field.Root>
+                      <Field.Label>
+                        {t("workForm.featured", "Featured")}
+                      </Field.Label>
+                      <Toggle
+                        onLabel={t("common.yes", "Yes")}
+                        offLabel={t("common.no", "No")}
+                        checked={field.value}
+                        onChange={(
+                          event: React.ChangeEvent<HTMLInputElement>
+                        ) => field.onChange(event.target.checked)}
+                      />
+                    </Field.Root>
+                  )}
+                />
+              </Grid.Item>
+              <Grid.Item col={4} s={6} alignItems="flex-start">
+                <Controller
+                  control={control}
+                  name="featuredRank"
+                  render={({ field }) => (
+                    <Field.Root
+                      width="100%"
+                      error={
+                        errors.featuredRank
+                          ? t(
+                              "workForm.featuredRankInvalid",
+                              "The rank must be a whole number, 1 or more"
+                            )
+                          : undefined
+                      }
+                    >
+                      <Field.Label>
+                        {t("workForm.featuredRank", "Featured rank")}
+                      </Field.Label>
+                      <NumberInput
+                        value={field.value ?? undefined}
+                        onValueChange={(value) => field.onChange(value ?? null)}
+                        disabled={!featured}
+                      />
+                      <Field.Error />
+                    </Field.Root>
+                  )}
+                />
+              </Grid.Item>
+            </Grid.Root>
           </FormSection>
         )}
 

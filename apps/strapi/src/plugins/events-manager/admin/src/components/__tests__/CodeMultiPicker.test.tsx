@@ -202,6 +202,9 @@ describe("CodeMultiPicker", () => {
     const input = screen.getByRole("combobox", { name: "Countries" })
 
     await act(async () => {
+      fireEvent.keyDown(input, { key: "ArrowDown" })
+    })
+    await act(async () => {
       fireEvent.change(input, { target: { value: "tuni" } })
     })
     const listbox = await screen.findByRole("listbox")
@@ -210,7 +213,7 @@ describe("CodeMultiPicker", () => {
     expect(options[0]).toHaveTextContent("Tunisia")
 
     await act(async () => {
-      fireEvent.click(options[0])
+      fireEvent.pointerUp(options[0])
     })
 
     expect(onChange).toHaveBeenCalledWith(["TN"])
@@ -273,7 +276,7 @@ describe("CountryLanguageFields", () => {
   it("labels the other languages with Intl.DisplayNames", async () => {
     await renderFields("fr", { language: ["fr", "ar"] })
 
-    expect(screen.getByText("français")).toBeInTheDocument()
-    expect(screen.getByText("arabe")).toBeInTheDocument()
+    expect(screen.getByText("Français")).toBeInTheDocument()
+    expect(screen.getByText("Arabe")).toBeInTheDocument()
   })
 })

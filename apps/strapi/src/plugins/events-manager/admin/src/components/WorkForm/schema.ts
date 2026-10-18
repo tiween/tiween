@@ -14,6 +14,8 @@ import type { MediaAsset } from "../MediaInput"
 // the importer, so the picker vocabularies cannot drift from what the server
 // accepts. Six `../` climb from WorkForm/ to `src/`.
 import {
+  countryCodesSchema,
+  languageCodesSchema,
   STREAMING_ACCESS_TYPES,
   STREAMING_PLATFORMS,
 } from "../../../../../../shared/short-film-rules"
@@ -196,6 +198,23 @@ export const streamingLinkFormSchema = z.object({
   label: z.string(),
 })
 
+/**
+ * A list of codes checked by one of the shared validators. The array type is
+ * kept (the shared schemas also accept null/undefined, which the form never
+ * holds) and the validator's single INVALID_*_CODES message is surfaced as the
+ * issue message.
+ */
+function codeListSchema(validator: z.ZodTypeAny) {
+  return z.array(z.string()).superRefine((codes, ctx) => {
+    const result = validator.safeParse(codes)
+    if (!result.success) {
+      for (const issue of result.error.issues) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: issue.message })
+      }
+    }
+  })
+}
+
 export const workFormSchema = z.object({
   title: z.string().trim().min(1),
   originalTitle: z.string(),
@@ -216,6 +235,12 @@ export const workFormSchema = z.object({
   links: z.array(linkFormSchema),
   videos: z.array(videoFormSchema),
   streamingLinks: z.array(streamingLinkFormSchema),
+  // The shared validators carry one stable INVALID_*_CODES message each; the
+  // server guard (01-06) re-validates the same lists on every write.
+  country: codeListSchema(countryCodesSchema),
+  language: codeListSchema(languageCodesSchema),
+  featured: z.boolean(),
+  featuredRank: z.number().int().min(1).nullable(),
   poster: mediaAssetSchema.nullable(),
   backdrop: mediaAssetSchema.nullable(),
   photos: z.array(mediaAssetSchema),
@@ -315,6 +340,10 @@ export const DEFAULT_WORK_VALUES: WorkFormValues = {
   links: [],
   videos: [],
   streamingLinks: [],
+  country: [],
+  language: [],
+  featured: false,
+  featuredRank: null,
   poster: null,
   backdrop: null,
   photos: [],
@@ -422,6 +451,10 @@ export function workToFormValues(work: CreativeWork): WorkFormValues {
         label: label ?? "",
       })
     ),
+    country: work.country ?? [],
+    language: work.language ?? [],
+    featured: work.featured ?? false,
+    featuredRank: work.featuredRank ?? null,
     poster: work.poster ?? null,
     backdrop: work.backdrop ?? null,
     photos: work.photos ?? [],
@@ -510,6 +543,11 @@ export function workToApiPayload(
       accessType: link.accessType,
       label: orNull(link.label),
     })),
+    country: values.country,
+    language: values.language,
+    featured: values.featured,
+    // A rank only means something on a featured work; never persist a stale one.
+    featuredRank: values.featured ? values.featuredRank : null,
     poster: values.poster?.id ?? null,
     backdrop: values.backdrop?.id ?? null,
     photos: values.photos.map((photo) => photo.id),
