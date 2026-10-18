@@ -213,4 +213,46 @@ describe("venue-events controller happy paths (unit)", () => {
       "fr"
     )
   })
+
+  it("creates a play creative work with 201", async () => {
+    const service = {
+      createCreativeWork: jest.fn(async () => ({ documentId: "work-10" })),
+    }
+    const strapi = buildStrapi(service)
+    const controller = venueEventsController({ strapi })
+    const ctx = buildCtx({
+      request: { body: { title: "Antigone", type: "play" } },
+      query: { locale: "fr" },
+    })
+
+    await controller.createCreativeWork(ctx)
+
+    expect(ctx.status).toBe(201)
+    expect(ctx.body).toEqual({ data: { documentId: "work-10" } })
+    expect(service.createCreativeWork).toHaveBeenCalledWith(
+      { id: 42 },
+      { title: "Antigone", type: "play" },
+      "fr"
+    )
+  })
+
+  it("refuses a short-film create with 400 before the service runs", async () => {
+    const service = { createCreativeWork: jest.fn() }
+    const strapi = buildStrapi(service)
+    const controller = venueEventsController({ strapi })
+    const ctx = buildCtx({
+      request: { body: { title: "Khalaa", type: "short-film" } },
+      query: { locale: "fr" },
+    })
+
+    await controller.createCreativeWork(ctx)
+
+    expect(ctx.status).toBe(400)
+    expect(ctx.body.error.details.code).toBe("VALIDATION_FAILED")
+    expect(ctx.body.error.details.issues).toContainEqual({
+      path: "type",
+      message: "WORK_TYPE_INVALID",
+    })
+    expect(service.createCreativeWork).not.toHaveBeenCalled()
+  })
 })
