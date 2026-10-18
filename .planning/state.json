@@ -6,7 +6,7 @@
     {
       "number": "1",
       "name": "Short-Film Catalog Backend",
-      "status": "pending"
+      "status": "in_progress"
     },
     {
       "number": "2",
@@ -39,5 +39,5 @@
     "label": "Advance to the next step",
     "reason": "Phase 1 of 6 · executing"
   },
-  "updated_at": "2026-10-18T16:31:17.710Z"
+  "updated_at": "2026-10-18T16:56:29.609Z"
 }

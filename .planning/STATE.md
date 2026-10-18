@@ -5,16 +5,16 @@ milestone_name: Shorts Directory
 current_phase: 1
 current_phase_name: Short-Film Catalog Backend
 status: executing
-stopped_at: Completed 01-01-PLAN.md
-last_updated: "2026-10-18T16:31:20.299Z"
+stopped_at: Completed 01-02-PLAN.md
+last_updated: "2026-10-18T16:56:33.843Z"
 last_activity: 2026-10-18
 last_activity_desc: Phase 1 execution started
-state_head: 5d620742e8b7c90444e0ae89092eab674fe44c49
+state_head: 6356e140d51e0f877b8e26ece556c7f7f5be7078
 progress:
   total_phases: 6
   completed_phases: 0
   total_plans: 14
-  completed_plans: 1
+  completed_plans: 2
 ---
 
 # Project State
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-10-18)
 ## Current Position
 
 Phase: 1 (Short-Film Catalog Backend) — EXECUTING
-Plan: 2 of 14
+Plan: 3 of 14
 Status: Ready to execute
 Last activity: 2026-10-18 — Phase 1 execution started
 
@@ -57,9 +57,10 @@ Progress: [░░░░░░░░░░] 0%
 _Updated after each plan completion_
 **Per-Plan Metrics:**
 
-| Plan         | Duration | Tasks   | Files   |
-| ------------ | -------- | ------- | ------- |
-| Phase 01 P01 | 22 min   | 2 tasks | 1 files |
+| Plan         | Duration | Tasks   | Files    |
+| ------------ | -------- | ------- | -------- |
+| Phase 01 P01 | 22 min   | 2 tasks | 1 files  |
+| Phase 01 P02 | 20 min   | 2 tasks | 10 files |
 
 ## Accumulated Context
 
@@ -74,6 +75,8 @@ Decisions are logged in PROJECT.md (Locked Decisions and Key Decisions table). R
 - [Process]: Main-only commits, no PRs; `design_handoff_tiween/` is inert per the kernel (not read)
 - [Phase 01]: [01-01] One shared resettable document middleware per boot test file (strapi.documents.use cannot be unregistered)
 - [Phase 01]: [01-01] Spike verdicts A1,A2,A3,A4,A5,A13 all confirmed on SQLite: middleware guard viable (also inspect create/update status published), republish re-stamps publishedAt (skip-if-unchanged mandatory), PUT ?locale= creates locale rows (locale tabs viable, D-22 fallback unneeded), localized relations and uid slug are not shared across locale rows (overlay from default-locale row)
+- [Phase 01]: 01-02: country/language stored as JSON arrays validated by shared Zod schemas (additive schema, extensible lists) — Keeps the DB delta additive on an auto-deploying main; lists grow without a migration
+- [Phase 01]: 01-02: evaluateShortFilmPublishRules throws SKIP_NOT_ALLOWED for any skip code other than POSTER_REQUIRED — The D-20 bypass cannot widen; DIRECTOR_UNPUBLISHED only runs when publishedPersonIds is supplied
 
 ### Pending Todos
 
@@ -99,6 +102,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-10-18T16:31:20.211Z
-Stopped at: Completed 01-01-PLAN.md
+Last session: 2026-10-18T16:56:33.705Z
+Stopped at: Completed 01-02-PLAN.md
 Resume file: None
