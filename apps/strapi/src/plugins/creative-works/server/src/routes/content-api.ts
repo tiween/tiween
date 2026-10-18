@@ -25,6 +25,18 @@ export default {
         policies: [],
       },
     },
+    // Public short-film directory (SDATA-03). `auth: false` — NEVER `auth: true`
+    // (boot fails with `Invalid route config`). Real URL:
+    // /api/creative-works/creative-works/short-films
+    {
+      method: "GET",
+      path: "/creative-works/short-films",
+      handler: "short-film.list",
+      config: {
+        policies: [],
+        auth: false,
+      },
+    },
     {
       method: "GET",
       path: "/persons/search",
