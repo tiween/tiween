@@ -41,6 +41,16 @@ export const CREATIVE_WORK_TYPES = ["film", "play", "short-film"] as const
 
 export type CreativeWorkTypeInput = (typeof CREATIVE_WORK_TYPES)[number]
 
+/**
+ * The work types a venue manager may CREATE. Short films are admin-curated
+ * (D-21): the venue create-and-publish flow cannot satisfy the D-19 short-film
+ * publish rules (poster, directing credit, watch source). Scheduling existing
+ * short films keeps using the full {@link CREATIVE_WORK_TYPES} list.
+ */
+export const VENUE_CREATABLE_WORK_TYPES = ["film", "play"] as const
+
+export type VenueCreatableWorkType = (typeof VENUE_CREATABLE_WORK_TYPES)[number]
+
 /** Upper bound on showtimes per event — generous, but bounded. */
 export const MAX_SHOWTIMES = 100
 
@@ -151,7 +161,7 @@ export const venueWorkCreateSchema = z.object({
     .trim()
     .min(1, "WORK_TITLE_REQUIRED")
     .max(200, "WORK_TITLE_TOO_LONG"),
-  type: z.enum(CREATIVE_WORK_TYPES, {
+  type: z.enum(VENUE_CREATABLE_WORK_TYPES, {
     errorMap: () => ({ message: "WORK_TYPE_INVALID" }),
   }),
   synopsis: optionalText(5000, "WORK_SYNOPSIS_TOO_LONG"),
@@ -173,7 +183,7 @@ export const venueWorkCreateSchema = z.object({
 /** See {@link VenueShowtimeInput} for why this is not `z.infer`. */
 export interface VenueWorkCreateInput {
   title: string
-  type: CreativeWorkTypeInput
+  type: VenueCreatableWorkType
   synopsis?: string
   duration?: number
   releaseYear?: number
