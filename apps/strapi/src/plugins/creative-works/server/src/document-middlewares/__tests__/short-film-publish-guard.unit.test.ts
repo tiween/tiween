@@ -389,6 +389,66 @@ describe("createShortFilmPublishGuard: writes with status published", () => {
     })
   })
 
+  it("falls back to the requested locale when the default-locale draft is missing", async () => {
+    const { strapi, workDocuments } = makeStrapi()
+    workDocuments.findOne.mockImplementation(
+      async (params: Record<string, unknown>) => {
+        if (params.status === "published")
+          return { documentId: "doc-1", published: true }
+        return params.locale === "ar" ? completeShort() : null
+      }
+    )
+    const next = jest.fn(async () => ({ documentId: "doc-1" }))
+    const context = {
+      uid: CW,
+      action: "update",
+      params: {
+        documentId: "doc-1",
+        locale: "ar",
+        status: "published",
+        data: { title: "x" },
+      },
+    }
+
+    await run(createShortFilmPublishGuard(strapi), context, next)
+
+    expect(context.params.status).toBeUndefined()
+    expect(workDocuments.publish).toHaveBeenCalledWith({
+      documentId: "doc-1",
+      locale: "ar",
+    })
+  })
+
+  it("fails closed: an update whose type cannot be read in any locale takes the guarded publish path", async () => {
+    const { strapi, workDocuments } = makeStrapi()
+    workDocuments.findOne.mockImplementation(
+      async (params: Record<string, unknown>) =>
+        params.status === "published"
+          ? { documentId: "doc-1", published: true }
+          : null
+    )
+    const next = jest.fn(async () => ({ documentId: "doc-1" }))
+    const context = {
+      uid: CW,
+      action: "update",
+      params: {
+        documentId: "doc-1",
+        locale: "ar",
+        status: "published",
+        data: { title: "x" },
+      },
+    }
+
+    await run(createShortFilmPublishGuard(strapi), context, next)
+
+    expect(context.params.status).toBeUndefined()
+    expect(next).toHaveBeenCalledTimes(1)
+    expect(workDocuments.publish).toHaveBeenCalledWith({
+      documentId: "doc-1",
+      locale: "ar",
+    })
+  })
+
   it("lets a blocked publish error escape and keeps the draft write", async () => {
     const { strapi, workDocuments } = makeStrapi()
     const blocked = new Error("blocked")

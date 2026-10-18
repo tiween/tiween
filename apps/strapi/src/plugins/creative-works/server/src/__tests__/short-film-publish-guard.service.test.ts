@@ -416,6 +416,27 @@ describe("publish paths other than a single content-manager publish", () => {
     expect(await publishedRows(documentId)).toHaveLength(0)
   })
 
+  it("rejects update({ status: 'published' }) of an incomplete short film that exists only in a non-default locale", async () => {
+    // No `fr` row: the type lookup must not fail open when the default
+    // locale has nothing to read.
+    const doc: any = await strapi.documents(CW).create({
+      data: { title: uniq("aronly"), type: "short-film" } as any,
+      locale: "ar",
+    } as any)
+
+    await expect(
+      strapi.documents(CW).update({
+        documentId: doc.documentId,
+        locale: "ar",
+        data: { title: "renamed" } as any,
+        status: "published",
+      } as any)
+    ).rejects.toMatchObject({
+      details: { code: "SHORT_FILM_PUBLISH_BLOCKED" },
+    })
+    expect(await publishedRows(doc.documentId)).toHaveLength(0)
+  })
+
   it("keeps a blocked short film unpublished on content-manager bulk publish", async () => {
     const blocked = await createDraft(completeShortData("bulkblocked"))
     const complete = await createPublishableDraft("bulkcomplete")

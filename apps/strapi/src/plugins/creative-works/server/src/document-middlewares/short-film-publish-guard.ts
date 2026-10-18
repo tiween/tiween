@@ -32,6 +32,9 @@ interface DocumentContext {
 
 type Next = () => Promise<unknown>
 
+/** An update whose existing work type could not be read in any locale. */
+const UNRESOLVED = Symbol("unresolved-work-type")
+
 /** The Document Service middleware signature `strapi.documents.use` accepts. */
 type DocumentMiddleware = Parameters<Core.Strapi["documents"]["use"]>[0]
 
@@ -160,30 +163,46 @@ export function createShortFilmPublishGuard(
     }
   }
 
-  /** The work type a create/update will leave behind (short-film or not). */
+  /**
+   * The work type a create/update will leave behind. `UNRESOLVED` means an
+   * update whose existing type could not be read in the default or the
+   * requested locale: the caller fails closed and routes it through the
+   * guarded publish path instead of letting it publish unchecked.
+   */
   async function resolveWriteType(
     context: DocumentContext
-  ): Promise<string | undefined> {
+  ): Promise<string | undefined | typeof UNRESOLVED> {
     const fromData = context.params.data?.type
     if (typeof fromData === "string") return fromData
+    // `type` is required with no default: a create without it is no short.
     if (context.action !== "update") return undefined
 
     const documentId = context.params.documentId
-    if (typeof documentId !== "string") return undefined
-    const existing = await documents().findOne({
-      documentId,
+    if (typeof documentId !== "string") return UNRESOLVED
+    const base = { documentId, status: "draft", fields: ["type"] }
+    let existing = await documents().findOne({
+      ...base,
       locale: await defaultLocale(),
-      status: "draft",
-      fields: ["type"],
     })
-    return existing?.type
+    const requestedLocale = context.params.locale
+    if (
+      !existing &&
+      typeof requestedLocale === "string" &&
+      requestedLocale !== "*"
+    ) {
+      existing = await documents().findOne({ ...base, locale: requestedLocale })
+    }
+    return typeof existing?.type === "string" ? existing.type : UNRESOLVED
   }
 
   async function guardWrite(context: DocumentContext, next: Next) {
     validateCodes(context.params.data)
 
     if (context.params.status !== "published") return next()
-    if ((await resolveWriteType(context)) !== "short-film") return next()
+    const type = await resolveWriteType(context)
+    // UNRESOLVED falls through to the guarded path: `publish` re-reads the
+    // written draft and enforces the rules only when it is a short film.
+    if (type !== UNRESOLVED && type !== "short-film") return next()
 
     // Draft write first (a block keeps the draft: draft saves stay
     // permissive), then publish through the Document Service so the
