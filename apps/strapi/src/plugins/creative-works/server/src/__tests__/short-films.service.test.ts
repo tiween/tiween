@@ -605,3 +605,109 @@ describe("GET short-films/featured (integration)", () => {
     expect(res.body.error).toBeUndefined()
   })
 })
+
+describe("GET short-films/:slug/related (integration)", () => {
+  const related = (slug: string) => `${LIST}/${slug}/related`
+
+  it("serves director matches first, then genre matches, newest first", async () => {
+    const res = await api().get(related(S.alpha))
+
+    expect(res.status).toBe(200)
+    // charlie: same director (person-one) and same genre; foxtrot: genre only
+    expect(slugsOf(res)).toEqual([S.charlie, S.foxtrot])
+  })
+
+  it("lists a film matching by director and by genre exactly once", async () => {
+    const res = await api().get(related(S.alpha))
+    const slugs = slugsOf(res)
+
+    expect(slugs.filter((slug: string) => slug === S.charlie)).toHaveLength(1)
+    expect(new Set(slugs).size).toBe(slugs.length)
+  })
+
+  it("serves the same-director film for a comedy pair", async () => {
+    const res = await api().get(related(S.bravo))
+
+    expect(res.status).toBe(200)
+    expect(slugsOf(res)).toEqual([S.echo])
+  })
+
+  it("answers 200 with an empty list when nothing overlaps", async () => {
+    const res = await api().get(related(S.golf))
+
+    expect(res.status).toBe(200)
+    expect(res.body.data).toEqual([])
+  })
+
+  it("never contains the source film, a draft or a non-short work", async () => {
+    for (const slug of PUBLISHED_SHORT_SLUGS) {
+      const res = await api().get(related(slug))
+      const slugs = slugsOf(res)
+
+      expect(slugs).not.toContain(slug)
+      expect(slugs).not.toContain(S.deltaDraft)
+      expect(slugs).not.toContain(S.film)
+    }
+  })
+
+  it("answers 404 SHORT_FILM_NOT_FOUND for a draft-only short", async () => {
+    const res = await api().get(related(S.deltaDraft))
+
+    expect(res.status).toBe(404)
+    expect(res.body.error.details.code).toBe("SHORT_FILM_NOT_FOUND")
+  })
+
+  it("answers 404 SHORT_FILM_NOT_FOUND for an unknown slug and a non-short work", async () => {
+    for (const slug of ["no-such-short", S.film]) {
+      const res = await api().get(related(slug))
+
+      expect(res.status).toBe(404)
+      expect(res.body.error.details.code).toBe("SHORT_FILM_NOT_FOUND")
+    }
+  })
+
+  it("answers the summary shape with no internal keys", async () => {
+    const res = await api().get(related(S.alpha))
+
+    for (const item of res.body.data) {
+      expect(Object.keys(item).sort()).toEqual(SUMMARY_KEYS)
+    }
+    const keys = collectKeys(res.body)
+    for (const forbidden of FORBIDDEN_KEYS) {
+      expect(keys.has(forbidden)).toBe(false)
+    }
+  })
+
+  it("applies the locale overlay with locale=ar", async () => {
+    // charlie's related films: alpha (director + genre, has a published ar row)
+    // then foxtrot (genre, French only)
+    const res = await api().get(related(S.charlie)).query({ locale: "ar" })
+
+    expect(res.status).toBe(200)
+    expect(slugsOf(res)).toEqual([S.alpha, S.foxtrot])
+    expect(res.body.data[0].title).toBe(ALPHA_AR_TITLE)
+    expect(res.body.data[0].locale).toBe("ar")
+    expect(res.body.data[1].locale).toBe("fr")
+  })
+
+  it("answers 400 VALIDATION_FAILED for a paging key", async () => {
+    const res = await api().get(related(S.alpha)).query({ page: "1" })
+
+    expect(res.status).toBe(400)
+    expect(res.body.error.details.code).toBe("VALIDATION_FAILED")
+  })
+
+  it("answers 400 UNSUPPORTED_LOCALE for an unlisted locale", async () => {
+    const res = await api().get(related(S.alpha)).query({ locale: "de" })
+
+    expect(res.status).toBe(400)
+    expect(res.body.error.details.code).toBe("UNSUPPORTED_LOCALE")
+  })
+
+  it("is not captured by the :slug detail route", async () => {
+    const res = await api().get(related(S.alpha))
+
+    expect(res.status).toBe(200)
+    expect(Array.isArray(res.body.data)).toBe(true)
+  })
+})

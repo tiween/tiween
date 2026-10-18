@@ -4,6 +4,7 @@
  * the French-fallback overlay that must never touch relations or pagination.
  */
 import {
+  mergeRelated,
   overlayGenreNames,
   overlayLocalizedFields,
   sortFeatured,
@@ -439,5 +440,50 @@ describe("sortFeatured", () => {
     const snapshot = JSON.stringify(input)
     sortFeatured(input)
     expect(JSON.stringify(input)).toBe(snapshot)
+  })
+})
+
+describe("mergeRelated", () => {
+  const rows = (...ids: string[]) => ids.map((documentId) => ({ documentId }))
+  const idsOf = (list: Array<{ documentId: string }>) =>
+    list.map((r) => r.documentId)
+
+  it("puts director rows first and genre rows after", () => {
+    const merged = mergeRelated(rows("d1", "d2"), rows("g1", "g2"), "self", 6)
+
+    expect(idsOf(merged)).toEqual(["d1", "d2", "g1", "g2"])
+  })
+
+  it("keeps a row found by both director and genre once, at its director position", () => {
+    const merged = mergeRelated(rows("a", "b"), rows("c", "a", "d"), "self", 6)
+
+    expect(idsOf(merged)).toEqual(["a", "b", "c", "d"])
+  })
+
+  it("removes the self row from both lists", () => {
+    const merged = mergeRelated(rows("self", "a"), rows("b", "self"), "self", 6)
+
+    expect(idsOf(merged)).toEqual(["a", "b"])
+  })
+
+  it("caps the output at the limit", () => {
+    const merged = mergeRelated(
+      rows("d1", "d2", "d3", "d4"),
+      rows("g1", "g2", "g3", "g4"),
+      "self",
+      6
+    )
+
+    expect(idsOf(merged)).toEqual(["d1", "d2", "d3", "d4", "g1", "g2"])
+  })
+
+  it("returns [] for empty inputs and never mutates them", () => {
+    expect(mergeRelated([], [], "self", 6)).toEqual([])
+
+    const directors = rows("a")
+    const genres = rows("b")
+    const snapshot = JSON.stringify([directors, genres])
+    mergeRelated(directors, genres, "self", 6)
+    expect(JSON.stringify([directors, genres])).toBe(snapshot)
   })
 })

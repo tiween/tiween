@@ -92,6 +92,46 @@ describe("creative-works public-api facade: short films (unit)", () => {
   })
 })
 
+describe("creative-works public-api facade: featured and related (unit)", () => {
+  function buildStrapi(internal: Record<string, unknown>) {
+    const service = jest.fn(() => internal)
+    const strapi = { plugin: jest.fn(() => ({ service })) } as any
+    return { strapi, service }
+  }
+
+  it("delegates findFeaturedShortFilms to the short-films service featured", async () => {
+    const internal = { featured: jest.fn(async () => [{ documentId: "w1" }]) }
+    const { strapi, service } = buildStrapi(internal)
+    const facade = publicApiService({ strapi })
+
+    const result = await facade.findFeaturedShortFilms("ar")
+
+    expect(service).toHaveBeenCalledWith("short-films")
+    expect(internal.featured).toHaveBeenCalledWith("ar")
+    expect(result).toEqual([{ documentId: "w1" }])
+  })
+
+  it("delegates findRelatedShortFilms to related with the slug and locale", async () => {
+    const internal = { related: jest.fn(async () => [{ documentId: "w2" }]) }
+    const { strapi, service } = buildStrapi(internal)
+    const facade = publicApiService({ strapi })
+
+    const result = await facade.findRelatedShortFilms("sf-alpha", "fr")
+
+    expect(service).toHaveBeenCalledWith("short-films")
+    expect(internal.related).toHaveBeenCalledWith("sf-alpha", "fr")
+    expect(result).toEqual([{ documentId: "w2" }])
+  })
+
+  it("passes a null related result through (unknown short)", async () => {
+    const internal = { related: jest.fn(async () => null) }
+    const { strapi } = buildStrapi(internal)
+    const facade = publicApiService({ strapi })
+
+    expect(await facade.findRelatedShortFilms("nope")).toBeNull()
+  })
+})
+
 describe("creative-work.createWork (unit)", () => {
   function buildStrapi(options: { locales?: string[] } = {}) {
     const { locales = ["fr", "ar", "en"] } = options
