@@ -5,16 +5,16 @@ milestone_name: Shorts Directory
 current_phase: 1
 current_phase_name: Short-Film Catalog Backend
 status: executing
-stopped_at: Phase 1 context gathered
-last_updated: "2026-10-18T15:58:19.606Z"
+stopped_at: Completed 01-01-PLAN.md
+last_updated: "2026-10-18T16:31:20.299Z"
 last_activity: 2026-10-18
-last_activity_desc: Roadmap, requirements and state created from the ingest (39 v1 requirements mapped to 6 phases; v2+ parked as 999.x backlog)
-state_head: 46d21bc09deac3299ce3880286b57e9a17fbf9da
+last_activity_desc: Phase 1 execution started
+state_head: 5d620742e8b7c90444e0ae89092eab674fe44c49
 progress:
   total_phases: 6
   completed_phases: 0
   total_plans: 14
-  completed_plans: 0
+  completed_plans: 1
 ---
 
 # Project State
@@ -24,14 +24,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-10-18)
 
 **Core value:** People in Tunisia can find what is happening and what to watch across film, theatre, shorts, concerts and exhibitions, in their own language, on their phone.
-**Current focus:** Milestone v1.0 Shorts Directory, done when the short-film directory is ready and finished. Phase 1: Short-Film Catalog Backend.
+**Current focus:** Phase 1 — Short-Film Catalog Backend
 
 ## Current Position
 
-Phase: 1 (Short-Film Catalog Backend) — READY TO EXECUTE
-Plan: 0 of TBD in current phase
+Phase: 1 (Short-Film Catalog Backend) — EXECUTING
+Plan: 2 of 14
 Status: Ready to execute
-Last activity: 2026-10-18 — Roadmap, requirements and state created from the ingest (39 v1 requirements mapped to 6 phases; v2+ parked as 999.x backlog)
+Last activity: 2026-10-18 — Phase 1 execution started
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -55,6 +55,11 @@ Progress: [░░░░░░░░░░] 0%
 - Trend: n/a
 
 _Updated after each plan completion_
+**Per-Plan Metrics:**
+
+| Plan         | Duration | Tasks   | Files   |
+| ------------ | -------- | ------- | ------- |
+| Phase 01 P01 | 22 min   | 2 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -67,6 +72,8 @@ Decisions are logged in PROJECT.md (Locked Decisions and Key Decisions table). R
 - [Brand]: Gold Leaf x Aubergine on shorts surfaces only, via an additive scoped token layer; global rollout is backlog 999.5
 - [Deploy]: `main` auto-deploys to production, so shorts stay noindex and unlinked until the Phase 6 go-live switch; schema changes are additive
 - [Process]: Main-only commits, no PRs; `design_handoff_tiween/` is inert per the kernel (not read)
+- [Phase 01]: [01-01] One shared resettable document middleware per boot test file (strapi.documents.use cannot be unregistered)
+- [Phase 01]: [01-01] Spike verdicts A1,A2,A3,A4,A5,A13 all confirmed on SQLite: middleware guard viable (also inspect create/update status published), republish re-stamps publishedAt (skip-if-unchanged mandatory), PUT ?locale= creates locale rows (locale tabs viable, D-22 fallback unneeded), localized relations and uid slug are not shared across locale rows (overlay from default-locale row)
 
 ### Pending Todos
 
@@ -92,6 +99,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-10-18T13:20:41.590Z
-Stopped at: Phase 1 context gathered
-Resume file: .planning/phases/01-short-film-catalog-backend/01-CONTEXT.md
+Last session: 2026-10-18T16:31:20.211Z
+Stopped at: Completed 01-01-PLAN.md
+Resume file: None
