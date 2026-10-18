@@ -5,16 +5,16 @@ milestone_name: Shorts Directory
 current_phase: 1
 current_phase_name: Short-Film Catalog Backend
 status: executing
-stopped_at: Completed 01-07-PLAN.md
-last_updated: "2026-10-18T17:21:29.210Z"
+stopped_at: Completed 01-14-PLAN.md
+last_updated: "2026-10-18T17:38:07.832Z"
 last_activity: 2026-10-18
 last_activity_desc: Phase 1 execution started
-state_head: 92c449c3a260e1493823aace6885e0c2c07cda82
+state_head: 0c8f0ffa22f364ab6dcb74f761fc8b6e65113c50
 progress:
   total_phases: 6
   completed_phases: 0
   total_plans: 14
-  completed_plans: 3
+  completed_plans: 4
 ---
 
 # Project State
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-10-18)
 ## Current Position
 
 Phase: 1 (Short-Film Catalog Backend) — EXECUTING
-Plan: 3 of 14
+Plan: 4 of 14
 Status: Ready to execute
 Last activity: 2026-10-18 — Phase 1 execution started
 
@@ -62,6 +62,7 @@ _Updated after each plan completion_
 | Phase 01 P01 | 22 min   | 2 tasks | 1 files  |
 | Phase 01 P02 | 20 min   | 2 tasks | 10 files |
 | Phase 01 P07 | 17 min   | 2 tasks | 9 files  |
+| Phase 01 P14 | 12 min   | 2 tasks | 6 files  |
 
 ## Accumulated Context
 
@@ -79,6 +80,7 @@ Decisions are logged in PROJECT.md (Locked Decisions and Key Decisions table). R
 - [Phase 01]: 01-02: country/language stored as JSON arrays validated by shared Zod schemas (additive schema, extensible lists) — Keeps the DB delta additive on an auto-deploying main; lists grow without a migration
 - [Phase 01]: 01-02: evaluateShortFilmPublishRules throws SKIP_NOT_ALLOWED for any skip code other than POSTER_REQUIRED — The D-20 bypass cannot widen; DIRECTOR_UNPUBLISHED only runs when publishedPersonIds is supplied
 - [Phase 01]: 01-07: MediaInput takes assets only from Strapi's media-library dialog (useStrapiApp components['media-library']); URL-paste and fabricated ids removed; multiple-mode removal passes the filtered array
+- [Phase 01]: 01-14: Venue managers may create only film and play (VENUE_CREATABLE_WORK_TYPES); CREATIVE_WORK_TYPES and KIND_BY_WORK_TYPE keep short-film — Short films are admin-curated (D-21); the venue create-and-publish flow cannot satisfy D-19 publish rules, while existing shorts must stay schedulable
 
 ### Pending Todos
 
@@ -104,6 +106,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-10-18T17:21:29.074Z
-Stopped at: Completed 01-07-PLAN.md
+Last session: 2026-10-18T17:38:07.757Z
+Stopped at: Completed 01-14-PLAN.md
 Resume file: None
