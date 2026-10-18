@@ -5,16 +5,16 @@ milestone_name: Shorts Directory
 current_phase: 1
 current_phase_name: Short-Film Catalog Backend
 status: executing
-stopped_at: Completed 01-02-PLAN.md
-last_updated: "2026-10-18T16:56:33.843Z"
+stopped_at: Completed 01-07-PLAN.md
+last_updated: "2026-10-18T17:21:29.210Z"
 last_activity: 2026-10-18
 last_activity_desc: Phase 1 execution started
-state_head: 6356e140d51e0f877b8e26ece556c7f7f5be7078
+state_head: 92c449c3a260e1493823aace6885e0c2c07cda82
 progress:
   total_phases: 6
   completed_phases: 0
   total_plans: 14
-  completed_plans: 2
+  completed_plans: 3
 ---
 
 # Project State
@@ -61,6 +61,7 @@ _Updated after each plan completion_
 | ------------ | -------- | ------- | -------- |
 | Phase 01 P01 | 22 min   | 2 tasks | 1 files  |
 | Phase 01 P02 | 20 min   | 2 tasks | 10 files |
+| Phase 01 P07 | 17 min   | 2 tasks | 9 files  |
 
 ## Accumulated Context
 
@@ -77,6 +78,7 @@ Decisions are logged in PROJECT.md (Locked Decisions and Key Decisions table). R
 - [Phase 01]: [01-01] Spike verdicts A1,A2,A3,A4,A5,A13 all confirmed on SQLite: middleware guard viable (also inspect create/update status published), republish re-stamps publishedAt (skip-if-unchanged mandatory), PUT ?locale= creates locale rows (locale tabs viable, D-22 fallback unneeded), localized relations and uid slug are not shared across locale rows (overlay from default-locale row)
 - [Phase 01]: 01-02: country/language stored as JSON arrays validated by shared Zod schemas (additive schema, extensible lists) — Keeps the DB delta additive on an auto-deploying main; lists grow without a migration
 - [Phase 01]: 01-02: evaluateShortFilmPublishRules throws SKIP_NOT_ALLOWED for any skip code other than POSTER_REQUIRED — The D-20 bypass cannot widen; DIRECTOR_UNPUBLISHED only runs when publishedPersonIds is supplied
+- [Phase 01]: 01-07: MediaInput takes assets only from Strapi's media-library dialog (useStrapiApp components['media-library']); URL-paste and fabricated ids removed; multiple-mode removal passes the filtered array
 
 ### Pending Todos
 
@@ -102,6 +104,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-10-18T16:56:33.705Z
-Stopped at: Completed 01-02-PLAN.md
+Last session: 2026-10-18T17:21:29.074Z
+Stopped at: Completed 01-07-PLAN.md
 Resume file: None
