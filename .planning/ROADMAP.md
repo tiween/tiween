@@ -39,7 +39,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 2. An unauthenticated request for short films returns only published short-film records in flat Strapi v5 shape, with a genre filter, sort, pagination, detail by slug, featured and related reads (facet filters are Meilisearch's, Phase 3); an unsupported parameter gets a coded error rather than a 500, and no ticketing or internal fields appear.
 3. Strapi boot-integration tests (run against a real booted Strapi, not mocks) seed published and draft short films plus a non-short creative work and prove that only the right rows come back for the genre filter and each sort, pagination, featured, related and locale-fallback case.
 4. The launch catalog (the vetted short films from the mock file plus any the owner adds) exists as published Strapi records with posters, genres, directors/crew, cast, distinctions and streaming links; running the import twice creates no duplicates.
-   **Plans:** 6/14 plans executed
+   **Plans:** 7/14 plans executed
 
    Plans:
 
@@ -50,7 +50,7 @@ Decimal phases appear between their surrounding integers in numeric order.
    - [ ] 01-05-PLAN.md — Rate limiting on short-films routes, removal of the legacy draft-leaking routes (D-09), contract document
    - [x] 01-06-PLAN.md — Server-side publish guard (D-19), importer poster bypass (D-20), country/language write validation
    - [x] 01-07-PLAN.md — Admin: route the Works pages, real media-library picker (FR57)
-   - [ ] 01-08-PLAN.md — Admin WorkForm: streaming links, country/language pickers, featured and rank (D-17, D-18)
+   - [x] 01-08-PLAN.md — Admin WorkForm: streaming links, country/language pickers, featured and rank (D-17, D-18)
    - [ ] 01-09-PLAN.md — Admin WorkForm: publish bar, pre-check and error-code mapping, slug generation, locale tabs (D-22)
    - [ ] 01-10-PLAN.md — Idempotent launch-catalog importer (`seed:shorts`), SSRF-safe ImageKit media, proven on a booted Strapi
    - [ ] 01-11-PLAN.md — Curation sheet and data file for the 10 mock films, the two D-19 mock fixes (D-23)
@@ -135,7 +135,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 (decimal insert
 
 | Phase                                 | Plans Complete | Status      | Completed |
 | ------------------------------------- | -------------- | ----------- | --------- |
-| 1. Short-Film Catalog Backend         | 6/14           | In Progress | -         |
+| 1. Short-Film Catalog Backend         | 7/14           | In Progress | -         |
 | 2. Strapi-Backed Shorts Pages         | 0/TBD          | Not started | -         |
 | 3. Meilisearch Search                 | 0/TBD          | Not started | -         |
 | 4. Directory Experience and Brand     | 0/TBD          | Not started | -         |

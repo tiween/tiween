@@ -12,7 +12,7 @@ Numbering: inventory FR IDs (from `_bmad-output/project-planning-artifacts/epics
 
 ### Short-Film Catalog and Admin Entry
 
-- [ ] **SDATA-01**: A `creative-work` of type `short-film` carries everything the directory and detail page display: country, language, a featured flag, structured streaming links (platform, URL, access type: free / included / subscription / rental), festival distinctions (existing `distinctions[]`), crew via `credits[]`, cast via `cast[]`, and trailer/full-length via `videos[]` with `videoType`. Schema changes are additive (no renamed attributes, `collectionName` preserved).
+- [x] **SDATA-01**: A `creative-work` of type `short-film` carries everything the directory and detail page display: country, language, a featured flag, structured streaming links (platform, URL, access type: free / included / subscription / rental), festival distinctions (existing `distinctions[]`), crew via `credits[]`, cast via `cast[]`, and trailer/full-length via `videos[]` with `videoType`. Schema changes are additive (no renamed attributes, `collectionName` preserved).
 - [ ] **SDATA-02**: An admin can create, edit, publish and unpublish a short film in the Strapi admin in FR, AR and EN (title, synopsis, duration, year, genres, country, language, crew, cast, distinctions, videos, streaming links with access type, featured flag) from the existing events-manager Works form, without editing raw JSON.
 - [ ] **SDATA-03**: A public, unauthenticated read API serves short films: list (genre filter, sort, pagination), detail by slug, featured, and related. Published records only, flat Strapi v5 shape, allowlisted query params with coded errors, locale with French fallback, no internal or ticketing fields. Facet filters (duration, year, country, language, has awards, available online, platform) are served by Meilisearch (SRCH-03), not this API (Phase 1 CONTEXT D-10).
 - [ ] **SDATA-04**: The launch catalog exists in Strapi: the vetted short films from `mock-shorts.ts` (plus any additions the owner approves) are published records with posters, genres, crew, cast, distinctions and streaming links. The import can be re-run without creating duplicates.
@@ -134,47 +134,47 @@ Deferred to later milestones. Tracked, not in the current roadmap; each is parke
 
 Which phases cover which requirements. Every v1 requirement maps to exactly one phase.
 
-| Requirement | Phase   | Status  |
-| ----------- | ------- | ------- |
-| SDATA-01    | Phase 1 | Pending |
-| SDATA-02    | Phase 1 | Pending |
-| SDATA-03    | Phase 1 | Pending |
-| SDATA-04    | Phase 1 | Pending |
-| SDATA-05    | Phase 1 | Pending |
-| FR57        | Phase 1 | Pending |
-| SPAGE-01    | Phase 2 | Pending |
-| SPAGE-02    | Phase 2 | Pending |
-| SPAGE-03    | Phase 2 | Pending |
-| SPAGE-04    | Phase 2 | Pending |
-| SPAGE-05    | Phase 2 | Pending |
-| FR19        | Phase 2 | Pending |
-| FR20        | Phase 2 | Pending |
-| FR21        | Phase 2 | Pending |
-| FR56        | Phase 2 | Pending |
-| SRCH-01     | Phase 3 | Pending |
-| SRCH-02     | Phase 3 | Pending |
-| SRCH-03     | Phase 3 | Pending |
-| FR6         | Phase 3 | Pending |
-| SRCH-04     | Phase 3 | Pending |
-| SRCH-05     | Phase 3 | Pending |
-| SDIR-01     | Phase 4 | Pending |
-| SDIR-02     | Phase 4 | Pending |
-| SDIR-03     | Phase 4 | Pending |
-| SBRAND-01   | Phase 4 | Pending |
-| SBRAND-02   | Phase 4 | Pending |
-| SBRAND-03   | Phase 4 | Pending |
-| SBRAND-04   | Phase 4 | Pending |
-| FR54        | Phase 4 | Pending |
-| FR55        | Phase 4 | Pending |
-| SSEO-01     | Phase 5 | Pending |
-| SSEO-02     | Phase 5 | Pending |
-| SSEO-03     | Phase 5 | Pending |
-| SSEO-04     | Phase 5 | Pending |
-| SSEO-05     | Phase 5 | Pending |
-| LNCH-01     | Phase 6 | Pending |
-| LNCH-02     | Phase 6 | Pending |
-| LNCH-03     | Phase 6 | Pending |
-| LNCH-04     | Phase 6 | Pending |
+| Requirement | Phase   | Status   |
+| ----------- | ------- | -------- |
+| SDATA-01    | Phase 1 | Complete |
+| SDATA-02    | Phase 1 | Pending  |
+| SDATA-03    | Phase 1 | Pending  |
+| SDATA-04    | Phase 1 | Pending  |
+| SDATA-05    | Phase 1 | Pending  |
+| FR57        | Phase 1 | Pending  |
+| SPAGE-01    | Phase 2 | Pending  |
+| SPAGE-02    | Phase 2 | Pending  |
+| SPAGE-03    | Phase 2 | Pending  |
+| SPAGE-04    | Phase 2 | Pending  |
+| SPAGE-05    | Phase 2 | Pending  |
+| FR19        | Phase 2 | Pending  |
+| FR20        | Phase 2 | Pending  |
+| FR21        | Phase 2 | Pending  |
+| FR56        | Phase 2 | Pending  |
+| SRCH-01     | Phase 3 | Pending  |
+| SRCH-02     | Phase 3 | Pending  |
+| SRCH-03     | Phase 3 | Pending  |
+| FR6         | Phase 3 | Pending  |
+| SRCH-04     | Phase 3 | Pending  |
+| SRCH-05     | Phase 3 | Pending  |
+| SDIR-01     | Phase 4 | Pending  |
+| SDIR-02     | Phase 4 | Pending  |
+| SDIR-03     | Phase 4 | Pending  |
+| SBRAND-01   | Phase 4 | Pending  |
+| SBRAND-02   | Phase 4 | Pending  |
+| SBRAND-03   | Phase 4 | Pending  |
+| SBRAND-04   | Phase 4 | Pending  |
+| FR54        | Phase 4 | Pending  |
+| FR55        | Phase 4 | Pending  |
+| SSEO-01     | Phase 5 | Pending  |
+| SSEO-02     | Phase 5 | Pending  |
+| SSEO-03     | Phase 5 | Pending  |
+| SSEO-04     | Phase 5 | Pending  |
+| SSEO-05     | Phase 5 | Pending  |
+| LNCH-01     | Phase 6 | Pending  |
+| LNCH-02     | Phase 6 | Pending  |
+| LNCH-03     | Phase 6 | Pending  |
+| LNCH-04     | Phase 6 | Pending  |
 
 **Coverage:**
 

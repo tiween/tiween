@@ -5,16 +5,16 @@ milestone_name: Shorts Directory
 current_phase: 1
 current_phase_name: Short-Film Catalog Backend
 status: executing
-stopped_at: Completed 01-06-PLAN.md
-last_updated: "2026-10-18T18:56:04.048Z"
+stopped_at: Completed 01-08-PLAN.md
+last_updated: "2026-10-18T19:39:18.758Z"
 last_activity: 2026-10-18
 last_activity_desc: Phase 1 execution started
-state_head: ea0502b058df70c19ef6fee73f8bdd374dc189c7
+state_head: b6f5148a8fed9c2d0cfdc353db358ea1fe050280
 progress:
   total_phases: 6
   completed_phases: 0
   total_plans: 14
-  completed_plans: 6
+  completed_plans: 7
 ---
 
 # Project State
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-10-18)
 ## Current Position
 
 Phase: 1 (Short-Film Catalog Backend) — EXECUTING
-Plan: 6 of 14
+Plan: 7 of 14
 Status: Ready to execute
 Last activity: 2026-10-18 — Phase 1 execution started
 
@@ -65,6 +65,7 @@ _Updated after each plan completion_
 | Phase 01 P14 | 12 min   | 2 tasks | 6 files  |
 | Phase 01 P03 | 28 min   | 3 tasks | 12 files |
 | Phase 01 P06 | 36 min   | 2 tasks | 12 files |
+| Phase 01 P08 | 25 min   | 2 tasks | 10 files |
 
 ## Accumulated Context
 
@@ -88,6 +89,9 @@ Decisions are logged in PROJECT.md (Locked Decisions and Key Decisions table). R
 - [Phase 01]: [01-06] Short-film publish guard is a Document Service middleware registered at plugin register time; create/update with status published are rewritten to draft write plus publish so one path evaluates the rules
 - [Phase 01]: [01-06] D-20 bypass is an AsyncLocalStorage scope on a Symbol.for slot of globalThis (tsx source and dist plugin are separate module instances); it can skip only POSTER_REQUIRED and no src file outside src/shared may call it
 - [Phase 01]: [01-06] Content-manager bulk publish containing a blocked short answers 400 but may still publish complete siblings (not all-or-nothing on Strapi 5.51.2/SQLite)
+- [Phase 01]: 01-08: selected codes drop out of the country/language combobox list; addCode is a no-op for a duplicate as a guard — Keeps the picker from offering a choice that does nothing
+- [Phase 01]: 01-08: featuredRank is sent as null unless featured is true; stored components (streamingLinks) are re-sent wholesale and never stripped on a type switch — Avoids stale ranks and silent data loss when an admin changes the work type
+- [Phase 01]: 01-08: WorkForm imported a nonexistent Film icon from @strapi/icons 2.2.3 and could not render; replaced by Play — Pre-existing crash hidden by 01-07 mocking WorkForm in the routing test
 
 ### Pending Todos
 
@@ -113,6 +117,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-10-18T18:56:03.924Z
-Stopped at: Completed 01-06-PLAN.md
+Last session: 2026-10-18T19:39:18.685Z
+Stopped at: Completed 01-08-PLAN.md
 Resume file: None
