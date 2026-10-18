@@ -338,7 +338,7 @@ Not a rename/refactor phase; this is additive. Explicit answers for the migratio
 ### Pitfall 4: Venue managers can publish short films today
 
 **What goes wrong:** `POST /api/events-manager/venue/creative-works` accepts `type` in `["film","play","short-film"]` `[VERIFIED: events-manager/server/src/validation/venue-events.ts:40]` and `createWork` publishes immediately in all locales (`publish({ documentId, locale: "*" })`, `creative-work.ts:143-146`). The new public API would expose such an entry (no poster, no director, no slug since `createWork` never sets one), and the D-19 guard would break that flow with a `ValidationError`.
-**How to avoid:** Decision needed (Open Question 2). Recommended: remove `short-film` from the venue-manager accepted types (server `CREATIVE_WORK_TYPES` in validation plus client schema `CREATIVE_WORK_TYPES`); shorts are operator-curated in v1. Venue managers can still schedule existing shorts (`TYPE_RULES` `"short-film"` stays).
+**How to avoid:** Decided (Open Question 2, RESOLVED by D-21). Recommended: remove `short-film` from the venue-manager accepted types (server `CREATIVE_WORK_TYPES` in validation plus client schema `CREATIVE_WORK_TYPES`); shorts are operator-curated in v1. Venue managers can still schedule existing shorts (`TYPE_RULES` `"short-film"` stays).
 
 ### Pitfall 5: The `en` locale is never created
 
@@ -353,7 +353,7 @@ Not a rename/refactor phase; this is additive. Explicit answers for the migratio
 ### Pitfall 7: D-12 versus D-19 (import cannot publish posterless films)
 
 **What goes wrong:** D-12 leaves the poster empty when no real 2:3 source exists; D-19 blocks publish without a poster; D-11/D-13 import films as **published**; ROADMAP criterion 4 says published "with posters". In the mock file only a thumbnail exists per film (all `poster.url` are `i.ytimg.com` stills or `artify.tn`) `[VERIFIED: mock-shorts.ts read]`.
-**How to avoid:** Owner/planner decision (Open Question 1). Mechanically the importer must either bypass the guard explicitly or import posterless films as draft with a report.
+**How to avoid:** Decided (Open Question 1, RESOLVED by D-20: explicit logged bypass). Mechanically the importer must either bypass the guard explicitly or import posterless films as draft with a report.
 
 ### Pitfall 8: Re-publish bumps `publishedAt` (default sort churn)
 
@@ -521,18 +521,28 @@ const existing = await strapi
 | A11 | YouTube `maxresdefault.jpg` is absent for some videos (needs `hqdefault.jpg` fallback)                                                                                                                                          | Import     | Import marks the film for manual backdrop                                           |
 | A12 | `Intl.DisplayNames` in the admin browser behaves like Node 22 for `aeb`                                                                                                                                                         | D-18       | Explicit i18n strings needed anyway for `aeb`/`ber`/`none` (verified gaps below)    |
 
-## Open Questions
+## Open Questions (RESOLVED)
+
+All eight questions were closed by the owner's post-research decisions (CONTEXT D-20..D-23) or by the planner-discretion line in CONTEXT; each carries its resolution inline.
 
 1. **D-12 vs D-19: how are posterless films published by the import?**
    - Known: mock data has only 16:9 thumbnails; D-19 blocks publish without poster; ROADMAP criterion 4 expects posters.
    - Recommendation: keep the guard strict for humans; give the importer an explicit, logged bypass (in-process context flag, importable only from `scripts/seeds`), and make Phase 4 client placeholder cover empty posters. Alternative: owner agrees "poster OR backdrop satisfies the rule". Needs an owner decision.
+   - **RESOLVED (D-20):** guard stays strict for humans; poster-only, logged, in-process bypass built in plan 01-06 (Task 2) and used only by the importer in plan 01-10; client placeholder covers empty posters in Phase 2/4.
 2. **Venue-manager `createWork` for `short-film`** (Pitfall 4). Recommendation: disallow `short-film` there.
+   - **RESOLVED (D-21):** `short-film` removed from the venue-manager creatable work types on server and client in plan 01-14.
 3. **Locale scope of the WorkForm.** Recommendation: locale tabs (default full form; others localized-only) plus publish bar. Confirm the owner accepts translation via the native Content Manager as the fallback if spike A3 fails.
+   - **RESOLVED (D-22):** locale tabs plus publish bar in plan 01-09, with the native Content Manager fallback if spike A3 (plan 01-01) refutes `PUT ?locale=` creating a missing locale.
 4. **`poster` is localized.** Recommendation: do not flip the `localized` flag on an existing attribute (data-behaviour risk, not additive); instead replicate the poster id to every locale on save/import and overlay-with-fallback on read.
+   - **RESOLVED (CONTEXT planner discretion):** `poster` stays localized; read-time fallback in plan 01-03, poster prefill on locale-tab save in plan 01-09, poster id replicated across locale rows by the importer in plan 01-10.
 5. **Launch data quality.** Two of the 10 mock films cannot satisfy D-19 as-is: `chrifa-bent-el-fadhel` lists `KDH Prod` (a production company) as director, and `tahtima` has `directors: []` `[VERIFIED: mock-shorts.ts]`. Facts such as Oscar/Sundance awards and countries are unverified; D-15's owner-approved sheet is the gate. Plan the curation task before import.
+   - **RESOLVED (D-23):** plan 01-11 re-verifies the 10 mock films and fixes the two D-19 failures; plan 01-12 adds a capped candidate batch and stops at the blocking owner-approval checkpoint before any import.
 6. **Production import execution path.** `tsx` is a devDependency and the Dockerfile installs `--production`, so `yarn seed:shorts` cannot run inside the deployed container `[VERIFIED: Dockerfile, package.json]`. Phase 1 only needs the pipeline proven on dev/staging DB; make the importer a pure function of a booted `strapi`, so Phase 6 can run it from a developer machine against production env or via an admin-only route.
+   - **RESOLVED (CONTEXT planner discretion):** importer is a pure function of a booted `strapi` (plan 01-10); Phase 1 proves it on the dev database only (plan 01-13); the production run is a Phase 6 step.
 7. **The 5 fake dev shorts** in `creative-works.json` would appear in the new public API in dev and are referenced by `tests/fixtures/index.ts`. Recommendation: remove or retype them and update the fixture; keep `seed:clear` out of the loop.
+   - **RESOLVED (CONTEXT planner discretion):** plan 01-06 removes every short film from `creative-works.json` and retypes the fixture to `khalaa`; plan 01-11 lists the five fake slugs in `retiredSlugs`, which the plan 01-13 import deletes from dev.
 8. **Genre list for Phase 2 filter UI.** No route exposes genres. Out of D-06's list; flag to Phase 2/3 (Meilisearch facets cover it later).
+   - **RESOLVED (out of scope, CONTEXT planner discretion):** no genres list route in Phase 1; Phase 2/3 own it (Meilisearch facets, SRCH-03).
 
 ## Environment Availability
 

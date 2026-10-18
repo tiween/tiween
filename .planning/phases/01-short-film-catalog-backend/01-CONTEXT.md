@@ -90,6 +90,14 @@ Requirements: SDATA-01..05, FR57. SDATA-03 and SDATA-05 are **narrowed** by D-10
 
   Draft saves stay permissive. Enforcement is in the form, and server-side on publish as well (exact mechanism is Claude's discretion).
 
+### Post-research decisions (owner, 2026-10-18)
+
+- **D-20:** D-12 vs D-19: the D-19 poster rule stays strict for humans. The launch importer gets an explicit, logged bypass (an in-process flag usable only from `scripts/seeds`), so posterless films can be imported published. The client placeholder (Phase 2/4) covers empty posters.
+- **D-21:** Venue managers can no longer create `short-film` works. Remove `short-film` from the venue-manager accepted work types (`POST /api/events-manager/venue/creative-works`). Shorts are admin-entered only.
+- **D-22:** The WorkForm gets locale tabs and a publish bar. The default locale (FR) gets the full form; AR/EN tabs edit only localized fields. If the Wave 0 spike shows that content-manager `PUT ?locale=` cannot create a missing locale, fall back to translating in the native Content Manager and document that.
+- **D-23:** Curation gate: execution researches candidates, fixes the two mock films that fail D-19 (`chrifa-bent-el-fadhel` director is a production company; `tahtima` has no director), writes the candidate sheet, then **pauses at a human checkpoint for owner approval** before any import.
+- Planner discretion, per research recommendations: keep `poster` localized and replicate the poster id across locales on save/import, with read-time fallback; prove the import on dev/staging only (the production run is Phase 6); remove or retype the 5 fake dev shorts and update `tests/fixtures/index.ts`; no genres list route in Phase 1.
+
 ### Claude's Discretion
 
 - The exact `platform` enum values and the long tail of the language code list.
