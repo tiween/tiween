@@ -25,6 +25,7 @@ import {
   DIRECTING_ROLE_SLUGS,
   hasAwards,
   isAvailableOnline,
+  isHttpsUrl,
 } from "../../../../../shared/short-film-rules"
 
 const CREATIVE_WORK_UID = "plugin::creative-works.creative-work"
@@ -295,10 +296,19 @@ function deriveDirectors(credits: Row[]): PublicPerson[] {
   return directors
 }
 
+/**
+ * Streaming links safe to render as public links. The write guard already
+ * refuses non-https URLs; rows stored before it existed are dropped here so a
+ * `javascript:` or `http:` URL never reaches the client.
+ */
+function safeStreamingLinks(row: Row): Row[] {
+  return asArray(row.streamingLinks).filter((link) => isHttpsUrl(link.url))
+}
+
 /** Summary projection: a NEW object holding only the allowlisted summary keys. */
 export function toShortFilmSummary(row: Row): ShortFilmSummary {
   const credits = asArray(row.credits)
-  const streamingLinks = asArray(row.streamingLinks)
+  const streamingLinks = safeStreamingLinks(row)
   const videos = asArray(row.videos)
   const distinctions = asArray(row.distinctions)
 
@@ -393,7 +403,7 @@ export function toShortFilmDetail(row: Row): ShortFilmDetail {
       url: toStringOrNull(v.url),
       videoType: toStringOrNull(v.videoType),
     })),
-    streamingLinks: asArray(row.streamingLinks).map((l) => ({
+    streamingLinks: safeStreamingLinks(row).map((l) => ({
       platform: toStringOrNull(l.platform),
       url: toStringOrNull(l.url),
       accessType: toStringOrNull(l.accessType),

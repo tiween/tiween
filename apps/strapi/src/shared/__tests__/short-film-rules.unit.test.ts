@@ -15,6 +15,7 @@ import {
   hasAwards,
   isAvailableOnline,
   isDirectingCredit,
+  isHttpsUrl,
   ISO_3166_ALPHA2,
   languageCodesSchema,
   PINNED_COUNTRY_CODE,
@@ -433,5 +434,30 @@ describe("hasAwards (D-04)", () => {
     expect(hasAwards({ distinctions: [] })).toBe(false)
     expect(hasAwards({ distinctions: null })).toBe(false)
     expect(hasAwards({})).toBe(false)
+  })
+})
+
+describe("isHttpsUrl", () => {
+  it.each([
+    "https://www.youtube.com/watch?v=abc",
+    "  https://vimeo.com/1  ",
+    "HTTPS://example.org/path",
+  ])("accepts %p", (url) => {
+    expect(isHttpsUrl(url)).toBe(true)
+  })
+
+  it.each([
+    "javascript:void(0)",
+    " javascript:void(0)",
+    "data:text/html,x",
+    "http://example.org",
+    "//example.org",
+    "example.org",
+    "",
+    null,
+    undefined,
+    42,
+  ])("rejects %p", (url) => {
+    expect(isHttpsUrl(url)).toBe(false)
   })
 })

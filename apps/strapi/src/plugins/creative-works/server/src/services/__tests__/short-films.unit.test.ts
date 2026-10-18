@@ -159,7 +159,13 @@ describe("toShortFilmSummary", () => {
 
     const full = toShortFilmSummary(
       baseRow({
-        streamingLinks: [{ platform: "youtube", url: "u", accessType: "free" }],
+        streamingLinks: [
+          {
+            platform: "youtube",
+            url: "https://www.youtube.com/watch?v=x",
+            accessType: "free",
+          },
+        ],
         distinctions: [{ name: "x", year: 2019, result: "winner" }],
       })
     )
@@ -170,6 +176,47 @@ describe("toShortFilmSummary", () => {
       baseRow({ videos: [{ url: "u", videoType: "trailer" }] })
     )
     expect(trailerOnly.availableOnline).toBe(false)
+  })
+
+  it("does not count a non-https streaming link as available online", () => {
+    const summary = toShortFilmSummary(
+      baseRow({
+        streamingLinks: [
+          { platform: "other", url: "javascript:void(0)", accessType: "free" },
+          { platform: "other", url: "http://example.org", accessType: "free" },
+        ],
+      })
+    )
+    expect(summary.availableOnline).toBe(false)
+  })
+})
+
+describe("toShortFilmDetail: streaming links", () => {
+  it("drops every streaming link whose URL is not https", () => {
+    const detail = toShortFilmDetail(
+      baseRow({
+        streamingLinks: [
+          { platform: "other", url: "javascript:void(0)", accessType: "free" },
+          { platform: "other", url: "data:text/html,x", accessType: "free" },
+          { platform: "other", url: "http://example.org", accessType: "free" },
+          {
+            platform: "vimeo",
+            url: "https://vimeo.com/1",
+            accessType: "free",
+            label: null,
+          },
+        ],
+      })
+    )
+
+    expect(detail.streamingLinks).toEqual([
+      {
+        platform: "vimeo",
+        url: "https://vimeo.com/1",
+        accessType: "free",
+        label: null,
+      },
+    ])
   })
 })
 

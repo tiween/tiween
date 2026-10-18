@@ -537,6 +537,55 @@ describe("D-20 bypass reaches the dist-loaded guard through the process-global s
   })
 })
 
+describe("streaming-link URLs are https-only on every write", () => {
+  it("answers 400 INVALID_STREAMING_URL for a content-manager PUT with a javascript: URL and stores nothing", async () => {
+    const documentId = await createDraft({
+      title: uniq("xssurl"),
+      type: "short-film",
+    })
+
+    const res = await cmPut(documentId, {
+      streamingLinks: [
+        { platform: "other", url: "javascript:void(0)", accessType: "free" },
+      ],
+    })
+
+    expect(res.status).toBe(400)
+    expect(res.body.error.details.code).toBe("INVALID_STREAMING_URL")
+    const [draft] = (await draftRows(documentId)) as any[]
+    const stored: any = await strapi.documents(CW).findOne({
+      documentId,
+      locale: "fr",
+      status: "draft",
+      populate: { streamingLinks: true },
+    } as any)
+    expect(draft).toBeDefined()
+    expect(stored.streamingLinks ?? []).toEqual([])
+  })
+
+  it("rejects an http: URL on a Document Service create", async () => {
+    await expect(
+      strapi.documents(CW).create({
+        data: {
+          title: uniq("httpurl"),
+          type: "short-film",
+          streamingLinks: [
+            {
+              platform: "youtube",
+              url: "http://www.youtube.com/watch?v=x",
+              accessType: "free",
+            },
+          ],
+        } as any,
+        locale: "fr",
+      } as any)
+    ).rejects.toMatchObject({
+      name: "ValidationError",
+      details: { code: "INVALID_STREAMING_URL" },
+    })
+  })
+})
+
 describe("country and language codes are validated on every write", () => {
   it("answers 400 INVALID_COUNTRY_CODES for a content-manager PUT with country ['tn']", async () => {
     const documentId = await createDraft({

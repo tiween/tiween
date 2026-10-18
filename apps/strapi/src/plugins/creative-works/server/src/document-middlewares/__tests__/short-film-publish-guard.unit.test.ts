@@ -6,6 +6,7 @@
  */
 import {
   createShortFilmPublishGuard,
+  INVALID_STREAMING_URL,
   SHORT_FILM_PUBLISH_BLOCKED,
 } from "../short-film-publish-guard"
 
@@ -554,5 +555,68 @@ describe("createShortFilmPublishGuard: country and language validation", () => {
     )
 
     expect(next).toHaveBeenCalledTimes(1)
+  })
+})
+
+describe("createShortFilmPublishGuard: streaming-link URL validation", () => {
+  const write = (action: "create" | "update", streamingLinks: unknown) => ({
+    uid: CW,
+    action,
+    params: {
+      documentId: "doc-1",
+      data: { type: "short-film", streamingLinks },
+    },
+  })
+
+  it.each([
+    ["create", "javascript:void(0)"],
+    ["update", "javascript:void(0)"],
+    ["create", "http://example.org"],
+    ["update", "data:text/html,x"],
+  ] as const)(
+    "rejects a %s carrying the streaming URL %p and never calls next",
+    async (action, url) => {
+      const { strapi } = makeStrapi()
+      const next = jest.fn()
+
+      const error = await blockedWith(
+        run(
+          createShortFilmPublishGuard(strapi),
+          write(action, [
+            {
+              platform: "youtube",
+              url: "https://youtu.be/a",
+              accessType: "free",
+            },
+            { platform: "other", url, accessType: "free" },
+          ]),
+          next
+        )
+      )
+
+      expect(error.name).toBe("ValidationError")
+      expect(error.details.code).toBe(INVALID_STREAMING_URL)
+      expect(error.details.issues).toEqual([
+        { code: INVALID_STREAMING_URL, path: "streamingLinks.1.url" },
+      ])
+      expect(next).not.toHaveBeenCalled()
+    }
+  )
+
+  it("accepts https links, an id-only reference to a stored link, and writes without links", async () => {
+    const { strapi } = makeStrapi()
+    const guard = createShortFilmPublishGuard(strapi)
+
+    for (const streamingLinks of [
+      [{ platform: "vimeo", url: "https://vimeo.com/1", accessType: "free" }],
+      [{ id: 7 }],
+      [],
+      null,
+    ]) {
+      const next = jest.fn(async () => "ok")
+      await expect(
+        run(guard, write("update", streamingLinks), next)
+      ).resolves.toBe("ok")
+    }
   })
 })

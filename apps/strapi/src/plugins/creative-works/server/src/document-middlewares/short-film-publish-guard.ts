@@ -7,11 +7,15 @@ import { getShortFilmPublishBypass } from "../../../../../shared/short-film-publ
 import {
   countryCodesSchema,
   evaluateShortFilmPublishRules,
+  isHttpsUrl,
   languageCodesSchema,
 } from "../../../../../shared/short-film-rules"
 
 /** Code carried in `error.details.code` when a short film cannot be published. */
 export const SHORT_FILM_PUBLISH_BLOCKED = "SHORT_FILM_PUBLISH_BLOCKED"
+
+/** Code carried in `error.details.code` for a non-https streaming-link URL. */
+export const INVALID_STREAMING_URL = "INVALID_STREAMING_URL"
 
 const CREATIVE_WORK_UID = "plugin::creative-works.creative-work"
 const PERSON_UID = "plugin::creative-works.person"
@@ -164,6 +168,30 @@ export function createShortFilmPublishGuard(
   }
 
   /**
+   * D-03: a streaming-link URL is rendered as a public link, so the server
+   * refuses anything but `https:` on every write path (the admin form check
+   * alone is bypassable through the content-manager or the API). An entry
+   * that only references an existing component (`{ id }`, no `url` key) keeps
+   * its stored, already-validated value.
+   */
+  function validateStreamingLinks(data: unknown) {
+    if (!data || typeof data !== "object" || !("streamingLinks" in data)) return
+    const links = (data as Record<string, unknown>).streamingLinks
+    if (!Array.isArray(links)) return
+
+    links.forEach((link, index) => {
+      if (!link || typeof link !== "object" || !("url" in link)) return
+      if (isHttpsUrl((link as Record<string, unknown>).url)) return
+      throw new errors.ValidationError("Invalid creative work data", {
+        code: INVALID_STREAMING_URL,
+        issues: [
+          { code: INVALID_STREAMING_URL, path: `streamingLinks.${index}.url` },
+        ],
+      })
+    })
+  }
+
+  /**
    * The work type a create/update will leave behind. `UNRESOLVED` means an
    * update whose existing type could not be read in the default or the
    * requested locale: the caller fails closed and routes it through the
@@ -197,6 +225,7 @@ export function createShortFilmPublishGuard(
 
   async function guardWrite(context: DocumentContext, next: Next) {
     validateCodes(context.params.data)
+    validateStreamingLinks(context.params.data)
 
     if (context.params.status !== "published") return next()
     const type = await resolveWriteType(context)

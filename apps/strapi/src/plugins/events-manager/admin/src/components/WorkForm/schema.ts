@@ -15,6 +15,7 @@ import type { MediaAsset } from "../MediaInput"
 // accepts. Six `../` climb from WorkForm/ to `src/`.
 import {
   countryCodesSchema,
+  isHttpsUrl,
   languageCodesSchema,
   STREAMING_ACCESS_TYPES,
   STREAMING_PLATFORMS,
@@ -177,15 +178,6 @@ export const videoFormSchema = z.object({
   legacyType: z.string().nullable(),
   videoType: z.string().min(1),
 })
-
-/** True for an absolute `https:` URL; rejects `http:`, `javascript:`, `data:`. */
-function isHttpsUrl(value: string): boolean {
-  try {
-    return new URL(value).protocol === "https:"
-  } catch {
-    return false
-  }
-}
 
 /**
  * `creative-works.streaming-link` (D-03): an official place to watch a short

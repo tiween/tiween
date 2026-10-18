@@ -363,6 +363,20 @@ function isValidCodeList(value: unknown, allowed: ReadonlySet<string>) {
   return value.every((code) => typeof code === "string" && allowed.has(code))
 }
 
+/**
+ * True only for an absolute `https:` URL. Streaming-link URLs are rendered as
+ * public links, so `javascript:`, `data:` and `http:` must never pass: the
+ * admin form, the server write guard and the public projection all use this.
+ */
+export function isHttpsUrl(value: unknown): boolean {
+  if (typeof value !== "string") return false
+  try {
+    return new URL(value.trim()).protocol === "https:"
+  } catch {
+    return false
+  }
+}
+
 /** null, undefined or an array (max 10, unique) of ISO 3166-1 alpha-2 codes. */
 export const countryCodesSchema = z.custom<string[] | null | undefined>(
   (value) => isValidCodeList(value, ISO_SET),
