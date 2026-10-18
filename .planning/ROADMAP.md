@@ -39,13 +39,13 @@ Decimal phases appear between their surrounding integers in numeric order.
 2. An unauthenticated request for short films returns only published short-film records in flat Strapi v5 shape, with a genre filter, sort, pagination, detail by slug, featured and related reads (facet filters are Meilisearch's, Phase 3); an unsupported parameter gets a coded error rather than a 500, and no ticketing or internal fields appear.
 3. Strapi boot-integration tests (run against a real booted Strapi, not mocks) seed published and draft short films plus a non-short creative work and prove that only the right rows come back for the genre filter and each sort, pagination, featured, related and locale-fallback case.
 4. The launch catalog (the vetted short films from the mock file plus any the owner adds) exists as published Strapi records with posters, genres, directors/crew, cast, distinctions and streaming links; running the import twice creates no duplicates.
-   **Plans:** 4/14 plans executed
+   **Plans:** 5/14 plans executed
 
    Plans:
 
    - [x] 01-01-PLAN.md — Wave 0: frozen-lockfile install, existing boot suites proven green, Strapi semantics spike (A1-A5, A13)
    - [x] 01-02-PLAN.md — Schema delta (country, language, streamingLinks, featured, featuredRank), `en` locale, shared short-film rules module
-   - [ ] 01-03-PLAN.md — Public read API: list and detail by slug, French-fallback locale overlay, allowlist projection, SDATA-05 boot suite
+   - [x] 01-03-PLAN.md — Public read API: list and detail by slug, French-fallback locale overlay, allowlist projection, SDATA-05 boot suite
    - [ ] 01-04-PLAN.md — Public read API: featured (D-05 order) and deterministic related (D-08), facade methods
    - [ ] 01-05-PLAN.md — Rate limiting on short-films routes, removal of the legacy draft-leaking routes (D-09), contract document
    - [ ] 01-06-PLAN.md — Server-side publish guard (D-19), importer poster bypass (D-20), country/language write validation
@@ -135,7 +135,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 (decimal insert
 
 | Phase                                 | Plans Complete | Status      | Completed |
 | ------------------------------------- | -------------- | ----------- | --------- |
-| 1. Short-Film Catalog Backend         | 4/14           | In Progress | -         |
+| 1. Short-Film Catalog Backend         | 5/14           | In Progress | -         |
 | 2. Strapi-Backed Shorts Pages         | 0/TBD          | Not started | -         |
 | 3. Meilisearch Search                 | 0/TBD          | Not started | -         |
 | 4. Directory Experience and Brand     | 0/TBD          | Not started | -         |
