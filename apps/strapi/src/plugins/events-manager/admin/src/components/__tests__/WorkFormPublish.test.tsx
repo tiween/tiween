@@ -11,7 +11,14 @@
 import React from "react"
 import { DesignSystemProvider, lightTheme } from "@strapi/design-system"
 import { toggleNotification } from "@strapi/strapi/admin"
-import { act, fireEvent, render, screen, waitFor } from "@testing-library/react"
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react"
 import { IntlProvider } from "react-intl"
 import { MemoryRouter, Route, Routes } from "react-router-dom"
 
@@ -136,6 +143,8 @@ async function renderEdit() {
   await screen.findByTestId("publish-bar")
 }
 
+const publishBar = () => screen.getByTestId("publish-bar")
+
 const publishButton = () => screen.getByRole("button", { name: "Publish" })
 
 const rejection = (error: Record<string, unknown>) => ({
@@ -157,7 +166,7 @@ describe("WorkFormPage — publish bar", () => {
 
     await renderEdit()
 
-    expect(screen.getByText("Draft")).toBeInTheDocument()
+    expect(within(publishBar()).getByText("Draft")).toBeInTheDocument()
     expect(publishButton()).not.toHaveAttribute("aria-disabled", "true")
     expect(screen.queryByTestId("publish-issues")).not.toBeInTheDocument()
     expect(
@@ -288,7 +297,7 @@ describe("WorkFormPage — publish bar", () => {
     serve(completeDraft({ status: "published" }))
     await renderEdit()
 
-    expect(screen.getByText("Published")).toBeInTheDocument()
+    expect(within(publishBar()).getByText("Published")).toBeInTheDocument()
     await act(async () => {
       fireEvent.click(screen.getByRole("button", { name: "Unpublish" }))
     })
@@ -304,7 +313,7 @@ describe("WorkFormPage — publish bar", () => {
 
     await renderEdit()
 
-    expect(screen.getByText("Modified")).toBeInTheDocument()
+    expect(within(publishBar()).getByText("Modified")).toBeInTheDocument()
     expect(
       screen.getByRole("button", { name: "Unpublish" })
     ).toBeInTheDocument()

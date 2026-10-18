@@ -362,3 +362,39 @@ describe("translating a credited work through PUT ?locale=", () => {
     ])
   })
 })
+
+describe("the public read follows what the admin publishes", () => {
+  it("serves the published translation, drops out when the default language is unpublished and returns when it is republished", async () => {
+    const { parts, characterId, doc } = await createCreditedShort(
+      uniq("public")
+    )
+    const documentId = doc.documentId as string
+    const publicUrl = `/api/creative-works/creative-works/short-films/${doc.slug}?locale=ar`
+
+    // The `director` role is shared with earlier tests, so only the missing
+    // targets are created; every creation succeeds.
+    const created = await ensureTargets(parts, characterId, "ar")
+    expect(created.every((status) => status === 200)).toBe(true)
+    await cmPut(
+      CW,
+      documentId,
+      { title: "عنوان عام", poster: parts.poster },
+      "ar"
+    )
+    expect((await cmAction(documentId, "publish", "fr")).status).toBe(200)
+    expect((await cmAction(documentId, "publish", "ar")).status).toBe(200)
+
+    const served = await api().get(publicUrl)
+    expect(served.status).toBe(200)
+    expect(served.body.data.title).toBe("عنوان عام")
+    expect(served.body.data.locale).toBe("ar")
+
+    expect((await cmAction(documentId, "unpublish", "fr")).status).toBe(200)
+    expect((await api().get(publicUrl)).status).toBe(404)
+
+    expect((await cmAction(documentId, "publish", "fr")).status).toBe(200)
+    const back = await api().get(publicUrl)
+    expect(back.status).toBe(200)
+    expect(back.body.data.title).toBe("عنوان عام")
+  })
+})

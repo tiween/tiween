@@ -22,6 +22,11 @@ interface PublishBarProps {
   ruleResult: ShortFilmRuleResult | null
   /** Label of the locale being published, shown in the helper line */
   localeLabel: string
+  /**
+   * True on a translation tab: the server guard evaluates the default-language
+   * draft whichever locale is published, so the list shown is that draft's.
+   */
+  rulesOnDefaultLanguage?: boolean
   isBusy: boolean
   onPublish: () => void
   onUnpublish: () => void
@@ -48,6 +53,7 @@ export function PublishBar({
   status,
   ruleResult,
   localeLabel,
+  rulesOnDefaultLanguage = false,
   isBusy,
   onPublish,
   onUnpublish,
@@ -79,10 +85,15 @@ export function PublishBar({
             {localeLabel}
           </Typography>
           <Typography variant="pi" textColor="neutral600">
-            {t(
-              "publish.scope",
-              "Publishing applies to this language and is checked against the saved draft."
-            )}
+            {rulesOnDefaultLanguage
+              ? t(
+                  "publish.scopeTranslation",
+                  "Publishing applies to this language. The publish rules are checked on the saved default-language draft."
+                )
+              : t(
+                  "publish.scope",
+                  "Publishing applies to this language and is checked against the saved draft."
+                )}
           </Typography>
         </Flex>
 

@@ -462,7 +462,8 @@ describe("WorkFormPage — locale tabs", () => {
   })
 
   it("publishes the translation with params.locale", async () => {
-    serve({ fr: frWork(), ar: arWork() })
+    // A complete default-language draft (director credit) so the rules pass.
+    serve({ fr: frWork(withCredits), ar: arWork() })
     await renderEdit()
     await openTab(/Arabic/)
     await waitFor(() => expect(titleInput()).toHaveValue("الصمت"))
