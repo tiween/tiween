@@ -5,16 +5,16 @@ milestone_name: Shorts Directory
 current_phase: 01
 current_phase_name: Short-Film Catalog Backend
 status: executing
-stopped_at: Completed 01-10-PLAN.md
-last_updated: "2026-10-19T19:53:19.784Z"
+stopped_at: Completed 01-05-PLAN.md
+last_updated: "2026-10-19T20:10:05.933Z"
 last_activity: 2026-10-19
 last_activity_desc: Phase 01 execution started
-state_head: 15c9135ad1c405ff3942626c8419763a147adbaf
+state_head: c5c233a4f950e3042c5d165efd29d224511de872
 progress:
   total_phases: 6
   completed_phases: 0
   total_plans: 14
-  completed_plans: 10
+  completed_plans: 11
 ---
 
 # Project State
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-10-18)
 ## Current Position
 
 Phase: 01 (Short-Film Catalog Backend) — EXECUTING
-Plan: 10 of 14
+Plan: 11 of 14
 Status: Ready to execute
 Last activity: 2026-10-19 — Phase 01 execution started
 
@@ -69,6 +69,7 @@ _Updated after each plan completion_
 | Phase 01 P04 | 15 min   | 2 tasks | 8 files  |
 | Phase 01 P09 | 64min    | 2 tasks | 12 files |
 | Phase 01 P10 | 30 min   | 3 tasks | 9 files  |
+| Phase 01 P05 | 14 min   | 3 tasks | 12 files |
 
 ## Accumulated Context
 
@@ -105,6 +106,7 @@ Decisions are logged in PROJECT.md (Locked Decisions and Key Decisions table). R
 - [Phase 01]: Change detection is next-driven: keys absent from the next payload are not compared, so hand-added images and fields survive a re-import
 - [Phase 01]: Failed image downloads are per-film warnings (BACKDROP_UNAVAILABLE / POSTER_UNAVAILABLE); posterless films publish under the D-20 bypass and are listed in posterBypassed
 - [Phase 01]: seed:shorts boots with distDir dist (not .build, which cannot start Strapi in this checkout); index.ts and clear.ts left untouched, logged in deferred-items
+- [Phase 01]: 01-05: short-films routes share a 600 req/60 s per-key rate limit; legacy creative-work routes removed but search/findOneWithDetails/createWork kept for the public-api facade
 
 ### Pending Todos
 
@@ -130,6 +132,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-10-19T19:53:19.719Z
-Stopped at: Completed 01-10-PLAN.md
+Last session: 2026-10-19T20:10:05.873Z
+Stopped at: Completed 01-05-PLAN.md
 Resume file: None
