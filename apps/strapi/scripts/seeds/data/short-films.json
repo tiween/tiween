@@ -658,6 +658,302 @@
         "under40Minutes": true,
         "availability": "festival-trailer-only"
       }
+    },
+    {
+      "slug": "let-go",
+      "approved": false,
+      "title": {
+        "fr": "Let Go",
+        "ar": "التخلّي",
+        "en": "Let Go"
+      },
+      "synopsis": {
+        "fr": "Un jeune couple se sépare. Au moment précis de la rupture, chacun d'eux essaie d'imaginer sa propre solitude à venir.",
+        "ar": "ينفصل زوجان شابان. وفي اللحظة التي تقع فيها القطيعة بالذات، يحاول كل منهما أن يتخيّل وحدته المقبلة.",
+        "en": "A young couple breaks up. At the very moment of the split, each of them tries to imagine their own loneliness to come."
+      },
+      "translationProvenance": {
+        "ar": "ai-drafted",
+        "en": "ai-drafted"
+      },
+      "duration": 9,
+      "releaseYear": 2014,
+      "country": ["TN", "CA"],
+      "language": ["fr"],
+      "genres": ["drame"],
+      "directors": [
+        {
+          "slug": "kaiss-manachou",
+          "name": "Kaiss Manachou"
+        }
+      ],
+      "cast": [
+        {
+          "slug": "sarra-braham",
+          "name": "Sarra Braham"
+        },
+        {
+          "slug": "martin-bedard",
+          "name": "Martin Bédard"
+        }
+      ],
+      "distinctions": [
+        {
+          "name": "Journées cinématographiques de Carthage (JCC)",
+          "edition": "25e édition",
+          "year": 2014,
+          "result": "selected",
+          "section": "Compétition nationale",
+          "sourceUrl": "https://cinematunisien.com/blog/2020/06/09/let-go/"
+        },
+        {
+          "name": "Asiana International Film Festival (Corée du Sud)",
+          "year": 2014,
+          "result": "selected",
+          "section": "Compétition internationale",
+          "sourceUrl": "https://cinematunisien.com/blog/2020/06/09/let-go/"
+        }
+      ],
+      "streamingLinks": [],
+      "videos": [
+        {
+          "url": "https://www.youtube.com/watch?v=WFwOrWrNtUo",
+          "videoType": "trailer"
+        }
+      ],
+      "sources": [
+        "https://www.youtube.com/watch?v=WFwOrWrNtUo",
+        "https://www.youtube.com/watch?v=tN7Mqy7lU0Y",
+        "https://cinematunisien.com/blog/2020/06/09/let-go/",
+        "https://cinematunisien.com/blog/2020/06/09/kaiss-manachou/"
+      ],
+      "eligibility": {
+        "tunisianLink": "production",
+        "under40Minutes": true,
+        "availability": "festival-trailer-only"
+      }
+    },
+    {
+      "slug": "faracha",
+      "approved": false,
+      "title": {
+        "fr": "Faracha",
+        "ar": "فراشة",
+        "en": "Butterfly"
+      },
+      "synopsis": {
+        "fr": "Omar est un jeune homme de Kairouan, ville conservatrice de la Tunisie. Passionné de cinéma, il s'inscrit à un concours de photographie qui lui permettra d'être admis dans une école de cinéma à Tunis. Il choisit les funérailles comme sujet. Comment les habitants de sa ville vont-ils réagir ?",
+        "ar": "عمر شاب من مدينة القيروان المحافظة، يكتشف شغفه بالسينما فيشارك في مسابقة للتصوير الفوتوغرافي ليُقبل في مدرسة سينمائية بالعاصمة. يختار الجنازات موضوعًا لعمله. كيف سيكون ردّ فعل سكان مدينته؟",
+        "en": "Omar, a young man from the conservative city of Kairouan, discovers his passion for filmmaking and enters a photography contest to be admitted to a film school in the capital. He chooses funerals as his subject. How will the people of his city react?"
+      },
+      "translationProvenance": {
+        "ar": "original-title",
+        "en": "ai-drafted"
+      },
+      "originalTitle": "فراشة",
+      "duration": 16,
+      "releaseYear": 2017,
+      "country": ["TN"],
+      "language": ["aeb"],
+      "genres": ["drame"],
+      "directors": [
+        {
+          "slug": "issam-bouguerra",
+          "name": "Issam Bouguerra"
+        }
+      ],
+      "cast": [
+        {
+          "slug": "chedli-arfaoui",
+          "name": "Chedli Arfaoui"
+        },
+        {
+          "slug": "bilel-briki",
+          "name": "Bilel Briki"
+        },
+        {
+          "slug": "marwane-ariane",
+          "name": "Marwane Ariane"
+        },
+        {
+          "slug": "hakim-boumsaoudi",
+          "name": "Hakim Boumsaoudi"
+        },
+        {
+          "slug": "lotfi-msehli",
+          "name": "Lotfi Msehli"
+        }
+      ],
+      "distinctions": [],
+      "streamingLinks": [
+        {
+          "platform": "youtube",
+          "url": "https://www.youtube.com/watch?v=qVoyL5Yzxq0",
+          "accessType": "free"
+        }
+      ],
+      "videos": [],
+      "sources": [
+        "https://www.youtube.com/watch?v=qVoyL5Yzxq0",
+        "https://www.youtube.com/@issambouguerra",
+        "https://cinematunisien.com/blog/2020/04/09/faracha/",
+        "https://cinematunisien.com/blog/2020/04/09/issam-bouguerra/"
+      ],
+      "eligibility": {
+        "tunisianLink": "director",
+        "under40Minutes": true,
+        "availability": "official-online"
+      }
+    },
+    {
+      "slug": "action-figuration",
+      "approved": false,
+      "title": {
+        "fr": "Action figuration",
+        "ar": "أكشن كومبارس",
+        "en": "Action Figuration"
+      },
+      "synopsis": {
+        "fr": "Feten, jeune figurante du cinéma et de la télévision, cache en elle un talent de comédienne qu'elle souhaite à tout prix révéler pour devenir célèbre, malgré les codes imposés par son petit frère. Les voisins du quartier ont aussi leur mot à dire.",
+        "ar": "فاتن كومبارس شابة في السينما والتلفزيون، تخفي في داخلها موهبة تمثيل تريد بأي ثمن أن تُظهرها لتصبح مشهورة، رغم القيود التي يفرضها عليها أخوها الأصغر. وللجيران في الحي رأي في الأمر أيضًا.",
+        "en": "Feten, a young film and television extra, hides an acting talent she is determined to show in order to become famous, despite the rules imposed by her little brother. The neighbours in the district have their say too."
+      },
+      "translationProvenance": {
+        "ar": "ai-drafted",
+        "en": "ai-drafted"
+      },
+      "duration": 22,
+      "releaseYear": 2014,
+      "country": ["TN"],
+      "language": ["aeb"],
+      "genres": ["drame"],
+      "directors": [
+        {
+          "slug": "bilel-bali",
+          "name": "Bilel Bali"
+        }
+      ],
+      "cast": [
+        {
+          "slug": "faten-chedli",
+          "name": "Faten Chedli"
+        },
+        {
+          "slug": "hatem-hazgui",
+          "name": "Hatem Hazgui"
+        },
+        {
+          "slug": "naila-jlassi",
+          "name": "Naila Jlassi"
+        },
+        {
+          "slug": "hamdi-smaal",
+          "name": "Hamdi Smaal"
+        },
+        {
+          "slug": "dhouha-jaziri",
+          "name": "Dhouha Jaziri"
+        }
+      ],
+      "distinctions": [
+        {
+          "name": "Festival du cinéma d'Alexandrie",
+          "year": 2015,
+          "result": "winner",
+          "category": "Prix du meilleur court-métrage de fiction arabe",
+          "sourceUrl": "https://cinematunisien.com/blog/2020/04/06/action-figuration/"
+        },
+        {
+          "name": "Festival du film arabe de Malmö",
+          "year": 2015,
+          "result": "selected",
+          "section": "Compétition officielle",
+          "sourceUrl": "https://cinematunisien.com/blog/2020/04/06/action-figuration/"
+        }
+      ],
+      "streamingLinks": [],
+      "videos": [
+        {
+          "url": "https://www.youtube.com/watch?v=HPvoSo_3Txg",
+          "videoType": "trailer"
+        }
+      ],
+      "sources": [
+        "https://www.youtube.com/watch?v=HPvoSo_3Txg",
+        "https://cinematunisien.com/blog/2020/04/06/action-figuration/",
+        "https://cinematunisien.com/blog/2020/04/06/bali-bilel/"
+      ],
+      "eligibility": {
+        "tunisianLink": "director",
+        "under40Minutes": true,
+        "availability": "festival-trailer-only"
+      }
+    },
+    {
+      "slug": "abderrahman",
+      "approved": false,
+      "title": {
+        "fr": "Abderrahman",
+        "ar": "عبد الرحمان",
+        "en": "Abderrahman"
+      },
+      "synopsis": {
+        "fr": "Abder vient d'avoir 63 ans et sa retraite est imminente. Petit styliste de quartier, il a travaillé plus de 60 heures par semaine pendant plus de 30 ans. Mais lorsque Larbi, son ami d'enfance, réapparaît, tous les projets d'Abder vont être compromis.",
+        "ar": "بلغ عبد الرحمان لتوّه الثالثة والستين وتقاعده وشيك. هو خيّاط صغير في حيّه، اشتغل أكثر من ستين ساعة في الأسبوع طوال أكثر من ثلاثين سنة. لكن حين يعود لعربي، صديق طفولته، إلى الظهور، تتعرّض كل مشاريع عبد الرحمان للخطر.",
+        "en": "Abder has just turned 63 and retirement is imminent. A small neighbourhood tailor, he worked more than 60 hours a week for over 30 years. But when Larbi, his childhood friend, reappears, all of Abder's plans are put at risk."
+      },
+      "translationProvenance": {
+        "ar": "ai-drafted",
+        "en": "ai-drafted"
+      },
+      "duration": 20,
+      "releaseYear": 2013,
+      "country": ["TN"],
+      "language": ["aeb"],
+      "genres": ["drame"],
+      "directors": [
+        {
+          "slug": "elias-sfaxi",
+          "name": "Elias Sfaxi"
+        }
+      ],
+      "cast": [
+        {
+          "slug": "abderrahman-sfaxi",
+          "name": "Abderrahman Sfaxi"
+        },
+        {
+          "slug": "larbi-bouab",
+          "name": "Larbi Bouab"
+        }
+      ],
+      "distinctions": [
+        {
+          "name": "Journées cinématographiques de Carthage (JCC)",
+          "edition": "25e édition",
+          "year": 2014,
+          "result": "selected",
+          "section": "Compétition nationale",
+          "sourceUrl": "https://cinematunisien.com/blog/2020/05/05/abderrahman/"
+        }
+      ],
+      "streamingLinks": [],
+      "videos": [
+        {
+          "url": "https://www.youtube.com/watch?v=wQDS48_WzS4",
+          "videoType": "trailer"
+        }
+      ],
+      "sources": [
+        "https://www.youtube.com/watch?v=wQDS48_WzS4",
+        "https://cinematunisien.com/blog/2020/05/05/abderrahman/",
+        "https://cinematunisien.com/blog/2020/05/05/elias-sfaxi/"
+      ],
+      "eligibility": {
+        "tunisianLink": "director",
+        "under40Minutes": true,
+        "availability": "festival-trailer-only"
+      }
     }
   ]
 }
