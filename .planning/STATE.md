@@ -2,19 +2,19 @@
 gsd_state_version: "1.0"
 milestone: v1.0
 milestone_name: Shorts Directory
-current_phase: 1
+current_phase: 01
 current_phase_name: Short-Film Catalog Backend
 status: executing
-stopped_at: Completed 01-09-PLAN.md
-last_updated: "2026-10-18T21:24:54.765Z"
-last_activity: 2026-10-18
-last_activity_desc: Phase 1 execution started
-state_head: 4591a03f7847ab72aa7d6c523ec94b8ecfce2cab
+stopped_at: Completed 01-10-PLAN.md
+last_updated: "2026-10-19T19:53:19.784Z"
+last_activity: 2026-10-19
+last_activity_desc: Phase 01 execution started
+state_head: 15c9135ad1c405ff3942626c8419763a147adbaf
 progress:
   total_phases: 6
   completed_phases: 0
   total_plans: 14
-  completed_plans: 9
+  completed_plans: 10
 ---
 
 # Project State
@@ -24,14 +24,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-10-18)
 
 **Core value:** People in Tunisia can find what is happening and what to watch across film, theatre, shorts, concerts and exhibitions, in their own language, on their phone.
-**Current focus:** Phase 1 — Short-Film Catalog Backend
+**Current focus:** Phase 01 — Short-Film Catalog Backend
 
 ## Current Position
 
-Phase: 1 (Short-Film Catalog Backend) — EXECUTING
-Plan: 9 of 14
+Phase: 01 (Short-Film Catalog Backend) — EXECUTING
+Plan: 10 of 14
 Status: Ready to execute
-Last activity: 2026-10-18 — Phase 1 execution started
+Last activity: 2026-10-19 — Phase 01 execution started
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -68,6 +68,7 @@ _Updated after each plan completion_
 | Phase 01 P08 | 25 min   | 2 tasks | 10 files |
 | Phase 01 P04 | 15 min   | 2 tasks | 8 files  |
 | Phase 01 P09 | 64min    | 2 tasks | 12 files |
+| Phase 01 P10 | 30 min   | 3 tasks | 9 files  |
 
 ## Accumulated Context
 
@@ -100,6 +101,10 @@ Decisions are logged in PROJECT.md (Locked Decisions and Key Decisions table). R
 - [Phase 01]: Task 1 (01-09): content-manager collection-types bodies are sent flat; the { data } wrapper is silently dropped by the server (boot-proven), so createWork/updateWork send the entity itself
 - [Phase 01]: Task 2 (01-09): D-22 branch shipped is locale tabs creating rows (A3 confirmed); a first translation save of a credited work first creates person, credit-role and character rows in that locale, with a mapped sentence as safety net
 - [Phase 01]: Task 1 (01-09): the publish pre-check always evaluates the saved default-language draft, on every tab, because the server guard reads that draft whichever language is published; publish and unpublish are per language only (no bulk)
+- [Phase 01]: Importer publishes per locale and only what changed (default row only if changed or unpublished), so translation-only edits never bump publishedAt
+- [Phase 01]: Change detection is next-driven: keys absent from the next payload are not compared, so hand-added images and fields survive a re-import
+- [Phase 01]: Failed image downloads are per-film warnings (BACKDROP_UNAVAILABLE / POSTER_UNAVAILABLE); posterless films publish under the D-20 bypass and are listed in posterBypassed
+- [Phase 01]: seed:shorts boots with distDir dist (not .build, which cannot start Strapi in this checkout); index.ts and clear.ts left untouched, logged in deferred-items
 
 ### Pending Todos
 
@@ -125,6 +130,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-10-18T21:24:54.706Z
-Stopped at: Completed 01-09-PLAN.md
+Last session: 2026-10-19T19:53:19.719Z
+Stopped at: Completed 01-10-PLAN.md
 Resume file: None
