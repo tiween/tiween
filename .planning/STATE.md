@@ -5,16 +5,16 @@ milestone_name: Shorts Directory
 current_phase: 01
 current_phase_name: Short-Film Catalog Backend
 status: executing
-stopped_at: Completed 01-05-PLAN.md
-last_updated: "2026-10-19T20:10:05.933Z"
+stopped_at: Completed 01-11-PLAN.md
+last_updated: "2026-10-19T20:44:02.881Z"
 last_activity: 2026-10-19
 last_activity_desc: Phase 01 execution started
-state_head: c5c233a4f950e3042c5d165efd29d224511de872
+state_head: c1865a8ba1a3ab86a66a5e0b00c3c24c6487ed22
 progress:
   total_phases: 6
   completed_phases: 0
   total_plans: 14
-  completed_plans: 11
+  completed_plans: 12
 ---
 
 # Project State
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-10-18)
 ## Current Position
 
 Phase: 01 (Short-Film Catalog Backend) — EXECUTING
-Plan: 11 of 14
+Plan: 12 of 14
 Status: Ready to execute
 Last activity: 2026-10-19 — Phase 01 execution started
 
@@ -70,6 +70,7 @@ _Updated after each plan completion_
 | Phase 01 P09 | 64min    | 2 tasks | 12 files |
 | Phase 01 P10 | 30 min   | 3 tasks | 9 files  |
 | Phase 01 P05 | 14 min   | 3 tasks | 12 files |
+| Phase 01 P11 | 28 min   | 2 tasks | 3 files  |
 
 ## Accumulated Context
 
@@ -107,6 +108,9 @@ Decisions are logged in PROJECT.md (Locked Decisions and Key Decisions table). R
 - [Phase 01]: Failed image downloads are per-film warnings (BACKDROP_UNAVAILABLE / POSTER_UNAVAILABLE); posterless films publish under the D-20 bypass and are listed in posterBypassed
 - [Phase 01]: seed:shorts boots with distDir dist (not .build, which cannot start Strapi in this checkout); index.ts and clear.ts left untouched, logged in deferred-items
 - [Phase 01]: 01-05: short-films routes share a 600 req/60 s per-key rate limit; legacy creative-work routes removed but search/findOneWithDetails/createWork kept for the public-api facade
+- [Phase 01]: le-masseur and tahtima held out of the data file as needs-owner-input: only third-party uploads exist (D-16 forbids re-uploads), tahtima also has no verifiable director
+- [Phase 01]: chrifa-bent-el-fadhel credits Kheyri Habboubi from the producer's own video description and channel page (single source, owner to confirm); no film has a real 2:3 poster so all 8 included films rely on the D-20 bypass
+- [Phase 01]: Unverified facts (years, Arabic original title, synopses) are omitted from the data file instead of carried from the mock; streamingLinks is the single watch source (videos left empty)
 
 ### Pending Todos
 
@@ -132,6 +136,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-10-19T20:10:05.873Z
-Stopped at: Completed 01-05-PLAN.md
+Last session: 2026-10-19T20:44:02.800Z
+Stopped at: Completed 01-11-PLAN.md
 Resume file: None
