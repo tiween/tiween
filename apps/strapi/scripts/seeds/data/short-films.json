@@ -11,20 +11,31 @@
     {
       "slug": "khalaa",
       "approved": false,
-      "title": { "fr": "Khalâa", "en": "Khalaa" },
+      "title": {
+        "fr": "Khalâa",
+        "en": "Khalaa"
+      },
       "synopsis": {
         "fr": "Monta et Khalaa, deux arnaqueurs qui vivent dans la rue depuis l'enfance, se croisent à nouveau après des mois de séparation causée par une trahison. Leur rêve de changer de vie est bouleversé par l'arrivée d'un jeune homme nommé Asfour.",
         "ar": "منتا وخلعة، محتالان يعيشان في الشارع منذ طفولتهما، يلتقيان من جديد بعد أشهر من الفراق الذي سببته خيانة. لكن حلمهما في تغيير حياتهما ينقلب رأسًا على عقب مع ظهور شاب يُدعى عصفور.",
         "en": "Monta and Khalaa, two hustlers who have lived on the streets since childhood, cross paths again after months apart caused by a betrayal. Their dream of changing their lives is upended by a young man named Asfour."
       },
-      "translationProvenance": { "ar": "original-title", "en": "ai-drafted" },
+      "translationProvenance": {
+        "ar": "original-title",
+        "en": "ai-drafted"
+      },
       "originalTitle": "خلعة",
       "duration": 13,
       "releaseYear": 2016,
       "country": ["TN"],
       "language": ["aeb"],
       "genres": ["drame"],
-      "directors": [{ "slug": "maher-hasnaoui", "name": "Maher Hasnaoui" }],
+      "directors": [
+        {
+          "slug": "maher-hasnaoui",
+          "name": "Maher Hasnaoui"
+        }
+      ],
       "distinctions": [
         {
           "name": "Concours franco-allemand de courts-métrages",
@@ -73,6 +84,486 @@
         "https://directinfo.webmanagercenter.com/2016/10/14/khalaa-de-maher-hasnaoui-et-la-fosse-dachref-hammami-laureats-du-concours-franco-allemand-de-courts-metrages-2016/",
         "https://www.webmanagercenter.com/2017/01/30/402367/khalaa-de-maher-hasnaoui-sacre-meilleure-fiction/",
         "https://www.tekiano.com/2017/03/30/le-court-metrage-tunisien-khalaa-obtient-le-prix-hadrumete-dor-au-fifej-sousse/"
+      ],
+      "eligibility": {
+        "tunisianLink": "production",
+        "under40Minutes": true,
+        "availability": "official-online"
+      }
+    },
+    {
+      "slug": "petit-frere",
+      "approved": false,
+      "title": {
+        "fr": "Petit Frère",
+        "en": "Little Brother"
+      },
+      "synopsis": {},
+      "translationProvenance": {
+        "ar": "original-title",
+        "en": "ai-drafted"
+      },
+      "originalTitle": "قريد العش",
+      "duration": 20,
+      "releaseYear": 2013,
+      "country": ["TN"],
+      "language": ["aeb"],
+      "genres": ["drame"],
+      "directors": [
+        {
+          "slug": "oussama-boukhris",
+          "name": "Oussama Boukhris"
+        }
+      ],
+      "cast": [
+        {
+          "slug": "sabri-feddini",
+          "name": "Sabri Feddini"
+        },
+        {
+          "slug": "lamine-belkhodja",
+          "name": "Lamine Belkhodja"
+        }
+      ],
+      "distinctions": [],
+      "streamingLinks": [
+        {
+          "platform": "youtube",
+          "url": "https://www.youtube.com/watch?v=Au2uDZgmGgs",
+          "accessType": "free"
+        }
+      ],
+      "videos": [],
+      "sources": [
+        "https://www.youtube.com/watch?v=Au2uDZgmGgs",
+        "https://cinematunisien.com/blog/2020/01/03/petit-frere/"
+      ],
+      "eligibility": {
+        "tunisianLink": "director",
+        "under40Minutes": true,
+        "availability": "official-online"
+      }
+    },
+    {
+      "slug": "les-souliers-de-laid",
+      "approved": false,
+      "title": {
+        "fr": "Les Souliers de l'Aïd",
+        "en": "My Shoes"
+      },
+      "synopsis": {
+        "fr": "Nader, neuf ans, vit dans un petit village de la campagne tunisienne et adore courir. À l'approche de l'Aïd, il repère une paire de chaussures qu'il veut à tout prix, mais son père n'a pas les moyens de les lui offrir.",
+        "ar": "نادر طفل في التاسعة من عمره يعيش في قرية صغيرة في الريف التونسي ويعشق الجري. وبمناسبة العيد، يلمح حذاءً يتمنى اقتناءه، لكن والده لا يملك ما يكفي لشرائه له.",
+        "en": "Nader, nine years old, lives in a small village in the Tunisian countryside and loves to run. As Eid approaches, he spots a pair of shoes he wants more than anything, but his father cannot afford to buy them for him."
+      },
+      "translationProvenance": {
+        "ar": "original-title",
+        "en": "ai-drafted"
+      },
+      "originalTitle": "صباط العيد",
+      "duration": 30,
+      "releaseYear": 2012,
+      "country": ["TN", "FR"],
+      "language": ["aeb"],
+      "genres": ["drame", "fantastique"],
+      "directors": [
+        {
+          "slug": "anis-lassoued",
+          "name": "Anis Lassoued"
+        }
+      ],
+      "crew": [
+        {
+          "slug": "nejib-ayed",
+          "name": "Néjib Ayed",
+          "roleSlug": "producer"
+        },
+        {
+          "slug": "sofian-el-fani",
+          "name": "Sofian El Fani",
+          "roleSlug": "director-of-photography"
+        },
+        {
+          "slug": "kahena-attia",
+          "name": "Kahena Attia",
+          "roleSlug": "editor"
+        }
+      ],
+      "cast": [
+        {
+          "slug": "nader-tlili",
+          "name": "Nader Tlili"
+        },
+        {
+          "slug": "farhat-jedidi",
+          "name": "Farhat Jedidi"
+        },
+        {
+          "slug": "chema-ben-chaabene",
+          "name": "Chema Ben Chaabene"
+        },
+        {
+          "slug": "arbi-khemiri",
+          "name": "Arbi Khemiri"
+        }
+      ],
+      "distinctions": [
+        {
+          "name": "FESPACO - Festival panafricain du cinéma et de la télévision de Ouagadougou",
+          "edition": "23e édition",
+          "year": 2013,
+          "result": "grand-prize",
+          "section": "Compétition courts métrages",
+          "awardName": "Poulain d'Or",
+          "sourceUrl": "https://www.africine.org/film/souliers-de-laid-les-sabbat-el-aid/15680"
+        },
+        {
+          "name": "AfryKamera - Festival du film africain de Pologne",
+          "year": 2013,
+          "result": "winner",
+          "category": "Meilleur court métrage",
+          "sourceUrl": "https://africultures.com/films/?no=15680"
+        },
+        {
+          "name": "Festival international du film oriental de Genève (FIFOG)",
+          "year": 2013,
+          "result": "winner",
+          "category": "Meilleur court métrage",
+          "awardName": "FIFOG d'argent",
+          "sourceUrl": "https://africultures.com/films/?no=15680"
+        },
+        {
+          "name": "Journées cinématographiques de Carthage (JCC)",
+          "edition": "24e édition",
+          "year": 2012,
+          "result": "selected",
+          "section": "Compétition officielle courts métrages",
+          "sourceUrl": "https://www.africine.org/film/souliers-de-laid-les-sabbat-el-aid/15680"
+        },
+        {
+          "name": "Festival international du film de Dubaï",
+          "edition": "9e édition",
+          "year": 2012,
+          "result": "selected",
+          "sourceUrl": "https://www.africine.org/film/souliers-de-laid-les-sabbat-el-aid/15680"
+        }
+      ],
+      "streamingLinks": [
+        {
+          "platform": "artify",
+          "url": "https://artify.tn/watch/les-souliers-de-laid?v=5ebc5814e263c6385846d303",
+          "accessType": "subscription"
+        }
+      ],
+      "videos": [],
+      "sources": [
+        "https://www.africine.org/film/souliers-de-laid-les-sabbat-el-aid/15680",
+        "https://africultures.com/films/?no=15680",
+        "https://www.facebook.com/Artify.tn/videos/disponible-sur-artify-les-souliers-de-la%C3%AFd-%D8%B5%D8%A8%D8%A7%D8%B7-%D8%A7%D9%84%D8%B9%D9%8A%D8%AF/179556577164829/",
+        "https://artify.tn/fr/professional/5bd9b53d1cdda267505b56e7",
+        "https://www.imdb.com/fr/title/tt2409416/"
+      ],
+      "eligibility": {
+        "tunisianLink": "production",
+        "under40Minutes": true,
+        "availability": "official-online"
+      }
+    },
+    {
+      "slug": "comme-un-fils",
+      "approved": false,
+      "title": {
+        "fr": "Comme un fils",
+        "ar": "مثل ابن",
+        "en": "Like a Son"
+      },
+      "synopsis": {},
+      "translationProvenance": {
+        "ar": "ai-drafted",
+        "en": "ai-drafted"
+      },
+      "duration": 13,
+      "releaseYear": 2013,
+      "country": ["TN"],
+      "language": ["aeb"],
+      "genres": ["drame"],
+      "directors": [
+        {
+          "slug": "aymen-lajmi",
+          "name": "Aymen Lajmi"
+        }
+      ],
+      "cast": [
+        {
+          "slug": "mohamed-amine-hamzaoui",
+          "name": "Mohamed Amine Hamzaoui"
+        },
+        {
+          "slug": "mohamed-ali-khmiri",
+          "name": "Mohamed Ali Khmiri"
+        },
+        {
+          "slug": "nadia-lassoued",
+          "name": "Nadia Lassoued"
+        }
+      ],
+      "distinctions": [],
+      "streamingLinks": [
+        {
+          "platform": "youtube",
+          "url": "https://www.youtube.com/watch?v=PeMqkIJ1Oac",
+          "accessType": "free"
+        }
+      ],
+      "videos": [],
+      "sources": [
+        "https://www.youtube.com/watch?v=PeMqkIJ1Oac",
+        "https://cinematunisien.com/blog/2020/09/04/comme-un-fils/",
+        "https://cinematunisien.com/blog/2020/09/04/aymen-lajmi/"
+      ],
+      "eligibility": {
+        "tunisianLink": "production",
+        "under40Minutes": true,
+        "availability": "official-online"
+      }
+    },
+    {
+      "slug": "brotherhood",
+      "approved": false,
+      "title": {
+        "fr": "Brotherhood",
+        "en": "Brotherhood"
+      },
+      "synopsis": {
+        "fr": "Mohamed est berger dans la Tunisie rurale, avec sa femme et leurs deux jeunes fils. Son monde bascule quand son fils aîné rentre d'un long voyage avec une mystérieuse jeune femme qu'il présente comme son épouse.",
+        "ar": "محمد راعٍ في الريف التونسي يعيش مع زوجته وابنيه الصغيرين. ينقلب عالمهم رأسًا على عقب حين يعود الابن الأكبر بعد رحلة طويلة برفقة امرأة غامضة يقول إنها زوجته.",
+        "en": "Mohamed is a shepherd in rural Tunisia with his wife and two young sons. Their world is shaken when the oldest son returns after a long journey with a mysterious woman he says is his wife."
+      },
+      "translationProvenance": {
+        "ar": "original-title",
+        "en": "ai-drafted"
+      },
+      "originalTitle": "إخوان",
+      "duration": 25,
+      "releaseYear": 2018,
+      "country": ["TN", "CA", "QA", "SE"],
+      "language": ["aeb"],
+      "genres": ["drame"],
+      "directors": [
+        {
+          "slug": "meryam-joobeur",
+          "name": "Meryam Joobeur"
+        }
+      ],
+      "cast": [
+        {
+          "slug": "kais-ayari",
+          "name": "Kais Ayari"
+        },
+        {
+          "slug": "mohamed-graiaa",
+          "name": "Mohamed Graïaa"
+        },
+        {
+          "slug": "mouldi-kriden",
+          "name": "Mouldi Kriden"
+        },
+        {
+          "slug": "salha-nasraoui",
+          "name": "Salha Nasraoui"
+        }
+      ],
+      "distinctions": [
+        {
+          "name": "Festival international du film de Toronto (TIFF)",
+          "year": 2018,
+          "result": "winner",
+          "awardName": "Best Canadian Short Film",
+          "sourceUrl": "https://www.shortoftheweek.com/2019/10/02/ikhwene-brotherhood/"
+        },
+        {
+          "name": "Gala Québec Cinéma (Prix Iris)",
+          "edition": "21e édition",
+          "year": 2019,
+          "result": "winner",
+          "category": "Meilleur court métrage - fiction",
+          "sourceUrl": "https://voir.ca/nouvelles/actualite-cinematographique/2019/06/03/ricardo-trogi-debbie-lynch-white-et-emilie-bierre-gagnants-au-gala-quebec-cinema/"
+        },
+        {
+          "name": "Oscars (92e cérémonie des Academy Awards)",
+          "year": 2020,
+          "result": "nominated",
+          "category": "Best Live Action Short Film",
+          "sourceUrl": "https://www.cbc.ca/news/canada/montreal/montreal-director-oscar-nomination-1.5424684"
+        }
+      ],
+      "streamingLinks": [
+        {
+          "platform": "youtube",
+          "url": "https://www.youtube.com/watch?v=ImnbMyEkXX0",
+          "accessType": "free"
+        }
+      ],
+      "videos": [],
+      "sources": [
+        "https://www.youtube.com/watch?v=ImnbMyEkXX0",
+        "https://www.shortoftheweek.com/2019/10/02/ikhwene-brotherhood/",
+        "https://en.wikipedia.org/wiki/Brotherhood_(2018_film)",
+        "https://www.cbc.ca/news/canada/montreal/montreal-director-oscar-nomination-1.5424684",
+        "https://voir.ca/nouvelles/actualite-cinematographique/2019/06/03/ricardo-trogi-debbie-lynch-white-et-emilie-bierre-gagnants-au-gala-quebec-cinema/"
+      ],
+      "eligibility": {
+        "tunisianLink": "co-production",
+        "under40Minutes": true,
+        "availability": "official-online"
+      }
+    },
+    {
+      "slug": "ordure",
+      "approved": false,
+      "title": {
+        "fr": "Ordure",
+        "en": "Garbage"
+      },
+      "synopsis": {
+        "fr": "Mounir, gardien de nuit isolé et solitaire, trouve du réconfort dans une étrange passion : les déchets. Amoureux de Latifa, il se met à récupérer ses ordures et devient le témoin secret de la vie agitée de cette femme.",
+        "ar": "منير حارس ليلي يعيش في عزلة ووحدة، ويجد عزاءه في شغف غريب هو النفايات. وبعد أن يقع في حب لطيفة، يبدأ في جمع نفاياتها فيصير الشاهد السري على حياتها المضطربة.",
+        "en": "Mounir, an isolated and lonely night watchman, finds comfort in a strange passion: rubbish. In love with Latifa, he begins to collect her waste and becomes the secret witness of this woman's turbulent life."
+      },
+      "translationProvenance": {
+        "ar": "original-title",
+        "en": "ai-drafted"
+      },
+      "originalTitle": "العز",
+      "duration": 23,
+      "releaseYear": 2006,
+      "country": ["TN"],
+      "language": ["aeb"],
+      "genres": ["drame"],
+      "directors": [
+        {
+          "slug": "lotfi-achour",
+          "name": "Lotfi Achour"
+        }
+      ],
+      "cast": [
+        {
+          "slug": "nadia-boussetta",
+          "name": "Nadia Boussetta"
+        },
+        {
+          "slug": "noomane-hamda",
+          "name": "Noomane Hamda"
+        },
+        {
+          "slug": "lotfi-abdelli",
+          "name": "Lotfi Abdelli"
+        }
+      ],
+      "distinctions": [],
+      "streamingLinks": [
+        {
+          "platform": "youtube",
+          "url": "https://www.youtube.com/watch?v=PhVtsmgqBWQ",
+          "accessType": "free"
+        }
+      ],
+      "videos": [],
+      "sources": [
+        "https://www.youtube.com/watch?v=PhVtsmgqBWQ",
+        "https://cinematunisien.com/blog/2020/04/12/ordures/",
+        "https://www.youtube.com/@LesApAOfficiel/about"
+      ],
+      "eligibility": {
+        "tunisianLink": "director",
+        "under40Minutes": true,
+        "availability": "official-online"
+      }
+    },
+    {
+      "slug": "flashback",
+      "approved": false,
+      "title": {
+        "fr": "Flashback",
+        "en": "Flashback"
+      },
+      "synopsis": {
+        "fr": "Seif, un jeune homme de 23 ans, est accablé par des conditions défavorables qui l'égarent. Épris de guitare, il est rejeté par l'institution culturelle avant d'être accueilli par le fléau terroriste.",
+        "ar": "سيف شاب في الثالثة والعشرين من عمره، تثقل كاهله ظروف قاسية تضلّ به السبيل. يعشق الغيتار، فتلفظه المؤسسة الثقافية قبل أن تحتضنه آفة الإرهاب.",
+        "en": "Seif, a 23-year-old man, is overwhelmed by unfavourable circumstances that lead him astray. Passionate about the guitar, he is rejected by the cultural institution before being taken in by the scourge of terrorism."
+      },
+      "translationProvenance": {
+        "ar": "original-title",
+        "en": "ai-drafted"
+      },
+      "originalTitle": "فلاشباك",
+      "duration": 15,
+      "country": ["TN"],
+      "language": ["aeb"],
+      "genres": ["drame"],
+      "directors": [
+        {
+          "slug": "waheb-chargui",
+          "name": "Waheb Chargui"
+        }
+      ],
+      "cast": [
+        {
+          "slug": "omar-touihri",
+          "name": "Omar Touihri"
+        }
+      ],
+      "distinctions": [],
+      "streamingLinks": [
+        {
+          "platform": "youtube",
+          "url": "https://www.youtube.com/watch?v=wJKF95Xyf-A",
+          "accessType": "free"
+        }
+      ],
+      "videos": [],
+      "sources": ["https://www.youtube.com/watch?v=wJKF95Xyf-A"],
+      "eligibility": {
+        "tunisianLink": "director",
+        "under40Minutes": true,
+        "availability": "official-online"
+      }
+    },
+    {
+      "slug": "chrifa-bent-el-fadhel",
+      "approved": false,
+      "title": {
+        "fr": "Chrifa Bent El Fadhel",
+        "en": "Chrifa Bent El Fadhel"
+      },
+      "synopsis": {},
+      "translationProvenance": {
+        "ar": "original-title",
+        "en": "ai-drafted"
+      },
+      "originalTitle": "شريفة بنت الفاضل",
+      "duration": 17,
+      "country": ["TN"],
+      "language": ["aeb"],
+      "genres": ["drame"],
+      "directors": [
+        {
+          "slug": "kheyri-habboubi",
+          "name": "Kheyri Habboubi"
+        }
+      ],
+      "distinctions": [],
+      "streamingLinks": [
+        {
+          "platform": "youtube",
+          "url": "https://www.youtube.com/watch?v=72lLlIiSDkQ",
+          "accessType": "free"
+        }
+      ],
+      "videos": [],
+      "sources": [
+        "https://www.youtube.com/watch?v=72lLlIiSDkQ",
+        "https://www.youtube.com/@KDHPROD_films/about"
       ],
       "eligibility": {
         "tunisianLink": "production",
