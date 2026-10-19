@@ -570,6 +570,94 @@
         "under40Minutes": true,
         "availability": "official-online"
       }
+    },
+    {
+      "slug": "bord-a-bord",
+      "approved": false,
+      "title": {
+        "fr": "Bord à bord",
+        "ar": "عالحافة",
+        "en": "On the Edge"
+      },
+      "synopsis": {
+        "fr": "Mounira, une femme d'une trentaine d'années, gagne sa vie en vendant des fricassés traditionnels sur un marché de voitures d'occasion et dans une décharge de ferraille, dans la banlieue sud de Tunis. Dans cet environnement difficile et largement dominé par les hommes, elle se bat chaque jour pour s'imposer et préserver son indépendance.",
+        "ar": "منيرة امرأة في الثلاثينيات من عمرها، تكسب رزقها من بيع الفريكاسي التقليدي في سوق للسيارات المستعملة وفي مكب لخردة الحديد بالضاحية الجنوبية لتونس. في هذا المحيط القاسي الذي يهيمن عليه الرجال إلى حد كبير، تكافح كل يوم لتفرض نفسها وتحافظ على استقلاليتها.",
+        "en": "Mounira, a woman in her thirties, earns her living selling traditional fricassé sandwiches at a used-car market and a scrapyard on the southern outskirts of Tunis. In this harsh, largely male-dominated environment, she fights every day to hold her ground and keep her independence."
+      },
+      "translationProvenance": {
+        "ar": "original-title",
+        "en": "ai-drafted"
+      },
+      "originalTitle": "عالحافة",
+      "duration": 18,
+      "releaseYear": 2024,
+      "country": ["TN"],
+      "language": ["aeb"],
+      "genres": ["drame"],
+      "directors": [
+        {
+          "slug": "sahar-el-echi",
+          "name": "Sahar El Echi"
+        }
+      ],
+      "cast": [
+        {
+          "slug": "mariem-sayeh",
+          "name": "Mariem Sayeh"
+        },
+        {
+          "slug": "mohamed-houcine-grayaa",
+          "name": "Mohamed Houcine Grayaa"
+        },
+        {
+          "slug": "aymen-mejri",
+          "name": "Aymen Mejri"
+        }
+      ],
+      "distinctions": [
+        {
+          "name": "Journées cinématographiques de Carthage (JCC)",
+          "edition": "35e édition",
+          "year": 2024,
+          "result": "winner",
+          "section": "Compétition officielle courts-métrages de fiction",
+          "awardName": "Tanit de bronze",
+          "sourceUrl": "https://cinematunisien.com/blog/2024/12/22/jcc-2024-ceremonie-de-cloture-de-la-35-edition-des-jcc/"
+        },
+        {
+          "name": "Festival international du court-métrage de Clermont-Ferrand",
+          "edition": "47e édition",
+          "year": 2025,
+          "result": "selected",
+          "section": "Regards d'Afrique (section non compétitive)",
+          "sourceUrl": "https://cinematunisien.com/blog/2025/11/23/vu-au-festival-du-court-metrage-de-clermont-ferrand-aal-hafa-bord-a-bord-de-sahar-el-echi-lattachement-dune-femme-a-son-droit-a-la-vie/"
+        },
+        {
+          "name": "Maghreb Film Festival",
+          "year": 2026,
+          "result": "selected",
+          "sourceUrl": "https://www.youtube.com/watch?v=5fYjMv-jkOo"
+        }
+      ],
+      "streamingLinks": [],
+      "videos": [
+        {
+          "url": "https://www.youtube.com/watch?v=5fYjMv-jkOo",
+          "videoType": "trailer"
+        }
+      ],
+      "sources": [
+        "https://www.youtube.com/watch?v=5fYjMv-jkOo",
+        "https://cinematunisien.com/blog/2025/01/15/bord-a-bord/",
+        "https://cinematunisien.com/blog/2024/12/22/jcc-2024-ceremonie-de-cloture-de-la-35-edition-des-jcc/",
+        "https://cinematunisien.com/blog/2025/11/23/vu-au-festival-du-court-metrage-de-clermont-ferrand-aal-hafa-bord-a-bord-de-sahar-el-echi-lattachement-dune-femme-a-son-droit-a-la-vie/",
+        "https://cinematunisien.com/blog/2019/06/17/sahar-el-echi/"
+      ],
+      "eligibility": {
+        "tunisianLink": "production",
+        "under40Minutes": true,
+        "availability": "festival-trailer-only"
+      }
     }
   ]
 }
