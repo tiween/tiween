@@ -35,6 +35,12 @@ export default {
       config: {
         policies: [],
         auth: false,
+        middlewares: [
+          {
+            name: "plugin::creative-works.short-films-rate-limit",
+            config: { max: 600, windowMs: 60000 },
+          },
+        ],
       },
     },
     // `featured` MUST stay above `:slug`, or `:slug` captures "featured"
@@ -46,6 +52,12 @@ export default {
       config: {
         policies: [],
         auth: false,
+        middlewares: [
+          {
+            name: "plugin::creative-works.short-films-rate-limit",
+            config: { max: 600, windowMs: 60000 },
+          },
+        ],
       },
     },
     {
@@ -55,6 +67,12 @@ export default {
       config: {
         policies: [],
         auth: false,
+        middlewares: [
+          {
+            name: "plugin::creative-works.short-films-rate-limit",
+            config: { max: 600, windowMs: 60000 },
+          },
+        ],
       },
     },
     // Detail by slug: keep it the LAST short-films route.
@@ -65,6 +83,12 @@ export default {
       config: {
         policies: [],
         auth: false,
+        middlewares: [
+          {
+            name: "plugin::creative-works.short-films-rate-limit",
+            config: { max: 600, windowMs: 60000 },
+          },
+        ],
       },
     },
     {

@@ -711,3 +711,29 @@ describe("GET short-films/:slug/related (integration)", () => {
     expect(Array.isArray(res.body.data)).toBe(true)
   })
 })
+
+describe("short-films rate limiting wiring (integration)", () => {
+  const PATHS = [
+    LIST,
+    `${LIST}/featured`,
+    `${LIST}/${S.alpha}/related`,
+    `${LIST}/${S.alpha}`,
+  ]
+
+  it("resolves the named middleware at boot and does not throttle normal traffic", async () => {
+    const res = await api().get(LIST)
+
+    expect(res.status).toBe(200)
+    expect(res.status).not.toBe(429)
+  })
+
+  it.each(PATHS)(
+    "GET %s answers below 500 and is not throttled",
+    async (path) => {
+      const res = await api().get(path)
+
+      expect(res.status).toBeLessThan(500)
+      expect(res.status).not.toBe(429)
+    }
+  )
+})
