@@ -48,4 +48,14 @@ describe("creative-works content-api route table", () => {
     expect(route).toBeDefined()
     expect(route.handler).toBe("person.search")
   })
+
+  it("has no route handled by the removed legacy creative-work controller (D-09)", () => {
+    for (const route of routes) {
+      expect(route.handler.startsWith("creative-work.")).toBe(false)
+    }
+  })
+
+  it("has exactly five routes: the four short-films routes and persons search", () => {
+    expect(routes).toHaveLength(5)
+  })
 })

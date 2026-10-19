@@ -737,3 +737,33 @@ describe("short-films rate limiting wiring (integration)", () => {
     }
   )
 })
+
+describe("legacy creative-work routes removed (D-09, integration)", () => {
+  const LEGACY = [
+    "/api/creative-works/creative-works/featured",
+    "/api/creative-works/creative-works/type/film",
+    "/api/creative-works/creative-works/search?q=a",
+  ]
+
+  it.each(LEGACY)("GET %s answers 404", async (path) => {
+    const res = await api().get(path)
+
+    expect(res.status).toBe(404)
+  })
+
+  it("keeps /api/creative-works/persons/search routed (not 404)", async () => {
+    // Persons search needs a role permission, so 403 is acceptable here.
+    const res = await api().get("/api/creative-works/persons/search?q=a")
+
+    expect(res.status).not.toBe(404)
+  })
+
+  it("keeps the facade searchWorks used by the events-manager venue picker", async () => {
+    const result = await (strapi as any)
+      .plugin("creative-works")
+      .service("public-api")
+      .searchWorks("alpha", 5)
+
+    expect(Array.isArray(result)).toBe(true)
+  })
+})
