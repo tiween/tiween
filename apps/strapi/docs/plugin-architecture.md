@@ -307,30 +307,31 @@ When a content type references another plugin's content type:
 Services encapsulate business logic and are the primary way to interact with content types:
 
 ```typescript
-// server/src/services/creative-work.ts
+// server/src/services/short-films.ts (excerpt)
 import type { Core } from "@strapi/strapi"
 
-const creativeWorkService = ({ strapi }: { strapi: Core.Strapi }) => ({
-  async findFeatured(limit = 10) {
+const shortFilmsService = ({ strapi }: { strapi: Core.Strapi }) => ({
+  // Public read: always pass `status: "published"` and force the type in the
+  // filters, so a draft or another work type can never surface.
+  async list({ page, pageSize, sort }: ShortFilmListQuery) {
     return strapi.documents("plugin::creative-works.creative-work").findMany({
-      filters: { featured: true },
-      limit,
+      status: "published",
+      filters: { type: "short-film" },
+      sort: [sort, "id:desc"], // id tiebreaker keeps pages stable
+      start: (page - 1) * pageSize,
+      limit: pageSize,
       populate: ["poster", "genres"],
     })
   },
-
-  async importFromTMDB(tmdbId: number) {
-    // Business logic for TMDB import
-  },
 })
 
-export default creativeWorkService
+export default shortFilmsService
 ```
 
 **Access from other plugins:**
 
 ```typescript
-strapi.plugin("creative-works").service("creative-work").findFeatured()
+strapi.plugin("creative-works").service("short-films").list(query)
 ```
 
 ---
@@ -340,22 +341,23 @@ strapi.plugin("creative-works").service("creative-work").findFeatured()
 Controllers handle HTTP requests and delegate to services:
 
 ```typescript
-// server/src/controllers/creative-work.ts
+// server/src/controllers/short-film.ts (excerpt)
 import type { Core } from "@strapi/strapi"
 
-const creativeWorkController = ({ strapi }: { strapi: Core.Strapi }) => ({
-  async findFeatured(ctx) {
-    const limit = ctx.query.limit || 10
-    const data = await strapi
+const shortFilmController = ({ strapi }: { strapi: Core.Strapi }) => ({
+  async list(ctx) {
+    // Strictly validate the query, delegate to the service, answer an envelope.
+    const query = validate(shortFilmListQuerySchema, ctx.query ?? {})
+    const { data, meta } = await strapi
       .plugin("creative-works")
-      .service("creative-work")
-      .findFeatured(limit)
+      .service("short-films")
+      .list(query)
 
-    ctx.body = { data }
+    ctx.body = { data, meta }
   },
 })
 
-export default creativeWorkController
+export default shortFilmController
 ```
 
 ---
@@ -382,11 +384,17 @@ export default {
   routes: [
     {
       method: "GET",
-      path: "/featured",
-      handler: "creative-work.findFeatured",
+      path: "/creative-works/short-films",
+      handler: "short-film.list",
       config: {
         policies: [],
-        middlewares: [],
+        auth: false, // public route; never `auth: true` (boot fails)
+        middlewares: [
+          {
+            name: "plugin::creative-works.short-films-rate-limit",
+            config: { max: 600, windowMs: 60000 },
+          },
+        ],
       },
     },
   ],

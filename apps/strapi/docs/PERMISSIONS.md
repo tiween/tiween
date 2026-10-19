@@ -227,6 +227,13 @@ GET /api/regions/:id
 GET /api/cities
 GET /api/cities/:id
 
+# Short-film directory (creative-works plugin routes, `auth: false`): no role
+# grant is needed. Contract: docs/short-films-api.md
+GET /api/creative-works/creative-works/short-films
+GET /api/creative-works/creative-works/short-films/featured
+GET /api/creative-works/creative-works/short-films/:slug
+GET /api/creative-works/creative-works/short-films/:slug/related
+
 # Email-change confirmation (Story 4.4) — clicked from the confirmation email,
 # so it must be reachable WITHOUT a session.
 POST /api/auth/confirm-email-change  # users-permissions: Auth.confirmEmailChange
