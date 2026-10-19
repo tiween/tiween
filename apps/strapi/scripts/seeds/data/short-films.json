@@ -1,0 +1,84 @@
+{
+  "retiredSlugs": [
+    "fragments-tunis",
+    "derniere-vague",
+    "souvenirs-medina",
+    "cafe-nocturne",
+    "generation-z"
+  ],
+  "mediaHosts": [],
+  "films": [
+    {
+      "slug": "khalaa",
+      "approved": false,
+      "title": { "fr": "Khalâa", "en": "Khalaa" },
+      "synopsis": {
+        "fr": "Monta et Khalaa, deux arnaqueurs qui vivent dans la rue depuis l'enfance, se croisent à nouveau après des mois de séparation causée par une trahison. Leur rêve de changer de vie est bouleversé par l'arrivée d'un jeune homme nommé Asfour.",
+        "ar": "منتا وخلعة، محتالان يعيشان في الشارع منذ طفولتهما، يلتقيان من جديد بعد أشهر من الفراق الذي سببته خيانة. لكن حلمهما في تغيير حياتهما ينقلب رأسًا على عقب مع ظهور شاب يُدعى عصفور.",
+        "en": "Monta and Khalaa, two hustlers who have lived on the streets since childhood, cross paths again after months apart caused by a betrayal. Their dream of changing their lives is upended by a young man named Asfour."
+      },
+      "translationProvenance": { "ar": "original-title", "en": "ai-drafted" },
+      "originalTitle": "خلعة",
+      "duration": 13,
+      "releaseYear": 2016,
+      "country": ["TN"],
+      "language": ["aeb"],
+      "genres": ["drame"],
+      "directors": [{ "slug": "maher-hasnaoui", "name": "Maher Hasnaoui" }],
+      "distinctions": [
+        {
+          "name": "Concours franco-allemand de courts-métrages",
+          "edition": "4e édition",
+          "year": 2016,
+          "result": "winner",
+          "category": "Prix du meilleur film",
+          "sourceUrl": "https://directinfo.webmanagercenter.com/2016/10/14/khalaa-de-maher-hasnaoui-et-la-fosse-dachref-hammami-laureats-du-concours-franco-allemand-de-courts-metrages-2016/"
+        },
+        {
+          "name": "Journées du court-métrage de Gabès",
+          "year": 2016,
+          "result": "winner",
+          "awardName": "Prix du meilleur court-métrage tunisien 2016",
+          "sourceUrl": "https://cinematunisien.com/blog/2019/06/17/maher-hasnaoui/"
+        },
+        {
+          "name": "Les nuits du court métrage tunisien (Fondation de la maison de Tunisie à Paris)",
+          "edition": "4e édition",
+          "year": 2017,
+          "result": "winner",
+          "category": "Prix de la meilleure fiction",
+          "sourceUrl": "https://www.webmanagercenter.com/2017/01/30/402367/khalaa-de-maher-hasnaoui-sacre-meilleure-fiction/"
+        },
+        {
+          "name": "Festival international du film pour l'enfance et la jeunesse de Sousse (FIFEJ)",
+          "edition": "12e édition",
+          "year": 2017,
+          "result": "winner",
+          "section": "Compétition nationale du premier court métrage",
+          "awardName": "Rameau d'Or",
+          "sourceUrl": "https://www.tekiano.com/2017/03/30/le-court-metrage-tunisien-khalaa-obtient-le-prix-hadrumete-dor-au-fifej-sousse/"
+        }
+      ],
+      "streamingLinks": [
+        {
+          "platform": "youtube",
+          "url": "https://www.youtube.com/watch?v=9joWma-XKcQ",
+          "accessType": "free"
+        }
+      ],
+      "videos": [],
+      "sources": [
+        "https://www.youtube.com/watch?v=9joWma-XKcQ",
+        "https://cinematunisien.com/blog/2019/06/17/maher-hasnaoui/",
+        "https://directinfo.webmanagercenter.com/2016/10/14/khalaa-de-maher-hasnaoui-et-la-fosse-dachref-hammami-laureats-du-concours-franco-allemand-de-courts-metrages-2016/",
+        "https://www.webmanagercenter.com/2017/01/30/402367/khalaa-de-maher-hasnaoui-sacre-meilleure-fiction/",
+        "https://www.tekiano.com/2017/03/30/le-court-metrage-tunisien-khalaa-obtient-le-prix-hadrumete-dor-au-fifej-sousse/"
+      ],
+      "eligibility": {
+        "tunisianLink": "production",
+        "under40Minutes": true,
+        "availability": "official-online"
+      }
+    }
+  ]
+}
