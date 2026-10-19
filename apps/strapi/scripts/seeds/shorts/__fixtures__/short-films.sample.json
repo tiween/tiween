@@ -1,0 +1,126 @@
+{
+  "retiredSlugs": [],
+  "mediaHosts": [],
+  "films": [
+    {
+      "slug": "sample-one",
+      "approved": true,
+      "title": { "fr": "Premier exemple", "en": "First sample" },
+      "synopsis": {
+        "fr": "Un court metrage d'exemple pour tester l'import.",
+        "en": "A sample short film used to test the import."
+      },
+      "translationProvenance": { "ar": "original-title", "en": "owner" },
+      "originalTitle": "مثال أول",
+      "duration": 12,
+      "releaseYear": 2021,
+      "country": ["TN", "FR"],
+      "language": ["aeb", "fr"],
+      "genres": ["drame"],
+      "directors": [{ "slug": "sample-director-one", "name": "Sample Director One" }],
+      "crew": [
+        {
+          "slug": "sample-writer-one",
+          "name": "Sample Writer One",
+          "roleSlug": "screenwriter"
+        }
+      ],
+      "cast": [{ "slug": "sample-actor-one", "name": "Sample Actor One" }],
+      "distinctions": [
+        {
+          "name": "Sample Festival",
+          "year": 2021,
+          "result": "selected",
+          "section": "Short films",
+          "sourceUrl": "https://example.org/sample-festival/2021"
+        }
+      ],
+      "streamingLinks": [
+        {
+          "platform": "youtube",
+          "url": "https://www.youtube.com/watch?v=aaaaaaaaaaa",
+          "accessType": "free"
+        }
+      ],
+      "videos": [
+        {
+          "url": "https://www.youtube.com/watch?v=aaaaaaaaaaa",
+          "videoType": "full-length"
+        }
+      ],
+      "backdrop": {
+        "sourceUrl": "https://i.ytimg.com/vi/aaaaaaaaaaa/maxresdefault.jpg",
+        "alt": "Premier exemple"
+      },
+      "poster": {
+        "sourceUrl": "https://artify.tn/media/sample-one-poster.jpg",
+        "creditUrl": "https://artify.tn/films/sample-one"
+      },
+      "featured": true,
+      "featuredRank": 1,
+      "sources": ["https://example.org/sample-one"],
+      "eligibility": {
+        "tunisianLink": "co-production",
+        "under40Minutes": true,
+        "availability": "official-online"
+      }
+    },
+    {
+      "slug": "sample-two",
+      "approved": true,
+      "title": {
+        "fr": "Deuxième exemple",
+        "ar": "مثال ثان",
+        "en": "Second sample"
+      },
+      "synopsis": {
+        "fr": "<p>Un <b>exemple</b> sans affiche.</p>",
+        "ar": "فيلم قصير تجريبي بدون ملصق.",
+        "en": "A sample film without a poster."
+      },
+      "translationProvenance": { "ar": "ai-drafted", "en": "ai-drafted" },
+      "duration": 18,
+      "releaseYear": 2022,
+      "country": ["TN"],
+      "language": ["aeb"],
+      "genres": ["comedie", "drame"],
+      "directors": [{ "slug": "sample-director-two", "name": "Sample Director Two" }],
+      "distinctions": [],
+      "streamingLinks": [
+        {
+          "platform": "youtube",
+          "url": "https://www.youtube.com/watch?v=bbbbbbbbbbb",
+          "accessType": "free",
+          "label": "Chaine officielle"
+        }
+      ],
+      "videos": [],
+      "sources": ["https://example.org/sample-two"],
+      "eligibility": {
+        "tunisianLink": "director",
+        "under40Minutes": true,
+        "availability": "official-online"
+      }
+    },
+    {
+      "slug": "sample-unapproved",
+      "approved": false,
+      "title": { "fr": "Exemple non approuvé" },
+      "synopsis": {},
+      "translationProvenance": { "ar": "ai-drafted", "en": "ai-drafted" },
+      "country": ["TN"],
+      "language": ["fr"],
+      "genres": ["drame"],
+      "directors": [{ "slug": "sample-director-three", "name": "Sample Director Three" }],
+      "distinctions": [],
+      "streamingLinks": [],
+      "videos": [{ "url": "https://vimeo.com/123456789", "videoType": "trailer" }],
+      "sources": ["https://example.org/sample-unapproved"],
+      "eligibility": {
+        "tunisianLink": "production",
+        "under40Minutes": true,
+        "availability": "festival-trailer-only"
+      }
+    }
+  ]
+}
