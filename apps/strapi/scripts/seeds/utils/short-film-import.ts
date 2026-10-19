@@ -207,6 +207,27 @@ export const shortFilmSeedEntrySchema = z
         message: "WATCH_SOURCE_REQUIRED",
       })
     }
+
+    // Kernel rule: Arabic text uses Western digits, never Arabic-Indic ones.
+    const arabicFields: Array<[Array<string>, string | undefined]> = [
+      [["title", "ar"], entry.title.ar],
+      [["synopsis", "ar"], entry.synopsis.ar],
+      [
+        ["originalTitle"],
+        entry.originalTitle && isArabicScript(entry.originalTitle)
+          ? entry.originalTitle
+          : undefined,
+      ],
+    ]
+    for (const [path, text] of arabicFields) {
+      if (text !== undefined && hasArabicIndicDigits(text)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path,
+          message: "ARABIC_INDIC_DIGITS",
+        })
+      }
+    }
   })
 
 export type ShortFilmSeedEntry = z.infer<typeof shortFilmSeedEntrySchema>
@@ -220,6 +241,45 @@ export const shortFilmSeedFileSchema = z
     films: z.array(shortFilmSeedEntrySchema),
   })
   .strict()
+  .superRefine((file, ctx) => {
+    const issue = (path: Array<string | number>, message: string) =>
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path, message })
+
+    const slugs = new Set<string>()
+    const personNames = new Map<string, string>()
+    file.films.forEach((film, index) => {
+      if (slugs.has(film.slug))
+        issue(["films", index, "slug"], "DUPLICATE_SLUG")
+      slugs.add(film.slug)
+
+      // One person slug maps to one person row, so it must keep one name.
+      const groups = [
+        ["directors", film.directors],
+        ["crew", film.crew ?? []],
+        ["cast", film.cast ?? []],
+      ] as const
+      for (const [group, people] of groups) {
+        people.forEach((person, personIndex) => {
+          const known = personNames.get(person.slug)
+          if (known !== undefined && known !== person.name) {
+            issue(
+              ["films", index, group, personIndex, "name"],
+              "PERSON_NAME_CONFLICT"
+            )
+          }
+          personNames.set(person.slug, known ?? person.name)
+        })
+      }
+    })
+
+    const approved = new Set(
+      file.films.filter((film) => film.approved).map((film) => film.slug)
+    )
+    file.retiredSlugs.forEach((slug, index) => {
+      if (approved.has(slug))
+        issue(["retiredSlugs", index], "RETIRED_SLUG_IN_FILMS")
+    })
+  })
 
 export type ShortFilmSeedFile = z.infer<typeof shortFilmSeedFileSchema>
 
@@ -283,7 +343,7 @@ export function buildShortFilmData(
     originalTitle: entry.originalTitle ?? null,
     slug: entry.slug,
     type: "short-film" as const,
-    synopsis: entry.synopsis.fr ?? null,
+    synopsis: strippedOrNull(entry.synopsis.fr),
     duration: entry.duration ?? null,
     releaseYear: entry.releaseYear ?? null,
     country: [...entry.country],
@@ -318,4 +378,359 @@ export function buildShortFilmData(
     ...(ids.posterId !== undefined ? { poster: ids.posterId } : {}),
     ...(ids.backdropId !== undefined ? { backdrop: ids.backdropId } : {}),
   }
+}
+
+/* -------------------------------------------------------------------------- */
+/* Text helpers                                                               */
+/* -------------------------------------------------------------------------- */
+
+/** Arabic-Indic (U+0660-0669) and extended Arabic-Indic (U+06F0-06F9) digits. */
+export function hasArabicIndicDigits(text: string): boolean {
+  return /[\u0660-\u0669\u06F0-\u06F9]/.test(text)
+}
+
+/** Arabic letters and no Latin letters: a title that is written in Arabic. */
+function isArabicScript(text: string): boolean {
+  return /[\u0600-\u06FF\u0750-\u077F]/.test(text) && !/[A-Za-z]/.test(text)
+}
+
+/**
+ * Plain text from a synopsis (T-01-32): the AI-drafted and curated text is
+ * stored as richtext and rendered by the client as untrusted markdown, so no
+ * markup is ever stored. Block-level tags become paragraph breaks, `script` and
+ * `style` content is dropped, an unclosed tag is removed to its end, and a bare
+ * comparison sign (`5 < 6`) is kept.
+ */
+export function stripHtml(text: string): string {
+  const stripped = text
+    .replace(/<(script|style)\b[^>]*>[\s\S]*?<\/\1\s*>/gi, "")
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/(p|div|li|h[1-6]|blockquote)\s*>/gi, "\n\n")
+    .replace(/<\/?[a-zA-Z!][^>]*>?/g, "")
+
+  return stripped
+    .split("\n")
+    .map((line) => line.replace(/[ \t\u00A0]+/g, " ").trim())
+    .join("\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim()
+}
+
+function strippedOrNull(text: string | undefined): string | null {
+  if (text === undefined) return null
+  const stripped = stripHtml(text)
+  return stripped === "" ? null : stripped
+}
+
+/* -------------------------------------------------------------------------- */
+/* Localized rows (D-13)                                                      */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * The Arabic title: the Arabic-script `originalTitle` when there is one,
+ * otherwise `title.ar`. Undefined when the film has neither.
+ */
+export function resolveArabicTitle(
+  entry: ShortFilmSeedEntry
+): string | undefined {
+  if (entry.originalTitle && isArabicScript(entry.originalTitle)) {
+    return entry.originalTitle
+  }
+  return entry.title.ar
+}
+
+/**
+ * The localized fields of one translation row: exactly `title`, `synopsis` and
+ * `poster` (the poster is localized, so its id is replicated into every row).
+ * A missing translation stays `undefined`, which the Document Service leaves
+ * untouched, so a re-import never blanks text an editor reviewed by hand.
+ */
+export function buildLocalizedData(
+  entry: ShortFilmSeedEntry,
+  locale: string,
+  posterId: number | undefined
+) {
+  const title =
+    locale === "ar"
+      ? resolveArabicTitle(entry)
+      : (entry.title as Record<string, string | undefined>)[locale]
+  const synopsis = (entry.synopsis as Record<string, string | undefined>)[
+    locale
+  ]
+
+  return {
+    title,
+    synopsis: synopsis === undefined ? undefined : stripHtml(synopsis),
+    poster: posterId,
+  }
+}
+
+/**
+ * Every AR/EN field that is not owner-reviewed (D-13), so the report can hand
+ * the owner a review list. `original-title` vouches for the Arabic TITLE only:
+ * any other Arabic field that is present is still listed.
+ */
+export function collectAiDraftedFields(
+  entry: ShortFilmSeedEntry
+): Array<{ slug: string; locale: string; fields: string[] }> {
+  const result: Array<{ slug: string; locale: string; fields: string[] }> = []
+
+  for (const locale of ["ar", "en"] as const) {
+    const provenance = entry.translationProvenance[locale]
+    if (provenance === "owner") continue
+
+    const fields: string[] = []
+    const title = (entry.title as Record<string, string | undefined>)[locale]
+    const titleIsDrafted =
+      provenance === "ai-drafted" &&
+      title !== undefined &&
+      (locale !== "ar" || resolveArabicTitle(entry) === title)
+    if (titleIsDrafted) fields.push("title")
+    if (
+      (entry.synopsis as Record<string, string | undefined>)[locale] !==
+      undefined
+    ) {
+      fields.push("synopsis")
+    }
+    if (fields.length > 0) result.push({ slug: entry.slug, locale, fields })
+  }
+
+  return result
+}
+
+/* -------------------------------------------------------------------------- */
+/* Country names                                                              */
+/* -------------------------------------------------------------------------- */
+
+/** Lowercase, accent-free French and English names for the mock's countries. */
+const COUNTRY_NAMES: Record<string, string> = {
+  tunisie: "TN",
+  tunisia: "TN",
+  france: "FR",
+  canada: "CA",
+  qatar: "QA",
+  belgique: "BE",
+  belgium: "BE",
+  suisse: "CH",
+  switzerland: "CH",
+  maroc: "MA",
+  morocco: "MA",
+  algerie: "DZ",
+  algeria: "DZ",
+  liban: "LB",
+  lebanon: "LB",
+  egypte: "EG",
+  egypt: "EG",
+  italie: "IT",
+  italy: "IT",
+  allemagne: "DE",
+  germany: "DE",
+  espagne: "ES",
+  spain: "ES",
+  "etats-unis": "US",
+  "etats unis": "US",
+  "united states": "US",
+  usa: "US",
+  "royaume-uni": "GB",
+  "royaume uni": "GB",
+  "united kingdom": "GB",
+  uk: "GB",
+}
+
+function foldName(name: string): string {
+  return name
+    .normalize("NFD")
+    .replace(/\p{M}/gu, "")
+    .toLowerCase()
+    .replace(/\s+/g, " ")
+    .trim()
+}
+
+/**
+ * ISO 3166-1 alpha-2 codes for a free-text country list such as
+ * "Tunisie / France" (the mock catalog's format). Throws
+ * `UNKNOWN_COUNTRY_NAME: <name>` for a name outside the table rather than
+ * guessing: a wrong country would reach the Phase 3 index and the filters.
+ */
+export function mapCountryNames(text: string): string[] {
+  const codes: string[] = []
+  for (const part of text.split(/\s*[/,;&+]\s*|\s+(?:et|and)\s+/i)) {
+    const name = part.trim()
+    if (name === "") continue
+    const code = COUNTRY_NAMES[foldName(name)]
+    if (!code) throw new Error(`UNKNOWN_COUNTRY_NAME: ${name}`)
+    if (!codes.includes(code)) codes.push(code)
+  }
+  return codes
+}
+
+/* -------------------------------------------------------------------------- */
+/* Change detection                                                           */
+/* -------------------------------------------------------------------------- */
+
+const MEDIA_KEYS: ReadonlySet<string> = new Set(["poster", "backdrop"])
+
+type Plain = Record<string, unknown>
+
+function isPlain(value: unknown): value is Plain {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    !Array.isArray(value) &&
+    !(value instanceof Date)
+  )
+}
+
+/** A leaf of the payload we are about to write, in comparable form. */
+function leafOf(value: unknown): unknown {
+  if (value === undefined || value === null) return null
+  if (value instanceof Date) return value.toISOString()
+  return value
+}
+
+/** Canonical form of the next payload: no nulls or undefined, sorted keys. */
+function canonicalNext(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(canonicalNext)
+  if (isPlain(value)) {
+    const out: Plain = {}
+    for (const key of Object.keys(value).sort()) {
+      const next = canonicalNext(value[key])
+      if (next !== null) out[key] = next
+    }
+    return out
+  }
+  return leafOf(value)
+}
+
+/**
+ * The part of an existing (populated) row that `next` is about, in the same
+ * canonical form: only the keys `next` names are looked at, a populated relation
+ * becomes its documentId, a populated upload becomes its numeric id, and keys
+ * Strapi adds (ids, timestamps, component defaults) are ignored.
+ */
+function canonicalExisting(
+  existing: unknown,
+  next: unknown,
+  key?: string
+): unknown {
+  if (Array.isArray(next)) {
+    const items = Array.isArray(existing) ? existing : []
+    return items.map((item, index) => canonicalExisting(item, next[index], key))
+  }
+  if (isPlain(next)) {
+    const source = isPlain(existing) ? existing : {}
+    const out: Plain = {}
+    for (const nextKey of Object.keys(next).sort()) {
+      if (next[nextKey] === undefined) continue
+      const value = canonicalExisting(source[nextKey], next[nextKey], nextKey)
+      if (value !== null) out[nextKey] = value
+    }
+    return out
+  }
+
+  if (isPlain(existing)) {
+    if (key !== undefined && MEDIA_KEYS.has(key)) return leafOf(existing.id)
+    if (typeof existing.documentId === "string") return existing.documentId
+    return existing
+  }
+  // A driver may hand an integer back as a numeric string.
+  if (
+    typeof existing === "string" &&
+    typeof next === "number" &&
+    Number(existing) === next
+  ) {
+    return next
+  }
+  return leafOf(existing)
+}
+
+/**
+ * True when writing `next` over `existing` would change something (D-11
+ * idempotency, research Pitfall 8: a republish rewrites `publishedAt`, so an
+ * unchanged film must be skipped entirely).
+ *
+ * Comparison is next-driven: keys `next` leaves out (an image an editor attached
+ * by hand) are never compared, null and missing are equal, key order is
+ * irrelevant, and component order is significant.
+ */
+export function payloadDiffers(existing: unknown, next: unknown): boolean {
+  return (
+    JSON.stringify(canonicalExisting(existing, next)) !==
+    JSON.stringify(canonicalNext(next))
+  )
+}
+
+/* -------------------------------------------------------------------------- */
+/* Issue reporting                                                            */
+/* -------------------------------------------------------------------------- */
+
+export interface SeedFileIssue {
+  /** Slug of the offending film, when the issue sits under `films.<n>`. */
+  slug?: string
+  /** Dotted path, e.g. `films.1.country`. */
+  path: string
+  /** A CODE, never prose. */
+  code: string
+}
+
+const CODE_PATTERN = /^[A-Z][A-Z0-9_]+$/
+
+/** Every Zod issue as a (path, code) pair; library prose is mapped to a code. */
+export function toSeedIssues(
+  error: z.ZodError
+): Array<{ path: string; code: string }> {
+  return error.issues.flatMap(
+    (issue): Array<{ path: string; code: string }> => {
+      if (issue.code === z.ZodIssueCode.unrecognized_keys) {
+        return issue.keys.map((key) => ({
+          path: [...issue.path, key].join("."),
+          code: "UNKNOWN_KEY",
+        }))
+      }
+      const path = issue.path.join(".")
+      if (CODE_PATTERN.test(issue.message))
+        return [{ path, code: issue.message }]
+      switch (issue.code) {
+        case z.ZodIssueCode.invalid_type:
+          return [
+            {
+              path,
+              code:
+                issue.received === "undefined" ? "REQUIRED" : "INVALID_TYPE",
+            },
+          ]
+        case z.ZodIssueCode.invalid_enum_value:
+          return [{ path, code: "INVALID_VALUE" }]
+        case z.ZodIssueCode.too_small:
+          return [{ path, code: "TOO_SMALL" }]
+        case z.ZodIssueCode.too_big:
+          return [{ path, code: "TOO_BIG" }]
+        default:
+          return [{ path, code: "INVALID" }]
+      }
+    }
+  )
+}
+
+/**
+ * Validate a raw data file and return coded issues, each naming the film it
+ * belongs to. Empty for a valid file. Used by `--dry-run` (no Strapi boot).
+ */
+export function listSeedFileIssues(raw: unknown): SeedFileIssue[] {
+  const result = shortFilmSeedFileSchema.safeParse(raw)
+  if (result.success) return []
+
+  const films = (raw as { films?: unknown } | null)?.films
+  return result.error.issues.flatMap((issue) => {
+    const [head, index] = issue.path
+    const film =
+      head === "films" && typeof index === "number" && Array.isArray(films)
+        ? (films[index] as { slug?: unknown } | undefined)
+        : undefined
+    const slug = typeof film?.slug === "string" ? film.slug : undefined
+
+    // Re-run the single-issue mapping so the code logic lives in one place.
+    const mapped = toSeedIssues(new z.ZodError([issue]))
+    return mapped.map((item) => (slug ? { slug, ...item } : item))
+  })
 }

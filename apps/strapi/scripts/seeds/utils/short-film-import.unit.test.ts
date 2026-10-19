@@ -37,6 +37,7 @@ const ids = {
     "sample-director-one": "p-dir",
     "sample-writer-one": "p-wri",
     "sample-actor-one": "p-act",
+    "sample-director-two": "p-dir2",
   },
   creditRoles: { director: "r-dir", screenwriter: "r-wri" },
   posterId: 11,
@@ -345,8 +346,12 @@ describe("stripHtml", () => {
     expect(stripHtml("5 < 6 and 7 > 6")).toBe("5 < 6 and 7 > 6")
   })
 
-  it("collapses whitespace", () => {
-    expect(stripHtml("  a \n\n  b  ")).toBe("a b")
+  it("collapses runs of spaces but keeps paragraph breaks", () => {
+    expect(stripHtml("  a   b \n\n\n\n  c  ")).toBe("a b\n\nc")
+  })
+
+  it("turns block tags and line breaks into paragraph breaks", () => {
+    expect(stripHtml("<p>One</p><p>Two<br>three</p>")).toBe("One\n\nTwo\nthree")
   })
 })
 
