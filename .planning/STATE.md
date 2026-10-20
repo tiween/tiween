@@ -5,16 +5,16 @@ milestone_name: Shorts Directory
 current_phase: 01
 current_phase_name: Short-Film Catalog Backend
 status: executing
-stopped_at: Completed 01-11-PLAN.md
-last_updated: "2026-10-19T20:44:02.881Z"
+stopped_at: Completed 01-12-PLAN.md
+last_updated: "2026-10-20T07:32:50.209Z"
 last_activity: 2026-10-19
 last_activity_desc: Phase 01 execution started
-state_head: c1865a8ba1a3ab86a66a5e0b00c3c24c6487ed22
+state_head: c77bb70e9cd5ed0f9e41a3899599e8b09d6c8238
 progress:
   total_phases: 6
   completed_phases: 0
   total_plans: 14
-  completed_plans: 12
+  completed_plans: 13
 ---
 
 # Project State
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-10-18)
 ## Current Position
 
 Phase: 01 (Short-Film Catalog Backend) — EXECUTING
-Plan: 12 of 14
+Plan: 13 of 14
 Status: Ready to execute
 Last activity: 2026-10-19 — Phase 01 execution started
 
@@ -57,20 +57,21 @@ Progress: [░░░░░░░░░░] 0%
 _Updated after each plan completion_
 **Per-Plan Metrics:**
 
-| Plan         | Duration | Tasks   | Files    |
-| ------------ | -------- | ------- | -------- |
-| Phase 01 P01 | 22 min   | 2 tasks | 1 files  |
-| Phase 01 P02 | 20 min   | 2 tasks | 10 files |
-| Phase 01 P07 | 17 min   | 2 tasks | 9 files  |
-| Phase 01 P14 | 12 min   | 2 tasks | 6 files  |
-| Phase 01 P03 | 28 min   | 3 tasks | 12 files |
-| Phase 01 P06 | 36 min   | 2 tasks | 12 files |
-| Phase 01 P08 | 25 min   | 2 tasks | 10 files |
-| Phase 01 P04 | 15 min   | 2 tasks | 8 files  |
-| Phase 01 P09 | 64min    | 2 tasks | 12 files |
-| Phase 01 P10 | 30 min   | 3 tasks | 9 files  |
-| Phase 01 P05 | 14 min   | 3 tasks | 12 files |
-| Phase 01 P11 | 28 min   | 2 tasks | 3 files  |
+| Plan         | Duration                 | Tasks   | Files    |
+| ------------ | ------------------------ | ------- | -------- |
+| Phase 01 P01 | 22 min                   | 2 tasks | 1 files  |
+| Phase 01 P02 | 20 min                   | 2 tasks | 10 files |
+| Phase 01 P07 | 17 min                   | 2 tasks | 9 files  |
+| Phase 01 P14 | 12 min                   | 2 tasks | 6 files  |
+| Phase 01 P03 | 28 min                   | 3 tasks | 12 files |
+| Phase 01 P06 | 36 min                   | 2 tasks | 12 files |
+| Phase 01 P08 | 25 min                   | 2 tasks | 10 files |
+| Phase 01 P04 | 15 min                   | 2 tasks | 8 files  |
+| Phase 01 P09 | 64min                    | 2 tasks | 12 files |
+| Phase 01 P10 | 30 min                   | 3 tasks | 9 files  |
+| Phase 01 P05 | 14 min                   | 3 tasks | 12 files |
+| Phase 01 P11 | 28 min                   | 2 tasks | 3 files  |
+| Phase 01 P12 | 2 days (checkpoint wait) | 3 tasks | 2 files  |
 
 ## Accumulated Context
 
@@ -111,6 +112,7 @@ Decisions are logged in PROJECT.md (Locked Decisions and Key Decisions table). R
 - [Phase 01]: le-masseur and tahtima held out of the data file as needs-owner-input: only third-party uploads exist (D-16 forbids re-uploads), tahtima also has no verifiable director
 - [Phase 01]: chrifa-bent-el-fadhel credits Kheyri Habboubi from the producer's own video description and channel page (single source, owner to confirm); no film has a real 2:3 poster so all 8 included films rely on the D-20 bypass
 - [Phase 01]: Unverified facts (years, Arabic original title, synopses) are omitted from the data file instead of carried from the mock; streamingLinks is the single watch source (videos left empty)
+- [Phase 01]: Owner approved all 13 include films (approve-all, 2026-10-20); mediaHosts stays []; 13 open sheet questions accepted as presented and carried to 01-13 review list
 
 ### Pending Todos
 
@@ -136,6 +138,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-10-19T20:44:02.800Z
-Stopped at: Completed 01-11-PLAN.md
+Last session: 2026-10-20T07:32:50.128Z
+Stopped at: Completed 01-12-PLAN.md
 Resume file: None
