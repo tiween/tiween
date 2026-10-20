@@ -136,8 +136,26 @@ Items acknowledged and deferred at milestone close, most recent first:
 | -------- | -------------------------------------------------------- | ------ | ----------- | --------- |
 | _(none)_ | v2+ work is parked as 999.x phases in ROADMAP.md Backlog |        |             |           |
 
+## Needs Human
+
+| Phase | State       | Resume                                                                                             |
+| ----- | ----------- | -------------------------------------------------------------------------------------------------- |
+| 1     | needs_human | resolve the 01-13 ImageKit upload failure, then /gsd-autonomous --from 1 (resumes at 01-13 Task 1) |
+
+01-13 Task 1 (`seed:shorts --verify` on dev Postgres + ImageKit) failed 3 fix-and-retry attempts (2026-10-20):
+
+1. and 2. `UPLOAD_PROVIDER_NOT_IMAGEKIT`: the ImageKit keys were only in the repo-root `.env`, which Strapi never loads. The owner then added them to `apps/strapi/.env`.
+2. The ImageKit config now loads, but every upload is rejected. The log shows 45 `Unable to upload file.` lines and the `files` table has 0 rows. The importer then crashed on film 9 (`bord-a-bord`) with an unhandled promise rejection.
+
+Unmet items:
+
+- **Upload rejection cause unknown:** the provider logs no detail, only ImageKit's error object `message`. Possible causes are invalid or mismatched keys, a wrong `IMAGEKIT_URL_ENDPOINT`, account permissions or quota, or the network.
+- **Dev DB left partial:** 8 films (khalaa … chrifa-bent-el-fadhel) are published in fr, with ar and en rows, but have no media because of the POSTER_REQUIRED bypass. The other 5 approved films were not imported. Nothing has been cleaned up.
+- **Importer defect (01-10):** an upload failure kills the process instead of landing in the report's `failed` list.
+- **Uncommitted:** `apps/strapi/scripts/seeds/data/short-films.json` has `approved: true` on the 13 owner-approved slugs.
+
 ## Session Continuity
 
 Last session: 2026-10-20T07:32:50.128Z
-Stopped at: Completed 01-12-PLAN.md
+Stopped at: 01-13 Task 1 blocked (needs_human: ImageKit uploads rejected)
 Resume file: None
