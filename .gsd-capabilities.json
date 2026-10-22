@@ -1,0 +1,16 @@
+{
+  "version": "1",
+  "updatedAt": "2026-10-22T15:05:21.251Z",
+  "entries": {
+    "tiween-build-rules": {
+      "id": "tiween-build-rules",
+      "version": "0.1.0",
+      "source": "./tools/gsd-capabilities/tiween-build-rules",
+      "integrity": "",
+      "files": [
+        ".gsd/capabilities/tiween-build-rules"
+      ],
+      "sharedEdits": []
+    }
+  }
+}

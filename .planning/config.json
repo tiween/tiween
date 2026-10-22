@@ -1,0 +1,32 @@
+{
+  "workflow": {
+    "_auto_chain_active": false
+  },
+  "agent_skills": {
+    "gsd-ui-researcher": [
+      ".claude/skills/strapi-design-system",
+      "global:strapi-ui-design:strapi-ui-design"
+    ],
+    "gsd-ui-checker": [
+      ".claude/skills/strapi-design-system",
+      "global:strapi-ui-design:strapi-ui-design"
+    ],
+    "gsd-planner": [
+      ".claude/skills/strapi-design-system",
+      "global:strapi-plugin-dev:strapi-plugin-dev"
+    ],
+    "gsd-plan-checker": [
+      ".claude/skills/strapi-design-system",
+      "global:strapi-plugin-dev:strapi-plugin-dev"
+    ],
+    "gsd-executor": [
+      ".claude/skills/strapi-design-system",
+      "global:strapi-plugin-dev:strapi-plugin-dev",
+      "global:strapi-ui-design:strapi-ui-design"
+    ],
+    "gsd-verifier": [
+      ".claude/skills/strapi-design-system",
+      "global:strapi-plugin-dev:strapi-plugin-dev"
+    ]
+  }
+}

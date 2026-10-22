@@ -1,0 +1,72 @@
+{
+  "id": "tiween-build-rules",
+  "role": "feature",
+  "version": "0.1.0",
+  "title": "Tiween build rules",
+  "description": "Plugin-first Strapi development and design-docs-before-build: injects the rules into planning and blocks plans that skip DESIGN.md/EXPERIENCE.md mockup approval or put new backend code outside a local plugin.",
+  "tier": "standard",
+  "requires": [],
+  "engines": { "gsd": ">=1.6.0" },
+  "runtimeCompat": { "supported": ["*"], "unsupported": [] },
+  "skills": [],
+  "agents": [],
+  "config": {
+    "tiween.design_docs_gate": {
+      "type": "boolean",
+      "default": true,
+      "description": "Block a planned phase unless its folder has DESIGN.md and EXPERIENCE.md with an approved (or waived) mockup."
+    },
+    "tiween.plugin_first_gate": {
+      "type": "boolean",
+      "default": true,
+      "description": "Block a planned phase whose plans add Strapi code outside apps/strapi/src/plugins/ without a plugin_waiver."
+    }
+  },
+  "steps": [],
+  "contributions": [
+    {
+      "point": "plan:pre",
+      "into": "planner",
+      "fragment": { "path": "fragments/rules.md" },
+      "produces": [],
+      "consumes": [],
+      "onError": "skip"
+    },
+    {
+      "point": "plan:pre",
+      "into": "checker",
+      "fragment": { "path": "fragments/rules.md" },
+      "produces": [],
+      "consumes": [],
+      "onError": "skip"
+    }
+  ],
+  "gates": [
+    {
+      "point": "plan:post",
+      "check": {
+        "predicate": {
+          "kind": "command-exit-zero",
+          "command": "node tools/gsd-capabilities/tiween-build-rules/bin/check-design-docs.cjs \"${PHASE_DIR}\"",
+          "timeout": 30
+        }
+      },
+      "when": "tiween.design_docs_gate",
+      "blocking": true,
+      "onError": "halt"
+    },
+    {
+      "point": "plan:post",
+      "check": {
+        "predicate": {
+          "kind": "command-exit-zero",
+          "command": "node tools/gsd-capabilities/tiween-build-rules/bin/check-plugin-first.cjs \"${PHASE_DIR}\"",
+          "timeout": 30
+        }
+      },
+      "when": "tiween.plugin_first_gate",
+      "blocking": true,
+      "onError": "halt"
+    }
+  ]
+}

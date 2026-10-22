@@ -22,3 +22,11 @@ Two standing rules that are not yet encoded anywhere GSD planners read:
 - Add both rules to the project's planning conventions (CLAUDE.md and/or `_bmad-output/project-context.md` agent rules) so discuss/plan agents enforce them.
 - Make phase planning produce `DESIGN.md` + `EXPERIENCE.md` in the phase dir (before `/gsd-ui-phase` / execution) for any phase with UI or data-entry, then a mockup review gate.
 - Apply first to the upcoming Strapi-Backed Shorts Pages and Directory Experience and Brand phases.
+
+## Resolution (2026-10-22)
+
+- GSD capability `tools/gsd-capabilities/tiween-build-rules/` (installed `--scope project`): rules injected into planner + plan checker at plan:pre; two blocking plan:post gates (design docs + approved mockup; plugin-first via `files_modified`).
+- Project skill `.claude/skills/strapi-design-system/` copied from the Claude Design "Strapi Design System" project (rules + foundations; component API intentionally not copied — code uses `@strapi/design-system` v2).
+- `agent_skills` in `.planning/config.json` for ui-researcher, ui-checker, planner, plan-checker, executor, verifier (project skill + `strapi-ui-design` / `strapi-plugin-dev` plugin skills).
+- `CLAUDE.md` "Build rules" section.
+- Open: move the Strapi DS into Claude's in-app design systems before standalone Claude Design closes (2026-12-14).
