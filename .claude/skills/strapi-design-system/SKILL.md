@@ -18,8 +18,10 @@ mockups are built from.
 
 ## Mockups vs production
 
-- **Mockups (Claude Design):** attach the "Strapi Design System" design system and start
-  from its admin UI kit (Content Manager list, edit view, Media Library).
+- **Mockups (Claude Design):** attach the "Strapi Design System" design system
+  (https://claude.ai/artifact/DGS9jjvAL6zT3NKEfNBQgc, migrated 2026-10-22 from standalone
+  Claude Design, which closes 2026-12-14). Its bundle also carries the admin UI kit screens
+  (`App`, `ListView`, `EditView`, `MediaView`) as a starting point.
 - **Production code:** import components from `@strapi/design-system` (v2) and icons from
   `@strapi/icons`. The Claude Design kit is the _visual spec_; its component props are a
   prototyping shim and differ from v2 (for example v2 text inputs compose `Field.Root` /
