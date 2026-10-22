@@ -116,7 +116,7 @@ Decisions are logged in PROJECT.md (Locked Decisions and Key Decisions table). R
 
 ### Pending Todos
 
-None yet.
+- [2026-10-22] [planning] Adopt plugin-first and design docs before building — [todo file](.planning/todos/pending/2026-10-22-adopt-plugin-first-and-design-docs-before-building.md)
 
 ### Blockers/Concerns
 
