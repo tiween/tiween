@@ -116,7 +116,7 @@ Decisions are logged in PROJECT.md (Locked Decisions and Key Decisions table). R
 
 ### Pending Todos
 
-None yet.
+- [2026-10-23] [database] Flag original language and drop the original title field — [todo file](.planning/todos/pending/2026-10-23-flag-original-language-and-drop-the-original-title-field.md)
 
 ### Blockers/Concerns
 
