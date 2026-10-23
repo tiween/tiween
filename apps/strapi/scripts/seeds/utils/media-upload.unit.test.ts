@@ -2,10 +2,16 @@
  * Unit tests for the SSRF-safe image downloader and the upload-provider guard
  * (plan 01-10, threats T-01-30 and T-01-31). `fetch` is injected: no network.
  */
+import { EventEmitter } from "node:events"
+
 import {
   assertUploadProvider,
   DEFAULT_MEDIA_HOSTS,
+  describeUploadFailure,
   downloadImage,
+  findOrUploadImage,
+  guardUnobservedRejections,
+  MediaUploadError,
   youtubeThumbnailCandidates,
 } from "./media-upload"
 
@@ -363,5 +369,248 @@ describe("assertUploadProvider", () => {
         allowLocal: true,
       })
     ).toThrow("ALLOW_LOCAL_UPLOADS_REFUSED_IN_PRODUCTION")
+  })
+})
+
+/* -------------------------------------------------------------------------- */
+/* Upload failures                                                            */
+/* -------------------------------------------------------------------------- */
+
+/** What the ImageKit SDK rejects an upload with: no `message`, status hidden. */
+function imagekitRejection(statusCode: number, body: object = {}) {
+  return Object.defineProperty({ ...body }, "$ResponseMetadata", {
+    value: { statusCode, headers: {} },
+    enumerable: false,
+  })
+}
+
+const FAKE_PRIVATE_KEY = "private_AAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+
+describe("describeUploadFailure", () => {
+  it("reports the hidden HTTP status of an ImageKit upload rejection", () => {
+    expect(describeUploadFailure(imagekitRejection(403))).toBe(
+      "HTTP 403, check the upload provider credentials and account status"
+    )
+  })
+
+  it("adds the provider's message when there is one", () => {
+    const rejection = imagekitRejection(403, {
+      message: "Your account cannot be authenticated.",
+      help: "For support kindly contact us",
+    })
+    expect(describeUploadFailure(rejection)).toBe(
+      "HTTP 403, check the upload provider credentials and account status, " +
+        "Your account cannot be authenticated."
+    )
+  })
+
+  it("gives no credentials hint for other statuses", () => {
+    expect(describeUploadFailure(imagekitRejection(429))).toBe("HTTP 429")
+  })
+
+  it("never echoes the private key an axios error carries in config.auth", () => {
+    const axiosLike = Object.assign(new Error("connect ECONNREFUSED"), {
+      code: "ECONNREFUSED",
+      config: { auth: { username: FAKE_PRIVATE_KEY, password: "" } },
+    })
+    const text = describeUploadFailure(axiosLike)
+    expect(text).toBe("ECONNREFUSED, connect ECONNREFUSED")
+    expect(text).not.toContain("private_")
+  })
+
+  it("redacts a key that leaks into a message and caps its length", () => {
+    const leaky = describeUploadFailure(
+      new Error(`bad key ${FAKE_PRIVATE_KEY} ${"x".repeat(500)}`)
+    )
+    expect(leaky).not.toContain(FAKE_PRIVATE_KEY)
+    expect(leaky).toContain("[redacted-key]")
+    expect(leaky.length).toBeLessThan(200)
+  })
+
+  it("copes with values that are not objects", () => {
+    expect(describeUploadFailure(undefined)).toBe("no detail")
+    expect(describeUploadFailure(null)).toBe("no detail")
+    expect(describeUploadFailure("plain text")).toBe("plain text")
+    expect(describeUploadFailure({})).toBe("no detail from the provider")
+  })
+})
+
+describe("findOrUploadImage", () => {
+  const png = Buffer.concat([
+    Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
+    Buffer.alloc(32),
+  ])
+  const download = jest.fn(async () => ({
+    buffer: png,
+    mime: "image/png",
+    ext: ".png",
+  }))
+
+  function strapiWith(
+    upload: jest.Mock,
+    existing: { id: number } | null = null
+  ) {
+    return {
+      db: { query: () => ({ findOne: async () => existing }) },
+      plugin: () => ({ service: () => ({ upload }) }),
+    } as never
+  }
+
+  it("returns the id of the uploaded file", async () => {
+    const upload = jest.fn(async () => [{ id: 7 }])
+    await expect(
+      findOrUploadImage(
+        strapiWith(upload),
+        { name: "my-film-backdrop", url: "https://i.ytimg.com/a.jpg" },
+        { download }
+      )
+    ).resolves.toBe(7)
+  })
+
+  it("reuses an existing file without downloading or uploading", async () => {
+    const upload = jest.fn()
+    download.mockClear()
+    await expect(
+      findOrUploadImage(
+        strapiWith(upload, { id: 3 }),
+        { name: "my-film-backdrop", url: "https://i.ytimg.com/a.jpg" },
+        { download }
+      )
+    ).resolves.toBe(3)
+    expect(download).not.toHaveBeenCalled()
+    expect(upload).not.toHaveBeenCalled()
+  })
+
+  it("turns a refused upload into a MediaUploadError that names the image and the status", async () => {
+    const upload = jest.fn(async () => {
+      throw imagekitRejection(403)
+    })
+    const failure = await findOrUploadImage(
+      strapiWith(upload),
+      { name: "my-film-backdrop", url: "https://i.ytimg.com/a.jpg" },
+      { download }
+    ).catch((error) => error)
+
+    expect(failure).toBeInstanceOf(MediaUploadError)
+    expect(failure.code).toBe("UPLOAD_FAILED")
+    expect(failure.message).toBe(
+      "UPLOAD_FAILED: my-film-backdrop (HTTP 403, check the upload provider " +
+        "credentials and account status)"
+    )
+  })
+
+  it("does not leak a credential carried by the provider's error", async () => {
+    const upload = jest.fn(async () => {
+      throw Object.assign(new Error("socket hang up"), {
+        code: "ECONNRESET",
+        config: { auth: { username: FAKE_PRIVATE_KEY } },
+      })
+    })
+    const failure = await findOrUploadImage(
+      strapiWith(upload),
+      { name: "my-film-backdrop", url: "https://i.ytimg.com/a.jpg" },
+      { download }
+    ).catch((error) => error)
+
+    expect(failure.message).toBe(
+      "UPLOAD_FAILED: my-film-backdrop (ECONNRESET, socket hang up)"
+    )
+    expect(JSON.stringify(failure)).not.toContain(FAKE_PRIVATE_KEY)
+    expect(String(failure.stack)).not.toContain(FAKE_PRIVATE_KEY)
+  })
+
+  it("leaves a download failure as the downloader threw it", async () => {
+    const failure = await findOrUploadImage(
+      strapiWith(jest.fn()),
+      { name: "my-film-backdrop", url: "https://i.ytimg.com/a.jpg" },
+      {
+        download: async () => {
+          throw new Error("HTTP_ERROR")
+        },
+      }
+    ).catch((error) => error)
+
+    expect(failure).not.toBeInstanceOf(MediaUploadError)
+    expect(failure.message).toBe("HTTP_ERROR")
+  })
+})
+
+describe("guardUnobservedRejections", () => {
+  /** Stands in for `process`, so the test can fire the event on demand. */
+  const fakeProcess = () => new EventEmitter()
+
+  it("hands an unobserved rejection to the callback instead of letting it escape", async () => {
+    const emitter = fakeProcess()
+    const seen: string[] = []
+
+    const result = await guardUnobservedRejections(
+      async () => {
+        emitter.emit(
+          "unhandledRejection",
+          imagekitRejection(403),
+          Promise.resolve()
+        )
+        return "done"
+      },
+      (detail) => seen.push(detail),
+      emitter
+    )
+
+    expect(result).toBe("done")
+    expect(seen).toEqual([
+      "HTTP 403, check the upload provider credentials and account status",
+    ])
+  })
+
+  it("listens only while the task runs", async () => {
+    const emitter = fakeProcess()
+    let listenersDuring = -1
+
+    await guardUnobservedRejections(
+      async () => {
+        listenersDuring = emitter.listenerCount("unhandledRejection")
+      },
+      () => undefined,
+      emitter
+    )
+
+    expect(listenersDuring).toBe(1)
+    expect(emitter.listenerCount("unhandledRejection")).toBe(0)
+  })
+
+  it("removes the listener and rethrows when the task fails", async () => {
+    const emitter = fakeProcess()
+
+    await expect(
+      guardUnobservedRejections(
+        async () => {
+          throw new Error("TASK_FAILED")
+        },
+        () => undefined,
+        emitter
+      )
+    ).rejects.toThrow("TASK_FAILED")
+    expect(emitter.listenerCount("unhandledRejection")).toBe(0)
+  })
+
+  it("still records a rejection that fires right after the task returned", async () => {
+    const emitter = fakeProcess()
+    const seen: string[] = []
+
+    await guardUnobservedRejections(
+      async () => {
+        setImmediate(() =>
+          emitter.emit(
+            "unhandledRejection",
+            new Error("LATE"),
+            Promise.resolve()
+          )
+        )
+      },
+      (detail) => seen.push(detail),
+      emitter
+    )
+
+    expect(seen).toEqual(["LATE"])
   })
 })

@@ -27,7 +27,8 @@
  *  - The production run is a Phase 6 operator step, not part of Phase 1.
  *
  * Exit code: 0 on success; 1 for an invalid file, a refused provider, any failed
- * film or a film the verification could not read back; 2 for a usage error.
+ * film (including a film whose image the upload provider refused) or a film the
+ * verification could not read back; 2 for a usage error.
  */
 import fs from "node:fs"
 import path from "node:path"
@@ -40,6 +41,7 @@ import { importShortFilms } from "./shorts/import-short-films"
 import {
   assertUploadProvider,
   DEFAULT_MEDIA_HOSTS,
+  describeUploadFailure,
   downloadImage,
 } from "./utils/media-upload"
 import { listSeedFileIssues } from "./utils/short-film-import"
@@ -192,6 +194,32 @@ async function verifyReadBack(
   return missing
 }
 
+/**
+ * Answers from uploads that already failed can still arrive after the run is
+ * over and Strapi is shut down; the ImageKit provider then throws from its error
+ * path (it logs through the global `strapi`, which is gone). The report is
+ * complete by then, so log the rejection once per kind (safely: never the raw
+ * error, whose axios form carries the private key) and make sure it cannot turn
+ * into a crash trace or a green exit code.
+ */
+let strayRejections = 0
+const loggedStrays = new Set<string>()
+
+function onStrayRejection(reason: unknown): void {
+  strayRejections += 1
+  process.exitCode = 1
+  const detail = describeUploadFailure(reason)
+  if (loggedStrays.has(detail)) return
+  loggedStrays.add(detail)
+  console.error(`seed:shorts: unobserved rejection (${detail})`)
+}
+
+/** Safe to call twice: `strapi.destroy()` strips every process listener. */
+function watchStrayRejections(): void {
+  process.off("unhandledRejection", onStrayRejection)
+  process.on("unhandledRejection", onStrayRejection)
+}
+
 async function main(): Promise<number> {
   const flags = parseArgs(process.argv.slice(2))
   if ("error" in flags) {
@@ -276,15 +304,20 @@ async function main(): Promise<number> {
     return 1
   } finally {
     if (strapi) await strapi.destroy()
+    // destroy() removed every process listener (Strapi calls
+    // process.removeAllListeners()), and late upload answers can still arrive.
+    watchStrayRejections()
   }
 }
 
+watchStrayRejections()
+
 main()
   .then((code) => {
-    process.exitCode = code
+    process.exitCode = code === 0 && strayRejections > 0 ? 1 : code
     // Safety net: never hang on a handle Strapi left open (unref'd, so it does
     // not itself keep the process alive).
-    setTimeout(() => process.exit(code), 1000).unref()
+    setTimeout(() => process.exit(process.exitCode), 1000).unref()
   })
   .catch((error) => {
     console.error(error)

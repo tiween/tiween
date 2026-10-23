@@ -17,7 +17,11 @@
  *    (Pitfall 9);
  *  - a film in `retiredSlugs` is deleted (short films only, every locale); a
  *    published short film in neither list is only REPORTED as an orphan (D-15);
- *  - one failing film never aborts the rest.
+ *  - one failing film never aborts the rest. A film whose image cannot be
+ *    DOWNLOADED is imported without it and warned about; a film whose image the
+ *    upload provider REFUSES is failed (nothing written for it), because a
+ *    provider that rejects files would otherwise publish every film without
+ *    media.
  */
 import type { Core } from "@strapi/strapi"
 import type { ImageDownloader } from "../utils/media-upload"
@@ -33,6 +37,8 @@ import genresData from "../data/genres.json"
 import {
   assertUploadProvider,
   findOrUploadImage,
+  guardUnobservedRejections,
+  MediaUploadError,
   youtubeThumbnailCandidates,
 } from "../utils/media-upload"
 import {
@@ -95,6 +101,8 @@ function documents(strapi: Core.Strapi, uid: string): Documents {
 }
 
 function errorCode(error: unknown): string {
+  // Carries the image name and the provider's answer, not just a stable code.
+  if (error instanceof MediaUploadError) return error.message
   if (error && typeof error === "object") {
     const { code, message } = error as { code?: unknown; message?: unknown }
     if (typeof code === "string") return code
@@ -351,6 +359,7 @@ async function resolveBackdrop(
         ctx.deps
       )
     } catch (error) {
+      if (error instanceof MediaUploadError) throw error
       reason = errorCode(error)
     }
   }
@@ -358,7 +367,10 @@ async function resolveBackdrop(
   return undefined
 }
 
-/** The poster, only when the entry names a source (D-12); failure is a warning. */
+/**
+ * The poster, only when the entry names a source (D-12); a failed download is a
+ * warning, an upload the provider refuses fails the film (see `resolveBackdrop`).
+ */
 async function resolvePoster(
   ctx: RunContext,
   entry: ShortFilmSeedEntry
@@ -375,6 +387,7 @@ async function resolvePoster(
       ctx.deps
     )
   } catch (error) {
+    if (error instanceof MediaUploadError) throw error
     ctx.report.warnings.push(
       `${entry.slug}: POSTER_UNAVAILABLE (${errorCode(error)})`
     )
@@ -610,20 +623,32 @@ export async function importShortFilms(
     }
   }
 
-  for (const entry of seed.films) {
-    if (!entry.approved) {
-      report.skippedUnapproved.push(entry.slug)
-      continue
-    }
-    report.aiDraftedFields.push(...collectAiDraftedFields(entry))
+  // Strapi's image upload can leave a refused upload unobserved for a moment
+  // (see guardUnobservedRejections); without the guard that rejection crashes
+  // the process before the film below can be recorded as failed.
+  await guardUnobservedRejections(
+    async () => {
+      for (const entry of seed.films) {
+        if (!entry.approved) {
+          report.skippedUnapproved.push(entry.slug)
+          continue
+        }
+        report.aiDraftedFields.push(...collectAiDraftedFields(entry))
 
-    try {
-      await importFilm(ctx, entry)
-    } catch (error) {
-      report.failed.push({ slug: entry.slug, error: errorCode(error) })
-      deps.log?.(`  ${entry.slug}: FAILED ${errorCode(error)}`)
+        try {
+          await importFilm(ctx, entry)
+        } catch (error) {
+          report.failed.push({ slug: entry.slug, error: errorCode(error) })
+          deps.log?.(`  ${entry.slug}: FAILED ${errorCode(error)}`)
+        }
+      }
+    },
+    (detail) => {
+      // One line per kind: a refused film produces several identical ones.
+      const warning = `UNOBSERVED_REJECTION (${detail})`
+      if (!report.warnings.includes(warning)) report.warnings.push(warning)
     }
-  }
+  )
 
   const listed = new Set([
     ...seed.films.map((film) => film.slug),

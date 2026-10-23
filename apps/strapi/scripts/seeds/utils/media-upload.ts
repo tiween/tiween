@@ -48,11 +48,128 @@ const UPLOAD_FILE_UID = "plugin::upload.file"
 /** Stems are built from validated slugs; anything else is a programming error. */
 const STEM_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
 
+/* -------------------------------------------------------------------------- */
+/* Upload failures                                                            */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * The upload provider (or the upload service in front of it) refused a file.
+ *
+ * Unlike a `MediaDownloadError`, which only costs one film an image, this means
+ * the destination is not accepting files at all (bad credentials, quota, an
+ * outage). The importer therefore fails the film instead of publishing it
+ * without media. `message` carries the film image and the provider's answer.
+ */
+export class MediaUploadError extends Error {
+  readonly code = "UPLOAD_FAILED"
+
+  constructor(name: string, cause: unknown) {
+    super(`UPLOAD_FAILED: ${name} (${describeUploadFailure(cause)})`)
+    this.name = "MediaUploadError"
+  }
+}
+
+/** Provider answers are short; anything longer is a body we should not echo. */
+const MAX_DETAIL_LENGTH = 160
+
+/** Strip anything shaped like an ImageKit key before text is logged or reported. */
+function scrubSecrets(text: string): string {
+  return text
+    .replace(/\b(?:private|public)_[A-Za-z0-9+/=]{8,}/g, "[redacted-key]")
+    .slice(0, MAX_DETAIL_LENGTH)
+}
+
+/**
+ * A safe, one-line account of why an upload failed.
+ *
+ * The ImageKit provider only logs "Unable to upload file." and rejects with the
+ * SDK's error, whose useful part is hidden: a plain object without `message` for
+ * an upload (HTTP status on a non-enumerable `$ResponseMetadata`), or the raw
+ * axios error for a network failure, whose `config.auth` holds the private key.
+ * Only allow-listed fields are read here (status, string `code`, string
+ * `message`), never the object itself, so no credential can reach a log or the
+ * report.
+ */
+export function describeUploadFailure(error: unknown): string {
+  if (typeof error === "string") return scrubSecrets(error) || "no detail"
+  if (!error || typeof error !== "object") return "no detail"
+
+  const { $ResponseMetadata, statusCode, status, response, code, message } =
+    error as {
+      $ResponseMetadata?: { statusCode?: unknown }
+      statusCode?: unknown
+      status?: unknown
+      response?: { status?: unknown }
+      code?: unknown
+      message?: unknown
+    }
+
+  const parts: string[] = []
+  const httpStatus = [
+    $ResponseMetadata?.statusCode,
+    statusCode,
+    status,
+    response?.status,
+  ].find((value): value is number => typeof value === "number")
+  if (httpStatus !== undefined) {
+    parts.push(`HTTP ${httpStatus}`)
+    if (httpStatus === 401 || httpStatus === 403) {
+      parts.push("check the upload provider credentials and account status")
+    }
+  }
+  if (typeof code === "string" && code !== "") parts.push(scrubSecrets(code))
+  if (typeof message === "string" && message !== "") {
+    parts.push(scrubSecrets(message))
+  }
+  return parts.join(", ") || "no detail from the provider"
+}
+
+/** The slice of `process` the guard needs; a fake emitter stands in for tests. */
+export interface RejectionEmitter {
+  on(event: "unhandledRejection", listener: (reason: unknown) => void): unknown
+  off(event: "unhandledRejection", listener: (reason: unknown) => void): unknown
+}
+
+/**
+ * Run `task` without letting a rejection nobody awaits kill the process; each
+ * one is handed to `onUnobserved` (as a safe one-line description) instead.
+ *
+ * Why this is needed: `@strapi/upload` (5.51) starts the provider upload of an
+ * image, then awaits thumbnail and responsive-format generation, and only then
+ * awaits all uploads together. A provider that rejects inside that window
+ * (ImageKit answers a refused upload in a fraction of the time sharp needs to
+ * resize a 1280x720 image) leaves a promise nobody observes yet, and Node turns
+ * that into a process crash that no `try/catch` around the upload can intercept.
+ * The same failure still reaches the caller through the upload promise, so the
+ * film lands in the report's `failed` list; the duplicate is only recorded.
+ */
+export async function guardUnobservedRejections<T>(
+  task: () => Promise<T>,
+  onUnobserved: (detail: string) => void,
+  emitter: RejectionEmitter = process
+): Promise<T> {
+  const listener = (reason: unknown) => {
+    onUnobserved(describeUploadFailure(reason))
+  }
+  emitter.on("unhandledRejection", listener)
+  try {
+    return await task()
+  } finally {
+    // The event is emitted once the microtask queue drains, so give one that is
+    // still pending a turn to arrive before the listener goes away.
+    await new Promise<void>((resolve) => setImmediate(resolve))
+    emitter.off("unhandledRejection", listener)
+  }
+}
+
 /**
  * Upload `source` once and return the `plugin::upload.file` row id.
  *
  * Idempotency: a file whose name is `<name>.<ext>` is reused, so a second run
  * downloads and uploads nothing.
+ *
+ * Throws what the downloader throws (`MediaDownloadError`) or, when the upload
+ * service refuses the file, a `MediaUploadError`.
  */
 export async function findOrUploadImage(
   strapi: Core.Strapi,
@@ -75,23 +192,29 @@ export async function findOrUploadImage(
   const filepath = path.join(tmpDir, fileName)
   try {
     await fs.writeFile(filepath, image.buffer)
-    const uploaded = (await strapi
-      .plugin("upload")
-      .service("upload")
-      .upload({
-        data: {
-          fileInfo: {
-            name: fileName,
-            alternativeText: source.alt ?? null,
+    let uploaded: Array<{ id: number }>
+    try {
+      uploaded = (await strapi
+        .plugin("upload")
+        .service("upload")
+        .upload({
+          data: {
+            fileInfo: {
+              name: fileName,
+              alternativeText: source.alt ?? null,
+            },
           },
-        },
-        files: {
-          filepath,
-          originalFilename: fileName,
-          mimetype: image.mime,
-          size: image.buffer.length,
-        },
-      })) as Array<{ id: number }>
+          files: {
+            filepath,
+            originalFilename: fileName,
+            mimetype: image.mime,
+            size: image.buffer.length,
+          },
+        })) as Array<{ id: number }>
+    } catch (error) {
+      // Never let the raw provider error travel: see describeUploadFailure.
+      throw new MediaUploadError(source.name, error)
+    }
     return uploaded[0].id
   } finally {
     await fs.rm(tmpDir, { recursive: true, force: true })

@@ -10,7 +10,8 @@
  *
  * The describe blocks below are ONE ordered story on one database: run 1 imports
  * the sample, run 2 repeats it (idempotency), run 3 and 4 change one film
- * (lossless update), run 5 and 6 cover per-film failures and warnings. They
+ * (lossless update), run 5 to 7 cover per-film failures and warnings (7: an
+ * image the upload provider refuses fails the film). They
  * share state on purpose, so do not reorder them.
  *
  * Named `*.service.test.ts`: opt-in integration project (`yarn test:integration`).
@@ -475,5 +476,97 @@ describe("importShortFilms: per-film failures and warnings", () => {
     expect(film).not.toBeNull()
     expect(film.backdrop).toBeNull()
     expect(film.poster).toBeNull()
+  })
+
+  it("fails a film whose image the upload provider refuses, writes no film for it and imports the rest", async () => {
+    // The provider answers like ImageKit with bad credentials: a plain object
+    // without a message, the HTTP status on a hidden `$ResponseMetadata`. The
+    // answer comes after 150 ms, slower than Strapi needs to prepare the image,
+    // because the Jest sandbox cannot see a real unhandled rejection; the fast
+    // answer is covered by the real-process run recorded in the debug session.
+    const refusedFiles = ["sample-refuse-a-backdrop", "sample-refuse-b-poster"]
+    const provider = strapi.plugin("upload").provider as any
+    const original = {
+      upload: provider.upload,
+      uploadStream: provider.uploadStream,
+    }
+    const refusing =
+      (method: "upload" | "uploadStream") =>
+      async (file: { name?: string }, ...rest: unknown[]) => {
+        if (!refusedFiles.some((name) => String(file.name).includes(name))) {
+          return original[method].call(provider, file, ...rest)
+        }
+        await sleep(150)
+        throw Object.defineProperty({}, "$ResponseMetadata", {
+          value: { statusCode: 403 },
+          enumerable: false,
+        })
+      }
+    provider.upload = refusing("upload")
+    provider.uploadStream = refusing("uploadStream")
+
+    // a: the backdrop is refused. b: the backdrop is stored, the poster refused.
+    const filmA: any = clone(current.films[0])
+    filmA.slug = "sample-refuse-a"
+    const filmB: any = clone(current.films[0])
+    filmB.slug = "sample-refuse-b"
+    const fine: any = clone(current.films[0])
+    fine.slug = "sample-after-refused"
+    const file = {
+      ...clone(current),
+      retiredSlugs: [],
+      films: [filmA, filmB, fine],
+    }
+
+    const listenersBefore = process.listenerCount("unhandledRejection")
+    const onSpy = jest.spyOn(process, "on")
+    let report: ImportReport
+    try {
+      report = await importShortFilms(strapi, file, deps())
+    } finally {
+      provider.upload = original.upload
+      provider.uploadStream = original.uploadStream
+    }
+
+    // Rejections nobody awaits are caught while films import, then released.
+    expect(
+      onSpy.mock.calls.filter(([event]) => event === "unhandledRejection")
+    ).toHaveLength(1)
+    onSpy.mockRestore()
+    expect(process.listenerCount("unhandledRejection")).toBe(listenersBefore)
+
+    const hint = "check the upload provider credentials and account status"
+    expect(report.failed).toEqual([
+      {
+        slug: "sample-refuse-a",
+        error: `UPLOAD_FAILED: sample-refuse-a-backdrop (HTTP 403, ${hint})`,
+      },
+      {
+        slug: "sample-refuse-b",
+        error: `UPLOAD_FAILED: sample-refuse-b-poster (HTTP 403, ${hint})`,
+      },
+    ])
+    expect(report.created).toEqual(["sample-after-refused"])
+    expect(report.warnings).toEqual([])
+
+    // No film was written for either failed slug, and the refused file has no row.
+    for (const slug of ["sample-refuse-a", "sample-refuse-b"]) {
+      const work = await (strapi.documents(CW as never) as any).findFirst({
+        filters: { slug },
+        locale: "fr",
+        status: "draft",
+      })
+      expect(work).toBeNull()
+    }
+    for (const name of refusedFiles) {
+      const rows = await (strapi.db.query(UPLOAD_FILE as never) as any).count({
+        where: { name: { $startsWith: name } },
+      })
+      expect(rows).toBe(0)
+    }
+
+    expect(
+      await publicApi().findShortFilm("sample-after-refused")
+    ).not.toBeNull()
   })
 })
