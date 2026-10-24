@@ -321,6 +321,14 @@ async function ensureCreditTargetsInLocale(
 /* -------------------------------------------------------------------------- */
 
 /**
+ * Media Library folders for film images (English names, matching the admin UI).
+ * The ImageKit provider mirrors them as `short-films/posters` and
+ * `short-films/backdrops` under the environment root.
+ */
+const POSTER_FOLDER = ["Short films", "Posters"] as const
+const BACKDROP_FOLDER = ["Short films", "Backdrops"] as const
+
+/**
  * The backdrop: the file's explicit `backdrop.sourceUrl`, else the thumbnail of
  * the first YouTube video or streaming link (D-12). A failed download is a
  * per-film warning, not a failure (the film is imported without that image and
@@ -355,6 +363,7 @@ async function resolveBackdrop(
           name: `${entry.slug}-backdrop`,
           url,
           alt: entry.backdrop?.alt ?? entry.title.fr,
+          folder: BACKDROP_FOLDER,
         },
         ctx.deps
       )
@@ -383,6 +392,7 @@ async function resolvePoster(
         name: `${entry.slug}-poster`,
         url: entry.poster.sourceUrl,
         alt: entry.poster.alt ?? entry.title.fr,
+        folder: POSTER_FOLDER,
       },
       ctx.deps
     )

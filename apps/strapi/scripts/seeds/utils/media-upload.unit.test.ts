@@ -9,6 +9,7 @@ import {
   DEFAULT_MEDIA_HOSTS,
   describeUploadFailure,
   downloadImage,
+  ensureUploadFolderPath,
   findOrUploadImage,
   guardUnobservedRejections,
   MediaUploadError,
@@ -334,10 +335,19 @@ describe("assertUploadProvider", () => {
 
   it("accepts the ImageKit provider", () => {
     expect(() =>
+      assertUploadProvider(
+        strapiWith("@tiween/strapi-provider-upload-imagekit"),
+        { allowLocal: false }
+      )
+    ).not.toThrow()
+  })
+
+  it("refuses the retired npm ImageKit provider name", () => {
+    expect(() =>
       assertUploadProvider(strapiWith("strapi-provider-upload-imagekit"), {
         allowLocal: false,
       })
-    ).not.toThrow()
+    ).toThrow("UPLOAD_PROVIDER_NOT_IMAGEKIT")
   })
 
   it("refuses the local provider by default", () => {
@@ -365,9 +375,10 @@ describe("assertUploadProvider", () => {
       assertUploadProvider(strapiWith("local"), { allowLocal: true })
     ).toThrow("UPLOAD_PROVIDER_NOT_IMAGEKIT")
     expect(() =>
-      assertUploadProvider(strapiWith("strapi-provider-upload-imagekit"), {
-        allowLocal: true,
-      })
+      assertUploadProvider(
+        strapiWith("@tiween/strapi-provider-upload-imagekit"),
+        { allowLocal: true }
+      )
     ).toThrow("ALLOW_LOCAL_UPLOADS_REFUSED_IN_PRODUCTION")
   })
 })
@@ -532,6 +543,191 @@ describe("findOrUploadImage", () => {
 
     expect(failure).not.toBeInstanceOf(MediaUploadError)
     expect(failure.message).toBe("HTTP_ERROR")
+  })
+})
+
+describe("Media Library folders", () => {
+  type FolderRow = { id: number; name: string; parent: number | null }
+
+  /** A strapi mock whose folder table and upload service are observable. */
+  function folderStrapi(
+    options: {
+      folders?: FolderRow[]
+      existingFile?: { id: number } | null
+      upload?: jest.Mock
+      createFolder?: jest.Mock
+    } = {}
+  ) {
+    const folders: FolderRow[] = [...(options.folders ?? [])]
+    const queries: Array<{ uid: string; where: unknown }> = []
+    const create =
+      options.createFolder ??
+      jest.fn(async ({ name, parent }: Omit<FolderRow, "id">) => {
+        const row = { id: 100 + folders.length, name, parent }
+        folders.push(row)
+        return row
+      })
+    const upload = options.upload ?? jest.fn(async () => [{ id: 9 }])
+    const strapi = {
+      db: {
+        query: (uid: string) => ({
+          findOne: async ({
+            where,
+          }: {
+            where: { name: unknown; parent: number | null }
+          }) => {
+            queries.push({ uid, where })
+            if (uid === "plugin::upload.folder") {
+              return (
+                folders.find(
+                  (row) =>
+                    row.name === where.name && row.parent === where.parent
+                ) ?? null
+              )
+            }
+            return options.existingFile ?? null
+          },
+        }),
+      },
+      plugin: () => ({
+        service: (name: string) =>
+          name === "folder" ? { create } : { upload },
+      }),
+    } as never
+    return { strapi, folders, queries, create, upload }
+  }
+
+  const png = Buffer.concat([
+    Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
+    Buffer.alloc(32),
+  ])
+  const download = jest.fn(async () => ({
+    buffer: png,
+    mime: "image/png",
+    ext: ".png",
+  }))
+  const source = { name: "my-film-poster", url: "https://i.ytimg.com/a.jpg" }
+
+  beforeEach(() => download.mockClear())
+
+  it("U1: creates the missing folders root first and returns the leaf id", async () => {
+    const { strapi, create } = folderStrapi()
+
+    const leaf = await ensureUploadFolderPath(strapi, [
+      "Short films",
+      "Posters",
+    ])
+
+    expect(create).toHaveBeenCalledTimes(2)
+    expect(create).toHaveBeenNthCalledWith(1, {
+      name: "Short films",
+      parent: null,
+    })
+    expect(create).toHaveBeenNthCalledWith(2, { name: "Posters", parent: 100 })
+    expect(leaf).toBe(101)
+  })
+
+  it("U2: creates nothing when both folders exist and looks them up by name and parent", async () => {
+    const { strapi, create, queries } = folderStrapi({
+      folders: [
+        { id: 4, name: "Short films", parent: null },
+        { id: 5, name: "Posters", parent: 4 },
+      ],
+    })
+
+    await expect(
+      ensureUploadFolderPath(strapi, ["Short films", "Posters"])
+    ).resolves.toBe(5)
+
+    expect(create).not.toHaveBeenCalled()
+    expect(queries.map((query) => query.where)).toEqual([
+      { name: "Short films", parent: null },
+      { name: "Posters", parent: 4 },
+    ])
+  })
+
+  it("U3: rejects an empty path, a blank name and a non-string name before any query", async () => {
+    const { strapi, queries } = folderStrapi()
+
+    for (const names of [[], ["Short films", "  "], ["Short films", 3]]) {
+      await expect(
+        ensureUploadFolderPath(strapi, names as never)
+      ).rejects.toThrow("INVALID_MEDIA_FOLDER")
+    }
+    expect(queries).toEqual([])
+  })
+
+  it("U4: uploads into the leaf folder, and without a folder sends no folder key", async () => {
+    const withFolder = folderStrapi()
+    await findOrUploadImage(
+      withFolder.strapi,
+      { ...source, folder: ["Short films", "Posters"] },
+      { download }
+    )
+    expect(withFolder.upload).toHaveBeenCalledTimes(1)
+    const [withFolderArgs] = withFolder.upload.mock.calls[0] as [
+      { data: { fileInfo: Record<string, unknown> } },
+    ]
+    expect(withFolderArgs.data.fileInfo.folder).toBe(101)
+
+    const root = folderStrapi()
+    await findOrUploadImage(root.strapi, source, { download })
+    const [rootArgs] = root.upload.mock.calls[0] as [
+      { data: { fileInfo: Record<string, unknown> } },
+    ]
+    expect(rootArgs.data.fileInfo).not.toHaveProperty("folder")
+    expect(root.create).not.toHaveBeenCalled()
+  })
+
+  it("U5: reuses an existing file without any folder lookup, download or upload", async () => {
+    const { strapi, queries, create, upload } = folderStrapi({
+      existingFile: { id: 3 },
+    })
+
+    await expect(
+      findOrUploadImage(
+        strapi,
+        { ...source, folder: ["Short films", "Posters"] },
+        { download }
+      )
+    ).resolves.toBe(3)
+
+    expect(queries.every((query) => query.uid === "plugin::upload.file")).toBe(
+      true
+    )
+    expect(create).not.toHaveBeenCalled()
+    expect(download).not.toHaveBeenCalled()
+    expect(upload).not.toHaveBeenCalled()
+  })
+
+  it("U6: a folder service failure becomes a MediaUploadError and nothing is uploaded; an invalid folder throws before the download", async () => {
+    const createFolder = jest.fn(async () => {
+      throw Object.assign(new Error("db locked"), { code: "SQLITE_BUSY" })
+    })
+    const failing = folderStrapi({ createFolder })
+
+    const failure = await findOrUploadImage(
+      failing.strapi,
+      { ...source, folder: ["Short films", "Posters"] },
+      { download }
+    ).catch((error) => error)
+
+    expect(failure).toBeInstanceOf(MediaUploadError)
+    expect(failure.message).toBe(
+      "UPLOAD_FAILED: my-film-poster (SQLITE_BUSY, db locked)"
+    )
+    expect(failing.upload).not.toHaveBeenCalled()
+
+    download.mockClear()
+    const invalid = folderStrapi()
+    const error = await findOrUploadImage(
+      invalid.strapi,
+      { ...source, folder: [" "] },
+      { download }
+    ).catch((caught) => caught)
+    expect(error).not.toBeInstanceOf(MediaUploadError)
+    expect(error.message).toBe("INVALID_MEDIA_FOLDER")
+    expect(download).not.toHaveBeenCalled()
   })
 })
 

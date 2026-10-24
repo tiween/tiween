@@ -20438,13 +20438,6 @@ strapi-plugin-imagekit@^1.0.2:
     react-intl "^7.1.11"
     zod "^3.24.4"
 
-strapi-provider-upload-imagekit@^5.11.11:
-  version "5.11.11"
-  resolved "https://registry.npmjs.org/strapi-provider-upload-imagekit/-/strapi-provider-upload-imagekit-5.11.11.tgz"
-  integrity sha512-2Exg/x21g7PcH4Y75MpaY1eXdU+HrVEMSJPk0QN9R3j1Bdk7omk5+CBAh7CSpWs6HmUX6fJUqRPh7JezflLoOQ==
-  dependencies:
-    imagekit "6.0.0"
-
 stream-browserify@3.0.0:
   version "3.0.0"
   resolved "https://registry.npmjs.org/stream-browserify/-/stream-browserify-3.0.0.tgz"

@@ -190,7 +190,9 @@ const localUploadConfig: any = {
 }
 
 /**
- * Prepare ImageKit upload provider configuration.
+ * Prepare ImageKit upload provider configuration (local workspace package
+ * packages/strapi-provider-upload-imagekit, which mirrors the Media Library
+ * folder tree under IMAGEKIT_FOLDER/IMAGEKIT_ENV_FOLDER).
  * Returns undefined if credentials are not set (falls back to local storage).
  */
 const prepareImageKitConfig = (env) => {
@@ -203,14 +205,17 @@ const prepareImageKitConfig = (env) => {
 
   if (requirementsOk) {
     return {
-      provider: "strapi-provider-upload-imagekit",
+      provider: "@tiween/strapi-provider-upload-imagekit",
       providerOptions: {
         publicKey,
         privateKey,
         urlEndpoint,
-        params: {
-          folder: env("IMAGEKIT_FOLDER", "tiween"),
-        },
+        // Files land in {rootFolder}/{envFolder}/{Media Library folders}/ in ImageKit.
+        // env() returns "" for a set-but-empty variable, so defaults use ||.
+        rootFolder: env("IMAGEKIT_FOLDER") || "tiween",
+        envFolder:
+          env("IMAGEKIT_ENV_FOLDER") ||
+          (env("NODE_ENV") === "production" ? "production" : "development"),
       },
       actionOptions: {
         upload: {},
