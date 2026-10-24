@@ -22,6 +22,8 @@ const DEFAULT_ROOT = "tiween"
 const UNSORTED = "unsorted"
 const MAX_SEGMENT_LENGTH = 64
 const MAX_MESSAGE_LENGTH = 160
+const PARENT_TTL_MS = 15 * 60 * 1000
+const MAX_PARENTS = 1000
 const KEY_SHAPED = /\b(?:private|public)_[A-Za-z0-9+/=]{8,}/g
 
 /**
@@ -87,6 +89,7 @@ function createImageKitProvider({
   findFolders,
   log,
   nodeEnv = process.env.NODE_ENV,
+  now = Date.now,
 } = {}) {
   const sdk =
     client ||
@@ -182,14 +185,55 @@ function createImageKitProvider({
   }
 
   /**
-   * Placement is decided synchronously at method entry. Files without their own
-   * folderPath (thumbnail, formats) fall back to unsorted until parent
-   * inheritance is added.
+   * Parent registry: main-file hash -> folder promise. Strapi uploads the main
+   * image first and its thumbnail/formats afterwards (hash "{prefix}_{parentHash}"
+   * with no folderPath), so derived files inherit the parent's folder. Entries
+   * expire and the map is bounded; they are kept after the main upload finishes
+   * because derived uploads start later.
    */
-  function placementFor(file) {
-    return typeof file?.folderPath === "string"
-      ? resolveFolderPath(file.folderPath)
-      : Promise.resolve(unsortedPath)
+  const parents = new Map()
+
+  function registerParent(hash, folderPromise) {
+    if (typeof hash !== "string" || hash === "") return
+    const current = now()
+    for (const [key, entry] of parents) {
+      if (entry.expiresAt <= current) parents.delete(key)
+    }
+    parents.delete(hash)
+    while (parents.size >= MAX_PARENTS) {
+      parents.delete(parents.keys().next().value)
+    }
+    parents.set(hash, { folderPromise, expiresAt: current + PARENT_TTL_MS })
+  }
+
+  /** Looks up each suffix after an underscore, leftmost first, so any breakpoint key works. */
+  function findParent(hash) {
+    if (typeof hash !== "string") return undefined
+    const current = now()
+    for (let i = hash.indexOf("_"); i !== -1; i = hash.indexOf("_", i + 1)) {
+      const entry = parents.get(hash.slice(i + 1))
+      if (entry && entry.expiresAt > current) return entry.folderPromise
+    }
+    return undefined
+  }
+
+  /**
+   * Placement is decided synchronously at method entry. Precedence: the file's
+   * own folderPath, a registered parent, the old file's folderPath (replace
+   * only), then unsorted. The returned promise never rejects.
+   */
+  function placementFor(file, oldFile) {
+    if (typeof file?.folderPath === "string") {
+      const folderPromise = resolveFolderPath(file.folderPath)
+      registerParent(file.hash, folderPromise)
+      return folderPromise
+    }
+    const parent = findParent(file?.hash)
+    if (parent) return parent
+    if (typeof oldFile?.folderPath === "string") {
+      return resolveFolderPath(oldFile.folderPath)
+    }
+    return Promise.resolve(unsortedPath)
   }
 
   async function store(operation, file, buffer, folder, overwriteFile) {
@@ -217,6 +261,16 @@ function createImageKitProvider({
     logger().info(`ImageKit file stored: ${response.filePath}`)
   }
 
+  async function streamToBuffer(operation, file) {
+    try {
+      return await readStream(file.stream)
+    } catch (error) {
+      const safe = safeError(operation, error)
+      logger().error(`${safe.message} (${file.hash}${file.ext})`)
+      throw safe
+    }
+  }
+
   async function upload(file) {
     const folderPromise = placementFor(file)
     if (!Buffer.isBuffer(file.buffer)) {
@@ -230,23 +284,12 @@ function createImageKitProvider({
     if (!file.stream) {
       throw new Error("Missing file stream")
     }
-    let buffer
-    try {
-      buffer = await readStream(file.stream)
-    } catch (error) {
-      const safe = safeError("uploadStream", error)
-      logger().error(`${safe.message} (${file.hash}${file.ext})`)
-      throw safe
-    }
+    const buffer = await streamToBuffer("uploadStream", file)
     await store("uploadStream", file, buffer, await folderPromise, false)
   }
 
-  async function deleteFile(file) {
-    const fileId = file?.provider_metadata?.fileId
-    if (!fileId) {
-      logger().warn("ImageKit delete: file id not found, skipping")
-      return
-    }
+  /** Delete by ImageKit file id. Resolves on 404; throws a safe error otherwise. */
+  async function removeById(fileId) {
     try {
       await sdk.deleteFile(fileId)
       logger().info(`ImageKit file deleted: ${fileId}`)
@@ -261,7 +304,56 @@ function createImageKitProvider({
     }
   }
 
-  return { upload, uploadStream, delete: deleteFile }
+  async function deleteFile(file) {
+    const fileId = file?.provider_metadata?.fileId
+    if (!fileId) {
+      logger().warn("ImageKit delete: file id not found, skipping")
+      return
+    }
+    await removeById(fileId)
+  }
+
+  /** Store the new file first (overwriting in place), then drop the old one. */
+  async function replaceWith(operation, newFile, oldFile, getBuffer) {
+    const folderPromise = placementFor(newFile, oldFile)
+    const buffer = await getBuffer()
+    await store(operation, newFile, buffer, await folderPromise, true)
+
+    const oldId = oldFile?.provider_metadata?.fileId
+    if (!oldId || oldId === newFile.provider_metadata.fileId) return
+    try {
+      await removeById(oldId)
+    } catch (error) {
+      // The new file is live; a stale old file is only a warning.
+      logger().warn(
+        `ImageKit replace: previous file not deleted (${oldId}): ${error.message}`
+      )
+    }
+  }
+
+  async function replace(newFile, oldFile) {
+    return replaceWith("replace", newFile, oldFile, async () => {
+      if (!Buffer.isBuffer(newFile.buffer)) {
+        throw new Error("Missing file buffer")
+      }
+      return newFile.buffer
+    })
+  }
+
+  async function replaceStream(newFile, oldFile) {
+    return replaceWith("replaceStream", newFile, oldFile, async () => {
+      if (!newFile.stream) throw new Error("Missing file stream")
+      return streamToBuffer("replaceStream", newFile)
+    })
+  }
+
+  return {
+    upload,
+    uploadStream,
+    delete: deleteFile,
+    replace,
+    replaceStream,
+  }
 }
 
 module.exports = {

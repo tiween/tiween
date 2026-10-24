@@ -326,3 +326,231 @@ test("T11: Strapi's loader resolves the package to this directory", () => {
     fs.realpathSync(path.join(__dirname, "index.js"))
   )
 })
+
+/* ---------------------------------------------------------------------- */
+/* Task 2: derived files and replace                                       */
+/* ---------------------------------------------------------------------- */
+
+const POSTERS = "/tiween/development/short-films/posters"
+
+function derivedFile(hash, overrides = {}) {
+  return {
+    hash,
+    ext: ".jpg",
+    stream: Readable.from([Buffer.from("x")]),
+    ...overrides,
+  }
+}
+
+test("B1: thumbnail and every format follow the parent's folder", async () => {
+  const { instance, client, findFolders } = build({
+    findFolders: fakeFinder({ 1: "Short films", 3: "Posters" }, { delay: 20 }),
+  })
+  const main = instance.uploadStream(mainFile())
+  await new Promise((resolve) => setImmediate(resolve))
+  const names = [
+    "thumbnail_poster_abc123",
+    "large_poster_abc123",
+    "medium_poster_abc123",
+    "small_poster_abc123",
+    "xlarge_poster_abc123",
+    "x_large_poster_abc123",
+  ]
+  await Promise.all([
+    main,
+    ...names.map((n) => instance.uploadStream(derivedFile(n))),
+  ])
+
+  assert.equal(client.calls.upload.length, 7)
+  for (const call of client.calls.upload) assert.equal(call.folder, POSTERS)
+  assert.equal(findFolders.calls.length, 1)
+})
+
+test("B2: a derived file whose parent was never uploaded goes to unsorted", async () => {
+  const { instance, client } = build()
+  await instance.uploadStream(derivedFile("thumbnail_poster_zzz999"))
+  assert.equal(client.calls.upload[0].folder, "/tiween/development/unsorted")
+})
+
+test("B3: parent registry expires by TTL and is bounded", async () => {
+  let clock = 1_000_000
+  const ttl = build({ extra: { now: () => clock } })
+  await ttl.instance.uploadStream(mainFile())
+  clock += 15 * 60 * 1000 + 1
+  await ttl.instance.uploadStream(derivedFile("thumbnail_poster_abc123"))
+  assert.equal(
+    ttl.client.calls.upload[1].folder,
+    "/tiween/development/unsorted"
+  )
+
+  const bounded = build({ extra: { now: () => clock } })
+  for (let i = 0; i <= 1000; i += 1) {
+    await bounded.instance.uploadStream(
+      mainFile({ hash: `poster_${String(i).padStart(10, "0")}` })
+    )
+  }
+  await bounded.instance.uploadStream(
+    derivedFile("thumbnail_poster_0000000000")
+  )
+  await bounded.instance.uploadStream(
+    derivedFile("thumbnail_poster_0000001000")
+  )
+  const calls = bounded.client.calls.upload
+  assert.equal(calls[calls.length - 2].folder, "/tiween/development/unsorted")
+  assert.equal(calls[calls.length - 1].folder, POSTERS)
+})
+
+test("B4: a main file that looks derived is placed by its own folderPath", async () => {
+  const { instance, client } = build({
+    findFolders: fakeFinder({ 1: "Short films" }),
+  })
+  await instance.uploadStream(
+    mainFile({ hash: "thumbnail_cover_abc123", folderPath: "/1" })
+  )
+  assert.equal(client.calls.upload[0].folder, "/tiween/development/short-films")
+})
+
+test("B5: replaceStream uploads first, then deletes the old file", async () => {
+  const ok = build()
+  const file = mainFile()
+  await ok.instance.replaceStream(file, {
+    hash: "poster_abc123",
+    provider_metadata: { fileId: "old" },
+  })
+  const call = ok.client.calls.upload[0]
+  assert.equal(call.folder, POSTERS)
+  assert.equal(call.useUniqueFileName, false)
+  assert.equal(call.overwriteFile, true)
+  assert.deepEqual(ok.client.calls.deleteFile, ["old"])
+
+  const same = build({
+    client: (() => {
+      const c = fakeClient()
+      const original = c.upload
+      c.upload = async (args) => ({ ...(await original(args)), fileId: "old" })
+      return c
+    })(),
+  })
+  await same.instance.replaceStream(mainFile(), {
+    provider_metadata: { fileId: "old" },
+  })
+  assert.deepEqual(same.client.calls.deleteFile, [])
+
+  const notFound = Object.assign(new Error("gone"), {
+    $ResponseMetadata: { statusCode: 404 },
+  })
+  const tolerated = build({ client: fakeClient({ deleteError: notFound }) })
+  await tolerated.instance.replaceStream(mainFile(), {
+    provider_metadata: { fileId: "old" },
+  })
+  assert.equal(tolerated.client.calls.deleteFile.length, 1)
+
+  const failing = build({
+    client: fakeClient({
+      deleteError: Object.assign(new Error(`oops ${FAKE_PRIVATE_KEY}`), {
+        status: 500,
+      }),
+    }),
+  })
+  const stored = mainFile()
+  await failing.instance.replaceStream(stored, {
+    provider_metadata: { fileId: "old" },
+  })
+  assert.ok(stored.url)
+  assert.ok(failing.log.lines.some((l) => l.startsWith("warn")))
+  for (const line of failing.log.lines) {
+    assert.ok(!line.includes(FAKE_PRIVATE_KEY))
+  }
+
+  const uploadFails = build({
+    client: fakeClient({
+      uploadError: Object.assign(new Error("nope"), { status: 403 }),
+    }),
+  })
+  await assert.rejects(
+    uploadFails.instance.replaceStream(mainFile(), {
+      provider_metadata: { fileId: "old" },
+    }),
+    (error) => error.statusCode === 403
+  )
+  assert.deepEqual(uploadFails.client.calls.deleteFile, [])
+})
+
+test("B6: replace of a derived file uses the parent's folder; replace (buffer) too", async () => {
+  const { instance, client } = build()
+  await instance.replaceStream(mainFile(), {
+    provider_metadata: { fileId: "o1" },
+  })
+  await instance.replaceStream(derivedFile("thumbnail_poster_abc123"), {
+    provider_metadata: { fileId: "o2" },
+  })
+  assert.equal(client.calls.upload[1].folder, POSTERS)
+  assert.equal(client.calls.upload[1].overwriteFile, true)
+
+  const buf = build()
+  await buf.instance.replace(
+    mainFile({ stream: undefined, buffer: Buffer.from("zz") }),
+    { provider_metadata: { fileId: "o" } }
+  )
+  assert.equal(buf.client.calls.upload[0].folder, POSTERS)
+  assert.equal(buf.client.calls.upload[0].file.toString(), "zz")
+})
+
+test("B7: replace falls back to the old file's folderPath", async () => {
+  const { instance, client } = build()
+  await instance.replaceStream(derivedFile("poster_nomatch99"), {
+    folderPath: "/1/3",
+    provider_metadata: { fileId: "o" },
+  })
+  assert.equal(client.calls.upload[0].folder, POSTERS)
+})
+
+test("B8: replace and delete failures never expose the private key", async () => {
+  const axiosError = new Error(`boom ${FAKE_PRIVATE_KEY}`)
+  axiosError.config = { auth: { username: FAKE_PRIVATE_KEY } }
+  axiosError.response = { status: 502 }
+
+  const del = build({ client: fakeClient({ deleteError: axiosError }) })
+  await assert.rejects(
+    del.instance.delete({ provider_metadata: { fileId: "x" } }),
+    (error) => {
+      const dump = [error.message, JSON.stringify(error), String(error.stack)]
+      assert.ok(dump.every((t) => !t.includes(FAKE_PRIVATE_KEY)))
+      return true
+    }
+  )
+
+  const rep = build({ client: fakeClient({ uploadError: axiosError }) })
+  await assert.rejects(
+    rep.instance.replaceStream(mainFile(), {
+      provider_metadata: { fileId: "x" },
+    }),
+    (error) => {
+      const dump = [error.message, JSON.stringify(error), String(error.stack)]
+      assert.ok(dump.every((t) => !t.includes(FAKE_PRIVATE_KEY)))
+      return true
+    }
+  )
+  for (const line of [...del.log.lines, ...rep.log.lines]) {
+    assert.ok(!line.includes(FAKE_PRIVATE_KEY))
+  }
+})
+
+test("B9: a failing parent lookup leaves no unhandled rejection and derived files go to unsorted", async () => {
+  const unhandled = []
+  const onUnhandled = (reason) => unhandled.push(reason)
+  process.on("unhandledRejection", onUnhandled)
+  try {
+    const { instance, client } = build({
+      findFolders: fakeFinder({}, { fail: true }),
+    })
+    await instance.uploadStream(mainFile())
+    await instance.uploadStream(derivedFile("thumbnail_poster_abc123"))
+    await new Promise((resolve) => setImmediate(resolve))
+    assert.equal(client.calls.upload[0].folder, "/tiween/development/unsorted")
+    assert.equal(client.calls.upload[1].folder, "/tiween/development/unsorted")
+    assert.deepEqual(unhandled, [])
+  } finally {
+    process.off("unhandledRejection", onUnhandled)
+  }
+})
