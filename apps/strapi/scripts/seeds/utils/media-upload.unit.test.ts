@@ -334,10 +334,19 @@ describe("assertUploadProvider", () => {
 
   it("accepts the ImageKit provider", () => {
     expect(() =>
+      assertUploadProvider(
+        strapiWith("@tiween/strapi-provider-upload-imagekit"),
+        { allowLocal: false }
+      )
+    ).not.toThrow()
+  })
+
+  it("refuses the retired npm ImageKit provider name", () => {
+    expect(() =>
       assertUploadProvider(strapiWith("strapi-provider-upload-imagekit"), {
         allowLocal: false,
       })
-    ).not.toThrow()
+    ).toThrow("UPLOAD_PROVIDER_NOT_IMAGEKIT")
   })
 
   it("refuses the local provider by default", () => {
@@ -365,9 +374,10 @@ describe("assertUploadProvider", () => {
       assertUploadProvider(strapiWith("local"), { allowLocal: true })
     ).toThrow("UPLOAD_PROVIDER_NOT_IMAGEKIT")
     expect(() =>
-      assertUploadProvider(strapiWith("strapi-provider-upload-imagekit"), {
-        allowLocal: true,
-      })
+      assertUploadProvider(
+        strapiWith("@tiween/strapi-provider-upload-imagekit"),
+        { allowLocal: true }
+      )
     ).toThrow("ALLOW_LOCAL_UPLOADS_REFUSED_IN_PRODUCTION")
   })
 })

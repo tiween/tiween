@@ -459,10 +459,18 @@ describe("A13: upload plugin enabled and provider resolution (steers 01-10 provi
   it("resolves the `local` provider, or the ImageKit provider when credentials are configured (provider name and option key names only, never values)", () => {
     const cfg: any = strapi.config.get("plugin::upload")
 
-    expect(["local", "strapi-provider-upload-imagekit"]).toContain(cfg.provider)
+    expect(["local", "@tiween/strapi-provider-upload-imagekit"]).toContain(
+      cfg.provider
+    )
     if (cfg.provider !== "local") {
       expect(Object.keys(cfg.providerOptions ?? {})).toEqual(
-        expect.arrayContaining(["publicKey", "privateKey", "urlEndpoint"])
+        expect.arrayContaining([
+          "publicKey",
+          "privateKey",
+          "urlEndpoint",
+          "rootFolder",
+          "envFolder",
+        ])
       )
     }
   })

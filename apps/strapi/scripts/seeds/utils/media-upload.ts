@@ -470,7 +470,7 @@ export function youtubeThumbnailCandidates(videoUrl: string): string[] {
 /* Upload provider guard (T-01-31)                                            */
 /* -------------------------------------------------------------------------- */
 
-const IMAGEKIT_PROVIDER = "strapi-provider-upload-imagekit"
+const IMAGEKIT_PROVIDER = "@tiween/strapi-provider-upload-imagekit"
 
 /**
  * Fail closed unless uploads go to ImageKit. Without credentials Strapi

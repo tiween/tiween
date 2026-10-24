@@ -1,0 +1,29 @@
+{
+  "name": "@tiween/strapi-provider-upload-imagekit",
+  "version": "1.0.0",
+  "private": true,
+  "description": "ImageKit upload provider for Strapi v5 that mirrors Media Library folders under an environment root",
+  "license": "MIT",
+  "main": "index.js",
+  "files": [
+    "index.js"
+  ],
+  "scripts": {
+    "test": "node --test"
+  },
+  "dependencies": {
+    "imagekit": "6.0.0"
+  },
+  "peerDependencies": {
+    "@strapi/strapi": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "strapi": {
+    "name": "imagekit",
+    "displayName": "ImageKit Upload Provider",
+    "description": "Store Strapi uploads in ImageKit, mirroring the Media Library folder tree",
+    "kind": "provider"
+  }
+}
