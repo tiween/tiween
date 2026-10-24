@@ -18,3 +18,7 @@
 - Genres get no `ar`/`en` rows from the import, so the Arabic and English directory shows French genre names
   status: open
   **Found in:** 01-10. `data/genres.json` carries `name_ar`, but the importer only creates the default-locale genre row (the plan asks for find-or-create of genres, not for translated rows), and the public overlay falls back to the base name. Writing the `ar` row needs the `slug` uid passed explicitly (uids are not copied to a new locale row). Decide in Phase 2 or at the 01-13 dev run whether the French fallback is acceptable at launch.
+
+- Admin (jsdom) jest suites time out under full-run load
+  status: open
+  **Found in:** 01-13. `yarn workspace @tiween/admin test` on 2026-10-24: 1719 passed, 27 failed in 9 admin UI suites (ImportTab, WorksRouting, CodeMultiPicker, VenueFormModal, SubEventModal, Venues page, WorkFormLocales, WorkFormShortFields, WorkFormPublish), all `Exceeded timeout of 5000/30000 ms`. All seeds and short-films server suites pass. CodeMultiPicker passed on a re-run; 01-13 changed only the seed data flags and planning docs, so these are load or environment timeouts, not caused by this plan. Follow-up: raise the jsdom test timeout or cap `maxWorkers` for the admin project.

@@ -112,3 +112,41 @@ New candidates (plan 01-12):
 ## Method and limits
 
 Channel owner, duration and upload date were read from YouTube's own page data for every video. Facts then come from the cited press, film-database, festival and platform pages, each fetched and read. The general web search services (DuckDuckGo, Bing, Mojeek) answered with captcha or irrelevant pages in plan 01-12, so new candidates were found through YouTube search and the cinematunisien film database (JCC 2024 and 2014 programmes and palmarès), then checked on the film's own YouTube page data and its cinematunisien page. Absence of a distinction on the sheet means none was found, not that none exists. Plan 01-12 kept to its caps (8 candidates) but used about 4 to 6 page reads per candidate; the YouTube page-data reads replaced several manual fetches.
+
+## Import results (2026-10-24, dev)
+
+Imported with `yarn workspace @tiween/admin seed:shorts --verify` against the local compose Postgres (tiween-db-1) and the dev ImageKit account (folder `/tiween/development/short-films/`). Evidence is in `01-13-SUMMARY.md` (`## Import run 1`, `## Import run 2`).
+
+**Imported (13 published short films, read back through the public facade in fr and ar):** khalaa, petit-frere, les-souliers-de-laid, comme-un-fils, brotherhood, ordure, flashback, chrifa-bent-el-fadhel, bord-a-bord, let-go, faracha, action-figuration, abderrahman. Run 1 created 5, updated 7 (the eight films published earlier without media, minus les-souliers-de-laid) and left 1 unchanged; run 2 created and updated nothing.
+
+**Posterless films (all 13, published through the D-20 bypass):** no film has a real 2:3 poster, so each publish logged `POSTER_REQUIRED` bypassed with reason `seed:shorts launch import`. The client placeholder covers them. Add real posters in the admin (Events Manager, Works) when available.
+
+**No backdrop either:** les-souliers-de-laid (`BACKDROP_UNAVAILABLE (NO_SOURCE)`, no image was sourced for it). Source a backdrop and re-run the importer, or upload one in the admin.
+
+**AI-drafted fields awaiting the owner's Arabic review (D-13).** Review in the admin on the AR tab (the EN rows are listed too):
+
+| Slug                  | AR fields       | EN fields       |
+| --------------------- | --------------- | --------------- |
+| khalaa                | synopsis        | title, synopsis |
+| petit-frere           | -               | title           |
+| les-souliers-de-laid  | synopsis        | title, synopsis |
+| comme-un-fils         | title           | title           |
+| brotherhood           | synopsis        | title, synopsis |
+| ordure                | synopsis        | title, synopsis |
+| flashback             | synopsis        | title, synopsis |
+| chrifa-bent-el-fadhel | -               | title           |
+| bord-a-bord           | synopsis        | title, synopsis |
+| let-go                | title, synopsis | title, synopsis |
+| faracha               | synopsis        | title, synopsis |
+| action-figuration     | title, synopsis | title, synopsis |
+| abderrahman           | title, synopsis | title, synopsis |
+
+Also carried forward from the owner approval: spoken-language codes for let-go, action-figuration, abderrahman and bord-a-bord are inferred and should be checked in the admin.
+
+**Retired fake dev slugs removed:** none in either run (`retired: []`; the five `retiredSlugs` were already absent from the dev database).
+
+**Orphans reported:** none.
+
+**Failures:** none in the final runs. A first attempt on 2026-10-20 failed every ImageKit upload with HTTP 500 because the rotated ImageKit API key was restricted to Media management = Read only; the owner switched it to Read and write on 2026-10-24 and the import then succeeded without code changes.
+
+**Phase 1 gate (D-14):** Phase 1 gate: 13 films imported and the pipeline proven twice; reaching 30-50 films is the Phase 6 launch gate. The production import is a Phase 6 operator step.
