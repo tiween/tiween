@@ -3,7 +3,9 @@
  *
  * Images are NEVER hotlinked: each source is downloaded once and uploaded
  * through the Strapi upload service, so it lands on the configured provider
- * (ImageKit in a real environment). Uploads are idempotent by file name.
+ * (ImageKit in a real environment). Uploads are idempotent by file name and can
+ * be filed under a Media Library folder chain, created on demand, which the
+ * ImageKit provider mirrors in the stored path.
  *
  * The downloader is injected into the importer, so tests never touch the
  * network and the CLI binds the real SSRF-safe downloader to the data file's
@@ -41,9 +43,15 @@ export interface ImageSource {
   name: string
   url: string
   alt?: string
+  /**
+   * Media Library folder names, root first (e.g. `["Short films", "Posters"]`).
+   * Missing folders are created. Omit to upload at the Media Library root.
+   */
+  folder?: readonly string[]
 }
 
 const UPLOAD_FILE_UID = "plugin::upload.file"
+const UPLOAD_FOLDER_UID = "plugin::upload.folder"
 
 /** Stems are built from validated slugs; anything else is a programming error. */
 const STEM_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
@@ -162,14 +170,58 @@ export async function guardUnobservedRejections<T>(
   }
 }
 
+/** Folder names come from code constants; anything else is a programming error. */
+function validateFolderNames(names: readonly unknown[]): string[] {
+  if (
+    !Array.isArray(names) ||
+    names.length === 0 ||
+    names.some((name) => typeof name !== "string" || name.trim() === "")
+  ) {
+    throw new Error("INVALID_MEDIA_FOLDER")
+  }
+  return (names as string[]).map((name) => name.trim())
+}
+
+/**
+ * Find or create the Media Library folder chain `names` (root first) and return
+ * the leaf folder id. Idempotent: an existing folder is matched by name and
+ * parent (root folders have `parent: null`, as Strapi itself queries them) and
+ * only missing ones are created through the upload plugin's folder service.
+ */
+export async function ensureUploadFolderPath(
+  strapi: Core.Strapi,
+  names: readonly string[]
+): Promise<number> {
+  const trimmed = validateFolderNames(names)
+
+  let parentId: number | null = null
+  for (const name of trimmed) {
+    const existing = (await strapi.db.query(UPLOAD_FOLDER_UID).findOne({
+      where: { name, parent: parentId },
+    })) as { id: number } | null
+    const folder: { id: number } =
+      existing ??
+      ((await strapi
+        .plugin("upload")
+        .service("folder")
+        .create({ name, parent: parentId })) as { id: number })
+    parentId = folder.id
+  }
+  return parentId as number
+}
+
 /**
  * Upload `source` once and return the `plugin::upload.file` row id.
  *
- * Idempotency: a file whose name is `<name>.<ext>` is reused, so a second run
- * downloads and uploads nothing.
+ * Idempotency: a file whose name is `<name>.<ext>` is reused where it is (it is
+ * not moved to `source.folder`, so it never moves in ImageKit either), so a
+ * second run downloads and uploads nothing.
+ *
+ * With `source.folder` the file is filed under that Media Library folder, which
+ * the ImageKit provider mirrors in the stored path.
  *
  * Throws what the downloader throws (`MediaDownloadError`) or, when the upload
- * service refuses the file, a `MediaUploadError`.
+ * service or the folder service refuses, a `MediaUploadError`.
  */
 export async function findOrUploadImage(
   strapi: Core.Strapi,
@@ -179,6 +231,7 @@ export async function findOrUploadImage(
   if (!STEM_PATTERN.test(source.name)) {
     throw new Error("INVALID_MEDIA_NAME")
   }
+  if (source.folder !== undefined) validateFolderNames(source.folder)
 
   const existing = (await strapi.db.query(UPLOAD_FILE_UID).findOne({
     where: { name: { $startsWith: `${source.name}.` } },
@@ -194,6 +247,10 @@ export async function findOrUploadImage(
     await fs.writeFile(filepath, image.buffer)
     let uploaded: Array<{ id: number }>
     try {
+      const folderId =
+        source.folder === undefined
+          ? undefined
+          : await ensureUploadFolderPath(strapi, source.folder)
       uploaded = (await strapi
         .plugin("upload")
         .service("upload")
@@ -202,6 +259,7 @@ export async function findOrUploadImage(
             fileInfo: {
               name: fileName,
               alternativeText: source.alt ?? null,
+              ...(folderId === undefined ? {} : { folder: folderId }),
             },
           },
           files: {

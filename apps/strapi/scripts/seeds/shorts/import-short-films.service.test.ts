@@ -75,6 +75,37 @@ async function counts() {
   }
 }
 
+const UPLOAD_FOLDER = "plugin::upload.folder"
+
+/** Root Media Library folders named like the importer's top folder. */
+async function shortFilmsRootFolders() {
+  return (await (strapi.db.query(UPLOAD_FOLDER as never) as any).findMany({
+    where: { name: "Short films", parent: null },
+  })) as Array<{ id: number }>
+}
+
+const folderCount = () =>
+  (strapi.db.query(UPLOAD_FOLDER as never) as any).count({}) as Promise<number>
+
+/** The files the importer uploaded, each with its folder and that folder's parent. */
+async function importedFiles() {
+  const rows = (await (strapi.db.query(UPLOAD_FILE as never) as any).findMany({
+    where: { name: { $startsWith: "sample-" } },
+    populate: { folder: { populate: { parent: true } } },
+  })) as Array<{
+    name: string
+    folderPath: string
+    folder: {
+      name: string
+      path: string
+      parent: { name: string; parent?: unknown } | null
+    } | null
+  }>
+  return rows.filter((row) =>
+    /^sample-(one|two)-(poster|backdrop)\./.test(row.name)
+  )
+}
+
 /** id and publishedAt of every default-locale published row of the given slugs. */
 async function publishedStamps(slugs: string[]) {
   const rows = (await (strapi.db.query(CW as never) as any).findMany({
@@ -123,6 +154,7 @@ const current: any = { ...clone(sampleFile), retiredSlugs: ["retire-me"] }
 const reports: Record<string, ImportReport> = {}
 let retireMeDocumentId: string
 let afterRun1: Awaited<ReturnType<typeof counts>>
+let foldersAfterRun1: number
 let stampsAfterRun1: Awaited<ReturnType<typeof publishedStamps>>
 let stampsAfterRun2: Awaited<ReturnType<typeof publishedStamps>>
 let downloadsRun1: string[]
@@ -146,6 +178,14 @@ afterAll(async () => {
   })) as Array<{ id: number }>
   for (const file of files) {
     await strapi.plugin("upload").service("upload").remove(file)
+  }
+  // The importer created the Media Library folders; remove them too.
+  const roots = await shortFilmsRootFolders()
+  if (roots.length > 0) {
+    await strapi
+      .plugin("upload")
+      .service("folder")
+      .deleteByIds(roots.map((root) => root.id))
   }
   await cleanupStrapi()
 })
@@ -186,6 +226,7 @@ describe("importShortFilms: run 1 (first import)", () => {
     reports.run1 = await importShortFilms(strapi, current, deps())
     downloadsRun1 = [...downloaded]
     afterRun1 = await counts()
+    foldersAfterRun1 = await folderCount()
     stampsAfterRun1 = await publishedStamps(["sample-one", "sample-two"])
   })
 
@@ -305,6 +346,21 @@ describe("importShortFilms: run 1 (first import)", () => {
     ])
   })
 
+  it("S1: files posters under Short films > Posters and backdrops under Short films > Backdrops", async () => {
+    const files = await importedFiles()
+    expect(files.map((file) => file.name).sort()).toEqual([
+      "sample-one-backdrop.png",
+      "sample-one-poster.png",
+      "sample-two-backdrop.png",
+    ])
+    for (const file of files) {
+      const leaf = file.name.includes("-poster.") ? "Posters" : "Backdrops"
+      expect(file.folder?.name).toBe(leaf)
+      expect(file.folder?.parent?.name).toBe("Short films")
+      expect(file.folderPath).toBe(file.folder?.path)
+    }
+  })
+
   it("lists every ai-drafted translation field for owner review (D-13)", () => {
     expect(reports.run1.aiDraftedFields).toEqual([
       { slug: "sample-two", locale: "ar", fields: ["title", "synopsis"] },
@@ -351,6 +407,11 @@ describe("importShortFilms: run 2 (same file, idempotent)", () => {
 
   it("leaves every record count unchanged", async () => {
     expect(await counts()).toEqual(afterRun1)
+  })
+
+  it("S2: reuses the Media Library folders instead of creating them again", async () => {
+    expect(await shortFilmsRootFolders()).toHaveLength(1)
+    expect(await folderCount()).toBe(foldersAfterRun1)
   })
 
   it("downloads and uploads nothing", () => {
