@@ -5,16 +5,16 @@ milestone_name: Shorts Directory
 current_phase: 01
 current_phase_name: Short-Film Catalog Backend
 status: executing
-stopped_at: Completed 01-12-PLAN.md
-last_updated: "2026-10-24T13:35:01.086Z"
+stopped_at: Completed 01-13-PLAN.md
+last_updated: "2026-10-24T21:59:23.629Z"
 last_activity: 2026-10-24
 last_activity_desc: Phase 01 execution started
-state_head: eefe9527f33da51dfcde954c010226c00d3d45b6
+state_head: 05f0baf70e1474607490a9b630935abe484ee47c
 progress:
   total_phases: 6
   completed_phases: 0
   total_plans: 14
-  completed_plans: 13
+  completed_plans: 14
 ---
 
 # Project State
@@ -29,9 +29,9 @@ See: .planning/PROJECT.md (updated 2026-10-18)
 ## Current Position
 
 Phase: 01 (Short-Film Catalog Backend) — EXECUTING
-Plan: 13 of 14
+Plan: 14 of 14
 Status: Ready to execute
-Last activity: 2026-10-24 - Completed quick task 261024-iy3: Mirror Strapi Media Library folders in ImageKit uploads
+Last activity: 2026-10-24 — Phase 01 execution started
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -72,6 +72,7 @@ _Updated after each plan completion_
 | Phase 01 P05 | 14 min                   | 3 tasks | 12 files |
 | Phase 01 P11 | 28 min                   | 2 tasks | 3 files  |
 | Phase 01 P12 | 2 days (checkpoint wait) | 3 tasks | 2 files  |
+| Phase 01 P13 | 25 min                   | 2 tasks | 3 files  |
 
 ## Accumulated Context
 
@@ -113,6 +114,7 @@ Decisions are logged in PROJECT.md (Locked Decisions and Key Decisions table). R
 - [Phase 01]: chrifa-bent-el-fadhel credits Kheyri Habboubi from the producer's own video description and channel page (single source, owner to confirm); no film has a real 2:3 poster so all 8 included films rely on the D-20 bypass
 - [Phase 01]: Unverified facts (years, Arabic original title, synopses) are omitted from the data file instead of carried from the mock; streamingLinks is the single watch source (videos left empty)
 - [Phase 01]: Owner approved all 13 include films (approve-all, 2026-10-20); mediaHosts stays []; 13 open sheet questions accepted as presented and carried to 01-13 review list
+- [Phase 01]: 01-13: 13 approved short films imported on dev Postgres+ImageKit; second run a no-op. Production import stays Phase 6.
 
 ### Pending Todos
 
@@ -142,26 +144,8 @@ Items acknowledged and deferred at milestone close, most recent first:
 | -------- | -------------------------------------------------------- | ------ | ----------- | --------- |
 | _(none)_ | v2+ work is parked as 999.x phases in ROADMAP.md Backlog |        |             |           |
 
-## Needs Human
-
-| Phase | State       | Resume                                                                                             |
-| ----- | ----------- | -------------------------------------------------------------------------------------------------- |
-| 1     | needs_human | resolve the 01-13 ImageKit upload failure, then /gsd-autonomous --from 1 (resumes at 01-13 Task 1) |
-
-01-13 Task 1 (`seed:shorts --verify` on dev Postgres + ImageKit) failed 3 fix-and-retry attempts (2026-10-20):
-
-1. and 2. `UPLOAD_PROVIDER_NOT_IMAGEKIT`: the ImageKit keys were only in the repo-root `.env`, which Strapi never loads. The owner then added them to `apps/strapi/.env`.
-2. The ImageKit config now loads, but every upload is rejected. The log shows 45 `Unable to upload file.` lines and the `files` table has 0 rows. The importer then crashed on film 9 (`bord-a-bord`) with an unhandled promise rejection.
-
-Unmet items:
-
-- **Upload rejection cause unknown:** the provider logs no detail, only ImageKit's error object `message`. Possible causes are invalid or mismatched keys, a wrong `IMAGEKIT_URL_ENDPOINT`, account permissions or quota, or the network.
-- **Dev DB left partial:** 8 films (khalaa … chrifa-bent-el-fadhel) are published in fr, with ar and en rows, but have no media because of the POSTER_REQUIRED bypass. The other 5 approved films were not imported. Nothing has been cleaned up.
-- **Importer defect (01-10):** an upload failure kills the process instead of landing in the report's `failed` list.
-- **Uncommitted:** `apps/strapi/scripts/seeds/data/short-films.json` has `approved: true` on the 13 owner-approved slugs.
-
 ## Session Continuity
 
-Last session: 2026-10-20T07:32:50.128Z
-Stopped at: 01-13 Task 1 blocked (needs_human: ImageKit uploads rejected)
+Last session: 2026-10-24T21:59:22.730Z
+Stopped at: Completed 01-13-PLAN.md
 Resume file: None
