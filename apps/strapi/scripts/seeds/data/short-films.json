@@ -10,7 +10,7 @@
   "films": [
     {
       "slug": "khalaa",
-      "approved": false,
+      "approved": true,
       "title": {
         "fr": "Khalâa",
         "en": "Khalaa"
@@ -93,7 +93,7 @@
     },
     {
       "slug": "petit-frere",
-      "approved": false,
+      "approved": true,
       "title": {
         "fr": "Petit Frère",
         "en": "Little Brother"
@@ -146,7 +146,7 @@
     },
     {
       "slug": "les-souliers-de-laid",
-      "approved": false,
+      "approved": true,
       "title": {
         "fr": "Les Souliers de l'Aïd",
         "en": "My Shoes"
@@ -271,7 +271,7 @@
     },
     {
       "slug": "comme-un-fils",
-      "approved": false,
+      "approved": true,
       "title": {
         "fr": "Comme un fils",
         "ar": "مثل ابن",
@@ -329,7 +329,7 @@
     },
     {
       "slug": "brotherhood",
-      "approved": false,
+      "approved": true,
       "title": {
         "fr": "Brotherhood",
         "en": "Brotherhood"
@@ -420,7 +420,7 @@
     },
     {
       "slug": "ordure",
-      "approved": false,
+      "approved": true,
       "title": {
         "fr": "Ordure",
         "en": "Garbage"
@@ -482,7 +482,7 @@
     },
     {
       "slug": "flashback",
-      "approved": false,
+      "approved": true,
       "title": {
         "fr": "Flashback",
         "en": "Flashback"
@@ -531,7 +531,7 @@
     },
     {
       "slug": "chrifa-bent-el-fadhel",
-      "approved": false,
+      "approved": true,
       "title": {
         "fr": "Chrifa Bent El Fadhel",
         "en": "Chrifa Bent El Fadhel"
@@ -573,7 +573,7 @@
     },
     {
       "slug": "bord-a-bord",
-      "approved": false,
+      "approved": true,
       "title": {
         "fr": "Bord à bord",
         "ar": "عالحافة",
@@ -661,7 +661,7 @@
     },
     {
       "slug": "let-go",
-      "approved": false,
+      "approved": true,
       "title": {
         "fr": "Let Go",
         "ar": "التخلّي",
@@ -735,7 +735,7 @@
     },
     {
       "slug": "faracha",
-      "approved": false,
+      "approved": true,
       "title": {
         "fr": "Faracha",
         "ar": "فراشة",
@@ -807,7 +807,7 @@
     },
     {
       "slug": "action-figuration",
-      "approved": false,
+      "approved": true,
       "title": {
         "fr": "Action figuration",
         "ar": "أكشن كومبارس",
@@ -891,7 +891,7 @@
     },
     {
       "slug": "abderrahman",
-      "approved": false,
+      "approved": true,
       "title": {
         "fr": "Abderrahman",
         "ar": "عبد الرحمان",
