@@ -33,7 +33,7 @@ result: [pending]
 
 ### 4. Featured and related reads on Postgres
 
-expected: With the dev Strapi running on Postgres, `GET /api/creative-works/short-films/featured` and `/api/creative-works/short-films/:slug/related` return the same ordering the SQLite boot suites assert.
+expected: With the dev Strapi running on Postgres, `GET /api/creative-works/creative-works/short-films/featured` and `/api/creative-works/creative-works/short-films/:slug/related` return the same ordering the SQLite boot suites assert.
 result: [pending]
 
 ## Summary
