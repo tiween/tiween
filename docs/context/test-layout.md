@@ -20,4 +20,4 @@ exercise real Strapi against SQLite and run only under
 never invokes. Green CI therefore says nothing about the integration suite — run it
 locally before closing backend work.
 
-There is no E2E suite: no Playwright dependency and no `test:e2e` script exist.
+E2E: Playwright specs live in `apps/strapi/e2e/specs/` and run against an isolated Postgres-backed Strapi on port 1338 (`e2e:up` / `e2e:down`, docs in `apps/strapi/scripts/e2e/README.md`). Run with `yarn workspace @tiween/admin test:e2e`; the stack must be up first.

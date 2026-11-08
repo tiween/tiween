@@ -15,7 +15,7 @@
 - `yarn test` runs **Vitest in `apps/client`, Jest in `apps/strapi`**: [test-layout](test-layout.md)
 - Strapi's boot-based suites (`*.service.test.ts`, `*.controller.test.ts`) need `yarn workspace @tiween/admin test:integration`; `yarn test` and CI both skip them
 - Single file — client: `cd apps/client && yarn vitest run <file>`; strapi: `yarn workspace @tiween/admin jest <file>`
-- No E2E suite — never invent a `test:e2e` command
+- E2E: Playwright in `apps/strapi/e2e/`; start the stack with `yarn workspace @tiween/admin e2e:up`, then `yarn workspace @tiween/admin test:e2e` (see `apps/strapi/scripts/e2e/README.md`)
 - `yarn dev:strapi` runs `docker compose up -d db` first — Docker must be running
 - Lint is `--max-warnings=0` in both apps: any warning fails
 - In a git worktree, run `yarn install --frozen-lockfile` before any test, lint, or build: [worktree-install](worktree-install.md)

@@ -15,6 +15,9 @@
     "dev": "yarn run:db && yarn develop",
     "develop": "portless api.tiween strapi develop",
     "develop:watch": "strapi develop --watch-admin",
+    "e2e:down": "bash scripts/e2e/down.sh",
+    "e2e:seed-admin": "bash scripts/e2e/seed-admin.sh",
+    "e2e:up": "bash scripts/e2e/up.sh",
     "export:all": "strapi export --file strapi-export --no-encrypt",
     "export:content": "strapi export --only content --no-encrypt --file strapi-export",
     "generate": "strapi generate",
@@ -30,10 +33,11 @@
     "strapi": "strapi",
     "test": "jest",
     "test:coverage": "jest --coverage",
+    "test:e2e": "playwright test -c e2e/playwright.config.ts",
     "test:integration": "(yarn build:test-dist || true) && jest --selectProjects server --testMatch='**/*.service.test.ts' --testMatch='**/*.controller.test.ts' --testMatch='**/tests/app.test.js' --runInBand",
     "test:watch": "jest --watch",
     "transfer": "strapi transfer",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit && tsc --noEmit -p e2e/tsconfig.json"
   },
   "dependencies": {
     "@strapi/plugin-documentation": "^5.51.2",
@@ -66,6 +70,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.0",
+    "@playwright/test": "^1.65.0",
     "@testing-library/jest-dom": "^6",
     "@testing-library/react": "^16",
     "@testing-library/user-event": "^14",

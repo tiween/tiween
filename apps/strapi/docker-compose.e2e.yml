@@ -1,0 +1,22 @@
+# Throwaway Postgres for the E2E stack (scripts/e2e/README.md).
+# Separate compose project + tmpfs data dir: fully isolated from the dev `db`
+# service (port 5437, volume `tiween_data`) and empty on every start.
+# Deliberately no `env_file: .env`: every value is an E2E constant.
+
+name: tiween-e2e
+services:
+  db-e2e:
+    image: postgres:16.0-alpine
+    environment:
+      POSTGRES_USER: ${E2E_DATABASE_USERNAME:-e2e}
+      POSTGRES_PASSWORD: ${E2E_DATABASE_PASSWORD:-e2e}
+      POSTGRES_DB: ${E2E_DATABASE_NAME:-tiween_e2e}
+    tmpfs:
+      - /var/lib/postgresql/data
+    ports:
+      - "${E2E_DATABASE_PORT:-5439}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 1s
+      timeout: 3s
+      retries: 30

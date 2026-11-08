@@ -1,0 +1,18 @@
+{
+  // Playwright suites run in Node but drive a browser (DOM types in
+  // page.evaluate callbacks), so they get their own project instead of the
+  // server tsconfig, which excludes this folder.
+  "compilerOptions": {
+    "module": "CommonJS",
+    "moduleResolution": "Node",
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM"],
+    "types": ["node"],
+    "strict": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "noEmit": true
+  },
+  "include": ["./**/*.ts"]
+}

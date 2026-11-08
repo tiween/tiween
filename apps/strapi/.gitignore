@@ -119,3 +119,16 @@ build
 src/extensions/documentation/*
 
 .strapi
+
+############################
+# E2E stack (scripts/e2e)
+############################
+
+.e2e/
+
+############################
+# Playwright (e2e/)
+############################
+
+e2e/.auth/
+e2e/.tmp/

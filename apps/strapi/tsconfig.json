@@ -33,6 +33,8 @@
     ".cache/",
     ".tmp/",
     "scripts/",
+    // Playwright suites have their own tsconfig (e2e/tsconfig.json)
+    "e2e/",
 
     // Do not include admin files in the server compilation
     "src/admin/",
