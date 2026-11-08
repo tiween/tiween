@@ -1,7 +1,5 @@
-// For more info, see https://github.com/storybookjs/eslint-plugin-storybook#configuration-flat-config-format
 import nextConfig from "@tiween/eslint-config/next"
 import tiweenPlugin from "@tiween/eslint-config/plugin"
-import storybook from "eslint-plugin-storybook"
 import tseslint from "typescript-eslint"
 
 /** @type {import("eslint").Linter.Config[]} */
@@ -105,18 +103,6 @@ const config = [
     },
   },
   {
-    files: ["**/*.stories.@(ts|tsx)"],
-    rules: {
-      // Storybook arg handlers demonstrate callbacks by logging them; that is the
-      // documented CSF idiom and these files never ship to production.
-      "no-console": "off",
-      // Stories are isolated component fixtures rendered by Storybook, not Next.js
-      // pages -- the LCP/bandwidth rationale for next/image does not apply, and
-      // remote placeholder art has no known intrinsic dimensions.
-      "@next/next/no-img-element": "off",
-    },
-  },
-  {
     files: ["src/app/api/**/*.ts"],
     rules: {
       // Route handlers run on the server and have no structured logger yet, so
@@ -126,7 +112,6 @@ const config = [
       "no-console": ["warn", { allow: ["warn", "error", "info"] }],
     },
   },
-  ...storybook.configs["flat/recommended"],
 ]
 
 export default config
