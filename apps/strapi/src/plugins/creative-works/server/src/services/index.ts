@@ -2,10 +2,12 @@ import creativeWork from "./creative-work"
 import person from "./person"
 import publicApi from "./public-api"
 import shortFilms from "./short-films"
+import workEditor from "./work-editor"
 
 export default {
   "creative-work": creativeWork,
   person,
   "public-api": publicApi,
   "short-films": shortFilms,
+  "work-editor": workEditor,
 }

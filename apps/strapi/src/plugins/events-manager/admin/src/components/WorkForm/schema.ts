@@ -7,7 +7,13 @@
 
 import { z } from "zod"
 
-import type { CreativeWork } from "../../hooks/useCreativeWorks"
+import type {
+  CharacterRef,
+  CreativeWork,
+  CreditRoleRef,
+  Genre,
+  PersonRef,
+} from "../../hooks/useCreativeWorks"
 import type { MediaAsset } from "../MediaInput"
 
 // One browser-safe rules module (zod only) shared with the server guard and
@@ -341,6 +347,77 @@ export const DEFAULT_WORK_VALUES: WorkFormValues = {
   photos: [],
 }
 
+/**
+ * A to-many relation as a list: the value when it is an array, else `[]`.
+ *
+ * The content-manager single-document GET counts relations (`{ count: n }`)
+ * instead of resolving them, and `.map` on that threw (G-01-1). The editor
+ * route resolves them, but the mapping must never be the thing that crashes.
+ */
+function relationList<T>(value: unknown): T[] {
+  return Array.isArray(value) ? (value as T[]) : []
+}
+
+/**
+ * A to-one relation as a reference: the value only when it is a non-null object
+ * carrying a string `documentId`, else `null` (a `{ count }` or an id-less
+ * stub is not a reference the form can send back).
+ */
+function relationRef<T extends { documentId: string }>(
+  value: unknown
+): T | null {
+  return value !== null &&
+    typeof value === "object" &&
+    typeof (value as { documentId?: unknown }).documentId === "string"
+    ? (value as T)
+    : null
+}
+
+/** A relation value that is present but not a resolved reference. */
+const isUnresolvedRef = (value: unknown) =>
+  value !== null && value !== undefined && relationRef(value) === null
+
+/**
+ * Dotted paths of every relation the work carries but did not resolve, e.g.
+ * `["genres", "credits.0.person"]`.
+ *
+ * `workToApiPayload` re-sends `genres`, `credits` and `cast` wholesale, so a
+ * relation the form could not read would be written back as a blank: the page
+ * refuses to render a form over a work with any unresolved relation. A missing
+ * or null relation is NOT reported (a work may have none); the editor route
+ * answers every key, and `work-editor.service.test.ts` pins that.
+ */
+export function findUnresolvedRelations(work: CreativeWork): string[] {
+  const unresolved: string[] = []
+  const source = work as unknown as Record<string, unknown>
+
+  if (source.genres !== null && source.genres !== undefined) {
+    if (!Array.isArray(source.genres)) unresolved.push("genres")
+  }
+
+  relationList<Record<string, unknown>>(source.credits).forEach(
+    (row, index) => {
+      for (const key of ["person", "creditRole"]) {
+        if (isUnresolvedRef(row?.[key]))
+          unresolved.push(`credits.${index}.${key}`)
+      }
+    }
+  )
+
+  relationList<Record<string, unknown>>(source.cast).forEach((row, index) => {
+    for (const key of ["person", "character"]) {
+      if (isUnresolvedRef(row?.[key])) unresolved.push(`cast.${index}.${key}`)
+    }
+  })
+
+  const details = source.theatreDetails as Record<string, unknown> | null
+  if (isUnresolvedRef(details?.premiereVenue)) {
+    unresolved.push("theatreDetails.premiereVenue")
+  }
+
+  return unresolved
+}
+
 /** Maps a fetched creative-work entity into form values */
 export function workToFormValues(work: CreativeWork): WorkFormValues {
   return {
@@ -353,43 +430,43 @@ export function workToFormValues(work: CreativeWork): WorkFormValues {
     releaseYear: work.releaseYear ?? null,
     rating: work.rating ?? null,
     ageRating: work.ageRating ?? "",
-    genreIds: (work.genres ?? []).map((genre) => genre.documentId),
-    credits: (work.credits ?? []).map((credit) => ({
-      person: credit.person
-        ? {
-            id: credit.person.id,
-            documentId: credit.person.documentId,
-            name: credit.person.name,
-          }
-        : null,
-      creditRole: credit.creditRole
-        ? {
-            id: credit.creditRole.id,
-            documentId: credit.creditRole.documentId,
-            name: credit.creditRole.name,
-            slug: credit.creditRole.slug ?? null,
-          }
-        : null,
-      customRole: credit.customRole ?? "",
-      billing: credit.billing ?? 99,
-    })),
-    cast: (work.cast ?? []).map((castMember) => ({
-      person: castMember.person
-        ? {
-            id: castMember.person.id,
-            documentId: castMember.person.documentId,
-            name: castMember.person.name,
-          }
-        : null,
-      character: castMember.character
-        ? {
-            id: castMember.character.id,
-            documentId: castMember.character.documentId,
-            name: castMember.character.name,
-          }
-        : null,
-      billing: castMember.billing ?? 99,
-    })),
+    genreIds: relationList<Genre>(work.genres).map((genre) => genre.documentId),
+    credits: (work.credits ?? []).map((credit) => {
+      const person = relationRef<PersonRef>(credit.person)
+      const creditRole = relationRef<CreditRoleRef>(credit.creditRole)
+      return {
+        person: person
+          ? { id: person.id, documentId: person.documentId, name: person.name }
+          : null,
+        creditRole: creditRole
+          ? {
+              id: creditRole.id,
+              documentId: creditRole.documentId,
+              name: creditRole.name,
+              slug: creditRole.slug ?? null,
+            }
+          : null,
+        customRole: credit.customRole ?? "",
+        billing: credit.billing ?? 99,
+      }
+    }),
+    cast: (work.cast ?? []).map((castMember) => {
+      const person = relationRef<PersonRef>(castMember.person)
+      const character = relationRef<CharacterRef>(castMember.character)
+      return {
+        person: person
+          ? { id: person.id, documentId: person.documentId, name: person.name }
+          : null,
+        character: character
+          ? {
+              id: character.id,
+              documentId: character.documentId,
+              name: character.name,
+            }
+          : null,
+        billing: castMember.billing ?? 99,
+      }
+    }),
     distinctions: (work.distinctions ?? []).map((distinction) => ({
       name: distinction.name ?? "",
       edition: distinction.edition ?? "",
@@ -415,7 +492,7 @@ export function workToFormValues(work: CreativeWork): WorkFormValues {
           productionCompany: work.theatreDetails.productionCompany ?? "",
           premiereDate: work.theatreDetails.premiereDate ?? null,
           premiereVenueId:
-            work.theatreDetails.premiereVenue?.documentId ?? null,
+            relationRef(work.theatreDetails.premiereVenue)?.documentId ?? null,
           isTourProduction: Boolean(work.theatreDetails.isTourProduction),
         }
       : DEFAULT_THEATRE_DETAILS,

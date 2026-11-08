@@ -11,7 +11,7 @@ import { useFetchClient } from "@strapi/strapi/admin"
 import type { MediaAsset } from "../components/MediaInput"
 import type { Pagination } from "./useVenuesEnhanced"
 
-import { WORK_POPULATE } from "./workPopulate"
+import { collectTranslationTargets } from "./translationTargets"
 
 export type WorkType = "film" | "play" | "short-film"
 
@@ -22,6 +22,12 @@ export const CREDIT_ROLE_UID = "plugin::creative-works.credit-role"
 export const CHARACTER_UID = "plugin::creative-works.character"
 
 const cmUrl = (uid: string) => `/content-manager/collection-types/${uid}`
+
+/**
+ * The editor read of one work (creative-works admin route). Writes still go
+ * through the content-manager.
+ */
+export const WORK_EDITOR_URL = "/creative-works/admin/works"
 
 /** Page size and hard page ceiling for the credit-role vocabulary fetch */
 const CREDIT_ROLE_PAGE_SIZE = 100
@@ -187,7 +193,10 @@ export interface CreativeWork {
   updatedAt?: string
 }
 
-export { WORK_POPULATE }
+// Moved verbatim to a React-free module (the booted work-editor suite imports
+// it); re-exported so existing importers keep working unchanged.
+export { collectTranslationTargets }
+export type { TranslationTargets } from "./translationTargets"
 
 /** One other-locale row of the same document, from `meta.availableLocales` */
 export interface AvailableLocale {
@@ -370,12 +379,18 @@ export function useWorkSearch(term: string, types: readonly WorkType[]) {
 }
 
 /**
- * Single creative work with all components populated.
+ * Single creative work, relations resolved.
  *
- * `locale` selects the row; the content-manager answers a locale that has no
- * row yet with `data: {}`, which is returned as `work: null` so the caller can
- * tell "not translated yet" from "loaded". `meta.availableLocales` lists the
- * OTHER locale rows of the document with their status.
+ * Reads the creative-works editor route, NOT the content-manager single-document
+ * GET: that one counts every relation (`{ count: n }`) and ignores `populate`,
+ * which crashed this page (G-01-1). The server owns the populate, so only
+ * `locale` is sent. The route answers the content-manager's `{ data, meta }`
+ * shape, so the rest of this hook is unchanged.
+ *
+ * `locale` selects the row; a locale that has no row yet answers `data: {}`,
+ * which is returned as `work: null` so the caller can tell "not translated
+ * yet" from "loaded". `meta.availableLocales` lists the OTHER locale rows of
+ * the document with their status.
  *
  * Pass `null` as `documentId` to skip the request (a new work, or a tab that
  * is not active).
@@ -408,8 +423,8 @@ export function useWork(documentId: string | null, locale?: string | null) {
 
     try {
       const response = await get<{ data: CreativeWork; meta?: WorkMeta }>(
-        `${cmUrl(WORK_UID)}/${documentId}`,
-        { params: { populate: WORK_POPULATE, ...(locale ? { locale } : {}) } }
+        `${WORK_EDITOR_URL}/${documentId}`,
+        { params: locale ? { locale } : {} }
       )
       // A newer request (another document or tab) superseded this one.
       if (latestKey.current !== key) return
@@ -477,58 +492,6 @@ export function useLocales() {
 /** Request config carrying the locale as a query parameter */
 const localeConfig = (locale?: string | null) =>
   locale ? { params: { locale } } : undefined
-
-/**
- * Documents a translation row of a work points at. Creating a locale row of a
- * work copies its non-localized `credits` and `cast`, whose person, credit-role
- * and character targets are localized, so each target needs a row in that
- * locale first or the server answers `locale "<code>" not found`.
- */
-export interface TranslationTargets {
-  persons: string[]
-  roles: Array<{ documentId: string; name: string; slug?: string | null }>
-  characters: Array<{ documentId: string; name: string }>
-}
-
-/** Pure: the distinct credited documents of a work, by kind. */
-export function collectTranslationTargets(
-  work: CreativeWork
-): TranslationTargets {
-  const persons = new Set<string>()
-  const roles = new Map<
-    string,
-    { documentId: string; name: string; slug?: string | null }
-  >()
-  const characters = new Map<string, { documentId: string; name: string }>()
-
-  for (const credit of work.credits ?? []) {
-    if (credit.person?.documentId) persons.add(credit.person.documentId)
-    const role = credit.creditRole
-    if (role?.documentId && !roles.has(role.documentId)) {
-      roles.set(role.documentId, {
-        documentId: role.documentId,
-        name: role.name,
-        slug: role.slug ?? null,
-      })
-    }
-  }
-  for (const member of work.cast ?? []) {
-    if (member.person?.documentId) persons.add(member.person.documentId)
-    const character = member.character
-    if (character?.documentId && !characters.has(character.documentId)) {
-      characters.set(character.documentId, {
-        documentId: character.documentId,
-        name: character.name,
-      })
-    }
-  }
-
-  return {
-    persons: [...persons],
-    roles: [...roles.values()],
-    characters: [...characters.values()],
-  }
-}
 
 /** Page size of the "which targets already have this locale" lookups */
 const TARGET_LOOKUP_CHUNK = 50
