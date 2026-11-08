@@ -8,8 +8,15 @@
  * form; the other languages edit only title, synopsis and poster.
  */
 
-import { useMemo, useState } from "react"
-import { Box, Flex, Loader, Main } from "@strapi/design-system"
+import { useEffect, useMemo, useRef, useState } from "react"
+import {
+  Box,
+  Button,
+  EmptyStateLayout,
+  Flex,
+  Loader,
+  Main,
+} from "@strapi/design-system"
 import { useNotification } from "@strapi/strapi/admin"
 import { useNavigate, useParams } from "react-router-dom"
 
@@ -34,6 +41,7 @@ import {
   workToRuleInput,
 } from "../../components/WorkForm/publishRules"
 import {
+  findUnresolvedRelations,
   workToApiPayload,
   workToFormValues,
 } from "../../components/WorkForm/schema"
@@ -67,6 +75,7 @@ export function WorkFormPage() {
     work,
     meta,
     isLoading: isLoadingWork,
+    error: workError,
     refetch: refetchDefault,
   } = useWork(
     isEditing && !isLoadingLocales ? documentId ?? null : null,
@@ -86,6 +95,38 @@ export function WorkFormPage() {
     ensureTranslationTargets,
     isLoading: isSubmitting,
   } = useWorkMutations()
+
+  // A work the page could not read, or read with a relation unresolved, must
+  // never reach the form: `workToApiPayload` re-sends genres, credits and cast
+  // wholesale, so a Save would overwrite the stored data with blanks (T-01-50).
+  const loadFailedText = t(
+    "workForm.loadFailed",
+    "This work could not be loaded. Go back to the list and open it again."
+  )
+  const defaultLoadFailed =
+    isEditing &&
+    (Boolean(workError) ||
+      (work ? findUnresolvedRelations(work).length > 0 : false))
+  const translationLoadFailed =
+    isEditing && !isDefaultTab && Boolean(translation.error)
+  const showDefaultLoadError = isDefaultTab && defaultLoadFailed
+  const loadFailureKey = showDefaultLoadError
+    ? `default|${documentId}`
+    : translationLoadFailed
+      ? `translation|${documentId}|${activeLocale}`
+      : null
+
+  // One danger toast per failed load, however often the page re-renders.
+  const notifiedFailure = useRef<string | null>(null)
+  useEffect(() => {
+    if (!loadFailureKey) {
+      notifiedFailure.current = null
+      return
+    }
+    if (notifiedFailure.current === loadFailureKey) return
+    notifiedFailure.current = loadFailureKey
+    toggleNotification({ type: "danger", message: loadFailedText })
+  }, [loadFailureKey, loadFailedText, toggleNotification])
 
   const refetchAll = async () => {
     await Promise.all([refetchDefault(), translation.refetch()])
@@ -267,7 +308,7 @@ export function WorkFormPage() {
         </Box>
       )}
 
-      {isEditing && activeRow && (
+      {isEditing && activeRow && !showDefaultLoadError && (
         <Box
           paddingTop={6}
           paddingLeft={PAGE_GUTTER}
@@ -285,7 +326,22 @@ export function WorkFormPage() {
         </Box>
       )}
 
-      {isDefaultTab ? (
+      {showDefaultLoadError || translationLoadFailed ? (
+        <Box
+          paddingTop={6}
+          paddingLeft={PAGE_GUTTER}
+          paddingRight={PAGE_GUTTER}
+        >
+          <EmptyStateLayout
+            content={loadFailedText}
+            action={
+              <Button variant="secondary" onClick={() => navigate(BASE_PATH)}>
+                {t("common.backToList", "Back to list")}
+              </Button>
+            }
+          />
+        </Box>
+      ) : isDefaultTab ? (
         <WorkForm
           key={work?.documentId ?? "new"}
           title={
