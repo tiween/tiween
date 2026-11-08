@@ -27,6 +27,7 @@ import {
   DEFAULT_WORK_VALUES,
   EMPTY_STREAMING_LINK,
   EMPTY_VIDEO,
+  findUnresolvedRelations,
   streamingLinkFormSchema,
   videoFormSchema,
   workFormSchema,
@@ -371,6 +372,119 @@ describe("workToFormValues", () => {
   it("defaults cast to an empty array when the work has none", () => {
     const work = { title: "A work", type: "film" } as unknown as CreativeWork
     expect(workToFormValues(work).cast).toEqual([])
+  })
+})
+
+// The content-manager single-document GET counts relations ({ count: n }) and
+// ignores `populate`; the form used to crash on `.map` (G-01-1). The editor
+// route resolves them, and the mapping must still never throw on a count.
+describe("workToFormValues — unresolved { count } relations", () => {
+  const COUNT = { count: 1 }
+
+  it("maps a { count } genres to no genre ids without throwing", () => {
+    const work = {
+      title: "A work",
+      type: "short-film",
+      genres: { count: 2 },
+    } as unknown as CreativeWork
+
+    expect(workToFormValues(work).genreIds).toEqual([])
+  })
+
+  it("maps a { count } credit and cast target to null", () => {
+    const work = {
+      title: "A work",
+      type: "short-film",
+      credits: [
+        { person: COUNT, creditRole: COUNT, customRole: null, billing: 1 },
+      ],
+      cast: [{ person: COUNT, character: COUNT, billing: 1 }],
+    } as unknown as CreativeWork
+
+    const formValues = workToFormValues(work)
+
+    expect(formValues.credits[0].person).toBeNull()
+    expect(formValues.credits[0].creditRole).toBeNull()
+    expect(formValues.cast[0].person).toBeNull()
+    expect(formValues.cast[0].character).toBeNull()
+  })
+
+  it("maps a { count } premiere venue to a null venue id", () => {
+    const work = {
+      title: "A play",
+      type: "play",
+      theatreDetails: { premiereVenue: COUNT },
+    } as unknown as CreativeWork
+
+    expect(workToFormValues(work).theatreDetails.premiereVenueId).toBeNull()
+  })
+})
+
+describe("findUnresolvedRelations", () => {
+  it("lists every relation that arrived as a count", () => {
+    const work = {
+      title: "A work",
+      type: "short-film",
+      genres: { count: 2 },
+      credits: [{ person: { count: 1 }, creditRole: ROLE, billing: 1 }],
+    } as unknown as CreativeWork
+
+    expect(findUnresolvedRelations(work)).toEqual([
+      "genres",
+      "credits.0.person",
+    ])
+  })
+
+  it("names the cast, role, character and venue paths", () => {
+    const work = {
+      title: "A work",
+      type: "play",
+      credits: [{ person: PERSON, creditRole: { count: 1 }, billing: 1 }],
+      cast: [
+        { person: PERSON, character: { count: 1 }, billing: 1 },
+        { person: { count: 1 }, character: null, billing: 2 },
+      ],
+      theatreDetails: { premiereVenue: { count: 1 } },
+    } as unknown as CreativeWork
+
+    expect(findUnresolvedRelations(work)).toEqual([
+      "credits.0.creditRole",
+      "cast.0.character",
+      "cast.1.person",
+      "theatreDetails.premiereVenue",
+    ])
+  })
+
+  it("reports nothing for resolved relations", () => {
+    const work = {
+      title: "A work",
+      type: "short-film",
+      genres: [{ id: 1, documentId: "g1", name: "Drama" }],
+      credits: [{ person: PERSON, creditRole: ROLE, billing: 1 }],
+      cast: [{ person: PERSON, character: CHARACTER, billing: 1 }],
+    } as unknown as CreativeWork
+
+    expect(findUnresolvedRelations(work)).toEqual([])
+  })
+
+  it("reports nothing for a work with no relations, null relations or missing keys", () => {
+    expect(
+      findUnresolvedRelations({
+        title: "A work",
+        type: "film",
+      } as unknown as CreativeWork)
+    ).toEqual([])
+
+    expect(
+      findUnresolvedRelations({
+        title: "A work",
+        type: "film",
+        genres: [],
+        credits: [{ person: null, creditRole: null, billing: 1 }],
+        cast: [{ person: null, character: null, billing: 1 }],
+        theatreDetails: { premiereVenue: null },
+      } as unknown as CreativeWork)
+    ).toEqual([])
   })
 })
 

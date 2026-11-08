@@ -444,3 +444,74 @@ describe("WorkFormPage — save", () => {
     expect(lastNotification().message).toBe("Something went wrong")
   })
 })
+
+describe("WorkFormPage — a failed or partial load", () => {
+  const LOAD_FAILED =
+    "This work could not be loaded. Go back to the list and open it again."
+
+  /** Mount the edit route without waiting for the publish bar (it never renders). */
+  async function renderEditWithoutForm() {
+    await act(async () => {
+      render(
+        <IntlProvider locale="en" messages={en}>
+          <DesignSystemProvider theme={lightTheme}>
+            <MemoryRouter initialEntries={["/works/abc/edit"]}>
+              <Routes>
+                <Route
+                  path="/works/:documentId/edit"
+                  element={<WorkFormPage />}
+                />
+                <Route path="*" element={<div data-testid="after-back" />} />
+              </Routes>
+            </MemoryRouter>
+          </DesignSystemProvider>
+        </IntlProvider>
+      )
+    })
+    await screen.findByText(LOAD_FAILED)
+  }
+
+  const dangerNotifications = () =>
+    (toggleNotification as jest.Mock).mock.calls
+      .map(
+        ([notification]) => notification as { type: string; message: string }
+      )
+      .filter((notification) => notification.type === "danger")
+
+  function expectNoForm() {
+    expect(
+      screen.queryByRole("button", { name: "Save" })
+    ).not.toBeInTheDocument()
+    expect(
+      screen.queryByRole("textbox", { name: /^Title/ })
+    ).not.toBeInTheDocument()
+    expect(screen.queryByTestId("publish-bar")).not.toBeInTheDocument()
+    expect(screen.getByRole("button", { name: "Back to list" })).toBeVisible()
+  }
+
+  it("shows an error state, not the form, when the work read rejects", async () => {
+    get.mockImplementation(async (url: string) => {
+      if (url === "/i18n/locales") return { data: LOCALES_FR_DEFAULT }
+      if (url === WORK_READ_URL) throw new Error("boom")
+      return emptyList
+    })
+
+    await renderEditWithoutForm()
+
+    expectNoForm()
+    await waitFor(() => expect(dangerNotifications()).toHaveLength(1))
+    expect(dangerNotifications()[0].message).toBe(LOAD_FAILED)
+  })
+
+  it("shows the same error state when the loaded row has an unresolved relation", async () => {
+    serve(completeDraft({ genres: { count: 1 } }))
+
+    await renderEditWithoutForm()
+
+    expectNoForm()
+    await waitFor(() => expect(dangerNotifications()).toHaveLength(1))
+    expect(dangerNotifications()[0].message).toBe(LOAD_FAILED)
+    // Nothing could have been saved over the stored genres.
+    expect(put).not.toHaveBeenCalled()
+  })
+})
