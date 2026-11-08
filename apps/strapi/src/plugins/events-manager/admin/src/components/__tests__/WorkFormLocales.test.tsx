@@ -22,6 +22,7 @@ import { MemoryRouter, Route, Routes } from "react-router-dom"
 
 import { WorkFormPage } from "../../pages/Works/WorkFormPage"
 import en from "../../translations/en.json"
+import { DEFAULT_WORK_VALUES, workToApiPayload } from "../WorkForm/schema"
 
 // Each test mounts the whole form (Design System selects, comboboxes, editors).
 jest.setTimeout(30000)
@@ -32,6 +33,9 @@ jest.mock("use-debounce", () => ({
 
 const CM = "/content-manager/collection-types"
 const WORK_URL = `${CM}/plugin::creative-works.creative-work/abc`
+// The edit page reads a work from the creative-works editor route (G-01-1);
+// every write still goes through the content-manager `WORK_URL`.
+const WORK_READ_URL = "/creative-works/admin/works/abc"
 const PERSON_URL = `${CM}/plugin::creative-works.person`
 const ROLE_URL = `${CM}/plugin::creative-works.credit-role`
 const CHARACTER_URL = `${CM}/plugin::creative-works.character`
@@ -108,6 +112,20 @@ const frWork = (overrides: Record<string, unknown> = {}) => ({
   genres: [],
   cast: [],
   videos: [],
+  // The editor route answers every round-tripped key, never a missing one.
+  originalTitle: null,
+  rating: null,
+  ageRating: null,
+  distinctions: [],
+  theatreDetails: null,
+  externalIds: null,
+  links: [],
+  country: null,
+  language: null,
+  featured: false,
+  featuredRank: null,
+  backdrop: null,
+  photos: [],
   ...overrides,
 })
 
@@ -145,6 +163,28 @@ const arWork = (overrides: Record<string, unknown> = {}) => ({
   synopsis: "فيلم",
   poster: AR_POSTER,
   type: "short-film",
+  // The editor route answers every round-tripped key, never a missing one.
+  originalTitle: null,
+  slug: null,
+  duration: null,
+  releaseYear: null,
+  rating: null,
+  ageRating: null,
+  genres: [],
+  credits: [],
+  cast: [],
+  distinctions: [],
+  theatreDetails: null,
+  externalIds: null,
+  links: [],
+  videos: [],
+  streamingLinks: [],
+  country: null,
+  language: null,
+  featured: false,
+  featuredRank: null,
+  backdrop: null,
+  photos: [],
   ...overrides,
 })
 
@@ -160,7 +200,7 @@ function serve(
   get.mockImplementation(async (url: string, config?: any) => {
     const locale = config?.params?.locale as string | undefined
     if (url === "/i18n/locales") return { data: LOCALES }
-    if (url === WORK_URL) {
+    if (url === WORK_READ_URL) {
       const current = locale ? rows[locale] : rows.fr
       return {
         data: {
@@ -246,6 +286,23 @@ beforeEach(() => {
   get.mockImplementation(async () => emptyList)
   post.mockImplementation(async () => ({ data: { data: {} } }))
   put.mockImplementation(async () => ({ data: { data: {} } }))
+})
+
+describe("work fixtures", () => {
+  it("work fixtures carry every round-tripped key", () => {
+    // The keys the form sends back on a save. The editor route answers all of
+    // them (null or [] when unset), so a guard that reads a missing key as
+    // "not loaded" must never see a fixture without one.
+    const ROUND_TRIP_KEYS = Object.keys(
+      workToApiPayload({ ...DEFAULT_WORK_VALUES, type: "short-film" })
+    )
+
+    for (const fixture of [frWork(), arWork(), frWork(withCredits)]) {
+      expect(Object.keys(fixture)).toEqual(
+        expect.arrayContaining(ROUND_TRIP_KEYS)
+      )
+    }
+  })
 })
 
 describe("WorkFormPage — locale tabs", () => {
