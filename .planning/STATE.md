@@ -5,16 +5,16 @@ milestone_name: Shorts Directory
 current_phase: 01
 current_phase_name: Short-Film Catalog Backend
 status: executing
-stopped_at: Completed 01-13-PLAN.md
-last_updated: "2026-11-08T13:08:10.650Z"
+stopped_at: Phase 05.1 context gathered
+last_updated: "2026-11-08T17:14:16.055Z"
 last_activity: 2026-11-08
 last_activity_desc: Phase 01 execution started
-state_head: 9fd020a91236b8fc48cb0836928259f184413191
+state_head: 33c9c1e0106c0635ccf3fc401f76f4bbb7fef1f9
 progress:
-  total_phases: 6
+  total_phases: 7
   completed_phases: 0
   total_plans: 16
-  completed_plans: 14
+  completed_plans: 15
 ---
 
 # Project State
@@ -136,6 +136,10 @@ Decisions are logged in PROJECT.md (Locked Decisions and Key Decisions table). R
 | ---------- | ------------------------------------------------------- | ---------- | ------- | ------------------------------------------------------------------------------------------------------------------- |
 | 261024-iy3 | Mirror Strapi Media Library folders in ImageKit uploads | 2026-10-24 | eefe952 | [261024-iy3-mirror-strapi-media-library-folders-in-i](./quick/261024-iy3-mirror-strapi-media-library-folders-in-i/) |
 
+### Roadmap Evolution
+
+- Phase 05.1 inserted after Phase 5: Festival programme page (JCC launch): by date / venue / film, competition sections, film-team-present markers; pulled into v1 by owner 2026-11-08
+
 ## Deferred Items
 
 Items acknowledged and deferred at milestone close, most recent first:
@@ -146,6 +150,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-10-24T21:59:22.730Z
-Stopped at: Completed 01-13-PLAN.md
-Resume file: None
+Last session: 2026-11-08T17:14:15.215Z
+Stopped at: Phase 05.1 context gathered
+Resume file: .planning/phases/05.1-festival-programme-page/05.1-CONTEXT.md
