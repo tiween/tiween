@@ -11,6 +11,7 @@ import { useFetchClient } from "@strapi/strapi/admin"
 import type { MediaAsset } from "../components/MediaInput"
 import type { Pagination } from "./useVenuesEnhanced"
 
+import { collectTranslationTargets } from "./translationTargets"
 import { WORK_POPULATE } from "./workPopulate"
 
 export type WorkType = "film" | "play" | "short-film"
@@ -188,6 +189,11 @@ export interface CreativeWork {
 }
 
 export { WORK_POPULATE }
+
+// Moved verbatim to a React-free module (the booted work-editor suite imports
+// it); re-exported so existing importers keep working unchanged.
+export { collectTranslationTargets }
+export type { TranslationTargets } from "./translationTargets"
 
 /** One other-locale row of the same document, from `meta.availableLocales` */
 export interface AvailableLocale {
@@ -477,58 +483,6 @@ export function useLocales() {
 /** Request config carrying the locale as a query parameter */
 const localeConfig = (locale?: string | null) =>
   locale ? { params: { locale } } : undefined
-
-/**
- * Documents a translation row of a work points at. Creating a locale row of a
- * work copies its non-localized `credits` and `cast`, whose person, credit-role
- * and character targets are localized, so each target needs a row in that
- * locale first or the server answers `locale "<code>" not found`.
- */
-export interface TranslationTargets {
-  persons: string[]
-  roles: Array<{ documentId: string; name: string; slug?: string | null }>
-  characters: Array<{ documentId: string; name: string }>
-}
-
-/** Pure: the distinct credited documents of a work, by kind. */
-export function collectTranslationTargets(
-  work: CreativeWork
-): TranslationTargets {
-  const persons = new Set<string>()
-  const roles = new Map<
-    string,
-    { documentId: string; name: string; slug?: string | null }
-  >()
-  const characters = new Map<string, { documentId: string; name: string }>()
-
-  for (const credit of work.credits ?? []) {
-    if (credit.person?.documentId) persons.add(credit.person.documentId)
-    const role = credit.creditRole
-    if (role?.documentId && !roles.has(role.documentId)) {
-      roles.set(role.documentId, {
-        documentId: role.documentId,
-        name: role.name,
-        slug: role.slug ?? null,
-      })
-    }
-  }
-  for (const member of work.cast ?? []) {
-    if (member.person?.documentId) persons.add(member.person.documentId)
-    const character = member.character
-    if (character?.documentId && !characters.has(character.documentId)) {
-      characters.set(character.documentId, {
-        documentId: character.documentId,
-        name: character.name,
-      })
-    }
-  }
-
-  return {
-    persons: [...persons],
-    roles: [...roles.values()],
-    characters: [...characters.values()],
-  }
-}
 
 /** Page size of the "which targets already have this locale" lookups */
 const TARGET_LOOKUP_CHUNK = 50
