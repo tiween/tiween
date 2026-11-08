@@ -1,0 +1,629 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-08T12:00:00Z",
+  "title": "Design System: Tiween Admin (Strapi Design System v2)",
+  "extensions": {
+    "colorMeta": {
+      "neutral0": {
+        "role": "neutral",
+        "displayName": "Neutral 0",
+        "canonical": "#ffffff",
+        "tonalRamp": [
+          "#181826",
+          "#212134",
+          "#32324d",
+          "#4a4a6a",
+          "#666687",
+          "#8e8ea9",
+          "#c0c0cf",
+          "#eaeaef"
+        ]
+      },
+      "neutral100": {
+        "role": "neutral",
+        "displayName": "Neutral 100",
+        "canonical": "#f6f6f9",
+        "tonalRamp": [
+          "#181826",
+          "#212134",
+          "#32324d",
+          "#4a4a6a",
+          "#666687",
+          "#8e8ea9",
+          "#c0c0cf",
+          "#eaeaef"
+        ]
+      },
+      "neutral150": {
+        "role": "neutral",
+        "displayName": "Neutral 150",
+        "canonical": "#eaeaef",
+        "tonalRamp": [
+          "#181826",
+          "#212134",
+          "#32324d",
+          "#4a4a6a",
+          "#666687",
+          "#8e8ea9",
+          "#c0c0cf",
+          "#eaeaef"
+        ]
+      },
+      "neutral200": {
+        "role": "neutral",
+        "displayName": "Neutral 200",
+        "canonical": "#dcdce4",
+        "tonalRamp": [
+          "#181826",
+          "#212134",
+          "#32324d",
+          "#4a4a6a",
+          "#666687",
+          "#8e8ea9",
+          "#c0c0cf",
+          "#eaeaef"
+        ]
+      },
+      "neutral300": {
+        "role": "neutral",
+        "displayName": "Neutral 300",
+        "canonical": "#c0c0cf",
+        "tonalRamp": [
+          "#181826",
+          "#212134",
+          "#32324d",
+          "#4a4a6a",
+          "#666687",
+          "#8e8ea9",
+          "#c0c0cf",
+          "#eaeaef"
+        ]
+      },
+      "neutral400": {
+        "role": "neutral",
+        "displayName": "Neutral 400",
+        "canonical": "#a5a5ba",
+        "tonalRamp": [
+          "#181826",
+          "#212134",
+          "#32324d",
+          "#4a4a6a",
+          "#666687",
+          "#8e8ea9",
+          "#c0c0cf",
+          "#eaeaef"
+        ]
+      },
+      "neutral500": {
+        "role": "neutral",
+        "displayName": "Neutral 500",
+        "canonical": "#8e8ea9",
+        "tonalRamp": [
+          "#181826",
+          "#212134",
+          "#32324d",
+          "#4a4a6a",
+          "#666687",
+          "#8e8ea9",
+          "#c0c0cf",
+          "#eaeaef"
+        ]
+      },
+      "neutral600": {
+        "role": "neutral",
+        "displayName": "Neutral 600",
+        "canonical": "#666687",
+        "tonalRamp": [
+          "#181826",
+          "#212134",
+          "#32324d",
+          "#4a4a6a",
+          "#666687",
+          "#8e8ea9",
+          "#c0c0cf",
+          "#eaeaef"
+        ]
+      },
+      "neutral700": {
+        "role": "neutral",
+        "displayName": "Neutral 700",
+        "canonical": "#4a4a6a",
+        "tonalRamp": [
+          "#181826",
+          "#212134",
+          "#32324d",
+          "#4a4a6a",
+          "#666687",
+          "#8e8ea9",
+          "#c0c0cf",
+          "#eaeaef"
+        ]
+      },
+      "neutral800": {
+        "role": "neutral",
+        "displayName": "Neutral 800",
+        "canonical": "#32324d",
+        "tonalRamp": [
+          "#181826",
+          "#212134",
+          "#32324d",
+          "#4a4a6a",
+          "#666687",
+          "#8e8ea9",
+          "#c0c0cf",
+          "#eaeaef"
+        ]
+      },
+      "neutral900": {
+        "role": "neutral",
+        "displayName": "Neutral 900",
+        "canonical": "#212134",
+        "tonalRamp": [
+          "#181826",
+          "#212134",
+          "#32324d",
+          "#4a4a6a",
+          "#666687",
+          "#8e8ea9",
+          "#c0c0cf",
+          "#eaeaef"
+        ]
+      },
+      "neutral1000": {
+        "role": "neutral",
+        "displayName": "Neutral 1000",
+        "canonical": "#181826",
+        "tonalRamp": [
+          "#181826",
+          "#212134",
+          "#32324d",
+          "#4a4a6a",
+          "#666687",
+          "#8e8ea9",
+          "#c0c0cf",
+          "#eaeaef"
+        ]
+      },
+      "primary100": {
+        "role": "primary",
+        "displayName": "Primary 100",
+        "canonical": "#f0f0ff",
+        "tonalRamp": [
+          "#271fe0",
+          "#4945ff",
+          "#7b79ff",
+          "#d9d8ff",
+          "#f0f0ff"
+        ]
+      },
+      "primary200": {
+        "role": "primary",
+        "displayName": "Primary 200",
+        "canonical": "#d9d8ff",
+        "tonalRamp": [
+          "#271fe0",
+          "#4945ff",
+          "#7b79ff",
+          "#d9d8ff",
+          "#f0f0ff"
+        ]
+      },
+      "primary500": {
+        "role": "primary",
+        "displayName": "Primary 500",
+        "canonical": "#7b79ff",
+        "tonalRamp": [
+          "#271fe0",
+          "#4945ff",
+          "#7b79ff",
+          "#d9d8ff",
+          "#f0f0ff"
+        ]
+      },
+      "primary600": {
+        "role": "primary",
+        "displayName": "Primary 600",
+        "canonical": "#4945ff",
+        "tonalRamp": [
+          "#271fe0",
+          "#4945ff",
+          "#7b79ff",
+          "#d9d8ff",
+          "#f0f0ff"
+        ]
+      },
+      "primary700": {
+        "role": "primary",
+        "displayName": "Primary 700",
+        "canonical": "#271fe0",
+        "tonalRamp": [
+          "#271fe0",
+          "#4945ff",
+          "#7b79ff",
+          "#d9d8ff",
+          "#f0f0ff"
+        ]
+      },
+      "success100": {
+        "role": "secondary",
+        "displayName": "Success 100",
+        "canonical": "#eafbe7",
+        "tonalRamp": [
+          "#2f6846",
+          "#328048",
+          "#5cb176",
+          "#c6f0c2",
+          "#eafbe7"
+        ]
+      },
+      "success200": {
+        "role": "secondary",
+        "displayName": "Success 200",
+        "canonical": "#c6f0c2",
+        "tonalRamp": [
+          "#2f6846",
+          "#328048",
+          "#5cb176",
+          "#c6f0c2",
+          "#eafbe7"
+        ]
+      },
+      "success600": {
+        "role": "secondary",
+        "displayName": "Success 600",
+        "canonical": "#328048",
+        "tonalRamp": [
+          "#2f6846",
+          "#328048",
+          "#5cb176",
+          "#c6f0c2",
+          "#eafbe7"
+        ]
+      },
+      "success700": {
+        "role": "secondary",
+        "displayName": "Success 700",
+        "canonical": "#2f6846",
+        "tonalRamp": [
+          "#2f6846",
+          "#328048",
+          "#5cb176",
+          "#c6f0c2",
+          "#eafbe7"
+        ]
+      },
+      "warning100": {
+        "role": "secondary",
+        "displayName": "Warning 100",
+        "canonical": "#fdf4dc",
+        "tonalRamp": [
+          "#be5d01",
+          "#d9822f",
+          "#f29d41",
+          "#fae7b9",
+          "#fdf4dc"
+        ]
+      },
+      "warning200": {
+        "role": "secondary",
+        "displayName": "Warning 200",
+        "canonical": "#fae7b9",
+        "tonalRamp": [
+          "#be5d01",
+          "#d9822f",
+          "#f29d41",
+          "#fae7b9",
+          "#fdf4dc"
+        ]
+      },
+      "warning600": {
+        "role": "secondary",
+        "displayName": "Warning 600",
+        "canonical": "#d9822f",
+        "tonalRamp": [
+          "#be5d01",
+          "#d9822f",
+          "#f29d41",
+          "#fae7b9",
+          "#fdf4dc"
+        ]
+      },
+      "warning700": {
+        "role": "secondary",
+        "displayName": "Warning 700",
+        "canonical": "#be5d01",
+        "tonalRamp": [
+          "#be5d01",
+          "#d9822f",
+          "#f29d41",
+          "#fae7b9",
+          "#fdf4dc"
+        ]
+      },
+      "danger100": {
+        "role": "secondary",
+        "displayName": "Danger 100",
+        "canonical": "#fcecea",
+        "tonalRamp": [
+          "#b72b1a",
+          "#d02b20",
+          "#ee5e52",
+          "#f5c0b8",
+          "#fcecea"
+        ]
+      },
+      "danger200": {
+        "role": "secondary",
+        "displayName": "Danger 200",
+        "canonical": "#f5c0b8",
+        "tonalRamp": [
+          "#b72b1a",
+          "#d02b20",
+          "#ee5e52",
+          "#f5c0b8",
+          "#fcecea"
+        ]
+      },
+      "danger600": {
+        "role": "secondary",
+        "displayName": "Danger 600",
+        "canonical": "#d02b20",
+        "tonalRamp": [
+          "#b72b1a",
+          "#d02b20",
+          "#ee5e52",
+          "#f5c0b8",
+          "#fcecea"
+        ]
+      },
+      "danger700": {
+        "role": "secondary",
+        "displayName": "Danger 700",
+        "canonical": "#b72b1a",
+        "tonalRamp": [
+          "#b72b1a",
+          "#d02b20",
+          "#ee5e52",
+          "#f5c0b8",
+          "#fcecea"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "alpha": {
+        "displayName": "Alpha",
+        "purpose": "Page titles in Layouts.Header (28px below 768px)."
+      },
+      "beta": {
+        "displayName": "Beta",
+        "purpose": "Modal and dialog titles."
+      },
+      "delta": {
+        "displayName": "Delta",
+        "purpose": "Form-section titles."
+      },
+      "epsilon": {
+        "displayName": "Epsilon",
+        "purpose": "Lead paragraphs, rare."
+      },
+      "omega": {
+        "displayName": "Omega",
+        "purpose": "Body, field values, table cells, M/L button labels."
+      },
+      "pi": {
+        "displayName": "Pi",
+        "purpose": "Hints and helper lines; bold pi is the S button label."
+      },
+      "sigma": {
+        "displayName": "Sigma",
+        "purpose": "Uppercase table headers and overlines only."
+      }
+    },
+    "shadows": [
+      {
+        "name": "filterShadow",
+        "value": "0px 1px 4px rgba(33, 33, 52, 0.1)",
+        "purpose": "Form sections, publish bar, filter bars."
+      },
+      {
+        "name": "tableShadow",
+        "value": "0px 1px 4px rgba(33, 33, 52, 0.1)",
+        "purpose": "Tables."
+      },
+      {
+        "name": "popupShadow",
+        "value": "0px 2px 15px rgba(33, 33, 52, 0.1)",
+        "purpose": "Menus, popovers, comboboxes, modals, dialogs, clickable-card hover."
+      }
+    ],
+    "motion": [
+      {
+        "name": "timing-120",
+        "value": "120ms",
+        "purpose": "Micro feedback."
+      },
+      {
+        "name": "timing-200",
+        "value": "200ms",
+        "purpose": "Default color, background and border transitions."
+      },
+      {
+        "name": "timing-320",
+        "value": "320ms",
+        "purpose": "Menus and modals entering."
+      },
+      {
+        "name": "easeOutQuad",
+        "value": "cubic-bezier(.25,.46,.45,.94)",
+        "purpose": "Default easing; no bounces; off under prefers-reduced-motion."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "small",
+        "value": "520px"
+      },
+      {
+        "name": "medium",
+        "value": "768px"
+      },
+      {
+        "name": "large",
+        "value": "1080px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-default",
+      "description": "variant=\"default\": the single primary action of a view group (Save, Publish, Add a work).",
+      "html": "<button class=\"ds-btn ds-btn-default\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 32 32\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M28 16a1.5 1.5 0 0 1-1.5 1.5h-9v9a1.5 1.5 0 1 1-3 0v-9h-9a1.5 1.5 0 1 1 0-3h9v-9a1.5 1.5 0 1 1 3 0v9h9A1.5 1.5 0 0 1 28 16\"/></svg>Add a work</button>",
+      "css": ".ds-btn { display: inline-flex; align-items: center; gap: 8px; height: 32px; padding-inline: 16px; border-radius: 4px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; font-size: 12px; font-weight: 600; line-height: 1.33; cursor: pointer; transition: background-color 200ms cubic-bezier(.25,.46,.45,.94), border-color 200ms cubic-bezier(.25,.46,.45,.94), color 200ms cubic-bezier(.25,.46,.45,.94); } .ds-btn:focus-visible { outline: 2px solid #4945ff; outline-offset: 2px; } .ds-btn-default { border: 1px solid #4945ff; background: #4945ff; color: #ffffff; } .ds-btn-default:hover { border-color: #7b79ff; background: #7b79ff; } .ds-btn-default:active { border-color: #4945ff; background: #4945ff; }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "variant=\"secondary\": supporting actions (Unpublish, empty-state create).",
+      "html": "<button class=\"ds-btn ds-btn-secondary\">Unpublish</button>",
+      "css": ".ds-btn { display: inline-flex; align-items: center; gap: 8px; height: 32px; padding-inline: 16px; border-radius: 4px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; font-size: 12px; font-weight: 600; line-height: 1.33; cursor: pointer; transition: background-color 200ms cubic-bezier(.25,.46,.45,.94), border-color 200ms cubic-bezier(.25,.46,.45,.94), color 200ms cubic-bezier(.25,.46,.45,.94); } .ds-btn:focus-visible { outline: 2px solid #4945ff; outline-offset: 2px; } .ds-btn-secondary { border: 1px solid #d9d8ff; background: #f0f0ff; color: #271fe0; } .ds-btn-secondary:hover { background: #ffffff; } .ds-btn-secondary:active { background: #ffffff; border-color: #4945ff; color: #4945ff; }"
+    },
+    {
+      "name": "Tertiary Button",
+      "kind": "button",
+      "refersTo": "button-tertiary",
+      "description": "variant=\"tertiary\": neutral actions and unselected segmented choices.",
+      "html": "<button class=\"ds-btn ds-btn-tertiary\">Cancel</button>",
+      "css": ".ds-btn { display: inline-flex; align-items: center; gap: 8px; height: 32px; padding-inline: 16px; border-radius: 4px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; font-size: 12px; font-weight: 600; line-height: 1.33; cursor: pointer; transition: background-color 200ms cubic-bezier(.25,.46,.45,.94), border-color 200ms cubic-bezier(.25,.46,.45,.94), color 200ms cubic-bezier(.25,.46,.45,.94); } .ds-btn:focus-visible { outline: 2px solid #4945ff; outline-offset: 2px; } .ds-btn-tertiary { border: 1px solid #dcdce4; background: #ffffff; color: #32324d; } .ds-btn-tertiary:hover { background: #f6f6f9; } .ds-btn-tertiary:active { background: #eaeaef; }"
+    },
+    {
+      "name": "Danger Button",
+      "kind": "button",
+      "refersTo": "button-danger",
+      "description": "variant=\"danger\": destructive confirm, only inside a Dialog.",
+      "html": "<button class=\"ds-btn ds-btn-danger\">Delete</button>",
+      "css": ".ds-btn { display: inline-flex; align-items: center; gap: 8px; height: 32px; padding-inline: 16px; border-radius: 4px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; font-size: 12px; font-weight: 600; line-height: 1.33; cursor: pointer; transition: background-color 200ms cubic-bezier(.25,.46,.45,.94), border-color 200ms cubic-bezier(.25,.46,.45,.94), color 200ms cubic-bezier(.25,.46,.45,.94); } .ds-btn:focus-visible { outline: 2px solid #4945ff; outline-offset: 2px; } .ds-btn-danger { border: 1px solid #d02b20; background: #d02b20; color: #ffffff; } .ds-btn-danger:hover { border-color: #ee5e52; background: #ee5e52; }"
+    },
+    {
+      "name": "Text Field",
+      "kind": "input",
+      "refersTo": "text-input",
+      "description": "Field.Root > Field.Label > TextInput > Field.Hint > Field.Error; error state shown.",
+      "html": "<div class=\"ds-field\"><label class=\"ds-label\" for=\"ds-t\">Title<span class=\"ds-req\" aria-hidden=\"true\">*</span></label><input id=\"ds-t\" class=\"ds-input ds-input--error\" aria-invalid=\"true\" aria-describedby=\"ds-t-h ds-t-e\"><p id=\"ds-t-h\" class=\"ds-hint\">Default language title: Les Sœurs de la nuit</p><p id=\"ds-t-e\" class=\"ds-error\">Title is required</p></div>",
+      "css": ".ds-field { display: flex; flex-direction: column; gap: 4px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; } .ds-label { color: #32324d; font-size: 12px; font-weight: 600; line-height: 1.33; } .ds-req { color: #d02b20; margin-inline-start: 2px; } .ds-input { height: 40px; padding-inline: 16px; border: 1px solid #dcdce4; border-radius: 4px; background: #ffffff; color: #32324d; font: inherit; font-size: 14px; transition: border-color 200ms cubic-bezier(.25,.46,.45,.94), box-shadow 200ms cubic-bezier(.25,.46,.45,.94); } .ds-input:hover { border-color: #c0c0cf; } .ds-input:focus-visible { outline: none; border-color: #4945ff; box-shadow: inset 0 0 0 1px #4945ff; } .ds-input--error { border-color: #d02b20; } .ds-hint { margin: 0; color: #666687; font-size: 12px; line-height: 1.33; } .ds-error { margin: 0; color: #d02b20; font-size: 12px; line-height: 1.33; }"
+    },
+    {
+      "name": "Status Badges",
+      "kind": "chip",
+      "refersTo": "badge-published",
+      "description": "Badge per locale or venue status; the label is always text.",
+      "html": "<span class=\"ds-badge ds-badge--draft\">Draft</span> <span class=\"ds-badge ds-badge--published\">Published</span> <span class=\"ds-badge ds-badge--modified\">Modified</span> <span class=\"ds-badge ds-badge--danger\">Suspended</span>",
+      "css": ".ds-badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 4px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; font-size: 11px; font-weight: 600; line-height: 1.45; text-transform: uppercase; } .ds-badge--draft { background: #eaeaef; color: #666687; } .ds-badge--published { background: #eafbe7; color: #2f6846; } .ds-badge--modified { background: #fdf4dc; color: #be5d01; } .ds-badge--danger { background: #fcecea; color: #b72b1a; }"
+    },
+    {
+      "name": "Locale Tabs",
+      "kind": "nav",
+      "refersTo": "locale-tabs",
+      "description": "Tabs.Root variant=\"simple\": one tab per i18n locale with its status badge; active tab underlined in indigo.",
+      "html": "<div class=\"ds-tabs\" role=\"tablist\" aria-label=\"Languages\"><button class=\"ds-tab ds-tab--active\" role=\"tab\" aria-selected=\"true\">Français <span class=\"ds-badge ds-badge--published\">Published</span></button><button class=\"ds-tab\" role=\"tab\" aria-selected=\"false\">العربية <span class=\"ds-badge ds-badge--modified\">Modified</span></button><button class=\"ds-tab\" role=\"tab\" aria-selected=\"false\">English <span class=\"ds-badge ds-badge--missing\">Missing</span></button></div>",
+      "css": ".ds-tabs { display: flex; gap: 0; border-bottom: 1px solid #dcdce4; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; } .ds-tab { display: inline-flex; align-items: center; gap: 8px; padding: 12px 16px; border: none; border-bottom: 2px solid transparent; background: transparent; color: #666687; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; transition: color 200ms cubic-bezier(.25,.46,.45,.94); } .ds-tab:hover { color: #32324d; } .ds-tab:focus-visible { outline: 2px solid #4945ff; outline-offset: 2px; } .ds-tab--active { color: #4945ff; border-bottom-color: #4945ff; } .ds-badge { display: inline-flex; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: 600; text-transform: uppercase; } .ds-badge--published { background: #eafbe7; color: #2f6846; } .ds-badge--modified { background: #fdf4dc; color: #be5d01; } .ds-badge--missing { background: #f0f0ff; color: #271fe0; }"
+    },
+    {
+      "name": "Form Section",
+      "kind": "card",
+      "refersTo": "form-section",
+      "description": "White hasRadius card with filterShadow, delta title and pi hint, grouping related fields.",
+      "html": "<section class=\"ds-section\"><h2 class=\"ds-section-title\">Identity</h2><p class=\"ds-section-hint\">The type drives which sections are shown below.</p><div class=\"ds-section-body\">Fields…</div></section>",
+      "css": ".ds-section { padding: 24px; border-radius: 4px; background: #ffffff; box-shadow: 0px 1px 4px rgba(33, 33, 52, 0.1); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; } .ds-section-title { margin: 0; color: #32324d; font-size: 16px; font-weight: 500; line-height: 1.25; } .ds-section-hint { margin: 4px 0 0; color: #666687; font-size: 12px; line-height: 1.33; } .ds-section-body { padding-top: 16px; color: #32324d; font-size: 14px; }"
+    },
+    {
+      "name": "Publish Bar",
+      "kind": "custom",
+      "refersTo": "publish-bar",
+      "description": "Per-locale status, scope line, Unpublish/Publish, and the translated list of blocking rules.",
+      "html": "<div class=\"ds-pub\"><div class=\"ds-pub-row\"><div class=\"ds-pub-info\"><span class=\"ds-badge ds-badge--modified\">Modified</span><strong>Français</strong><span class=\"ds-pub-scope\">Publishing applies to this language and is checked against the saved draft.</span></div><div class=\"ds-pub-actions\"><button class=\"ds-btn ds-btn-secondary\">Unpublish</button><button class=\"ds-btn ds-btn-default\" aria-disabled=\"true\" disabled>Publish</button></div></div><div class=\"ds-pub-issues\"><strong>Before publishing</strong><span>Add at least one director credit.</span><span>Add a poster.</span></div></div>",
+      "css": ".ds-pub { padding: 16px; border-radius: 4px; background: #ffffff; box-shadow: 0px 1px 4px rgba(33, 33, 52, 0.1); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; font-size: 14px; color: #32324d; } .ds-pub-row { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px; } .ds-pub-info { display: flex; align-items: center; gap: 12px; } .ds-pub-scope { color: #666687; font-size: 12px; } .ds-pub-actions { display: flex; gap: 8px; } .ds-badge { padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; text-transform: uppercase; } .ds-badge--modified { background: #fdf4dc; color: #be5d01; } .ds-btn { display: inline-flex; align-items: center; gap: 8px; height: 32px; padding-inline: 16px; border-radius: 4px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; font-size: 12px; font-weight: 600; line-height: 1.33; cursor: pointer; transition: background-color 200ms cubic-bezier(.25,.46,.45,.94), border-color 200ms cubic-bezier(.25,.46,.45,.94), color 200ms cubic-bezier(.25,.46,.45,.94); } .ds-btn:focus-visible { outline: 2px solid #4945ff; outline-offset: 2px; } .ds-btn-secondary { border: 1px solid #d9d8ff; background: #f0f0ff; color: #271fe0; } .ds-btn-default { border: 1px solid #4945ff; background: #4945ff; color: #ffffff; } .ds-btn[aria-disabled='true'] { border-color: #dcdce4; background: #eaeaef; color: #666687; cursor: default; } .ds-pub-issues { display: flex; flex-direction: column; gap: 4px; padding-top: 12px; color: #d02b20; }"
+    },
+    {
+      "name": "Side Nav",
+      "kind": "nav",
+      "refersTo": "subnav-link-active",
+      "description": "Plugin SubNav: header, divider, links; the active link is a primary100 pill.",
+      "html": "<nav class=\"ds-subnav\" aria-label=\"Venues\"><div class=\"ds-subnav-head\">Venues</div><hr class=\"ds-subnav-div\"><a class=\"ds-subnav-link ds-subnav-link--active\" aria-current=\"page\" href=\"#\">Lieux</a><a class=\"ds-subnav-link\" href=\"#\">Propriétés</a></nav>",
+      "css": ".ds-subnav { width: 232px; padding-bottom: 16px; background: #ffffff; border-inline-end: 1px solid #dcdce4; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; } .ds-subnav-head { padding: 24px 24px 16px; color: #32324d; font-size: 18px; font-weight: 600; } .ds-subnav-div { margin: 0; border: none; border-top: 1px solid #eaeaef; } .ds-subnav-link { display: block; margin: 4px 8px 0; padding: 8px 12px; border-radius: 4px; color: #32324d; text-decoration: none; font-size: 14px; transition: background-color 200ms cubic-bezier(.25,.46,.45,.94); } .ds-subnav-link:hover { background: #f6f6f9; } .ds-subnav-link:focus-visible { outline: 2px solid #4945ff; outline-offset: 2px; } .ds-subnav-link--active { background: #f0f0ff; color: #271fe0; font-weight: 600; }"
+    },
+    {
+      "name": "Empty State",
+      "kind": "custom",
+      "refersTo": "empty-state",
+      "description": "EmptyStateLayout: one short line and one secondary create action.",
+      "html": "<div class=\"ds-empty\"><p class=\"ds-empty-text\">No work found</p><button class=\"ds-btn ds-btn-secondary\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 32 32\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M28 16a1.5 1.5 0 0 1-1.5 1.5h-9v9a1.5 1.5 0 1 1-3 0v-9h-9a1.5 1.5 0 1 1 0-3h9v-9a1.5 1.5 0 1 1 3 0v9h9A1.5 1.5 0 0 1 28 16\"/></svg>Add a work</button></div>",
+      "css": ".ds-empty { display: flex; flex-direction: column; align-items: center; gap: 24px; padding: 64px 24px; border-radius: 4px; background: #ffffff; box-shadow: 0px 1px 4px rgba(33, 33, 52, 0.1); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; } .ds-empty-text { margin: 0; color: #666687; font-size: 16px; font-weight: 500; } .ds-btn { display: inline-flex; align-items: center; gap: 8px; height: 32px; padding-inline: 16px; border-radius: 4px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; font-size: 12px; font-weight: 600; line-height: 1.33; cursor: pointer; transition: background-color 200ms cubic-bezier(.25,.46,.45,.94), border-color 200ms cubic-bezier(.25,.46,.45,.94), color 200ms cubic-bezier(.25,.46,.45,.94); } .ds-btn:focus-visible { outline: 2px solid #4945ff; outline-offset: 2px; } .ds-btn-secondary { border: 1px solid #d9d8ff; background: #f0f0ff; color: #271fe0; } .ds-btn-secondary:hover { background: #ffffff; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Stock Strapi Workbench",
+    "overview": "Tiween's admin is not a branded product; it is Strapi. Every plugin screen should be indistinguishable in kind from Strapi's own Content Manager: a neutral cool-gray canvas, white cards and tables separated by hairline borders, one indigo accent for the primary action, focus and selection, and a native system font. Ambition here is precision and restraint. The editor's success is a complete, correctly translated record, and the interface earns trust by being predictable, dense and honest about what is missing.\n\nTiween extends the stock admin in three places only, and each extension is built from stock parts: locale tabs that show each language's publication status, a publish bar that lists in words what still blocks publication, and repeatable editors for the catalog graph (credits, cast, videos, distinctions, streaming links). Everything else (page shell, side nav, tables, forms, dialogs, notifications, empty and loading states) is the stock component used the stock way.",
+    "keyCharacteristics": [
+      "Light theme, neutral100 canvas, neutral0 cards; no imagery or gradients in chrome.",
+      "One indigo accent (#4945ff); one primary button per view group.",
+      "4px radius on nearly everything; pills only for avatars, status dots, toggle tracks.",
+      "Borders separate; three restrained, cool-tinted shadow levels.",
+      "Native system font, weights 400/500/600, body 14px.",
+      "Sentence case, imperative copy, no emoji; every string translated (en/fr/ar)."
+    ],
+    "rules": [
+      {
+        "name": "The Single Indigo Rule",
+        "body": "Indigo is the only accent. One `default` button per view group; everything else is `secondary`, `tertiary` or `ghost`.",
+        "section": "colors"
+      },
+      {
+        "name": "The Token Alias Rule",
+        "body": "Code passes DS token names (`background=\"neutral0\"`, `textColor=\"neutral600\"`, `backgroundColor=\"success100\"`), never hex, never raw ramps in CSS, never `styled-components` for new code.",
+        "section": "colors"
+      },
+      {
+        "name": "The No Brand Leak Rule",
+        "body": "No Tiween gold, aubergine, magenta, category colors or Lalezar anywhere in the admin.",
+        "section": "colors"
+      },
+      {
+        "name": "The Three Weights Rule",
+        "body": "400, 500 and 600 only (the DS calls 600 `bold`). No custom webfont, ever.",
+        "section": "typography"
+      },
+      {
+        "name": "The Sentence Case Rule",
+        "body": "Buttons, headings, tabs and menu items are sentence case; uppercase is reserved for the `sigma` overline.",
+        "section": "typography"
+      },
+      {
+        "name": "The Borders Before Shadows Rule",
+        "body": "Separate with a 1px `neutral150` or `neutral200` border first; reach for `filterShadow` only on a card that must lift off the canvas.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do import every component from `@strapi/design-system` v2, `Layouts`, `Page`, `SubNav` and `useNotification` from `@strapi/strapi/admin`, and icons from `@strapi/icons`.",
+      "Do wrap every field in `Field.Root` with `Field.Label`, `Field.Hint` and `Field.Error`.",
+      "Do use DS token props (`neutral0`, `neutral600`, `success100`) instead of colors in code.",
+      "Do keep one `default` button per view group and put it in `Layouts.Header` `primaryAction`.",
+      "Do give icon-only buttons a translated `label`.",
+      "Do route every string through the plugin translations with an English default.",
+      "Do set `dir=\"rtl\"` on Arabic content inputs and previews.",
+      "Do respect `prefers-reduced-motion`; DS motion is 120/200/320ms easeOutQuad with no bounce."
+    ],
+    "donts": [
+      "Don't use native HTML controls, `styled-components`, raw hex colors, `alert()`, or the deprecated `ModalLayout`.",
+      "Don't use `neutral400` (#a5a5ba) for readable text; low-emphasis copy is `neutral600`.",
+      "Don't round anything beyond 4px except avatars, status dots and toggle tracks.",
+      "Don't add a webfont or any weight above 600.",
+      "Don't use emoji or Unicode-character icons.",
+      "Don't bring in any Tiween B2C brand element (gold, aubergine, Lalezar, category colors, shadcn, Tailwind).",
+      "Don't show a nav link to a page the user's role will always be refused."
+    ]
+  }
+}

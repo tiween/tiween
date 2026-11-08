@@ -1,0 +1,596 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-08T12:00:00Z",
+  "title": "Design System: Tiween",
+  "extensions": {
+    "colorMeta": {
+      "midnight-aubergine": {
+        "role": "neutral",
+        "displayName": "Midnight Aubergine",
+        "canonical": "#241326",
+        "tonalRamp": [
+          "#0e090f",
+          "#2c212d",
+          "#4d3b4e",
+          "#6e5970",
+          "#8f7a92",
+          "#b29db4",
+          "#d2c3d4",
+          "#f4ebf4"
+        ]
+      },
+      "aubergine-deep": {
+        "role": "neutral",
+        "displayName": "Aubergine Deep",
+        "canonical": "#161015",
+        "tonalRamp": [
+          "#0c0a0c",
+          "#282427",
+          "#464045",
+          "#665e65",
+          "#887f86",
+          "#aaa2a9",
+          "#cdc7cc",
+          "#f0edf0"
+        ]
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "Surface",
+        "canonical": "#31203A",
+        "tonalRamp": [
+          "#0e0911",
+          "#2b2030",
+          "#4b3a54",
+          "#6c5976",
+          "#8d7a99",
+          "#b09dbb",
+          "#d1c3d9",
+          "#f3ebf7"
+        ]
+      },
+      "surface-raised": {
+        "role": "neutral",
+        "displayName": "Surface Raised",
+        "canonical": "#3E2A48",
+        "tonalRamp": [
+          "#0e0911",
+          "#2c2032",
+          "#4c3956",
+          "#6d5879",
+          "#8f789b",
+          "#b19cbd",
+          "#d2c3da",
+          "#f3ebf8"
+        ]
+      },
+      "hairline": {
+        "role": "neutral",
+        "displayName": "Hairline",
+        "canonical": "#2E1D37",
+        "tonalRamp": [
+          "#0e0911",
+          "#2b2031",
+          "#4b3a54",
+          "#6c5977",
+          "#8e7999",
+          "#b09dbb",
+          "#d1c3d9",
+          "#f3ebf7"
+        ]
+      },
+      "border": {
+        "role": "neutral",
+        "displayName": "Border",
+        "canonical": "#4A3556",
+        "tonalRamp": [
+          "#0e0912",
+          "#2c1f33",
+          "#4c3958",
+          "#6d577a",
+          "#8f789d",
+          "#b19bbf",
+          "#d2c2dc",
+          "#f3ebf9"
+        ]
+      },
+      "foreground": {
+        "role": "neutral",
+        "displayName": "Foreground",
+        "canonical": "#FFFFFF",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#252525",
+          "#424242",
+          "#616161",
+          "#828282",
+          "#a5a5a5",
+          "#c9c9c9",
+          "#eeeeee"
+        ]
+      },
+      "text-secondary": {
+        "role": "neutral",
+        "displayName": "Text Secondary",
+        "canonical": "#C9C0D0",
+        "tonalRamp": [
+          "#0c0a0e",
+          "#27232b",
+          "#463f4b",
+          "#665e6c",
+          "#877f8d",
+          "#a9a1b0",
+          "#ccc6d1",
+          "#f0edf3"
+        ]
+      },
+      "muted-foreground": {
+        "role": "neutral",
+        "displayName": "Muted Foreground",
+        "canonical": "#B0A6B8",
+        "tonalRamp": [
+          "#0c0a0e",
+          "#28232c",
+          "#463e4c",
+          "#665d6d",
+          "#887e8f",
+          "#aaa1b1",
+          "#cdc6d2",
+          "#f0edf3"
+        ]
+      },
+      "gold-leaf": {
+        "role": "primary",
+        "displayName": "Gold Leaf",
+        "canonical": "#D4A24A",
+        "tonalRamp": [
+          "#140800",
+          "#332100",
+          "#563d0a",
+          "#7e5a0d",
+          "#a87815",
+          "#ca9c4e",
+          "#e4c490",
+          "#feecd0"
+        ]
+      },
+      "gold-ink": {
+        "role": "primary",
+        "displayName": "Gold Ink",
+        "canonical": "#2A1A06",
+        "tonalRamp": [
+          "#0f0a05",
+          "#2d2317",
+          "#4f3f2c",
+          "#715d48",
+          "#937e68",
+          "#b5a18c",
+          "#d5c7b7",
+          "#f5ede4"
+        ]
+      },
+      "gold-tint": {
+        "role": "primary",
+        "displayName": "Gold Tint",
+        "canonical": "#E0B563",
+        "tonalRamp": [
+          "#130900",
+          "#332200",
+          "#563d04",
+          "#7d5a02",
+          "#a47b23",
+          "#c59f55",
+          "#e1c594",
+          "#fcedd1"
+        ]
+      },
+      "magenta-rose": {
+        "role": "secondary",
+        "displayName": "Magenta Rose",
+        "canonical": "#E5478A",
+        "tonalRamp": [
+          "#1f000b",
+          "#480224",
+          "#7a0541",
+          "#b1005f",
+          "#da3b80",
+          "#fd6ba3",
+          "#fcb0c8",
+          "#ffe7ee"
+        ]
+      },
+      "destructive": {
+        "role": "neutral",
+        "displayName": "Destructive",
+        "canonical": "#FF8A8A",
+        "tonalRamp": [
+          "#1c0203",
+          "#470a11",
+          "#781721",
+          "#a2373d",
+          "#c95a5c",
+          "#ec8181",
+          "#ffb2b0",
+          "#fee9e8"
+        ]
+      },
+      "success": {
+        "role": "neutral",
+        "displayName": "Success",
+        "canonical": "#5BD08A",
+        "tonalRamp": [
+          "#001003",
+          "#002e15",
+          "#0a4f2c",
+          "#0c7441",
+          "#139b59",
+          "#54be7e",
+          "#98dcae",
+          "#d5f9df"
+        ]
+      },
+      "warning": {
+        "role": "neutral",
+        "displayName": "Warning",
+        "canonical": "#E8B24C",
+        "tonalRamp": [
+          "#150800",
+          "#332100",
+          "#583c00",
+          "#7d5a0e",
+          "#a77915",
+          "#cd9c3f",
+          "#e6c48a",
+          "#ffeccc"
+        ]
+      },
+      "cat-cinema": {
+        "role": "tertiary",
+        "displayName": "Category: Cinema",
+        "canonical": "#E0B563",
+        "tonalRamp": [
+          "#130900",
+          "#332200",
+          "#563d04",
+          "#7d5a02",
+          "#a47b23",
+          "#c59f55",
+          "#e1c594",
+          "#fcedd1"
+        ]
+      },
+      "cat-theatre": {
+        "role": "tertiary",
+        "displayName": "Category: Théâtre",
+        "canonical": "#E5478A",
+        "tonalRamp": [
+          "#1f000b",
+          "#480224",
+          "#7a0541",
+          "#b1005f",
+          "#da3b80",
+          "#fd6ba3",
+          "#fcb0c8",
+          "#ffe7ee"
+        ]
+      },
+      "cat-shorts": {
+        "role": "tertiary",
+        "displayName": "Category: Courts",
+        "canonical": "#5FD0C2",
+        "tonalRamp": [
+          "#000f0d",
+          "#002d28",
+          "#084d46",
+          "#087167",
+          "#0d968a",
+          "#53b9ac",
+          "#97d8ce",
+          "#d4f7f1"
+        ]
+      },
+      "cat-music": {
+        "role": "tertiary",
+        "displayName": "Category: Concert",
+        "canonical": "#7B9CFF",
+        "tonalRamp": [
+          "#040821",
+          "#121f52",
+          "#24388a",
+          "#3e59b5",
+          "#5d7bdb",
+          "#81a0fb",
+          "#b4c8fc",
+          "#e8eefe"
+        ]
+      },
+      "cat-art": {
+        "role": "tertiary",
+        "displayName": "Category: Expo",
+        "canonical": "#C98AE8",
+        "tonalRamp": [
+          "#13041a",
+          "#351244",
+          "#5b2473",
+          "#7f429a",
+          "#a264bf",
+          "#c48ae0",
+          "#dfb7f4",
+          "#f7e8ff"
+        ]
+      },
+      "daylight-background": {
+        "role": "neutral",
+        "displayName": "Daylight Background",
+        "canonical": "#FFFFFF",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#252525",
+          "#424242",
+          "#616161",
+          "#828282",
+          "#a5a5a5",
+          "#c9c9c9",
+          "#eeeeee"
+        ]
+      },
+      "daylight-foreground": {
+        "role": "neutral",
+        "displayName": "Daylight Ink",
+        "canonical": "#241326",
+        "tonalRamp": [
+          "#0e090f",
+          "#2c212d",
+          "#4d3b4e",
+          "#6e5970",
+          "#8f7a92",
+          "#b29db4",
+          "#d2c3d4",
+          "#f4ebf4"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Lalezar brand moments only: detail-hero work titles, splash, empty-state headlines, big numerals."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Routine in-app screen headers (Inter 700; IBM Plex Sans Arabic 700 in Arabic)."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Section titles on detail pages."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "UI copy and forms; the 16px body floor."
+      },
+      "body-long": {
+        "displayName": "Body Long",
+        "purpose": "Synopses and editorial paragraphs, 660px measure."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Chips and badges: format, genre, duration, category."
+      }
+    },
+    "shadows": [
+      {
+        "name": "gold-inner-edge",
+        "value": "inset 0 0 0 1px rgba(42, 26, 6, 0.22)",
+        "purpose": "Crisp edge on gold-filled CTAs; not an elevation shadow."
+      },
+      {
+        "name": "gold-halo",
+        "value": "0 0 0 10px rgba(212, 162, 74, 0.18)",
+        "purpose": "Soft ring around the hero play disc only."
+      },
+      {
+        "name": "bar-blur",
+        "value": "backdrop-filter: blur(12px) over rgba(36, 19, 38, 0.86)",
+        "purpose": "Translucent sticky header and action bar."
+      }
+    ],
+    "motion": [
+      {
+        "name": "color",
+        "value": "160ms ease",
+        "purpose": "Background, color and opacity changes on controls (shipped shorts layer)."
+      },
+      {
+        "name": "transform",
+        "value": "220ms cubic-bezier(0.2, 0.7, 0.3, 1)",
+        "purpose": "Card lift and play-disc scale."
+      },
+      {
+        "name": "duration-fast",
+        "value": "150ms",
+        "purpose": "Global micro-interaction token (theme.css)."
+      },
+      {
+        "name": "duration-normal",
+        "value": "200ms",
+        "purpose": "Global state-change token (theme.css)."
+      },
+      {
+        "name": "duration-slow",
+        "value": "300ms",
+        "purpose": "Global modal and entrance token (theme.css)."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "transitions 0.01ms, animations off",
+        "purpose": "prefers-reduced-motion: keep centering translates, drop scale and lift."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "sm",
+        "value": "640px"
+      },
+      {
+        "name": "md",
+        "value": "768px"
+      },
+      {
+        "name": "lg",
+        "value": "1024px"
+      },
+      {
+        "name": "xl",
+        "value": "1280px"
+      },
+      {
+        "name": "2xl",
+        "value": "1536px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Gold Leaf pill for the one primary action (watch, reserve, confirm); always Gold Ink text.",
+      "html": "<button class=\"ds-btn-primary\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M7 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5z\"/></svg>Regarder le film</button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; justify-content: center; gap: 9px; min-height: 48px; padding-inline: 26px; border: none; border-radius: 9999px; background: #d4a24a; color: #2a1a06; font-family: Inter, 'IBM Plex Sans Arabic', 'Noto Sans Arabic', system-ui, sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; box-shadow: inset 0 0 0 1px rgba(42, 26, 6, 0.22); transition: opacity 160ms ease, transform 160ms ease; } .ds-btn-primary:hover { opacity: 0.92; } .ds-btn-primary:active { transform: scale(0.98); } .ds-btn-primary:focus-visible { outline: 2px solid #241326; outline-offset: 2px; box-shadow: 0 0 0 4px #ffffff; }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Gold outline pill with Gold Tint label for the secondary action (trailer, open provider).",
+      "html": "<button class=\"ds-btn-secondary\">Voir la bande-annonce</button>",
+      "css": ".ds-btn-secondary { display: inline-flex; align-items: center; gap: 7px; min-height: 44px; padding-inline: 16px; border: 1.5px solid #d4a24a; border-radius: 9999px; background: transparent; color: #e0b563; font-family: Inter, 'IBM Plex Sans Arabic', 'Noto Sans Arabic', system-ui, sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: background-color 160ms ease; } .ds-btn-secondary:hover { background: rgba(212, 162, 74, 0.12); } .ds-btn-secondary:focus-visible { outline: 2px solid #d4a24a; outline-offset: 2px; }"
+    },
+    {
+      "name": "Daylight Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary-daylight",
+      "description": "On white daylight surfaces (QR ticket, checkout) the primary CTA becomes an aubergine pill with white text.",
+      "html": "<div class=\"ds-daylight\"><button class=\"ds-btn-daylight\">Confirmer</button></div>",
+      "css": ".ds-daylight { background: #ffffff; padding: 16px; border-radius: 16px; } .ds-btn-daylight { min-height: 48px; padding-inline: 26px; border: none; border-radius: 9999px; background: #241326; color: #ffffff; font-family: Inter, 'IBM Plex Sans Arabic', 'Noto Sans Arabic', system-ui, sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; transition: opacity 160ms ease; } .ds-btn-daylight:hover { opacity: 0.9; } .ds-btn-daylight:focus-visible { outline: 2px solid #d4a24a; outline-offset: 2px; }"
+    },
+    {
+      "name": "Watchlist Heart",
+      "kind": "button",
+      "refersTo": "icon-button",
+      "description": "Round icon control; the heart fills gold when the work is saved.",
+      "html": "<button class=\"ds-icon-btn\" aria-label=\"Ajouter à ma liste\" aria-pressed=\"false\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1 1.1L12 21l7.8-7.5 1-1.1a5.5 5.5 0 0 0 0-7.8z\"/></svg></button><button class=\"ds-icon-btn ds-icon-btn--on\" aria-label=\"Retirer de ma liste\" aria-pressed=\"true\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1 1.1L12 21l7.8-7.5 1-1.1a5.5 5.5 0 0 0 0-7.8z\"/></svg></button>",
+      "css": ".ds-icon-btn { width: 52px; height: 52px; margin-inline-end: 8px; display: inline-flex; align-items: center; justify-content: center; border: 1.5px solid #4a3556; border-radius: 9999px; background: #31203a; color: #b0a6b8; cursor: pointer; transition: background-color 160ms ease, color 160ms ease; } .ds-icon-btn:hover { background: #3e2a48; } .ds-icon-btn:focus-visible { outline: 2px solid #d4a24a; outline-offset: 2px; } .ds-icon-btn--on { color: #d4a24a; border-color: #d4a24a; } .ds-icon-btn--on svg { fill: currentColor; }"
+    },
+    {
+      "name": "Category Chip",
+      "kind": "chip",
+      "refersTo": "chip-category",
+      "description": "Category badge with dot; the category hue appears here and on filter dots only.",
+      "html": "<span class=\"ds-chip\"><span class=\"ds-chip-dot\"></span>Court métrage</span> <span class=\"ds-chip ds-chip--format\">VOST</span>",
+      "css": ".ds-chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 11px; border-radius: 8px; background: rgba(14, 7, 16, 0.6); border: 1px solid #2e5e58; color: #5fd0c2; font-family: Inter, 'IBM Plex Sans Arabic', 'Noto Sans Arabic', system-ui, sans-serif; font-size: 11px; font-weight: 600; line-height: 1.4; } .ds-chip-dot { width: 6px; height: 6px; border-radius: 9999px; background: #5fd0c2; } .ds-chip--format { border-color: #4a3556; color: #ffffff; }"
+    },
+    {
+      "name": "Poster Card",
+      "kind": "card",
+      "refersTo": "card-poster",
+      "description": "2:3 poster card for feeds and rails; title and meta over a bottom scrim; lifts 2px on hover.",
+      "html": "<a class=\"ds-poster\" href=\"#\"><span class=\"ds-poster-frame\"><span class=\"ds-poster-meta\"><span class=\"ds-poster-title\">Titre du court</span><span class=\"ds-poster-sub\">Réalisatrice · 2024</span></span></span></a>",
+      "css": ".ds-poster { display: block; width: 160px; text-decoration: none; transition: transform 220ms cubic-bezier(0.2, 0.7, 0.3, 1); } .ds-poster:hover { transform: translateY(-2px); } .ds-poster:active { transform: scale(0.985); } .ds-poster:focus-visible { outline: 2px solid #d4a24a; outline-offset: 2px; border-radius: 16px; } .ds-poster-frame { position: relative; display: block; aspect-ratio: 2 / 3; border-radius: 16px; overflow: hidden; background: repeating-linear-gradient(135deg, #31203a 0, #31203a 8px, #3a2742 8px, #3a2742 16px); } .ds-poster-meta { position: absolute; inset-inline: 0; bottom: 0; display: flex; flex-direction: column; gap: 2px; padding: 30px 11px 11px; background: linear-gradient(to top, rgba(12, 6, 14, 0.96), rgba(12, 6, 14, 0.82) 55%, rgba(12, 6, 14, 0)); font-family: Inter, 'IBM Plex Sans Arabic', 'Noto Sans Arabic', system-ui, sans-serif; } .ds-poster-title { color: #ffffff; font-size: 14px; font-weight: 600; } .ds-poster-sub { color: #c9c0d0; font-size: 11px; }"
+    },
+    {
+      "name": "Info Row",
+      "kind": "custom",
+      "refersTo": "info-row",
+      "description": "Award and where-to-watch rows on detail pages: surface fill, border stroke, gold icon for a win.",
+      "html": "<div class=\"ds-row\"><span class=\"ds-row-icon\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"9\" r=\"6\"/><path d=\"M8.5 14.5 7 22l5-3 5 3-1.5-7.5\"/></svg></span><span class=\"ds-row-text\">Grand Prix, Journées Cinématographiques de Carthage</span></div>",
+      "css": ".ds-row { display: flex; align-items: center; gap: 12px; padding: 13px 15px; border-radius: 12px; background: #31203a; border: 1px solid #4a3556; font-family: Inter, 'IBM Plex Sans Arabic', 'Noto Sans Arabic', system-ui, sans-serif; } .ds-row-icon { display: inline-flex; color: #d4a24a; } .ds-row-text { color: #e5e0e9; font-size: 14px; font-weight: 500; }"
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Spine-specified field (the shipped shadcn Input still uses retired tokens).",
+      "html": "<label class=\"ds-field\"><span class=\"ds-field-label\">Titre du film</span><input class=\"ds-input\" placeholder=\"Ex. Les Sœurs de la nuit\"></label>",
+      "css": ".ds-field { display: flex; flex-direction: column; gap: 6px; font-family: Inter, 'IBM Plex Sans Arabic', 'Noto Sans Arabic', system-ui, sans-serif; } .ds-field-label { color: #ffffff; font-size: 14px; font-weight: 500; } .ds-input { height: 44px; padding-inline: 12px; border: 1px solid #4a3556; border-radius: 8px; background: #31203a; color: #ffffff; font: inherit; font-size: 16px; transition: border-color 160ms ease, box-shadow 160ms ease; } .ds-input::placeholder { color: #b0a6b8; } .ds-input:focus-visible { outline: none; border-color: #d4a24a; box-shadow: 0 0 0 2px #d4a24a; }"
+    },
+    {
+      "name": "Bottom Nav",
+      "kind": "nav",
+      "refersTo": "bottom-nav",
+      "description": "Mobile bottom navigation: four thin-line icons, active item solid gold with its label.",
+      "html": "<nav class=\"ds-bnav\" aria-label=\"Navigation principale\"><a class=\"ds-bnav-item ds-bnav-item--active\" aria-current=\"page\" href=\"#\"><svg width=\"22\" height=\"22\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3 10.5 12 3l9 7.5V21h-6v-6H9v6H3z\"/></svg><span>Accueil</span></a><a class=\"ds-bnav-item\" href=\"#\"><svg width=\"22\" height=\"22\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" aria-hidden=\"true\"><circle cx=\"11\" cy=\"11\" r=\"7\"/><path d=\"m20 20-3.5-3.5\"/></svg><span>Recherche</span></a><a class=\"ds-bnav-item\" href=\"#\"><svg width=\"22\" height=\"22\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3 7h18v3a2 2 0 0 0 0 4v3H3v-3a2 2 0 0 0 0-4z\"/></svg><span>Billets</span></a><a class=\"ds-bnav-item\" href=\"#\"><svg width=\"22\" height=\"22\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"8\" r=\"4\"/><path d=\"M4 21a8 8 0 0 1 16 0\"/></svg><span>Compte</span></a></nav>",
+      "css": ".ds-bnav { display: flex; justify-content: space-around; align-items: center; height: 64px; background: rgba(36, 19, 38, 0.94); border-top: 1px solid #4a3556; font-family: Inter, 'IBM Plex Sans Arabic', 'Noto Sans Arabic', system-ui, sans-serif; } .ds-bnav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-width: 48px; min-height: 48px; color: #b0a6b8; text-decoration: none; font-size: 11px; font-weight: 500; transition: color 160ms ease; } .ds-bnav-item:hover { color: #ffffff; } .ds-bnav-item:focus-visible { outline: 2px solid #d4a24a; outline-offset: 2px; border-radius: 8px; } .ds-bnav-item--active { color: #d4a24a; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "Aubergine Theatre with Gold Leaf Accent",
+    "overview": "A single deep-jewel dark theme in the register of a playbill or festival catalogue, not a streaming app. The Midnight Aubergine field recedes so that poster artwork is the hero of every discovery surface; burnished Gold Leaf appears only where the visitor can act. Category color-coding (cinema, théâtre, courts, concert, expo) turns a colorful feed into wayfinding, so the palette reads designed rather than noisy. The mood is premium, cultural and quietly confident: cultural excitement with effortless confidence.\n\nDensity is mobile-first and thumb-zone aware: primary actions sit in the bottom 60% of the screen, controls are at least 44px, and long pages end in a sticky action bar. Depth comes from stepping surface color, never from drop shadows in product chrome. Arabic, French and English are designed together; every layout uses logical properties and mirrors cleanly in RTL.\n\n**Implementation status.** This identity is owner-ratified but, in v1.0, ships only on shorts surfaces through a route-scoped token block (`.root[data-tiween-shorts-detail]` in `ShortFilmDetail.module.css`). The global shadcn theme in `src/styles/globals.css` and `src/styles/theme.css` still carries the retired teal `#032523` + yellow `#F8EB06` tokens, which every non-shorts page and every shadcn primitive (`src/components/ui/*`) still reads. New shorts work uses the tokens in this file; the global rebase of the shadcn variables is a separate backlog story.",
+    "keyCharacteristics": [
+      "Dark-only Midnight Aubergine field; one scoped daylight exception (QR ticket, checkout).",
+      "Gold Leaf is the single action and selection signal.",
+      "Posters at 2:3 portrait lead every feed; chrome stays secondary.",
+      "Category colors key the taxonomy on badges and filter dots only.",
+      "Elevation by surface-color shift, not shadow.",
+      "Soft geometry: 16px cards, 8px chips, full-pill CTAs.",
+      "RTL-first logical layout with mixed-script isolation."
+    ],
+    "rules": [
+      {
+        "name": "The Gold Means Go Rule",
+        "body": "Gold Leaf marks something the visitor can act on, or the state they just chose. It never decorates a non-actionable highlight.",
+        "section": "colors"
+      },
+      {
+        "name": "The Dark Ink Rule",
+        "body": "A gold fill always takes Gold Ink (#2A1A06). White on gold is 2.3:1 and is banned.",
+        "section": "colors"
+      },
+      {
+        "name": "The Daylight CTA Rule",
+        "body": "On a white daylight surface the primary CTA becomes a Midnight Aubergine pill with white text; gold shrinks to a small icon or check accent (gold on white is about 1.6:1).",
+        "section": "colors"
+      },
+      {
+        "name": "The Category Cameo Rule",
+        "body": "Category hues live on the badge and the filter dot. They never tint page chrome and never override the gold action signal.",
+        "section": "colors"
+      },
+      {
+        "name": "The Brand Moment Rule",
+        "body": "Lalezar appears only on heroes, splash, empty states and marketing. Routine headers are Inter (or IBM Plex Sans Arabic) 700.",
+        "section": "typography"
+      },
+      {
+        "name": "The One Line, One System Rule",
+        "body": "Every foreign-script run inside a line (an Arabic title with `VOST`, a venue, `12,20 DT`) is isolated in `<bdi>` or `dir=\"auto\"` so it does not reorder.",
+        "section": "typography"
+      },
+      {
+        "name": "The Flat Chrome Rule",
+        "body": "No `box-shadow` for elevation in product UI. If something needs to sit above, shift its surface color or put it on a translucent blurred bar.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do reserve Gold Leaf (#D4A24A) for actions and active state, and route links and info text through Gold Tint (#E0B563).",
+      "Do keep poster art the visual hero of every discovery surface, at 2:3 portrait in feeds.",
+      "Do use logical properties and start/end corners so RTL flips cleanly, and mirror directional icons.",
+      "Do wrap mixed-script runs in `<bdi>` or `dir=\"auto\"`.",
+      "Do show Arabic with Western digits and `DD/MM/YYYY`, formatted through `lib/dates.ts`.",
+      "Do pair every status color with an icon and text (sold out, offline, error, selected check, recommended star).",
+      "Do declare new shorts-surface colors inside the scoped token block, never as raw hex in rules."
+    ],
+    "donts": [
+      "Don't use Lalezar for routine in-app headers.",
+      "Don't let gold signal a non-actionable highlight.",
+      "Don't add drop shadows to product chrome; shift surface color instead.",
+      "Don't rely on color alone for status.",
+      "Don't bring magenta into page chrome or use it as body text.",
+      "Don't put white text on a gold fill (2.3:1).",
+      "Don't put a gold focus ring on a gold-filled control.",
+      "Don't use a gold CTA on a daylight or white surface (about 1.6:1).",
+      "Don't use Strapi Design System components, indigo #4945FF, or the 4px-everything radius here; that is the admin's system.",
+      "Don't extend the retired teal #032523 and yellow #F8EB06 tokens to new work."
+    ]
+  }
+}
