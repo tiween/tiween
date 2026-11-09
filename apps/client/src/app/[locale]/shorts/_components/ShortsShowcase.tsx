@@ -4,13 +4,11 @@ import { useEffect, useRef, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import {
-  Award,
   ChevronLeft,
   ChevronRight,
   Clock,
   Info,
   Play,
-  Star,
   Volume2,
   VolumeX,
 } from "lucide-react"
@@ -49,7 +47,7 @@ export function ShortsShowcase({
   }, [featuredFilms.length])
 
   return (
-    <div className="relative min-h-screen overflow-x-hidden bg-[#032523]">
+    <div className="bg-background relative min-h-screen overflow-x-hidden">
       {/* Film grain overlay */}
       <div
         className="pointer-events-none fixed inset-0 z-50 opacity-[0.03]"
@@ -72,13 +70,13 @@ export function ShortsShowcase({
               sizes="100vw"
             />
           ) : (
-            <div className="h-full w-full bg-gradient-to-br from-[#0A3533] to-[#032523]" />
+            <div className="from-card to-background h-full w-full bg-gradient-to-br" />
           )}
 
           {/* Multi-layer gradient overlay for cinematic depth */}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#032523] via-[#032523]/60 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#032523]/90 via-[#032523]/30 to-transparent" />
-          <div className="absolute inset-0 bg-[#032523]/20" />
+          <div className="from-background via-background/60 absolute inset-0 bg-gradient-to-t to-transparent" />
+          <div className="from-aubergine-deep/90 via-aubergine-deep/30 absolute inset-0 bg-gradient-to-r to-transparent" />
+          <div className="bg-aubergine-deep/20 absolute inset-0" />
         </div>
 
         {/* Hero Content */}
@@ -102,12 +100,6 @@ export function ShortsShowcase({
 
             {/* Meta info row */}
             <div className="mb-6 flex flex-wrap items-center gap-4 text-sm text-white/80 md:text-base">
-              {heroFilm?.rating && (
-                <span className="flex items-center gap-1.5 rounded-md bg-[#F8EB06]/20 px-2.5 py-1 font-semibold text-[#F8EB06]">
-                  <Star className="h-4 w-4 fill-current" />
-                  {heroFilm.rating.toFixed(1)}
-                </span>
-              )}
               <span className="flex items-center gap-1.5">
                 <Clock className="h-4 w-4" />
                 {heroFilm?.duration} min
@@ -121,12 +113,6 @@ export function ShortsShowcase({
                   </span>
                 </span>
               )}
-              {heroFilm?.awards && heroFilm.awards.length > 0 && (
-                <span className="flex items-center gap-1.5 text-[#F8EB06]">
-                  <Award className="h-4 w-4" />
-                  {heroFilm.awards.length} Prix
-                </span>
-              )}
             </div>
 
             {/* Synopsis */}
@@ -138,7 +124,7 @@ export function ShortsShowcase({
             <div className="flex flex-wrap gap-4">
               <Link
                 href={`/${locale}/shorts/${heroFilm?.slug}`}
-                className="group flex items-center gap-3 rounded-lg bg-[#F8EB06] px-8 py-4 font-semibold text-[#032523] transition-all hover:scale-105 hover:bg-white"
+                className="group bg-primary text-primary-foreground flex items-center gap-3 rounded-lg px-8 py-4 font-semibold transition-all hover:scale-105 hover:opacity-90"
               >
                 <Play className="h-6 w-6 fill-current transition-transform group-hover:scale-110" />
                 Regarder
@@ -161,7 +147,7 @@ export function ShortsShowcase({
                 onClick={() => setActiveHeroIndex(idx)}
                 className={`h-1 rounded-full transition-all duration-300 ${
                   idx === activeHeroIndex
-                    ? "w-8 bg-[#F8EB06]"
+                    ? "bg-primary w-8"
                     : "w-4 bg-white/40 hover:bg-white/60"
                 }`}
                 aria-label={`Go to slide ${idx + 1}`}
@@ -201,7 +187,6 @@ export function ShortsShowcase({
             subtitle="Films récompensés dans les festivals internationaux"
             films={awardWinners}
             locale={locale}
-            showAwards
           />
         )}
 
@@ -236,7 +221,7 @@ export function ShortsShowcase({
             {genres.map((genre) => (
               <button
                 key={genre.slug}
-                className="rounded-full border border-white/20 bg-white/5 px-5 py-2.5 text-sm font-medium text-white/80 backdrop-blur-sm transition-all hover:border-[#F8EB06]/50 hover:bg-[#F8EB06]/10 hover:text-[#F8EB06]"
+                className="hover:border-primary/50 hover:bg-primary/10 hover:text-gold-tint rounded-full border border-white/20 bg-white/5 px-5 py-2.5 text-sm font-medium text-white/80 backdrop-blur-sm transition-all"
               >
                 {genre.name}
               </button>
@@ -248,7 +233,7 @@ export function ShortsShowcase({
         <div className="px-6 pt-8 md:px-12 lg:px-16">
           <Link
             href={`/${locale}/desktop-prototypes`}
-            className="text-sm text-white/50 transition-colors hover:text-[#F8EB06]"
+            className="hover:text-gold-tint text-sm text-white/50 transition-colors"
           >
             ← Retour aux prototypes
           </Link>
@@ -265,17 +250,9 @@ interface FilmRowProps {
   films: ShortFilm[]
   locale: string
   featured?: boolean
-  showAwards?: boolean
 }
 
-function FilmRow({
-  title,
-  subtitle,
-  films,
-  locale,
-  featured,
-  showAwards,
-}: FilmRowProps) {
+function FilmRow({ title, subtitle, films, locale, featured }: FilmRowProps) {
   const scrollRef = useRef<HTMLDivElement>(null)
   const [canScrollLeft, setCanScrollLeft] = useState(false)
   const [canScrollRight, setCanScrollRight] = useState(true)
@@ -353,14 +330,13 @@ function FilmRow({
               locale={locale}
               index={idx}
               featured={featured}
-              showAward={showAwards}
             />
           ))}
         </div>
 
         {/* Gradient Edges */}
-        <div className="pointer-events-none absolute top-0 left-0 h-full w-12 bg-gradient-to-r from-[#032523] to-transparent md:w-16" />
-        <div className="pointer-events-none absolute top-0 right-0 h-full w-12 bg-gradient-to-l from-[#032523] to-transparent md:w-16" />
+        <div className="from-background pointer-events-none absolute top-0 left-0 h-full w-12 bg-gradient-to-r to-transparent md:w-16" />
+        <div className="from-background pointer-events-none absolute top-0 right-0 h-full w-12 bg-gradient-to-l to-transparent md:w-16" />
       </div>
     </section>
   )
@@ -372,10 +348,9 @@ interface FilmCardProps {
   locale: string
   index: number
   featured?: boolean
-  showAward?: boolean
 }
 
-function FilmCard({ film, locale, index, featured, showAward }: FilmCardProps) {
+function FilmCard({ film, locale, index, featured }: FilmCardProps) {
   const [isHovered, setIsHovered] = useState(false)
 
   return (
@@ -418,27 +393,11 @@ function FilmCard({ film, locale, index, featured, showAward }: FilmCardProps) {
             }
           />
         ) : (
-          <div className="h-full w-full bg-gradient-to-br from-[#0A3533] to-[#0F4542]" />
+          <div className="from-card to-accent h-full w-full bg-gradient-to-br" />
         )}
 
         {/* Gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-60 transition-opacity duration-300 group-hover:opacity-100" />
-
-        {/* Award Badge */}
-        {showAward && film.awards && film.awards.length > 0 && (
-          <div className="absolute top-3 left-3 flex items-center gap-1.5 rounded-full bg-[#F8EB06] px-2.5 py-1 text-xs font-bold text-[#032523]">
-            <Award className="h-3.5 w-3.5" />
-            {film.awards.some((a) => a.won) ? "Lauréat" : "Sélectionné"}
-          </div>
-        )}
-
-        {/* Rating Badge */}
-        {film.rating && film.rating >= 8 && !showAward && (
-          <div className="absolute top-3 right-3 flex items-center gap-1 rounded bg-[#F8EB06]/90 px-2 py-0.5 text-xs font-bold text-[#032523]">
-            <Star className="h-3 w-3 fill-current" />
-            {film.rating.toFixed(1)}
-          </div>
-        )}
 
         {/* Content (visible on hover) */}
         <div
@@ -453,15 +412,6 @@ function FilmCard({ film, locale, index, featured, showAward }: FilmCardProps) {
             <span>{film.releaseYear}</span>
             <span className="h-1 w-1 rounded-full bg-white/40" />
             <span>{film.duration} min</span>
-            {film.rating && (
-              <>
-                <span className="h-1 w-1 rounded-full bg-white/40" />
-                <span className="flex items-center gap-0.5 text-[#F8EB06]">
-                  <Star className="h-3 w-3 fill-current" />
-                  {film.rating.toFixed(1)}
-                </span>
-              </>
-            )}
           </div>
           {film.directors?.[0] && (
             <p className="line-clamp-1 text-xs text-white/50">
@@ -487,7 +437,7 @@ function FilmCard({ film, locale, index, featured, showAward }: FilmCardProps) {
             isHovered ? "opacity-100" : "opacity-0"
           }`}
         >
-          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white/90 text-[#032523] shadow-lg backdrop-blur-sm transition-transform group-hover:scale-110">
+          <div className="text-background flex h-14 w-14 items-center justify-center rounded-full bg-white/90 shadow-lg backdrop-blur-sm transition-transform group-hover:scale-110">
             <Play className="ml-1 h-6 w-6 fill-current" />
           </div>
         </div>

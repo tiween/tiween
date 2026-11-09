@@ -114,9 +114,10 @@ export default defineConfig({
       "src/features/events/components/FilmHero/**/*.test.tsx",
       // EventDetailPage toggle wiring + in-flight guard (Story 5.2).
       "src/features/events/components/EventDetailPage/**/*.test.tsx",
-      // Short-film detail page — conditional-section omission + share
-      // fallbacks (2026 design handoff).
-      "src/features/shorts/components/ShortFilmDetail/**/*.test.tsx",
+      // Short-film surfaces: detail page (conditional sections, share
+      // fallbacks), suggestion form (validation, failure keeps input) and
+      // directory (outage vs empty, stale responses, locale).
+      "src/features/shorts/components/**/*.test.tsx",
       // Watchlist page composition + seed-then-remove wiring (Story 5.3).
       // `[locale]` is a glob char-class, so match the segment via `**`.
       "src/app/**/watchlist/**/*.test.tsx",

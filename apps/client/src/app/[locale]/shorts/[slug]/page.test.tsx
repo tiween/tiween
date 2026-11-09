@@ -126,7 +126,18 @@ describe("shorts/[slug] route", () => {
       params: Promise.resolve({ locale: "fr" as const, slug: "no-such-film" }),
     })
 
-    expect(metadata.title).toBe("Court métrage non trouvé - Tiween")
+    // The layout template appends "| Tiween" — the page must not repeat it.
+    expect(metadata.title).toBe("Court métrage non trouvé")
+  })
+
+  it("titles a known film without duplicating the brand suffix", async () => {
+    const known = MOCK_SHORT_FILMS[0]!
+    const metadata = await generateMetadata({
+      params: Promise.resolve({ locale: "fr" as const, slug: known.slug }),
+    })
+
+    expect(metadata.title).toBe(`${known.title} - Courts métrages`)
+    expect(String(metadata.title)).not.toMatch(/Tiween/)
   })
 
   it("emits a static param for every mock film", async () => {

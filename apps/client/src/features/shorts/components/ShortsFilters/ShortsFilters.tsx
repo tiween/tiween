@@ -2,12 +2,9 @@
 
 import * as React from "react"
 import { ChevronDown, Search, SlidersHorizontal, X } from "lucide-react"
-import { useLocale } from "next-intl"
+import { useLocale, useTranslations } from "next-intl"
 
-import type {
-  ShortsFiltersLabels,
-  ShortsFilters as ShortsFiltersType,
-} from "../../types"
+import type { ShortsFilters as ShortsFiltersType } from "../../types"
 
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
@@ -36,36 +33,17 @@ import {
 } from "@/components/ui/sheet"
 import { Slider } from "@/components/ui/slider"
 
-const defaultLabels: ShortsFiltersLabels = {
-  search: "Rechercher",
-  searchPlaceholder: "Titre, réalisateur...",
-  genres: "Genres",
-  duration: "Durée",
-  durationRange: "De {min} à {max} minutes",
-  year: "Année",
-  yearRange: "De {min} à {max}",
-  country: "Pays",
-  language: "Langue",
-  awards: "Récompenses",
-  hasAwards: "Films primés uniquement",
-  availability: "Disponibilité",
-  availableOnline: "Disponible en ligne",
-  platforms: "Plateformes",
-  rating: "Note",
-  ratingMin: "Note minimale",
-  sortBy: "Trier par",
-  sortByOptions: {
-    latest: "Plus récents",
-    rating: "Mieux notés",
-    year: "Année",
-    duration: "Durée",
-    title: "Titre",
-  },
-  clearFilters: "Effacer les filtres",
-  applyFilters: "Appliquer",
-  resultsCount: "{count} résultats",
-  noResults: "Aucun résultat",
-}
+import { formatCount } from "../../utils"
+
+/** Slider bounds. A thumb resting on a bound means "no limit on that side". */
+const DURATION_FLOOR = 0
+const DURATION_CEILING = 60
+const YEAR_FLOOR = 1990
+const SEARCH_DEBOUNCE_MS = 300
+const SEARCH_MAX_LENGTH = 100
+
+// Ratings are out of v1 (PRODUCT.md), so there is no rating sort or filter.
+const SORT_KEYS = ["latest", "year", "duration", "title"] as const
 
 export interface GenreOption {
   slug: string
@@ -73,7 +51,7 @@ export interface GenreOption {
 }
 
 export interface ShortsFiltersProps {
-  /** Current filter values */
+  /** Current (applied) filter values */
   filters: ShortsFiltersType
   /** Available genre options */
   genres?: GenreOption[]
@@ -81,12 +59,15 @@ export interface ShortsFiltersProps {
   totalResults?: number
   /** Called when filters change */
   onFiltersChange: (filters: ShortsFiltersType) => void
-  /** Called when search is submitted */
+  /** Called (debounced) when the search query changes */
   onSearch?: (query: string) => void
   /** Additional class names */
   className?: string
-  /** Localized labels */
-  labels?: ShortsFiltersLabels
+}
+
+/** A bound at its extreme is "unset", so a full-range slider is not a filter. */
+function boundOrUndefined(value: number | undefined, extreme: number) {
+  return value === undefined || value === extreme ? undefined : value
 }
 
 export function ShortsFilters({
@@ -96,172 +77,232 @@ export function ShortsFilters({
   onFiltersChange,
   onSearch,
   className,
-  labels = defaultLabels,
 }: ShortsFiltersProps) {
   const locale = useLocale()
+  const t = useTranslations("shorts.filters")
+  const tShorts = useTranslations("shorts")
+  const formatMinutes = (n: number) =>
+    tShorts("durationMinutes", { count: n, display: formatCount(n, locale) })
   const isRTL = locale === "ar"
+  const dir = isRTL ? "rtl" : "ltr"
+  const yearCeiling = React.useMemo(() => new Date().getFullYear(), [])
+  const sortLabelId = React.useId()
 
-  const [localQuery, setLocalQuery] = React.useState(filters.query || "")
-  const [isSheetOpen, setIsSheetOpen] = React.useState(false)
-  const [tempFilters, setTempFilters] =
-    React.useState<ShortsFiltersType>(filters)
+  // ------------------------------------------------------------- search --
+  // `lastEmitted` is the query this component last reported upward. It lets
+  // an EXTERNAL change (e.g. "reset filters" in the empty state) refill the
+  // input, without the parent's echo of our own debounced value clobbering
+  // characters typed since.
+  const [localQuery, setLocalQuery] = React.useState(filters.query ?? "")
+  const lastEmitted = React.useRef(filters.query ?? "")
 
-  // Sync tempFilters when filters prop changes
   React.useEffect(() => {
-    setTempFilters(filters)
-  }, [filters])
+    const incoming = filters.query ?? ""
+    if (incoming !== lastEmitted.current) {
+      lastEmitted.current = incoming
+      setLocalQuery(incoming)
+    }
+  }, [filters.query])
 
-  // Debounced search
+  const emitSearch = React.useCallback(
+    (raw: string) => {
+      const query = raw.trim()
+      if (query === lastEmitted.current) return
+      lastEmitted.current = query
+      onSearch?.(query)
+    },
+    [onSearch]
+  )
+
   React.useEffect(() => {
-    const timer = setTimeout(() => {
-      if (localQuery !== filters.query) {
-        onSearch?.(localQuery)
-      }
-    }, 300)
+    // Compared against the last emitted value — not `filters.query` — so the
+    // initial render (undefined vs "") never fires a spurious refetch.
+    if (localQuery.trim() === lastEmitted.current) return
+    const timer = setTimeout(() => emitSearch(localQuery), SEARCH_DEBOUNCE_MS)
     return () => clearTimeout(timer)
-  }, [localQuery, filters.query, onSearch])
+  }, [localQuery, emitSearch])
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    onSearch?.(localQuery)
+    emitSearch(localQuery)
   }
 
   const handleClearSearch = () => {
     setLocalQuery("")
-    onSearch?.("")
+    emitSearch("")
+  }
+
+  // -------------------------------------------------------------- sheet --
+  const [isSheetOpen, setIsSheetOpen] = React.useState(false)
+  const [tempFilters, setTempFilters] =
+    React.useState<ShortsFiltersType>(filters)
+
+  // Opening the sheet always starts from the APPLIED filters, so edits that
+  // were dismissed without "Apply" do not resurface as if they were active.
+  const handleSheetOpenChange = (open: boolean) => {
+    if (open) setTempFilters(filters)
+    setIsSheetOpen(open)
   }
 
   const handleGenreToggle = (slug: string) => {
-    const currentGenres = tempFilters.genres || []
-    const newGenres = currentGenres.includes(slug)
-      ? currentGenres.filter((g) => g !== slug)
-      : [...currentGenres, slug]
-    setTempFilters({ ...tempFilters, genres: newGenres })
+    setTempFilters((current) => {
+      const selected = current.genres ?? []
+      const next = selected.includes(slug)
+        ? selected.filter((g) => g !== slug)
+        : [...selected, slug]
+      return { ...current, genres: next.length > 0 ? next : undefined }
+    })
   }
 
   const handleApplyFilters = () => {
-    onFiltersChange(tempFilters)
+    onFiltersChange({
+      ...tempFilters,
+      durationMin: boundOrUndefined(tempFilters.durationMin, DURATION_FLOOR),
+      durationMax: boundOrUndefined(tempFilters.durationMax, DURATION_CEILING),
+      yearMin: boundOrUndefined(tempFilters.yearMin, YEAR_FLOOR),
+      yearMax: boundOrUndefined(tempFilters.yearMax, yearCeiling),
+      // The search box owns the query; never let a stale sheet copy win.
+      query: filters.query,
+    })
     setIsSheetOpen(false)
   }
 
   const handleClearFilters = () => {
-    const clearedFilters: ShortsFiltersType = {
+    const cleared: ShortsFiltersType = {
       query: filters.query,
       sortBy: "latest",
       sortOrder: "desc",
     }
-    setTempFilters(clearedFilters)
-    onFiltersChange(clearedFilters)
+    setTempFilters(cleared)
+    onFiltersChange(cleared)
     setIsSheetOpen(false)
   }
 
-  const activeFilterCount = [
-    (filters.genres?.length || 0) > 0,
-    filters.durationMin !== undefined || filters.durationMax !== undefined,
-    filters.yearMin !== undefined || filters.yearMax !== undefined,
-    filters.hasAwards,
-    filters.availableOnline,
-    filters.rating !== undefined,
-  ].filter(Boolean).length
+  // -------------------------------------------------------------- chips --
+  const hasDuration =
+    filters.durationMin !== undefined || filters.durationMax !== undefined
+  const hasYear = filters.yearMin !== undefined || filters.yearMax !== undefined
 
-  // Active filter chips for display
   const activeFilterChips: Array<{ key: string; label: string }> = []
 
   if (filters.genres?.length) {
     const genreNames = filters.genres
-      .map((slug) => genres.find((g) => g.slug === slug)?.name)
-      .filter(Boolean)
+      .map((slug) => genres.find((g) => g.slug === slug)?.name ?? slug)
       .join(", ")
-    if (genreNames) {
-      activeFilterChips.push({ key: "genres", label: genreNames })
-    }
+    activeFilterChips.push({ key: "genres", label: genreNames })
   }
-
-  if (filters.durationMin !== undefined || filters.durationMax !== undefined) {
+  if (hasDuration) {
     activeFilterChips.push({
       key: "duration",
-      label: `${filters.durationMin || 0}-${filters.durationMax || 60} min`,
+      label: t("durationRange", {
+        min: String(filters.durationMin ?? DURATION_FLOOR),
+        max: formatMinutes(filters.durationMax ?? DURATION_CEILING),
+      }),
     })
   }
-
-  if (filters.yearMin !== undefined || filters.yearMax !== undefined) {
+  if (hasYear) {
     activeFilterChips.push({
       key: "year",
-      label: `${filters.yearMin || 1900}-${filters.yearMax || new Date().getFullYear()}`,
+      label: t("yearRange", {
+        min: String(filters.yearMin ?? YEAR_FLOOR),
+        max: String(filters.yearMax ?? yearCeiling),
+      }),
     })
   }
-
   if (filters.hasAwards) {
-    activeFilterChips.push({ key: "awards", label: labels.hasAwards })
+    activeFilterChips.push({ key: "awards", label: t("hasAwards") })
   }
-
   if (filters.availableOnline) {
-    activeFilterChips.push({ key: "online", label: labels.availableOnline })
+    activeFilterChips.push({ key: "online", label: t("availableOnline") })
   }
 
-  if (filters.rating !== undefined) {
-    activeFilterChips.push({ key: "rating", label: `★ ${filters.rating}+` })
-  }
+  const activeFilterCount = activeFilterChips.length
 
   const handleRemoveFilter = (key: string) => {
-    const newFilters = { ...filters }
+    const next = { ...filters }
     switch (key) {
       case "genres":
-        newFilters.genres = undefined
+        next.genres = undefined
         break
       case "duration":
-        newFilters.durationMin = undefined
-        newFilters.durationMax = undefined
+        next.durationMin = undefined
+        next.durationMax = undefined
         break
       case "year":
-        newFilters.yearMin = undefined
-        newFilters.yearMax = undefined
+        next.yearMin = undefined
+        next.yearMax = undefined
         break
       case "awards":
-        newFilters.hasAwards = undefined
+        next.hasAwards = undefined
         break
       case "online":
-        newFilters.availableOnline = undefined
-        break
-      case "rating":
-        newFilters.rating = undefined
+        next.availableOnline = undefined
         break
     }
-    onFiltersChange(newFilters)
+    onFiltersChange(next)
   }
+
+  const durationMin = tempFilters.durationMin ?? DURATION_FLOOR
+  const durationMax = tempFilters.durationMax ?? DURATION_CEILING
+  const yearMin = tempFilters.yearMin ?? YEAR_FLOOR
+  const yearMax = tempFilters.yearMax ?? yearCeiling
 
   return (
     <div className={cn("space-y-4", className)}>
-      {/* Search bar and filter button */}
       <div className="flex gap-2">
-        <form onSubmit={handleSearchSubmit} className="relative flex-1">
-          <Search className="text-muted-foreground absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2" />
+        <form
+          role="search"
+          onSubmit={handleSearchSubmit}
+          className="relative min-w-0 flex-1"
+        >
+          <Search
+            className="text-muted-foreground pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2"
+            aria-hidden="true"
+          />
           <Input
             type="search"
-            placeholder={labels.searchPlaceholder}
+            aria-label={t("search")}
+            placeholder={t("searchPlaceholder")}
             value={localQuery}
+            maxLength={SEARCH_MAX_LENGTH}
             onChange={(e) => setLocalQuery(e.target.value)}
-            className="ps-10 pe-10"
+            enterKeyHint="search"
+            autoComplete="off"
+            className="h-11 rounded-lg ps-10 pe-11 text-base"
           />
           {localQuery && (
             <button
               type="button"
               onClick={handleClearSearch}
-              className="text-muted-foreground hover:text-foreground absolute end-3 top-1/2 -translate-y-1/2"
-              aria-label="Clear search"
+              className="text-muted-foreground hover:text-foreground absolute end-0 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-lg"
+              aria-label={t("clearSearch")}
             >
-              <X className="h-4 w-4" />
+              <X className="h-4 w-4" aria-hidden="true" />
             </button>
           )}
         </form>
 
-        {/* Filter sheet trigger */}
-        <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+        <Sheet open={isSheetOpen} onOpenChange={handleSheetOpenChange}>
           <SheetTrigger asChild>
-            <Button variant="outline" size="icon" className="relative shrink-0">
-              <SlidersHorizontal className="h-4 w-4" />
+            <Button
+              variant="outline"
+              size="icon"
+              className="relative h-11 w-11 shrink-0"
+              aria-label={
+                activeFilterCount > 0
+                  ? t("openWithCount", {
+                      count: activeFilterCount,
+                      display: formatCount(activeFilterCount, locale),
+                    })
+                  : t("open")
+              }
+            >
+              <SlidersHorizontal className="h-4 w-4" aria-hidden="true" />
               {activeFilterCount > 0 && (
-                <span className="bg-primary text-primary-foreground absolute -end-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full text-xs">
+                <span
+                  aria-hidden="true"
+                  className="bg-primary text-primary-foreground absolute -end-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full px-1 text-xs"
+                >
                   {activeFilterCount}
                 </span>
               )}
@@ -270,198 +311,169 @@ export function ShortsFilters({
 
           <SheetContent
             side={isRTL ? "left" : "right"}
+            dir={dir}
             className="flex flex-col"
           >
             <SheetHeader>
-              <SheetTitle>Filtres</SheetTitle>
+              <SheetTitle>{t("title")}</SheetTitle>
             </SheetHeader>
 
             <div className="flex-1 space-y-6 overflow-y-auto py-4">
-              {/* Sort by */}
               <div>
-                <label className="text-foreground mb-2 block text-sm font-medium">
-                  {labels.sortBy}
-                </label>
+                <span
+                  id={sortLabelId}
+                  className="text-foreground mb-2 block text-sm font-medium"
+                >
+                  {t("sortBy")}
+                </span>
                 <Select
-                  value={tempFilters.sortBy || "latest"}
+                  dir={dir}
+                  value={
+                    tempFilters.sortBy &&
+                    (SORT_KEYS as readonly string[]).includes(
+                      tempFilters.sortBy
+                    )
+                      ? tempFilters.sortBy
+                      : "latest"
+                  }
                   onValueChange={(value) =>
-                    setTempFilters({
-                      ...tempFilters,
+                    setTempFilters((current) => ({
+                      ...current,
                       sortBy: value as ShortsFiltersType["sortBy"],
-                    })
+                    }))
                   }
                 >
-                  <SelectTrigger>
+                  <SelectTrigger aria-labelledby={sortLabelId}>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="latest">
-                      {labels.sortByOptions.latest}
-                    </SelectItem>
-                    <SelectItem value="rating">
-                      {labels.sortByOptions.rating}
-                    </SelectItem>
-                    <SelectItem value="year">
-                      {labels.sortByOptions.year}
-                    </SelectItem>
-                    <SelectItem value="duration">
-                      {labels.sortByOptions.duration}
-                    </SelectItem>
-                    <SelectItem value="title">
-                      {labels.sortByOptions.title}
-                    </SelectItem>
+                    {SORT_KEYS.map((key) => (
+                      <SelectItem key={key} value={key}>
+                        {t(`sort.${key}`)}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
 
-              {/* Genres */}
               {genres.length > 0 && (
                 <Collapsible defaultOpen>
-                  <CollapsibleTrigger className="text-foreground flex w-full items-center justify-between text-sm font-medium">
-                    {labels.genres}
-                    <ChevronDown className="h-4 w-4" />
+                  <CollapsibleTrigger className="text-foreground flex min-h-11 w-full items-center justify-between text-sm font-medium">
+                    {t("genres")}
+                    <ChevronDown className="h-4 w-4" aria-hidden="true" />
                   </CollapsibleTrigger>
-                  <CollapsibleContent className="mt-3 space-y-2">
+                  <CollapsibleContent className="mt-1 space-y-1">
                     {genres.map((genre) => (
                       <label
                         key={genre.slug}
-                        className="flex cursor-pointer items-center gap-2"
+                        className="flex min-h-11 cursor-pointer items-center gap-3"
                       >
                         <Checkbox
                           checked={
-                            tempFilters.genres?.includes(genre.slug) || false
+                            tempFilters.genres?.includes(genre.slug) ?? false
                           }
                           onCheckedChange={() => handleGenreToggle(genre.slug)}
                         />
-                        <span className="text-sm">{genre.name}</span>
+                        <span className="min-w-0 text-sm break-words">
+                          <bdi>{genre.name}</bdi>
+                        </span>
                       </label>
                     ))}
                   </CollapsibleContent>
                 </Collapsible>
               )}
 
-              {/* Duration slider */}
               <Collapsible>
-                <CollapsibleTrigger className="text-foreground flex w-full items-center justify-between text-sm font-medium">
-                  {labels.duration}
-                  <ChevronDown className="h-4 w-4" />
+                <CollapsibleTrigger className="text-foreground flex min-h-11 w-full items-center justify-between text-sm font-medium">
+                  {t("duration")}
+                  <ChevronDown className="h-4 w-4" aria-hidden="true" />
                 </CollapsibleTrigger>
                 <CollapsibleContent className="mt-3">
                   <div className="px-2">
                     <Slider
-                      min={0}
-                      max={60}
+                      dir={dir}
+                      min={DURATION_FLOOR}
+                      max={DURATION_CEILING}
                       step={5}
-                      value={[
-                        tempFilters.durationMin || 0,
-                        tempFilters.durationMax || 60,
-                      ]}
-                      onValueChange={(values: number[]) =>
-                        setTempFilters({
-                          ...tempFilters,
-                          durationMin: values[0],
-                          durationMax: values[1],
-                        })
+                      minStepsBetweenThumbs={1}
+                      value={[durationMin, durationMax]}
+                      thumbLabels={[t("durationFrom"), t("durationTo")]}
+                      onValueChange={([min, max]: number[]) =>
+                        setTempFilters((current) => ({
+                          ...current,
+                          durationMin: min,
+                          durationMax: max,
+                        }))
                       }
                       className="mt-2"
                     />
-                    <div className="text-muted-foreground mt-2 flex justify-between text-xs">
-                      <span>{tempFilters.durationMin || 0} min</span>
-                      <span>{tempFilters.durationMax || 60} min</span>
-                    </div>
+                    <p className="text-muted-foreground mt-2 text-center text-xs">
+                      {t("durationRange", {
+                        min: String(durationMin),
+                        max: formatMinutes(durationMax),
+                      })}
+                    </p>
                   </div>
                 </CollapsibleContent>
               </Collapsible>
 
-              {/* Year slider */}
               <Collapsible>
-                <CollapsibleTrigger className="text-foreground flex w-full items-center justify-between text-sm font-medium">
-                  {labels.year}
-                  <ChevronDown className="h-4 w-4" />
+                <CollapsibleTrigger className="text-foreground flex min-h-11 w-full items-center justify-between text-sm font-medium">
+                  {t("year")}
+                  <ChevronDown className="h-4 w-4" aria-hidden="true" />
                 </CollapsibleTrigger>
                 <CollapsibleContent className="mt-3">
                   <div className="px-2">
                     <Slider
-                      min={1990}
-                      max={new Date().getFullYear()}
+                      dir={dir}
+                      min={YEAR_FLOOR}
+                      max={yearCeiling}
                       step={1}
-                      value={[
-                        tempFilters.yearMin || 1990,
-                        tempFilters.yearMax || new Date().getFullYear(),
-                      ]}
-                      onValueChange={(values: number[]) =>
-                        setTempFilters({
-                          ...tempFilters,
-                          yearMin: values[0],
-                          yearMax: values[1],
-                        })
+                      value={[yearMin, yearMax]}
+                      thumbLabels={[t("yearFrom"), t("yearTo")]}
+                      onValueChange={([min, max]: number[]) =>
+                        setTempFilters((current) => ({
+                          ...current,
+                          yearMin: min,
+                          yearMax: max,
+                        }))
                       }
                       className="mt-2"
                     />
-                    <div className="text-muted-foreground mt-2 flex justify-between text-xs">
-                      <span>{tempFilters.yearMin || 1990}</span>
-                      <span>
-                        {tempFilters.yearMax || new Date().getFullYear()}
-                      </span>
-                    </div>
+                    <p className="text-muted-foreground mt-2 text-center text-xs">
+                      {t("yearRange", {
+                        min: String(yearMin),
+                        max: String(yearMax),
+                      })}
+                    </p>
                   </div>
                 </CollapsibleContent>
               </Collapsible>
 
-              {/* Rating */}
-              <Collapsible>
-                <CollapsibleTrigger className="text-foreground flex w-full items-center justify-between text-sm font-medium">
-                  {labels.rating}
-                  <ChevronDown className="h-4 w-4" />
-                </CollapsibleTrigger>
-                <CollapsibleContent className="mt-3">
-                  <div className="px-2">
-                    <Slider
-                      min={0}
-                      max={10}
-                      step={0.5}
-                      value={[tempFilters.rating || 0]}
-                      onValueChange={(values: number[]) => {
-                        const rating = values[0] ?? 0
-                        setTempFilters({
-                          ...tempFilters,
-                          rating: rating > 0 ? rating : undefined,
-                        })
-                      }}
-                      className="mt-2"
-                    />
-                    <div className="text-muted-foreground mt-2 text-center text-xs">
-                      {labels.ratingMin}: ★ {tempFilters.rating || 0}+
-                    </div>
-                  </div>
-                </CollapsibleContent>
-              </Collapsible>
-
-              {/* Boolean filters */}
-              <div className="space-y-3">
-                <label className="flex cursor-pointer items-center gap-2">
+              <div className="space-y-1">
+                <label className="flex min-h-11 cursor-pointer items-center gap-3">
                   <Checkbox
-                    checked={tempFilters.hasAwards || false}
+                    checked={tempFilters.hasAwards ?? false}
                     onCheckedChange={(checked) =>
-                      setTempFilters({
-                        ...tempFilters,
+                      setTempFilters((current) => ({
+                        ...current,
                         hasAwards: checked === true ? true : undefined,
-                      })
+                      }))
                     }
                   />
-                  <span className="text-sm">{labels.hasAwards}</span>
+                  <span className="text-sm">{t("hasAwards")}</span>
                 </label>
-                <label className="flex cursor-pointer items-center gap-2">
+                <label className="flex min-h-11 cursor-pointer items-center gap-3">
                   <Checkbox
-                    checked={tempFilters.availableOnline || false}
+                    checked={tempFilters.availableOnline ?? false}
                     onCheckedChange={(checked) =>
-                      setTempFilters({
-                        ...tempFilters,
+                      setTempFilters((current) => ({
+                        ...current,
                         availableOnline: checked === true ? true : undefined,
-                      })
+                      }))
                     }
                   />
-                  <span className="text-sm">{labels.availableOnline}</span>
+                  <span className="text-sm">{t("availableOnline")}</span>
                 </label>
               </div>
             </div>
@@ -470,30 +482,37 @@ export function ShortsFilters({
               <Button
                 variant="outline"
                 onClick={handleClearFilters}
-                className="flex-1"
+                className="h-11 min-w-0 flex-1"
               >
-                {labels.clearFilters}
+                <span className="truncate">{t("clear")}</span>
               </Button>
-              <Button onClick={handleApplyFilters} className="flex-1">
-                {labels.applyFilters}
+              <Button
+                onClick={handleApplyFilters}
+                className="h-11 min-w-0 flex-1"
+              >
+                <span className="truncate">{t("apply")}</span>
               </Button>
             </SheetFooter>
           </SheetContent>
         </Sheet>
       </div>
 
-      {/* Active filters chips */}
       {activeFilterChips.length > 0 && (
         <div className="flex flex-wrap gap-2">
           {activeFilterChips.map((chip) => (
-            <Badge key={chip.key} variant="secondary" className="gap-1 pe-1">
-              {chip.label}
+            <Badge
+              key={chip.key}
+              variant="secondary"
+              className="max-w-full gap-1 pe-0.5"
+            >
+              <bdi className="min-w-0 truncate">{chip.label}</bdi>
               <button
+                type="button"
                 onClick={() => handleRemoveFilter(chip.key)}
-                className="hover:bg-muted ml-1 rounded-full p-0.5"
-                aria-label={`Remove ${chip.label} filter`}
+                className="hover:bg-muted flex h-6 w-6 shrink-0 items-center justify-center rounded-full"
+                aria-label={t("removeFilter", { label: chip.label })}
               >
-                <X className="h-3 w-3" />
+                <X className="h-3 w-3" aria-hidden="true" />
               </button>
             </Badge>
           ))}
@@ -504,18 +523,21 @@ export function ShortsFilters({
               onClick={handleClearFilters}
               className="h-6 px-2 text-xs"
             >
-              {labels.clearFilters}
+              {t("clear")}
             </Button>
           )}
         </div>
       )}
 
-      {/* Results count */}
-      {totalResults > 0 && (
-        <p className="text-muted-foreground text-sm">
-          {labels.resultsCount.replace("{count}", totalResults.toString())}
-        </p>
-      )}
+      {/* Announced when filters or search change the result set. */}
+      <p className="text-muted-foreground text-sm" aria-live="polite">
+        {totalResults > 0
+          ? t("results", {
+              count: totalResults,
+              display: formatCount(totalResults, locale),
+            })
+          : null}
+      </p>
     </div>
   )
 }

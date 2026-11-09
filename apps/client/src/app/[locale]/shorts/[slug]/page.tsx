@@ -31,7 +31,8 @@ export async function generateMetadata({
 
   if (!film) {
     return {
-      title: "Court métrage non trouvé - Tiween",
+      // The root layout's title template already appends "| Tiween".
+      title: "Court métrage non trouvé",
     }
   }
 
@@ -40,7 +41,7 @@ export async function generateMetadata({
     : `Découvrez ${film.title}, un court métrage${film.directors?.[0] ? ` de ${film.directors[0].name}` : ""}`
 
   return {
-    title: `${film.title} - Courts métrages - Tiween`,
+    title: `${film.title} - Courts métrages`,
     description,
     robots: { index: false, follow: false },
     openGraph: {

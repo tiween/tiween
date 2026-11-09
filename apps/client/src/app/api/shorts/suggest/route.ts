@@ -1,62 +1,85 @@
 import { NextRequest, NextResponse } from "next/server"
+import {
+  SUGGESTION_LIMITS as L,
+  SUGGESTION_PLATFORMS,
+  suggestionYearMax,
+} from "@/features/shorts/utils"
 import { z } from "zod"
 
-// Validation schema for suggestion
+import { getClientIp, shortSuggestionLimiter } from "@/lib/rate-limit"
+
+/**
+ * Error codes returned to the client. The UI translates them
+ * (`shorts.suggestion.errors.<CODE>`); no human-readable message or upstream
+ * detail ever leaves this route.
+ */
+type SuggestionErrorCode =
+  | "RATE_LIMIT_EXCEEDED"
+  | "VALIDATION_ERROR"
+  | "SUGGESTION_UNAVAILABLE"
+
+function errorResponse(
+  code: SuggestionErrorCode,
+  status: number,
+  headers?: Record<string, string>
+) {
+  return NextResponse.json({ success: false, error: code }, { status, headers })
+}
+
+const optionalText = (max: number) => z.string().trim().max(max).optional()
+const optionalUrl = z.string().trim().url().max(L.url).optional()
+
 const suggestionSchema = z.object({
-  title: z.string().min(1),
-  originalTitle: z.string().optional(),
-  director: z.string().optional(),
-  year: z
-    .number()
-    .min(1900)
-    .max(new Date().getFullYear() + 1)
-    .optional(),
-  duration: z.number().min(1).max(60).optional(),
-  synopsis: z.string().optional(),
-  genres: z.array(z.string()).optional(),
-  country: z.string().optional(),
-  language: z.string().optional(),
-  trailerUrl: z.string().url().optional(),
-  watchUrl: z.string().url().optional(),
-  platform: z.string().optional(),
-  posterUrl: z.string().url().optional(),
-  submitterName: z.string().min(1),
-  submitterEmail: z.string().email(),
-  additionalNotes: z.string().optional(),
+  title: z.string().trim().min(1).max(L.title),
+  originalTitle: optionalText(L.title),
+  director: optionalText(L.person),
+  year: z.number().int().min(L.yearMin).max(suggestionYearMax()).optional(),
+  duration: z.number().int().min(L.durationMin).max(L.durationMax).optional(),
+  synopsis: optionalText(L.synopsis),
+  genres: z.array(z.string().trim().min(1).max(50)).max(10).optional(),
+  country: optionalText(L.place),
+  language: optionalText(L.place),
+  trailerUrl: optionalUrl,
+  watchUrl: optionalUrl,
+  platform: z.enum(SUGGESTION_PLATFORMS).optional(),
+  posterUrl: optionalUrl,
+  submitterName: z.string().trim().min(1).max(L.name),
+  submitterEmail: z.string().trim().email().max(L.email),
+  additionalNotes: optionalText(L.notes),
 })
 
 export async function POST(request: NextRequest) {
+  // Module-level limiter: a per-request instance would reset and bound nothing.
+  const { success, reset } = shortSuggestionLimiter.check(getClientIp(request))
+  if (!success) {
+    return errorResponse("RATE_LIMIT_EXCEEDED", 429, {
+      "Retry-After": String(
+        Math.max(1, Math.ceil((reset - Date.now()) / 1000))
+      ),
+    })
+  }
+
+  let body: unknown
   try {
-    const body = await request.json()
+    body = await request.json()
+  } catch {
+    return errorResponse("VALIDATION_ERROR", 400)
+  }
 
-    // Validate input
-    const validationResult = suggestionSchema.safeParse(body)
-    if (!validationResult.success) {
-      return NextResponse.json(
-        { error: "Invalid input", details: validationResult.error.errors },
-        { status: 400 }
-      )
-    }
+  const parsed = suggestionSchema.safeParse(body)
+  if (!parsed.success) {
+    return errorResponse("VALIDATION_ERROR", 400)
+  }
+  const suggestion = parsed.data
 
-    const suggestion = validationResult.data
+  const strapiUrl = process.env.STRAPI_URL
+  if (!strapiUrl) {
+    console.error("[API /shorts/suggest] STRAPI_URL is not configured")
+    return errorResponse("SUGGESTION_UNAVAILABLE", 503)
+  }
+  const strapiToken = process.env.STRAPI_API_TOKEN
 
-    // Submit to Strapi as a draft/pending suggestion
-    // For now, we'll use a generic endpoint - this should be customized
-    // to match your Strapi setup (e.g., a custom "suggestions" collection)
-
-    const strapiUrl = process.env.STRAPI_URL
-    if (!strapiUrl) {
-      throw new Error("STRAPI_URL is not configured")
-    }
-    const strapiToken = process.env.STRAPI_API_TOKEN
-
-    // Option 1: Create as a draft creative work (requires admin token)
-    // Option 2: Create in a separate "suggestions" collection
-    // Option 3: Send via email notification
-
-    // For this implementation, we'll create a suggestion entry
-    // You may need to create a "short-film-suggestion" content type in Strapi
-
+  try {
     const response = await fetch(`${strapiUrl}/api/short-film-suggestions`, {
       method: "POST",
       headers: {
@@ -65,57 +88,30 @@ export async function POST(request: NextRequest) {
       },
       body: JSON.stringify({
         data: {
-          title: suggestion.title,
-          originalTitle: suggestion.originalTitle,
-          director: suggestion.director,
-          year: suggestion.year,
-          duration: suggestion.duration,
-          synopsis: suggestion.synopsis,
+          ...suggestion,
           genres: suggestion.genres?.join(", "),
-          country: suggestion.country,
-          language: suggestion.language,
-          trailerUrl: suggestion.trailerUrl,
-          watchUrl: suggestion.watchUrl,
-          platform: suggestion.platform,
-          posterUrl: suggestion.posterUrl,
-          submitterName: suggestion.submitterName,
-          submitterEmail: suggestion.submitterEmail,
-          additionalNotes: suggestion.additionalNotes,
           status: "pending",
         },
       }),
+      // A slow single-instance backend must not hold the visitor's request
+      // open indefinitely.
+      signal: AbortSignal.timeout(10_000),
     })
 
     if (!response.ok) {
-      // If Strapi endpoint doesn't exist, log and return success anyway
-      // In production, you might want to send an email instead
-      console.warn(
-        "[API /shorts/suggest] Strapi endpoint not available, suggestion logged:",
-        suggestion
+      // Never report success for a suggestion that was not stored: the visitor
+      // keeps their answers and can retry. Log the status only — the payload
+      // carries the submitter's name and email.
+      console.error(
+        `[API /shorts/suggest] Strapi rejected the suggestion (HTTP ${response.status})`
       )
-
-      // Log the suggestion for manual review
-      console.info(
-        "[SHORT FILM SUGGESTION]",
-        JSON.stringify(suggestion, null, 2)
-      )
-
-      // Return success - the suggestion was received
-      return NextResponse.json({
-        success: true,
-        message: "Suggestion received",
-      })
+      return errorResponse("SUGGESTION_UNAVAILABLE", 502)
     }
 
-    return NextResponse.json({
-      success: true,
-      message: "Suggestion submitted successfully",
-    })
+    return NextResponse.json({ success: true })
   } catch (error) {
-    console.error("[API /shorts/suggest] Error:", error)
-    return NextResponse.json(
-      { error: "Failed to submit suggestion" },
-      { status: 500 }
-    )
+    const reason = error instanceof Error ? error.name : "unknown"
+    console.error(`[API /shorts/suggest] Strapi unreachable (${reason})`)
+    return errorResponse("SUGGESTION_UNAVAILABLE", 503)
   }
 }

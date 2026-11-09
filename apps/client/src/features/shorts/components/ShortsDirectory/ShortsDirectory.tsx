@@ -1,48 +1,30 @@
 "use client"
 
 import * as React from "react"
-import { useRouter } from "next/navigation"
-import { ChevronRight, Film } from "lucide-react"
-import { useLocale } from "next-intl"
+import { AlertCircle, ChevronRight, Film, RotateCw } from "lucide-react"
+import { useLocale, useTranslations } from "next-intl"
 
 import type { ShortFilm, ShortsFilters as ShortsFiltersType } from "../../types"
 import type { GenreOption } from "../ShortsFilters"
 
+import { useRouter } from "@/lib/navigation"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 
 import { toShortFilmCard } from "../../types"
+import { openExternal } from "../../utils"
 import { ShortFilmCard, ShortFilmCardSkeleton } from "../ShortFilmCard"
 import { ShortsFilters } from "../ShortsFilters"
 import { ShortsHero } from "../ShortsHero"
 import { SuggestionForm } from "../SuggestionForm"
 
 export interface ShortsDirectoryLabels {
-  pageTitle: string
   pageDescription: string
   latestShorts: string
   seeAll: string
   allShorts: string
   loadMore: string
   loading: string
-  noResults: string
-  noResultsDescription: string
-  suggestShort: string
-}
-
-const defaultLabels: ShortsDirectoryLabels = {
-  pageTitle: "Courts métrages",
-  pageDescription:
-    "Découvrez notre sélection de courts métrages du monde entier",
-  latestShorts: "Derniers ajouts",
-  seeAll: "Voir tout",
-  allShorts: "Tous les courts métrages",
-  loadMore: "Charger plus",
-  loading: "Chargement...",
-  noResults: "Aucun court métrage trouvé",
-  noResultsDescription:
-    "Essayez de modifier vos filtres ou effectuez une nouvelle recherche",
-  suggestShort: "Suggérer un court métrage",
 }
 
 export interface ShortsDirectoryProps {
@@ -60,8 +42,96 @@ export interface ShortsDirectoryProps {
   initialFilters?: ShortsFiltersType
   /** Additional class names */
   className?: string
-  /** Localized labels */
-  labels?: ShortsDirectoryLabels
+  /** Overrides for the translated labels (rarely needed) */
+  labels?: Partial<ShortsDirectoryLabels>
+}
+
+const GRID =
+  "grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6"
+
+/**
+ * One serializer for both the API request and the shareable page URL, so the
+ * address bar always reproduces exactly the result set on screen.
+ */
+function filtersToParams(filters: ShortsFiltersType): URLSearchParams {
+  const params = new URLSearchParams()
+  if (filters.query) params.set("q", filters.query)
+  if (filters.genres?.length) params.set("genres", filters.genres.join(","))
+  if (filters.durationMin !== undefined)
+    params.set("durationMin", String(filters.durationMin))
+  if (filters.durationMax !== undefined)
+    params.set("durationMax", String(filters.durationMax))
+  if (filters.yearMin !== undefined)
+    params.set("yearMin", String(filters.yearMin))
+  if (filters.yearMax !== undefined)
+    params.set("yearMax", String(filters.yearMax))
+  if (filters.hasAwards) params.set("hasAwards", "true")
+  if (filters.availableOnline) params.set("availableOnline", "true")
+  // Ratings are out of v1: never serialize a rating filter or rating sort.
+  if (
+    filters.sortBy &&
+    filters.sortBy !== "latest" &&
+    filters.sortBy !== "rating"
+  )
+    params.set("sortBy", filters.sortBy)
+  return params
+}
+
+interface ShortsPage {
+  shorts: ShortFilm[]
+  total: number
+}
+
+/** Throws on any non-2xx or malformed body, so an outage is never "0 results". */
+async function fetchShortsPage(
+  filters: ShortsFiltersType,
+  page: number,
+  locale: string,
+  signal: AbortSignal
+): Promise<ShortsPage> {
+  const params = filtersToParams(filters)
+  params.set("page", String(page))
+  params.set("locale", locale)
+
+  const response = await fetch(`/api/shorts?${params.toString()}`, { signal })
+  if (!response.ok) throw new Error(`HTTP ${response.status}`)
+  const data: unknown = await response.json()
+  const body = data as Partial<ShortsPage> | null
+  if (!body || !Array.isArray(body.shorts)) {
+    throw new Error("Malformed /api/shorts response")
+  }
+  return {
+    shorts: body.shorts,
+    total: typeof body.total === "number" ? body.total : body.shorts.length,
+  }
+}
+
+function isAbort(error: unknown) {
+  return error instanceof DOMException && error.name === "AbortError"
+}
+
+/** Maps a failed suggestion response onto a code the form can explain. */
+async function submitSuggestion(suggestion: unknown) {
+  let response: Response
+  try {
+    response = await fetch("/api/shorts/suggest", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(suggestion),
+    })
+  } catch {
+    throw new Error("NETWORK")
+  }
+  if (response.ok) return
+
+  let code = "UNKNOWN"
+  try {
+    const body = (await response.json()) as { error?: unknown }
+    if (typeof body.error === "string") code = body.error
+  } catch {
+    // Non-JSON error page (proxy, gateway): fall through to UNKNOWN.
+  }
+  throw new Error(code)
 }
 
 export function ShortsDirectory({
@@ -72,13 +142,23 @@ export function ShortsDirectory({
   genres,
   initialFilters = {},
   className,
-  labels = defaultLabels,
+  labels: labelOverrides,
 }: ShortsDirectoryProps) {
   const locale = useLocale()
   const router = useRouter()
+  const t = useTranslations("shorts.directory")
   const isRTL = locale === "ar"
 
-  // State
+  const labels: ShortsDirectoryLabels = {
+    pageDescription: t("description"),
+    latestShorts: t("latest"),
+    seeAll: t("seeAll"),
+    allShorts: t("all"),
+    loadMore: t("loadMore"),
+    loading: t("loading"),
+    ...labelOverrides,
+  }
+
   const [filters, setFilters] =
     React.useState<ShortsFiltersType>(initialFilters)
   const [shorts, setShorts] = React.useState<ShortFilm[]>(initialShorts)
@@ -86,149 +166,152 @@ export function ShortsDirectory({
   const [page, setPage] = React.useState(1)
   const [isLoading, setIsLoading] = React.useState(false)
   const [isLoadingMore, setIsLoadingMore] = React.useState(false)
+  // A failed first page replaces the grid; a failed "more" keeps what loaded.
+  const [listError, setListError] = React.useState(false)
+  const [moreError, setMoreError] = React.useState(false)
 
-  const hasMore = shorts.length < total
+  // Only the latest request may write state: typing "dra" then "drame"
+  // must never end on the slower "dra" response.
+  const listRequest = React.useRef<AbortController | null>(null)
+  const moreRequest = React.useRef<AbortController | null>(null)
 
-  // Fetch shorts when filters change
-  const fetchShorts = React.useCallback(
-    async (newFilters: ShortsFiltersType, pageNum: number = 1) => {
-      setIsLoading(pageNum === 1)
-      setIsLoadingMore(pageNum > 1)
-
-      try {
-        const params = new URLSearchParams()
-        if (newFilters.query) params.set("q", newFilters.query)
-        if (newFilters.genres?.length)
-          params.set("genres", newFilters.genres.join(","))
-        if (newFilters.durationMin)
-          params.set("durationMin", String(newFilters.durationMin))
-        if (newFilters.durationMax)
-          params.set("durationMax", String(newFilters.durationMax))
-        if (newFilters.yearMin)
-          params.set("yearMin", String(newFilters.yearMin))
-        if (newFilters.yearMax)
-          params.set("yearMax", String(newFilters.yearMax))
-        if (newFilters.hasAwards) params.set("hasAwards", "true")
-        if (newFilters.availableOnline) params.set("availableOnline", "true")
-        if (newFilters.rating) params.set("rating", String(newFilters.rating))
-        if (newFilters.sortBy) params.set("sortBy", newFilters.sortBy)
-        params.set("page", String(pageNum))
-
-        const response = await fetch(`/api/shorts?${params.toString()}`)
-        const data = await response.json()
-
-        if (pageNum === 1) {
-          setShorts(data.shorts || [])
-        } else {
-          setShorts((prev) => [...prev, ...(data.shorts || [])])
-        }
-        setTotal(data.total || 0)
-        setPage(pageNum)
-      } catch (error) {
-        console.error("Error fetching shorts:", error)
-      } finally {
-        setIsLoading(false)
-        setIsLoadingMore(false)
-      }
+  React.useEffect(
+    () => () => {
+      listRequest.current?.abort()
+      moreRequest.current?.abort()
     },
     []
   )
 
-  // Handle filter changes
+  const hasMore = shorts.length < total
+
+  const loadFirstPage = React.useCallback(
+    async (nextFilters: ShortsFiltersType) => {
+      listRequest.current?.abort()
+      moreRequest.current?.abort()
+      const controller = new AbortController()
+      listRequest.current = controller
+
+      setIsLoading(true)
+      setIsLoadingMore(false)
+      setListError(false)
+      setMoreError(false)
+      try {
+        const result = await fetchShortsPage(
+          nextFilters,
+          1,
+          locale,
+          controller.signal
+        )
+        setShorts(result.shorts)
+        setTotal(result.total)
+        setPage(1)
+      } catch (error) {
+        if (isAbort(error)) return
+        setListError(true)
+      } finally {
+        if (listRequest.current === controller) setIsLoading(false)
+      }
+    },
+    [locale]
+  )
+
+  const handleLoadMore = React.useCallback(async () => {
+    // A ref, not state: two IntersectionObserver ticks can land before React
+    // re-renders with `isLoadingMore`, which would request the same page twice.
+    if (moreRequest.current || isLoading || !hasMore) return
+    const controller = new AbortController()
+    moreRequest.current = controller
+
+    setIsLoadingMore(true)
+    setMoreError(false)
+    try {
+      const result = await fetchShortsPage(
+        filters,
+        page + 1,
+        locale,
+        controller.signal
+      )
+      setShorts((previous) => {
+        // De-duplicate: a film published between pages shifts the offsets.
+        const seen = new Set(previous.map((s) => s.documentId))
+        return [
+          ...previous,
+          ...result.shorts.filter((s) => !seen.has(s.documentId)),
+        ]
+      })
+      setTotal(result.total)
+      setPage(page + 1)
+    } catch (error) {
+      if (!isAbort(error)) setMoreError(true)
+    } finally {
+      if (moreRequest.current === controller) {
+        moreRequest.current = null
+        setIsLoadingMore(false)
+      }
+    }
+  }, [filters, hasMore, isLoading, locale, page])
+
   const handleFiltersChange = React.useCallback(
-    (newFilters: ShortsFiltersType) => {
-      setFilters(newFilters)
-      fetchShorts(newFilters, 1)
+    (nextFilters: ShortsFiltersType) => {
+      setFilters(nextFilters)
+      void loadFirstPage(nextFilters)
 
-      // Update URL with filters
-      const params = new URLSearchParams()
-      if (newFilters.query) params.set("q", newFilters.query)
-      if (newFilters.genres?.length)
-        params.set("genres", newFilters.genres.join(","))
-      if (newFilters.sortBy && newFilters.sortBy !== "latest")
-        params.set("sort", newFilters.sortBy)
-
-      const queryString = params.toString()
+      const query = filtersToParams(nextFilters).toString()
       window.history.replaceState(
         null,
         "",
-        queryString ? `?${queryString}` : window.location.pathname
+        query ? `?${query}` : window.location.pathname
       )
     },
-    [fetchShorts]
+    [loadFirstPage]
   )
 
-  // Handle search
   const handleSearch = React.useCallback(
     (query: string) => {
-      const newFilters = { ...filters, query }
-      handleFiltersChange(newFilters)
+      handleFiltersChange({ ...filters, query: query || undefined })
     },
     [filters, handleFiltersChange]
   )
 
-  // Handle load more
-  const handleLoadMore = React.useCallback(() => {
-    if (!isLoadingMore && hasMore) {
-      fetchShorts(filters, page + 1)
-    }
-  }, [isLoadingMore, hasMore, fetchShorts, filters, page])
-
-  // Handle film click — the short-film detail is a full PAGE (the 2026 design
-  // handoff), not a modal, so a card tap routes to it.
   const handleFilmClick = (film: ShortFilm) => {
-    router.push(`/${locale}/shorts/${film.slug}`)
+    router.push(`/shorts/${film.slug}`)
   }
 
-  // Handle play trailer
-  const handlePlayTrailer = (film: ShortFilm) => {
-    if (film.trailer) {
-      window.open(film.trailer, "_blank", "noopener,noreferrer")
-    }
-  }
+  const handlePlayTrailer = (film: ShortFilm) => openExternal(film.trailer)
 
-  // Handle suggestion submission
-  const handleSuggestionSubmit = async (suggestion: unknown) => {
-    const response = await fetch("/api/shorts/suggest", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(suggestion),
-    })
-
-    if (!response.ok) {
-      throw new Error("Failed to submit suggestion")
-    }
-  }
-
-  // Intersection observer for infinite scroll
+  // Infinite scroll; the button below is the keyboard / no-observer path.
   const loadMoreRef = React.useRef<HTMLDivElement>(null)
-
   React.useEffect(() => {
+    const target = loadMoreRef.current
+    if (!target || !hasMore || moreError) return
     const observer = new IntersectionObserver(
       (entries) => {
-        const firstEntry = entries[0]
-        if (
-          firstEntry?.isIntersecting &&
-          hasMore &&
-          !isLoading &&
-          !isLoadingMore
-        ) {
-          handleLoadMore()
-        }
+        if (entries[0]?.isIntersecting) void handleLoadMore()
       },
-      { threshold: 0.1 }
+      { rootMargin: "400px 0px" }
     )
-
-    if (loadMoreRef.current) {
-      observer.observe(loadMoreRef.current)
-    }
-
+    observer.observe(target)
     return () => observer.disconnect()
-  }, [hasMore, isLoading, isLoadingMore, handleLoadMore])
+  }, [hasMore, moreError, handleLoadMore])
+
+  const resetFilters = () => handleFiltersChange({})
+
+  // Contribution comes after discovery: a quiet prompt at the end of the
+  // grid (and in the empty state), never a gold CTA beside the heading.
+  const suggestPrompt = (
+    <div className="text-muted-foreground mt-8 flex flex-wrap items-center justify-center gap-x-2 text-center text-sm">
+      <p>{t("suggestPrompt")}</p>
+      <SuggestionForm
+        onSubmit={submitSuggestion}
+        triggerVariant="link"
+        className="inline-flex min-h-11 items-center font-semibold underline-offset-4"
+      />
+    </div>
+  )
 
   return (
-    <div className={cn("bg-background min-h-screen", className)}>
-      {/* Hero section with featured shorts */}
+    <div className={cn("bg-background min-h-dvh", className)}>
       {featuredShorts.length > 0 && (
         <ShortsHero
           films={featuredShorts}
@@ -237,38 +320,41 @@ export function ShortsDirectory({
         />
       )}
 
-      {/* Latest shorts section */}
       {latestShorts.length > 0 && (
-        <section className="py-8">
+        <section className="py-8" aria-labelledby="shorts-latest-heading">
           <div className="px-4 md:px-8">
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-foreground text-xl font-bold">
+            <div className="mb-4 flex items-center justify-between gap-4">
+              <h2
+                id="shorts-latest-heading"
+                className="text-foreground min-w-0 text-xl font-bold"
+              >
                 {labels.latestShorts}
               </h2>
               <Button
                 variant="ghost"
                 size="sm"
-                className="text-primary gap-1"
+                className="text-gold-tint shrink-0 gap-1"
                 onClick={() => handleFiltersChange({ sortBy: "latest" })}
               >
                 {labels.seeAll}
                 <ChevronRight
                   className={cn("h-4 w-4", isRTL && "rotate-180")}
+                  aria-hidden="true"
                 />
               </Button>
             </div>
 
-            {/* Horizontal scroll */}
-            <div className="no-scrollbar -mx-4 flex gap-4 overflow-x-auto px-4 pb-4 md:-mx-8 md:px-8">
+            <div className="no-scrollbar -mx-4 flex snap-x gap-4 overflow-x-auto px-4 pb-4 md:-mx-8 md:px-8">
               {latestShorts.map((film) => (
                 <div
                   key={film.documentId}
-                  className="w-[160px] shrink-0 md:w-[180px]"
+                  className="w-[160px] shrink-0 snap-start md:w-[180px]"
                 >
                   <ShortFilmCard
                     film={toShortFilmCard(film)}
-                    onClick={() => handleFilmClick(film)}
-                    onPlayTrailer={() => handlePlayTrailer(film)}
+                    onPlayTrailer={
+                      film.trailer ? () => handlePlayTrailer(film) : undefined
+                    }
                   />
                 </div>
               ))}
@@ -277,86 +363,143 @@ export function ShortsDirectory({
         </section>
       )}
 
-      {/* Main directory section */}
-      <section className="px-4 py-8 md:px-8">
+      <section
+        className="px-4 py-8 md:px-8"
+        aria-labelledby="shorts-all-heading"
+      >
         <div className="mx-auto max-w-7xl">
-          {/* Section header */}
-          <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h2 className="text-foreground text-xl font-bold">
-                {labels.allShorts}
-              </h2>
-              <p className="text-muted-foreground text-sm">
-                {labels.pageDescription}
-              </p>
-            </div>
-            <SuggestionForm onSubmit={handleSuggestionSubmit} />
+          <div className="mb-6 min-w-0">
+            <h2
+              id="shorts-all-heading"
+              className="text-foreground text-xl font-bold"
+            >
+              {labels.allShorts}
+            </h2>
+            <p className="text-muted-foreground text-sm">
+              {labels.pageDescription}
+            </p>
           </div>
 
-          {/* Filters */}
           <ShortsFilters
             filters={filters}
             genres={genres}
-            totalResults={total}
+            totalResults={listError || isLoading ? 0 : total}
             onFiltersChange={handleFiltersChange}
             onSearch={handleSearch}
             className="mb-6"
           />
 
-          {/* Grid */}
           {isLoading ? (
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+            <div className={GRID} aria-busy="true">
+              <span className="sr-only" role="status">
+                {labels.loading}
+              </span>
               {Array.from({ length: 12 }).map((_, i) => (
                 <ShortFilmCardSkeleton key={i} />
               ))}
             </div>
-          ) : shorts.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16 text-center">
-              <Film className="text-muted-foreground mb-4 h-16 w-16" />
+          ) : listError ? (
+            <div
+              className="flex flex-col items-center justify-center py-16 text-center"
+              role="alert"
+            >
+              <AlertCircle
+                className="text-destructive mb-4 h-12 w-12"
+                aria-hidden="true"
+              />
               <h3 className="text-foreground text-lg font-medium">
-                {labels.noResults}
+                {t("errorTitle")}
               </h3>
               <p className="text-muted-foreground mt-1 max-w-md text-sm">
-                {labels.noResultsDescription}
+                {t("errorBody")}
               </p>
               <Button
-                variant="outline"
-                className="mt-4"
-                onClick={() => handleFiltersChange({})}
+                className="mt-4 gap-2"
+                onClick={() => void loadFirstPage(filters)}
               >
-                Réinitialiser les filtres
+                <RotateCw className="h-4 w-4" aria-hidden="true" />
+                {t("retry")}
               </Button>
+            </div>
+          ) : shorts.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-16 text-center">
+              <Film
+                className="text-muted-foreground mb-4 h-16 w-16"
+                aria-hidden="true"
+              />
+              <h3 className="text-foreground text-lg font-medium">
+                {t("emptyTitle")}
+              </h3>
+              <p className="text-muted-foreground mt-1 max-w-md text-sm">
+                {t("emptyBody")}
+              </p>
+              <Button variant="outline" className="mt-4" onClick={resetFilters}>
+                {t("resetFilters")}
+              </Button>
+              {suggestPrompt}
             </div>
           ) : (
             <>
-              <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+              <div className={GRID}>
                 {shorts.map((film) => (
                   <ShortFilmCard
                     key={film.documentId}
                     film={toShortFilmCard(film)}
-                    onClick={() => handleFilmClick(film)}
-                    onPlayTrailer={() => handlePlayTrailer(film)}
+                    onPlayTrailer={
+                      film.trailer ? () => handlePlayTrailer(film) : undefined
+                    }
                   />
                 ))}
               </div>
 
-              {/* Load more trigger */}
               {hasMore && (
-                <div ref={loadMoreRef} className="flex justify-center py-8">
+                <div
+                  ref={loadMoreRef}
+                  className="flex flex-col items-center gap-3 py-8"
+                >
                   {isLoadingMore ? (
-                    <div className="flex items-center gap-2">
-                      <div className="border-primary h-5 w-5 animate-spin rounded-full border-2 border-t-transparent" />
+                    <div className="flex items-center gap-2" role="status">
+                      <div
+                        className="border-primary h-5 w-5 animate-spin rounded-full border-2 border-t-transparent"
+                        aria-hidden="true"
+                      />
                       <span className="text-muted-foreground text-sm">
                         {labels.loading}
                       </span>
                     </div>
+                  ) : moreError ? (
+                    <>
+                      <p
+                        className="text-muted-foreground flex items-center gap-2 text-sm"
+                        role="alert"
+                      >
+                        <AlertCircle
+                          className="text-destructive h-4 w-4 shrink-0"
+                          aria-hidden="true"
+                        />
+                        {t("loadMoreError")}
+                      </p>
+                      <Button
+                        variant="outline"
+                        className="gap-2"
+                        onClick={() => void handleLoadMore()}
+                      >
+                        <RotateCw className="h-4 w-4" aria-hidden="true" />
+                        {t("retry")}
+                      </Button>
+                    </>
                   ) : (
-                    <Button variant="outline" onClick={handleLoadMore}>
+                    <Button
+                      variant="outline"
+                      onClick={() => void handleLoadMore()}
+                    >
                       {labels.loadMore}
                     </Button>
                   )}
                 </div>
               )}
+
+              {suggestPrompt}
             </>
           )}
         </div>

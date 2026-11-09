@@ -2,25 +2,32 @@
 
 import * as React from "react"
 import Image from "next/image"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
 import {
   ArrowUpRight,
   CaretLeft,
   CaretRight,
+  CheckCircle,
   FilmSlate,
   Heart,
   Play,
   ShareNetwork,
-  Star,
   Trophy,
 } from "@phosphor-icons/react"
 import { useLocale, useTranslations } from "next-intl"
 
 import type { PlatformType, ShortFilm } from "../../types"
 
+import { Link, useRouter } from "@/lib/navigation"
 import { cn } from "@/lib/utils"
+import { toast } from "@/components/ui/use-toast"
 
+import {
+  formatCount,
+  openExternal,
+  positiveNumber,
+  stripHtmlTags,
+  toSafeExternalUrl,
+} from "../../utils"
 import styles from "./ShortFilmDetail.module.css"
 
 /**
@@ -47,43 +54,11 @@ const PLATFORM_NAMES: Partial<Record<PlatformType, string>> = {
 const PULSE_DURATION_MS = 300
 
 /**
- * Synopsis comes from Strapi (a trusted source) but may carry rich-text
- * markup; strip it so the detail page renders plain text.
+ * Height of the sticky page header (44px control + 11px block padding ×2).
+ * The action row counts as "scrolled away" once it slides under the header,
+ * not only once it leaves the viewport edge.
  */
-function stripHtmlTags(html: string): string {
-  return html.replace(/<[^>]*>/g, "")
-}
-
-/**
- * Normalize a CMS-supplied link to something safe to navigate to: a non-blank,
- * absolute `http(s)` URL. Anything else — an empty string, a relative fragment,
- * or a `javascript:` / `data:` scheme — yields `null` and is never opened or
- * used as an `href`.
- */
-function toSafeExternalUrl(url: string | undefined | null): string | null {
-  const trimmed = url?.trim()
-  if (!trimmed) return null
-  try {
-    const parsed = new URL(trimmed)
-    return parsed.protocol === "http:" || parsed.protocol === "https:"
-      ? trimmed
-      : null
-  } catch {
-    return null
-  }
-}
-
-/**
- * Open a (already validated) external URL in a new tab. A popup blocker makes
- * `window.open` return `null`, which would otherwise be a silent dead end — so
- * navigate the current tab instead.
- */
-function openExternal(url: string): void {
-  const safe = toSafeExternalUrl(url)
-  if (!safe) return
-  const opened = window.open(safe, "_blank", "noopener,noreferrer")
-  if (!opened) window.location.href = safe
-}
+const HEADER_HEIGHT_PX = 66
 
 export interface ShortFilmDetailProps {
   /** The short film to display. */
@@ -119,6 +94,9 @@ export function ShortFilmDetail({
   const router = useRouter()
   const locale = useLocale()
   const t = useTranslations("shorts")
+  // Arabic needs the count to pick the noun form (دقيقتان / 5 دقائق / 21 دقيقة).
+  const formatMinutes = (n: number) =>
+    t("durationMinutes", { count: n, display: formatCount(n, locale) })
   const isRTL = locale === "ar"
 
   const [saved, setSaved] = React.useState(false)
@@ -131,6 +109,19 @@ export function ShortFilmDetail({
     },
     []
   )
+
+  // Images that failed to load fall back to the frame's reserved-artwork
+  // stripe instead of a broken image whose alt text collides with the badge.
+  const [failedImages, setFailedImages] = React.useState<ReadonlySet<string>>(
+    () => new Set()
+  )
+  const markImageFailed = React.useCallback((url: string) => {
+    setFailedImages((previous) =>
+      previous.has(url) ? previous : new Set(previous).add(url)
+    )
+  }, [])
+  const usableImage = (url: string | null | undefined): string | null =>
+    url && !failedImages.has(url) ? url : null
 
   const toggleSaved = () => {
     setSaved((previous) => {
@@ -151,12 +142,12 @@ export function ShortFilmDetail({
 
   // ---------------------------------------------------------------- data --
 
-  const heroMediaUrl =
+  const heroMediaUrl = usableImage(
     film.backdrop?.formats?.large?.url ||
-    film.backdrop?.url ||
-    film.poster?.formats?.large?.url ||
-    film.poster?.url ||
-    null
+      film.backdrop?.url ||
+      film.poster?.formats?.large?.url ||
+      film.poster?.url
+  )
 
   const streamingLinks = film.streamingLinks ?? []
   const awards = film.awards ?? []
@@ -181,6 +172,48 @@ export function ShortFilmDetail({
   const showTrailerButton = Boolean(trailerUrl) && Boolean(streamingWatchUrl)
 
   const synopsisText = film.synopsis ? stripHtmlTags(film.synopsis) : null
+
+  // ---------------------------------------------------------- sticky bar --
+
+  /**
+   * The sticky bar repeats the watch CTA, so it only earns its place once the
+   * action row has scrolled away — otherwise a phone shows the hero disc, the
+   * action-row pill and the bar CTA (three gold controls) at once. While the
+   * row is on screen (or still below the fold) the bar is hidden, `inert` and
+   * `aria-hidden`.
+   *
+   * The initial state is VISIBLE: SSR markup and a browser without
+   * IntersectionObserver keep the bar, so the fallback never loses the CTA.
+   */
+  const actionsRef = React.useRef<HTMLDivElement>(null)
+  const stickyRef = React.useRef<HTMLDivElement>(null)
+  const [stickyVisible, setStickyVisible] = React.useState(true)
+
+  React.useEffect(() => {
+    const row = actionsRef.current
+    if (!watchUrl || !row || typeof IntersectionObserver === "undefined") {
+      return
+    }
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry) return
+        const rootTop = entry.rootBounds?.top ?? 0
+        // Visible only once the row has gone ABOVE the viewport (under the
+        // header) — not while it is on screen or still below the fold.
+        setStickyVisible(
+          !entry.isIntersecting && entry.boundingClientRect.bottom <= rootTop
+        )
+      },
+      { rootMargin: `-${HEADER_HEIGHT_PX}px 0px 0px 0px` }
+    )
+    observer.observe(row)
+    return () => observer.disconnect()
+  }, [watchUrl])
+
+  // `inert` is set imperatively: React 18 and 19 disagree on its prop type.
+  React.useEffect(() => {
+    stickyRef.current?.toggleAttribute("inert", !stickyVisible)
+  }, [stickyVisible])
 
   // A trailing slash on the env var would otherwise produce `//fr/shorts/…`.
   const shareBaseUrl = (
@@ -212,11 +245,15 @@ export function ShortFilmDetail({
       }
     }
 
+    // A copy with no confirmation reads as a dead button, and a failed copy
+    // must still hand the visitor the link — so both outcomes are announced
+    // (the toast region is a polite live region).
     try {
-      await navigator.clipboard?.writeText(shareUrl)
+      if (!navigator.clipboard) throw new Error("clipboard unavailable")
+      await navigator.clipboard.writeText(shareUrl)
+      toast({ description: t("shareCopied") })
     } catch {
-      // Clipboard permission denied / unavailable — nothing to surface, and
-      // never an unhandled rejection.
+      toast({ description: t("shareFailed", { url: shareUrl }) })
     }
   }
 
@@ -244,7 +281,9 @@ export function ShortFilmDetail({
       cameFromApp = false
     }
     if (cameFromApp) router.back()
-    else router.push(`/${locale}/shorts`)
+    // Locale-aware: French is served unprefixed (`localePrefix: "as-needed"`),
+    // so a hand-built `/fr/shorts` would cost a 307 redirect.
+    else router.push("/shorts")
   }
 
   // --------------------------------------------------------------- meta ----
@@ -261,7 +300,7 @@ export function ShortFilmDetail({
   if (film.duration) {
     metaParts.push(
       <bdi key="duration">
-        {film.duration} {t("minutes")}
+        {formatMinutes(film.duration)}
       </bdi>
     )
   }
@@ -274,7 +313,7 @@ export function ShortFilmDetail({
   const BackIcon = isRTL ? CaretRight : CaretLeft
 
   const availability = film.duration
-    ? t("availableDuration", { duration: String(film.duration) })
+    ? t("availableDuration", { duration: formatMinutes(film.duration) })
     : t("available")
 
   return (
@@ -330,6 +369,7 @@ export function ShortFilmDetail({
               priority
               sizes="(max-width: 920px) 100vw, 920px"
               className={styles.heroImage}
+              onError={() => markImageFailed(heroMediaUrl)}
             />
           ) : (
             /* Reserved-artwork fill — only ever when the record has no media. */
@@ -394,7 +434,31 @@ export function ShortFilmDetail({
 
         <div className={styles.content}>
           {/* ---------------------------------------------------- actions */}
-          <div className={styles.actions}>
+          {/* Primary first in DOM and visual order (they match at every
+              width): watch, trailer, then the heart. Below the container
+              breakpoint the watch pill takes its own full-width row. */}
+          <div ref={actionsRef} className={styles.actions}>
+            {watchUrl && (
+              <button
+                type="button"
+                onClick={handleWatch}
+                className={styles.watchButton}
+              >
+                <Play weight="fill" size={18} />
+                {t("watch")}
+              </button>
+            )}
+
+            {showTrailerButton && (
+              <button
+                type="button"
+                onClick={handleTrailer}
+                className={styles.trailerButton}
+              >
+                <FilmSlate size={17} />
+                {t("trailer")}
+              </button>
+            )}
             <button
               type="button"
               onClick={toggleSaved}
@@ -424,28 +488,6 @@ export function ShortFilmDetail({
                 />
               </span>
             </button>
-
-            {watchUrl && (
-              <button
-                type="button"
-                onClick={handleWatch}
-                className={styles.watchButton}
-              >
-                <Play weight="fill" size={18} />
-                {t("watch")}
-              </button>
-            )}
-
-            {showTrailerButton && (
-              <button
-                type="button"
-                onClick={handleTrailer}
-                className={styles.trailerButton}
-              >
-                <FilmSlate size={17} />
-                {t("trailer")}
-              </button>
-            )}
           </div>
 
           {/* --------------------------------------------------- synopsis */}
@@ -557,10 +599,10 @@ export function ShortFilmDetail({
                 aria-label={t("cast")}
               >
                 {cast.map((member, index) => {
-                  const photoUrl =
+                  const photoUrl = usableImage(
                     member.person.photo?.formats?.thumbnail?.url ||
-                    member.person.photo?.url ||
-                    null
+                      member.person.photo?.url
+                  )
                   return (
                     <div
                       key={`${member.person.slug}-${index}`}
@@ -574,6 +616,7 @@ export function ShortFilmDetail({
                             fill
                             sizes="88px"
                             className={styles.castPhoto}
+                            onError={() => markImageFailed(photoUrl)}
                           />
                         )}
                       </div>
@@ -607,14 +650,17 @@ export function ShortFilmDetail({
                 aria-label={t("related")}
               >
                 {relatedShorts.map((short) => {
-                  const posterUrl =
-                    short.poster?.formats?.medium?.url ||
-                    short.poster?.url ||
-                    null
+                  const posterUrl = usableImage(
+                    short.poster?.formats?.medium?.url || short.poster?.url
+                  )
+                  // A CMS `0` / `null` must not render a literal "0" or a
+                  // lone separator. Ratings are out of v1 — never rendered.
+                  const year = positiveNumber(short.releaseYear)
+                  const minutes = positiveNumber(short.duration)
                   return (
                     <Link
                       key={short.documentId}
-                      href={`/${locale}/shorts/${short.slug}`}
+                      href={`/shorts/${short.slug}`}
                       className={styles.relatedItem}
                     >
                       <div className={styles.relatedFrame}>
@@ -625,26 +671,16 @@ export function ShortFilmDetail({
                             fill
                             sizes="160px"
                             className={styles.relatedPoster}
+                            onError={() => markImageFailed(posterUrl)}
                           />
                         )}
+                        {/* A genre, not the category: no category-hue dot. */}
                         {short.genres?.[0] && (
                           <span className={styles.relatedBadge}>
-                            <span
-                              className={styles.chipDot}
-                              aria-hidden="true"
-                            />
                             <bdi>{short.genres[0].name}</bdi>
                           </span>
                         )}
                         <div className={styles.relatedMetaBlock}>
-                          {/* A CMS null would otherwise render a lone star
-                              with no number beside it. */}
-                          {typeof short.rating === "number" && (
-                            <div className={styles.relatedRating}>
-                              <Star weight="fill" size={11} />
-                              <bdi>{short.rating.toFixed(1)}</bdi>
-                            </div>
-                          )}
                           {/* The title ellipsizes; `title` keeps the full text
                               recoverable. */}
                           <div
@@ -653,15 +689,13 @@ export function ShortFilmDetail({
                           >
                             <bdi>{short.title}</bdi>
                           </div>
-                          {(short.releaseYear || short.duration) && (
+                          {(year !== null || minutes !== null) && (
                             <div className={styles.relatedSub}>
-                              {short.releaseYear && (
-                                <bdi>{short.releaseYear}</bdi>
-                              )}
-                              {short.releaseYear && short.duration && " · "}
-                              {short.duration && (
+                              {year !== null && <bdi>{year}</bdi>}
+                              {year !== null && minutes !== null && " · "}
+                              {minutes !== null && (
                                 <bdi>
-                                  {short.duration} {t("minutes")}
+                                  {formatMinutes(minutes)}
                                 </bdi>
                               )}
                             </div>
@@ -679,13 +713,24 @@ export function ShortFilmDetail({
 
       {/* -------------------------------------------------- sticky bar -- */}
       {watchUrl && (
-        <div className={styles.stickyBar}>
+        <div
+          ref={stickyRef}
+          aria-hidden={stickyVisible ? undefined : true}
+          data-state={stickyVisible ? "visible" : "hidden"}
+          className={cn(
+            styles.stickyBar,
+            !stickyVisible && styles.stickyBarHidden
+          )}
+        >
           <div className={styles.stickyInner}>
             <div className={styles.stickyInfo}>
               <div className={styles.stickyTitle} title={film.title}>
                 <bdi>{film.title}</bdi>
               </div>
+              {/* Availability is status: neutral text + icon, never the
+                  category hue (Category Cameo Rule). */}
               <div className={styles.stickySub}>
+                <CheckCircle size={14} aria-hidden="true" />
                 <bdi>{availability}</bdi>
               </div>
             </div>

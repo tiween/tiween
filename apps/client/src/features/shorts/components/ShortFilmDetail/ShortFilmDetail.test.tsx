@@ -18,7 +18,7 @@
  * component's.
  */
 import * as React from "react"
-import { cleanup, fireEvent, render, screen } from "@testing-library/react"
+import { act, cleanup, fireEvent, render, screen } from "@testing-library/react"
 import { NextIntlClientProvider } from "next-intl"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
@@ -29,19 +29,42 @@ import en from "../../../../../locales/en.json"
 import fr from "../../../../../locales/fr.json"
 import { ShortFilmDetail } from "./ShortFilmDetail"
 
-const { backSpy, pushSpy } = vi.hoisted(() => ({
+const { backSpy, pushSpy, toastSpy } = vi.hoisted(() => ({
   backSpy: vi.fn(),
   pushSpy: vi.fn(),
+  toastSpy: vi.fn(),
 }))
 
-vi.mock("next/navigation", () => ({
+vi.mock("@/components/ui/use-toast", () => ({ toast: toastSpy }))
+
+// The component routes through next-intl's locale-aware navigation (French is
+// served unprefixed), so that is the module to stub. `Link` renders the href
+// it was handed verbatim, which lets the tests assert it carries no locale.
+vi.mock("@/lib/navigation", () => ({
   useRouter: () => ({ push: pushSpy, back: backSpy }),
+  Link: ({
+    href,
+    children,
+    ...rest
+  }: React.AnchorHTMLAttributes<HTMLAnchorElement> & { href: string }) => (
+    <a href={href} {...rest}>
+      {children}
+    </a>
+  ),
 }))
 
 vi.mock("next/image", () => ({
-  default: ({ src, alt }: { src: string; alt: string }) => (
+  default: ({
+    src,
+    alt,
+    onError,
+  }: {
+    src: string
+    alt: string
+    onError?: React.ReactEventHandler<HTMLImageElement>
+  }) => (
     // eslint-disable-next-line @next/next/no-img-element
-    <img src={src} alt={alt} />
+    <img src={src} alt={alt} onError={onError} />
   ),
 }))
 
@@ -70,6 +93,8 @@ const KEYS_USED = [
   "available",
   "availableDuration",
   "otherPlatform",
+  "shareCopied",
+  "shareFailed",
 ] as const
 
 function renderDetail(
@@ -182,6 +207,7 @@ beforeEach(() => {
   vi.stubEnv("NEXT_PUBLIC_SITE_URL", "https://tiween.tn")
   backSpy.mockClear()
   pushSpy.mockClear()
+  toastSpy.mockClear()
 })
 
 afterEach(() => {
@@ -476,7 +502,7 @@ describe("ShortFilmDetail — streaming rows", () => {
 })
 
 describe("ShortFilmDetail — related shelf", () => {
-  it("formats the rating to one decimal and omits it when absent", () => {
+  it("renders no rating — ratings are out of v1", () => {
     renderDetail(FULL_FILM, {
       relatedShorts: [
         { ...RELATED[0]!, rating: 5 },
@@ -485,13 +511,42 @@ describe("ShortFilmDetail — related shelf", () => {
           documentId: "wissam-003",
           title: "Wissam",
           slug: "wissam",
-          rating: undefined,
+          rating: 4.8,
         },
       ],
     })
 
-    expect(screen.getByText("5.0")).toBeInTheDocument()
+    // Neither the French-comma nor the period form of any rating appears.
+    expect(screen.queryByText(/^[0-9][,.][0-9]$/)).not.toBeInTheDocument()
+    expect(screen.queryByText("5,0")).not.toBeInTheDocument()
+    expect(screen.queryByText("4,8")).not.toBeInTheDocument()
     expect(screen.getByTitle("Wissam")).toBeInTheDocument()
+  })
+
+  it("links related films without a locale prefix (no /fr/ redirect)", () => {
+    renderDetail(FULL_FILM, { relatedShorts: RELATED })
+
+    const link = screen.getByRole("link", { name: /Brotherhood/ })
+    expect(link).toHaveAttribute("href", "/shorts/brotherhood")
+    expect(link.getAttribute("href")).not.toMatch(/^\/(fr|ar|en)\//)
+  })
+
+  it("falls back to the reserved-artwork stripe when a poster fails to load", () => {
+    renderDetail(FULL_FILM, {
+      relatedShorts: [
+        { ...RELATED[0]!, poster: { url: "https://cdn.example/broken.jpg" } },
+      ],
+    })
+
+    const poster = screen.getByRole("img", { name: "Brotherhood" })
+    fireEvent.error(poster)
+
+    // The broken image (and its overlapping alt text) is gone; the frame's
+    // own stripe background shows through, and the title stays as text.
+    expect(
+      screen.queryByRole("img", { name: "Brotherhood" })
+    ).not.toBeInTheDocument()
+    expect(screen.getByTitle("Brotherhood")).toBeInTheDocument()
   })
 
   it("keeps the ellipsized titles recoverable", () => {
@@ -517,7 +572,8 @@ describe("ShortFilmDetail — back affordance", () => {
     renderDetail(FULL_FILM)
 
     fireEvent.click(screen.getByRole("button", { name: "Retour" }))
-    expect(pushSpy).toHaveBeenCalledWith("/fr/shorts")
+    // Locale-aware router: the unprefixed path, never a hand-built `/fr/`.
+    expect(pushSpy).toHaveBeenCalledWith("/shorts")
     expect(backSpy).not.toHaveBeenCalled()
   })
 })
@@ -558,6 +614,22 @@ describe("ShortFilmDetail — share", () => {
     renderDetail(FULL_FILM)
     clickShare()
     await vi.waitFor(() => expect(writeText).toHaveBeenCalledWith(shareUrl))
+    // A silent copy reads as a dead button — the visitor is told it worked.
+    await vi.waitFor(() =>
+      expect(toastSpy).toHaveBeenCalledWith({ description: "Lien copié" })
+    )
+  })
+
+  it("hands the visitor the link when no clipboard is available", async () => {
+    stubNavigator({ share: undefined, clipboard: undefined })
+
+    renderDetail(FULL_FILM)
+    clickShare()
+    await vi.waitFor(() =>
+      expect(toastSpy).toHaveBeenCalledWith({
+        description: `Copiez ce lien pour le partager : ${shareUrl}`,
+      })
+    )
   })
 
   it("strips a trailing slash from the configured site URL", async () => {
@@ -632,5 +704,149 @@ describe("ShortFilmDetail — share", () => {
         expect.objectContaining({ url: shareUrl, title: "Communion" })
       )
     )
+  })
+})
+
+describe("ShortFilmDetail — cast photos", () => {
+  it("falls back to the striped avatar when a cast photo fails to load", () => {
+    renderDetail({
+      ...FULL_FILM,
+      cast: [
+        {
+          person: {
+            id: 10,
+            documentId: "p10",
+            name: "Hend Sabri",
+            slug: "hend",
+            photo: { url: "https://cdn.example/hend.jpg" },
+          },
+          role: "Leïla",
+        },
+      ],
+    })
+
+    fireEvent.error(screen.getByRole("img", { name: "Hend Sabri" }))
+    expect(
+      screen.queryByRole("img", { name: "Hend Sabri" })
+    ).not.toBeInTheDocument()
+    expect(screen.getByText("Hend Sabri")).toBeInTheDocument()
+  })
+})
+
+describe("ShortFilmDetail — sticky watch bar", () => {
+  type ObserverCallback = (
+    entries: Partial<IntersectionObserverEntry>[]
+  ) => void
+  let observerCallback: ObserverCallback | null = null
+  const observe = vi.fn()
+  const disconnect = vi.fn()
+
+  beforeEach(() => {
+    observerCallback = null
+    observe.mockClear()
+    disconnect.mockClear()
+    vi.stubGlobal(
+      "IntersectionObserver",
+      class {
+        constructor(callback: ObserverCallback) {
+          observerCallback = callback
+        }
+        observe = observe
+        unobserve = vi.fn()
+        disconnect = disconnect
+        takeRecords = () => []
+      }
+    )
+  })
+
+  const STICKY_NAME = "Regarder le film maintenant"
+  const ROOT_BOUNDS = { top: 66 } as DOMRectReadOnly
+
+  function report(entry: { isIntersecting: boolean; bottom: number }): void {
+    act(() => {
+      observerCallback?.([
+        {
+          isIntersecting: entry.isIntersecting,
+          boundingClientRect: { bottom: entry.bottom } as DOMRectReadOnly,
+          rootBounds: ROOT_BOUNDS,
+        },
+      ])
+    })
+  }
+
+  function stickyBar(): HTMLElement {
+    const button = screen.getByRole("button", {
+      name: STICKY_NAME,
+      hidden: true,
+    })
+    return button.closest("[data-state]") as HTMLElement
+  }
+
+  it("observes the action row", () => {
+    renderDetail(FULL_FILM)
+    expect(observe).toHaveBeenCalledTimes(1)
+    expect(observe.mock.calls[0]![0]).toContainElement(
+      screen.getByRole("button", { name: "Regarder le film" })
+    )
+  })
+
+  it("hides the bar (aria-hidden + inert) while the action row is visible", () => {
+    renderDetail(FULL_FILM)
+    report({ isIntersecting: true, bottom: 600 })
+
+    const bar = stickyBar()
+    expect(bar).toHaveAttribute("data-state", "hidden")
+    expect(bar).toHaveAttribute("aria-hidden", "true")
+    expect(bar).toHaveAttribute("inert")
+    expect(
+      screen.queryByRole("button", { name: STICKY_NAME })
+    ).not.toBeInTheDocument()
+    // The hero disc and the action-row pill remain the reachable controls.
+    expect(
+      screen.getByRole("button", { name: "Lancer la lecture" })
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole("button", { name: "Regarder le film" })
+    ).toBeInTheDocument()
+  })
+
+  it("keeps the bar hidden while the action row is still below the fold", () => {
+    renderDetail(FULL_FILM)
+    report({ isIntersecting: false, bottom: 1200 })
+    expect(stickyBar()).toHaveAttribute("data-state", "hidden")
+  })
+
+  it("shows the bar once the action row has scrolled above the viewport", () => {
+    renderDetail(FULL_FILM)
+    report({ isIntersecting: true, bottom: 600 })
+    report({ isIntersecting: false, bottom: 20 })
+
+    const bar = stickyBar()
+    expect(bar).toHaveAttribute("data-state", "visible")
+    expect(bar).not.toHaveAttribute("aria-hidden")
+    expect(bar).not.toHaveAttribute("inert")
+    expect(
+      screen.getByRole("button", { name: STICKY_NAME })
+    ).toBeInTheDocument()
+  })
+
+  it("disconnects the observer on unmount", () => {
+    const { unmount } = renderDetail(FULL_FILM)
+    unmount()
+    expect(disconnect).toHaveBeenCalled()
+  })
+})
+
+describe("ShortFilmDetail — sticky bar without IntersectionObserver", () => {
+  it("keeps the bar shown (no regression where IO is missing)", () => {
+    vi.stubGlobal("IntersectionObserver", undefined)
+    renderDetail(FULL_FILM)
+
+    const button = screen.getByRole("button", {
+      name: "Regarder le film maintenant",
+    })
+    const bar = button.closest("[data-state]")
+    expect(bar).toHaveAttribute("data-state", "visible")
+    expect(bar).not.toHaveAttribute("inert")
   })
 })

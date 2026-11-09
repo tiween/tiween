@@ -45,7 +45,9 @@
   --sfd-scrim: rgba(14, 7, 16, 0.6);
   --sfd-scrim-badge: rgba(14, 7, 16, 0.74);
   --sfd-hero-scrim-bottom: rgba(14, 7, 16, 0.98);
-  --sfd-hero-scrim-mid: rgba(14, 7, 16, 0.5);
+  --sfd-hero-scrim-low: rgba(14, 7, 16, 0.92);
+  --sfd-hero-scrim-mid: rgba(14, 7, 16, 0.78);
+  --sfd-hero-scrim-soft: rgba(14, 7, 16, 0.35);
   --sfd-hero-scrim-top: rgba(14, 7, 16, 0.12);
   --sfd-card-scrim-bottom: rgba(12, 6, 14, 0.96);
   --sfd-card-scrim-mid: rgba(12, 6, 14, 0.82);
@@ -80,18 +82,19 @@
   font-family: var(--font-inter), system-ui, sans-serif;
 }
 
-/* Arabic swaps the UI stack to the project's Noto Sans Arabic (the handoff's
-   IBM Plex Sans Arabic is not loaded by this app). */
+/* Arabic swaps the UI stack to IBM Plex Sans Arabic, the app-wide Arabic body
+   face (loaded via next/font in `lib/fonts.ts`). */
 .root[dir="rtl"] {
-  font-family: var(--font-noto-arabic), var(--font-inter), system-ui, sans-serif;
+  font-family: var(--font-plex-arabic), var(--font-inter), system-ui, sans-serif;
 }
 
-/* Accessibility floor: a visible 2px gold ring, 2px offset, on EVERY
+/* Accessibility floor: a visible 3px gold ring, 2px offset, on EVERY
    interactive element inside the page. */
 .root :focus-visible {
   /* Outline only — setting a radius here would square off the pill controls
-     (play disc, heart, watch/trailer/streaming/sticky CTAs) while focused. */
-  outline: 2px solid var(--sfd-gold);
+     (play disc, heart, watch/trailer/streaming/sticky CTAs) while focused, and
+     a box-shadow ring would replace their halo / inner-edge shadows. */
+  outline: 3px solid var(--sfd-gold);
   outline-offset: 2px;
 }
 
@@ -169,6 +172,8 @@
 
 .content {
   padding-inline: 16px;
+  /* The action row adapts to the space it actually has, not the viewport. */
+  container: sfd-content / inline-size;
 }
 
 /* ----------------------------------------------------------------- Hero -- */
@@ -182,6 +187,10 @@
 
 .heroImage {
   object-fit: cover;
+  /* Video stills (YouTube maxresdefault) carry letterbox bands and burned-in
+     subtitles in their lower third — exactly where the title sits. Favour the
+     upper-centre of the frame. */
+  object-position: 50% 30%;
 }
 
 /* Reserved-artwork fill — renders ONLY when the record carries no media. */
@@ -211,13 +220,20 @@
   user-select: none;
 }
 
+/* The title, chips and meta line occupy roughly the bottom 50% of the hero
+   (a two-line Lalezar title on a 390px phone). The scrim keeps ≥0.78 alpha
+   over that band, so white text stays above 4.5:1 even over a pure-white
+   pixel (sRGB blend: 0.78 × #0E0710 over #FFF ≈ #3A353B, ~11:1). The upper
+   half stays light so the art still leads. No text shadow (Flat Chrome). */
 .heroScrim {
   position: absolute;
   inset: 0;
   background: linear-gradient(
     to top,
-    var(--sfd-hero-scrim-bottom) 5%,
-    var(--sfd-hero-scrim-mid) 44%,
+    var(--sfd-hero-scrim-bottom) 0%,
+    var(--sfd-hero-scrim-low) 22%,
+    var(--sfd-hero-scrim-mid) 50%,
+    var(--sfd-hero-scrim-soft) 72%,
     var(--sfd-hero-scrim-top) 100%
   );
 }
@@ -334,11 +350,33 @@
 
 /* -------------------------------------------------------------- Actions -- */
 
+/* Narrow (mobile-first): the watch pill owns a full-width first row; trailer
+   and heart share the second. A single row only once every label fits on one
+   line: watch (~214px) + trailer (~174px) + heart (52px) + gaps (24px) in
+   French is ~464px, so the breakpoint is content-driven at 30rem, not a
+   device width. Flex + logical sizing, so RTL mirrors with no overrides. */
 .actions {
   display: flex;
+  flex-wrap: wrap;
   align-items: stretch;
   gap: 12px;
   margin-top: 20px;
+}
+
+@container sfd-content (min-width: 30rem) {
+  .actions {
+    flex-wrap: nowrap;
+  }
+
+  .actions .trailerButton {
+    flex: none;
+  }
+
+  .actions .watchButton {
+    flex: 1 1 auto;
+    /* Stretching ~640px on desktop dilutes the CTA into a banner. */
+    max-inline-size: 20rem;
+  }
 }
 
 .heartButton {
@@ -391,8 +429,10 @@
 }
 
 .watchButton {
-  flex: 1;
+  flex: 1 0 100%;
   min-height: 52px;
+  padding-inline: 26px;
+  white-space: nowrap;
   border: none;
   border-radius: 9999px;
   background: var(--sfd-gold);
@@ -413,17 +453,20 @@
 }
 
 .trailerButton {
-  flex: none;
+  flex: 1 1 auto;
   min-height: 52px;
   padding-inline: 20px;
   border: 1.5px solid var(--sfd-gold);
   border-radius: 9999px;
   background: transparent;
   color: var(--sfd-gold-text);
-  font-size: 14px;
+  /* Same size as the watch label — the two pills differ by fill, not size. */
+  font-size: 16px;
   font-weight: 600;
+  white-space: nowrap;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 7px;
   cursor: pointer;
   transition: background-color var(--sfd-motion-color);
@@ -452,7 +495,9 @@
   font-weight: 400;
   line-height: 1.65;
   color: var(--sfd-text-secondary);
-  max-width: 660px;
+  /* ≈65 characters of Inter at 15px. `65ch` (the "0" advance) overstates
+     Inter's average glyph and would run ~80 characters a line. */
+  max-inline-size: 32em;
   text-wrap: pretty;
   white-space: pre-line;
 }
@@ -478,9 +523,11 @@
   color: var(--sfd-gold);
 }
 
+/* Info-row text matches its sibling `.streamingName` (15px). */
 .awardText {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 500;
+  line-height: 1.4;
   color: var(--sfd-text-award);
 }
 
@@ -509,7 +556,8 @@
   flex: none;
   width: 44px;
   height: 44px;
-  border-radius: 11px;
+  /* Nested inside a 12px row, so one step down: the 8px chip radius. */
+  border-radius: var(--sfd-radius-chip);
   background: repeating-linear-gradient(
     135deg,
     var(--sfd-stripe-logo-a) 0,
@@ -541,8 +589,10 @@
   border: 1px solid var(--sfd-gold);
   background: transparent;
   color: var(--sfd-gold-text);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
+  line-height: 20px;
+  white-space: nowrap;
   text-decoration: none;
   cursor: pointer;
   transition: background-color var(--sfd-motion-color);
@@ -593,9 +643,9 @@
 }
 
 .castName {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
-  line-height: 1.2;
+  line-height: 20px;
   color: var(--sfd-text-primary);
 }
 
@@ -603,7 +653,7 @@
   margin-top: 2px;
   font-size: 12px;
   font-weight: 400;
-  line-height: 1.2;
+  line-height: 16px;
   color: var(--sfd-text-muted);
 }
 
@@ -655,12 +705,14 @@
   z-index: 2;
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  padding: 3px 9px;
+  gap: 6px;
+  /* Chip spec: label 11px/600, never smaller. */
+  padding: 4px 11px;
   border-radius: var(--sfd-radius-chip);
   background: var(--sfd-scrim-badge);
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 600;
+  line-height: 1.4;
   color: var(--sfd-text-primary);
 }
 
@@ -677,19 +729,10 @@
   );
 }
 
-.relatedRating {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  margin-bottom: 3px;
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--sfd-gold-text);
-}
-
 .relatedTitle {
   font-size: 14px;
   font-weight: 600;
+  line-height: 20px;
   color: var(--sfd-text-primary);
   white-space: nowrap;
   overflow: hidden;
@@ -715,6 +758,24 @@
   backdrop-filter: blur(12px);
   border-top: 1px solid var(--sfd-border-strong);
   padding-bottom: env(safe-area-inset-bottom);
+  transition:
+    transform var(--sfd-motion-transform),
+    opacity var(--sfd-motion-color),
+    visibility 0s linear 0s;
+}
+
+/* Hidden while the action row is on screen. `visibility` (delayed until the
+   slide finishes) plus the `inert` attribute keep it out of the tab order and
+   the accessibility tree. */
+.stickyBarHidden {
+  transform: translateY(100%);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    transform var(--sfd-motion-transform),
+    opacity var(--sfd-motion-color),
+    visibility 0s linear 220ms;
 }
 
 .stickyInner {
@@ -734,6 +795,7 @@
 .stickyTitle {
   font-size: 14px;
   font-weight: 600;
+  line-height: 20px;
   color: var(--sfd-text-primary);
   white-space: nowrap;
   overflow: hidden;
@@ -741,9 +803,13 @@
 }
 
 .stickySub {
+  display: flex;
+  align-items: center;
+  gap: 4px;
   font-size: 12px;
   font-weight: 500;
-  color: var(--sfd-accent);
+  line-height: 16px;
+  color: var(--sfd-text-muted);
 }
 
 .stickyCta {
@@ -754,8 +820,9 @@
   border-radius: 9999px;
   background: var(--sfd-gold);
   color: var(--sfd-gold-ink);
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 700;
+  white-space: nowrap;
   display: flex;
   align-items: center;
   gap: 9px;
@@ -780,6 +847,13 @@
 
   .relatedItem:hover {
     transform: none;
+  }
+
+  /* No slide: the bar simply appears and disappears. */
+  .stickyBar,
+  .stickyBarHidden {
+    transform: none;
+    transition: none !important;
   }
 
   /* `transform: none` here would drop the centering translate and jump the

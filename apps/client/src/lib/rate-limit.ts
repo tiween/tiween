@@ -125,3 +125,13 @@ export const personSearchLimiter = rateLimit({
   interval: 60 * 1000, // 1 minute
   maxRequests: 60, // 60 searches per minute
 })
+
+/**
+ * Public short-film suggestions: 5 per 15 minutes per IP. The form is open to
+ * anonymous visitors and every accepted submission lands in the admin's
+ * moderation queue, so a burst is far more likely spam than enthusiasm.
+ */
+export const shortSuggestionLimiter = rateLimit({
+  interval: 15 * 60 * 1000, // 15 minutes
+  maxRequests: 5,
+})

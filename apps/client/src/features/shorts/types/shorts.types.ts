@@ -84,11 +84,11 @@ export interface ShortFilmCard {
   documentId: string
   title: string
   originalTitle?: string
-  posterUrl: string
+  /** `null` when the record has no poster — the card shows reserved artwork. */
+  posterUrl: string | null
   slug: string
   duration?: number
   releaseYear?: number
-  rating?: number
   genres?: string[]
   director?: string
   isAvailableOnline?: boolean
@@ -110,7 +110,12 @@ export interface ShortsFilters {
   hasAwards?: boolean
   availableOnline?: boolean
   platforms?: PlatformType[]
+  /**
+   * Legacy: still read by `lib/strapi-api` / `lib/algolia` / mock data. Ratings
+   * are out of v1, so no UI, URL or API route sets it.
+   */
   rating?: number
+  /** `"rating"` is legacy (lib switch case); the UI and route never send it. */
   sortBy?: "latest" | "rating" | "year" | "duration" | "title"
   sortOrder?: "asc" | "desc"
 }
@@ -158,6 +163,8 @@ export interface ShortFilmCardLabels {
   minutes: string
   notAvailableOnline: string
   featured: string
+  /** Availability note shown when the film can be watched online */
+  availableOnline: string
 }
 
 /**
@@ -178,12 +185,9 @@ export interface ShortsFiltersLabels {
   availability: string
   availableOnline: string
   platforms: string
-  rating: string
-  ratingMin: string
   sortBy: string
   sortByOptions: {
     latest: string
-    rating: string
     year: string
     duration: string
     title: string
@@ -258,14 +262,12 @@ export function toShortFilmCard(film: ShortFilm): ShortFilmCard {
     documentId: film.documentId,
     title: film.title,
     originalTitle: film.originalTitle,
-    posterUrl:
-      film.poster?.formats?.medium?.url ||
-      film.poster?.url ||
-      "/images/poster-placeholder.jpg",
+    // No fallback path: `/images/poster-placeholder.jpg` never existed, so a
+    // poster-less film rendered a broken image.
+    posterUrl: film.poster?.formats?.medium?.url || film.poster?.url || null,
     slug: film.slug,
     duration: film.duration,
     releaseYear: film.releaseYear,
-    rating: film.rating,
     genres: film.genres?.map((g) => g.name),
     director: film.directors?.[0]?.name,
     isAvailableOnline: film.isAvailableOnline,
