@@ -5,11 +5,11 @@ milestone_name: Shorts Directory
 current_phase: 01
 current_phase_name: Short-Film Catalog Backend
 status: executing
-stopped_at: Phase 05.1 context gathered
-last_updated: "2026-11-08T17:14:16.055Z"
+stopped_at: Phase 05.1 UI-SPEC approved
+last_updated: "2026-11-08T21:45:05.970Z"
 last_activity: 2026-11-08
 last_activity_desc: Phase 01 execution started
-state_head: 33c9c1e0106c0635ccf3fc401f76f4bbb7fef1f9
+state_head: 4fd51ec3b0d42f53de6ad1cd64f31778b4631fba
 progress:
   total_phases: 7
   completed_phases: 0
@@ -115,6 +115,10 @@ Decisions are logged in PROJECT.md (Locked Decisions and Key Decisions table). R
 - [Phase 01]: Unverified facts (years, Arabic original title, synopses) are omitted from the data file instead of carried from the mock; streamingLinks is the single watch source (videos left empty)
 - [Phase 01]: Owner approved all 13 include films (approve-all, 2026-10-20); mediaHosts stays []; 13 open sheet questions accepted as presented and carried to 01-13 review list
 - [Phase 01]: 01-13: 13 approved short films imported on dev Postgres+ImageKit; second run a no-op. Production import stays Phase 6.
+- [Phase 04]: `/shorts` opens on one 2:3 poster grid with a one-line catalogue intro and genre/duration chips; no featured hero, no latest-additions row. ROADMAP Phase 4 criterion 1 and SDIR-01 amended (owner, 2026-11-09)
+- [Brand]: Focus ring is 3px gold with 2px offset site-wide (SBRAND-04 wording stands; the global 2px rule changes) (owner, 2026-11-09)
+- [Brand]: Arabic body and headings use IBM Plex Sans Arabic app-wide, replacing Noto Sans Arabic (SBRAND-02 stands) (owner, 2026-11-09)
+- [Phase 04]: Directory cards ship without the watchlist heart; the card heart moves to the real-watchlist work in Phase 2 (FR19, Phase 2 criterion 4); SDIR-02 no longer lists it (owner, 2026-11-09)
 
 ### Pending Todos
 
@@ -150,6 +154,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-11-08T17:14:15.215Z
-Stopped at: Phase 05.1 context gathered
-Resume file: .planning/phases/05.1-festival-programme-page/05.1-CONTEXT.md
+Last session: 2026-11-08T21:45:04.439Z
+Stopped at: Phase 05.1 UI-SPEC approved
+Resume file: .planning/phases/05.1-festival-programme-page/05.1-UI-SPEC.md

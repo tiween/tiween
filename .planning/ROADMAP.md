@@ -22,8 +22,9 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [ ] **Phase 1: Short-Film Catalog Backend** - Short films become real data: schema fields, admin entry, public read API, launch catalog
 - [ ] **Phase 2: Strapi-Backed Shorts Pages** - Directory and detail read Strapi (DW-148 fixed), detail page completed, real watchlist, honest error states
 - [ ] **Phase 3: Meilisearch Search** - Self-hosted Meilisearch kept in sync by Strapi, client search swapped, Algolia removed
-- [ ] **Phase 4: Directory Experience and Brand** - Finished on-brand directory: hero, filters, cards, suggestion form, trilingual, RTL, accessible
+- [ ] **Phase 4: Directory Experience and Brand** - Finished on-brand directory: catalogue intro, filters, cards, suggestion form, trilingual, RTL, accessible
 - [ ] **Phase 5: Shorts SEO and Sitemap** - Localized metadata, canonical/hreflang, JSON-LD, sitemap, share previews
+- [ ] **Phase 05.1: Festival programme page** (INSERTED) - Film-festival page for the JCC launch: programme by date, by venue and by film, competition sections, film-team-present markers
 - [ ] **Phase 6: Verification and Production Launch** - Quality gates, production deploy and indexing, go-live switch
 
 ## Phase Details
@@ -70,7 +71,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 1. Opening `/fr|ar|en/shorts/<slug>` for a published short shows its Strapi data (title, synopsis, poster/backdrop, director, trailer, streaming links, distinctions, cast, original title, country, language); editing or unpublishing it in the admin is reflected within the revalidation window, an unknown or unpublished slug gives a 404, and a missing translation falls back to French instead of a blank.
 2. The director and trailer shown come from `credits[]` and `videos[]` (DW-148): a short with a directing credit and a trailer video shows both, and no shorts request carries a phantom field, so Strapi logs show no 400s from shorts reads.
 3. The detail page shows the "Equipe artistique" crew grid and the access-type sub-label under each streaming platform when the data exists, and omits those sections when it does not.
-4. A signed-in user can tap the heart on a short film to add or remove it from the real watchlist; the state survives navigation and a second device and the film appears on the watchlist page; a signed-out user is invited to sign in rather than seeing a toggle that forgets.
+4. A signed-in user can tap the heart on a short film (on its detail page and on its directory card, as an independent target from the card link) to add or remove it from the real watchlist; the state survives navigation and a second device and the film appears on the watchlist page; a signed-out user is invited to sign in rather than seeing a toggle that forgets.
 5. When Strapi is unreachable the shorts pages show an error state with retry (not an empty directory) and recover when Strapi returns; no production code path imports `mock-shorts.ts`.
    **Plans**: TBD
    **UI hint**: yes
@@ -96,8 +97,8 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Requirements**: SDIR-01, SDIR-02, SDIR-03, SBRAND-01, SBRAND-02, SBRAND-03, SBRAND-04, FR54, FR55
 **Success Criteria** (what must be TRUE):
 
-1. A visitor opens `/shorts` and sees a featured hero, a latest-additions row and a results grid; applying filters, search or sort updates the results and the URL (shareable, back-button safe); loading shows a layout-matched skeleton, no results shows an encouraging empty state with a next action, and a failure shows an error with retry. Cards show poster, title, duration, year, genres, director and availability, tapping a card opens the detail page, and the heart is an independent target.
-2. Every shorts surface (directory, cards, hero, filters, suggestion form, detail page) renders in Gold Leaf x Aubergine per the 06-16 spine (aubergine field, gold actions with dark ink, teal shorts category cue, Inter / IBM Plex Sans Arabic type, Lalezar only for brand moments) with no teal `#032523` or yellow `#F8EB06` left on them, while every other page looks unchanged.
+1. A visitor opens `/shorts` and sees a one-line catalogue intro, genre and duration chips and a single 2:3 poster results grid; applying filters, search or sort updates the results and the URL (shareable, back-button safe); loading shows a layout-matched skeleton, no results shows an encouraging empty state with a next action, and a failure shows an error with retry. Cards show poster, title, duration, year, genres, director and availability, and tapping a card opens the detail page; cards carry no watchlist heart in this phase (the card heart ships with the real watchlist, Phase 2).
+2. Every shorts surface (directory, cards, detail-page hero, filters, suggestion form, detail page) renders in Gold Leaf x Aubergine per the 06-16 spine (aubergine field, gold actions with dark ink, teal shorts category cue, Inter / IBM Plex Sans Arabic type, Lalezar only for brand moments) with no teal `#032523` or yellow `#F8EB06` left on them, while every other page looks unchanged.
 3. No small text on shorts surfaces is below 4.5:1: the magenta white-text decision is recorded in this phase's UI-SPEC and applied, and axe-core reports no contrast violations on `/shorts` and `/shorts/[slug]` in FR, AR and EN.
 4. A visitor can suggest a short film from the directory: the form validates, is spam-protected, and the submission appears as a pending suggestion in the Strapi admin; the visitor sees a translated success or error, never a silent fake success.
 5. In Arabic the pages are RTL with Western numerals and `DD/MM/YYYY`, mixed-script runs are isolated, and all copy is translated in FR, AR and EN with nothing hard-coded; a keyboard-only user can use filters, cards and the form with a visible 3px gold focus ring (dark on gold fills), 44px targets and reduced motion honored.
@@ -117,10 +118,37 @@ Decimal phases appear between their surrounding integers in numeric order.
 4. Pasting a short film link into a social app shows its title and poster at a correct size in the page's locale, and robots indexability is controlled by a single environment switch that defaults to noindex outside production.
    **Plans**: TBD
 
+### Phase 05.1: Festival programme page (INSERTED)
+
+**Goal:** A visitor on a phone can answer "what's on today and what's next", "what's on at this venue" and "where and when does this film play" for a film festival in under a minute, in FR, AR (RTL) and EN. The launch festival is the Journées Cinématographiques de Carthage (JCC).
+**Requirements**: TBD (derive FEST-\* requirements in discuss/plan from the confirmed brief below)
+**Depends on:** Phase 1, Phase 2, Phase 4
+**Owner decisions (2026-11-08, Impeccable shape session):**
+
+- Pulled into v1. Film festivals only; no festivals index; no ticketing (dormant) — showtime tiles carry no purchase action.
+- Route `/[locale]/festivals/[slug]`; views By date (default; during the festival opens on today, scrolled to the next screening), By venue, By film; shared day strip; view/day/filters in the URL.
+- A screening event is a programme of 1–8 films (shorts only, or shorts + a feature listed last), shown as a visible ordered list with a total runtime — not the inherited tabbed card.
+- Programmes carry a competition-section label; sections are per festival (new festival-section data in the events-manager plugin, events point to one).
+- "Équipe du film présente" reuses the existing screening `features` vocabulary, shown as ✲ plus text.
+- Gold Leaf × Aubergine identity; reuse DateSelector, EventVenueFilter, VenueCard, EventCard, FilmCard, Map, ShareDialog, EmptyState.
+
+**Success Criteria** (what must be TRUE):
+
+1. Phase `DESIGN.md` + `EXPERIENCE.md` exist and the Claude Design mockups are owner-approved (`mockup_status: approved`) before any build plan executes.
+2. An admin can create a festival with its competition sections, attach events (venue, start time, section) whose screenings reference films in order, and mark a screening "équipe du film présente" in the Strapi admin without raw JSON.
+3. On `/fr|ar|en/festivals/<slug>` the By-date view lists the selected day's programmes in time order with section and venue filters; By-venue groups them per venue; By-film shows every screening of a film across days, venues and programmes — all driven by published Strapi data, never mock data.
+4. Programme cards show every film in order with runtimes and total, the section label (glyph + text) and the film-team marker (✲ + text); cancelled/postponed screenings and empty days have text-labelled states with a next step.
+5. The page works at 390px with 44px targets, mirrors fully in Arabic with Western digits and locale time formats (`15h00` FR, `15:00` AR/EN), and passes axe-core with no violations in all three locales.
+   **Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 05.1 to break down)
+
 ### Phase 6: Verification and Production Launch
 
 **Goal**: The short-film directory is verified against the quality gates, deployed to production with Meilisearch, and switched on for real visitors and search engines.
-**Depends on**: Phase 1, Phase 2, Phase 3, Phase 4, Phase 5
+**Depends on**: Phase 1, Phase 2, Phase 3, Phase 4, Phase 5, Phase 05.1
 **Requirements**: LNCH-01, LNCH-02, LNCH-03, LNCH-04
 **Success Criteria** (what must be TRUE):
 
