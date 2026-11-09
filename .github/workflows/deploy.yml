@@ -34,10 +34,15 @@ jobs:
   setup:
     name: Setup Deployment
     runs-on: ubuntu-latest
-    # Only run if CI succeeded (for workflow_run) or if manually triggered
+    # Only run if CI succeeded (for workflow_run) or if manually triggered.
+    # The head_repository check is load-bearing: workflow_run's `branches:` filter matches the
+    # *head* branch of the triggering run, so a fork PR on a branch named main/develop would
+    # otherwise reach build-and-push and deploy with this repo's secrets.
     if: |
       github.event_name == 'workflow_dispatch' ||
-      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
+      (github.event_name == 'workflow_run' &&
+       github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.head_repository.full_name == github.repository)
     outputs:
       environment: ${{ steps.set-env.outputs.environment }}
       should_deploy: ${{ steps.set-env.outputs.should_deploy }}

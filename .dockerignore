@@ -4,3 +4,14 @@
 **/.tmp
 **/dist
 **/out
+
+# Secrets must never enter the build context: the client/strapi Dockerfiles build from the
+# monorepo root with `COPY . .`, so anything not excluded here is baked into an image layer.
+# Per-app .dockerignore files do not apply — the context is the repo root.
+**/.env
+**/.env.*
+!**/.env.example
+!**/*.env.local.example
+
+# Not needed at build time; keeps the context small and avoids leaking history.
+.git
