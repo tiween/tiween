@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "finalize",
+  "status": "pass",
+  "type": "architecture",
+  "quality": "showcase",
+  "specification": {
+    "path": "/Users/ayoub/projects/tiween-bmad-version/.archify/architecture-tiween-runtime-20261022-171829/candidate.json",
+    "sha256": "376516d697739e9eb983bcb3022b4d0cb5e91cc4cf36a004fb89d71a4db93904",
+    "bytes": 9710
+  },
+  "artifact": {
+    "path": "/Users/ayoub/projects/tiween-bmad-version/.archify/architecture-tiween-runtime-20261022-171829/tiween-runtime.html",
+    "sha256": "65632c8962202ee36412fe7b07e80991cd64943f81986add1b3802fcad5b9c14",
+    "bytes": 845083
+  },
+  "gates": {
+    "validate": "pass",
+    "deliver": "pass",
+    "check": "pass",
+    "browser-check": "pass"
+  },
+  "diagnostics": [],
+  "diagnosticSummary": {
+    "total": 0,
+    "shown": 0,
+    "truncated": false
+  },
+  "evidence": {
+    "receipt": "/Users/ayoub/projects/tiween-bmad-version/.archify/architecture-tiween-runtime-20261022-171829/tiween-runtime.finalize.json",
+    "summaryReceipt": "/Users/ayoub/projects/tiween-bmad-version/.archify/architecture-tiween-runtime-20261022-171829/tiween-runtime.finalize-summary.json",
+    "browserCheckReceipt": "/Users/ayoub/projects/tiween-bmad-version/.archify/architecture-tiween-runtime-20261022-171829/tiween-runtime.browser-check.json"
+  },
+  "update": {
+    "status": "current",
+    "installedVersion": "3.2.0",
+    "availableVersion": "3.2.0",
+    "releaseNotes": null,
+    "checkedAt": "2026-10-22T15:19:40.944Z",
+    "source": "network",
+    "noticeRequired": false,
+    "noticeText": null
+  },
+  "visualReview": "not-requested",
+  "durationMs": 15042,
+  "browserCheck": {
+    "requested": true,
+    "ran": true
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "a3b0867a-077d-4e2f-838d-247324185b33",
+  "status": "current",
+  "command": "deliver",
+  "type": "architecture",
+  "input": "/Users/ayoub/projects/tiween-bmad-version/.archify/architecture-tiween-runtime-20261022-171829/candidate.json",
+  "output": "/Users/ayoub/projects/tiween-bmad-version/.archify/architecture-tiween-runtime-20261022-171829/tiween-runtime.html",
+  "specification": {
+    "sha256": "376516d697739e9eb983bcb3022b4d0cb5e91cc4cf36a004fb89d71a4db93904",
+    "bytes": 9710
+  },
+  "artifact": {
+    "sha256": "65632c8962202ee36412fe7b07e80991cd64943f81986add1b3802fcad5b9c14",
+    "bytes": 845083
+  }
+}

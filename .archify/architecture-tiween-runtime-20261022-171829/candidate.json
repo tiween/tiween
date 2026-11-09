@@ -1,0 +1,115 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Tiween runtime architecture",
+    "output": ".archify/architecture-tiween-runtime-20261022-171829/tiween-runtime.html",
+    "quality_profile": "showcase",
+    "locale": "en",
+    "repository": {
+      "url": "https://github.com/tiween/tiween.git",
+      "provider": "github",
+      "link_mode": "web",
+      "revision": "c951aa1fcf255b4eb51a65fc842af58b0220ea00"
+    }
+  },
+  "components": [
+    { "id": "visitor", "type": "external", "label": "Visitor", "sublabel": "browser / PWA", "pos": [40, 200], "size": [130, 60] },
+    { "id": "algolia", "type": "external", "label": "Algolia", "sublabel": "search-only key", "tag": "to be replaced", "pos": [40, 60], "size": [130, 60],
+      "sources": [{ "path": "apps/client/src/lib/algolia/shorts.ts", "line": 13, "end_line": 21, "label": "browser lite client" }] },
+    { "id": "nextauth", "type": "security", "label": "NextAuth v4", "sublabel": "credentials + OAuth", "tag": "JWT 30d", "pos": [290, 60], "size": [130, 60],
+      "sources": [
+        { "path": "apps/client/src/lib/auth.ts", "line": 1, "end_line": 60, "label": "providers" },
+        { "path": "apps/strapi/config/plugins.ts", "line": 147, "end_line": 154, "label": "JWT expiry synced" }
+      ] },
+    { "id": "proxy", "type": "frontend", "label": "Edge proxy", "sublabel": "proxy.ts", "pos": [290, 200], "size": [130, 60],
+      "sources": [{ "path": "apps/client/src/proxy.ts", "line": 1, "end_line": 121, "label": "next-intl + withAuth" }] },
+    { "id": "pages", "type": "frontend", "label": "App Router pages", "sublabel": "[locale]/shorts", "tag": "mock data today", "pos": [540, 200], "size": [130, 60],
+      "sources": [{ "path": "apps/client/src/app/[locale]/shorts/page.tsx", "line": 1, "end_line": 48, "label": "renders MOCK_SHORT_FILMS" }] },
+    { "id": "strapiClient", "type": "frontend", "label": "Strapi API client", "sublabel": "lib/strapi-api", "tag": "server-only", "pos": [790, 200], "size": [130, 60],
+      "sources": [
+        { "path": "apps/client/src/lib/strapi-api/base.ts", "line": 35, "end_line": 60, "label": "fetchAPI, revalidate 60s" },
+        { "path": "apps/client/src/lib/strapi-api/public.ts", "line": 9, "end_line": 59, "label": "STRAPI_URL + token" },
+        { "path": "apps/client/src/lib/strapi-api/content/shorts.ts", "line": 159, "end_line": 175, "label": "shorts read" }
+      ] },
+    { "id": "bff", "type": "frontend", "label": "Route handlers", "sublabel": "/api/shorts, proxies", "pos": [790, 500], "size": [130, 60],
+      "sources": [
+        { "path": "apps/client/src/app/api/shorts/route.ts", "line": 1, "end_line": 66, "label": "GET /api/shorts" },
+        { "path": "apps/client/src/app/api/private-proxy/[...slug]/route.ts", "line": 1, "end_line": 83, "label": "private proxy" },
+        { "path": "apps/client/src/lib/strapi-api/request-auth.ts", "line": 6, "end_line": 60, "label": "endpoint allow-list" }
+      ] },
+    { "id": "strapiCore", "type": "backend", "label": "Strapi v5 core", "sublabel": "REST /api, i18n", "tag": "one process", "pos": [1040, 200], "size": [130, 60],
+      "sources": [
+        { "path": "apps/strapi/config/plugins.ts", "line": 9, "end_line": 154, "label": "plugin load order" },
+        { "path": "apps/strapi/src/index.ts", "line": 1, "end_line": 43, "label": "bootstrap" },
+        { "path": "apps/strapi/config/api.ts", "line": 1, "end_line": 7, "label": "REST limits" }
+      ] },
+    { "id": "creativeWorks", "type": "backend", "label": "creative-works", "sublabel": "short-films API", "tag": "rate-limited", "pos": [1290, 200], "size": [130, 60],
+      "sources": [
+        { "path": "apps/strapi/src/plugins/creative-works/server/src/routes/content-api.ts", "line": 1, "end_line": 60, "label": "public routes" },
+        { "path": "apps/strapi/src/plugins/creative-works/server/src/controllers/short-film.ts", "line": 1, "end_line": 50, "label": "coded errors" },
+        { "path": "apps/strapi/src/plugins/creative-works/server/src/services/short-films.ts", "line": 720, "end_line": 780, "label": "Document Service reads" }
+      ] },
+    { "id": "otherPlugins", "type": "backend", "label": "Domain plugins", "sublabel": "events, venues, geo…", "pos": [1040, 360], "size": [130, 60],
+      "sources": [
+        { "path": "apps/strapi/config/plugins.ts", "line": 76, "end_line": 140, "label": "8 local plugins" },
+        { "path": "apps/strapi/src/plugins/ticketing/server/src/services/order.ts", "line": 248, "end_line": 320, "label": "ticketing → payments" }
+      ] },
+    { "id": "postgres", "type": "database", "label": "PostgreSQL 16", "sublabel": "via Knex / pg", "pos": [1540, 200], "size": [130, 60],
+      "sources": [{ "path": "apps/strapi/config/database.ts", "line": 1, "end_line": 53, "label": "postgres | sqlite (dev)" }] },
+    { "id": "thirdParty", "type": "external", "label": "Third-party APIs", "sublabel": "TMDB · Konnect · Brevo", "pos": [1040, 520], "size": [150, 60],
+      "sources": [
+        { "path": "apps/strapi/src/plugins/tmdb-integration/server/src/services/tmdb-client.ts", "line": 1, "end_line": 49, "label": "TMDB" },
+        { "path": "apps/strapi/src/plugins/payments/server/src/services/konnect-client.ts", "line": 60, "end_line": 104, "label": "Konnect" },
+        { "path": "packages/strapi-provider-email-brevo/index.js", "line": 1, "end_line": 80, "label": "Brevo email" }
+      ] }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "Next.js 16 client · apps/client", "wraps": ["nextauth", "proxy", "pages", "strapiClient", "bff"] },
+    { "kind": "security-group", "label": "server-only tokens", "wraps": ["strapiClient", "bff"] },
+    { "kind": "region", "label": "Strapi v5 backend · apps/strapi", "wraps": ["strapiCore", "creativeWorks", "otherPlugins"] }
+  ],
+  "connections": [
+    { "id": "visit", "from": "visitor", "to": "proxy", "label": "HTTPS", "variant": "emphasis" },
+    { "id": "route", "from": "proxy", "to": "pages", "label": "locale route", "variant": "emphasis" },
+    { "id": "page-fetch", "from": "pages", "to": "strapiClient", "label": "SSR (planned)", "variant": "dashed" },
+    { "id": "rest", "from": "strapiClient", "to": "strapiCore", "label": "REST + token", "variant": "emphasis" },
+    { "id": "dispatch", "from": "strapiCore", "to": "creativeWorks", "label": "list handler", "variant": "emphasis" },
+    { "id": "read-db", "from": "creativeWorks", "to": "postgres", "label": "SQL", "variant": "emphasis" },
+    { "id": "session", "from": "proxy", "to": "nextauth", "label": "gate /venue", "variant": "security" },
+    { "id": "search", "from": "visitor", "to": "algolia", "label": "instant search" },
+    { "id": "client-fetch", "from": "visitor", "to": "bff", "label": "fetch /api/*", "fromSide": "bottom", "toSide": "left" },
+    { "id": "bff-client", "from": "bff", "to": "strapiClient", "label": "same client" },
+    { "id": "core-plugins", "from": "strapiCore", "to": "otherPlugins", "label": "routes" },
+    { "id": "plugins-db", "from": "otherPlugins", "to": "postgres", "label": "SQL", "fromSide": "right", "toSide": "bottom" },
+    { "id": "plugins-ext", "from": "otherPlugins", "to": "thirdParty", "label": "HTTPS" }
+  ],
+  "cards": [
+    { "dot": "amber", "title": "Primary path: short-film directory (v1)", "items": [
+      "Backend is live: GET /api/creative-works/creative-works/short-films[/featured|/:slug|/:slug/related], auth: false, 600 req/min rate limit, published rows only, French fallback overlay.",
+      "Frontend is not wired yet: /shorts and /shorts/[slug] render mock files. Wiring them to Strapi is the 'Strapi-Backed Shorts Pages' phase (dashed edge).",
+      "The client shorts module still calls /creative-works with phantom populate keys, so the live /api/shorts handler would not reach the plugin route today."
+    ] },
+    { "dot": "rose", "title": "Trust boundaries", "items": [
+      "Strapi API tokens (read-only + custom) and the user JWT are attached only on the Next.js server; browsers reach Strapi through /api/public-proxy or /api/private-proxy.",
+      "The private proxy forwards only allow-listed method + path prefixes; tenant scope (venue manager, watchlist owner) is resolved from the JWT inside Strapi.",
+      "Algolia is the one external the browser calls directly, with a search-only key."
+    ] },
+    { "dot": "emerald", "title": "Backend composition", "items": [
+      "One Strapi process hosting local plugins: geography → venues → creative-works → tmdb-integration → events-manager → ticketing / payments → user-engagement; users-permissions loads after them.",
+      "Plugins depend on each other by content-type UID and public-api services (ticketing calls payments.public-api.initPayment only).",
+      "entity-properties is a deprecated empty shell; the api/ folder holds only a health check."
+    ] },
+    { "dot": "violet", "title": "Media and email", "items": [
+      "Media goes to ImageKit when IMAGEKIT_* is set, otherwise local uploads; the upload plugin flag is currently false in config.",
+      "Transactional email goes through the in-repo Brevo provider (packages/strapi-provider-email-brevo) and logs to the console without an API key."
+    ] },
+    { "dot": "cyan", "title": "Planned (not in code yet)", "items": [
+      "Self-hosted Meilisearch next to Strapi on the Dokploy VPS, synced on publish; Algolia removed.",
+      "No Redis: rate limiting and caching are in-process, so Strapi runs as a single replica."
+    ] },
+    { "dot": "slate", "title": "Deployment", "items": [
+      "docker-compose.prod.yml runs client (:3000), strapi (:1337) and postgres on one network; GitHub Actions triggers Dokploy deploys."
+    ] }
+  ]
+}
