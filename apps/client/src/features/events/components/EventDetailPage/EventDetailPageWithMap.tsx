@@ -31,6 +31,7 @@ import {
 } from "lucide-react"
 import { useLocale } from "next-intl"
 
+import type { ShowtimeFormat } from "@/features/tickets/components/ShowtimeButton"
 import type { EventCardEvent } from "../../types/event.types"
 import type { StrapiEvent, StrapiMedia } from "../../types/strapi.types"
 import type { VenueLocation } from "../Map"
@@ -51,6 +52,22 @@ import { VenueMap } from "../Map"
 // Placeholder blur data URL for images
 const BLUR_DATA_URL =
   "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAMCAgMCAgMDAwMEAwMEBQgFBQQEBQoHBwYIDAoMCwsKCwsNDhIQDQ4RDgsLEBYQERMUFRUVDA8XGBYUGBIUFRT/2wBDAQMEBAUEBQkFBQkUDQsNFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBT/wAARCAAIAAoDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAAYH/8QAIhAAAgEEAgIDAQAAAAAAAAAAAQIDAAQFESEGEhMxQVFh/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAZEQADAQEBAAAAAAAAAAAAAAABAgMAEUH/2gAMAwEAAhEDEQA/ANM4/wAix+TwGNvIZ4Xknt0kkiWVWeNmUEqw+iCexrxSlOhIqnAiYp//2Q=="
+
+const SHOWTIME_FORMATS: readonly ShowtimeFormat[] = [
+  "VOST",
+  "VF",
+  "VO",
+  "3D",
+  "IMAX",
+  "4DX",
+]
+
+/** Narrows the legacy free-text `StrapiShowtime.format` to a known badge. */
+function isShowtimeFormat(
+  format: string | undefined
+): format is ShowtimeFormat {
+  return SHOWTIME_FORMATS.some((known) => known === format)
+}
 
 export interface EventDetailPageWithMapLabels {
   back: string
@@ -194,11 +211,10 @@ export function EventDetailPageWithMap({
   const showtimesByDate = React.useMemo(() => {
     const grouped: Record<string, StrapiEvent["showtimes"]> = {}
     event.showtimes?.forEach((showtime) => {
-      const date = showtime.time.split("T")[0]
-      if (!grouped[date]) {
-        grouped[date] = []
-      }
-      grouped[date]!.push(showtime)
+      // `split` always yields at least one element; the fallback only
+      // satisfies `noUncheckedIndexedAccess`.
+      const date = showtime.time.split("T")[0] ?? showtime.time
+      ;(grouped[date] ??= []).push(showtime)
     })
     return grouped
   }, [event.showtimes])
@@ -533,13 +549,22 @@ export function EventDetailPageWithMap({
                           <ShowtimeButton
                             key={showtime.documentId}
                             time={time}
+                            venueName={event.venue?.name ?? ""}
                             price={showtime.price}
                             currency="TND"
-                            format={showtime.format}
-                            isAvailable={!isSoldOut}
-                            onClick={() =>
+                            formats={
+                              isShowtimeFormat(showtime.format)
+                                ? [showtime.format]
+                                : undefined
+                            }
+                            status={isSoldOut ? "sold-out" : "available"}
+                            onSelect={() =>
                               handleShowtimeSelect(showtime.documentId)
                             }
+                            labels={{
+                              soldOut: labels.soldOut,
+                              selectShowtime: labels.buyTickets,
+                            }}
                           />
                         )
                       })}

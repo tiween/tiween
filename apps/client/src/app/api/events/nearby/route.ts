@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from "next/server"
+import { hasLocale } from "next-intl"
 
 import type { StrapiEvent } from "@/features/events/types/strapi.types"
 import type { Coordinates } from "@/lib/geolocation"
 
 import { calculateDistance } from "@/lib/geolocation"
 import { isWithinTunisia, NEARBY_RADIUS_KM } from "@/lib/geolocation/constants"
+import { routing } from "@/lib/navigation"
 import { PublicStrapiClient } from "@/lib/strapi-api"
 
 /**
@@ -47,7 +49,10 @@ export async function GET(request: NextRequest) {
   }
 
   // Parse other parameters
-  const locale = searchParams.get("locale") || "fr"
+  const requestedLocale = searchParams.get("locale")
+  const locale = hasLocale(routing.locales, requestedLocale)
+    ? requestedLocale
+    : routing.defaultLocale
   const category = searchParams.get("category") || undefined
   const limit = Math.min(parseInt(searchParams.get("limit") || "20", 10), 50)
   const offset = Math.max(parseInt(searchParams.get("offset") || "0", 10), 0)
@@ -60,10 +65,12 @@ export async function GET(request: NextRequest) {
     const filters: Record<string, unknown> = {
       publishedAt: { $notNull: true },
       endDate: { $gte: new Date().toISOString().split("T")[0] },
-      // Only events with venues that have coordinates
+      // Only events with venues that have coordinates (`shared.geo-point`)
       venue: {
-        latitude: { $notNull: true },
-        longitude: { $notNull: true },
+        geo: {
+          latitude: { $notNull: true },
+          longitude: { $notNull: true },
+        },
       },
     }
 
@@ -85,6 +92,7 @@ export async function GET(request: NextRequest) {
           "creativeWork.genres",
           "venue",
           "venue.logo",
+          "venue.geo",
           "venue.cityRef",
           "showtimes",
         ],
@@ -104,14 +112,14 @@ export async function GET(request: NextRequest) {
     // Calculate distance for each event and filter by radius
     const eventsWithDistance = events
       .map((event) => {
-        const venue = event.venue
-        if (!venue?.latitude || !venue?.longitude) {
+        const geo = event.venue?.geo
+        if (!geo?.latitude || !geo?.longitude) {
           return null
         }
 
         const venueLocation: Coordinates = {
-          latitude: venue.latitude,
-          longitude: venue.longitude,
+          latitude: geo.latitude,
+          longitude: geo.longitude,
         }
 
         const distance = calculateDistance(userLocation, venueLocation)
