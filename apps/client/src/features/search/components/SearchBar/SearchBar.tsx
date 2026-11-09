@@ -104,9 +104,10 @@ export function SearchBar({
   // Handle form submit (Enter key)
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (highlightedIndex >= 0 && highlightedIndex < recentSearches.length) {
+    const selected =
+      highlightedIndex >= 0 ? recentSearches[highlightedIndex] : undefined
+    if (selected !== undefined) {
       // Select highlighted recent search
-      const selected = recentSearches[highlightedIndex]
       onChange(selected)
       onSearch(selected)
     } else if (value.trim()) {

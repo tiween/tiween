@@ -17,7 +17,8 @@ import type { LatLngBoundsExpression, LatLngExpression } from "leaflet"
 // Import Leaflet CSS - required for proper map rendering
 import "leaflet/dist/leaflet.css"
 
-import type { MapConfig, VenueLocation, VenueType } from "./types"
+import type { VenueType } from "../VenueSelector"
+import type { MapConfig, VenueLocation } from "./types"
 
 import { buildDirectionsUrl } from "../../utils/directions"
 import { VENUE_TYPE_COLORS } from "./types"

@@ -1,5 +1,7 @@
 import "server-only"
 
+import type { Locale } from "next-intl"
+
 import { PublicStrapiClient } from "@/lib/strapi-api"
 
 // =============================================================================
@@ -50,7 +52,7 @@ export interface StrapiCityWithRegion extends StrapiCityBasic {
  * Fetch all regions with their cities
  * Used for the region/city filter dropdown
  */
-export async function getRegions(locale: string): Promise<StrapiRegion[]> {
+export async function getRegions(locale: Locale): Promise<StrapiRegion[]> {
   try {
     const response = await PublicStrapiClient.fetchAPI(
       "/geography/regions",
@@ -69,7 +71,7 @@ export async function getRegions(locale: string): Promise<StrapiRegion[]> {
  */
 export async function getRegion(
   documentId: string,
-  locale: string
+  locale: Locale
 ): Promise<StrapiRegion | null> {
   try {
     const response = await PublicStrapiClient.fetchAPI(
@@ -88,7 +90,7 @@ export async function getRegion(
  * Fetch cities, optionally filtered by region
  */
 export async function getCities(
-  locale: string,
+  locale: Locale,
   regionDocumentId?: string
 ): Promise<StrapiCityWithRegion[]> {
   try {
@@ -114,7 +116,7 @@ export async function getCities(
  */
 export async function getCity(
   documentId: string,
-  locale: string
+  locale: Locale
 ): Promise<StrapiCityWithRegion | null> {
   try {
     const response = await PublicStrapiClient.fetchAPI(

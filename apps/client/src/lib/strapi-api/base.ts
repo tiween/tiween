@@ -248,8 +248,10 @@ export default abstract class BaseStrapiClient {
     }
     const path = this.getStrapiApiPathByUId(uid)
 
-    const response: APIResponseCollection<Result<TContentTypeUID, TParams>> =
-      await this.fetchAPI(path, mergedParams, requestInit, options)
+    // Full-path lookups hit localized page entries, which carry `localizations`.
+    const response: APIResponseCollection<
+      Result<TContentTypeUID, TParams> & PageLocalization
+    > = await this.fetchAPI(path, mergedParams, requestInit, options)
 
     // return last published entry
     return {

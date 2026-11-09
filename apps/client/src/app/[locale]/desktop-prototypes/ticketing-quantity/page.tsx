@@ -143,7 +143,7 @@ export default function TicketingQuantityPrototype() {
                   key={type.id}
                   className={cn(
                     "flex items-center justify-between rounded-2xl p-6 transition-all",
-                    quantities[type.id] > 0
+                    (quantities[type.id] ?? 0) > 0
                       ? "bg-secondary ring-primary/30 ring-2"
                       : "bg-secondary/60"
                   )}
@@ -161,10 +161,10 @@ export default function TicketingQuantityPrototype() {
                   <div className="flex items-center gap-4">
                     <button
                       onClick={() => handleQuantityChange(type.id, -1)}
-                      disabled={quantities[type.id] === 0}
+                      disabled={(quantities[type.id] ?? 0) === 0}
                       className={cn(
                         "flex h-10 w-10 items-center justify-center rounded-full transition-all",
-                        quantities[type.id] === 0
+                        (quantities[type.id] ?? 0) === 0
                           ? "bg-background/30 text-muted-foreground/50 cursor-not-allowed"
                           : "bg-primary text-primary-foreground hover:bg-primary/90"
                       )}
@@ -173,15 +173,15 @@ export default function TicketingQuantityPrototype() {
                     </button>
 
                     <span className="text-foreground w-8 text-center text-2xl font-bold">
-                      {quantities[type.id]}
+                      {quantities[type.id] ?? 0}
                     </span>
 
                     <button
                       onClick={() => handleQuantityChange(type.id, 1)}
-                      disabled={quantities[type.id] >= 10}
+                      disabled={(quantities[type.id] ?? 0) >= 10}
                       className={cn(
                         "flex h-10 w-10 items-center justify-center rounded-full transition-all",
-                        quantities[type.id] >= 10
+                        (quantities[type.id] ?? 0) >= 10
                           ? "bg-background/30 text-muted-foreground/50 cursor-not-allowed"
                           : "bg-primary text-primary-foreground hover:bg-primary/90"
                       )}
@@ -277,7 +277,7 @@ export default function TicketingQuantityPrototype() {
                 <div className="border-border/50 mt-5 border-t pt-5">
                   {ticketTypes.map(
                     (type) =>
-                      quantities[type.id] > 0 && (
+                      (quantities[type.id] ?? 0) > 0 && (
                         <div
                           key={type.id}
                           className="flex items-center justify-between text-sm"
@@ -285,11 +285,11 @@ export default function TicketingQuantityPrototype() {
                           <span className="text-muted-foreground">
                             {type.name}{" "}
                             <span className="text-foreground">
-                              x {quantities[type.id]}
+                              x {quantities[type.id] ?? 0}
                             </span>
                           </span>
                           <span className="text-foreground">
-                            {(type.price * quantities[type.id])
+                            {(type.price * (quantities[type.id] ?? 0))
                               .toFixed(2)
                               .replace(".", ",")}{" "}
                             DT

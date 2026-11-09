@@ -5,7 +5,8 @@ import { Icon } from "leaflet"
 import { Marker, Popup } from "react-leaflet"
 
 import type { LatLngExpression } from "leaflet"
-import type { VenueLocation, VenueType } from "./types"
+import type { VenueType } from "../VenueSelector"
+import type { VenueLocation } from "./types"
 
 import { cn } from "@/lib/utils"
 

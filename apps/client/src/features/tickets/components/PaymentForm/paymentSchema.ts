@@ -104,7 +104,7 @@ function isValidCardNumber(cardNumber: string): boolean {
   let isEven = false
 
   for (let i = digits.length - 1; i >= 0; i--) {
-    let digit = parseInt(digits[i], 10)
+    let digit = parseInt(digits.charAt(i), 10)
 
     if (isEven) {
       digit *= 2
@@ -123,10 +123,12 @@ function isValidCardNumber(cardNumber: string): boolean {
  */
 function isValidExpiry(expiry: string): boolean {
   const match = expiry.match(/^(0[1-9]|1[0-2])\/(\d{2})$/)
-  if (!match) return false
+  const monthPart = match?.[1]
+  const yearPart = match?.[2]
+  if (!monthPart || !yearPart) return false
 
-  const month = parseInt(match[1], 10)
-  const year = parseInt("20" + match[2], 10)
+  const month = parseInt(monthPart, 10)
+  const year = parseInt("20" + yearPart, 10)
 
   const now = new Date()
   const currentYear = now.getFullYear()

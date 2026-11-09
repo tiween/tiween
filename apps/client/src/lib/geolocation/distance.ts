@@ -157,13 +157,14 @@ export function filterByRadius<T>(
  * @param items - Array of items
  * @param reference - Reference point
  * @param getCoordinates - Function to extract coordinates
- * @returns Array of items with distance property added
+ * @returns Array of items; those with coordinates get a `distance` property,
+ * the rest are returned unchanged
  */
 export function addDistanceToItems<T>(
   items: T[],
   reference: Coordinates,
   getCoordinates: (item: T) => Coordinates | null
-): Array<T & { distance?: number }> {
+): Array<T | (T & { distance: number })> {
   return items.map((item) => {
     const coords = getCoordinates(item)
     if (!coords) {

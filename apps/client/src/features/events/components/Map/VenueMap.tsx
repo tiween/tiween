@@ -107,14 +107,15 @@ export function VenueMap({
 
   // Calculate center point
   const center = React.useMemo(() => {
-    if (allVenues.length === 0) {
+    const [firstVenue] = allVenues
+    if (!firstVenue) {
       return TUNISIA_CENTER
     }
 
     if (allVenues.length === 1) {
       return {
-        latitude: allVenues[0].latitude,
-        longitude: allVenues[0].longitude,
+        latitude: firstVenue.latitude,
+        longitude: firstVenue.longitude,
       }
     }
 

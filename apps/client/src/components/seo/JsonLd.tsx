@@ -27,8 +27,12 @@
  */
 
 export interface JsonLdProps {
-  /** The structured data object to render */
-  data: Record<string, unknown> | Record<string, unknown>[]
+  /**
+   * The structured data object to render. Typed as `object` so schema
+   * interfaces (e.g. `EventSchema`, which has no index signature) are accepted;
+   * the value is only passed to `JSON.stringify`.
+   */
+  data: object | object[]
 }
 
 export function JsonLd({ data }: JsonLdProps) {

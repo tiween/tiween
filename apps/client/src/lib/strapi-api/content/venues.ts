@@ -1,15 +1,9 @@
 import "server-only"
 
 import type { PublicVenue } from "@/features/venues/schemas/venue-profile"
+import type { Locale } from "next-intl"
 
 import { PublicStrapiClient } from "@/lib/strapi-api"
-
-/**
- * The locale union `AppLocalizedParams` accepts. The other readers in this file
- * pass a bare `string` and each earn a pre-existing type error for it; the
- * slug reader narrows instead of adding one more.
- */
-type AppLocale = "ar" | "fr" | "en"
 
 // =============================================================================
 // Venue Types
@@ -97,7 +91,7 @@ export interface VenueFilterOptions {
  * Only returns venues with status "approved"
  */
 export async function getVenues(
-  locale: string,
+  locale: Locale,
   options?: VenueFilterOptions
 ): Promise<{ venues: StrapiVenueBasic[]; total: number }> {
   const { type, cityDocumentId, search, limit = 20, offset = 0 } = options || {}
@@ -168,7 +162,7 @@ export async function getVenues(
  */
 export async function getVenueByDocumentId(
   documentId: string,
-  locale: string
+  locale: Locale
 ): Promise<StrapiVenueDetail | null> {
   try {
     const response = await PublicStrapiClient.fetchAPI(
@@ -231,14 +225,14 @@ export async function getVenueByDocumentId(
  */
 export async function getVenueBySlug(
   slug: string,
-  locale: string
+  locale: Locale
 ): Promise<PublicVenue | null> {
   if (!slug) return null
 
   try {
     const response = await PublicStrapiClient.fetchAPI(
       `/venues/venues/by-slug/${encodeURIComponent(slug)}`,
-      { locale: locale as AppLocale },
+      { locale },
       { next: { revalidate: 300 } }
     )
 
@@ -282,7 +276,7 @@ function isNotFoundError(error: unknown): boolean {
  */
 export async function getVenuesByCity(
   cityDocumentId: string,
-  locale: string,
+  locale: Locale,
   limit = 20
 ): Promise<StrapiVenueBasic[]> {
   const result = await getVenues(locale, { cityDocumentId, limit })
@@ -295,7 +289,7 @@ export async function getVenuesByCity(
  */
 export async function getVenuesByType(
   type: VenueType,
-  locale: string,
+  locale: Locale,
   limit = 20
 ): Promise<StrapiVenueBasic[]> {
   const result = await getVenues(locale, { type, limit })
@@ -307,7 +301,7 @@ export async function getVenuesByType(
  */
 export async function searchVenues(
   query: string,
-  locale: string,
+  locale: Locale,
   limit = 10
 ): Promise<StrapiVenueBasic[]> {
   const result = await getVenues(locale, { search: query, limit })
@@ -372,7 +366,7 @@ const emptySelectorResult = (): VenueSelectorResult => ({
  * broken selector never 500s the page that renders it.
  */
 export async function getVenuesForSelector(
-  locale: string,
+  locale: Locale,
   options?: VenueSelectorOptions
 ): Promise<VenueSelectorResult> {
   const {

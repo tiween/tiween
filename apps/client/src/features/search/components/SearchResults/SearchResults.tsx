@@ -137,7 +137,7 @@ export function SearchResults({
     const observer = new IntersectionObserver(
       (entries) => {
         const [entry] = entries
-        if (entry.isIntersecting) {
+        if (entry?.isIntersecting) {
           onLoadMore()
         }
       },

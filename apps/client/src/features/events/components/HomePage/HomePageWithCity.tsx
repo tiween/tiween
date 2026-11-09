@@ -159,11 +159,13 @@ function toFilmHeroEvent(event: StrapiEvent): FilmHeroEvent {
 }
 
 function toDateString(date: Date): string {
-  return date.toISOString().split("T")[0]
+  // ISO 8601 output always starts with the YYYY-MM-DD date part.
+  return date.toISOString().slice(0, 10)
 }
 
 function parseDateString(dateStr: string): Date {
-  const [year, month, day] = dateStr.split("-").map(Number)
+  // Missing parts become NaN, yielding an Invalid Date exactly as before.
+  const [year = NaN, month = NaN, day = NaN] = dateStr.split("-").map(Number)
   const date = new Date(year, month - 1, day)
   date.setHours(0, 0, 0, 0)
   return date

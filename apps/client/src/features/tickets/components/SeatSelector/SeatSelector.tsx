@@ -206,13 +206,13 @@ export function SeatSelector({
         case "ArrowUp":
           e.preventDefault()
           if (rowIndex > 0) {
-            newRow = layout.rows[rowIndex - 1]
+            newRow = layout.rows[rowIndex - 1] ?? seat.row
           }
           break
         case "ArrowDown":
           e.preventDefault()
           if (rowIndex < layout.rows.length - 1) {
-            newRow = layout.rows[rowIndex + 1]
+            newRow = layout.rows[rowIndex + 1] ?? seat.row
           }
           break
         case "ArrowLeft":
