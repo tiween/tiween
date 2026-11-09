@@ -110,3 +110,43 @@ So that I don't miss or arrive at the wrong time.
 **And** email notification is sent if enabled in preferences
 
 ---
+
+## Story 5.7: Watchlist Atomic Dedupe
+
+**Scope:** MVP
+
+> **Recorded retroactively (2026-08-11).** Hardening story delivered 2026-07-10.
+> Spec: `implementation-artifacts/spec-5-7-watchlist-atomic-dedupe.md`.
+
+As a **user**,
+I want adding the same event to my watchlist twice to be a no-op,
+So that concurrent taps cannot create duplicate entries.
+
+**Acceptance Criteria:**
+
+**Given** a unique `(user, creativeWork)` database constraint exists
+**When** two concurrent add requests race for the same pair
+**Then** exactly one row is created and the duplicate is absorbed without an error surfacing to the user
+
+---
+
+## Story 5.8: User-Scoped Watchlist Cache
+
+**Scope:** MVP
+
+> **Recorded retroactively (2026-08-11).** Hardening story delivered 2026-07-10;
+> the rule it enforces is recorded in `project-context.md`. Spec:
+> `implementation-artifacts/spec-5-8-user-scoped-watchlist-cache.md`.
+
+As a **user on a shared device**,
+I want my watchlist cache keyed to my own account,
+So that another account's watchlist never renders as mine.
+
+**Acceptance Criteria:**
+
+**Given** watchlist queries previously used a shared singleton query key
+**When** the key is scoped per user (`["watchlist", "list", userId]`)
+**Then** switching accounts does not surface the previous user's watchlist
+**And** the cache is cleared on logout
+
+---

@@ -22,6 +22,11 @@
 #   - review: Ready for code review (via Dev's code-review workflow)
 #   - done: Story completed
 #
+# PROJECT-LOCAL story statuses (NOT in sprint_plan.py's STORY_RANK — see
+# MAINTENANCE below before running any tooling that writes this file):
+#   - deferred: Consciously parked out of v1 scope. bmad-loop SKIPS these.
+#   - awaiting-operator: Blocked on a human/operator action, not on dev work.
+#
 # Retrospective Status:
 #   - optional: Can be completed but not required
 #   - done: Retrospective has been completed
@@ -32,6 +37,44 @@
 # - Stories can be worked in parallel if team capacity allows
 # - SM typically creates next story after previous one is 'done' to incorporate learnings
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
+#
+# MAINTENANCE — read before regenerating (established 2026-08-11)
+# ================================================================
+# THIS FILE IS HAND-MAINTAINED. Never let sprint_plan.py write it.
+# Use `generate --dry-run` as a diff oracle only, then apply changes by hand.
+#
+# Two reasons the deterministic write path is unsafe here:
+#
+# 1. Illegal statuses get flattened. `deferred` and `awaiting-operator` are not
+#    in STORY_RANK (sprint_plan.py:59), so a write silently rewrites all 19 of
+#    them to `backlog` — which puts consciously-parked stories (2b-10 Redis, and
+#    the whole Epic 6/7/8 ticketing deferral) back into bmad-loop's pickup path.
+#
+# 2. Epics 2A-2D are invisible to the parser. EPIC_RE (sprint_plan.py:44)
+#    captures `Epic\s+(\d+)`, dropping the letter, so all four collapse onto a
+#    single `epic-2` key and their 47 `## Story 2A.1:`-style headings fail
+#    STORY_RE entirely. Letters are supported on the STORY number (`3.1a`) but
+#    never on the EPIC number. Renumbering 2A-2D to plain integers was rejected
+#    on 2026-08-11: it would rewrite 766 references across 85 files and rename
+#    45 story/spec files mid-flight. The 2A-2D block below is therefore
+#    HAND-CURATED and must be excluded from --epic-file.
+#
+# The dry-run that reflects this arrangement (epics 1 and 3-10 only):
+#
+#   uv run .claude/skills/bmad-sprint-planning/scripts/sprint_plan.py generate \
+#     --dry-run \
+#     --epic-file _bmad-output/project-planning-artifacts/epics/epic-1-*.md \
+#     --epic-file .../epic-3-*.md ... --epic-file .../epic-10-*.md \
+#     --status-file _bmad-output/implementation-artifacts/sprint-status.yaml \
+#     --stories-dir _bmad-output/implementation-artifacts \
+#     --project tiween-bmad-version --date "MM-DD-YYYY HH:MM"
+#
+# As of 2026-08-11 that reports new: [], warnings: [], and orphans consisting of
+# exactly the 2A-2D block. Any OTHER orphan or new entry is real drift worth
+# reconciling. `changed: 19` is expected and must NOT be applied.
+#
+# Do not pass epic-list.md or epic-dependencies.md as --epic-file; they are
+# summary docs and their headings only produce parse warnings.
 
 generated: 2025-12-26
 project: tiween-bmad-version
@@ -69,6 +112,14 @@ development_status:
   1-13-repo-hygiene-encoding-ci-guard: done
   epic-1-retrospective: optional
 
+  # ==========================================================================
+  # HAND-CURATED BLOCK — Epics 2A through 2D (see MAINTENANCE in the header).
+  # sprint_plan.py cannot parse letter-numbered epics: it reads `Epic 2A` as
+  # epic 2 and cannot see the `## Story 2A.n:` headings at all. Keep these
+  # entries in sync with the epic files BY HAND, and never pass
+  # epic-2a/2b/2c/2d-*.md to --epic-file. They will always show up as
+  # `dropped_orphans` in a dry-run; that is expected, not drift.
+  # ==========================================================================
   # Epic 2A: Component Library & Design System (PARALLEL TRACK A)
   epic-2a: in-progress
   2a-1-layout-components-bottomnav: review
@@ -144,8 +195,15 @@ development_status:
   2d-3-property-authoring-ui: backlog
   2d-4-attach-properties-to-venue: backlog
   epic-2d-retrospective: optional
+  # ===================== end HAND-CURATED 2A-2D block =======================
 
   # Epic 3: Event Discovery & Browsing
+  # 2026-08-11: epic-3's story headings were retitled to match these keys
+  # exactly — `## Story 3.1a:` -> `## Story 3.1:` and `## Story 3.1b:` ->
+  # `## Story 3.11:` (matching the numeric-key rule noted below), and the
+  # `[MVP]`/`[Phase 2]` tags were moved off the headings into `**Scope:**`
+  # lines because they were leaking into the derived slug
+  # (`3-2-category-filtering-mvp`). Keys below are unchanged.
   # 2026-07-05 REVISION (sprint-change-proposal-2026-07-05): Story 3.1 split
   # along its data/presentation seam into 3.1a (backend, key 3-1) + 3.1b
   # (frontend, key 3-11, depends on 3-1); it exceeded a single unattended dev
@@ -294,19 +352,19 @@ development_status:
   10-8-offline-status-indicators: backlog
   epic-10-retrospective: optional
 
-last_updated: 08-11-2026
+last_updated: 08-11-2026 12:00
 
 # Action items from retrospectives. See epic-{N}-retro-{date}.md for full context.
 action_items:
   - epic: 5
     action: "CRITICAL PATH: Add unique (user, creativeWork) constraint + atomic upsert on the watchlist add path; establishes the oversell-proof atomic-write pattern Epic 6 ticketing inherits."
     owner: "Dev"
-    status: specced
+    status: done
     story: "5-7-watchlist-atomic-dedupe"
   - epic: 5
     action: "CRITICAL PATH: Replace the non-user-scoped react-query key ['watchlist','list'] with a user-scoped key + logout clear; closes cross-user/shared-device watchlist persistence."
     owner: "Dev"
-    status: specced
+    status: done
     story: "5-8-user-scoped-watchlist-cache"
   - epic: 5
     action: "CRITICAL PATH: Refresh project-context.md to match the codebase (Next.js 16.1, Brevo email provider, react-query) before Epic 6 dev agents run."

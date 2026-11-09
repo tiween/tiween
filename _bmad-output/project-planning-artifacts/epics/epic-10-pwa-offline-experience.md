@@ -5,7 +5,9 @@ Users can install the app and browse cached content offline.
 > **MVP Scope:** PWA installation, showtime caching, offline browsing, basic offline indicators.
 > **Phase 2:** Offline watchlist, offline tickets, background sync for user actions.
 
-## Story 10.1: PWA Installation [MVP]
+## Story 10.1: PWA Installation
+
+**Scope:** MVP
 
 As a **user**,
 I want to install Tiween on my device,
@@ -23,7 +25,9 @@ So that I can access it like a native app.
 
 ---
 
-## Story 10.2: Event Listing Caching [MVP]
+## Story 10.2: Event Listing Caching
+
+**Scope:** MVP
 
 As a **user**,
 I want showtime listings to be cached,
@@ -41,7 +45,9 @@ So that I can browse even with poor connectivity.
 
 ---
 
-## Story 10.3: Offline Browsing [MVP]
+## Story 10.3: Offline Browsing
+
+**Scope:** MVP
 
 As a **user**,
 I want to browse cached content offline,
@@ -59,7 +65,9 @@ So that I can check showtimes without internet.
 
 ---
 
-## Story 10.4: Offline Watchlist Access [Phase 2]
+## Story 10.4: Offline Watchlist Access
+
+**Scope:** Phase 2
 
 > **Deferred:** Watchlist feature deferred to Phase 2.
 
@@ -78,7 +86,9 @@ So that I can remember my saved events.
 
 ---
 
-## Story 10.5: Offline Ticket Display [Phase 2]
+## Story 10.5: Offline Ticket Display
+
+**Scope:** Phase 2
 
 > **Deferred:** Ticketing feature deferred to Phase 2.
 
@@ -98,7 +108,9 @@ So that I can enter venues without internet.
 
 ---
 
-## Story 10.6: Background Sync [Phase 2]
+## Story 10.6: Background Sync
+
+**Scope:** Phase 2
 
 > **Deferred:** No user actions to sync in MVP (no watchlist, no purchases).
 
@@ -118,7 +130,9 @@ So that nothing is lost from offline usage.
 
 ---
 
-## Story 10.7: Install Prompts [MVP]
+## Story 10.7: Install Prompts
+
+**Scope:** MVP
 
 As a **user**,
 I want to be prompted to install the app at the right time,
@@ -135,7 +149,9 @@ So that I'm not annoyed but do learn about the option.
 
 ---
 
-## Story 10.8: Offline Status Indicators [MVP]
+## Story 10.8: Offline Status Indicators
+
+**Scope:** MVP
 
 As a **user**,
 I want clear indicators when I'm offline,

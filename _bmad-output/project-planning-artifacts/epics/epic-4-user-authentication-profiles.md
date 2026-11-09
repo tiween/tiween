@@ -116,3 +116,25 @@ So that I can complete my purchase quickly.
 **And** if I later create an account with that email, my purchase history is linked
 
 ---
+
+## Story 4.7: Fix Users-Permissions Auth Controller Factory Wiring
+
+**Scope:** MVP
+
+> **Recorded retroactively (2026-08-11).** Delivered as a defect fix against the
+> Epic 4 auth surface; documented here so it traces back to an epic. Spec:
+> `implementation-artifacts/4-7-fix-users-permissions-auth-controller-factory-wiring.md`.
+
+As a **developer**,
+I want the `users-permissions` auth controller override wired through the correct
+Strapi v5 factory,
+So that the authentication endpoints resolve and behave as the plugin intends.
+
+**Acceptance Criteria:**
+
+**Given** the auth controller was overridden with incorrect factory wiring
+**When** the override is corrected
+**Then** the users-permissions auth routes resolve to the intended handlers
+**And** registration, login, and password-reset flows exercise the override rather than bypassing it
+
+---

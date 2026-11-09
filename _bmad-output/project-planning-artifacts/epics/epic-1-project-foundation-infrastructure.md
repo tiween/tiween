@@ -27,7 +27,7 @@ So that I have a solid foundation with Turborepo, TypeScript, and project struct
 
 ---
 
-## Story 1.2: Upgrade to Next.js 16.1 with Turbopack
+## Story 1.2: Upgrade to NextJS 16.1 with Turbopack
 
 As a **developer**,
 I want to upgrade the frontend to Next.js 16.1,
@@ -224,5 +224,85 @@ So that code quality is automatically verified on every push and pull request.
   **And** `.github/workflows/deploy-staging.yml` is created (placeholder for Dokploy)
   **And** `.github/workflows/deploy-production.yml` is created (placeholder for Dokploy)
   **And** CI passes on a clean commit
+
+---
+
+## Story 1.10: Restore Client ESLint Enforcement
+
+**Scope:** MVP
+
+> **Recorded retroactively (2026-08-11).** Delivered as a hardening chore during
+> Epic 1; documented here so it traces back to an epic. Spec:
+> `implementation-artifacts/spec-1-10-restore-client-eslint-enforcement.md`.
+
+As a **developer**,
+I want ESLint enforcement restored on `apps/client`,
+So that lint regressions fail CI instead of accumulating silently.
+
+**Acceptance Criteria:**
+
+**Given** the client app had lint enforcement disabled
+**When** enforcement is restored
+**Then** `yarn lint` reports client violations as errors
+**And** the CI lint job fails on a violation rather than passing vacuously
+
+---
+
+## Story 1.11: Bring Strapi Backend Under Lint
+
+**Scope:** MVP
+
+> **Recorded retroactively (2026-08-11).** Spec:
+> `implementation-artifacts/1-11-bring-strapi-backend-under-lint.md`.
+
+As a **developer**,
+I want `apps/strapi` covered by the shared ESLint configuration,
+So that the backend is held to the same quality bar as the client.
+
+**Acceptance Criteria:**
+
+**Given** the Strapi app was excluded from linting
+**When** it is brought under the shared config
+**Then** `yarn lint` covers `apps/strapi` source
+**And** the CI lint job runs against it
+
+---
+
+## Story 1.12: i18n Western-Numeral Lint Guard
+
+**Scope:** MVP
+
+> **Recorded retroactively (2026-08-11).** Enforces the Arabic Western-numeral
+> rule from `project-context.md`. Spec:
+> `implementation-artifacts/spec-1-12-i18n-western-numeral-lint-guard.md`.
+
+As a **developer**,
+I want a lint rule that rejects Arabic-Indic numerals in translation messages,
+So that the Western-numeral requirement cannot regress unnoticed.
+
+**Acceptance Criteria:**
+
+**Given** the AR locale must use Western numerals (`25/12/2025`)
+**When** a message file introduces Arabic-Indic digits
+**Then** lint fails and names the offending key
+
+---
+
+## Story 1.13: Repo-Hygiene Encoding CI Guard
+
+**Scope:** MVP
+
+> **Recorded retroactively (2026-08-11).** Spec:
+> `implementation-artifacts/spec-1-13-repo-hygiene-encoding-ci-guard.md`.
+
+As a **developer**,
+I want CI to reject non-UTF-8 and control-byte files,
+So that encoding corruption is caught at the boundary rather than in review.
+
+**Acceptance Criteria:**
+
+**Given** a file with invalid encoding or stray control bytes is committed
+**When** CI runs the repo-hygiene guard
+**Then** the job fails and lists the offending paths
 
 ---

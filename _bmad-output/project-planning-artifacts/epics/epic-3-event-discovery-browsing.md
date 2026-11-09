@@ -2,7 +2,7 @@
 
 Users can browse and search cinema showtimes across Tunisia without creating an account.
 
-> **MVP Focus (revised 2026-08-06, sprint-change-proposal-2026-08-06):**
+> **MVP Focus (revised 2026-08-06, 2026-08-06 scope change):**
 > Multi-category aggregation — story 3.2 (category filtering: theater,
 > concerts, exhibitions) is back in v1 scope. New story 3.12 gates the
 > purchase surfaces shipped by Epic 6 stories 6.1/6.2/6.3 behind a
@@ -14,14 +14,14 @@ Users can browse and search cinema showtimes across Tunisia without creating an 
 > Listings" was a full-stack vertical slice that exceeded a single unattended
 > dev pass (timed out, then finished without a committable result). Per
 > `sprint-change-proposal-2026-07-05.md` it is split along its data/presentation
-> seam into **Story 3.1a — Public Events Browse API & Data Foundation** (backend,
-> sprint key `3-1`) and **Story 3.1b — Homepage with Curated Event Listings**
-> (frontend, sprint key `3-11`). 3.1b depends on 3.1a. The four scoping decisions
+> seam into **Story 3.1 — Public Events Browse API and Data Foundation** (was 3.1a) (backend,
+> sprint key `3-1`) and **Story 3.11 — Homepage with Curated Event Listings** (was 3.1b)
+> (frontend, sprint key `3-11`). 3.11 depends on 3.1. The four scoping decisions
 > resolved on 2026-07-04 (3.1 owns the public events browse API; `featured`
 > boolean; trending = `sum(screening.ticketsSold)`; fix-and-wire the existing
 > homepage) carry forward unchanged.
 
-## Story 3.1a: Public Events Browse API & Data Foundation [MVP]
+## Story 3.1: Public Events Browse API and Data Foundation
 
 As a **frontend consumer of the events-manager plugin**,
 I want a public REST API that lists cinema events with the fields, filters, and
@@ -42,9 +42,9 @@ data foundation to build on.
 
 ---
 
-## Story 3.1b: Homepage with Curated Event Listings [MVP]
+## Story 3.11: Homepage with Curated Event Listings
 
-> **Depends on Story 3.1a** (public events browse API + `featured` + trending must exist).
+> **Depends on Story 3.1** (public events browse API + `featured` + trending must exist).
 
 As a **visitor**,
 I want to see curated event listings on the homepage,
@@ -66,9 +66,11 @@ So that I can quickly discover what's happening culturally in Tunisia.
 
 ---
 
-## Story 3.2: Category Filtering [MVP]
+## Story 3.2: Category Filtering
 
-> **Un-deferred 2026-08-06 (sprint-change-proposal-2026-08-06):** v1 widened
+**Scope:** MVP
+
+> **Un-deferred 2026-08-06 (2026-08-06 scope change):** v1 widened
 > to multi-category aggregation; this story is back in v1 scope.
 
 As a **visitor**,
@@ -88,7 +90,9 @@ So that I can focus on the type of cultural content I'm interested in.
 
 ---
 
-## Story 3.3: Date Range Filtering [MVP]
+## Story 3.3: Date Range Filtering
+
+**Scope:** MVP
 
 As a **visitor**,
 I want to filter events by date,
@@ -107,7 +111,9 @@ So that I can find events happening when I'm available.
 
 ---
 
-## Story 3.4: Region and City Filtering [MVP]
+## Story 3.4: Region and City Filtering
+
+**Scope:** MVP
 
 As a **visitor**,
 I want to filter events by location,
@@ -126,7 +132,9 @@ So that I can find events near me or in a specific area.
 
 ---
 
-## Story 3.5: Venue Filtering [MVP]
+## Story 3.5: Venue Filtering
+
+**Scope:** MVP
 
 As a **visitor**,
 I want to filter events by venue,
@@ -144,7 +152,9 @@ So that I can see what's playing at a specific place.
 
 ---
 
-## Story 3.6: Keyword Search with Algolia [MVP]
+## Story 3.6: Keyword Search with Algolia
+
+**Scope:** MVP
 
 As a **visitor**,
 I want to search for events by keyword,
@@ -163,7 +173,9 @@ So that I can find specific films, plays, or artists.
 
 ---
 
-## Story 3.7: Event Detail Page [MVP]
+## Story 3.7: Event Detail Page
+
+**Scope:** MVP
 
 As a **visitor**,
 I want to view complete details about an event,
@@ -184,7 +196,9 @@ So that I can decide if I want to attend.
 
 ---
 
-## Story 3.8: Venue Location on Map [MVP]
+## Story 3.8: Venue Location on Map
+
+**Scope:** MVP
 
 As a **visitor**,
 I want to see the venue location on a map,
@@ -202,7 +216,9 @@ So that I can plan how to get there.
 
 ---
 
-## Story 3.9: Geolocation "Near Me" Filtering [Phase 2]
+## Story 3.9: Geolocation "Near Me" Filtering
+
+**Scope:** Phase 2
 
 > **Deferred:** Region filtering sufficient for MVP. Geolocation added in Phase 2.
 
@@ -222,7 +238,9 @@ So that I can easily attend without traveling far.
 
 ---
 
-## Story 3.10: Share Event Details [MVP]
+## Story 3.10: Share Event Details
+
+**Scope:** MVP
 
 As a **visitor**,
 I want to share an event with friends,
@@ -240,9 +258,11 @@ So that we can plan to attend together.
 
 ---
 
-## Story 3.12: Gate Ticketing Entry Points for V1 [MVP]
+## Story 3.12: Gate Ticketing Entry Points for V1
 
-> **Added 2026-08-06 (sprint-change-proposal-2026-08-06):** v1 is an
+**Scope:** MVP
+
+> **Added 2026-08-06 (2026-08-06 scope change):** v1 is an
 > aggregation-only platform, but Epic 6 stories 6.1/6.2/6.3 already shipped
 > live purchase surfaces (ticket type/price display, quantity selection,
 > Konnect checkout). This story hides them behind a feature flag, default off,

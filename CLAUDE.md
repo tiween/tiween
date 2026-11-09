@@ -1,9 +1,10 @@
 # Project Instructions
 
 **Planning system: GSD** (`.planning/`). BMad tooling was removed on 2026-10-17;
-its output in `_bmad-output/` is kept as read-only reference material for
-documentation ingestion (`/gsd-ingest-docs`). Do not run, recreate, or write to
-BMad workflows, and do not edit `_bmad-output/`.
+its output in `_bmad-output/` is a starting point only — GSD documentation
+standards apply. Once a decision or escalation is resolved in `.planning/`,
+delete the matching BMad content to avoid confusion. Do not run or recreate
+BMad workflows.
 
 - Codebase map: `.planning/codebase/`
 - AI agent rules: `_bmad-output/project-context.md` (still in force — always follow)

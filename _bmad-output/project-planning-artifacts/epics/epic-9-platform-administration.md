@@ -4,7 +4,9 @@ Admins can manage content and moderate the platform via Strapi Admin.
 
 > **MVP Scope:** Manual content management (films, showtimes, venues). Advanced features deferred to Phase 2.
 
-## Story 9.1: Venue Approval Workflow [Phase 2]
+## Story 9.1: Venue Approval Workflow
+
+**Scope:** Phase 2
 
 > **Deferred:** B2B venue self-registration not in MVP. Admin creates venues directly.
 
@@ -25,7 +27,9 @@ So that only legitimate venues are listed.
 
 ---
 
-## Story 9.2: Manual Event Creation and Editing [MVP]
+## Story 9.2: Manual Event Creation and Editing
+
+**Scope:** MVP
 
 As an **admin**,
 I want to create and edit films and showtimes,
@@ -44,7 +48,9 @@ So that users see accurate cinema listings.
 
 ---
 
-## Story 9.3: Event Flagging for Quality Issues [Phase 2]
+## Story 9.3: Event Flagging for Quality Issues
+
+**Scope:** Phase 2
 
 > **Deferred:** Quality flagging workflow added when B2B venues can create their own events.
 
@@ -64,7 +70,9 @@ So that venue managers can correct problems.
 
 ---
 
-## Story 9.4: Platform Analytics Dashboard [Phase 2]
+## Story 9.4: Platform Analytics Dashboard
+
+**Scope:** Phase 2
 
 > **Deferred:** Analytics dashboard added in Phase 2 when there's meaningful data to analyze.
 
@@ -85,7 +93,9 @@ So that I can monitor growth and performance.
 
 ---
 
-## Story 9.5: User Account Management [Phase 2]
+## Story 9.5: User Account Management
+
+**Scope:** Phase 2
 
 > **Deferred:** User management added in Phase 2 when user base grows.
 
@@ -106,7 +116,9 @@ So that I can handle support issues and policy violations.
 
 ---
 
-## Story 9.6: Categories and Regions Management [MVP]
+## Story 9.6: Categories and Regions Management
+
+**Scope:** MVP
 
 As an **admin**,
 I want to manage content categories and regions,

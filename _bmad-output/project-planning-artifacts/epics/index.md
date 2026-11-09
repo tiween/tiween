@@ -103,8 +103,8 @@
 
 - [Epic 3: Event Discovery & Browsing](./epic-3-event-discovery-browsing.md) **[MVP]**
 
-  - [Story 3.1a: Public Events Browse API & Data Foundation](./epic-3-event-discovery-browsing.md#story-31a-public-events-browse-api--data-foundation) [MVP] (sprint key `3-1`; split from 3.1 on 2026-07-05)
-  - [Story 3.1b: Homepage with Curated Event Listings](./epic-3-event-discovery-browsing.md#story-31b-homepage-with-curated-event-listings) [MVP] (sprint key `3-11`; depends on 3.1a)
+  - [Story 3.1: Public Events Browse API and Data Foundation](./epic-3-event-discovery-browsing.md#story-31-public-events-browse-api-and-data-foundation) [MVP] (sprint key `3-1`; split from 3.1 on 2026-07-05, was labelled 3.1a until 2026-08-11)
+  - [Story 3.11: Homepage with Curated Event Listings](./epic-3-event-discovery-browsing.md#story-311-homepage-with-curated-event-listings) [MVP] (sprint key `3-11`; depends on 3.1, was labelled 3.1b until 2026-08-11)
   - [Story 3.2: Category Filtering](./epic-3-event-discovery-browsing.md#story-32-category-filtering) [Phase 2 — deferred]
   - [Story 3.3: Date Range Filtering](./epic-3-event-discovery-browsing.md#story-33-date-range-filtering) [MVP]
   - [Story 3.4: Region and City Filtering](./epic-3-event-discovery-browsing.md#story-34-region-and-city-filtering) [MVP]
