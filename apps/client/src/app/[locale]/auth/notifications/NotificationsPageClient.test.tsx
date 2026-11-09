@@ -9,6 +9,8 @@
 import { render, screen } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
+import { NotificationsPageClient } from "./NotificationsPageClient"
+
 const { useNotificationsMock, markAllMock, pushMock, backMock } = vi.hoisted(
   () => ({
     useNotificationsMock: vi.fn(),
@@ -32,12 +34,12 @@ vi.mock("@/features/notifications/hooks/useNotifications", () => ({
 }))
 
 vi.mock("./_components/NotificationItem", () => ({
-  NotificationItem: ({ notification }: { notification: { documentId: string } }) => (
-    <div data-testid="notification-item">{notification.documentId}</div>
-  ),
+  NotificationItem: ({
+    notification,
+  }: {
+    notification: { documentId: string }
+  }) => <div data-testid="notification-item">{notification.documentId}</div>,
 }))
-
-import { NotificationsPageClient } from "./NotificationsPageClient"
 
 beforeEach(() => {
   vi.clearAllMocks()
@@ -114,10 +116,7 @@ describe("NotificationsPageClient", () => {
 
   it("renders the list when notifications exist", () => {
     useNotificationsMock.mockReturnValue({
-      data: [
-        { documentId: "n1" },
-        { documentId: "n2" },
-      ],
+      data: [{ documentId: "n1" }, { documentId: "n2" }],
       isLoading: false,
       isError: false,
     })

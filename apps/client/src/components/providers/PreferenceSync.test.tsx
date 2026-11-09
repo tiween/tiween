@@ -15,6 +15,8 @@
 import { cleanup, render } from "@testing-library/react"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
+import { PreferenceSync } from "./PreferenceSync"
+
 const {
   useSessionMock,
   useLocaleMock,
@@ -37,8 +39,6 @@ vi.mock("@/lib/navigation", () => ({
   usePathname: usePathnameMock,
   useRouter: () => ({ replace: replaceMock }),
 }))
-
-import { PreferenceSync } from "./PreferenceSync"
 
 beforeEach(() => {
   usePathnameMock.mockReturnValue("/events")

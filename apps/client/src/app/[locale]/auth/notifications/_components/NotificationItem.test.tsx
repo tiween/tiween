@@ -10,6 +10,8 @@ import { describe, expect, it, vi } from "vitest"
 
 import type { ScheduleNotification } from "@/features/notifications/hooks/useNotifications"
 
+import { NotificationItem } from "./NotificationItem"
+
 vi.mock("next-intl", () => ({
   useTranslations: () => (key: string, values?: Record<string, unknown>) => {
     if (values?.title) return `${key}:${values.title}`
@@ -24,8 +26,6 @@ vi.mock("@/lib/dates", () => ({
   formatTime: (iso: string) => `TIME(${iso})`,
   formatRelativeTime: (iso: string) => `AGO(${iso})`,
 }))
-
-import { NotificationItem } from "./NotificationItem"
 
 function makeNotification(
   overrides: Partial<ScheduleNotification> = {}
@@ -47,28 +47,23 @@ function makeNotification(
 
 describe("NotificationItem", () => {
   it("renders the showtime_changed headline with the event title", () => {
-    render(
-      <NotificationItem notification={makeNotification()} />
-    )
+    render(<NotificationItem notification={makeNotification()} />)
     expect(
       screen.getByText("changeType.showtime_changed:Dune")
     ).toBeInTheDocument()
   })
 
-  it.each([
-    ["cancelled"],
-    ["postponed"],
-    ["rescheduled"],
-  ] as const)("renders the %s change-type headline", (changeType) => {
-    render(
-      <NotificationItem
-        notification={makeNotification({ changeType })}
-      />
-    )
-    expect(
-      screen.getByText(`changeType.${changeType}:Dune`)
-    ).toBeInTheDocument()
-  })
+  it.each([["cancelled"], ["postponed"], ["rescheduled"]] as const)(
+    "renders the %s change-type headline",
+    (changeType) => {
+      render(
+        <NotificationItem notification={makeNotification({ changeType })} />
+      )
+      expect(
+        screen.getByText(`changeType.${changeType}:Dune`)
+      ).toBeInTheDocument()
+    }
+  )
 
   it("shows the old→new time for a showtime change", () => {
     render(<NotificationItem notification={makeNotification()} />)
@@ -109,7 +104,9 @@ describe("NotificationItem", () => {
     )
     // The mocked lib/dates would echo the token; the component must guard the
     // invalid value out entirely rather than formatting it.
-    expect(screen.queryByText(/DATE\(not-a-real-date\)/)).not.toBeInTheDocument()
+    expect(
+      screen.queryByText(/DATE\(not-a-real-date\)/)
+    ).not.toBeInTheDocument()
     expect(screen.queryByText(/Invalid Date/)).not.toBeInTheDocument()
     // Falls back to the "to be confirmed" copy instead of a lone struck time.
     expect(screen.getByText("newTimeToBeConfirmed")).toBeInTheDocument()
@@ -160,9 +157,7 @@ describe("NotificationItem", () => {
   })
 
   it("does not show the unread dot when the row is read", () => {
-    render(
-      <NotificationItem notification={makeNotification({ read: true })} />
-    )
+    render(<NotificationItem notification={makeNotification({ read: true })} />)
     expect(screen.queryByLabelText("unread")).not.toBeInTheDocument()
   })
 })

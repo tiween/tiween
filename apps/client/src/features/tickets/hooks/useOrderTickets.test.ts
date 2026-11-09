@@ -8,6 +8,8 @@ import { afterEach, describe, expect, it, vi } from "vitest"
 
 import type { TicketView } from "@/features/tickets/types"
 
+import { orderTicketKeys, useOrderTickets } from "./useOrderTickets"
+
 const { fetchAPIMock } = vi.hoisted(() => ({
   fetchAPIMock: vi.fn(),
 }))
@@ -24,8 +26,6 @@ const { useQuerySpy } = vi.hoisted(() => ({
 vi.mock("@tanstack/react-query", () => ({
   useQuery: (options: unknown) => useQuerySpy(options),
 }))
-
-import { orderTicketKeys, useOrderTickets } from "./useOrderTickets"
 
 interface CapturedOptions {
   queryKey: readonly unknown[]

@@ -78,7 +78,12 @@ function safeStorage(): Storage | null {
 /** Validate the raw shape; `kind` is optional here (legacy ops lack it). */
 function isValidOp(
   value: unknown
-): value is { creativeWorkId: string; addedAt: string; attempts: number; kind?: unknown } {
+): value is {
+  creativeWorkId: string
+  addedAt: string
+  attempts: number
+  kind?: unknown
+} {
   if (typeof value !== "object" || value === null) return false
   const op = value as Record<string, unknown>
   return (

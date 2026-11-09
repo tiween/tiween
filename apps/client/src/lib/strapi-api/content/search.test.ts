@@ -3,7 +3,10 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import type { StrapiEvent } from "@/features/events/types/strapi.types"
 import type { Mock } from "vitest"
 
-import { isAlgoliaEventsConfigured, searchEventsWithAlgolia } from "@/lib/algolia"
+import {
+  isAlgoliaEventsConfigured,
+  searchEventsWithAlgolia,
+} from "@/lib/algolia"
 
 import { fetchEvents } from "./events-extended"
 import { getSearchSuggestions, searchEvents } from "./search"

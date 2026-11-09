@@ -237,7 +237,10 @@ export function EventVenueFilter({
             data-active={active}
             className={cn(TRIGGER_BASE, active && TRIGGER_ACTIVE)}
           >
-            <Building2 className="size-4 shrink-0 opacity-70" aria-hidden="true" />
+            <Building2
+              className="size-4 shrink-0 opacity-70"
+              aria-hidden="true"
+            />
             <span className="truncate">
               {selectedVenue ? selectedVenue.name : labels.allVenues}
             </span>

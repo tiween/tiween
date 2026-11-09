@@ -44,6 +44,7 @@ Tiween is Tunisia's cultural compass. It is a single, discovery-first place to f
 **Dormant, never delete:** ticketing (orders, Konnect payments, QR tickets, email delivery) is built and feature-flagged off. Do not design ticket-buying flows into v1 surfaces.
 
 **Constraints:**
+
 - Catalog of record is the unified `creative-work` (type `film | short-film | play`) with a person / character / credit-role graph. A short film's data is credits, cast, videos, distinctions, links, genres, poster, backdrop and photos. There are no `directors` or `trailer` fields. Directors come from credits and trailers from videos.
 - Arabic uses Western digits and `DD/MM/YYYY`. Format dates through `lib/dates.ts`, never a raw `ar` locale.
 - User-facing errors are codes translated in the UI (`t('errors.<CODE>')`). Never hard-code messages or expose stack traces.
@@ -53,6 +54,7 @@ Tiween is Tunisia's cultural compass. It is a single, discovery-first place to f
 **Out of v1 (do not design for):** ratings and reviews, Culture Pass, near-me geolocation, native apps, AI recommendations, venue scanner, ticketing revival.
 
 **Open product decisions:**
+
 - Launch catalog size and poster/media sourcing and rights.
 - Where the directory entry point sits in navigation (decided at go-live).
 - Post-v1 fee model (commission vs buyer fees vs Culture Pass), to be decided before any ticketing work.

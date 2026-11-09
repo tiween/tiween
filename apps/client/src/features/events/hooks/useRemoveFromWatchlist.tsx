@@ -8,7 +8,6 @@ import { ToastAction } from "@/components/ui/toast"
 import { useToast } from "@/components/ui/use-toast"
 
 import { enqueueOp } from "../utils/watchlistQueue"
-
 import {
   useWatchlistCheck,
   useWatchlistMutations,
@@ -147,5 +146,8 @@ export function useRemoveFromWatchlist(
   // OR in the re-add's pending state: the Undo re-add runs on this hook's own
   // `addMutation`, so exposing only `removeMutation.isPending` would leave the
   // heart enabled during a re-add POST and reopen the DELETE/POST race.
-  return { remove, isPending: removeMutation.isPending || addMutation.isPending }
+  return {
+    remove,
+    isPending: removeMutation.isPending || addMutation.isPending,
+  }
 }

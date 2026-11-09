@@ -9,7 +9,6 @@ import {
   getPendingOps,
   removePendingOp,
 } from "../utils/watchlistQueue"
-
 import { useWatchlistMutations, watchlistKeys } from "./useWatchlist"
 
 /**

@@ -12,10 +12,12 @@
  * `@/lib/strapi-api` is mocked so the module never pulls the server Strapi
  * client / env into the test environment.
  */
+import * as React from "react"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { renderHook, waitFor } from "@testing-library/react"
-import * as React from "react"
 import { describe, expect, it, vi } from "vitest"
+
+import { extractRegionDocumentId, useCurrentUser } from "./useUser"
 
 const { fetchAPIMock } = vi.hoisted(() => ({ fetchAPIMock: vi.fn() }))
 
@@ -24,12 +26,14 @@ vi.mock("@/lib/strapi-api", () => ({
   PublicStrapiClient: { fetchAPI: vi.fn() },
 }))
 
-import { extractRegionDocumentId, useCurrentUser } from "./useUser"
-
 describe("extractRegionDocumentId", () => {
   it("returns the documentId of a populated region relation object", () => {
     expect(
-      extractRegionDocumentId({ id: 3, documentId: "grand-tunis-1", name: "Grand Tunis" })
+      extractRegionDocumentId({
+        id: 3,
+        documentId: "grand-tunis-1",
+        name: "Grand Tunis",
+      })
     ).toBe("grand-tunis-1")
   })
 
@@ -50,7 +54,9 @@ describe("extractRegionDocumentId", () => {
   })
 
   it("returns undefined for a relation object missing documentId", () => {
-    expect(extractRegionDocumentId({ id: 3, name: "Grand Tunis" })).toBeUndefined()
+    expect(
+      extractRegionDocumentId({ id: 3, name: "Grand Tunis" })
+    ).toBeUndefined()
   })
 
   it("returns undefined when documentId is not a string", () => {

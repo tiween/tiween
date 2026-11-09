@@ -1,5 +1,5 @@
-import { Skeleton } from "@/components/ui/skeleton"
 import { TicketCardSkeleton } from "@/components/common"
+import { Skeleton } from "@/components/ui/skeleton"
 
 /**
  * Route-level loading UI for the tickets page (Story 6.1). Shown during RSC

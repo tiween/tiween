@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { useSearchParams } from "next/navigation"
+import { PasswordStrengthIndicator } from "@/features/auth/components/RegisterForm/PasswordStrength"
 import { SocialLogin } from "@/features/auth/components/SocialLogin"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Loader2 } from "lucide-react"
@@ -20,7 +21,6 @@ import {
 import { Link } from "@/lib/navigation"
 import { cn } from "@/lib/styles"
 import { useUserMutations } from "@/hooks/useUser"
-import { PasswordStrengthIndicator } from "@/features/auth/components/RegisterForm/PasswordStrength"
 import { AppField } from "@/components/forms/AppField"
 import { AppForm } from "@/components/forms/AppForm"
 import { Button, buttonVariants } from "@/components/ui/button"

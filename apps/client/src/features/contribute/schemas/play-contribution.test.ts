@@ -11,8 +11,8 @@
 import { describe, expect, it } from "vitest"
 
 import {
-  VIDEO_TYPES,
   migrateDraftVideoType,
+  VIDEO_TYPES,
   videoSchema,
 } from "./play-contribution"
 

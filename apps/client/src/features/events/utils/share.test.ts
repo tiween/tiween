@@ -109,7 +109,10 @@ describe("toAbsoluteMediaUrl", () => {
 
   it("does not double the slash when baseUrl has a trailing slash", () => {
     expect(
-      toAbsoluteMediaUrl({ url: "/uploads/x.jpg", baseUrl: "https://tiween.tn/" })
+      toAbsoluteMediaUrl({
+        url: "/uploads/x.jpg",
+        baseUrl: "https://tiween.tn/",
+      })
     ).toBe("https://tiween.tn/uploads/x.jpg")
   })
 })
@@ -117,9 +120,7 @@ describe("toAbsoluteMediaUrl", () => {
 describe("shouldFallbackAfterShareError", () => {
   it("returns false for an AbortError DOMException (user cancelled)", () => {
     expect(
-      shouldFallbackAfterShareError(
-        new DOMException("cancelled", "AbortError")
-      )
+      shouldFallbackAfterShareError(new DOMException("cancelled", "AbortError"))
     ).toBe(false)
   })
 

@@ -95,7 +95,9 @@ export function TicketPreviewCard({
       </span>
 
       {isPending && (
-        <span className="text-muted-foreground text-xs">{labels.qrPending}</span>
+        <span className="text-muted-foreground text-xs">
+          {labels.qrPending}
+        </span>
       )}
     </button>
   )

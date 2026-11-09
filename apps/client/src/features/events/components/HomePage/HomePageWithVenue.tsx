@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { useRouter, useSearchParams } from "next/navigation"
+import { useUnreadNotificationCount } from "@/features/notifications/hooks/useNotifications"
 import { useLocale } from "next-intl"
 
 import type { TabType } from "@/components/layout/BottomNav"
@@ -11,7 +12,6 @@ import type { RegionOption } from "../RegionCitySelector/RegionCitySelector"
 import type { VenueOption } from "../VenueSelector/VenueSelector"
 
 import { BottomNav } from "@/components/layout/BottomNav"
-import { useUnreadNotificationCount } from "@/features/notifications/hooks/useNotifications"
 import { DesktopNav } from "@/components/layout/DesktopNav"
 import { Footer } from "@/components/layout/Footer"
 import { Header } from "@/components/layout/Header"

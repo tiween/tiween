@@ -253,7 +253,8 @@ export function FilmHero({
             // Active state
             "active:scale-95",
             // Disabled affordance
-            watchlistDisabled && "cursor-not-allowed opacity-50 hover:bg-black/50",
+            watchlistDisabled &&
+              "cursor-not-allowed opacity-50 hover:bg-black/50",
             // Pulse only on a user-initiated add (see justClickedRef above)
             showPulse && "animate-watchlist-pulse"
           )}

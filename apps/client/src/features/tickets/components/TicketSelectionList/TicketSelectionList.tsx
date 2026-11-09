@@ -1,12 +1,12 @@
 "use client"
 
 import * as React from "react"
+import { MAX_TICKETS_PER_TYPE } from "@/features/tickets/stores/ticketSelectionStore"
 
 import type { TicketTier, TicketTierType } from "@/features/tickets/types"
 
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
-import { MAX_TICKETS_PER_TYPE } from "@/features/tickets/stores/ticketSelectionStore"
 
 import { formatPrice } from "../../utils/formatPrice"
 import { QuantitySelector } from "../QuantitySelector"

@@ -119,9 +119,7 @@ describe("routed ResetPasswordForm", () => {
   it("shows the invalid-link card and no form when the code is missing", () => {
     render(<ResetPasswordForm code="" email="u@example.com" />)
     expect(screen.getByText("invalidLink")).toBeTruthy()
-    expect(
-      document.querySelector('input[name="password"]')
-    ).toBeNull()
+    expect(document.querySelector('input[name="password"]')).toBeNull()
   })
 
   it("blocks submit when the password is too short", async () => {
@@ -233,8 +231,8 @@ describe("routed ResetPasswordForm", () => {
       await submit(user)
       await waitFor(() => expect(mutateMock).toHaveBeenCalledTimes(1))
       await act(async () => {
-      await mutateOptions().onSuccess()
-    })
+        await mutateOptions().onSuccess()
+      })
       expect(window.location.href).toBe("/")
       unmount()
     }

@@ -10,10 +10,16 @@
  * online/offline branches deterministically (offline pauses the check query, so
  * the optimistic `setQueryData` is not overwritten by a late GET).
  */
-import { QueryClient, QueryClientProvider, onlineManager } from "@tanstack/react-query"
-import { act, renderHook, waitFor } from "@testing-library/react"
 import * as React from "react"
+import {
+  onlineManager,
+  QueryClient,
+  QueryClientProvider,
+} from "@tanstack/react-query"
+import { act, renderHook, waitFor } from "@testing-library/react"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
+
+import { useAddToWatchlist } from "./useAddToWatchlist"
 
 const { fetchAPIMock, useSessionMock, pushMock, toastMock, enqueueAddMock } =
   vi.hoisted(() => ({
@@ -41,8 +47,6 @@ vi.mock("@/components/ui/use-toast", () => ({
   useToast: () => ({ toast: toastMock }),
 }))
 vi.mock("../utils/watchlistQueue", () => ({ enqueueAdd: enqueueAddMock }))
-
-import { useAddToWatchlist } from "./useAddToWatchlist"
 
 function setOnline(value: boolean) {
   Object.defineProperty(navigator, "onLine", {

@@ -2,16 +2,16 @@
 
 import * as React from "react"
 import { useRouter } from "next/navigation"
-import { ArrowLeft, Bell } from "lucide-react"
-import { useTranslations } from "next-intl"
-
-import { cn } from "@/lib/utils"
 import {
   useMarkAllNotificationsRead,
   useNotifications,
 } from "@/features/notifications/hooks/useNotifications"
-import { Button } from "@/components/ui/button"
+import { ArrowLeft, Bell } from "lucide-react"
+import { useTranslations } from "next-intl"
+
+import { cn } from "@/lib/utils"
 import { EmptyState } from "@/components/common/EmptyState"
+import { Button } from "@/components/ui/button"
 
 import { NotificationItem } from "./_components/NotificationItem"
 

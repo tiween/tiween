@@ -3,8 +3,8 @@
 import * as React from "react"
 import { Ticket } from "lucide-react"
 
-import type { TicketQRLabels, TicketStatus } from "../TicketQR"
 import type { TicketView } from "@/features/tickets/types"
+import type { TicketQRLabels, TicketStatus } from "../TicketQR"
 
 import { toNumeralSafeLocale } from "@/lib/intl-locale"
 import { cn } from "@/lib/utils"

@@ -83,8 +83,8 @@ function WizardContent({ labels, onSuccess }: PlayContributionWizardProps) {
         animate={{ opacity: 1, scale: 1 }}
         className="flex flex-col items-center justify-center gap-6 py-12 text-center"
       >
-        <div className="flex h-20 w-20 items-center justify-center rounded-full bg-success/15">
-          <CheckCircle2 className="h-10 w-10 text-success" />
+        <div className="bg-success/15 flex h-20 w-20 items-center justify-center rounded-full">
+          <CheckCircle2 className="text-success h-10 w-10" />
         </div>
         <div className="space-y-2">
           <h2 className="text-2xl font-bold text-white">

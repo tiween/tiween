@@ -69,7 +69,11 @@ vi.mock("../../utils", () => ({
     currency: "TND",
     minPrice: undefined,
   }),
-  toFilmHeroEvent: () => ({ id: "evt-1", title: "Le Film", category: "Cinéma" }),
+  toFilmHeroEvent: () => ({
+    id: "evt-1",
+    title: "Le Film",
+    category: "Cinéma",
+  }),
   toEventCardEvent: () => ({ id: "evt-1" }),
   buildEventShareUrl: () => "https://tiween.tn/fr/events/evt-1",
   buildDirectionsUrl: () => "#",
@@ -130,9 +134,8 @@ describe("EventDetailPage — in-flight guard", () => {
     addState.isPending = true
     const { container } = renderPage()
 
-    const disabledBtn = container.querySelector<HTMLButtonElement>(
-      "button[disabled]"
-    )
+    const disabledBtn =
+      container.querySelector<HTMLButtonElement>("button[disabled]")
     expect(disabledBtn).not.toBeNull()
 
     fireEvent.click(disabledBtn!)
@@ -145,9 +148,8 @@ describe("EventDetailPage — in-flight guard", () => {
     removeState.isPending = true
     const { container } = renderPage()
 
-    const disabledBtn = container.querySelector<HTMLButtonElement>(
-      "button[disabled]"
-    )
+    const disabledBtn =
+      container.querySelector<HTMLButtonElement>("button[disabled]")
     expect(disabledBtn).not.toBeNull()
 
     fireEvent.click(disabledBtn!)

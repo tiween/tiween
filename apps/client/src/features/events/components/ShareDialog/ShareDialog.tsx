@@ -3,7 +3,6 @@
 import * as React from "react"
 import { Copy } from "lucide-react"
 
-import { toast } from "@/components/ui/use-toast"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -11,6 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { toast } from "@/components/ui/use-toast"
 
 import { buildSocialShareLinks } from "../../utils"
 

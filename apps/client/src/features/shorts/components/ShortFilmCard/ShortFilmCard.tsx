@@ -87,17 +87,12 @@ export function ShortFilmCard({
   // Plural-aware: Arabic picks the noun form from the count.
 
   const durationText =
-
     duration !== null
-
       ? t("durationMinutes", {
-
           count: duration,
 
           display: formatCount(duration, locale),
-
         })
-
       : null
   const year = positiveNumber(film.releaseYear)
   const canPlayTrailer = showPlayButton && Boolean(onPlayTrailer)
@@ -158,9 +153,7 @@ export function ShortFilmCard({
         <div className="absolute end-2 top-2 z-[6]">
           <span className="flex items-center gap-1 rounded-full bg-black/60 px-2 py-1 text-xs font-medium whitespace-nowrap text-white backdrop-blur-sm">
             <Clock className="h-3 w-3" aria-hidden="true" />
-            <bdi>
-              {durationText}
-            </bdi>
+            <bdi>{durationText}</bdi>
           </span>
         </div>
       )}

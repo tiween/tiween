@@ -9,6 +9,8 @@
 import { fireEvent, render, screen } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
+import { ProfilePageClient } from "./ProfilePageClient"
+
 const { pushMock, backMock, signOutAndClearCacheMock } = vi.hoisted(() => ({
   pushMock: vi.fn(),
   backMock: vi.fn(),
@@ -44,8 +46,6 @@ vi.mock("./_components/NotificationPreferences", () => ({
     <div data-testid="notification-preferences-sentinel" />
   ),
 }))
-
-import { ProfilePageClient } from "./ProfilePageClient"
 
 const user = { id: 7, email: "grace@example.com", name: "Grace" }
 

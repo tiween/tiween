@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { useSearchParams } from "next/navigation"
+import { PasswordStrengthIndicator } from "@/features/auth/components/RegisterForm/PasswordStrength"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Loader2 } from "lucide-react"
 import { signIn } from "next-auth/react"
@@ -19,7 +20,6 @@ import {
 import { Link } from "@/lib/navigation"
 import { cn } from "@/lib/styles"
 import { useUserMutations } from "@/hooks/useUser"
-import { PasswordStrengthIndicator } from "@/features/auth/components/RegisterForm/PasswordStrength"
 import { AppField } from "@/components/forms/AppField"
 import { AppForm } from "@/components/forms/AppForm"
 import { Button, buttonVariants } from "@/components/ui/button"
@@ -49,9 +49,15 @@ type ResetErrorKey =
 
 function mapErrorToKey(message: string | undefined): ResetErrorKey {
   if (!message) return "errors.unexpectedError"
-  if (message.includes("RESET_TOKEN_EXPIRED")) return "errors.RESET_TOKEN_EXPIRED"
-  if (message.includes("RESET_TOKEN_INVALID")) return "errors.RESET_TOKEN_INVALID"
-  if (/PASSWORD_(TOO_SHORT|TOO_LONG|NO_UPPERCASE|NO_LOWERCASE|NO_DIGIT|REQUIRED)/.test(message))
+  if (message.includes("RESET_TOKEN_EXPIRED"))
+    return "errors.RESET_TOKEN_EXPIRED"
+  if (message.includes("RESET_TOKEN_INVALID"))
+    return "errors.RESET_TOKEN_INVALID"
+  if (
+    /PASSWORD_(TOO_SHORT|TOO_LONG|NO_UPPERCASE|NO_LOWERCASE|NO_DIGIT|REQUIRED)/.test(
+      message
+    )
+  )
     return "errors.weakPassword"
   return "errors.unexpectedError"
 }
@@ -170,9 +176,7 @@ export function ResetPasswordForm({ code, email }: ResetPasswordFormProps) {
     return (
       <Card className="m-auto w-[400px]">
         <CardHeader>
-          <CardTitle className="text-center">
-            {t("successfullySet")}
-          </CardTitle>
+          <CardTitle className="text-center">{t("successfullySet")}</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col items-center gap-4">
           <Loader2 className="text-primary h-8 w-8 animate-spin" />

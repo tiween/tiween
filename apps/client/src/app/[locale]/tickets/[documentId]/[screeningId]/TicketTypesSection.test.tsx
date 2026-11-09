@@ -1,3 +1,5 @@
+import { useTicketTiers } from "@/features/tickets/hooks/useTicketTiers"
+import { useTicketSelectionStore } from "@/features/tickets/stores/ticketSelectionStore"
 import { fireEvent, render, screen } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
@@ -5,9 +7,6 @@ import type {
   OrderSummaryProps,
   TicketSelectionListProps,
 } from "@/features/tickets/components"
-
-import { useTicketTiers } from "@/features/tickets/hooks/useTicketTiers"
-import { useTicketSelectionStore } from "@/features/tickets/stores/ticketSelectionStore"
 
 import { TicketTypesSection } from "./TicketTypesSection"
 
@@ -62,7 +61,9 @@ vi.mock("@/features/tickets/components", () => ({
     <div data-testid="selection-list">
       <span data-testid="tier-count">{tiers.length}</span>
       <span data-testid="order-remaining">{orderRemainingCapacity}</span>
-      <button onClick={() => onQuantityChange("standard", 2)}>set-standard</button>
+      <button onClick={() => onQuantityChange("standard", 2)}>
+        set-standard
+      </button>
     </div>
   ),
   OrderSummary: ({ items }: OrderSummaryProps) => (
@@ -139,7 +140,12 @@ describe("TicketTypesSection", () => {
 
   it("renders the empty state when there are no tiers", () => {
     mockHook({
-      data: { subEventId: "sc1", kind: "screening", currency: "TND", tiers: [] },
+      data: {
+        subEventId: "sc1",
+        kind: "screening",
+        currency: "TND",
+        tiers: [],
+      },
     })
     renderSection()
 

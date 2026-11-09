@@ -1,6 +1,8 @@
 import { act, renderHook } from "@testing-library/react"
 import { afterEach, describe, expect, it, vi } from "vitest"
 
+import { useCreateOrder } from "./useCreateOrder"
+
 /**
  * Tests for `useCreateOrder` (Story 6.3): the checkout POST through the public
  * proxy, the returned `{ orderNumber, payUrl }`, and the backend error-CODE
@@ -13,8 +15,6 @@ vi.mock("@/lib/strapi-api", () => ({
   PublicStrapiClient: { fetchAPI: fetchAPIMock },
   PrivateStrapiClient: { fetchAPI: vi.fn() },
 }))
-
-import { useCreateOrder } from "./useCreateOrder"
 
 const payload = {
   eventId: "event-1",

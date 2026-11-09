@@ -8,12 +8,7 @@ import { Link } from "@/lib/navigation"
 import { cn } from "@/lib/styles"
 import { useUserMutations } from "@/hooks/useUser"
 import { buttonVariants } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 export interface ConfirmEmailChangeProps {
   /** Single-use confirmation token from the email link (`?code=`). */
@@ -92,7 +87,7 @@ export function ConfirmEmailChange({ code }: ConfirmEmailChangeProps) {
           </CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col items-center gap-4">
-          <CheckCircle2 className="h-8 w-8 text-success" />
+          <CheckCircle2 className="text-success h-8 w-8" />
           <p className="text-muted-foreground text-center text-sm">
             {t("changeEmail.confirm.successBody")}
           </p>

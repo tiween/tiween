@@ -4,10 +4,18 @@
  *  - the `animate-watchlist-pulse` fires ONLY after a user click drives the
  *    false→true transition, NOT when `isWatchlisted` hydrates true on load.
  */
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react"
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react"
 import { afterEach, describe, expect, it, vi } from "vitest"
 
-import { FilmHero, type FilmHeroEvent, type FilmHeroLabels } from "./FilmHero"
+import type { FilmHeroEvent, FilmHeroLabels } from "./FilmHero"
+
+import { FilmHero } from "./FilmHero"
 
 const event: FilmHeroEvent = {
   id: "evt-1",
@@ -38,9 +46,8 @@ describe("FilmHero — watchlistDisabled", () => {
       />
     )
 
-    const disabledBtn = container.querySelector<HTMLButtonElement>(
-      "button[disabled]"
-    )
+    const disabledBtn =
+      container.querySelector<HTMLButtonElement>("button[disabled]")
     expect(disabledBtn).not.toBeNull()
     expect(disabledBtn?.getAttribute("aria-disabled")).toBe("true")
 

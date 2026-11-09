@@ -2,11 +2,9 @@ import { fireEvent, render, screen } from "@testing-library/react"
 import { describe, expect, it, vi } from "vitest"
 
 import type { TicketTier } from "@/features/tickets/types"
+import type { TicketSelectionListLabels } from "./TicketSelectionList"
 
-import {
-  TicketSelectionList,
-  type TicketSelectionListLabels,
-} from "./TicketSelectionList"
+import { TicketSelectionList } from "./TicketSelectionList"
 
 /**
  * Tests for TicketSelectionList (Story 6.2): a selector per available tier,
@@ -24,7 +22,9 @@ const labels: TicketSelectionListLabels = {
   increase: "Augmenter",
 }
 
-function tier(overrides: Partial<TicketTier> & Pick<TicketTier, "type">): TicketTier {
+function tier(
+  overrides: Partial<TicketTier> & Pick<TicketTier, "type">
+): TicketTier {
   return {
     price: 15,
     remaining: 100,

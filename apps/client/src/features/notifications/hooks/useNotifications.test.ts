@@ -9,8 +9,17 @@
  *  - the `useMarkAllNotificationsRead` mutation (PUT path + list/unread
  *    invalidation).
  */
-import { afterEach, describe, expect, it, vi } from "vitest"
 import { renderHook } from "@testing-library/react"
+import { afterEach, describe, expect, it, vi } from "vitest"
+
+import {
+  NOTIFICATION_POLL_MS,
+  notificationKeys,
+  notificationRefetchInterval,
+  useMarkAllNotificationsRead,
+  useNotifications,
+  useUnreadNotificationCount,
+} from "./useNotifications"
 
 const { fetchAPIMock } = vi.hoisted(() => ({ fetchAPIMock: vi.fn() }))
 
@@ -34,15 +43,6 @@ vi.mock("@tanstack/react-query", () => ({
 vi.mock("next-auth/react", () => ({
   useSession: () => ({ status: "authenticated" }),
 }))
-
-import {
-  NOTIFICATION_POLL_MS,
-  notificationKeys,
-  notificationRefetchInterval,
-  useMarkAllNotificationsRead,
-  useNotifications,
-  useUnreadNotificationCount,
-} from "./useNotifications"
 
 afterEach(() => {
   vi.clearAllMocks()

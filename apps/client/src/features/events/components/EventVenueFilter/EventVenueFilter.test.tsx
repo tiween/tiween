@@ -1,5 +1,5 @@
-import { cleanup, fireEvent, render, screen } from "@testing-library/react"
 import * as React from "react"
+import { cleanup, fireEvent, render, screen } from "@testing-library/react"
 import {
   afterEach,
   beforeAll,
@@ -16,6 +16,8 @@ import type {
   VenueFilterValue,
 } from "./EventVenueFilter"
 
+import { EventVenueFilter } from "./EventVenueFilter"
+
 // The combobox renders lucide-react icons. Under the repo's React 18/19
 // dual-install, lucide's icon elements are minted by a different React copy than
 // the aliased test runtime and fail to reconcile ("Objects are not valid as a
@@ -31,8 +33,6 @@ vi.mock("lucide-react", () => {
     Search: Icon,
   }
 })
-
-import { EventVenueFilter } from "./EventVenueFilter"
 
 const labels: EventVenueFilterLabels = {
   groupLabel: "Filtrer par salle",
@@ -229,7 +229,9 @@ describe("EventVenueFilter", () => {
 
     it("shows the selected venue's city in the trigger (text + accessible name)", () => {
       renderFilter({ venue: "vd0298d7c4e1" }, vi.fn(), sameName)
-      const trigger = screen.getByRole("combobox", { name: /Filtrer par salle/ })
+      const trigger = screen.getByRole("combobox", {
+        name: /Filtrer par salle/,
+      })
       expect(trigger.textContent).toContain("Pathé")
       expect(trigger.textContent).toContain("Sfax")
       expect(trigger.getAttribute("aria-label")).toContain("Sfax")

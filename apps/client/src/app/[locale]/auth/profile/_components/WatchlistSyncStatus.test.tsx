@@ -9,6 +9,8 @@
 import { render, screen } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
+import { formatCount, WatchlistSyncStatus } from "./WatchlistSyncStatus"
+
 const { useWatchlistSyncStatusMock, formatRelativeTimeMock } = vi.hoisted(
   () => ({
     useWatchlistSyncStatusMock: vi.fn(),
@@ -17,15 +19,14 @@ const { useWatchlistSyncStatusMock, formatRelativeTimeMock } = vi.hoisted(
 )
 
 vi.mock("next-intl", () => ({
-  useTranslations:
-    () => (key: string, values?: Record<string, unknown>) => {
-      if (key === "lastSynced" && values) return `lastSynced ${values.time}`
-      // Surface `display` (the Western-numeral count), NOT the raw `count`, so
-      // the numeral-safe wiring is asserted.
-      if (key === "pendingChanges" && values)
-        return `pendingChanges ${values.display}`
-      return key
-    },
+  useTranslations: () => (key: string, values?: Record<string, unknown>) => {
+    if (key === "lastSynced" && values) return `lastSynced ${values.time}`
+    // Surface `display` (the Western-numeral count), NOT the raw `count`, so
+    // the numeral-safe wiring is asserted.
+    if (key === "pendingChanges" && values)
+      return `pendingChanges ${values.display}`
+    return key
+  },
   useLocale: () => "fr",
 }))
 
@@ -36,8 +37,6 @@ vi.mock("@/lib/dates", () => ({
 vi.mock("@/features/events/hooks/useWatchlistSyncStatus", () => ({
   useWatchlistSyncStatus: useWatchlistSyncStatusMock,
 }))
-
-import { WatchlistSyncStatus, formatCount } from "./WatchlistSyncStatus"
 
 beforeEach(() => {
   vi.clearAllMocks()

@@ -41,9 +41,7 @@ describe("watchlistQueue — per-user isolation", () => {
   })
 
   it("namespaces the storage key by user id", () => {
-    expect(pendingAddKey("user-A")).toBe(
-      "tiween:watchlist:pending-add:user-A"
-    )
+    expect(pendingAddKey("user-A")).toBe("tiween:watchlist:pending-add:user-A")
     expect(pendingAddKey(42)).toBe("tiween:watchlist:pending-add:42")
   })
 })
@@ -71,9 +69,7 @@ describe("watchlistQueue — enqueue", () => {
     expect(ops).toHaveLength(MAX_QUEUE_SIZE)
     // The first 5 (oldest) were dropped.
     expect(ops[0]!.creativeWorkId).toBe("cw-5")
-    expect(ops[ops.length - 1]!.creativeWorkId).toBe(
-      `cw-${MAX_QUEUE_SIZE + 4}`
-    )
+    expect(ops[ops.length - 1]!.creativeWorkId).toBe(`cw-${MAX_QUEUE_SIZE + 4}`)
   })
 
   it("returns false when the storage write throws (no silent success)", () => {
@@ -194,7 +190,11 @@ describe("watchlistQueue — enqueueOp (Story 5.2 kind)", () => {
   it("round-trips a remove op with kind:'remove'", () => {
     expect(enqueueOp("u", "remove", "cw-1")).toBe(true)
     const [op] = getPendingOps("u")
-    expect(op).toMatchObject({ creativeWorkId: "cw-1", kind: "remove", attempts: 0 })
+    expect(op).toMatchObject({
+      creativeWorkId: "cw-1",
+      kind: "remove",
+      attempts: 0,
+    })
     expect(typeof op!.addedAt).toBe("string")
   })
 
@@ -262,8 +262,18 @@ describe("watchlistQueue — 5.1 backward compat", () => {
       pendingAddKey("u"),
       JSON.stringify([
         // A corrupted remove (case variant) must NOT replay as an add.
-        { kind: "Remove", creativeWorkId: "cw-bad", addedAt: "2026-07-10", attempts: 0 },
-        { kind: "remove", creativeWorkId: "cw-ok", addedAt: "2026-07-10", attempts: 0 },
+        {
+          kind: "Remove",
+          creativeWorkId: "cw-bad",
+          addedAt: "2026-07-10",
+          attempts: 0,
+        },
+        {
+          kind: "remove",
+          creativeWorkId: "cw-ok",
+          addedAt: "2026-07-10",
+          attempts: 0,
+        },
       ])
     )
     const ops = getPendingOps("u")

@@ -72,9 +72,7 @@ export function NotificationItem({ notification }: NotificationItemProps) {
           </p>
         ) : (
           <p className="text-muted-foreground text-sm">
-            {oldLabel && (
-              <span className="line-through">{oldLabel}</span>
-            )}
+            {oldLabel && <span className="line-through">{oldLabel}</span>}
             {hasDistinctNewTime ? (
               <>
                 {oldLabel ? <span aria-hidden="true"> → </span> : null}

@@ -9,6 +9,8 @@
 import { fireEvent, render, screen } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
+import { NotificationPreferences } from "./NotificationPreferences"
+
 const { useCurrentUserMock, mutateMock } = vi.hoisted(() => ({
   useCurrentUserMock: vi.fn(),
   mutateMock: vi.fn(),
@@ -24,8 +26,6 @@ vi.mock("@/hooks/useUser", () => ({
     updateProfileMutation: { mutate: mutateMock, isPending: false },
   }),
 }))
-
-import { NotificationPreferences } from "./NotificationPreferences"
 
 beforeEach(() => {
   vi.clearAllMocks()

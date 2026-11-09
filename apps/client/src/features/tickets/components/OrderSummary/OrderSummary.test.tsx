@@ -1,7 +1,9 @@
 import { render, screen } from "@testing-library/react"
 import { describe, expect, it } from "vitest"
 
-import { OrderSummary, type OrderLineItem } from "./OrderSummary"
+import type { OrderLineItem } from "./OrderSummary"
+
+import { OrderSummary } from "./OrderSummary"
 
 /**
  * Tests for OrderSummary (Story 6.2): subtotal/total computation, the

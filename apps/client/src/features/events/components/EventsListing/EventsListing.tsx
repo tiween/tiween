@@ -4,6 +4,9 @@ import * as React from "react"
 import { useRouter } from "next/navigation"
 import { useSession } from "next-auth/react"
 
+import type { Locale } from "next-intl"
+import type { DateFilterValue, EventFilters } from "../../filters/filterParams"
+import type { StrapiEvent } from "../../types/strapi.types"
 import type { EventCardLabels } from "../EventCard"
 import type {
   CategoryFilterValue,
@@ -20,9 +23,6 @@ import type {
   EventVenueOption,
   VenueFilterValue,
 } from "../EventVenueFilter"
-import type { DateFilterValue, EventFilters } from "../../filters/filterParams"
-import type { StrapiEvent } from "../../types/strapi.types"
-import type { Locale } from "next-intl"
 
 import { useCurrentUser } from "@/hooks/useUser"
 
@@ -180,10 +180,7 @@ export function EventsListing({
 
   const handleVenueChange = React.useCallback(
     (value: VenueFilterValue, options?: { replace?: boolean }) => {
-      pushFilters(
-        { ...latestFiltersRef.current, venue: value.venue },
-        options
-      )
+      pushFilters({ ...latestFiltersRef.current, venue: value.venue }, options)
     },
     [pushFilters]
   )

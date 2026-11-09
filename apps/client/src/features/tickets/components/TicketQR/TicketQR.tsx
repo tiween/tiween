@@ -204,8 +204,11 @@ export function TicketQR({
       {/* Scanned overlay */}
       {ticket.status === "scanned" && (
         <div className="absolute inset-0 z-10 flex flex-col items-center justify-center rounded-lg bg-black/60">
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-success">
-            <Check className="h-10 w-10 text-success-foreground" strokeWidth={3} />
+          <div className="bg-success flex h-16 w-16 items-center justify-center rounded-full">
+            <Check
+              className="text-success-foreground h-10 w-10"
+              strokeWidth={3}
+            />
           </div>
           <span className="mt-2 text-lg font-semibold text-white">
             {labels.scanned}

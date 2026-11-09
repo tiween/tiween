@@ -40,6 +40,7 @@ Execute these review layers in parallel wherever their execution methods allow: 
    - **defer** — pre-existing issue not caused by this story, surfaced incidentally by the review. Collect for later focused attention.
    - **reject** — noise. Drop silently. When unsure between defer and reject, prefer reject — only defer findings you are confident are real.
 4. Append a new entry to the `## Review Triage Log` section in `{spec_file}`, in this format:
+
    ```markdown
    ### {date} — Review pass
 
@@ -51,12 +52,15 @@ Execute these review layers in parallel wherever their execution methods allow: 
    - addressed_findings:
      - `[high|medium|low]` `[patch|bad_spec]` <finding summary and action taken in this pass>
    ```
+
    Where `{date}` is the current system date and `count` is either just `0`, or total with breakdown by severity `N: (high Nhigh, medium Nmedium, low Nlow)`.
    If no patch was fixed and no bad_spec repair loopback was triggered in this pass, write:
+
    ```markdown
    - addressed_findings:
      - none
    ```
+
 5. Process findings in cascading order. If intent_gap exists, lower findings are moot; follow the intent_gap branch below. If bad_spec exists, lower findings are moot since code will be re-derived. If neither exists, process patch and defer normally. Before each bad_spec loopback, read `{spec_file}` frontmatter `review_loop_iteration` (missing means `0`), increment it by 1, and write it back. If it exceeds 5, append the triage-log entry for this pass with `addressed_findings: none`, then HALT with status `blocked` and blocking condition `review repair loop exceeded 5 iterations (non-convergence)`.
    - **intent_gap** — Root cause is inside `<intent-contract>`. Save the attempted change as a patch file in `{{.implementation_artifacts}}` and reference it from the triage-log entry, then revert code changes. Append the triage-log entry for this pass with `addressed_findings: none`, then HALT with status `blocked`, blocking condition `intent gap`, and include the unresolved questions and the saved patch path.
    - **bad_spec** — Root cause is outside `<intent-contract>`. Do not modify content inside `<intent-contract>`. Before reverting code: extract KEEP instructions for positive preservation (what worked well and must survive re-derivation). Revert code changes. Read the `## Spec Change Log` in `{spec_file}` and strictly respect all logged constraints when amending the sections outside `<intent-contract>` that contain the root cause. Append a new change-log entry recording: the triggering finding, what was amended, the known-bad state avoided, and the KEEP instructions. Append the triage-log entry for this pass, listing every bad_spec finding that triggered the spec amendment and implementation loopback under `addressed_findings`. Read fully and follow `[[bmad-snapshot:step-03-implement.md]]` to re-derive the code, then this step will run again.

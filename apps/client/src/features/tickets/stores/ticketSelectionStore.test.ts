@@ -17,7 +17,9 @@ import {
  * The real store is reset before each test.
  */
 
-function tier(overrides: Partial<TicketTier> & Pick<TicketTier, "type">): TicketTier {
+function tier(
+  overrides: Partial<TicketTier> & Pick<TicketTier, "type">
+): TicketTier {
   return {
     price: 15,
     remaining: 100,
@@ -68,12 +70,16 @@ describe("setQuantity", () => {
   it("removes the entry when set to zero", () => {
     setQuantity("standard", 4)
     setQuantity("standard", 0)
-    expect(useTicketSelectionStore.getState().quantities.standard).toBeUndefined()
+    expect(
+      useTicketSelectionStore.getState().quantities.standard
+    ).toBeUndefined()
   })
 
   it("never stores a negative quantity", () => {
     setQuantity("standard", -3)
-    expect(useTicketSelectionStore.getState().quantities.standard).toBeUndefined()
+    expect(
+      useTicketSelectionStore.getState().quantities.standard
+    ).toBeUndefined()
   })
 })
 

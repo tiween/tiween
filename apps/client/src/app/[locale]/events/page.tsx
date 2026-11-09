@@ -1,5 +1,6 @@
 import { Metadata } from "next"
 import { EventsListing } from "@/features/events/components"
+import { parseEventFilters } from "@/features/events/filters/filterParams"
 import { Locale } from "next-intl"
 import { getTranslations, setRequestLocale } from "next-intl/server"
 
@@ -10,7 +11,6 @@ import type {
 import type { EventsSlice } from "@/lib/strapi-api/content/events-extended"
 import type { StrapiRegion } from "@/lib/strapi-api/content/geography"
 
-import { parseEventFilters } from "@/features/events/filters/filterParams"
 import {
   buildDateRange,
   fetchEvents,

@@ -2,18 +2,24 @@
 
 import * as React from "react"
 import Link from "next/link"
-import { useTranslations } from "next-intl"
-
-import type { OrderLineItem, PaymentMethod } from "@/features/tickets/components"
-import type { GuestCheckoutData } from "@/features/tickets/components/GuestCheckoutForm"
-
+import {
+  OrderSummary,
+  PaymentMethodSelector,
+} from "@/features/tickets/components"
+import { GuestCheckoutForm } from "@/features/tickets/components/GuestCheckoutForm"
 import { useCreateOrder } from "@/features/tickets/hooks/useCreateOrder"
 import { useGuestCheckout } from "@/features/tickets/hooks/useGuestCheckout"
 import { useTicketTiers } from "@/features/tickets/hooks/useTicketTiers"
 import { useTicketSelectionStore } from "@/features/tickets/stores/ticketSelectionStore"
 import { saveOrderAccess } from "@/features/tickets/utils/orderAccess"
-import { OrderSummary, PaymentMethodSelector } from "@/features/tickets/components"
-import { GuestCheckoutForm } from "@/features/tickets/components/GuestCheckoutForm"
+import { useTranslations } from "next-intl"
+
+import type {
+  OrderLineItem,
+  PaymentMethod,
+} from "@/features/tickets/components"
+import type { GuestCheckoutData } from "@/features/tickets/components/GuestCheckoutForm"
+
 import { Button } from "@/components/ui/button"
 
 export interface PaymentStepProps {

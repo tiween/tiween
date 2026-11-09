@@ -1,10 +1,10 @@
 import { notFound } from "next/navigation"
+import { formatShowtimeLabel } from "@/features/tickets/utils/formatShowtimeLabel"
 import { Locale } from "next-intl"
 import { getTranslations, setRequestLocale } from "next-intl/server"
 
 import { isTicketPurchaseEnabled } from "@/lib/feature-flags"
 import { getEventByDocumentId } from "@/lib/strapi-api/content/server"
-import { formatShowtimeLabel } from "@/features/tickets/utils/formatShowtimeLabel"
 
 import { TicketTypesSection } from "./TicketTypesSection"
 

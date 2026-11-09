@@ -25,9 +25,7 @@ export default async function NotificationsPage({ params }: PageProps) {
   const session = await getServerSession(authOptions)
 
   if (!session?.user) {
-    redirect(
-      `/${locale}/auth/signin?callbackUrl=/${locale}/auth/notifications`
-    )
+    redirect(`/${locale}/auth/signin?callbackUrl=/${locale}/auth/notifications`)
   }
 
   return <NotificationsPageClient locale={locale} />

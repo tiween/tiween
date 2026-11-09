@@ -466,7 +466,6 @@ const uniqueTests = new Map()
     })
   })
 })
-
 ;[...uniqueTests.values()].forEach((test) => {
   const bucket = byLevel[test.level] ? test.level : "other"
   if (bucket === "other" && test.level) {
@@ -476,7 +475,6 @@ const uniqueTests = new Map()
   }
   byLevel[bucket].tests += 1
 })
-
 ;(traceabilityMatrix || []).forEach((req) => {
   if (!coverageEligibleStatuses.has(req.coverage)) return
   const requirementLevels = new Set(

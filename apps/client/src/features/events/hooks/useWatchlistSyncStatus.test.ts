@@ -10,6 +10,11 @@
 import { act, renderHook } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
+import {
+  useWatchlistSyncStatus,
+  WATCHLIST_STATUS_REFRESH_MS,
+} from "./useWatchlistSyncStatus"
+
 const {
   useOnlineStatusMock,
   useSessionMock,
@@ -37,11 +42,6 @@ vi.mock("../utils/watchlistCache", () => ({
 vi.mock("../utils/watchlistQueue", () => ({
   getPendingOps: getPendingOpsMock,
 }))
-
-import {
-  useWatchlistSyncStatus,
-  WATCHLIST_STATUS_REFRESH_MS,
-} from "./useWatchlistSyncStatus"
 
 function makeOp(creativeWorkId: string) {
   return {

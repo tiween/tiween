@@ -8,7 +8,6 @@ import { useLocale, useTranslations } from "next-intl"
 import { useToast } from "@/components/ui/use-toast"
 
 import { enqueueAdd } from "../utils/watchlistQueue"
-
 import {
   useWatchlistCheck,
   useWatchlistMutations,

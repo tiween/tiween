@@ -15,14 +15,19 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { ProfileForm } from "./ProfileForm"
 
-const { updateMutate, uploadMutateAsync, requestEmailMutate, toastMock, pushMock } =
-  vi.hoisted(() => ({
-    updateMutate: vi.fn(),
-    uploadMutateAsync: vi.fn(),
-    requestEmailMutate: vi.fn(),
-    toastMock: vi.fn(),
-    pushMock: vi.fn(),
-  }))
+const {
+  updateMutate,
+  uploadMutateAsync,
+  requestEmailMutate,
+  toastMock,
+  pushMock,
+} = vi.hoisted(() => ({
+  updateMutate: vi.fn(),
+  uploadMutateAsync: vi.fn(),
+  requestEmailMutate: vi.fn(),
+  toastMock: vi.fn(),
+  pushMock: vi.fn(),
+}))
 
 // AppField/AppForm import general-helpers, which eagerly validates env.mjs and
 // rejects NODE_ENV=test. Stub the one helper they use so env is never imported.
@@ -60,7 +65,10 @@ vi.mock("@/hooks/useUser", () => ({
   useUserMutations: () => ({
     updateProfileMutation: { mutate: updateMutate, isPending: false },
     uploadAvatarMutation: { mutateAsync: uploadMutateAsync, isPending: false },
-    requestEmailChangeMutation: { mutate: requestEmailMutate, isPending: false },
+    requestEmailChangeMutation: {
+      mutate: requestEmailMutate,
+      isPending: false,
+    },
   }),
 }))
 
@@ -119,9 +127,8 @@ describe("routed ProfileForm", () => {
     renderForm()
 
     const file = new File(["avatar"], "avatar.png", { type: "image/png" })
-    const fileInput = document.querySelector<HTMLInputElement>(
-      'input[type="file"]'
-    )!
+    const fileInput =
+      document.querySelector<HTMLInputElement>('input[type="file"]')!
     await u.upload(fileInput, file)
 
     await save(u)

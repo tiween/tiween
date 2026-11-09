@@ -851,7 +851,10 @@ export function EventDetailPageDesktop({
                                 </Badge>
                               )}
                               {isSoldOut && (
-                                <Badge variant="destructive" className="text-xs">
+                                <Badge
+                                  variant="destructive"
+                                  className="text-xs"
+                                >
                                   {labels.soldOut}
                                 </Badge>
                               )}

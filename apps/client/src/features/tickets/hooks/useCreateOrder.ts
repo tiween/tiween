@@ -1,12 +1,12 @@
 "use client"
 
 import * as React from "react"
+import { extractErrorCode } from "@/features/tickets/utils/extractErrorCode"
 
 import type { PaymentMethod } from "@/features/tickets/components"
 import type { TicketTierType } from "@/features/tickets/types"
 
 import { PublicStrapiClient } from "@/lib/strapi-api"
-import { extractErrorCode } from "@/features/tickets/utils/extractErrorCode"
 
 /** POST body for the checkout endpoint (Story 6.3). `userId` is never sent. */
 export interface CreateOrderPayload {

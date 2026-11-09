@@ -1,9 +1,13 @@
 import "server-only"
 
+import { toEventCardEvent } from "@/features/events/utils"
+
 import type { EventCardEvent } from "@/features/events/types"
 
-import { toEventCardEvent } from "@/features/events/utils"
-import { isAlgoliaEventsConfigured, searchEventsWithAlgolia } from "@/lib/algolia"
+import {
+  isAlgoliaEventsConfigured,
+  searchEventsWithAlgolia,
+} from "@/lib/algolia"
 
 import { fetchEvents, startOfToday } from "./events-extended"
 
@@ -64,8 +68,13 @@ export async function searchEvents(
   locale: string,
   options: SearchOptions
 ): Promise<SearchResult> {
-  const { query, cityDocumentId, venueDocumentId, limit = 20, offset = 0 } =
-    options
+  const {
+    query,
+    cityDocumentId,
+    venueDocumentId,
+    limit = 20,
+    offset = 0,
+  } = options
 
   const normalizedQuery = query.trim()
 
@@ -154,7 +163,8 @@ export async function getSearchSuggestions(
 
   const titles = new Set<string>()
   for (const event of slice.events) {
-    const filmTitle = event.screenings?.find((s) => s.movie?.title)?.movie?.title
+    const filmTitle = event.screenings?.find((s) => s.movie?.title)?.movie
+      ?.title
     if (filmTitle) {
       titles.add(filmTitle)
     } else if (event.title) {

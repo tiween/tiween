@@ -232,7 +232,7 @@ export class AdminApi {
       response,
       "list uploads"
     )
-    return Array.isArray(body) ? body : (body.results ?? [])
+    return Array.isArray(body) ? body : body.results ?? []
   }
 
   async deleteUpload(id: number) {

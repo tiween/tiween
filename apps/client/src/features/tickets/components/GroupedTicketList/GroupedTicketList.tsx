@@ -8,9 +8,9 @@ import {
 } from "@/features/tickets/utils/ticketDisplay"
 import { Calendar, Clock, MapPin, Ticket } from "lucide-react"
 
+import type { TicketView } from "@/features/tickets/types"
 import type { TicketGroup } from "@/features/tickets/utils/groupTickets"
 import type { TicketListLabels } from "../TicketList"
-import type { TicketView } from "@/features/tickets/types"
 
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"

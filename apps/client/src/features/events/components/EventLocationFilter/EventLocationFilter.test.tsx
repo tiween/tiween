@@ -1,12 +1,22 @@
-import { cleanup, fireEvent, render, screen } from "@testing-library/react"
 import * as React from "react"
-import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest"
+import { cleanup, fireEvent, render, screen } from "@testing-library/react"
+import {
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vitest"
 
 import type {
   EventLocationFilterLabels,
   EventLocationRegion,
   LocationFilterValue,
 } from "./EventLocationFilter"
+
+import { EventLocationFilter } from "./EventLocationFilter"
 
 // The shadcn Select (and this control) render lucide-react icons. Under the
 // repo's React 18/19 dual-install, lucide's icon elements are minted by a
@@ -18,8 +28,6 @@ vi.mock("lucide-react", () => {
     React.createElement("svg", props)
   return { __esModule: true, MapPin: Icon, Check: Icon, ChevronsUpDown: Icon }
 })
-
-import { EventLocationFilter } from "./EventLocationFilter"
 
 const labels: EventLocationFilterLabels = {
   groupLabel: "Filtrer par lieu",
@@ -50,7 +58,10 @@ const STORAGE_KEY = "tiween.events.location"
 
 function renderFilter(
   value: LocationFilterValue,
-  onChange: (v: LocationFilterValue, o?: { replace?: boolean }) => void = vi.fn(),
+  onChange: (
+    v: LocationFilterValue,
+    o?: { replace?: boolean }
+  ) => void = vi.fn(),
   regionData: EventLocationRegion[] = regions
 ) {
   return render(
@@ -83,9 +94,7 @@ afterEach(() => {
 describe("EventLocationFilter", () => {
   it("renders the group with an accessible name and both selects", () => {
     renderFilter({})
-    expect(
-      screen.getByRole("group", { name: "Filtrer par lieu" })
-    ).toBeTruthy()
+    expect(screen.getByRole("group", { name: "Filtrer par lieu" })).toBeTruthy()
     expect(screen.getByRole("combobox", { name: "Région" })).toBeTruthy()
     expect(screen.getByRole("combobox", { name: "Ville" })).toBeTruthy()
   })

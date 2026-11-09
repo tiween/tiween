@@ -93,9 +93,7 @@ describe("ConfirmEmailChange", () => {
     confirmState.error = new Error("EMAIL_CHANGE_TOKEN_EXPIRED")
     render(<ConfirmEmailChange code="tok-1" />)
 
-    expect(
-      screen.getByText("errors.EMAIL_CHANGE_TOKEN_EXPIRED")
-    ).toBeTruthy()
+    expect(screen.getByText("errors.EMAIL_CHANGE_TOKEN_EXPIRED")).toBeTruthy()
   })
 
   it("maps an invalid/used token to its translated error message", () => {
@@ -111,9 +109,7 @@ describe("ConfirmEmailChange", () => {
     )
     render(<ConfirmEmailChange code="tok-1" />)
 
-    expect(
-      screen.getByText("errors.EMAIL_CHANGE_TOKEN_INVALID")
-    ).toBeTruthy()
+    expect(screen.getByText("errors.EMAIL_CHANGE_TOKEN_INVALID")).toBeTruthy()
   })
 
   it("maps EMAIL_TAKEN (pending address claimed meanwhile) to its translated message", () => {

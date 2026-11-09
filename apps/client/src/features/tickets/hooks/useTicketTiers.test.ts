@@ -10,6 +10,8 @@ import { afterEach, describe, expect, it, vi } from "vitest"
 
 import type { TicketTiersResponse } from "@/features/tickets/types"
 
+import { ticketTierKeys, useTicketTiers } from "./useTicketTiers"
+
 const { fetchAPIMock } = vi.hoisted(() => ({
   fetchAPIMock: vi.fn(),
 }))
@@ -27,8 +29,6 @@ vi.mock("@tanstack/react-query", () => ({
   useQuery: (options: unknown) => useQuerySpy(options),
 }))
 
-import { ticketTierKeys, useTicketTiers } from "./useTicketTiers"
-
 interface CapturedOptions {
   queryKey: readonly unknown[]
   queryFn: () => Promise<TicketTiersResponse>
@@ -42,11 +42,7 @@ afterEach(() => {
 
 describe("ticketTierKeys", () => {
   it("builds a stable, scoped list key per sub-event", () => {
-    expect(ticketTierKeys.list("sc1")).toEqual([
-      "ticket-tiers",
-      "list",
-      "sc1",
-    ])
+    expect(ticketTierKeys.list("sc1")).toEqual(["ticket-tiers", "list", "sc1"])
   })
 })
 

@@ -139,6 +139,7 @@ Density is mobile-first and thumb-zone aware: primary actions sit in the bottom 
 **Known drift in the shadcn primitives (2026-11-09 scan).** The colors are right everywhere, but four primitives in `src/components/ui/` still carry stock shadcn geometry that this file overrides. `Button` is `rounded-md` (6px), 40px tall, `font-medium`, with a `shadow`; the `outline` variant fills gold on hover. `Input` is 36px, 6px radius, `shadow-xs`. `Card` is `rounded-xl` (12px) with `shadow-sm`. The destructive `Badge` puts white text on #FF8A8A (about 1.9:1, fails AA). The shorts detail layer already matches this file. Until the primitives are fixed, new public screens apply the Components section below through `className` (pill, 48px or 44px, no shadow), and never copy the stock values.
 
 **Key Characteristics:**
+
 - Dark-only Midnight Aubergine field; one scoped daylight exception (QR ticket, checkout).
 - Gold Leaf is the single action and selection signal.
 - Posters at 2:3 portrait lead every feed; chrome stays secondary.
@@ -152,17 +153,21 @@ Density is mobile-first and thumb-zone aware: primary actions sit in the bottom 
 A deep plum-black field with one burnished gold action color, a magenta secondary, and five category hues used only for wayfinding.
 
 ### Primary
+
 - **Gold Leaf** (#D4A24A): primary action fills (watch, reserve, confirm), active and selected states, the recommended star, the active bottom-nav icon, and focus rings on dark controls. Also legal as text on the field (7.6:1).
 - **Gold Ink** (#2A1A06): the only text color allowed on a Gold Leaf fill (7.3:1).
 - **Gold Tint** (#E0B563): the text-safe gilt for links, secondary-button labels and informational text on dark (9.2:1).
 
 ### Secondary
+
 - **Magenta Rose** (#E5478A): secondary highlight and the théâtre category. Use as a fill under white text at large sizes only (3.75:1); never as body text and never as a page background.
 
 ### Tertiary
+
 - **Category hues**: cinema Gold Tint (#E0B563), théâtre Magenta Rose (#E5478A), courts teal (#5FD0C2), concert periwinkle (#7B9CFF), expo orchid (#C98AE8). They appear on the card category badge and the filter-chip dot only. Courts teal carries the retired Tiween-green DNA as a cameo.
 
 ### Neutral
+
 - **Midnight Aubergine** (#241326): the page field and sticky-bar base; also the daylight CTA fill and daylight ink.
 - **Aubergine Deep** (#161015): behind hero media and as the base of translucent scrims over artwork (shipped shorts detail).
 - **Surface** (#31203A): cards, info rows, icon-button discs, inputs.
@@ -176,6 +181,7 @@ A deep plum-black field with one burnished gold action color, a magenta secondar
 - **Daylight**: background #FFFFFF with Midnight Aubergine ink, for the QR ticket and checkout only.
 
 ### Named Rules
+
 **The Gold Means Go Rule.** Gold Leaf marks something the visitor can act on, or the state they just chose. It never decorates a non-actionable highlight.
 
 **The Dark Ink Rule.** A gold fill always takes Gold Ink (#2A1A06). White on gold is 2.3:1 and is banned.
@@ -194,6 +200,7 @@ A deep plum-black field with one burnished gold action color, a magenta secondar
 As of 2026-11-09 (owner decision), IBM Plex Sans Arabic is the Arabic body and UI face app-wide, replacing Noto Sans Arabic, which is no longer loaded. Every page reads `Inter, IBM Plex Sans Arabic` (Arabic glyphs fall through to Plex); under `lang="ar"` the stack flips to `IBM Plex Sans Arabic, Inter` so Arabic copy leads in Plex and Latin runs stay in Inter. The spine also names Cairo 700/900 for long Arabic display copy; Cairo is not loaded, so it appears in no stack here.
 
 ### Hierarchy
+
 - **Display** (Lalezar 400, clamp(44px, 8vw, 72px), 0.98): the work title on detail heroes, splash, empty-state headlines, big brand numerals. Brand moments only. Long Arabic display copy drops to IBM Plex Sans Arabic 700 at Headline size rather than stretching Lalezar.
 - **Headline** (Inter 700, 24px, 32px): routine in-app screen headers. Arabic uses IBM Plex Sans Arabic 700.
 - **Title** (Inter 700, 18px): section titles on detail pages (Synopsis, Cast, Awards, Where to watch).
@@ -204,6 +211,7 @@ As of 2026-11-09 (owner decision), IBM Plex Sans Arabic is the Arabic body and U
 Scale steps in use (px size/line-height): 12/16, 14/20, 16/24, 18/28, 20/28, 24/32, 30/36, 36/40.
 
 ### Named Rules
+
 **The Brand Moment Rule.** Lalezar appears only on heroes, splash, empty states and marketing. Routine headers are Inter (or IBM Plex Sans Arabic) 700.
 
 **The One Line, One System Rule.** Every foreign-script run inside a line (an Arabic title with `VOST`, a venue, `12,20 DT`) is isolated in `<bdi>` or `dir="auto"` so it does not reorder.
@@ -225,6 +233,7 @@ Elevation is expressed by stepping surface color, not by shadow: Surface (#31203
 Motion is short and functional: color, background and opacity changes run 160ms ease; lifts and scales run 220ms `cubic-bezier(0.2, 0.7, 0.3, 1)`; the global duration tokens are 150, 200 and 300ms. Under `prefers-reduced-motion` every transition and animation collapses to 0.01ms.
 
 ### Named Rules
+
 **The Flat Chrome Rule.** No `box-shadow` for elevation in product UI. If something needs to sit above, shift its surface color or put it on a translucent blurred bar. Rings (focus, gold inner edge, play-disc halo) are the only permitted `box-shadow` uses.
 
 ## Shapes
@@ -234,6 +243,7 @@ Generous, soft geometry. Poster cards and poster frames are 16px; info rows (awa
 ## Components
 
 ### Buttons
+
 - **Shape:** full pill (9999px) for every CTA.
 - **Primary:** Gold Leaf fill, Gold Ink label, 700 weight, 48px tall (52px in the detail action row), full-width on mobile, with a 1px inner Gold Ink edge at 22% opacity.
 - **Hover / Focus:** hover drops opacity to 0.92; press scales to 0.98; focus is a 3px Gold Leaf ring against the control's edge, backed by a further 2px band of the field color (the global `:focus-visible` rule), but a 3px dark (#241326) or white ring on gold-filled controls. Loading swaps the label for a spinner after 200ms; disabled is 50% opacity.
@@ -243,10 +253,12 @@ Generous, soft geometry. Poster cards and poster frames are 16px; info rows (awa
 - **Destructive:** destructive fill, always behind a confirm dialog.
 
 ### Chips
+
 - **Style:** 8px radius, 11px label at 600, padding 4px 11px. The category chip sits on a translucent Aubergine Deep scrim with a darkened category-hue border, a 6px category dot, and category-hue text.
 - **State:** format chips (`VOST`, `VF`, `3D`, `2D`), genre, duration, `Complet` (sold out) and `Fonctionne hors ligne` (success). A selected filter chip takes Gold Leaf plus a check glyph, never color alone.
 
 ### Cards / Containers
+
 - **Corner Style:** 16px on poster cards, 12px on info rows.
 - **Background:** Surface (#31203A); hover to Surface Raised.
 - **Shadow Strategy:** none; see Elevation & Depth.
@@ -255,23 +267,28 @@ Generous, soft geometry. Poster cards and poster frames are 16px; info rows (awa
 - **EventCard / ShortFilmCard:** 2:3 poster, then category badge, title, venue and date (or director and year), then the watchlist heart (fills gold when saved) and price in `12,20 DT` form. Variants default, compact, featured. Related-work cards lift 2px on hover and press to 0.985.
 
 ### Inputs / Fields
+
 - **Style:** Surface fill, 1px Border stroke, 8px radius, 44px tall, Foreground text, Muted Foreground placeholder. The shadcn `Input` takes its colors from the global tokens but is still 36px with a 6px radius, so set `h-11 rounded-lg` (44px, 8px) where it is used until the primitive is fixed.
 - **Focus:** 3px Gold Leaf ring.
 - **Error / Disabled:** destructive text with an icon and a translated `t('errors.<CODE>')` message; disabled at 50% opacity.
 
 ### Navigation
+
 - **Bottom nav (mobile):** four thin-line monochrome icons, Accueil, Recherche, Billets, Compte, 48px targets in a 64px bar. Active is a solid Gold Leaf icon with its label; a red dot marks notifications.
 - **Header:** sticky translucent aubergine bar with a 12px blur and a hairline bottom rule; the gold horizontal lockup sits centered; 40px icon discs inside 44px targets.
 
 ### Short-Film Detail Hero (signature)
+
 A wide hero (clamp 440 to 580px) of the backdrop over Aubergine Deep, with a bottom-up scrim, a 74px Gold Leaf play disc with a 10px soft gold halo, the category chip row, and the Lalezar title. When artwork is missing, an oversized gold taa glyph sits at the inline end over the reserved stripe. Below it: primary watch pill, secondary trailer pill and a 52px round watchlist heart; then sections for synopsis, awards, where to watch, cast rail and related works; a fixed sticky bar repeats the watch CTA.
 
 ### Ticket QR (dormant)
+
 Daylight surface: white field, black-on-white QR, mono ticket ID. Ticketing is feature-flagged off; do not surface it in v1.
 
 ## Do's and Don'ts
 
 ### Do:
+
 - **Do** reserve Gold Leaf (#D4A24A) for actions and active state, and route links and info text through Gold Tint (#E0B563).
 - **Do** keep poster art the visual hero of every discovery surface, at 2:3 portrait in feeds.
 - **Do** use logical properties and start/end corners so RTL flips cleanly, and mirror directional icons.
@@ -281,6 +298,7 @@ Daylight surface: white field, black-on-white QR, mono ticket ID. Ticketing is f
 - **Do** declare new shorts-surface colors inside the scoped token block, never as raw hex in rules.
 
 ### Don't:
+
 - **Don't** use Lalezar for routine in-app headers.
 - **Don't** let gold signal a non-actionable highlight.
 - **Don't** add drop shadows to product chrome; shift surface color instead.

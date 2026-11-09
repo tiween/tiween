@@ -76,9 +76,7 @@ describe("SignInFormWithSocial", () => {
   })
 
   it("hides social buttons when both providers are disabled", () => {
-    render(
-      <SignInFormWithSocial enableGoogle={false} enableFacebook={false} />
-    )
+    render(<SignInFormWithSocial enableGoogle={false} enableFacebook={false} />)
     expect(screen.queryByRole("button", { name: /google/i })).toBeNull()
     expect(screen.queryByRole("button", { name: /facebook/i })).toBeNull()
   })

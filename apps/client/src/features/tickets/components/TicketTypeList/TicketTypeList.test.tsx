@@ -2,8 +2,9 @@ import { render, screen } from "@testing-library/react"
 import { describe, expect, it } from "vitest"
 
 import type { TicketTier } from "@/features/tickets/types"
+import type { TicketTypeListLabels } from "./TicketTypeList"
 
-import { TicketTypeList, type TicketTypeListLabels } from "./TicketTypeList"
+import { TicketTypeList } from "./TicketTypeList"
 
 const labels: TicketTypeListLabels = {
   types: {

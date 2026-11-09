@@ -6,12 +6,14 @@
  * `latestFiltersRef`) into `router.push`, and the mount-time sessionStorage
  * restore must go through `router.replace` (no history entry).
  */
-import { cleanup, fireEvent, render, screen } from "@testing-library/react"
 import * as React from "react"
+import { cleanup, fireEvent, render, screen } from "@testing-library/react"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
-import type { EventsListingLabels } from "./EventsListing"
 import type { EventFilters } from "../../filters/filterParams"
+import type { EventsListingLabels } from "./EventsListing"
+
+import { EventsListing } from "./EventsListing"
 
 const { pushMock, replaceMock } = vi.hoisted(() => ({
   pushMock: vi.fn(),
@@ -50,8 +52,6 @@ vi.mock("next-auth/react", () => ({
 vi.mock("@/hooks/useUser", () => ({
   useCurrentUser: () => ({ data: undefined }),
 }))
-
-import { EventsListing } from "./EventsListing"
 
 const labels: EventsListingLabels = {
   title: "Événements",

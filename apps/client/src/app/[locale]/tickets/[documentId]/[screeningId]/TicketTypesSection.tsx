@@ -2,20 +2,24 @@
 
 import * as React from "react"
 import { useRouter } from "next/navigation"
-import { useTranslations } from "next-intl"
-
-import type { OrderLineItem } from "@/features/tickets/components"
-import type { TicketSelectionListLabels } from "@/features/tickets/components"
-
+import {
+  OrderSummary,
+  TicketSelectionList,
+} from "@/features/tickets/components"
 import { useTicketTiers } from "@/features/tickets/hooks/useTicketTiers"
 import {
   MAX_TICKETS_PER_ORDER,
   useTicketSelectionStore,
 } from "@/features/tickets/stores/ticketSelectionStore"
 import { formatPrice } from "@/features/tickets/utils/formatPrice"
-import { OrderSummary, TicketSelectionList } from "@/features/tickets/components"
-import { EmptyState } from "@/components/common"
-import { TicketCardSkeleton } from "@/components/common"
+import { useTranslations } from "next-intl"
+
+import type {
+  OrderLineItem,
+  TicketSelectionListLabels,
+} from "@/features/tickets/components"
+
+import { EmptyState, TicketCardSkeleton } from "@/components/common"
 import { Button } from "@/components/ui/button"
 
 export interface TicketTypesSectionProps {
@@ -72,8 +76,7 @@ export function TicketTypesSection({
   // Before `hydrateFor` aligns the store, or when a stale cart from another
   // showtime is rehydrated from storage, the selection reads as empty — this
   // prevents a foreign cart from flashing or counting toward the order.
-  const quantities =
-    storeSubEventId === screeningId ? storeQuantities : {}
+  const quantities = storeSubEventId === screeningId ? storeQuantities : {}
 
   const selectionLabels: TicketSelectionListLabels = {
     types: {

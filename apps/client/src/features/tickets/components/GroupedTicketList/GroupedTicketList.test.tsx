@@ -1,8 +1,8 @@
 import { fireEvent, render, screen, within } from "@testing-library/react"
 import { describe, expect, it } from "vitest"
 
-import type { GroupedTicketListLabels } from "./GroupedTicketList"
 import type { TicketView } from "@/features/tickets/types"
+import type { GroupedTicketListLabels } from "./GroupedTicketList"
 
 import { GroupedTicketList } from "./GroupedTicketList"
 
@@ -109,7 +109,9 @@ describe("GroupedTicketList", () => {
   })
 
   it("does not render a Historique section when nothing is past", () => {
-    render(<GroupedTicketList tickets={[ticket()]} locale="fr" labels={labels} />)
+    render(
+      <GroupedTicketList tickets={[ticket()]} locale="fr" labels={labels} />
+    )
 
     expect(screen.queryByText("Historique")).toBeNull()
   })
@@ -183,7 +185,9 @@ describe("GroupedTicketList", () => {
       />
     )
 
-    expect(screen.getByRole("heading", { name: "Inception" })).toBeInTheDocument()
+    expect(
+      screen.getByRole("heading", { name: "Inception" })
+    ).toBeInTheDocument()
     expect(document.body.textContent).not.toContain("Invalid")
     expect(document.body.textContent).not.toMatch(/\d{2}\/\d{2}\/\d{4}/)
   })
@@ -207,7 +211,9 @@ describe("GroupedTicketList", () => {
   })
 
   it("formats with Western numerals in Arabic", () => {
-    render(<GroupedTicketList tickets={[ticket()]} locale="ar" labels={labels} />)
+    render(
+      <GroupedTicketList tickets={[ticket()]} locale="ar" labels={labels} />
+    )
 
     expect(screen.getByText("20/08/2099")).toBeInTheDocument()
     expect(screen.getByText("20:30")).toBeInTheDocument()

@@ -12,6 +12,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import type { WatchlistItem } from "./useWatchlist"
 
+import { useOfflineWatchlist } from "./useOfflineWatchlist"
+
 const {
   useWatchlistMock,
   useOnlineStatusMock,
@@ -42,8 +44,6 @@ vi.mock("../utils/watchlistCache", () => ({
   saveWatchlistCache: saveWatchlistCacheMock,
   readWatchlistCache: readWatchlistCacheMock,
 }))
-
-import { useOfflineWatchlist } from "./useOfflineWatchlist"
 
 function makeItem(documentId: string): WatchlistItem {
   return {
@@ -87,9 +87,7 @@ describe("useOfflineWatchlist", () => {
 
     const { result } = renderHook(() => useOfflineWatchlist())
 
-    await waitFor(() =>
-      expect(saveWatchlistCacheMock).toHaveBeenCalledTimes(1)
-    )
+    await waitFor(() => expect(saveWatchlistCacheMock).toHaveBeenCalledTimes(1))
     const [userId, items, ts] = saveWatchlistCacheMock.mock.calls[0]!
     expect(userId).toBe(7)
     expect(items).toBe(rows)

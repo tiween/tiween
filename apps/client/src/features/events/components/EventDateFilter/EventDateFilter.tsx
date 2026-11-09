@@ -238,11 +238,7 @@ export function EventDateFilter({
         <button
           type="button"
           onClick={clear}
-          className={cn(
-            CHIP_BASE,
-            CHIP_INACTIVE,
-            "text-muted-foreground px-3"
-          )}
+          className={cn(CHIP_BASE, CHIP_INACTIVE, "text-muted-foreground px-3")}
         >
           <CloseGlyph />
           {labels.clear}

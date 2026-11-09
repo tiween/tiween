@@ -1,9 +1,9 @@
 "use client"
 
 import * as React from "react"
+import { extractErrorCode } from "@/features/tickets/utils/extractErrorCode"
 
 import { PublicStrapiClient } from "@/lib/strapi-api"
-import { extractErrorCode } from "@/features/tickets/utils/extractErrorCode"
 
 /** Reconciled order status returned by the confirm endpoint (Story 6.3). */
 export interface OrderStatusResult {

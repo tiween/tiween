@@ -39,9 +39,7 @@ describe("ShareDialog", () => {
       />
     )
 
-    expect(
-      screen.getByRole("button", { name: /Copier le lien/ })
-    ).toBeTruthy()
+    expect(screen.getByRole("button", { name: /Copier le lien/ })).toBeTruthy()
 
     const whatsapp = screen.getByRole("link", { name: "Partager sur WhatsApp" })
     expect(whatsapp.getAttribute("href")).toBe(

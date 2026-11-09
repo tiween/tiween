@@ -195,7 +195,7 @@ export function PaymentForm({
     >
       {/* Secure payment badge */}
       <div className="flex items-center justify-center gap-2 text-sm">
-        <ShieldCheck className="h-4 w-4 text-success" />
+        <ShieldCheck className="text-success h-4 w-4" />
         <span className="text-muted-foreground">{labels.securePayment}</span>
       </div>
 

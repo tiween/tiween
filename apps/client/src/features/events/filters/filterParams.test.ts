@@ -55,7 +55,11 @@ describe("serializeDateValue", () => {
       "2026-07-10"
     )
     expect(
-      serializeDateValue({ type: "range", start: "2026-07-10", end: "2026-07-14" })
+      serializeDateValue({
+        type: "range",
+        start: "2026-07-10",
+        end: "2026-07-14",
+      })
     ).toBe("2026-07-10..2026-07-14")
   })
 })
@@ -116,7 +120,9 @@ describe("parseEventFilters / serializeEventFilters", () => {
   })
 
   it("drops an inverted range", () => {
-    expect(parseEventFilters({ date: "2026-07-14..2026-07-10" }).date).toBeUndefined()
+    expect(
+      parseEventFilters({ date: "2026-07-14..2026-07-10" }).date
+    ).toBeUndefined()
   })
 
   it("reads from a URLSearchParams instance too", () => {
@@ -143,7 +149,9 @@ describe("parseEventFilters / serializeEventFilters", () => {
   })
 
   it("parses venue as an opaque non-empty documentId token (Story 3.5)", () => {
-    expect(parseEventFilters({ venue: "venue-1" })).toEqual({ venue: "venue-1" })
+    expect(parseEventFilters({ venue: "venue-1" })).toEqual({
+      venue: "venue-1",
+    })
   })
 
   it("drops an empty/whitespace-preserving venue param", () => {

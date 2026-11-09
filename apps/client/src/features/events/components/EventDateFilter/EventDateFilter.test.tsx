@@ -41,10 +41,14 @@ describe("EventDateFilter", () => {
   it("highlights the active preset via aria-pressed", () => {
     renderFilter({ type: "weekend" })
     expect(
-      screen.getByRole("button", { name: "Ce weekend" }).getAttribute("aria-pressed")
+      screen
+        .getByRole("button", { name: "Ce weekend" })
+        .getAttribute("aria-pressed")
     ).toBe("true")
     expect(
-      screen.getByRole("button", { name: "Aujourd'hui" }).getAttribute("aria-pressed")
+      screen
+        .getByRole("button", { name: "Aujourd'hui" })
+        .getAttribute("aria-pressed")
     ).toBe("false")
   })
 

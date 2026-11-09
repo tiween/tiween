@@ -301,7 +301,7 @@ export function ReviewStep({
             <div className="text-center">
               <div className="font-medium text-white">
                 {formData.poster ? (
-                  <Check className="mx-auto h-4 w-4 text-success" />
+                  <Check className="text-success mx-auto h-4 w-4" />
                 ) : (
                   "—"
                 )}

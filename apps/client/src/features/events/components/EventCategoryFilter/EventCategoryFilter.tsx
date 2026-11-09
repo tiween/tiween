@@ -2,8 +2,8 @@
 
 import * as React from "react"
 
-import type { CategoryTabsLabels, CategoryType } from "../CategoryTabs"
 import type { EventCategoryToken } from "../../filters/filterParams"
+import type { CategoryTabsLabels, CategoryType } from "../CategoryTabs"
 
 import { isCategoryToken } from "../../filters/filterParams"
 import { CategoryTabs } from "../CategoryTabs"

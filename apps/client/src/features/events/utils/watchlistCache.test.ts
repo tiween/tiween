@@ -89,21 +89,25 @@ describe("watchlistCache", () => {
   })
 
   it("returns false from save when storage throws (never throws)", () => {
-    vi.spyOn(window.localStorage.__proto__, "setItem").mockImplementation(() => {
-      throw new Error("QuotaExceeded")
-    })
+    vi.spyOn(window.localStorage.__proto__, "setItem").mockImplementation(
+      () => {
+        throw new Error("QuotaExceeded")
+      }
+    )
     expect(() =>
       saveWatchlistCache(7, [makeItem("A")], "2026-07-10T12:00:00.000Z")
     ).not.toThrow()
-    expect(saveWatchlistCache(7, [makeItem("A")], "2026-07-10T12:00:00.000Z")).toBe(
-      false
-    )
+    expect(
+      saveWatchlistCache(7, [makeItem("A")], "2026-07-10T12:00:00.000Z")
+    ).toBe(false)
   })
 
   it("returns null from read when storage throws (never throws)", () => {
-    vi.spyOn(window.localStorage.__proto__, "getItem").mockImplementation(() => {
-      throw new Error("SecurityError")
-    })
+    vi.spyOn(window.localStorage.__proto__, "getItem").mockImplementation(
+      () => {
+        throw new Error("SecurityError")
+      }
+    )
     expect(() => readWatchlistCache(7)).not.toThrow()
     expect(readWatchlistCache(7)).toBeNull()
   })

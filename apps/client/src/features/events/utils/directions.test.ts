@@ -15,9 +15,7 @@ describe("buildDirectionsUrl", () => {
         { latitude: 36.8065, longitude: 10.1815 },
         { platform: "other" }
       )
-    ).toBe(
-      "https://www.google.com/maps/dir/?api=1&destination=36.8065,10.1815"
-    )
+    ).toBe("https://www.google.com/maps/dir/?api=1&destination=36.8065,10.1815")
   })
 
   it("returns an Apple Maps URL on the apple platform branch", () => {

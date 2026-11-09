@@ -1,11 +1,10 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react"
-import { beforeEach, describe, expect, it, vi } from "vitest"
-
 import { useCreateOrder } from "@/features/tickets/hooks/useCreateOrder"
 import { useGuestCheckout } from "@/features/tickets/hooks/useGuestCheckout"
 import { useTicketTiers } from "@/features/tickets/hooks/useTicketTiers"
 import { useTicketSelectionStore } from "@/features/tickets/stores/ticketSelectionStore"
 import { readOrderAccess } from "@/features/tickets/utils/orderAccess"
+import { fireEvent, render, screen, waitFor } from "@testing-library/react"
+import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { PaymentStep } from "./PaymentStep"
 

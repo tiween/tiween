@@ -11,9 +11,13 @@
  * mocked so the tree renders standalone without touching env or Strapi.
  */
 import * as React from "react"
-import { cleanup, render, screen } from "@testing-library/react"
 import { useQueryClient } from "@tanstack/react-query"
+import { cleanup, render, screen } from "@testing-library/react"
 import { afterEach, describe, expect, it, vi } from "vitest"
+
+import { getQueryClient } from "@/lib/query-client"
+
+import { ClientProviders } from "./ClientProviders"
 
 const { useSessionMock, signOutAndClearCacheMock, useWatchlistSyncMock } =
   vi.hoisted(() => ({
@@ -41,10 +45,6 @@ vi.mock("@/hooks/useTranslatedZod", () => ({ useTranslatedZod: vi.fn() }))
 vi.mock("@/lib/sign-out", () => ({
   signOutAndClearCache: signOutAndClearCacheMock,
 }))
-
-import { getQueryClient } from "@/lib/query-client"
-
-import { ClientProviders } from "./ClientProviders"
 
 /** Reports whether the client it receives from context is the shared one. */
 function ClientProbe() {

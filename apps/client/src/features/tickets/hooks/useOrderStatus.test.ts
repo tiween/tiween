@@ -1,6 +1,8 @@
 import { act, renderHook } from "@testing-library/react"
 import { afterEach, describe, expect, it, vi } from "vitest"
 
+import { useOrderStatus } from "./useOrderStatus"
+
 /**
  * Tests for `useOrderStatus` (Story 6.3): the idempotent confirm POST and the
  * reconciled status it returns. The Strapi client is mocked.
@@ -12,8 +14,6 @@ vi.mock("@/lib/strapi-api", () => ({
   PublicStrapiClient: { fetchAPI: fetchAPIMock },
   PrivateStrapiClient: { fetchAPI: vi.fn() },
 }))
-
-import { useOrderStatus } from "./useOrderStatus"
 
 afterEach(() => {
   fetchAPIMock.mockReset()

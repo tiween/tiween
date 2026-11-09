@@ -147,7 +147,7 @@ export function WizardProgress({ labels }: WizardProgressProps) {
                 className={cn(
                   "h-2 rounded-full transition-all duration-200",
                   isCurrent && "bg-primary w-6",
-                  isCompleted && !isCurrent && "w-2 bg-success",
+                  isCompleted && !isCurrent && "bg-success w-2",
                   !isCompleted && !isCurrent && "w-2 bg-white/30"
                 )}
                 aria-label={`Go to step ${index + 1}: ${stepLabels[index]}`}

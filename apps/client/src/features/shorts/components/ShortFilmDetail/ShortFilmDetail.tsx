@@ -298,11 +298,7 @@ export function ShortFilmDetail({
     metaParts.push(<bdi key="year">{film.releaseYear}</bdi>)
   }
   if (film.duration) {
-    metaParts.push(
-      <bdi key="duration">
-        {formatMinutes(film.duration)}
-      </bdi>
-    )
+    metaParts.push(<bdi key="duration">{formatMinutes(film.duration)}</bdi>)
   }
   if (genres.length > 0) {
     metaParts.push(
@@ -694,9 +690,7 @@ export function ShortFilmDetail({
                               {year !== null && <bdi>{year}</bdi>}
                               {year !== null && minutes !== null && " · "}
                               {minutes !== null && (
-                                <bdi>
-                                  {formatMinutes(minutes)}
-                                </bdi>
+                                <bdi>{formatMinutes(minutes)}</bdi>
                               )}
                             </div>
                           )}

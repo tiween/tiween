@@ -13,7 +13,4 @@ export {
   isAlgoliaEventsConfigured,
 } from "./events"
 
-export type {
-  AlgoliaEventRecord,
-  AlgoliaEventSearchOptions,
-} from "./events"
+export type { AlgoliaEventRecord, AlgoliaEventSearchOptions } from "./events"

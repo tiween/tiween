@@ -61,10 +61,7 @@ function parseShowtime(iso: string | null): number | null {
  * `startDateTime` is never demoted: it may be a live credential, so it stays
  * upcoming (ordered after the dated groups).
  */
-export function groupTickets(
-  tickets: TicketView[],
-  now: Date
-): GroupedTickets {
+export function groupTickets(tickets: TicketView[], now: Date): GroupedTickets {
   // Map preserves insertion order — the tie-break for undated groups.
   const groups = new Map<string, TicketGroup>()
 

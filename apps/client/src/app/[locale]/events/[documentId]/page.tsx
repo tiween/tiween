@@ -12,11 +12,11 @@ import { getTranslations, setRequestLocale } from "next-intl/server"
 import type { EventDetailPageLabels } from "@/features/events/components"
 
 import { generateBreadcrumbJsonLd, generateEventJsonLd } from "@/lib/seo"
-import { formatStrapiMediaUrl } from "@/lib/strapi-helpers"
 import {
   getEventByDocumentId,
   getRelatedEventsByParams,
 } from "@/lib/strapi-api/content/server"
+import { formatStrapiMediaUrl } from "@/lib/strapi-helpers"
 import { JsonLd } from "@/components/seo"
 
 interface PageProps {
@@ -71,7 +71,9 @@ export async function generateMetadata({
   // host: S3 URLs already start with http; local `/uploads/...` assets are made
   // absolute via `formatStrapiMediaUrl` (→ `/api/asset/...`) + BASE_URL. Guard on
   // truthiness so the existing no-image path (undefined) is preserved.
-  const formattedPoster = posterUrl ? formatStrapiMediaUrl(posterUrl) : undefined
+  const formattedPoster = posterUrl
+    ? formatStrapiMediaUrl(posterUrl)
+    : undefined
   const absolutePosterUrl =
     typeof formattedPoster === "string"
       ? toAbsoluteMediaUrl({ url: formattedPoster, baseUrl: BASE_URL })

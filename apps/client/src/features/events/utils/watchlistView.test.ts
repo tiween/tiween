@@ -161,9 +161,9 @@ describe("filterByCategory", () => {
       }),
     ]
 
-    expect(filterByCategory(items, "theater").map((i) => i.documentId)).toEqual([
-      "play",
-    ])
+    expect(filterByCategory(items, "theater").map((i) => i.documentId)).toEqual(
+      ["play"]
+    )
     expect(filterByCategory(items, "music").map((i) => i.documentId)).toEqual([
       "concert",
     ])

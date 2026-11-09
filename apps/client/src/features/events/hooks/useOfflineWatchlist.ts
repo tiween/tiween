@@ -3,14 +3,12 @@
 import * as React from "react"
 import { useSession } from "next-auth/react"
 
+import type { WatchlistItem } from "./useWatchlist"
+
 import { useOnlineStatus } from "@/hooks/useOnlineStatus"
 
-import {
-  readWatchlistCache,
-  saveWatchlistCache,
-} from "../utils/watchlistCache"
-
-import { useWatchlist, type WatchlistItem } from "./useWatchlist"
+import { readWatchlistCache, saveWatchlistCache } from "../utils/watchlistCache"
+import { useWatchlist } from "./useWatchlist"
 
 /**
  * The offline-durable view over the memory-only `useWatchlist` query.
@@ -74,7 +72,7 @@ export function useOfflineWatchlist(): UseOfflineWatchlistResult {
 
   return {
     items: query.data ?? (isFromCache ? snapshot!.items : []),
-    syncedAt: query.data ? syncedAt : (snapshot?.syncedAt ?? null),
+    syncedAt: query.data ? syncedAt : snapshot?.syncedAt ?? null,
     isOffline,
     isFromCache,
     // Offline never shows the loading skeleton: we either have a cached snapshot
