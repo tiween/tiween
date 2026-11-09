@@ -64,11 +64,6 @@ updates:
       tanstack:
         patterns:
           - "@tanstack/*"
-      storybook:
-        patterns:
-          - "storybook"
-          - "@storybook/*"
-          - "chromatic"
       tailwind:
         patterns:
           - "tailwindcss*"

@@ -295,9 +295,8 @@ ruleTester.run("western-numerals", rule, {
 /**
  * The rule module is only half the guard — it protects nothing unless
  * `apps/client/eslint.config.mjs` still registers the plugin and sets the rule
- * to `error`. That wiring lives in a Storybook-generated file that `storybook
- * upgrade` rewrites, so losing it is a realistic accident that no RuleTester
- * case would notice. This check lints a fixture through the client's *own*
+ * to `error`. That wiring lives in a hand-edited config file, so losing it in
+ * a refactor is a realistic accident that no RuleTester case would notice. This check lints a fixture through the client's *own*
  * resolved flat config.
  */
 describe("wiring", () => {

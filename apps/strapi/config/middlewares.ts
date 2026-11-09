@@ -70,7 +70,6 @@ export default [
       origin: [
         "https://tiween.localhost:1355", // Next.js client (Portless)
         "http://localhost:3000", // Next.js client (direct, fallback)
-        "http://localhost:6006", // Storybook
       ],
       methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"],
       headers: ["Content-Type", "Authorization", "Origin", "Accept"],

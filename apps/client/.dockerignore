@@ -32,8 +32,6 @@ yarn-error.log*
 coverage/
 .nyc_output/
 
-# Storybook
-storybook-static/
 
 # OS
 .DS_Store

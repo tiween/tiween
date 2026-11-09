@@ -36,7 +36,6 @@ export default [
       "node_modules/**",
       ".*.js",
       "**/*.d.ts",
-      "storybook-static/**",
     ],
   },
 ];

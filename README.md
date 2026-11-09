@@ -137,13 +137,6 @@ yarn start:client
 
 ## Additional Tools
 
-### Storybook (Client)
-
-```bash
-yarn storybook
-yarn build-storybook
-```
-
 ### Strapi Scripts
 
 ```bash
