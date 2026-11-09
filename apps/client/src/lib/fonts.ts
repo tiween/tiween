@@ -1,11 +1,15 @@
-import { Inter, Lalezar, Noto_Sans_Arabic } from "next/font/google"
+import { IBM_Plex_Sans_Arabic, Inter, Lalezar } from "next/font/google"
 
 /**
  * Tiween Typography System
  *
  * - Lalezar: Display headings, brand moments (Arabic/Latin)
  * - Inter: Body text, UI elements (Latin)
- * - Noto Sans Arabic: Body text for Arabic content
+ * - IBM Plex Sans Arabic: Body text and UI for Arabic content (owner
+ *   decision 2026-11-09, replaces Noto Sans Arabic)
+ *
+ * The `variable` classes are applied on <html> in `app/[locale]/layout.tsx`
+ * so the font stacks declared on `:root` (`styles/theme.css`) can resolve them.
  */
 
 export const fontInter = Inter({
@@ -22,10 +26,11 @@ export const fontLalezar = Lalezar({
   display: "swap",
 })
 
-export const fontNotoSansArabic = Noto_Sans_Arabic({
+// Arabic subset only: Latin runs inside Arabic copy fall through to Inter.
+export const fontPlexSansArabic = IBM_Plex_Sans_Arabic({
   subsets: ["arabic"],
   weight: ["400", "500", "600", "700"],
-  variable: "--font-noto-arabic",
+  variable: "--font-plex-arabic",
   display: "swap",
 })
 

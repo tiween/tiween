@@ -235,7 +235,7 @@ export function CreditsStep({ labels, onValidateRef }: CreditsStepProps) {
         <form className="space-y-4">
           {/* Root error (e.g., "playwright or director required") */}
           {creditsError?.root && (
-            <div className="rounded-md border border-red-500/50 bg-red-500/10 p-3 text-sm text-red-400">
+            <div className="border-destructive/50 bg-destructive/10 text-destructive rounded-md border p-3 text-sm">
               {translateError(creditsError.root.message || "")}
             </div>
           )}
@@ -262,7 +262,7 @@ export function CreditsStep({ labels, onValidateRef }: CreditsStepProps) {
                       size="sm"
                       onClick={() => remove(index)}
                       disabled={fields.length === 1}
-                      className="h-8 w-8 p-0 text-white/40 hover:bg-red-500/10 hover:text-red-400"
+                      className="hover:bg-destructive/10 hover:text-destructive h-8 w-8 p-0 text-white/40"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -277,7 +277,7 @@ export function CreditsStep({ labels, onValidateRef }: CreditsStepProps) {
                       render={({ field: personField, fieldState }) => (
                         <FormItem>
                           <FormLabel className="text-sm text-white">
-                            Person <span className="text-red-500">*</span>
+                            Person <span className="text-destructive">*</span>
                           </FormLabel>
                           <PersonSearchCombobox
                             value={personField.value}
@@ -310,7 +310,7 @@ export function CreditsStep({ labels, onValidateRef }: CreditsStepProps) {
                       render={({ field: roleField, fieldState }) => (
                         <FormItem>
                           <FormLabel className="text-sm text-white">
-                            Role <span className="text-red-500">*</span>
+                            Role <span className="text-destructive">*</span>
                           </FormLabel>
                           <Select
                             value={roleField.value}
@@ -319,8 +319,8 @@ export function CreditsStep({ labels, onValidateRef }: CreditsStepProps) {
                             <FormControl>
                               <SelectTrigger
                                 className={cn(
-                                  "bg-tiween-green border-white/20 text-white",
-                                  fieldState.invalid && "border-red-500"
+                                  "bg-background border-white/20 text-white",
+                                  fieldState.invalid && "border-destructive"
                                 )}
                               >
                                 <SelectValue placeholder="Select role" />
@@ -371,8 +371,8 @@ export function CreditsStep({ labels, onValidateRef }: CreditsStepProps) {
                               <Input
                                 placeholder="e.g., Hamlet, Juliet..."
                                 className={cn(
-                                  "bg-tiween-green border-white/20 text-white placeholder:text-white/40",
-                                  fieldState.invalid && "border-red-500"
+                                  "bg-background border-white/20 text-white placeholder:text-white/40",
+                                  fieldState.invalid && "border-destructive"
                                 )}
                                 {...charField}
                               />
@@ -396,8 +396,8 @@ export function CreditsStep({ labels, onValidateRef }: CreditsStepProps) {
                               <Input
                                 placeholder="Specify the role..."
                                 className={cn(
-                                  "bg-tiween-green border-white/20 text-white placeholder:text-white/40",
-                                  fieldState.invalid && "border-red-500"
+                                  "bg-background border-white/20 text-white placeholder:text-white/40",
+                                  fieldState.invalid && "border-destructive"
                                 )}
                                 {...customField}
                               />
@@ -444,8 +444,8 @@ export function CreditsStep({ labels, onValidateRef }: CreditsStepProps) {
                               min={1}
                               max={99}
                               className={cn(
-                                "bg-tiween-green w-20 border-white/20 text-white",
-                                fieldState.invalid && "border-red-500"
+                                "bg-background w-20 border-white/20 text-white",
+                                fieldState.invalid && "border-destructive"
                               )}
                               {...billingField}
                               onChange={(e) => {

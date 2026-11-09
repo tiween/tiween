@@ -175,7 +175,7 @@ export function EventCard({
         // Hover state
         "hover:bg-black/70",
         // Focus styles
-        "focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none",
+        "focus-visible:ring-ring focus-visible:ring-3 focus-visible:ring-offset-2 focus-visible:outline-none",
         // Active state animation
         "active:scale-95",
         // Disabled (read-only offline) affordance
@@ -207,7 +207,7 @@ export function EventCard({
         // Cursor pointer if clickable
         onClick && "cursor-pointer",
         // Focus styles for keyboard navigation
-        "focus-within:ring-ring focus-within:ring-2 focus-within:ring-offset-2",
+        "focus-within:ring-ring focus-within:ring-3 focus-within:ring-offset-2",
         className
       )}
     >

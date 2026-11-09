@@ -125,7 +125,7 @@ export function AvatarUpload({
           className={cn(
             "bg-muted relative flex h-24 w-24 items-center justify-center overflow-hidden rounded-full",
             "transition-opacity hover:opacity-80",
-            "focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none",
+            "focus-visible:ring-ring focus-visible:ring-3 focus-visible:ring-offset-2 focus-visible:outline-none",
             disabled && "cursor-not-allowed opacity-50"
           )}
           aria-label={labels.change}

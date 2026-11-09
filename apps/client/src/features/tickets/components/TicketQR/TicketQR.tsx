@@ -108,7 +108,7 @@ export interface TicketQRProps {
  * Status-based styling
  */
 const statusStyles: Record<TicketStatus, string> = {
-  valid: "border-green-500 border-2",
+  valid: "border-success border-2",
   scanned: "opacity-70 border-muted",
   expired: "opacity-50 grayscale border-muted",
 }
@@ -204,8 +204,8 @@ export function TicketQR({
       {/* Scanned overlay */}
       {ticket.status === "scanned" && (
         <div className="absolute inset-0 z-10 flex flex-col items-center justify-center rounded-lg bg-black/60">
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-500">
-            <Check className="h-10 w-10 text-white" strokeWidth={3} />
+          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-success">
+            <Check className="h-10 w-10 text-success-foreground" strokeWidth={3} />
           </div>
           <span className="mt-2 text-lg font-semibold text-white">
             {labels.scanned}

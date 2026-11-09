@@ -5,7 +5,7 @@ import { notFound } from "next/navigation"
 import { Locale } from "next-intl"
 import { setRequestLocale } from "next-intl/server"
 
-import { fontInter, fontLalezar, fontNotoSansArabic } from "@/lib/fonts"
+import { fontInter, fontLalezar, fontPlexSansArabic } from "@/lib/fonts"
 import { routing } from "@/lib/navigation"
 import { cn } from "@/lib/styles"
 import StrapiPreviewListener from "@/components/elementary/StrapiPreviewListener"
@@ -65,7 +65,7 @@ export const metadata: Metadata = {
 }
 
 export const viewport: Viewport = {
-  themeColor: "#032523",
+  themeColor: "#241326",
   width: "device-width",
   initialScale: 1,
   // No `maximumScale` — capping zoom at 1 blocks pinch-to-zoom and fails
@@ -92,16 +92,22 @@ export default async function RootLayout({
   const dir = locale === "ar" ? "rtl" : "ltr"
 
   return (
-    <html lang={locale} dir={dir} suppressHydrationWarning className="dark">
+    // Font variables sit on <html> (not <body>) so the `:root` font stacks in
+    // `styles/theme.css` resolve them; `lang="ar"` swaps the stack to IBM Plex
+    // Sans Arabic first (`styles/globals.css`).
+    <html
+      lang={locale}
+      dir={dir}
+      suppressHydrationWarning
+      className={cn(
+        "dark",
+        fontInter.variable,
+        fontLalezar.variable,
+        fontPlexSansArabic.variable
+      )}
+    >
       <head />
-      <body
-        className={cn(
-          "bg-background text-foreground min-h-screen font-sans antialiased",
-          fontInter.variable,
-          fontLalezar.variable,
-          fontNotoSansArabic.variable
-        )}
-      >
+      <body className="bg-background text-foreground min-h-screen font-sans antialiased">
         <TrackingScripts />
         <ServerProviders>
           <StrapiPreviewListener />

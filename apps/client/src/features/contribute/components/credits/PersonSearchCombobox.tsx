@@ -93,9 +93,9 @@ export function PersonSearchCombobox({
           aria-expanded={open}
           disabled={disabled}
           className={cn(
-            "bg-tiween-green w-full justify-between border-white/20 text-white hover:bg-white/5",
+            "bg-background w-full justify-between border-white/20 text-white hover:bg-white/5",
             !value && "text-white/40",
-            hasError && "border-red-500"
+            hasError && "border-destructive"
           )}
         >
           <span className="flex items-center gap-2 truncate">
@@ -176,7 +176,7 @@ export function PersonSearchCombobox({
 
                       {/* Check if selected */}
                       {value === person.name && (
-                        <Check className="text-tiween-yellow h-4 w-4" />
+                        <Check className="text-primary h-4 w-4" />
                       )}
                     </div>
                   </CommandItem>
@@ -191,7 +191,7 @@ export function PersonSearchCombobox({
                 <CommandGroup>
                   <CommandItem
                     onSelect={handleCreateNew}
-                    className="text-tiween-yellow cursor-pointer hover:bg-white/10"
+                    className="text-primary cursor-pointer hover:bg-white/10"
                   >
                     <Plus className="mr-2 h-4 w-4" />
                     Create &quot;{query}&quot; as new person

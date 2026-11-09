@@ -89,10 +89,10 @@ export interface EventVenueFilterProps {
 const STORAGE_KEY = "tiween.events.venue"
 
 const TRIGGER_BASE =
-  "inline-flex min-h-11 min-w-[200px] items-center gap-2 rounded-full border border-border bg-background px-4 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
+  "inline-flex min-h-11 min-w-[200px] items-center gap-2 rounded-full border border-border bg-background px-4 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:ring-ring focus-visible:ring-3 focus-visible:ring-offset-2 focus-visible:outline-none"
 const TRIGGER_ACTIVE = "border-primary text-primary"
 const CLEAR_CHIP =
-  "text-muted-foreground inline-flex min-h-11 items-center justify-center gap-1.5 rounded-full border border-border bg-background px-3 text-sm font-medium whitespace-nowrap transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
+  "text-muted-foreground inline-flex min-h-11 items-center justify-center gap-1.5 rounded-full border border-border bg-background px-3 text-sm font-medium whitespace-nowrap transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:ring-ring focus-visible:ring-3 focus-visible:ring-offset-2 focus-visible:outline-none"
 
 /** Minimal inline close glyph (mirrors EventLocationFilter's clear affordance). */
 function CloseGlyph() {

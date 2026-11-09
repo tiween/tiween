@@ -88,7 +88,7 @@ const TRIGGER_BASE =
   "min-h-11 min-w-[150px] gap-2 rounded-full px-4 transition-colors"
 const TRIGGER_ACTIVE = "border-primary text-primary ring-primary/30"
 const CLEAR_CHIP =
-  "text-muted-foreground inline-flex min-h-11 items-center justify-center gap-1.5 rounded-full border border-border bg-background px-3 text-sm font-medium whitespace-nowrap transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
+  "text-muted-foreground inline-flex min-h-11 items-center justify-center gap-1.5 rounded-full border border-border bg-background px-3 text-sm font-medium whitespace-nowrap transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:ring-ring focus-visible:ring-3 focus-visible:ring-offset-2 focus-visible:outline-none"
 
 /** Minimal inline close glyph (mirrors EventDateFilter's clear affordance). */
 function CloseGlyph() {

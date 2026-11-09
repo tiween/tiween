@@ -108,7 +108,7 @@ export function VenueCard({
           "cursor-pointer",
           "transition-all duration-200",
           "hover:border-primary/50 hover:shadow-md",
-          "focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none",
+          "focus-visible:ring-ring focus-visible:ring-3 focus-visible:ring-offset-2 focus-visible:outline-none",
           "active:scale-[0.99]",
         ],
         className

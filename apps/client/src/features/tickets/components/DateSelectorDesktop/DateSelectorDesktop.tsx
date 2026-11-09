@@ -54,7 +54,7 @@ export function DateSelectorDesktop({
             aria-selected={isSelected}
             className={cn(
               "flex min-w-[72px] flex-col items-center rounded-xl px-4 py-3 transition-all",
-              "focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none",
+              "focus-visible:ring-ring focus-visible:ring-3 focus-visible:ring-offset-2 focus-visible:outline-none",
               isSelected
                 ? "bg-primary text-primary-foreground shadow-lg"
                 : isFirst

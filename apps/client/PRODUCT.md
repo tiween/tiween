@@ -61,7 +61,7 @@ Tiween is Tunisia's cultural compass. It is a single, discovery-first place to f
 
 - **Name:** Tiween (tiween.com).
 - **Logo:** circular taa (ت) monogram that reads as both the Arabic letter and a smiley face, designed by Amen Okja / BLITS. Assets: `public/images/logo.svg`, `public/images/tiween-wordmark-gold.png`, PWA icons in `public/icons/`.
-- **Identity (owner-ratified):** the Gold Leaf × Aubergine identity is binding for the public site. Canonical visual spines: `_bmad-output/project-planning-artifacts/ux-designs/ux-tiween-bmad-version-2026-06-16/DESIGN.md` and `EXPERIENCE.md`; this workspace's `DESIGN.md` records it for Impeccable. In v1.0 it applies to shorts surfaces only, through an additive, scoped token layer. Other pages keep the retired tokens until the global rework (backlog).
+- **Identity (owner-ratified):** the Gold Leaf × Aubergine identity is binding for the public site. Canonical visual spines: `_bmad-output/project-planning-artifacts/ux-designs/ux-tiween-bmad-version-2026-06-16/DESIGN.md` and `EXPERIENCE.md`; this workspace's `DESIGN.md` records it for Impeccable. Since 2026-11-08 it is the global theme: the retired teal and yellow tokens are deleted from the client.
 - **Hard rules from the owner:** gold carries action only; never white text on gold; never a gold CTA on white.
 - **Signature emotion:** cultural excitement with effortless confidence. Users should feel they have found a secret weapon for cultural life in Tunisia.
 - **Voice:** calm, clear, reassuring, French by default. Empty states encourage and always offer a next action. They never apologise.

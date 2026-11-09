@@ -68,7 +68,7 @@ export function WatchlistSyncStatus() {
           <span
             className={cn(
               "inline-block h-2 w-2 shrink-0 rounded-full",
-              isOnline ? "bg-green-500" : "bg-muted-foreground"
+              isOnline ? "bg-success" : "bg-muted-foreground"
             )}
             aria-hidden="true"
           />

@@ -57,7 +57,7 @@ export function TicketPreviewCard({
       }}
       className={cn(
         "bg-card text-card-foreground flex flex-col items-center gap-2 rounded-lg border p-3",
-        "focus-visible:ring-ring transition-colors focus-visible:ring-2 focus-visible:outline-none",
+        "focus-visible:ring-ring transition-colors focus-visible:ring-3 focus-visible:outline-none",
         isPending
           ? "cursor-default opacity-70"
           : "hover:bg-accent hover:text-accent-foreground",

@@ -2,17 +2,20 @@
   /* ============================================
      TIWEEN BRAND COLORS
      ============================================ */
-  /* Primary Brand Colors */
-  --color-tiween-green: oklch(0.18 0.04 175); /* #032523 - Primary background */
-  --color-tiween-yellow: oklch(0.92 0.21 102); /* #F8EB06 - Accent/CTA */
+  /* Identity: Gold Leaf × Aubergine (see apps/client/DESIGN.md) */
+  --color-aubergine: #241326; /* Midnight Aubergine - primary background */
+  --color-aubergine-deep: #161015; /* Deepest layer - footers, overlays */
+  --color-gold-leaf: #d4a24a; /* Gold Leaf - primary CTA / accent */
+  --color-gold-ink: #2a1a06; /* Gold Ink - text on gold (never white) */
+  --color-gold-tint: #e0b563; /* Gold Tint - hover / cinema category */
 
   /* Surface Colors */
-  --color-surface: oklch(0.24 0.04 175); /* #0A3533 - Elevated cards */
-  --color-surface-light: oklch(0.3 0.05 175); /* #0F4542 - Hover states */
+  --color-surface: #31203a; /* Surface - elevated cards */
+  --color-surface-light: #3e2a48; /* Surface Raised - hover states */
 
   /* Semantic Aliases for brand colors */
-  --color-brand-primary: var(--color-tiween-green);
-  --color-brand-accent: var(--color-tiween-yellow);
+  --color-brand-primary: var(--color-aubergine);
+  --color-brand-accent: var(--color-gold-leaf);
 
   /* ============================================
      SHADCN/UI COLOR MAPPINGS
@@ -32,6 +35,8 @@
   --color-accent-foreground: hsl(var(--accent-foreground));
   --color-destructive: hsl(var(--destructive));
   --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-success: hsl(var(--success));
+  --color-success-foreground: hsl(var(--success-foreground));
   --color-card: hsl(var(--card));
   --color-card-foreground: hsl(var(--card-foreground));
   --color-popover: hsl(var(--popover));
@@ -43,9 +48,13 @@
   /* ============================================
      TYPOGRAPHY
      ============================================ */
-  --font-sans: Inter, sans-serif;
+  /* next/font variables are set on <html> (app/[locale]/layout.tsx), so these
+     :root stacks resolve them. Inter leads; Arabic glyphs fall through to IBM
+     Plex Sans Arabic. `html:lang(ar)` reorders --font-sans (globals.css). */
+  --font-sans: var(--font-inter), var(--font-plex-arabic), system-ui, sans-serif;
   --font-display: Lalezar, cursive;
-  --font-arabic: "Noto Sans Arabic", sans-serif;
+  --font-arabic: var(--font-plex-arabic), var(--font-inter), system-ui,
+    sans-serif;
   --color-red-50: oklch(0.971 0.013 17.38);
   --color-red-100: oklch(0.936 0.032 17.717);
   --color-red-200: oklch(0.885 0.062 18.334);

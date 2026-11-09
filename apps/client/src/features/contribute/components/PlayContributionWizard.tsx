@@ -83,8 +83,8 @@ function WizardContent({ labels, onSuccess }: PlayContributionWizardProps) {
         animate={{ opacity: 1, scale: 1 }}
         className="flex flex-col items-center justify-center gap-6 py-12 text-center"
       >
-        <div className="flex h-20 w-20 items-center justify-center rounded-full bg-green-500/20">
-          <CheckCircle2 className="h-10 w-10 text-green-500" />
+        <div className="flex h-20 w-20 items-center justify-center rounded-full bg-success/15">
+          <CheckCircle2 className="h-10 w-10 text-success" />
         </div>
         <div className="space-y-2">
           <h2 className="text-2xl font-bold text-white">
@@ -94,7 +94,7 @@ function WizardContent({ labels, onSuccess }: PlayContributionWizardProps) {
         </div>
         <Button
           onClick={handleStartNew}
-          className="bg-tiween-yellow text-tiween-green hover:bg-tiween-yellow/90 gap-2"
+          className="bg-primary text-primary-foreground hover:bg-primary/90 gap-2"
         >
           <Plus className="h-4 w-4" />
           {labels.success.submitAnother}
@@ -142,7 +142,7 @@ function WizardContent({ labels, onSuccess }: PlayContributionWizardProps) {
       {submitError && (
         <Alert
           variant="destructive"
-          className="border-red-500/50 bg-red-500/10"
+          className="border-destructive/50 bg-destructive/10"
         >
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Error</AlertTitle>

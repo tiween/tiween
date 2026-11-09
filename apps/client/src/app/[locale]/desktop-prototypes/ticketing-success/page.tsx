@@ -76,8 +76,8 @@ export default function TicketingSuccessPrototype() {
 
           {/* Success Icon */}
           <div className="mb-6 flex justify-center">
-            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500/20 ring-4 ring-emerald-500/30">
-              <Check className="h-8 w-8 text-emerald-400" />
+            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-success/20 ring-4 ring-emerald-500/30">
+              <Check className="h-8 w-8 text-success" />
             </div>
           </div>
 

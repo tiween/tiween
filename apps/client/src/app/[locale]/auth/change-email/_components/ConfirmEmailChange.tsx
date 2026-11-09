@@ -92,7 +92,7 @@ export function ConfirmEmailChange({ code }: ConfirmEmailChangeProps) {
           </CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col items-center gap-4">
-          <CheckCircle2 className="h-8 w-8 text-green-600" />
+          <CheckCircle2 className="h-8 w-8 text-success" />
           <p className="text-muted-foreground text-center text-sm">
             {t("changeEmail.confirm.successBody")}
           </p>

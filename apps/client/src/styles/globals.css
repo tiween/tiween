@@ -7,54 +7,57 @@
 /* ============================================
    TIWEEN SHADCN/UI CSS VARIABLES
    ============================================
+   Identity: Gold Leaf × Aubergine (see apps/client/DESIGN.md).
    Tiween is a dark-theme-only application.
-   Colors use HSL format for shadcn/ui compatibility.
+   Colors use HSL triplets for shadcn/ui compatibility.
    ============================================ */
 
 :root {
   /* Background & Foreground */
-  --background: 169 79% 8%; /* #032523 - tiween-green */
-  --foreground: 0 0% 100%; /* white */
+  --background: 294 33% 11%; /* #241326 - midnight aubergine */
+  --foreground: 0 0% 100%; /* #FFFFFF */
 
-  /* Primary (Yellow CTA) */
-  --primary: 56 97% 50%; /* #F8EB06 - tiween-yellow */
-  --primary-foreground: 169 79% 8%; /* dark text on yellow */
+  /* Primary (Gold Leaf CTA) - never white text on gold */
+  --primary: 38 62% 56%; /* #D4A24A - gold leaf */
+  --primary-foreground: 33 75% 9%; /* #2A1A06 - gold ink */
 
   /* Secondary */
-  --secondary: 169 60% 12%; /* #0A3533 - surface */
-  --secondary-foreground: 0 0% 100%;
+  --secondary: 279 29% 18%; /* #31203A - surface */
+  --secondary-foreground: 0 0% 100%; /* #FFFFFF */
 
   /* Muted */
-  --muted: 169 60% 12%; /* #0A3533 - surface */
-  --muted-foreground: 0 0% 63%; /* #A0A0A0 */
+  --muted: 279 29% 18%; /* #31203A - surface */
+  --muted-foreground: 273 11% 69%; /* #B0A6B8 */
 
   /* Card */
-  --card: 169 60% 12%; /* #0A3533 - surface */
-  --card-foreground: 0 0% 100%;
+  --card: 279 29% 18%; /* #31203A - surface */
+  --card-foreground: 0 0% 100%; /* #FFFFFF */
 
   /* Popover */
-  --popover: 169 60% 12%; /* #0A3533 - surface */
-  --popover-foreground: 0 0% 100%;
+  --popover: 279 29% 18%; /* #31203A - surface */
+  --popover-foreground: 0 0% 100%; /* #FFFFFF */
 
   /* Border & Input */
-  --border: 169 40% 20%; /* slightly lighter border */
-  --input: 169 40% 20%;
-  --ring: 56 97% 50%; /* yellow focus ring */
+  --border: 278 24% 27%; /* #4A3556 - border */
+  --input: 278 24% 27%; /* #4A3556 - border */
+  --ring: 38 62% 56%; /* #D4A24A - gold leaf focus ring */
 
   /* Destructive */
-  --destructive: 0 84% 60%; /* red */
-  --destructive-foreground: 0 0% 100%;
+  --destructive: 0 100% 77%; /* #FF8A8A */
+  --destructive-foreground: 294 33% 11%; /* #241326 - dark text on coral */
+  --success: 144 55% 59%; /* #5BD08A - success (always with icon + text) */
+  --success-foreground: 294 33% 11%; /* #241326 */
 
   /* Accent (hover states) */
-  --accent: 169 55% 16%; /* #0F4542 - surface-light */
-  --accent-foreground: 0 0% 100%;
+  --accent: 280 26% 22%; /* #3E2A48 - surface raised */
+  --accent-foreground: 0 0% 100%; /* #FFFFFF */
 
   /* Chart Colors (for analytics) */
-  --chart-1: 56 97% 50%; /* yellow */
-  --chart-2: 169 60% 40%; /* teal */
-  --chart-3: 0 84% 60%; /* red */
-  --chart-4: 200 70% 50%; /* blue */
-  --chart-5: 280 60% 50%; /* purple */
+  --chart-1: 38 62% 56%; /* #D4A24A - gold leaf */
+  --chart-2: 335 75% 59%; /* #E5478A - magenta rose */
+  --chart-3: 173 55% 59%; /* #5FD0C2 - cat-shorts */
+  --chart-4: 225 100% 74%; /* #7B9CFF - cat-music */
+  --chart-5: 280 67% 73%; /* #C98AE8 - cat-art */
 
   /* Radius */
   --radius: 0.5rem;
@@ -65,36 +68,38 @@
   --transition-slow: 300ms;
 
   /* Sidebar (for shadcn sidebar component) */
-  --sidebar: 169 79% 8%; /* tiween-green */
-  --sidebar-foreground: 0 0% 100%;
-  --sidebar-primary: 56 97% 50%; /* tiween-yellow */
-  --sidebar-primary-foreground: 169 79% 8%;
-  --sidebar-accent: 169 55% 16%; /* surface-light */
-  --sidebar-accent-foreground: 0 0% 100%;
-  --sidebar-border: 169 40% 20%;
-  --sidebar-ring: 56 97% 50%;
+  --sidebar: 294 33% 11%; /* #241326 - midnight aubergine */
+  --sidebar-foreground: 0 0% 100%; /* #FFFFFF */
+  --sidebar-primary: 38 62% 56%; /* #D4A24A - gold leaf */
+  --sidebar-primary-foreground: 33 75% 9%; /* #2A1A06 - gold ink */
+  --sidebar-accent: 280 26% 22%; /* #3E2A48 - surface raised */
+  --sidebar-accent-foreground: 0 0% 100%; /* #FFFFFF */
+  --sidebar-border: 278 24% 27%; /* #4A3556 - border */
+  --sidebar-ring: 38 62% 56%; /* #D4A24A - gold leaf */
 }
 
 /* Dark theme class - same as root since Tiween is dark-only */
 .dark {
-  --background: 169 79% 8%;
+  --background: 294 33% 11%;
   --foreground: 0 0% 100%;
-  --primary: 56 97% 50%;
-  --primary-foreground: 169 79% 8%;
-  --secondary: 169 60% 12%;
+  --primary: 38 62% 56%;
+  --primary-foreground: 33 75% 9%;
+  --secondary: 279 29% 18%;
   --secondary-foreground: 0 0% 100%;
-  --muted: 169 60% 12%;
-  --muted-foreground: 0 0% 63%;
-  --card: 169 60% 12%;
+  --muted: 279 29% 18%;
+  --muted-foreground: 273 11% 69%;
+  --card: 279 29% 18%;
   --card-foreground: 0 0% 100%;
-  --popover: 169 60% 12%;
+  --popover: 279 29% 18%;
   --popover-foreground: 0 0% 100%;
-  --border: 169 40% 20%;
-  --input: 169 40% 20%;
-  --ring: 56 97% 50%;
-  --destructive: 0 84% 60%;
-  --destructive-foreground: 0 0% 100%;
-  --accent: 169 55% 16%;
+  --border: 278 24% 27%;
+  --input: 278 24% 27%;
+  --ring: 38 62% 56%;
+  --destructive: 0 100% 77%;
+  --destructive-foreground: 294 33% 11%;
+  --success: 144 55% 59%;
+  --success-foreground: 294 33% 11%;
+  --accent: 280 26% 22%;
   --accent-foreground: 0 0% 100%;
 }
 
@@ -129,12 +134,20 @@
       "calt" 1;
   }
 
-  /* Focus ring styles for accessibility */
+  /* Arabic locale: IBM Plex Sans Arabic leads the UI stack so Arabic copy and
+     its punctuation use one face; Latin runs fall through to Inter. */
+  html:lang(ar) {
+    --font-sans: var(--font-plex-arabic), var(--font-inter), system-ui,
+      sans-serif;
+  }
+
+  /* Focus ring styles for accessibility: a 3px Gold Leaf ring at the
+     control's edge, backed by a 2px band of the field color beyond it. */
   :focus-visible {
     outline: none;
     box-shadow:
-      0 0 0 2px hsl(var(--ring)),
-      0 0 0 4px hsl(var(--background));
+      0 0 0 3px hsl(var(--ring)),
+      0 0 0 5px hsl(var(--background));
   }
 
   /* Reduced motion preference */
@@ -160,7 +173,7 @@
 }
 
 @utility font-arabic {
-  font-family: var(--font-noto-arabic), "Noto Sans Arabic", sans-serif;
+  font-family: var(--font-plex-arabic), var(--font-inter), system-ui, sans-serif;
 }
 
 @utility no-scrollbar {

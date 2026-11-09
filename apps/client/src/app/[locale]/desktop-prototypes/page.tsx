@@ -121,22 +121,22 @@ export default async function DesktopPrototypesIndex({ params }: PageProps) {
             <div>
               <div className="bg-background border-border/50 mb-2 h-12 w-full rounded-lg border"></div>
               <p className="text-muted-foreground text-xs">Background</p>
-              <p className="text-foreground font-mono text-xs">#032523</p>
+              <p className="text-foreground font-mono text-xs">#241326</p>
             </div>
             <div>
               <div className="bg-primary mb-2 h-12 w-full rounded-lg"></div>
               <p className="text-muted-foreground text-xs">Primary</p>
-              <p className="text-foreground font-mono text-xs">#F8EB06</p>
+              <p className="text-foreground font-mono text-xs">#D4A24A</p>
             </div>
             <div>
               <div className="bg-secondary mb-2 h-12 w-full rounded-lg"></div>
               <p className="text-muted-foreground text-xs">Secondary</p>
-              <p className="text-foreground font-mono text-xs">#0A3533</p>
+              <p className="text-foreground font-mono text-xs">#31203A</p>
             </div>
             <div>
               <div className="bg-accent mb-2 h-12 w-full rounded-lg"></div>
               <p className="text-muted-foreground text-xs">Accent</p>
-              <p className="text-foreground font-mono text-xs">#0F4542</p>
+              <p className="text-foreground font-mono text-xs">#3E2A48</p>
             </div>
           </div>
         </div>

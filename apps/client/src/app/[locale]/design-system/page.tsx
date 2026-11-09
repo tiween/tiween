@@ -18,12 +18,64 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 /**
  * Design System Test Page
  *
- * Displays all Tiween design tokens:
- * - Brand colors (tiween-green, tiween-yellow, surface variants)
+ * Displays the Tiween "Gold Leaf × Aubergine" design tokens
+ * (canonical values: apps/client/DESIGN.md):
+ * - Brand colors (aubergine, gold leaf, gold ink, surface variants)
  * - Typography (Lalezar, Inter, Noto Sans Arabic)
  * - Spacing scale (4px base)
  * - shadcn/ui components
  */
+
+const BRAND_SWATCHES = [
+  {
+    name: "Midnight Aubergine",
+    hex: "#241326",
+    className: "bg-aubergine",
+    role: "Primary background",
+  },
+  {
+    name: "Aubergine Deep",
+    hex: "#161015",
+    className: "bg-aubergine-deep",
+    role: "Deepest layer",
+  },
+  {
+    name: "Surface",
+    hex: "#31203A",
+    className: "bg-surface",
+    role: "Elevated cards",
+  },
+  {
+    name: "Surface Raised",
+    hex: "#3E2A48",
+    className: "bg-surface-light",
+    role: "Hover states",
+  },
+  {
+    name: "Gold Leaf",
+    hex: "#D4A24A",
+    className: "bg-gold-leaf",
+    role: "Accent / CTA",
+  },
+  {
+    name: "Gold Tint",
+    hex: "#E0B563",
+    className: "bg-gold-tint",
+    role: "Gold hover / cinema",
+  },
+  {
+    name: "Gold Ink",
+    hex: "#2A1A06",
+    className: "bg-gold-ink",
+    role: "Text on gold",
+  },
+  {
+    name: "Border",
+    hex: "#4A3556",
+    className: "bg-border",
+    role: "Borders & inputs",
+  },
+] as const
 
 export default async function DesignSystemPage({
   params,
@@ -52,53 +104,21 @@ export default async function DesignSystemPage({
           </h2>
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {/* Tiween Green */}
-            <div className="border-border overflow-hidden rounded-lg border">
-              <div className="bg-tiween-green h-24" />
-              <div className="bg-card p-4">
-                <p className="text-card-foreground font-semibold">
-                  Tiween Green
-                </p>
-                <p className="text-muted-foreground text-sm">#032523</p>
-                <p className="text-muted-foreground text-xs">
-                  Primary background
-                </p>
+            {BRAND_SWATCHES.map((swatch) => (
+              <div
+                key={swatch.name}
+                className="border-border overflow-hidden rounded-lg border"
+              >
+                <div className={`${swatch.className} h-24`} />
+                <div className="bg-card p-4">
+                  <p className="text-card-foreground font-semibold">
+                    {swatch.name}
+                  </p>
+                  <p className="text-muted-foreground text-sm">{swatch.hex}</p>
+                  <p className="text-muted-foreground text-xs">{swatch.role}</p>
+                </div>
               </div>
-            </div>
-
-            {/* Tiween Yellow */}
-            <div className="border-border overflow-hidden rounded-lg border">
-              <div className="bg-tiween-yellow h-24" />
-              <div className="bg-card p-4">
-                <p className="text-card-foreground font-semibold">
-                  Tiween Yellow
-                </p>
-                <p className="text-muted-foreground text-sm">#F8EB06</p>
-                <p className="text-muted-foreground text-xs">Accent / CTA</p>
-              </div>
-            </div>
-
-            {/* Surface */}
-            <div className="border-border overflow-hidden rounded-lg border">
-              <div className="bg-surface h-24" />
-              <div className="bg-card p-4">
-                <p className="text-card-foreground font-semibold">Surface</p>
-                <p className="text-muted-foreground text-sm">#0A3533</p>
-                <p className="text-muted-foreground text-xs">Elevated cards</p>
-              </div>
-            </div>
-
-            {/* Surface Light */}
-            <div className="border-border overflow-hidden rounded-lg border">
-              <div className="bg-surface-light h-24" />
-              <div className="bg-card p-4">
-                <p className="text-card-foreground font-semibold">
-                  Surface Light
-                </p>
-                <p className="text-muted-foreground text-sm">#0F4542</p>
-                <p className="text-muted-foreground text-xs">Hover states</p>
-              </div>
-            </div>
+            ))}
           </div>
 
           {/* Semantic Colors */}
@@ -207,7 +227,7 @@ export default async function DesignSystemPage({
                   {n} = {n * 4}px
                 </span>
                 <div
-                  className="bg-tiween-yellow h-4"
+                  className="bg-primary h-4"
                   style={{ width: `${n * 16}px` }}
                 />
               </div>
@@ -356,21 +376,39 @@ export default async function DesignSystemPage({
           </h2>
 
           <div className="grid gap-4 sm:grid-cols-2">
-            <div className="bg-tiween-green rounded-lg p-6">
-              <p className="text-tiween-yellow text-2xl font-bold">
-                Yellow on Dark Teal
+            <div className="bg-background border-border rounded-lg border p-6">
+              <p className="text-primary text-2xl font-bold">
+                Gold Leaf on Aubergine
               </p>
               <p className="text-muted-foreground text-sm">
-                Contrast ratio: 12.5:1 (exceeds AAA)
+                Contrast ratio: 7.6:1 (AAA)
               </p>
             </div>
 
-            <div className="bg-tiween-green rounded-lg p-6">
-              <p className="text-2xl font-bold text-white">
-                White on Dark Teal
+            <div className="bg-background border-border rounded-lg border p-6">
+              <p className="text-foreground text-2xl font-bold">
+                White on Aubergine
               </p>
               <p className="text-muted-foreground text-sm">
-                Contrast ratio: 15.8:1 (exceeds AAA)
+                Contrast ratio: 17.6:1 (AAA)
+              </p>
+            </div>
+
+            <div className="bg-primary rounded-lg p-6">
+              <p className="text-primary-foreground text-2xl font-bold">
+                Gold Ink on Gold Leaf
+              </p>
+              <p className="text-primary-foreground text-sm">
+                Contrast ratio: 7.3:1 (AAA)
+              </p>
+            </div>
+
+            <div className="bg-card rounded-lg p-6">
+              <p className="text-muted-foreground text-2xl font-bold">
+                Muted text on Surface
+              </p>
+              <p className="text-muted-foreground text-sm">
+                Contrast ratio: 6.4:1 (AA)
               </p>
             </div>
           </div>

@@ -188,28 +188,28 @@ export function MediaStep({ labels, onValidateRef }: MediaStepProps) {
             <TabsList className="grid w-full grid-cols-4 bg-white/5">
               <TabsTrigger
                 value="poster"
-                className="data-[state=active]:bg-tiween-yellow data-[state=active]:text-tiween-green"
+                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
               >
                 <ImageIcon className="mr-2 h-4 w-4" />
                 Poster
               </TabsTrigger>
               <TabsTrigger
                 value="videos"
-                className="data-[state=active]:bg-tiween-yellow data-[state=active]:text-tiween-green"
+                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
               >
                 <Video className="mr-2 h-4 w-4" />
                 Videos
               </TabsTrigger>
               <TabsTrigger
                 value="links"
-                className="data-[state=active]:bg-tiween-yellow data-[state=active]:text-tiween-green"
+                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
               >
                 <LinkIcon className="mr-2 h-4 w-4" />
                 Links
               </TabsTrigger>
               <TabsTrigger
                 value="awards"
-                className="data-[state=active]:bg-tiween-yellow data-[state=active]:text-tiween-green"
+                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
               >
                 <Award className="mr-2 h-4 w-4" />
                 Awards
@@ -227,7 +227,7 @@ export function MediaStep({ labels, onValidateRef }: MediaStepProps) {
                   onClick={() => setPosterInputMode("url")}
                   className={cn(
                     posterInputMode === "url"
-                      ? "bg-tiween-yellow text-tiween-green"
+                      ? "bg-primary text-primary-foreground"
                       : "border-white/20 text-white hover:bg-white/10"
                   )}
                 >
@@ -241,7 +241,7 @@ export function MediaStep({ labels, onValidateRef }: MediaStepProps) {
                   onClick={() => setPosterInputMode("upload")}
                   className={cn(
                     posterInputMode === "upload"
-                      ? "bg-tiween-yellow text-tiween-green"
+                      ? "bg-primary text-primary-foreground"
                       : "border-white/20 text-white hover:bg-white/10"
                   )}
                 >
@@ -264,7 +264,7 @@ export function MediaStep({ labels, onValidateRef }: MediaStepProps) {
                           placeholder="https://example.com/poster.jpg"
                           className={cn(
                             "bg-surface border-white/20 text-white placeholder:text-white/40",
-                            fieldState.invalid && "border-red-500"
+                            fieldState.invalid && "border-destructive"
                           )}
                           {...field}
                         />
@@ -336,8 +336,8 @@ export function MediaStep({ labels, onValidateRef }: MediaStepProps) {
                             <Input
                               placeholder="YouTube or Vimeo URL"
                               className={cn(
-                                "bg-tiween-green border-white/20 text-white placeholder:text-white/40",
-                                fieldState.invalid && "border-red-500"
+                                "bg-background border-white/20 text-white placeholder:text-white/40",
+                                fieldState.invalid && "border-destructive"
                               )}
                               {...urlField}
                             />
@@ -355,7 +355,7 @@ export function MediaStep({ labels, onValidateRef }: MediaStepProps) {
                             onValueChange={typeField.onChange}
                           >
                             <FormControl>
-                              <SelectTrigger className="bg-tiween-green border-white/20 text-white">
+                              <SelectTrigger className="bg-background border-white/20 text-white">
                                 <SelectValue />
                               </SelectTrigger>
                             </FormControl>
@@ -380,7 +380,7 @@ export function MediaStep({ labels, onValidateRef }: MediaStepProps) {
                     variant="ghost"
                     size="sm"
                     onClick={() => removeVideo(index)}
-                    className="h-9 w-9 p-0 text-white/40 hover:text-red-400"
+                    className="hover:text-destructive h-9 w-9 p-0 text-white/40"
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
@@ -416,7 +416,7 @@ export function MediaStep({ labels, onValidateRef }: MediaStepProps) {
                             onValueChange={typeField.onChange}
                           >
                             <FormControl>
-                              <SelectTrigger className="bg-tiween-green border-white/20 text-white">
+                              <SelectTrigger className="bg-background border-white/20 text-white">
                                 <SelectValue />
                               </SelectTrigger>
                             </FormControl>
@@ -444,8 +444,8 @@ export function MediaStep({ labels, onValidateRef }: MediaStepProps) {
                             <Input
                               placeholder="https://..."
                               className={cn(
-                                "bg-tiween-green border-white/20 text-white placeholder:text-white/40",
-                                fieldState.invalid && "border-red-500"
+                                "bg-background border-white/20 text-white placeholder:text-white/40",
+                                fieldState.invalid && "border-destructive"
                               )}
                               {...urlField}
                             />
@@ -459,7 +459,7 @@ export function MediaStep({ labels, onValidateRef }: MediaStepProps) {
                     variant="ghost"
                     size="sm"
                     onClick={() => removeLink(index)}
-                    className="h-9 w-9 p-0 text-white/40 hover:text-red-400"
+                    className="hover:text-destructive h-9 w-9 p-0 text-white/40"
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
@@ -493,7 +493,7 @@ export function MediaStep({ labels, onValidateRef }: MediaStepProps) {
                       variant="ghost"
                       size="sm"
                       onClick={() => removeDistinction(index)}
-                      className="h-6 w-6 p-0 text-white/40 hover:text-red-400"
+                      className="hover:text-destructive h-6 w-6 p-0 text-white/40"
                     >
                       <Trash2 className="h-3 w-3" />
                     </Button>
@@ -511,8 +511,8 @@ export function MediaStep({ labels, onValidateRef }: MediaStepProps) {
                             <Input
                               placeholder="e.g., Journées Théâtrales de Carthage"
                               className={cn(
-                                "bg-tiween-green border-white/20 text-sm text-white placeholder:text-white/40",
-                                fieldState.invalid && "border-red-500"
+                                "bg-background border-white/20 text-sm text-white placeholder:text-white/40",
+                                fieldState.invalid && "border-destructive"
                               )}
                               {...nameField}
                             />
@@ -535,8 +535,8 @@ export function MediaStep({ labels, onValidateRef }: MediaStepProps) {
                               max={new Date().getFullYear() + 1}
                               placeholder={String(new Date().getFullYear())}
                               className={cn(
-                                "bg-tiween-green border-white/20 text-sm text-white placeholder:text-white/40",
-                                fieldState.invalid && "border-red-500"
+                                "bg-background border-white/20 text-sm text-white placeholder:text-white/40",
+                                fieldState.invalid && "border-destructive"
                               )}
                               {...yearField}
                               onChange={(e) => {
@@ -563,7 +563,7 @@ export function MediaStep({ labels, onValidateRef }: MediaStepProps) {
                             onValueChange={resultField.onChange}
                           >
                             <FormControl>
-                              <SelectTrigger className="bg-tiween-green border-white/20 text-sm text-white">
+                              <SelectTrigger className="bg-background border-white/20 text-sm text-white">
                                 <SelectValue />
                               </SelectTrigger>
                             </FormControl>
@@ -593,7 +593,7 @@ export function MediaStep({ labels, onValidateRef }: MediaStepProps) {
                           <FormControl>
                             <Input
                               placeholder="e.g., Best Play, Best Director"
-                              className="bg-tiween-green border-white/20 text-sm text-white placeholder:text-white/40"
+                              className="bg-background border-white/20 text-sm text-white placeholder:text-white/40"
                               {...catField}
                             />
                           </FormControl>

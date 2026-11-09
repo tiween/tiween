@@ -67,7 +67,7 @@ function mapErrorToKey(message: string | undefined): ProfileErrorKey {
  *   (`POST /auth/change-email`), which only stages the change and emails the
  *   NEW address. Backend error CODES are mapped to `profile.errors.*`.
  *
- * Distinct from the presentational `features/auth/.../ProfileForm` (Storybook).
+ * Distinct from the presentational `features/auth/.../ProfileForm`.
  */
 export function ProfileForm({ locale, regions, user }: ProfileFormProps) {
   const t = useTranslations("profile")

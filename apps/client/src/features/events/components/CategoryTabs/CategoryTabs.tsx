@@ -183,7 +183,7 @@ export function CategoryTabs({
                   ? "border-primary text-primary"
                   : "text-muted-foreground hover:text-foreground border-transparent",
                 // Focus styles
-                "focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
+                "focus-visible:ring-ring focus-visible:ring-3 focus-visible:ring-offset-2 focus-visible:outline-none"
               )}
             >
               {labels[category]}

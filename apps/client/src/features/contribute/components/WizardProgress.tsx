@@ -57,11 +57,11 @@ export function WizardProgress({ labels }: WizardProgressProps) {
                     "flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 text-sm font-semibold transition-all duration-200",
                     // Current step
                     isCurrent &&
-                      "border-tiween-yellow bg-tiween-yellow text-tiween-green scale-110",
+                      "border-primary bg-primary text-primary-foreground scale-110",
                     // Completed step
                     isCompleted &&
                       !isCurrent &&
-                      "border-green-500 bg-green-500 text-white",
+                      "border-success bg-success/15 text-success",
                     // Future step
                     !isCompleted &&
                       !isCurrent &&
@@ -69,7 +69,7 @@ export function WizardProgress({ labels }: WizardProgressProps) {
                     // Hover on clickable
                     isClickable &&
                       !isCurrent &&
-                      "group-hover:border-tiween-yellow/50 group-hover:scale-105"
+                      "group-hover:border-primary/50 group-hover:scale-105"
                   )}
                 >
                   {isCompleted && !isCurrent ? (
@@ -83,8 +83,8 @@ export function WizardProgress({ labels }: WizardProgressProps) {
                 <span
                   className={cn(
                     "mt-2 text-xs font-medium transition-colors duration-200",
-                    isCurrent && "text-tiween-yellow",
-                    isCompleted && !isCurrent && "text-green-400",
+                    isCurrent && "text-primary",
+                    isCompleted && !isCurrent && "text-success",
                     !isCompleted && !isCurrent && "text-white/60"
                   )}
                 >
@@ -97,7 +97,7 @@ export function WizardProgress({ labels }: WizardProgressProps) {
                 <div
                   className={cn(
                     "absolute top-5 left-1/2 h-0.5 w-full -translate-y-1/2",
-                    completedSteps.has(index) ? "bg-green-500" : "bg-white/20"
+                    completedSteps.has(index) ? "bg-success" : "bg-white/20"
                   )}
                   style={{
                     left: "calc(50% + 24px)",
@@ -125,7 +125,7 @@ export function WizardProgress({ labels }: WizardProgressProps) {
         {/* Progress bar */}
         <div className="h-2 overflow-hidden rounded-full bg-white/20">
           <div
-            className="bg-tiween-yellow h-full rounded-full transition-all duration-300 ease-out"
+            className="bg-primary h-full rounded-full transition-all duration-300 ease-out"
             style={{
               width: `${((currentStep + 1) / TOTAL_STEPS) * 100}%`,
             }}
@@ -146,8 +146,8 @@ export function WizardProgress({ labels }: WizardProgressProps) {
                 disabled={!canNavigateTo(index)}
                 className={cn(
                   "h-2 rounded-full transition-all duration-200",
-                  isCurrent && "bg-tiween-yellow w-6",
-                  isCompleted && !isCurrent && "w-2 bg-green-500",
+                  isCurrent && "bg-primary w-6",
+                  isCompleted && !isCurrent && "w-2 bg-success",
                   !isCompleted && !isCurrent && "w-2 bg-white/30"
                 )}
                 aria-label={`Go to step ${index + 1}: ${stepLabels[index]}`}

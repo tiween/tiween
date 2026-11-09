@@ -118,7 +118,7 @@ export default async function ContributePlayPage({ params }: PageProps) {
   }
 
   return (
-    <main className="bg-tiween-green min-h-screen">
+    <main className="bg-background min-h-screen">
       <div className="container mx-auto px-4 py-8">
         {/* Page header */}
         <div className="mb-8 text-center">

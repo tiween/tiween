@@ -34,7 +34,7 @@ const toastVariants = cva(
       variant: {
         default: "border bg-card text-card-foreground",
         success:
-          "success group border-green-500/50 bg-green-500/10 text-green-600 dark:text-green-400",
+          "success group border-success/50 bg-success/10 text-success dark:text-success",
         info: "info group border-blue-500/50 bg-blue-500/10 text-blue-600 dark:text-blue-400",
         warning:
           "warning group border-yellow-500/50 bg-yellow-500/10 text-yellow-600 dark:text-yellow-400",
@@ -70,7 +70,7 @@ const ToastAction = React.forwardRef<
   <ToastPrimitives.Action
     ref={ref}
     className={cn(
-      "hover:bg-secondary focus:ring-ring group-[.destructive]:border-muted/40 hover:group-[.destructive]:border-destructive/30 hover:group-[.destructive]:bg-destructive hover:group-[.destructive]:text-destructive-foreground focus:group-[.destructive]:ring-destructive inline-flex h-8 shrink-0 items-center justify-center rounded-md border bg-transparent px-3 text-sm font-medium transition-colors focus:ring-2 focus:outline-hidden disabled:pointer-events-none disabled:opacity-50",
+      "hover:bg-secondary focus:ring-ring group-[.destructive]:border-muted/40 hover:group-[.destructive]:border-destructive/30 hover:group-[.destructive]:bg-destructive hover:group-[.destructive]:text-destructive-foreground focus:group-[.destructive]:ring-destructive inline-flex h-8 shrink-0 items-center justify-center rounded-md border bg-transparent px-3 text-sm font-medium transition-colors focus:ring-3 focus:outline-hidden disabled:pointer-events-none disabled:opacity-50",
       className
     )}
     {...props}
@@ -87,9 +87,9 @@ const ToastClose = React.forwardRef<
     className={cn(
       "absolute top-1 right-1 rounded-md p-1 opacity-0 transition-opacity",
       "text-foreground/50 hover:text-foreground",
-      "group-hover:opacity-100 focus:opacity-100 focus:ring-2 focus:outline-hidden",
+      "group-hover:opacity-100 focus:opacity-100 focus:ring-3 focus:outline-hidden",
       // Variant-specific close button colors
-      "group-[.success]:text-green-600/70 group-[.success]:hover:text-green-600",
+      "group-[.success]:text-success/70 group-[.success]:hover:text-success",
       "group-[.info]:text-blue-600/70 group-[.info]:hover:text-blue-600",
       "group-[.warning]:text-yellow-600/70 group-[.warning]:hover:text-yellow-600",
       "group-[.destructive]:text-destructive/70 group-[.destructive]:hover:text-destructive",

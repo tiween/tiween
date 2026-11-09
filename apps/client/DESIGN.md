@@ -27,32 +27,32 @@ colors:
   daylight-foreground: "#241326"
 typography:
   display:
-    fontFamily: "Lalezar, Cairo, IBM Plex Sans Arabic, Inter, sans-serif"
+    fontFamily: "Lalezar, IBM Plex Sans Arabic, Inter, sans-serif"
     fontSize: "clamp(44px, 8vw, 72px)"
     fontWeight: 400
     lineHeight: 0.98
   headline:
-    fontFamily: "Inter, IBM Plex Sans Arabic, Noto Sans Arabic, system-ui, sans-serif"
+    fontFamily: "Inter, IBM Plex Sans Arabic, system-ui, sans-serif"
     fontSize: "24px"
     fontWeight: 700
     lineHeight: "32px"
   title:
-    fontFamily: "Inter, IBM Plex Sans Arabic, Noto Sans Arabic, system-ui, sans-serif"
+    fontFamily: "Inter, IBM Plex Sans Arabic, system-ui, sans-serif"
     fontSize: "18px"
     fontWeight: 700
     lineHeight: 1.3
   body:
-    fontFamily: "Inter, IBM Plex Sans Arabic, Noto Sans Arabic, system-ui, sans-serif"
+    fontFamily: "Inter, IBM Plex Sans Arabic, system-ui, sans-serif"
     fontSize: "16px"
     fontWeight: 400
     lineHeight: 1.5
   body-long:
-    fontFamily: "Inter, IBM Plex Sans Arabic, Noto Sans Arabic, system-ui, sans-serif"
+    fontFamily: "Inter, IBM Plex Sans Arabic, system-ui, sans-serif"
     fontSize: "15px"
     fontWeight: 400
     lineHeight: 1.65
   label:
-    fontFamily: "Inter, IBM Plex Sans Arabic, Noto Sans Arabic, system-ui, sans-serif"
+    fontFamily: "Inter, IBM Plex Sans Arabic, system-ui, sans-serif"
     fontSize: "11px"
     fontWeight: 600
     lineHeight: 1.4
@@ -134,7 +134,9 @@ A single deep-jewel dark theme in the register of a playbill or festival catalog
 
 Density is mobile-first and thumb-zone aware: primary actions sit in the bottom 60% of the screen, controls are at least 44px, and long pages end in a sticky action bar. Depth comes from stepping surface color, never from drop shadows in product chrome. Arabic, French and English are designed together; every layout uses logical properties and mirrors cleanly in RTL.
 
-**Implementation status.** This identity is owner-ratified but, in v1.0, ships only on shorts surfaces through a route-scoped token block (`.root[data-tiween-shorts-detail]` in `ShortFilmDetail.module.css`). The global shadcn theme in `src/styles/globals.css` and `src/styles/theme.css` still carries the retired teal `#032523` + yellow `#F8EB06` tokens, which every non-shorts page and every shadcn primitive (`src/components/ui/*`) still reads. New shorts work uses the tokens in this file; the global rebase of the shadcn variables is a separate backlog story.
+**Implementation status (2026-11-09).** This identity is now global. The shadcn variables in `src/styles/globals.css` (`--background`, `--card`, `--primary`, `--ring`, `--success`, …) and the `@theme` utilities in `src/styles/theme.css` (`bg-aubergine`, `bg-aubergine-deep`, `text-gold-leaf`, `text-gold-tint`, `bg-gold-ink`, `bg-surface`, `bg-surface-light`, `text-success`) carry the values in this file, so every page and every shadcn primitive (`src/components/ui/*`) reads Gold Leaf × Aubergine. The retired teal `#032523` + yellow `#F8EB06` tokens and their `tiween-green` / `tiween-yellow` utilities are deleted; do not reintroduce them. The short-film detail page keeps its route-scoped token block (`.root[data-tiween-shorts-detail]` in `ShortFilmDetail.module.css`) with the same values. Use semantic utilities, never raw hex, in components.
+
+**Known drift in the shadcn primitives (2026-11-09 scan).** The colors are right everywhere, but four primitives in `src/components/ui/` still carry stock shadcn geometry that this file overrides. `Button` is `rounded-md` (6px), 40px tall, `font-medium`, with a `shadow`; the `outline` variant fills gold on hover. `Input` is 36px, 6px radius, `shadow-xs`. `Card` is `rounded-xl` (12px) with `shadow-sm`. The destructive `Badge` puts white text on #FF8A8A (about 1.9:1, fails AA). The shorts detail layer already matches this file. Until the primitives are fixed, new public screens apply the Components section below through `className` (pill, 48px or 44px, no shadow), and never copy the stock values.
 
 **Key Characteristics:**
 - Dark-only Midnight Aubergine field; one scoped daylight exception (QR ticket, checkout).
@@ -184,13 +186,15 @@ A deep plum-black field with one burnished gold action color, a magenta secondar
 
 ## Typography
 
-**Display Font:** Lalezar (Arabic chain: Lalezar, then Cairo 700/900, then IBM Plex Sans Arabic)
-**Body Font:** Inter 400 to 700 for Latin; IBM Plex Sans Arabic 300 to 700 for Arabic (shipped fallback: Noto Sans Arabic)
+**Display Font:** Lalezar 400 (Latin and Arabic subsets, `--font-lalezar`)
+**Body Font:** Inter 400 to 700 for Latin (`--font-inter`); IBM Plex Sans Arabic 400 to 700 for Arabic (`--font-plex-arabic`, Arabic subset only). All three load through `next/font` in `src/lib/fonts.ts`, and their variables sit on `<html>` so the `:root` stacks in `theme.css` resolve them.
 
-**Character:** a single-weight theatrical display face for brand moments, paired with a neutral humanist sans whose Arabic partner shares its geometric skeleton, so mixed Arabic and Latin runs on one line read as one system.
+**Character:** a single-weight theatrical display face for brand moments, paired with a neutral humanist sans and an Arabic partner of matching weight and x-height, so mixed Arabic and Latin runs on one line read as one system.
+
+As of 2026-11-09 (owner decision), IBM Plex Sans Arabic is the Arabic body and UI face app-wide, replacing Noto Sans Arabic, which is no longer loaded. Every page reads `Inter, IBM Plex Sans Arabic` (Arabic glyphs fall through to Plex); under `lang="ar"` the stack flips to `IBM Plex Sans Arabic, Inter` so Arabic copy leads in Plex and Latin runs stay in Inter. The spine also names Cairo 700/900 for long Arabic display copy; Cairo is not loaded, so it appears in no stack here.
 
 ### Hierarchy
-- **Display** (Lalezar 400, clamp(44px, 8vw, 72px), 0.98): the work title on detail heroes, splash, empty-state headlines, big brand numerals. Brand moments only. For long Arabic display copy, prefer Cairo 700/900.
+- **Display** (Lalezar 400, clamp(44px, 8vw, 72px), 0.98): the work title on detail heroes, splash, empty-state headlines, big brand numerals. Brand moments only. Long Arabic display copy drops to IBM Plex Sans Arabic 700 at Headline size rather than stretching Lalezar.
 - **Headline** (Inter 700, 24px, 32px): routine in-app screen headers. Arabic uses IBM Plex Sans Arabic 700.
 - **Title** (Inter 700, 18px): section titles on detail pages (Synopsis, Cast, Awards, Where to watch).
 - **Body** (Inter 400, 16px, 1.5): UI copy and forms; 16px is the body floor.
@@ -216,10 +220,12 @@ All spacing and positioning use logical properties (`padding-inline`, `inset-inl
 
 ## Elevation & Depth
 
-Elevation is expressed by stepping surface color, not by shadow: Surface (#31203A) cards sit on the Midnight Aubergine field, and hover lifts them to Surface Raised (#3E2A48). Product chrome carries no drop shadows. The only depth effects in shipped code are functional: a translucent aubergine bar with a 12px backdrop blur for sticky headers and action bars, gradient scrims from Aubergine Deep over hero and poster art so text stays legible, a 1px inner edge on gold fills, and a soft gold halo ring around the hero play disc. Marketing collateral may use shadow freely.
+Elevation is expressed by stepping surface color, not by shadow: Surface (#31203A) cards sit on the Midnight Aubergine field, and hover lifts them to Surface Raised (#3E2A48). Product chrome carries no drop shadows. The only depth effects in shipped code are functional: a translucent aubergine bar with a 12px backdrop blur for sticky headers and action bars, gradient scrims from Aubergine Deep over hero and poster art so text stays legible, a 1px inner edge on gold fills, a soft gold halo ring around the hero play disc, and the global focus ring (a 3px Gold Leaf ring at the control's edge with a 2px field-colored band beyond it, drawn with `box-shadow` in `globals.css`; shadcn primitives and feature components use `ring-3` to match). Marketing collateral may use shadow freely.
+
+Motion is short and functional: color, background and opacity changes run 160ms ease; lifts and scales run 220ms `cubic-bezier(0.2, 0.7, 0.3, 1)`; the global duration tokens are 150, 200 and 300ms. Under `prefers-reduced-motion` every transition and animation collapses to 0.01ms.
 
 ### Named Rules
-**The Flat Chrome Rule.** No `box-shadow` for elevation in product UI. If something needs to sit above, shift its surface color or put it on a translucent blurred bar.
+**The Flat Chrome Rule.** No `box-shadow` for elevation in product UI. If something needs to sit above, shift its surface color or put it on a translucent blurred bar. Rings (focus, gold inner edge, play-disc halo) are the only permitted `box-shadow` uses.
 
 ## Shapes
 
@@ -230,7 +236,7 @@ Generous, soft geometry. Poster cards and poster frames are 16px; info rows (awa
 ### Buttons
 - **Shape:** full pill (9999px) for every CTA.
 - **Primary:** Gold Leaf fill, Gold Ink label, 700 weight, 48px tall (52px in the detail action row), full-width on mobile, with a 1px inner Gold Ink edge at 22% opacity.
-- **Hover / Focus:** hover drops opacity to 0.92; press scales to 0.98; focus is a 2px Gold Leaf outline at 2px offset on dark, but a dark (#241326) or white ring on gold-filled controls. Loading swaps the label for a spinner after 200ms; disabled is 50% opacity.
+- **Hover / Focus:** hover drops opacity to 0.92; press scales to 0.98; focus is a 3px Gold Leaf ring against the control's edge, backed by a further 2px band of the field color (the global `:focus-visible` rule), but a 3px dark (#241326) or white ring on gold-filled controls. Loading swaps the label for a spinner after 200ms; disabled is 50% opacity.
 - **Secondary:** transparent with a 1 to 1.5px Gold Leaf border and Gold Tint label, 44px; hover adds a 12% gold wash.
 - **Tertiary / Ghost:** Muted Foreground text, 40px, no fill.
 - **Daylight primary:** Midnight Aubergine fill with white text, same pill.
@@ -249,8 +255,8 @@ Generous, soft geometry. Poster cards and poster frames are 16px; info rows (awa
 - **EventCard / ShortFilmCard:** 2:3 poster, then category badge, title, venue and date (or director and year), then the watchlist heart (fills gold when saved) and price in `12,20 DT` form. Variants default, compact, featured. Related-work cards lift 2px on hover and press to 0.985.
 
 ### Inputs / Fields
-- **Style:** Surface fill, 1px Border stroke, 8px radius, 44px tall, Foreground text, Muted Foreground placeholder. Specified by the spine; the shipped shadcn `Input` still reads the retired teal tokens.
-- **Focus:** 2px Gold Leaf ring.
+- **Style:** Surface fill, 1px Border stroke, 8px radius, 44px tall, Foreground text, Muted Foreground placeholder. The shadcn `Input` takes its colors from the global tokens but is still 36px with a 6px radius, so set `h-11 rounded-lg` (44px, 8px) where it is used until the primitive is fixed.
+- **Focus:** 3px Gold Leaf ring.
 - **Error / Disabled:** destructive text with an icon and a translated `t('errors.<CODE>')` message; disabled at 50% opacity.
 
 ### Navigation
@@ -281,7 +287,7 @@ Daylight surface: white field, black-on-white QR, mono ticket ID. Ticketing is f
 - **Don't** rely on color alone for status.
 - **Don't** bring magenta into page chrome or use it as body text.
 - **Don't** put white text on a gold fill (2.3:1).
-- **Don't** put a gold focus ring on a gold-filled control.
+- **Don't** put a gold focus ring on a gold-filled control, or draw any focus ring thinner than 3px.
 - **Don't** use a gold CTA on a daylight or white surface (about 1.6:1).
 - **Don't** use Strapi Design System components, indigo #4945FF, or the 4px-everything radius here; that is the admin's system.
 - **Don't** extend the retired teal #032523 and yellow #F8EB06 tokens to new work.

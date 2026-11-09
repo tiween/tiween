@@ -32,12 +32,12 @@ export interface VenueShowtimeCardProps {
  * Format badge variant mapping
  */
 const formatStyles: Record<ShowtimeFormat, { bg: string; text: string }> = {
-  VOST: { bg: "bg-teal-800/60", text: "text-teal-200" },
-  VF: { bg: "bg-teal-800/60", text: "text-teal-200" },
-  VO: { bg: "bg-teal-800/60", text: "text-teal-200" },
-  "3D": { bg: "bg-amber-600/80", text: "text-amber-100" },
-  IMAX: { bg: "bg-amber-600/80", text: "text-amber-100" },
-  "4DX": { bg: "bg-amber-600/80", text: "text-amber-100" },
+  VOST: { bg: "bg-surface-light", text: "text-foreground" },
+  VF: { bg: "bg-surface-light", text: "text-foreground" },
+  VO: { bg: "bg-surface-light", text: "text-foreground" },
+  "3D": { bg: "bg-aubergine-deep", text: "text-gold-tint" },
+  IMAX: { bg: "bg-aubergine-deep", text: "text-gold-tint" },
+  "4DX": { bg: "bg-aubergine-deep", text: "text-gold-tint" },
 }
 
 /**
@@ -92,7 +92,7 @@ export function VenueShowtimeCard({
                 disabled={isUnavailable}
                 className={cn(
                   "group relative flex min-w-[100px] flex-col rounded-lg px-3 py-2 transition-all",
-                  "focus-visible:ring-ring focus-visible:ring-2 focus-visible:outline-none",
+                  "focus-visible:ring-ring focus-visible:ring-3 focus-visible:outline-none",
                   isSelected
                     ? "bg-primary/20 ring-primary ring-2"
                     : "bg-secondary hover:bg-accent",

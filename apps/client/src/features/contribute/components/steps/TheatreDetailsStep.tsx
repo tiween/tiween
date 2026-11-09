@@ -198,7 +198,7 @@ export function TheatreDetailsStep({
                 <FormItem>
                   <div className="flex items-center gap-2">
                     <FormLabel className="text-white">
-                      Play Type <span className="text-red-500">*</span>
+                      Play Type <span className="text-destructive">*</span>
                     </FormLabel>
                     <TooltipProvider>
                       <Tooltip>
@@ -230,7 +230,7 @@ export function TheatreDetailsStep({
                         className={cn(
                           "bg-surface border-white/20 text-white",
                           !field.value && "text-white/40",
-                          fieldState.invalid && "border-red-500"
+                          fieldState.invalid && "border-destructive"
                         )}
                       >
                         <SelectValue placeholder="Select type" />
@@ -264,7 +264,7 @@ export function TheatreDetailsStep({
                 <FormItem>
                   <div className="flex items-center gap-2">
                     <FormLabel className="text-white">
-                      Format <span className="text-red-500">*</span>
+                      Format <span className="text-destructive">*</span>
                     </FormLabel>
                     <TooltipProvider>
                       <Tooltip>
@@ -296,7 +296,7 @@ export function TheatreDetailsStep({
                         className={cn(
                           "bg-surface border-white/20 text-white",
                           !field.value && "text-white/40",
-                          fieldState.invalid && "border-red-500"
+                          fieldState.invalid && "border-destructive"
                         )}
                       >
                         <SelectValue placeholder="Select format" />
@@ -336,7 +336,7 @@ export function TheatreDetailsStep({
                       placeholder="e.g., Novel by Victor Hugo, Film by..."
                       className={cn(
                         "bg-surface border-white/20 text-white placeholder:text-white/40",
-                        fieldState.invalid && "border-red-500"
+                        fieldState.invalid && "border-destructive"
                       )}
                       {...field}
                     />
@@ -371,7 +371,7 @@ export function TheatreDetailsStep({
                       max={10}
                       className={cn(
                         "bg-surface border-white/20 text-white placeholder:text-white/40",
-                        fieldState.invalid && "border-red-500"
+                        fieldState.invalid && "border-destructive"
                       )}
                       {...field}
                       value={field.value ?? ""}
@@ -399,7 +399,7 @@ export function TheatreDetailsStep({
                     <Checkbox
                       checked={field.value}
                       onCheckedChange={field.onChange}
-                      className="data-[state=checked]:bg-tiween-yellow data-[state=checked]:border-tiween-yellow border-white/40"
+                      className="data-[state=checked]:bg-primary data-[state=checked]:border-primary border-white/40"
                     />
                   </FormControl>
                   <FormLabel className="cursor-pointer font-normal text-white">
@@ -426,7 +426,7 @@ export function TheatreDetailsStep({
                       className={cn(
                         "bg-surface border-white/20 text-white",
                         !field.value && "text-white/40",
-                        fieldState.invalid && "border-red-500"
+                        fieldState.invalid && "border-destructive"
                       )}
                     >
                       <SelectValue placeholder="Select language" />
@@ -464,7 +464,7 @@ export function TheatreDetailsStep({
                     placeholder="e.g., Théâtre National, Compagnie..."
                     className={cn(
                       "bg-surface border-white/20 text-white placeholder:text-white/40",
-                      fieldState.invalid && "border-red-500"
+                      fieldState.invalid && "border-destructive"
                     )}
                     {...field}
                   />
@@ -489,7 +489,7 @@ export function TheatreDetailsStep({
                     type="date"
                     className={cn(
                       "bg-surface border-white/20 text-white",
-                      fieldState.invalid && "border-red-500"
+                      fieldState.invalid && "border-destructive"
                     )}
                     {...field}
                   />

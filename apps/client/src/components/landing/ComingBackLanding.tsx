@@ -21,14 +21,14 @@ export function ComingBackLanding() {
           Multiple layered effects create depth and cinematic mood
       ═══════════════════════════════════════════════════════════════ */}
 
-      {/* Base ambient glow - soft yellow light from above */}
+      {/* Base ambient glow - soft gold-leaf light from above */}
       <div
         className="pointer-events-none absolute inset-0"
         style={{
           background: `
-            radial-gradient(ellipse 120% 60% at 50% -20%, rgba(248, 235, 6, 0.07) 0%, transparent 50%),
-            radial-gradient(ellipse 80% 40% at 30% 10%, rgba(248, 235, 6, 0.04) 0%, transparent 40%),
-            radial-gradient(ellipse 60% 30% at 70% 5%, rgba(248, 235, 6, 0.03) 0%, transparent 35%)
+            radial-gradient(ellipse 120% 60% at 50% -20%, hsl(var(--primary) / 0.07) 0%, transparent 50%),
+            radial-gradient(ellipse 80% 40% at 30% 10%, hsl(var(--primary) / 0.04) 0%, transparent 40%),
+            radial-gradient(ellipse 60% 30% at 70% 5%, hsl(var(--primary) / 0.03) 0%, transparent 35%)
           `,
         }}
       />
@@ -38,7 +38,7 @@ export function ComingBackLanding() {
         className="pointer-events-none absolute inset-0"
         style={{
           background:
-            "radial-gradient(ellipse 70% 70% at 50% 50%, transparent 0%, rgba(3, 37, 35, 0.4) 100%)",
+            "radial-gradient(ellipse 70% 70% at 50% 50%, transparent 0%, hsl(var(--background) / 0.4) 100%)",
         }}
       />
 
@@ -55,7 +55,7 @@ export function ComingBackLanding() {
         className="animate-ambient-pulse pointer-events-none absolute inset-0"
         style={{
           background:
-            "radial-gradient(ellipse 50% 30% at 50% 30%, rgba(248, 235, 6, 0.02) 0%, transparent 70%)",
+            "radial-gradient(ellipse 50% 30% at 50% 30%, hsl(var(--primary) / 0.02) 0%, transparent 70%)",
         }}
       />
 
@@ -78,16 +78,12 @@ export function ComingBackLanding() {
             <div className="relative">
               {/* Multi-layered glow effect */}
               <div
-                className="absolute -inset-12 animate-pulse opacity-30 blur-3xl"
+                className="bg-primary absolute -inset-12 animate-pulse opacity-30 blur-3xl"
                 style={{
-                  backgroundColor: "#F8EB06",
                   animationDuration: "4s",
                 }}
               />
-              <div
-                className="absolute -inset-6 opacity-15 blur-xl"
-                style={{ backgroundColor: "#F8EB06" }}
-              />
+              <div className="bg-primary absolute -inset-6 opacity-15 blur-xl" />
               <Image
                 src="/images/logo.svg"
                 alt="Tiween"
@@ -151,16 +147,12 @@ export function ComingBackLanding() {
               <div className="h-px w-16 bg-gradient-to-r from-transparent via-white/15 to-white/25" />
               <div className="relative">
                 <div
-                  className="absolute -inset-2 animate-pulse opacity-40 blur-md"
+                  className="bg-primary absolute -inset-2 animate-pulse opacity-40 blur-md"
                   style={{
-                    backgroundColor: "#F8EB06",
                     animationDuration: "3s",
                   }}
                 />
-                <div
-                  className="relative h-2 w-2 rounded-full"
-                  style={{ backgroundColor: "#F8EB06" }}
-                />
+                <div className="bg-primary relative h-2 w-2 rounded-full" />
               </div>
               <div className="h-px w-16 bg-gradient-to-l from-transparent via-white/15 to-white/25" />
             </div>
@@ -207,16 +199,12 @@ export function ComingBackLanding() {
               <div className="h-px w-16 bg-gradient-to-r from-transparent via-white/15 to-white/25" />
               <div className="relative">
                 <div
-                  className="absolute -inset-2 animate-pulse opacity-40 blur-md"
+                  className="bg-primary absolute -inset-2 animate-pulse opacity-40 blur-md"
                   style={{
-                    backgroundColor: "#F8EB06",
                     animationDuration: "3s",
                   }}
                 />
-                <div
-                  className="relative h-2 w-2 rounded-full"
-                  style={{ backgroundColor: "#F8EB06" }}
-                />
+                <div className="bg-primary relative h-2 w-2 rounded-full" />
               </div>
               <div className="h-px w-16 bg-gradient-to-l from-transparent via-white/15 to-white/25" />
             </div>
@@ -291,7 +279,7 @@ export function ComingBackLanding() {
         className="pointer-events-none absolute inset-x-0 bottom-0 h-40"
         style={{
           background:
-            "linear-gradient(to top, hsl(169 79% 8%) 0%, transparent 100%)",
+            "linear-gradient(to top, hsl(var(--background)) 0%, transparent 100%)",
         }}
       />
 

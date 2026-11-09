@@ -216,7 +216,7 @@ export function FilmHero({
             // Hover state
             "hover:bg-black/70",
             // Focus styles
-            "focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none",
+            "focus-visible:ring-ring focus-visible:ring-3 focus-visible:ring-offset-2 focus-visible:outline-none",
             // Active state
             "active:scale-95"
           )}
@@ -249,7 +249,7 @@ export function FilmHero({
             // Hover state
             "hover:bg-black/70",
             // Focus styles
-            "focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none",
+            "focus-visible:ring-ring focus-visible:ring-3 focus-visible:ring-offset-2 focus-visible:outline-none",
             // Active state
             "active:scale-95",
             // Disabled affordance

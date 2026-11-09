@@ -68,7 +68,7 @@ export interface TicketScannerProps {
   isFlashOn?: boolean
   /** Called when flash toggle is pressed */
   onFlashToggle?: () => void
-  /** Show placeholder for Storybook */
+  /** Show a static placeholder instead of the camera feed */
   showPlaceholder?: boolean
   /** Localized labels */
   labels?: TicketScannerLabels

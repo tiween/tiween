@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils"
 export interface ScannerViewfinderProps {
   /** Whether scanner is actively scanning */
   isScanning?: boolean
-  /** Placeholder for camera preview (Storybook) */
+  /** Static placeholder instead of the camera preview */
   showPlaceholder?: boolean
   /** Additional class names */
   className?: string
@@ -20,7 +20,7 @@ export interface ScannerViewfinderProps {
  * - Corner brackets to guide QR positioning
  * - Scanning animation (moving line)
  * - High contrast design for dark venues
- * - Placeholder mode for Storybook
+ * - Placeholder mode (no camera)
  *
  * In production, the actual camera feed is rendered behind this overlay.
  * This component only provides the visual guide/frame.
@@ -37,7 +37,7 @@ export function ScannerViewfinder({
         className
       )}
     >
-      {/* Placeholder background for Storybook */}
+      {/* Placeholder background (no camera) */}
       {showPlaceholder && (
         <div className="absolute inset-0 bg-gradient-to-br from-gray-800 to-gray-900">
           {/* Simulated camera noise */}

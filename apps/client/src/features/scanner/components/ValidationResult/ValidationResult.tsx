@@ -90,9 +90,9 @@ const statusConfig: Record<
   }
 > = {
   valid: {
-    bg: "bg-green-500",
-    border: "border-green-400",
-    textColor: "text-white",
+    bg: "bg-success",
+    border: "border-success",
+    textColor: "text-success-foreground",
     IconComponent: CheckCircle,
     labelKey: "valid",
   },

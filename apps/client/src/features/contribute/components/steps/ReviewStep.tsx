@@ -301,7 +301,7 @@ export function ReviewStep({
             <div className="text-center">
               <div className="font-medium text-white">
                 {formData.poster ? (
-                  <Check className="mx-auto h-4 w-4 text-green-500" />
+                  <Check className="mx-auto h-4 w-4 text-success" />
                 ) : (
                   "—"
                 )}
@@ -343,7 +343,7 @@ export function ReviewStep({
                 <div className="flex items-center gap-2">
                   <Globe className="h-4 w-4 text-white/60" />
                   <FormLabel className="text-white">
-                    Input Language <span className="text-red-500">*</span>
+                    Input Language <span className="text-destructive">*</span>
                   </FormLabel>
                 </div>
                 <Select value={field.value} onValueChange={field.onChange}>
@@ -352,7 +352,7 @@ export function ReviewStep({
                       className={cn(
                         "bg-surface border-white/20 text-white",
                         !field.value && "text-white/40",
-                        fieldState.invalid && "border-red-500"
+                        fieldState.invalid && "border-destructive"
                       )}
                     >
                       <SelectValue placeholder="Select the language you used" />
@@ -401,7 +401,7 @@ export function ReviewStep({
                         placeholder="Optional"
                         className={cn(
                           "bg-surface border-white/20 text-white placeholder:text-white/40",
-                          fieldState.invalid && "border-red-500"
+                          fieldState.invalid && "border-destructive"
                         )}
                         {...field}
                       />
@@ -423,7 +423,7 @@ export function ReviewStep({
                         placeholder="To receive updates (optional)"
                         className={cn(
                           "bg-surface border-white/20 text-white placeholder:text-white/40",
-                          fieldState.invalid && "border-red-500"
+                          fieldState.invalid && "border-destructive"
                         )}
                         {...field}
                       />
@@ -448,7 +448,7 @@ export function ReviewStep({
                   <Checkbox
                     checked={field.value}
                     onCheckedChange={field.onChange}
-                    className="data-[state=checked]:bg-tiween-yellow data-[state=checked]:border-tiween-yellow mt-0.5 border-white/40"
+                    className="data-[state=checked]:bg-primary data-[state=checked]:border-primary mt-0.5 border-white/40"
                   />
                 </FormControl>
                 <div className="space-y-1 leading-none">
@@ -457,7 +457,7 @@ export function ReviewStep({
                     have the right to submit this content
                   </FormLabel>
                   {fieldState.error?.message && (
-                    <p className="text-sm text-red-400">
+                    <p className="text-destructive text-sm">
                       {translateError(fieldState.error.message)}
                     </p>
                   )}
@@ -479,7 +479,7 @@ export function ReviewStep({
           {submitError && (
             <Alert
               variant="destructive"
-              className="border-red-500/50 bg-red-500/10"
+              className="border-destructive/50 bg-destructive/10"
             >
               <AlertTriangle className="h-4 w-4" />
               <AlertDescription>{translateError(submitError)}</AlertDescription>

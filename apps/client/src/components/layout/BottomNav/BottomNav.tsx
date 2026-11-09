@@ -126,7 +126,7 @@ export function BottomNav({
                 // Transition for smooth color changes
                 "transition-colors duration-150",
                 // Focus styles
-                "focus-visible:ring-ring focus-visible:ring-offset-background focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none",
+                "focus-visible:ring-ring focus-visible:ring-offset-background focus-visible:ring-3 focus-visible:ring-offset-2 focus-visible:outline-none",
                 // Rounded for focus ring
                 "rounded-lg"
               )}

@@ -214,7 +214,7 @@ export function SearchBar({
               // Border
               "border border-transparent",
               // Focus styles
-              "focus:border-primary focus:ring-primary/20 focus:ring-2 focus:outline-none",
+              "focus:border-primary focus:ring-primary/20 focus:ring-3 focus:outline-none",
               // Transition
               "transition-colors duration-200"
             )}
@@ -285,7 +285,7 @@ export function SearchBar({
                     className={cn(
                       "text-muted-foreground hover:text-foreground",
                       "rounded p-1",
-                      "focus-visible:ring-ring focus-visible:ring-2 focus-visible:outline-none"
+                      "focus-visible:ring-ring focus-visible:ring-3 focus-visible:outline-none"
                     )}
                   >
                     <X className="h-3.5 w-3.5" />

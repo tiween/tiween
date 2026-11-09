@@ -110,7 +110,7 @@ export function WizardNavigation({
             type="button"
             onClick={handleSubmit}
             disabled={isSubmitting}
-            className="bg-tiween-yellow text-tiween-green hover:bg-tiween-yellow/90 gap-2"
+            className="bg-primary text-primary-foreground hover:bg-primary/90 gap-2"
           >
             {isSubmitting ? (
               <>
@@ -126,7 +126,7 @@ export function WizardNavigation({
             type="button"
             onClick={handleNext}
             disabled={isSubmitting}
-            className="bg-tiween-yellow text-tiween-green hover:bg-tiween-yellow/90 gap-2"
+            className="bg-primary text-primary-foreground hover:bg-primary/90 gap-2"
           >
             <span>{labels.next}</span>
             <ArrowRight className="h-4 w-4 rtl:rotate-180" />

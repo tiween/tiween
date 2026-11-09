@@ -82,9 +82,8 @@ export function NewsletterSubscribeForm() {
       <div className="relative overflow-hidden">
         {/* Subtle celebratory glow */}
         <div
-          className="absolute -inset-4 animate-pulse opacity-20 blur-2xl"
+          className="bg-primary absolute -inset-4 animate-pulse opacity-20 blur-2xl"
           style={{
-            backgroundColor: "#F8EB06",
             animationDuration: "2s",
           }}
         />
@@ -93,19 +92,18 @@ export function NewsletterSubscribeForm() {
           {/* Animated check mark */}
           <div className="relative">
             <div
-              className="absolute -inset-1 animate-ping opacity-30"
+              className="bg-primary absolute -inset-1 animate-ping opacity-30"
               style={{
-                backgroundColor: "#F8EB06",
                 borderRadius: "50%",
                 animationDuration: "1.5s",
                 animationIterationCount: "2",
               }}
             />
-            <div
-              className="relative flex h-8 w-8 items-center justify-center rounded-full"
-              style={{ backgroundColor: "#F8EB06" }}
-            >
-              <Check className="h-5 w-5 text-black" strokeWidth={3} />
+            <div className="bg-primary relative flex h-8 w-8 items-center justify-center rounded-full">
+              <Check
+                className="text-primary-foreground h-5 w-5"
+                strokeWidth={3}
+              />
             </div>
           </div>
 
@@ -131,8 +129,7 @@ export function NewsletterSubscribeForm() {
       <div
         className={`absolute -inset-2 rounded-2xl blur-xl transition-all duration-500 ${
           isFocused ? "opacity-20" : "opacity-0"
-        }`}
-        style={{ backgroundColor: "#F8EB06" }}
+        } bg-primary`}
       />
 
       <div className="relative flex gap-3">
@@ -169,11 +166,7 @@ export function NewsletterSubscribeForm() {
         <Button
           type="submit"
           size="lg"
-          className="group relative h-14 min-w-[60px] overflow-hidden rounded-xl px-5 transition-all duration-300 hover:scale-[1.03] hover:shadow-lg disabled:hover:scale-100"
-          style={{
-            backgroundColor: "#F8EB06",
-            color: "#032523",
-          }}
+          className="group bg-primary text-primary-foreground hover:bg-primary relative h-14 min-w-[60px] overflow-hidden rounded-xl px-5 transition-all duration-300 hover:scale-[1.03] hover:opacity-90 hover:shadow-lg disabled:hover:scale-100"
           disabled={isLoading}
         >
           {/* Button shine effect on hover */}

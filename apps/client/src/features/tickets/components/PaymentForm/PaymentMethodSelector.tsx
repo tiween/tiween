@@ -68,7 +68,7 @@ export function PaymentMethodSelector({
               // Transition
               "transition-all duration-200",
               // Focus styles
-              "focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none",
+              "focus-visible:ring-ring focus-visible:ring-3 focus-visible:ring-offset-2 focus-visible:outline-none",
               // State styles
               isSelected
                 ? "border-primary bg-primary/5 ring-primary/20 ring-2"

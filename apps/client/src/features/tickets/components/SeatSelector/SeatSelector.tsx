@@ -329,7 +329,7 @@ export function SeatSelector({
                       // Base styles
                       "flex h-8 w-8 items-center justify-center rounded-sm transition-all duration-150",
                       // Focus styles
-                      "focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none",
+                      "focus-visible:ring-ring focus-visible:ring-3 focus-visible:ring-offset-2 focus-visible:outline-none",
                       // Status-specific styles
                       getSeatStyles(seat.status, isSelected),
                       // Wheelchair seats need special handling for rotation

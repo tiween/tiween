@@ -166,7 +166,7 @@ export function FilmCard({
               "transition-all duration-200",
               "hover:scale-110 hover:bg-white/30",
               // Focus styles
-              "focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none",
+              "focus-visible:ring-ring focus-visible:ring-3 focus-visible:ring-offset-2 focus-visible:outline-none",
               // Active state
               "active:scale-95"
             )}
@@ -185,10 +185,10 @@ export function FilmCard({
           className={cn(
             // Size
             "w-full px-6 py-2.5",
-            // Gradient background - Tiween brand colors
-            "to-primary bg-gradient-to-r from-teal-500",
+            // Gold Leaf action fill
+            "bg-primary",
             // Text styling
-            "text-background text-sm font-bold tracking-wide uppercase",
+            "text-primary-foreground text-sm font-bold tracking-wide uppercase",
             // Shape
             "rounded-full",
             // Shadow
@@ -197,7 +197,7 @@ export function FilmCard({
             "transition-all duration-200",
             "hover:shadow-xl hover:brightness-110",
             // Focus styles
-            "focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none",
+            "focus-visible:ring-ring focus-visible:ring-3 focus-visible:ring-offset-2 focus-visible:outline-none",
             // Active state
             "active:scale-95"
           )}

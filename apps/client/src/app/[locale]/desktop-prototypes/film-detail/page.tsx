@@ -228,8 +228,8 @@ export default function FilmDetailPrototype() {
               <div
                 className="absolute inset-0 bg-cover bg-center"
                 style={{
-                  backgroundImage: `linear-gradient(to bottom, transparent 60%, rgba(3,37,35,0.8)),
-                    linear-gradient(135deg, #1a4a47 0%, #0d2927 50%, #1a3a38 100%)`,
+                  backgroundImage: `linear-gradient(to bottom, transparent 60%, hsl(var(--background) / 0.8)),
+                    linear-gradient(135deg, hsl(var(--accent)) 0%, hsl(var(--background)) 50%, hsl(var(--card)) 100%)`,
                 }}
               >
                 <div className="absolute inset-0 flex items-center justify-center">

@@ -126,14 +126,14 @@ export function BasicsStep({ labels, onValidateRef }: BasicsStepProps) {
             render={({ field, fieldState }) => (
               <FormItem>
                 <FormLabel className="text-white">
-                  Title <span className="text-red-500">*</span>
+                  Title <span className="text-destructive">*</span>
                 </FormLabel>
                 <FormControl>
                   <Input
                     placeholder="Enter the play title"
                     className={cn(
                       "bg-surface border-white/20 text-white placeholder:text-white/40",
-                      fieldState.invalid && "border-red-500"
+                      fieldState.invalid && "border-destructive"
                     )}
                     {...field}
                   />
@@ -180,7 +180,7 @@ export function BasicsStep({ labels, onValidateRef }: BasicsStepProps) {
                     placeholder="Original title (if different)"
                     className={cn(
                       "bg-surface border-white/20 text-white placeholder:text-white/40",
-                      fieldState.invalid && "border-red-500"
+                      fieldState.invalid && "border-destructive"
                     )}
                     {...field}
                   />
@@ -210,7 +210,7 @@ export function BasicsStep({ labels, onValidateRef }: BasicsStepProps) {
                       max={currentYear + 1}
                       className={cn(
                         "bg-surface border-white/20 text-white placeholder:text-white/40",
-                        fieldState.invalid && "border-red-500"
+                        fieldState.invalid && "border-destructive"
                       )}
                       {...field}
                       value={field.value ?? ""}
@@ -245,7 +245,7 @@ export function BasicsStep({ labels, onValidateRef }: BasicsStepProps) {
                       max={600}
                       className={cn(
                         "bg-surface border-white/20 text-white placeholder:text-white/40",
-                        fieldState.invalid && "border-red-500"
+                        fieldState.invalid && "border-destructive"
                       )}
                       {...field}
                       value={field.value ?? ""}
@@ -302,7 +302,7 @@ export function BasicsStep({ labels, onValidateRef }: BasicsStepProps) {
                       className={cn(
                         "bg-surface border-white/20 text-white",
                         !field.value && "text-white/40",
-                        fieldState.invalid && "border-red-500"
+                        fieldState.invalid && "border-destructive"
                       )}
                     >
                       <SelectValue placeholder="Select age rating" />
@@ -341,7 +341,7 @@ export function BasicsStep({ labels, onValidateRef }: BasicsStepProps) {
                     rows={5}
                     className={cn(
                       "bg-surface resize-none border-white/20 text-white placeholder:text-white/40",
-                      fieldState.invalid && "border-red-500"
+                      fieldState.invalid && "border-destructive"
                     )}
                     {...field}
                   />

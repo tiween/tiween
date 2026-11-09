@@ -131,7 +131,7 @@ export function DesktopNav({
                   ? "bg-primary/10 text-primary"
                   : "text-muted-foreground hover:bg-accent hover:text-foreground",
                 // Focus styles
-                "focus-visible:ring-ring focus-visible:ring-2 focus-visible:outline-none"
+                "focus-visible:ring-ring focus-visible:ring-3 focus-visible:outline-none"
               )}
             >
               <Icon className="h-5 w-5" />

@@ -103,15 +103,15 @@ export function PersonCreateDialog({
               render={({ field, fieldState }) => (
                 <FormItem>
                   <FormLabel>
-                    Name <span className="text-red-500">*</span>
+                    Name <span className="text-destructive">*</span>
                   </FormLabel>
                   <FormControl>
                     <Input
                       placeholder="Full name"
                       autoFocus
                       className={cn(
-                        "bg-tiween-green border-white/20 text-white placeholder:text-white/40",
-                        fieldState.invalid && "border-red-500"
+                        "bg-background border-white/20 text-white placeholder:text-white/40",
+                        fieldState.invalid && "border-destructive"
                       )}
                       {...field}
                     />
@@ -136,8 +136,8 @@ export function PersonCreateDialog({
                       type="url"
                       placeholder="https://..."
                       className={cn(
-                        "bg-tiween-green border-white/20 text-white placeholder:text-white/40",
-                        fieldState.invalid && "border-red-500"
+                        "bg-background border-white/20 text-white placeholder:text-white/40",
+                        fieldState.invalid && "border-destructive"
                       )}
                       {...field}
                     />
@@ -161,8 +161,8 @@ export function PersonCreateDialog({
                     <Input
                       placeholder="e.g., Tunisian, Moroccan..."
                       className={cn(
-                        "bg-tiween-green border-white/20 text-white placeholder:text-white/40",
-                        fieldState.invalid && "border-red-500"
+                        "bg-background border-white/20 text-white placeholder:text-white/40",
+                        fieldState.invalid && "border-destructive"
                       )}
                       {...field}
                     />
@@ -187,7 +187,7 @@ export function PersonCreateDialog({
               <Button
                 type="submit"
                 disabled={form.formState.isSubmitting}
-                className="bg-tiween-yellow text-tiween-green hover:bg-tiween-yellow/90"
+                className="bg-primary text-primary-foreground hover:bg-primary/90"
               >
                 {form.formState.isSubmitting ? (
                   <>

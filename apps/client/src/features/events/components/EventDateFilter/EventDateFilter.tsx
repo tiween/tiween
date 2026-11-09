@@ -104,7 +104,7 @@ function valueToRange(value: DateFilterValue): DateRange | undefined {
 }
 
 const CHIP_BASE =
-  "inline-flex min-h-11 items-center justify-center gap-1.5 rounded-full border px-4 text-sm font-medium whitespace-nowrap transition-colors focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
+  "inline-flex min-h-11 items-center justify-center gap-1.5 rounded-full border px-4 text-sm font-medium whitespace-nowrap transition-colors focus-visible:ring-ring focus-visible:ring-3 focus-visible:ring-offset-2 focus-visible:outline-none"
 const CHIP_ACTIVE = "bg-primary text-primary-foreground border-primary"
 const CHIP_INACTIVE =
   "bg-background text-foreground border-border hover:bg-accent hover:text-accent-foreground"

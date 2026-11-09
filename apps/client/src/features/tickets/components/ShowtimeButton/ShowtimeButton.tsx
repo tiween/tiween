@@ -152,7 +152,7 @@ export function ShowtimeButton({
         // Transition
         "transition-all duration-200",
         // Focus styles
-        "focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none",
+        "focus-visible:ring-ring focus-visible:ring-3 focus-visible:ring-offset-2 focus-visible:outline-none",
         // State-specific styles
         stateStyles[status],
         className
