@@ -18,8 +18,21 @@ import { routing, usePathname, useRouter } from "@/lib/navigation"
  * can still browse another locale within the session without being forced back
  * until the next load (and the guard also prevents a switch → re-render loop).
  * Renders nothing.
+ *
+ * `useSearchParams()` opts the nearest Suspense boundary into client-side
+ * rendering, and this component sits in the root layout — so the hook lives in
+ * `PreferenceSyncInner` behind its own `<Suspense fallback={null}>`, keeping
+ * every page statically prerenderable.
  */
 export function PreferenceSync() {
+  return (
+    <React.Suspense fallback={null}>
+      <PreferenceSyncInner />
+    </React.Suspense>
+  )
+}
+
+function PreferenceSyncInner() {
   const { data: session, status } = useSession()
   const locale = useLocale()
   const pathname = usePathname()
