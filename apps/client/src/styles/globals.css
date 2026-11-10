@@ -236,3 +236,10 @@
 .animate-watchlist-pulse {
   animation: watchlist-pulse 0.3s ease-in-out;
 }
+
+/* Reduced motion: the save pulse never plays (UI-SPEC Part G). */
+@media (prefers-reduced-motion: reduce) {
+  .animate-watchlist-pulse {
+    animation: none;
+  }
+}
