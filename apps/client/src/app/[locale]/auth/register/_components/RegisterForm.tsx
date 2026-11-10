@@ -19,6 +19,7 @@ import {
   PASSWORD_REQUIRE_UPPERCASE,
 } from "@/lib/constants"
 import { Link } from "@/lib/navigation"
+import { safeCallbackUrl } from "@/lib/safe-callback-url"
 import { cn } from "@/lib/styles"
 import { useUserMutations } from "@/hooks/useUser"
 import { AppField } from "@/components/forms/AppField"
@@ -61,8 +62,9 @@ export function RegisterForm({
     "google" | "facebook" | null
   >(null)
 
-  // Get callback URL from search params (or default to home)
-  const callbackUrl = searchParams.get("callbackUrl") || "/"
+  // Get callback URL from search params (or default to home). The query param
+  // is user-controlled (D-14 / T-02-10): sanitize once for every sink below.
+  const callbackUrl = safeCallbackUrl(searchParams.get("callbackUrl"))
 
   const showSocialLogin = enableGoogle || enableFacebook
 

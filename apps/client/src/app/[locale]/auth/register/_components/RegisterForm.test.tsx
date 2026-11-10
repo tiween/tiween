@@ -8,7 +8,7 @@
  * next-intl / next-auth / next-navigation and the register mutation are mocked
  * so the form can render standalone; the real zodResolver schema runs.
  */
-import { render, screen, waitFor } from "@testing-library/react"
+import { act, render, screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
@@ -35,8 +35,11 @@ vi.mock("next-intl", () => ({
   useLocale: () => "ar",
 }))
 
+let callbackUrlParam: string | null = null
 vi.mock("next/navigation", () => ({
-  useSearchParams: () => ({ get: () => null }),
+  useSearchParams: () => ({
+    get: (key: string) => (key === "callbackUrl" ? callbackUrlParam : null),
+  }),
 }))
 
 vi.mock("next-auth/react", () => ({
@@ -111,6 +114,7 @@ describe("routed RegisterForm", () => {
     signInMock.mockReset()
     toastMock.mockReset()
     sessionState.data = null
+    callbackUrlParam = null
   })
 
   it("renders the name field", () => {
@@ -307,5 +311,66 @@ describe("routed RegisterForm", () => {
       expect(screen.getByText("passwordStrength.medium")).toBeTruthy()
     })
     expect(screen.queryByText("passwordStrength.strong")).toBeNull()
+  })
+  describe("callbackUrl handling (D-14, T-02-10)", () => {
+    beforeEach(() => {
+      Object.defineProperty(window, "location", {
+        configurable: true,
+        writable: true,
+        value: { href: "" },
+      })
+    })
+
+    async function registerAndAutoLogin() {
+      signInMock.mockResolvedValue({ ok: true })
+      const user = userEvent.setup()
+      render(<RegisterForm />)
+      await fillValidExcept(user, {})
+      await submit(user)
+      await waitFor(() => expect(mutateMock).toHaveBeenCalledTimes(1))
+      await act(async () => {
+        await mutateMock.mock.calls[0][1].onSuccess()
+      })
+    }
+
+    it.each([
+      ["protocol-relative", "//evil.com"],
+      ["backslash", "/\\evil.com"],
+      ["absolute", "https://evil.com/x"],
+      ["javascript scheme", "javascript:alert(1)"],
+      ["control character", "/\n/evil.com"],
+    ])(
+      "never lets a hostile %s callbackUrl reach location.href",
+      async (_label, hostile) => {
+        callbackUrlParam = hostile
+        await registerAndAutoLogin()
+
+        await waitFor(() => expect(window.location.href).toBe("/"))
+      }
+    )
+
+    it("sends a hostile callbackUrl to '/' for the OAuth start", async () => {
+      callbackUrlParam = "//evil.com"
+      const user = userEvent.setup()
+      render(<RegisterForm enableGoogle />)
+
+      await user.click(screen.getByRole("button", { name: /google/i }))
+
+      expect(signInMock).toHaveBeenCalledWith("google", { callbackUrl: "/" })
+    })
+
+    it("honors a safe locale-prefixed path for both sinks (full navigations)", async () => {
+      callbackUrlParam = "/ar/shorts/x"
+      await registerAndAutoLogin()
+
+      await waitFor(() => expect(window.location.href).toBe("/ar/shorts/x"))
+
+      const user = userEvent.setup()
+      render(<RegisterForm enableGoogle />)
+      await user.click(screen.getByRole("button", { name: /google/i }))
+      expect(signInMock).toHaveBeenLastCalledWith("google", {
+        callbackUrl: "/ar/shorts/x",
+      })
+    })
   })
 })

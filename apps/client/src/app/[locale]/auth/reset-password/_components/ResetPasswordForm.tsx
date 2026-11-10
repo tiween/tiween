@@ -18,6 +18,7 @@ import {
   PASSWORD_REQUIRE_UPPERCASE,
 } from "@/lib/constants"
 import { Link } from "@/lib/navigation"
+import { safeCallbackUrl } from "@/lib/safe-callback-url"
 import { cn } from "@/lib/styles"
 import { useUserMutations } from "@/hooks/useUser"
 import { AppField } from "@/components/forms/AppField"
@@ -60,24 +61,6 @@ function mapErrorToKey(message: string | undefined): ResetErrorKey {
   )
     return "errors.weakPassword"
   return "errors.unexpectedError"
-}
-
-/**
- * Only allow a post-login redirect to a same-origin relative path: a single "/"
- * followed by a non-slash, non-backslash char. This rejects absolute URLs,
- * protocol-relative "//host", and backslash tricks ("/\\host", which the URL
- * parser normalizes to "//host") — all of which are open-redirect vectors.
- */
-function safeCallbackUrl(raw: string | null): string {
-  // Same-origin relative paths only. Reject protocol-relative (`//`) and
-  // backslash (`/\`) targets, AND any ASCII control char (tab/newline/CR):
-  // browsers strip those during URL parsing, so `/\n/evil.com` collapses to
-  // `//evil.com` and would slip past the leading-char check as an off-origin
-  // redirect.
-  if (raw && /^\/[^/\\]/.test(raw) && !/[\u0000-\u001f\u007f]/.test(raw)) {
-    return raw
-  }
-  return "/"
 }
 
 export function ResetPasswordForm({ code, email }: ResetPasswordFormProps) {

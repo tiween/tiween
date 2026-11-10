@@ -5,15 +5,16 @@
  * that clicking one calls `signIn(provider, { callbackUrl })`. next-intl /
  * next-auth / navigation / toast are mocked so the form renders standalone.
  */
-import { render, screen } from "@testing-library/react"
+import { render, screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { SignInFormWithSocial } from "./SignInFormWithSocial"
 
-const { signInMock, toastMock, sessionState } = vi.hoisted(() => ({
+const { signInMock, toastMock, pushMock, sessionState } = vi.hoisted(() => ({
   signInMock: vi.fn(),
   toastMock: vi.fn(),
+  pushMock: vi.fn(),
   sessionState: { data: null as { error?: string } | null },
 }))
 
@@ -47,7 +48,7 @@ vi.mock("next-auth/react", () => ({
 }))
 
 vi.mock("@/lib/navigation", () => ({
-  useRouter: () => ({ refresh: vi.fn(), push: vi.fn() }),
+  useRouter: () => ({ refresh: vi.fn(), push: pushMock }),
   Link: ({
     children,
     ...props
@@ -61,10 +62,20 @@ vi.mock("@/components/ui/use-toast", () => ({
   useToast: () => ({ toast: toastMock }),
 }))
 
+// AppField wraps its <input> in a <div>, so query the inputs by `name`.
+function getInput(name: string): HTMLInputElement {
+  const el = document.querySelector<HTMLInputElement>(`input[name="${name}"]`)
+  if (!el) {
+    throw new Error(`input[name="${name}"] not found`)
+  }
+  return el
+}
+
 describe("SignInFormWithSocial", () => {
   beforeEach(() => {
     signInMock.mockReset()
     toastMock.mockReset()
+    pushMock.mockReset()
     sessionState.data = null
     searchParamValue = null
   })
@@ -132,5 +143,80 @@ describe("SignInFormWithSocial", () => {
     sessionState.data = { error: "invalid_strapi_token" }
     render(<SignInFormWithSocial enableGoogle enableFacebook />)
     expect(toastMock).not.toHaveBeenCalled()
+  })
+  describe("callbackUrl handling (D-14, T-02-10)", () => {
+    async function submitCredentials(user: ReturnType<typeof userEvent.setup>) {
+      await user.type(getInput("email"), "alice@example.com")
+      await user.type(getInput("password"), "Password1")
+      await user.click(screen.getByRole("button", { name: /submit/i }))
+    }
+
+    it.each([
+      ["protocol-relative", "//evil.com"],
+      ["backslash", "/\\evil.com"],
+      ["absolute", "https://evil.com/x"],
+      ["javascript scheme", "javascript:alert(1)"],
+      ["control character", "/\n/evil.com"],
+    ])(
+      "sends a hostile %s callbackUrl to '/' for credentials sign-in and push",
+      async (_label, hostile) => {
+        searchParamValue = hostile
+        signInMock.mockResolvedValue({ error: null, ok: true })
+        const user = userEvent.setup()
+        render(<SignInFormWithSocial />)
+
+        await submitCredentials(user)
+
+        await waitFor(() => expect(pushMock).toHaveBeenCalledTimes(1), {
+          timeout: 2000,
+        })
+        expect(pushMock).toHaveBeenCalledWith("/")
+        expect(signInMock).toHaveBeenCalledWith(
+          "credentials",
+          expect.objectContaining({ callbackUrl: "/" })
+        )
+      }
+    )
+
+    it("sends a hostile callbackUrl to '/' for the OAuth start", async () => {
+      searchParamValue = "//evil.com"
+      const user = userEvent.setup()
+      render(<SignInFormWithSocial enableGoogle />)
+
+      await user.click(screen.getByRole("button", { name: /google/i }))
+
+      expect(signInMock).toHaveBeenCalledWith("google", { callbackUrl: "/" })
+    })
+
+    it("strips the locale before the next-intl router push but keeps it for signIn", async () => {
+      searchParamValue = "/ar/shorts/x"
+      signInMock.mockResolvedValue({ error: null, ok: true })
+      const user = userEvent.setup()
+      render(<SignInFormWithSocial />)
+
+      await submitCredentials(user)
+
+      await waitFor(() => expect(pushMock).toHaveBeenCalledTimes(1), {
+        timeout: 2000,
+      })
+      // Pushing "/ar/shorts/x" would land on /ar/ar/shorts/x (doubled prefix).
+      expect(pushMock).toHaveBeenCalledWith("/shorts/x")
+      expect(signInMock).toHaveBeenCalledWith(
+        "credentials",
+        expect.objectContaining({ callbackUrl: "/ar/shorts/x" })
+      )
+    })
+
+    it("keeps the prefixed path for the OAuth start (a full navigation)", async () => {
+      searchParamValue = "/ar/shorts/x"
+      const user = userEvent.setup()
+      render(<SignInFormWithSocial enableFacebook />)
+
+      await user.click(screen.getByRole("button", { name: /facebook/i }))
+
+      expect(signInMock).toHaveBeenCalledWith("facebook", {
+        callbackUrl: "/ar/shorts/x",
+      })
+    })
   })
 })

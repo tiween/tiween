@@ -9,6 +9,7 @@ import * as z from "zod"
 
 import { safeJSONParse } from "@/lib/general-helpers"
 import { Link, useRouter } from "@/lib/navigation"
+import { safeCallbackUrl, toRouterPath } from "@/lib/safe-callback-url"
 import { AppField } from "@/components/forms/AppField"
 import { AppForm } from "@/components/forms/AppForm"
 import { Button } from "@/components/ui/button"
@@ -27,7 +28,8 @@ export function SignInForm() {
   const { toast } = useToast()
   const router = useRouter()
   const searchParams = useSearchParams()
-  const callbackUrl = searchParams.get("callbackUrl") ?? "/"
+  // D-14 / T-02-10: the query param is user-controlled; sanitize once, here.
+  const callbackUrl = safeCallbackUrl(searchParams.get("callbackUrl"))
 
   const form = useForm<z.infer<FormSchemaType>>({
     resolver: zodResolver(SignInFormSchema),
@@ -45,7 +47,8 @@ export function SignInForm() {
 
     if (!res?.error) {
       router.refresh()
-      setTimeout(() => router.push(callbackUrl), 300)
+      // The next-intl router re-adds the active locale, so strip it first.
+      setTimeout(() => router.push(toRouterPath(callbackUrl)), 300)
     } else {
       const parsedError = safeJSONParse<{ message?: string }>(res.error)
       const message =
