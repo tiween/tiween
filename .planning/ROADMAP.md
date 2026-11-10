@@ -73,7 +73,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 3. The detail page shows the "Equipe artistique" crew grid and the access-type sub-label under each streaming platform when the data exists, and omits those sections when it does not.
 4. A signed-in user can tap the heart on a short film (on its detail page and on its directory card, as an independent target from the card link) to add or remove it from the real watchlist; the state survives navigation and a second device and the film appears on the watchlist page; a signed-out user is invited to sign in rather than seeing a toggle that forgets.
 5. When Strapi is unreachable the shorts pages show an error state with retry (not an empty directory) and recover when Strapi returns; no production code path imports `mock-shorts.ts`.
-   **Plans:** 8/10 plans executed
+   **Plans:** 9/10 plans executed
    **UI hint**: yes
 
    Plans:
@@ -86,7 +86,7 @@ Decimal phases appear between their surrounding integers in numeric order.
    - [x] 02-06-PLAN.md — Error, not-found and loading states for both routes with retry that refetches
    - [x] 02-07-PLAN.md — Watchlist payload allowlist proven on a booted Strapi; short-film entry on the watchlist page
    - [x] 02-08-PLAN.md — Directory on the Strapi list: ShortsDirectory rewrite, /shorts page, delete ShortsShowcase and ShortsHero, mock-isolation guard
-   - [ ] 02-09-PLAN.md — Real hearts on card and detail, relocated duration, card fallback tagging
+   - [x] 02-09-PLAN.md — Real hearts on card and detail, relocated duration, card fallback tagging
    - [ ] 02-10-PLAN.md — Full production probe, all quality gates, recorded manual pass
 
 ### Phase 3: Meilisearch Search
@@ -180,7 +180,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 (decimal insert
 | Phase                                 | Plans Complete | Status      | Completed  |
 | ------------------------------------- | -------------- | ----------- | ---------- |
 | 1. Short-Film Catalog Backend         | 16/16          | Complete    | 2026-11-10 |
-| 2. Strapi-Backed Shorts Pages         | 8/10           | In Progress | -          |
+| 2. Strapi-Backed Shorts Pages         | 9/10           | In Progress | -          |
 | 3. Meilisearch Search                 | 0/TBD          | Not started | -          |
 | 4. Directory Experience and Brand     | 0/TBD          | Not started | -          |
 | 5. Shorts SEO and Sitemap             | 0/TBD          | Not started | -          |
