@@ -248,6 +248,9 @@ export function WorkForm({
                         name="originalTitle"
                         render={({ field }) => (
                           <TextInput
+                            // Original titles are often Arabic on a Latin
+                            // default tab: the script decides the direction.
+                            dir="auto"
                             value={field.value}
                             onChange={(
                               event: React.ChangeEvent<HTMLInputElement>

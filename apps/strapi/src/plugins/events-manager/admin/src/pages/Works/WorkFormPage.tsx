@@ -363,6 +363,7 @@ export function WorkFormPage() {
           paddingRight={PAGE_GUTTER}
         >
           <LocalizedFieldsForm
+            locale={activeLocale ?? ""}
             key={`${activeLocale}-${
               translation.work ? translation.work.updatedAt ?? "row" : "new"
             }`}

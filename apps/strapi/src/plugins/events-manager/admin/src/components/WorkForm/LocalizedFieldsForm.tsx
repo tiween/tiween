@@ -68,7 +68,35 @@ export function toLocalizedPayload(values: LocalizedFormValues) {
   }
 }
 
+/**
+ * Primary language subtags written right-to-left. A fixed list keeps the
+ * result deterministic in jsdom and every browser (`Intl.Locale#getTextInfo`
+ * is not available everywhere), and the i18n plugin's locale records carry no
+ * direction.
+ */
+const RTL_LANGUAGES = new Set([
+  "ar",
+  "arc",
+  "ckb",
+  "dv",
+  "fa",
+  "he",
+  "ps",
+  "sd",
+  "ug",
+  "ur",
+  "yi",
+])
+
+/** Text direction of the content in `locale` (`ar`, `ar-TN`, `fr`, ...). */
+export function textDirection(locale: string): "rtl" | "ltr" {
+  const primary = locale.split(/[-_]/)[0].toLowerCase()
+  return RTL_LANGUAGES.has(primary) ? "rtl" : "ltr"
+}
+
 interface LocalizedFieldsFormProps {
+  /** Content locale of the tab; drives `dir` and `lang` on the text inputs */
+  locale: string
   initialValues: LocalizedFormValues
   /** Title in the default language, shown as a hint only */
   defaultTitle: string
@@ -79,6 +107,7 @@ interface LocalizedFieldsFormProps {
 }
 
 export function LocalizedFieldsForm({
+  locale,
   initialValues,
   defaultTitle,
   isNewTranslation,
@@ -86,6 +115,8 @@ export function LocalizedFieldsForm({
   onSubmit,
 }: LocalizedFieldsFormProps) {
   const t = useCatalogT()
+  // Only the content controls flip; labels and hints stay in the admin language.
+  const dir = textDirection(locale)
 
   const {
     control,
@@ -149,6 +180,8 @@ export function LocalizedFieldsForm({
               name="title"
               render={({ field }) => (
                 <TextInput
+                  dir={dir}
+                  lang={locale}
                   value={field.value}
                   onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
                     field.onChange(event.target.value)
@@ -168,6 +201,8 @@ export function LocalizedFieldsForm({
               name="synopsis"
               render={({ field }) => (
                 <Textarea
+                  dir={dir}
+                  lang={locale}
                   value={field.value}
                   onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) =>
                     field.onChange(event.target.value)

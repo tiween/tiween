@@ -9,10 +9,12 @@
  * Publishing a short film runs the D-19 server guard
  * (`src/shared/short-film-rules.ts`): slug, poster, a directing credit whose
  * person is published, and a streaming link or trailer. The test fills exactly
- * those through the form.
+ * those through the form. The Arabic tab must render its title and synopsis
+ * right-to-left (asserted on the `dir` attribute and the computed direction).
  *
- * The second test is the WR-03 regression: hidden short-film-only fields are
- * neither validated nor sent.
+ * The other tests are regressions: WR-03 (hidden short-film-only fields are
+ * neither validated nor sent) and the translated field error on a blank
+ * streaming-link row of a short film.
  */
 import fs from "node:fs"
 
@@ -320,26 +322,21 @@ test("create, translate, publish, edit and unpublish a short film from the Works
       ).toBeVisible()
       const title = page.getByRole("textbox", { name: "Title", exact: true })
       await title.fill(values.title)
-      await page
-        .getByRole("textbox", { name: "Synopsis", exact: true })
-        .fill(values.synopsis)
+      const synopsis = page.getByRole("textbox", {
+        name: "Synopsis",
+        exact: true,
+      })
+      await synopsis.fill(values.synopsis)
 
+      // Arabic is edited right-to-left, English stays left-to-right.
       if (code === "ar") {
-        // The UAT asks for RTL on the Arabic locale. Record what the form does
-        // (the WorkForm sets no `dir` today; see report) without failing on it.
-        const dir = await title.evaluate(
-          (element) =>
-            element.getAttribute("dir") ??
-            element.closest("[dir]")?.getAttribute("dir") ??
-            getComputedStyle(element).direction
-        )
-        testInfo.annotations.push({
-          type: "ar-direction",
-          description: `Arabic title input direction: ${dir}`,
-        })
-        if (dir === "rtl") {
-          await expect(title).toHaveCSS("direction", "rtl")
-        }
+        await expect(title).toHaveAttribute("dir", "rtl")
+        await expect(title).toHaveAttribute("lang", "ar")
+        await expect(title).toHaveCSS("direction", "rtl")
+        await expect(synopsis).toHaveAttribute("dir", "rtl")
+        await expect(synopsis).toHaveCSS("direction", "rtl")
+      } else {
+        await expect(title).toHaveCSS("direction", "ltr")
       }
 
       await page.getByRole("button", { name: "Save", exact: true }).click()

@@ -22,6 +22,7 @@ import { MemoryRouter, Route, Routes } from "react-router-dom"
 
 import { WorkFormPage } from "../../pages/Works/WorkFormPage"
 import en from "../../translations/en.json"
+import { textDirection } from "../WorkForm/LocalizedFieldsForm"
 import { DEFAULT_WORK_VALUES, workToApiPayload } from "../WorkForm/schema"
 
 // Each test mounts the whole form (Design System selects, comboboxes, editors).
@@ -302,6 +303,61 @@ describe("work fixtures", () => {
         expect.arrayContaining(ROUND_TRIP_KEYS)
       )
     }
+  })
+})
+
+describe("textDirection", () => {
+  it("is rtl for Arabic and the other right-to-left primary subtags", () => {
+    for (const locale of ["ar", "ar-TN", "ar_TN", "AR", "fa", "he", "ur"]) {
+      expect(textDirection(locale)).toBe("rtl")
+    }
+  })
+
+  it("is ltr for French, English and an empty locale", () => {
+    for (const locale of ["fr", "en", "en-GB", ""]) {
+      expect(textDirection(locale)).toBe("ltr")
+    }
+  })
+})
+
+describe("WorkFormPage — text direction", () => {
+  it("renders the Arabic title and synopsis right-to-left", async () => {
+    serve({ fr: frWork(), ar: arWork() })
+    await renderEdit()
+
+    await openTab(/Arabic/)
+    await waitFor(() => expect(titleInput()).toHaveValue("الصمت"))
+
+    expect(titleInput()).toHaveAttribute("dir", "rtl")
+    expect(titleInput()).toHaveAttribute("lang", "ar")
+    expect(screen.getByRole("textbox", { name: "Synopsis" })).toHaveAttribute(
+      "dir",
+      "rtl"
+    )
+    expect(screen.getByRole("textbox", { name: "Synopsis" })).toHaveAttribute(
+      "lang",
+      "ar"
+    )
+  })
+
+  it("keeps the English title left-to-right", async () => {
+    serve({ fr: frWork(), ar: arWork() })
+    await renderEdit()
+
+    await openTab(/English/)
+    await screen.findByRole("heading", { name: "Translation" })
+
+    expect(titleInput()).toHaveAttribute("dir", "ltr")
+    expect(titleInput()).toHaveAttribute("lang", "en")
+  })
+
+  it("lets the original title of the default tab pick its own direction", async () => {
+    serve({ fr: frWork() })
+    await renderEdit()
+
+    expect(
+      screen.getByRole("textbox", { name: "Original title" })
+    ).toHaveAttribute("dir", "auto")
   })
 })
 
