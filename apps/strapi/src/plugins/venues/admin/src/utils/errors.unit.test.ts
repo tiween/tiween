@@ -6,8 +6,8 @@
  * 1. `parseApiError` — envelope parsing, per-field issues, and the STATUS
  *    fallbacks for failures that carry no envelope of ours (an
  *    `admin::hasPermissions` denial is a bare 403).
- * 2. TRANSLATION COVERAGE — every code the server can emit has a key in ar, en
- *    AND fr. The code list is DERIVED from the server sources rather than
+ * 2. TRANSLATION COVERAGE — every code the server can emit has a key in en
+ *    and fr. The code list is DERIVED from the server sources rather than
  *    restated here, so adding a code without translating it fails this test
  *    instead of silently degrading to "An unexpected error occurred." in front
  *    of an editor.
@@ -15,7 +15,6 @@
 import fs from "fs"
 import path from "path"
 
-import ar from "../translations/ar.json"
 import en from "../translations/en.json"
 import fr from "../translations/fr.json"
 import {
@@ -153,7 +152,6 @@ function emittedCodes(): string[] {
 
 describe("error-code translation coverage (unit)", () => {
   const locales: [string, Record<string, string>][] = [
-    ["ar", ar as Record<string, string>],
     ["en", en as Record<string, string>],
     ["fr", fr as Record<string, string>],
   ]

@@ -14,7 +14,6 @@ import { IntlProvider } from "react-intl"
 import { MemoryRouter } from "react-router-dom"
 
 import { App } from "../../pages/App"
-import ar from "../../translations/ar.json"
 import en from "../../translations/en.json"
 import fr from "../../translations/fr.json"
 import { SideNav } from "../SideNav"
@@ -127,7 +126,6 @@ describe("events-manager side navigation", () => {
   it.each([
     ["en", en],
     ["fr", fr],
-    ["ar", ar],
   ])("defines events-manager.sidenav.works in %s", (_locale, messages) => {
     const value = (messages as Record<string, string>)[
       "events-manager.sidenav.works"

@@ -26,7 +26,7 @@ design_reference: apps/strapi/DESIGN.md
 | Hidden section after type switch | Short-film-only fields (streaming links, featured rank) are not validated, and not sent, when the type is not Short film. A blank hidden row never blocks Save.             |
 | Arabic locale                    | Text controls render right-to-left.                                                                                                                                         |
 
-## Copy (new strings, in FR / AR / EN translation files)
+## Copy (new strings, in FR / EN translation files — the admin interface is never Arabic)
 
-- Streaming URL error: "Enter a valid https:// link" (FR: « Saisissez un lien https:// valide », AR: «أدخل رابط https:// صالحًا»).
+- Streaming URL error: "Enter a valid https:// link" (FR: « Saisissez un lien https:// valide »).
 - Generic form error notification: reuse the existing form-error string if there is one. Otherwise: "Some fields need attention".

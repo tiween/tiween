@@ -4,7 +4,7 @@ import { cs } from "./cs"
 
 export default {
   config: {
-    locales: ["en", "fr", "ar"],
+    locales: ["en", "fr"],
     translations: {
       cs,
     },

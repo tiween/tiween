@@ -183,7 +183,7 @@ Tiween extends the stock admin in three places only, and each extension is built
 - 4px radius on nearly everything; pills only for avatars, status dots, toggle tracks.
 - Borders separate; three restrained, cool-tinted shadow levels.
 - Native system font, weights 400/500/600, body 14px.
-- Sentence case, imperative copy, no emoji; every string translated (en/fr/ar).
+- Sentence case, imperative copy, no emoji; every interface string translated (en/fr). The admin UI is never Arabic; Arabic is content only (see Arabic (RTL) below).
 
 ## Colors
 
