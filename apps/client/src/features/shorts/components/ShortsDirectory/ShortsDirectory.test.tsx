@@ -99,8 +99,11 @@ function films(from: number, to: number): ShortFilm[] {
   return Array.from({ length: to - from + 1 }, (_, i) => film(from + i))
 }
 
-function ok(shorts: ShortFilm[], total = shorts.length) {
-  return new Response(JSON.stringify({ shorts, total }), { status: 200 })
+/** `hasMore` is the server's own `page < pageCount`; it defaults to the last page. */
+function ok(shorts: ShortFilm[], total = shorts.length, hasMore = false) {
+  return new Response(JSON.stringify({ shorts, total, hasMore }), {
+    status: 200,
+  })
 }
 
 const fetchMock = vi.fn()
@@ -145,10 +148,12 @@ function ui({
   locale = "fr",
   initialShorts = [film(1)],
   totalShorts = initialShorts.length,
+  initialHasMore,
 }: {
   locale?: keyof typeof MESSAGES
   initialShorts?: ShortFilm[]
   totalShorts?: number
+  initialHasMore?: boolean
 } = {}) {
   return (
     <NextIntlClientProvider
@@ -159,6 +164,7 @@ function ui({
       <ShortsDirectory
         initialShorts={initialShorts}
         totalShorts={totalShorts}
+        initialHasMore={initialHasMore}
       />
     </NextIntlClientProvider>
   )
@@ -298,7 +304,7 @@ describe("ShortsDirectory", { timeout: 20_000 }, () => {
     })
 
     it("never sends pageSize, filters, sort or genre", async () => {
-      fetchMock.mockResolvedValue(ok(films(25, 48), 60))
+      fetchMock.mockResolvedValue(ok(films(25, 48), 60, true))
       renderDirectory({ initialShorts: films(1, 24), totalShorts: 60 })
 
       fireEvent.click(screen.getByRole("button", { name: LOAD_MORE }))
@@ -358,7 +364,7 @@ describe("ShortsDirectory", { timeout: 20_000 }, () => {
     })
 
     it("keeps focus on the button when more pages remain", async () => {
-      fetchMock.mockResolvedValueOnce(ok(films(25, 48), 72))
+      fetchMock.mockResolvedValueOnce(ok(films(25, 48), 72, true))
       renderDirectory({ initialShorts: films(1, 24), totalShorts: 72 })
 
       const button = screen.getByRole("button", { name: LOAD_MORE })
@@ -407,17 +413,49 @@ describe("ShortsDirectory", { timeout: 20_000 }, () => {
       expect(document.body).toHaveFocus()
     })
 
-    it("stops offering Load more when the server returns an empty page", async () => {
-      fetchMock.mockResolvedValueOnce(ok([], 30))
-      renderDirectory({ initialShorts: films(1, 24), totalShorts: 30 })
+    it("keeps paging through an empty middle page (every film on it omitted)", async () => {
+      fetchMock
+        .mockResolvedValueOnce(ok([], 60, true))
+        .mockResolvedValueOnce(ok(films(25, 30), 60, false))
+      renderDirectory({ initialShorts: films(1, 24), totalShorts: 60 })
 
       fireEvent.click(screen.getByRole("button", { name: LOAD_MORE }))
 
-      await waitFor(() =>
-        expect(screen.queryByRole("button", { name: LOAD_MORE })).toBeNull()
-      )
+      await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1))
+      // An empty page is not the end of the list and not an error.
+      expect(
+        await screen.findByRole("button", { name: LOAD_MORE })
+      ).toBeInTheDocument()
       expect(screen.queryByRole("alert")).toBeNull()
-      expect(cardLinks()).toHaveLength(24)
+
+      fireEvent.click(screen.getByRole("button", { name: LOAD_MORE }))
+      await waitFor(() => expect(cardLinks()).toHaveLength(30))
+      expect(requestedUrl(1).searchParams.get("page")).toBe("3")
+      expect(screen.queryByRole("button", { name: LOAD_MORE })).toBeNull()
+    })
+
+    it("hides Load more on the last page even when total counts an omitted film", async () => {
+      // 31 counted by the API, but one has no slug and is not returned: the
+      // cards can never reach `total`, so only the server's hasMore may decide.
+      fetchMock.mockResolvedValueOnce(ok(films(25, 30), 31, false))
+      renderDirectory({ initialShorts: films(1, 24), totalShorts: 31 })
+
+      fireEvent.click(screen.getByRole("button", { name: LOAD_MORE }))
+
+      await waitFor(() => expect(cardLinks()).toHaveLength(30))
+      expect(screen.queryByRole("button", { name: LOAD_MORE })).toBeNull()
+      expect(fetchMock).toHaveBeenCalledTimes(1)
+    })
+
+    it("hides Load more on a single page whose total counts an omitted film", () => {
+      renderDirectory({
+        initialShorts: films(1, 12),
+        totalShorts: 13,
+        initialHasMore: false,
+      })
+
+      expect(screen.queryByRole("button", { name: LOAD_MORE })).toBeNull()
+      expect(observers.every((o) => o.observed.length === 0)).toBe(true)
     })
   })
 

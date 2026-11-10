@@ -41,8 +41,19 @@ import { SuggestionForm } from "../SuggestionForm"
 export interface ShortsDirectoryProps {
   /** First page of the catalogue, rendered by the server page. */
   initialShorts: ShortFilm[]
-  /** Total number of published short films, across every page. */
+  /**
+   * Total number of published short films, across every page, as the API
+   * counts them. Shown as-is: a film the API lists without a slug is omitted
+   * from the cards but still counted, so the figure may exceed the cards shown
+   * by that (small) number. Paging never depends on it.
+   */
   totalShorts: number
+  /**
+   * Whether the API has a page after the first (`page < pageCount`). Paging
+   * follows the server, not `shorts.length < total`, because omitted films
+   * make those two disagree. When absent it falls back to the length check.
+   */
+  initialHasMore?: boolean
   /** Additional class names */
   className?: string
 }
@@ -58,6 +69,8 @@ const SECONDARY_PILL_CLASS =
 interface ShortsPage {
   shorts: ShortFilm[]
   total: number
+  /** The server's own `page < pageCount`. */
+  hasMore: boolean
 }
 
 /**
@@ -83,6 +96,9 @@ async function fetchShortsPage(
   return {
     shorts: body.shorts,
     total: typeof body.total === "number" ? body.total : body.shorts.length,
+    // The route always sends it; a body without it is treated as the last page
+    // so a malformed response can never loop the pager.
+    hasMore: body.hasMore === true,
   }
 }
 
@@ -117,6 +133,7 @@ async function submitSuggestion(suggestion: unknown) {
 export function ShortsDirectory({
   initialShorts,
   totalShorts,
+  initialHasMore,
   className,
 }: ShortsDirectoryProps) {
   const locale = useLocale()
@@ -128,8 +145,11 @@ export function ShortsDirectory({
   const [page, setPage] = React.useState(1)
   const [isLoadingMore, setIsLoadingMore] = React.useState(false)
   const [moreError, setMoreError] = React.useState(false)
-  // A 200 with no rows means the catalogue ended earlier than `total` said.
-  const [exhausted, setExhausted] = React.useState(false)
+  // Server-driven (`page < pageCount`). Only a failed request keeps the pager
+  // from advancing; an empty page (all films omitted) does not end the list.
+  const [hasMore, setHasMore] = React.useState(
+    initialHasMore ?? initialShorts.length < totalShorts
+  )
 
   // A ref, not state: two observer ticks can land before React re-renders with
   // `isLoadingMore`, which would request the same page twice.
@@ -148,7 +168,6 @@ export function ShortsDirectory({
   )
 
   const isEmpty = shorts.length === 0
-  const hasMore = !exhausted && shorts.length < total
 
   const handleLoadMore = React.useCallback(
     async (source: "button" | "observer") => {
@@ -165,13 +184,8 @@ export function ShortsDirectory({
           controller.signal
         )
         const previousLength = shorts.length
-        const seen = new Set(shorts.map((s) => s.documentId))
-        // De-duplicate: a film published between pages shifts the offsets.
-        const fresh = result.shorts.filter((s) => !seen.has(s.documentId))
-        const nextLength = previousLength + fresh.length
-        const stillMore = result.shorts.length > 0 && nextLength < result.total
 
-        if (source === "button" && !stillMore) {
+        if (source === "button" && !result.hasMore) {
           focusAfterAppend.current = previousLength
         }
         setShorts((previous) => {
@@ -183,7 +197,7 @@ export function ShortsDirectory({
         })
         setTotal(result.total)
         setPage(page + 1)
-        setExhausted(result.shorts.length === 0)
+        setHasMore(result.hasMore)
       } catch (error) {
         if (!isAbort(error)) setMoreError(true)
       } finally {

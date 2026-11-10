@@ -47,7 +47,11 @@ function params(locale = "fr") {
   return Promise.resolve({ locale: locale as "fr" })
 }
 
-type DirectoryProps = { initialShorts: ShortFilm[]; totalShorts: number }
+type DirectoryProps = {
+  initialShorts: ShortFilm[]
+  totalShorts: number
+  initialHasMore?: boolean
+}
 
 async function render(locale = "fr"): Promise<DirectoryProps> {
   const element = (await ShortsPage({
@@ -124,6 +128,21 @@ describe("shorts page", () => {
 
   it("leaves the Tiween suffix to the locale layout title template", () => {
     expect(pageModule.metadata.title).toBe("Courts Métrages")
+  })
+
+  it("hands the server's hasMore to the directory instead of leaving it to total", async () => {
+    getShortFilmsPage.mockResolvedValue({
+      shorts: films,
+      total: 3, // one counted film was omitted for having no slug
+      page: 1,
+      pageSize: 24,
+      hasMore: false,
+    })
+
+    const props = await render()
+
+    expect(props.initialHasMore).toBe(false)
+    expect(props.totalShorts).toBe(3)
   })
 
   it("stays noindex and nofollow until the go-live switch", () => {

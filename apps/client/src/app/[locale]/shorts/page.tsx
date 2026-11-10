@@ -1,6 +1,6 @@
+import { Metadata } from "next"
 import { connection } from "next/server"
 import { ShortsDirectory } from "@/features/shorts/components"
-import { Metadata } from "next"
 import { Locale } from "next-intl"
 import { setRequestLocale } from "next-intl/server"
 
@@ -37,11 +37,17 @@ export default async function ShortsPage({ params }: PageProps) {
   const { locale } = await params
   setRequestLocale(locale)
 
-  const { shorts, total } = await getShortFilmsPage({
+  const { shorts, total, hasMore } = await getShortFilmsPage({
     locale,
     page: 1,
     pageSize: 24,
   })
 
-  return <ShortsDirectory initialShorts={shorts} totalShorts={total} />
+  return (
+    <ShortsDirectory
+      initialShorts={shorts}
+      totalShorts={total}
+      initialHasMore={hasMore}
+    />
+  )
 }
