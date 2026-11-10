@@ -14,14 +14,17 @@
  *   GET  /__hits                  per-path request counts + the 400 count
  *   POST /__reset                 clear the counters, back to ok
  *
- * Env: STUB_PORT (default 4010), STUB_FILMS (generated films, default 3).
+ * Env: STUB_PORT (default 4010), STUB_FILMS (total films served, default 30, so
+ * the directory has two pages at 24 per page; two of them are the rich and the
+ * sparse fixture, the rest are generated).
  * Binds 127.0.0.1 only; the fixtures are fictional (T-02-05).
  */
 import { createServer } from "node:http"
 import process from "node:process"
 
 const PORT = Number(process.env.STUB_PORT ?? 4010)
-const GENERATED = Number(process.env.STUB_FILMS ?? 3)
+const TOTAL_FILMS = Math.max(2, Number(process.env.STUB_FILMS ?? 30))
+const GENERATED = TOTAL_FILMS - 2
 const BASE = "/api/creative-works/creative-works/short-films"
 const SLUG_PATTERN = /^[A-Za-z0-9._~-]+$/
 const PAGE_SIZE_MAX = 48

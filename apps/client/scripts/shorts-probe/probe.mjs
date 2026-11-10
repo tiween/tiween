@@ -28,7 +28,15 @@
  *      film on the very next request (failed responses are not cached). The
  *      stub answers 400 to any phantom query key, so zero 400s proves the
  *      fetchers send only allowlisted keys.
- *   4. The load-more route handler: 200, strict 400, upstream failure 502.
+ *   4. The directory (Plan 10): the first 24 of 30 films as real anchors in fr,
+ *      ar and en, a Load more control, `dir="rtl"` in Arabic, noindex + nofollow;
+ *      an outage on a fresh cache entry never shows a film or the empty-catalogue
+ *      copy (it shows the retryable block), and recovery needs no 60 s wait.
+ *   5. The load-more route handler: 200 with the remaining 6 films, strict 400
+ *      (unknown key, page 0, 501, abc, locale de), 502 on an upstream failure
+ *      or a 429 and never a 200 with an empty list.
+ *   6. Request hygiene: the stub rejected no request as invalid (no phantom
+ *      query key from the pages or the route handler).
  *
  * Usage: node apps/client/scripts/shorts-probe/probe.mjs [--detail-only]
  *        (--skip-build reuses .next for quick iteration; the real verification
@@ -387,6 +395,284 @@ async function expectHydrated(name, locale, slug, kind, chrome) {
   )
 }
 
+/** Visible text of a markup string, without scripts/styles/tags. */
+function visibleText(markup) {
+  return markup
+    .replace(/<script[\s\S]*?<\/script>/g, " ")
+    .replace(/<style[\s\S]*?<\/style>/g, " ")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&#x27;|&#39;/g, "'")
+    .replace(/&amp;/g, "&")
+}
+
+/** Distinct hrefs of anchors pointing at a short film page. */
+function filmLinks(html) {
+  const hrefs = new Set()
+  for (const match of html.matchAll(/<a\b[^>]*?\bhref="([^"]+)"/g)) {
+    const path = match[1]
+    if (/\/shorts\/probe-[A-Za-z0-9._~-]+$/.test(path)) hrefs.add(path)
+  }
+  return hrefs
+}
+
+/** Buttons whose aria-label matches the card heart's "add" template. */
+function heartButtons(html, template) {
+  const [prefix, suffix] = template.split("{title}")
+  let count = 0
+  for (const match of html.matchAll(/<button\b[^>]*?\baria-label="([^"]*)"/g)) {
+    const label = match[1]
+    if (label.startsWith(prefix) && label.endsWith(suffix)) count += 1
+  }
+  return count
+}
+
+const NOINDEX_NOFOLLOW = /<meta name="robots" content="noindex, nofollow"/
+
+/** The hydrated DOM of a URL read with headless Chrome (null without Chrome). */
+async function dumpDom(locale, path, chrome) {
+  if (!chrome) return null
+  const profile = mkdtempSync(resolve(tmpdir(), "shorts-probe-chrome-"))
+  const { output } = await run(
+    chrome,
+    [
+      "--headless=new",
+      "--disable-gpu",
+      "--no-first-run",
+      "--no-default-browser-check",
+      `--user-data-dir=${profile}`,
+      `--accept-lang=${locale}`,
+      "--virtual-time-budget=20000",
+      "--dump-dom",
+      `http://127.0.0.1:${PROXY_PORT}${path}`,
+    ],
+    process.env,
+    90_000
+  )
+  return { markup: output, visible: visibleText(output) }
+}
+
+async function directoryChecks(chrome) {
+  log("[4/6] directory, outage and recovery ...")
+  const fr = messages.fr.shorts.directory
+
+  // Outage first, while no /fr list entry exists in the Data Cache: a failed
+  // fetch is never cached (E6), so the page must show the retryable block.
+  await setMode("down")
+  const outage = await get("/fr/shorts")
+  const outageMarkup = outage.text
+    .replace(/<script[\s\S]*?<\/script>/g, " ")
+    .replace(/<style[\s\S]*?<\/style>/g, " ")
+  const leakedTitle = /Probe Film/.test(outage.text)
+  const leakedEmpty =
+    outageMarkup.includes(fr.catalogEmptyTitle) ||
+    outageMarkup.includes(fr.catalogEmptyBody)
+  check(
+    "directory outage: no film title and no empty-catalogue copy in the response",
+    "neither",
+    leakedTitle || leakedEmpty
+      ? [leakedTitle ? "film title" : null, leakedEmpty ? "empty copy" : null]
+          .filter(Boolean)
+          .join(" + ")
+      : "neither",
+    !leakedTitle && !leakedEmpty
+  )
+  const outageState = streamState(outage)
+  check(
+    "directory outage: error state, not a not-found",
+    "error",
+    outageState.error ? "error" : outageState.notFound ? "not-found" : "none",
+    outageState.error && !outageState.notFound
+  )
+  info(
+    "directory outage: HTTP status",
+    `status ${outage.status}, D-20 expects 200 (the page streams inside its loading boundary)`
+  )
+  const outageDom = await dumpDom("fr", "/fr/shorts", chrome)
+  if (outageDom) {
+    const hasAlert = /role="alert"/.test(
+      outageDom.markup.replace(/<script[\s\S]*?<\/script>/g, " ")
+    )
+    const clean =
+      outageDom.visible.includes(fr.errorTitle) &&
+      outageDom.visible.includes(fr.retry) &&
+      hasAlert &&
+      !/Probe Film/.test(outageDom.visible) &&
+      !outageDom.visible.includes(fr.catalogEmptyTitle)
+    check(
+      "directory outage: hydrated DOM shows the retryable block, no films, no empty copy",
+      "error headline + retry + role=alert",
+      clean ? "error headline + retry + role=alert" : "mismatch",
+      clean
+    )
+  } else {
+    info("directory outage: hydrated DOM", "skipped, Chrome not installed")
+  }
+
+  await setMode("ok")
+  const recovered = await get("/fr/shorts")
+  const recoveredLinks = filmLinks(recovered.text)
+  check(
+    "directory recovery: films back on the very next request (no 60 s wait)",
+    "200 + 24 film links",
+    `${recovered.status} + ${recoveredLinks.size} film links`,
+    recovered.status === 200 && recoveredLinks.size === 24
+  )
+
+  for (const locale of ["fr", "ar", "en"]) {
+    const res = locale === "fr" ? recovered : await get(`/${locale}/shorts`)
+    const links = filmLinks(res.text)
+    const strippedVisible = visibleText(res.text)
+    const copy = messages[locale].shorts.directory
+    check(`directory ${locale}: 200`, 200, res.status)
+    check(
+      `directory ${locale}: first film title in the HTML`,
+      `Probe Film [${locale}]`,
+      res.text.includes(`Probe Film [${locale}]`) ? "found" : "missing",
+      res.text.includes(`Probe Film [${locale}]`)
+    )
+    check(
+      `directory ${locale}: 24 distinct film links (real anchors)`,
+      24,
+      links.size
+    )
+    check(
+      `directory ${locale}: Load more control present`,
+      copy.loadMore,
+      strippedVisible.includes(copy.loadMore) ? copy.loadMore : "missing",
+      strippedVisible.includes(copy.loadMore)
+    )
+    check(
+      `directory ${locale}: 24 watchlist hearts as buttons before JavaScript`,
+      24,
+      heartButtons(res.text, messages[locale].shorts.card.watchlistAdd)
+    )
+    check(
+      `directory ${locale}: robots noindex, nofollow`,
+      "noindex, nofollow",
+      NOINDEX_NOFOLLOW.test(res.text) ? "noindex, nofollow" : "missing",
+      NOINDEX_NOFOLLOW.test(res.text)
+    )
+    check(
+      `directory ${locale}: no empty-catalogue copy with films present`,
+      "absent",
+      strippedVisible.includes(copy.catalogEmptyTitle) ? "present" : "absent",
+      !strippedVisible.includes(copy.catalogEmptyTitle)
+    )
+    const rtl = /<html[^>]*\bdir="rtl"/.test(res.text)
+    check(
+      `directory ${locale}: dir attribute`,
+      locale === "ar" ? 'dir="rtl"' : "not rtl",
+      rtl ? 'dir="rtl"' : "not rtl",
+      rtl === (locale === "ar")
+    )
+  }
+
+  const detail = await get("/fr/shorts/probe-film")
+  check(
+    "detail fr: robots noindex, nofollow",
+    "noindex, nofollow",
+    NOINDEX_NOFOLLOW.test(detail.text) ? "noindex, nofollow" : "missing",
+    NOINDEX_NOFOLLOW.test(detail.text)
+  )
+
+  // The unprefixed French path: next-intl negotiates the locale from
+  // Accept-Language, so an English browser is sent to /en (INFO) and a French
+  // browser stays on the French page.
+  for (const lang of ["fr", "en"]) {
+    const response = await fetch(`${APP_URL}/shorts`, {
+      redirect: "manual",
+      signal: AbortSignal.timeout(40_000),
+      headers: { "x-forwarded-proto": "https", "accept-language": lang },
+    })
+    const location = response.headers.get("location") ?? ""
+    if (lang === "fr") {
+      check(
+        "unprefixed /shorts with Accept-Language fr stays on the French page",
+        "200, no redirect to /en",
+        `${response.status}${location ? ` -> ${location}` : ""}`,
+        response.status === 200 && !location.includes("/en")
+      )
+    } else {
+      info(
+        "unprefixed /shorts with Accept-Language en",
+        `status ${response.status}${location ? ` -> ${location}` : ""} (locale negotiation, informational)`
+      )
+    }
+    await response.arrayBuffer()
+  }
+}
+
+async function loadMoreChecks() {
+  log("[5/6] load-more route handler ...")
+  const first = await get("/api/shorts?locale=fr&page=1")
+  let firstBody = {}
+  try {
+    firstBody = JSON.parse(first.text)
+  } catch {
+    // the checks below fail with a clear message
+  }
+  check("GET /api/shorts page 1: 200", 200, first.status)
+  check(
+    "GET /api/shorts page 1: 24 films, hasMore true, total 30",
+    "24 films, hasMore true, total 30",
+    `${firstBody.shorts?.length ?? "no"} films, hasMore ${firstBody.hasMore}, total ${firstBody.total}`,
+    firstBody.shorts?.length === 24 &&
+      firstBody.hasMore === true &&
+      firstBody.total === 30
+  )
+
+  const page = await get("/api/shorts?locale=fr&page=2")
+  let body = {}
+  try {
+    body = JSON.parse(page.text)
+  } catch {
+    // the checks below fail with a clear message
+  }
+  check("GET /api/shorts page 2: 200", 200, page.status)
+  check(
+    "GET /api/shorts page 2: remaining 6 films, pageSize 24, hasMore false",
+    "6 films, pageSize 24, hasMore false",
+    `${body.shorts?.length ?? "no"} films, pageSize ${body.pageSize}, hasMore ${body.hasMore}`,
+    body.shorts?.length === 6 && body.pageSize === 24 && body.hasMore === false
+  )
+
+  for (const [name, query] of [
+    ["an unknown query key", "locale=fr&page=1&sort=title:asc"],
+    ["a caller-chosen pageSize", "locale=fr&page=1&pageSize=48"],
+    ["page 0", "locale=fr&page=0"],
+    ["page 501", "locale=fr&page=501"],
+    ["page abc", "locale=fr&page=abc"],
+    ["locale de", "locale=de&page=1"],
+    ["a missing locale", "page=1"],
+  ]) {
+    const res = await get(`/api/shorts?${query}`)
+    check(`GET /api/shorts with ${name}: 400`, 400, res.status)
+  }
+
+  // Pages 3 and 4 are valid and have no Data Cache entry yet, so the upstream
+  // failure reaches the handler instead of a cached 200.
+  await setMode("down")
+  const down = await get("/api/shorts?locale=fr&page=3")
+  let downBody = {}
+  try {
+    downBody = JSON.parse(down.text)
+  } catch {
+    // keep empty
+  }
+  check(
+    "GET /api/shorts on an upstream outage: 502, never a 200 with an empty list",
+    "502, no shorts key",
+    `${down.status}, ${downBody.shorts ? "shorts key present" : "no shorts key"}`,
+    down.status === 502 && !downBody.shorts
+  )
+  await setMode("limited")
+  const limited = await get("/api/shorts?locale=fr&page=4")
+  check("GET /api/shorts on a 429 from Strapi: 502", 502, limited.status)
+  await setMode("ok")
+  const back = await get("/api/shorts?locale=fr&page=3")
+  check("GET /api/shorts recovery: 200 on the next request", 200, back.status)
+}
+
 async function setMode(mode) {
   await fetch(`${STUB_URL}/__mode`, {
     method: "POST",
@@ -404,7 +690,7 @@ async function stubHits() {
 /* -------------------------------------------------------------------------- */
 
 async function buildStep() {
-  log("[1/4] next build with Strapi unreachable ...")
+  log("[1/6] next build with Strapi unreachable ...")
   const next = findNextBin()
   const { code, output } = await run(
     next,
@@ -452,11 +738,12 @@ async function buildStep() {
 /* -------------------------------------------------------------------------- */
 
 async function runMatrix() {
-  log("[2/4] starting the stub Strapi and next start ...")
+  log("[2/6] starting the stub Strapi and next start ...")
   start(process.execPath, [resolve(here, "stub-strapi.mjs")], {
     ...process.env,
     STUB_PORT: String(STUB_PORT),
-    STUB_FILMS: "5",
+    // 30 films: the directory has a second page of 6 at 24 per page.
+    STUB_FILMS: "30",
   })
   await waitUntil(
     "stub Strapi",
@@ -511,7 +798,7 @@ async function runMatrix() {
     throw error
   }
 
-  log("[3/4] detail route status matrix ...")
+  log("[3/6] detail route status matrix ...")
 
   for (const locale of ["fr", "ar", "en"]) {
     const res = await get(`/${locale}/shorts/probe-film`)
@@ -613,33 +900,16 @@ async function runMatrix() {
       chrome
     )
     await setMode("ok")
+
+    await directoryChecks(chrome)
   } finally {
     forwarder?.close()
     forwarder?.closeAllConnections()
   }
 
-  log("[4/4] load-more route handler ...")
-  const page = await get("/api/shorts?locale=fr&page=1")
-  let body = {}
-  try {
-    body = JSON.parse(page.text)
-  } catch {
-    // leave empty; the checks below fail with a clear message
-  }
-  check("GET /api/shorts: 200", 200, page.status)
-  check(
-    "GET /api/shorts: films returned, hasMore false",
-    "7 films, hasMore false",
-    `${body.shorts?.length ?? "no"} films, hasMore ${body.hasMore}`,
-    body.shorts?.length === 7 && body.hasMore === false
-  )
-  const strict = await get("/api/shorts?locale=fr&page=1&sort=title:asc")
-  check("GET /api/shorts with an unknown key: 400", 400, strict.status)
-  await setMode("down")
-  const loadMoreDown = await get("/api/shorts?locale=fr&page=2")
-  check("GET /api/shorts on an upstream failure: 502", 502, loadMoreDown.status)
-  await setMode("ok")
+  await loadMoreChecks()
 
+  log("[6/6] request hygiene ...")
   const finalHits = await stubHits()
   check(
     "Strapi rejected no request (no phantom query keys)",
@@ -668,7 +938,7 @@ async function main() {
   try {
     const skipBuild = process.argv.includes("--skip-build")
     if (skipBuild) {
-      log("[1/4] --skip-build: reusing the existing .next (iteration only)")
+      log("[1/6] --skip-build: reusing the existing .next (iteration only)")
     }
     if (skipBuild || (await buildStep())) await runMatrix()
   } catch (error) {
