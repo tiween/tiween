@@ -5,16 +5,16 @@ milestone_name: Shorts Directory
 current_phase: 2
 current_phase_name: Strapi-Backed Shorts Pages
 status: executing
-stopped_at: Completed 02-05-PLAN.md
-last_updated: "2026-11-10T15:05:53.319Z"
+stopped_at: Completed 02-06-PLAN.md
+last_updated: "2026-11-10T15:27:45.175Z"
 last_activity: 2026-11-10
 last_activity_desc: Phase 2 execution started
-state_head: 3e15906ef192c902dd7dc6dab7b2f261e7075907
+state_head: bdbd4b9b3c497214cac01f682cca8dbc85080688
 progress:
   total_phases: 7
   completed_phases: 1
   total_plans: 26
-  completed_plans: 21
+  completed_plans: 22
 ---
 
 # Project State
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-11-10)
 ## Current Position
 
 Phase: 2 (Strapi-Backed Shorts Pages) — EXECUTING
-Plan: 6 of 10
+Plan: 7 of 10
 Status: Ready to execute
 Last activity: 2026-11-10 — Phase 2 execution started
 
@@ -79,6 +79,7 @@ _Updated after each plan completion_
 | Phase 02 P03 | ~20 min                  | 2 tasks | 13 files |
 | Phase 02 P04 | ~35 min                  | 2 tasks | 19 files |
 | Phase 02 P05 | ~40 min                  | 2 tasks | 14 files |
+| Phase 02 P06 | 20 min                   | 2 tasks | 20 files |
 
 ## Accumulated Context
 
@@ -140,6 +141,8 @@ Decisions are logged in PROJECT.md (Locked Decisions and Key Decisions table). R
 - [Phase 02]: 02-04: safeCallbackUrl guards all four auth forms; toRouterPath strips the locale only for next-intl router pushes, full navigations keep the prefixed path
 - [Phase 02]: 02-05: joinNames uses Intl.ListFormat unit/short, not narrow (narrow yields a bare space between Latin names in fr and en); Arabic text on an Arabic page is never tagged lang fr
 - [Phase 02]: 02-05: English-page French fallback is detected by served locale only; a fallbackFields array on the short-film API would make it exact (Phase 3+ ticket)
+- [Phase 02]: 02-06: shorts error.tsx picks copy from navigator.onLine and retries with refresh + reset in one transition; the intro's retry-focus claim is off in error and loading
+- [Phase 02]: 02-06: unprefixed-fr 'English' not-found was next-intl Accept-Language detection (307 to /en); shorts not-found follows the provider locale and the probe sends --accept-lang
 
 ### Pending Todos
 
@@ -175,6 +178,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-11-10T15:05:53.210Z
-Stopped at: Completed 02-05-PLAN.md
+Last session: 2026-11-10T15:27:45.060Z
+Stopped at: Completed 02-06-PLAN.md
 Resume file: None
