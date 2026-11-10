@@ -226,4 +226,9 @@ jobs:
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # The release commit (@semantic-release/git) must not run the local git hooks:
+          # commitlint rejects its body (release-note lines carry long commit URLs, over
+          # the 100-char limit) and pre-commit would re-lint the whole repo. CI has
+          # already run every gate this commit could trip.
+          HUSKY: "0"
         run: yarn release
