@@ -11,19 +11,31 @@
  *      build must succeed (a deploy never depends on Strapi, D-06) and
  *      `/[locale]/shorts/[slug]` must be a dynamic route, not prerendered.
  *   2. Start the stub Strapi (stub-strapi.mjs) and `next start` against it.
- *   3. Status matrix for the detail route (fr, ar, en): known slug 200 with the
- *      film title, unknown slug 404, a slug failing the API pattern 404 with
- *      no upstream request, an outage 500 (never 404), recovery 200 on the
- *      very next request (failed responses are not cached), 429 and a non-JSON
- *      body and a timeout all 500. The stub answers 400 to any phantom query
- *      key, so zero 400s proves the fetchers send only allowlisted keys.
+ *   3. Detail route matrix (fr, ar, en). Known slug: 200 with the film title.
+ *      Unknown slug, a slug failing the API pattern (no Strapi request), an
+ *      outage, a 429, a non-JSON body and a timeout: the RENDERED STATE is
+ *      asserted (D-22): a `noindex` robots meta plus the not-found markup for
+ *      the first two, the error markup (never the not-found one) for the rest.
+ *      Where Chrome is installed the hydrated DOM is read through a tiny
+ *      forwarding proxy; otherwise only the streamed markers are checked.
+ *      The HTTP status is printed as INFO only: the site-wide
+ *      `app/[locale]/loading.tsx` streams the response before the `[slug]`
+ *      layout decides, so these answer 200 until the real 404/500 lands in
+ *      Phase 5 (success criterion 5). Recovery after an outage must show the
+ *      film on the very next request (failed responses are not cached). The
+ *      stub answers 400 to any phantom query key, so zero 400s proves the
+ *      fetchers send only allowlisted keys.
  *   4. The load-more route handler: 200, strict 400, upstream failure 502.
  *
  * Usage: node apps/client/scripts/shorts-probe/probe.mjs [--detail-only]
- * Ports: 3999 (app), 4010 (stub). Ends with `PROBE PASS` or `PROBE FAIL`.
+ *        (--skip-build reuses .next for quick iteration; the real verification
+ *        is always the full run)
+ * Ports: 3999 (app), 4010 (stub), 4020 (forwarding proxy for Chrome). Ends with `PROBE PASS` or `PROBE FAIL`.
  */
 import { spawn } from "node:child_process"
-import { existsSync, readFileSync } from "node:fs"
+import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs"
+import { createServer, request as httpRequest } from "node:http"
+import { tmpdir } from "node:os"
 import { dirname, resolve } from "node:path"
 import process from "node:process"
 import { fileURLToPath } from "node:url"
@@ -34,6 +46,7 @@ const repoRoot = resolve(clientDir, "../..")
 
 const APP_PORT = 3999
 const STUB_PORT = 4010
+const PROXY_PORT = 4020
 // Must be `localhost`, matching `next start -H localhost`: the default-locale
 // (`/shorts/...`) pages are an internal rewrite to `/fr/...`, and Next only
 // treats that rewrite as same-origin when the host names agree.
@@ -42,6 +55,11 @@ const STUB_URL = `http://127.0.0.1:${STUB_PORT}`
 const UNREACHABLE_STRAPI = "http://127.0.0.1:1"
 const BUILD_TIMEOUT_MS = 15 * 60_000
 const READY_TIMEOUT_MS = 90_000
+const CHROME_CANDIDATES = [
+  "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+  "/usr/bin/google-chrome",
+  "/usr/bin/chromium",
+]
 
 /** Placeholder values: nothing here is a secret and no secret file is read. */
 const probeEnv = {
@@ -83,8 +101,13 @@ for (const signal of ["SIGINT", "SIGTERM"]) {
 }
 process.on("exit", killAll)
 
-function record(name, expected, actual, pass) {
-  rows.push({ name, expected, actual, pass })
+function record(name, expected, actual, pass, info = false) {
+  rows.push({ name, expected, actual, pass, info })
+}
+
+/** A line that never fails the probe. */
+function info(name, text) {
+  rows.push({ name, expected: "", actual: text, pass: true, info: true })
 }
 
 function check(name, expected, actual, pass = expected === actual) {
@@ -177,6 +200,150 @@ async function get(path) {
   throw new Error(`too many redirects for ${path}`)
 }
 
+const NOINDEX = /<meta name="robots" content="noindex/
+
+/**
+ * What the streamed HTML says about the page state. The not-found / error
+ * screens are client-rendered inside the site-wide Suspense boundary, so the
+ * server stream carries a marker, not the final markup: Next flags a
+ * not-found with `NEXT_HTTP_ERROR_FALLBACK;404` and an error by telling the
+ * client to render the boundary (`$RX(`). A real 404 / 500 status (Phase 5)
+ * counts too.
+ */
+function streamState({ status, text }) {
+  const notFound =
+    text.includes("NEXT_HTTP_ERROR_FALLBACK;404") || status === 404
+  const error = (text.includes("$RX(") && !notFound) || status === 500
+  return { noindex: NOINDEX.test(text), notFound, error }
+}
+
+function expectState(name, res, kind) {
+  const state = streamState(res)
+  const pass =
+    state.noindex &&
+    (kind === "not-found"
+      ? state.notFound && !state.error
+      : state.error && !state.notFound)
+  const found = [
+    state.noindex ? "noindex" : "no noindex",
+    state.notFound ? "not-found" : null,
+    state.error ? "error" : null,
+  ]
+    .filter(Boolean)
+    .join(" + ")
+  record(`${name}: ${kind} state, noindex`, `${kind} + noindex`, found, pass)
+  info(
+    `${name}: HTTP status`,
+    `status ${res.status}, expected 200 until Phase 5 (D-22)`
+  )
+}
+
+function findChrome() {
+  return CHROME_CANDIDATES.find((candidate) => existsSync(candidate))
+}
+
+/**
+ * Chrome cannot send `x-forwarded-proto: https`, which the app needs to skip
+ * its http-to-https redirect, so it goes through this forwarder.
+ */
+function startForwarder() {
+  const server = createServer((req, res) => {
+    const upstream = httpRequest(
+      {
+        host: "localhost",
+        port: APP_PORT,
+        method: req.method,
+        path: req.url,
+        headers: {
+          ...req.headers,
+          host: `localhost:${APP_PORT}`,
+          "x-forwarded-proto": "https",
+        },
+      },
+      (upstreamRes) => {
+        res.writeHead(upstreamRes.statusCode ?? 502, upstreamRes.headers)
+        upstreamRes.pipe(res)
+      }
+    )
+    upstream.on("error", () => {
+      res.writeHead(502)
+      res.end()
+    })
+    req.pipe(upstream)
+  })
+  return new Promise((done) =>
+    server.listen(PROXY_PORT, "127.0.0.1", () => done(server))
+  )
+}
+
+const messages = Object.fromEntries(
+  ["fr", "ar", "en"].map((locale) => [
+    locale,
+    JSON.parse(
+      readFileSync(resolve(clientDir, `locales/${locale}.json`), "utf8")
+    ),
+  ])
+)
+
+/**
+ * The hydrated DOM of a shorts URL, read with headless Chrome: the not-found
+ * copy (`errors.notFound.title`) or the error copy
+ * (`errors.global.somethingWentWrong`) in the page locale, never both.
+ * `role="alert"` is not asserted yet: the shorts error boundary that adds it
+ * is Plan 06; today the generic `[locale]/error.tsx` renders.
+ */
+async function expectHydrated(name, locale, slug, kind, chrome) {
+  if (!chrome) {
+    info(`${name}: hydrated DOM`, "skipped, Chrome not installed")
+    return
+  }
+  const path = locale === "fr" ? `/shorts/${slug}` : `/${locale}/shorts/${slug}`
+  const profile = mkdtempSync(resolve(tmpdir(), "shorts-probe-chrome-"))
+  const { output } = await run(
+    chrome,
+    [
+      "--headless=new",
+      "--disable-gpu",
+      "--no-first-run",
+      "--no-default-browser-check",
+      `--user-data-dir=${profile}`,
+      "--virtual-time-budget=20000",
+      "--dump-dom",
+      `http://127.0.0.1:${PROXY_PORT}${path}`,
+    ],
+    process.env,
+    90_000
+  )
+  // Visible text only: the flight payload `<script>`s carry every message of
+  // the catalog, so scanning the raw DOM would find both copies everywhere.
+  const visible = output
+    .replace(/<script[\s\S]*?<\/script>/g, " ")
+    .replace(/<style[\s\S]*?<\/style>/g, " ")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&#x27;|&#39;/g, "'")
+  // Any locale's copy counts: Next renders the default-locale (fr) not-found
+  // screen with the fallback locale's strings, which is not what this probe
+  // is about.
+  const copies = (pick) =>
+    Object.values(messages)
+      .map(pick)
+      .filter((copy) => visible.includes(copy))
+  const notFoundCopies = copies((m) => m.errors.notFound.title)
+  const errorCopies = copies((m) => m.errors.global.somethingWentWrong)
+  const hasNotFound = notFoundCopies.length > 0
+  const hasError = errorCopies.length > 0
+  const pass =
+    kind === "not-found" ? hasNotFound && !hasError : hasError && !hasNotFound
+  record(
+    `${name}: hydrated DOM shows the ${kind} copy`,
+    `${kind} copy only`,
+    [hasNotFound ? "not-found copy" : null, hasError ? "error copy" : null]
+      .filter(Boolean)
+      .join(" + ") || "neither copy",
+    pass
+  )
+}
+
 async function setMode(mode) {
   await fetch(`${STUB_URL}/__mode`, {
     method: "POST",
@@ -261,6 +428,15 @@ async function runMatrix() {
     10_000
   )
 
+  // The Data Cache persists in `.next/cache/fetch-cache` across `next start`
+  // runs, and a stale entry is served when revalidation fails. Entries left by
+  // an earlier probe run would hide an outage behind a stale film, so start
+  // from an empty cache.
+  rmSync(resolve(clientDir, ".next/cache/fetch-cache"), {
+    recursive: true,
+    force: true,
+  })
+
   const app = start(
     findNextBin(),
     ["start", "-p", String(APP_PORT), "-H", "localhost"],
@@ -310,47 +486,94 @@ async function runMatrix() {
   const sparse = await get("/ar/shorts/probe-sparse")
   check("sparse film, ar: 200", 200, sparse.status)
 
-  for (const locale of ["fr", "ar", "en"]) {
-    const res = await get(`/${locale}/shorts/no-such-film`)
-    check(`unknown slug, ${locale}: 404`, 404, res.status)
+  const chrome = findChrome()
+  const forwarder = chrome ? await startForwarder() : null
+  try {
+    for (const locale of ["fr", "ar", "en"]) {
+      const name = `unknown slug, ${locale}`
+      const res = await get(`/${locale}/shorts/no-such-film`)
+      expectState(name, res, "not-found")
+      await expectHydrated(name, locale, "no-such-film", "not-found", chrome)
+    }
+
+    const bad = await get("/fr/shorts/bad%20slug")
+    expectState("pattern-failing slug", bad, "not-found")
+    const afterBad = await stubHits()
+    const badHits = Object.keys(afterBad.hits).filter((path) =>
+      path.includes("bad")
+    )
+    check(
+      "pattern-failing slug: no request reached Strapi",
+      "0 requests",
+      `${badHits.length} requests`,
+      badHits.length === 0
+    )
+    await expectHydrated(
+      "pattern-failing slug",
+      "fr",
+      "bad%20slug",
+      "not-found",
+      chrome
+    )
+
+    await setMode("down")
+    const down = await get("/fr/shorts/probe-film-002")
+    expectState("outage on a fresh slug", down, "error")
+    await expectHydrated(
+      "outage on a fresh slug",
+      "ar",
+      "probe-film-002",
+      "error",
+      chrome
+    )
+    await setMode("ok")
+    const recovered = await get("/fr/shorts/probe-film-002")
+    check(
+      "recovery: the film renders on the very next request (failure not cached)",
+      'title "Probe Film 2 [fr]"',
+      recovered.text.includes("Probe Film 2 [fr]")
+        ? "title found"
+        : "title missing",
+      recovered.status === 200 && recovered.text.includes("Probe Film 2 [fr]")
+    )
+
+    await setMode("limited")
+    const limited = await get("/fr/shorts/probe-film-003")
+    expectState("429 from the rate limiter", limited, "error")
+    await expectHydrated(
+      "429 from the rate limiter",
+      "en",
+      "probe-film-003",
+      "error",
+      chrome
+    )
+
+    await setMode("badjson")
+    const badJson = await get("/fr/shorts/probe-film-004")
+    expectState("non-JSON 200 body", badJson, "error")
+    await expectHydrated(
+      "non-JSON 200 body",
+      "fr",
+      "probe-film-004",
+      "error",
+      chrome
+    )
+
+    await setMode("slow")
+    const slow = await get("/fr/shorts/probe-film-005")
+    expectState("upstream timeout", slow, "error")
+    await expectHydrated(
+      "upstream timeout",
+      "ar",
+      "probe-film-005",
+      "error",
+      chrome
+    )
+    await setMode("ok")
+  } finally {
+    forwarder?.close()
+    forwarder?.closeAllConnections()
   }
-
-  const bad = await get("/fr/shorts/bad%20slug")
-  check("pattern-failing slug: 404", 404, bad.status)
-  const afterBad = await stubHits()
-  const badHits = Object.keys(afterBad.hits).filter((path) =>
-    path.includes("bad")
-  )
-  check(
-    "pattern-failing slug: no request reached Strapi",
-    "0 requests",
-    `${badHits.length} requests`,
-    badHits.length === 0
-  )
-
-  await setMode("down")
-  const down = await get("/fr/shorts/probe-film-002")
-  check("outage on a fresh slug: 500, never 404", 500, down.status)
-  await setMode("ok")
-  const recovered = await get("/fr/shorts/probe-film-002")
-  check(
-    "recovery: 200 on the very next request (failure not cached)",
-    200,
-    recovered.status
-  )
-
-  await setMode("limited")
-  const limited = await get("/fr/shorts/probe-film-003")
-  check("429 from the rate limiter: 500", 500, limited.status)
-
-  await setMode("badjson")
-  const badJson = await get("/fr/shorts/probe-film-004")
-  check("non-JSON 200 body: 500", 500, badJson.status)
-
-  await setMode("slow")
-  const slow = await get("/fr/shorts/probe-film-005")
-  check("upstream timeout: 500", 500, slow.status)
-  await setMode("ok")
 
   log("[4/4] load-more route handler ...")
   const page = await get("/api/shorts?locale=fr&page=1")
@@ -389,7 +612,9 @@ function printTable() {
   log()
   for (const row of rows) {
     log(
-      `${row.pass ? "PASS" : "FAIL"}  ${row.name}  (expected ${row.expected}, got ${row.actual})`
+      row.info
+        ? `INFO  ${row.name}  (${row.actual})`
+        : `${row.pass ? "PASS" : "FAIL"}  ${row.name}  (expected ${row.expected}, got ${row.actual})`
     )
   }
   log()
@@ -398,7 +623,11 @@ function printTable() {
 async function main() {
   let failed = 0
   try {
-    if (await buildStep()) await runMatrix()
+    const skipBuild = process.argv.includes("--skip-build")
+    if (skipBuild) {
+      log("[1/4] --skip-build: reusing the existing .next (iteration only)")
+    }
+    if (skipBuild || (await buildStep())) await runMatrix()
   } catch (error) {
     record(
       "probe ran to completion",
@@ -412,11 +641,12 @@ async function main() {
   await sleep(1000)
 
   printTable()
-  failed = rows.filter((row) => !row.pass).length
+  const counted = rows.filter((row) => !row.info)
+  failed = counted.filter((row) => !row.pass).length
   log(
     failed === 0
-      ? `PROBE PASS (${rows.length} checks)`
-      : `PROBE FAIL (${failed} of ${rows.length} checks failed)`
+      ? `PROBE PASS (${counted.length} checks)`
+      : `PROBE FAIL (${failed} of ${counted.length} checks failed)`
   )
   process.exitCode = failed === 0 ? 0 : 1
 }
