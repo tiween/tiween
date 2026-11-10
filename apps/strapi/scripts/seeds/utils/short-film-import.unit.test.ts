@@ -321,38 +321,35 @@ describe("resolveArabicTitle", () => {
 })
 
 describe("buildLocalizedData", () => {
-  it("returns exactly title, synopsis and poster for ar", () => {
-    const data = buildLocalizedData(sampleTwo(), "ar", 11)
-    expect(Object.keys(data).sort()).toEqual(["poster", "synopsis", "title"])
+  it("returns exactly title and synopsis for ar, never a poster (WR-02)", () => {
+    const data = buildLocalizedData(sampleTwo(), "ar")
+    expect(Object.keys(data).sort()).toEqual(["synopsis", "title"])
     expect(data).toEqual({
       title: "مثال ثان",
       synopsis: "فيلم قصير تجريبي بدون ملصق.",
-      poster: 11,
     })
   })
 
   it("serves the Arabic originalTitle as the ar title", () => {
-    expect(buildLocalizedData(sampleOne(), "ar", 11).title).toBe("مثال أول")
+    expect(buildLocalizedData(sampleOne(), "ar").title).toBe("مثال أول")
   })
 
-  it("serves title.en and synopsis.en for en, replicating the poster id", () => {
-    expect(buildLocalizedData(sampleOne(), "en", 11)).toEqual({
+  it("serves title.en and synopsis.en for en", () => {
+    expect(buildLocalizedData(sampleOne(), "en")).toEqual({
       title: "First sample",
       synopsis: "A sample short film used to test the import.",
-      poster: 11,
     })
   })
 
   it("leaves a missing translation undefined instead of blanking it", () => {
-    const data = buildLocalizedData(sampleOne(), "ar", undefined)
+    const data = buildLocalizedData(sampleOne(), "ar")
     expect(data.synopsis).toBeUndefined()
-    expect(data.poster).toBeUndefined()
   })
 
   it("strips HTML from a translated synopsis", () => {
     const entry = sampleTwo()
     entry.synopsis.en = "<p>Hi <b>there</b></p><script>alert(1)</script>"
-    expect(buildLocalizedData(entry, "en", 1).synopsis).toBe("Hi there")
+    expect(buildLocalizedData(entry, "en").synopsis).toBe("Hi there")
   })
 })
 

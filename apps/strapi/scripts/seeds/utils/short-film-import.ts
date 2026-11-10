@@ -446,16 +446,15 @@ export function resolveArabicTitle(
 }
 
 /**
- * The localized fields of one translation row: exactly `title`, `synopsis` and
- * `poster` (the poster is localized, so its id is replicated into every row).
+ * The localized text fields of one translation row: exactly `title` and
+ * `synopsis`. The poster is localized too, but it is deliberately NOT copied
+ * into translation rows: a copy goes stale when the default poster is replaced
+ * or removed, whereas an empty translation poster makes the public API serve
+ * the default-language poster at read time (review WR-02).
  * A missing translation stays `undefined`, which the Document Service leaves
  * untouched, so a re-import never blanks text an editor reviewed by hand.
  */
-export function buildLocalizedData(
-  entry: ShortFilmSeedEntry,
-  locale: string,
-  posterId: number | undefined
-) {
+export function buildLocalizedData(entry: ShortFilmSeedEntry, locale: string) {
   const title =
     locale === "ar"
       ? resolveArabicTitle(entry)
@@ -467,7 +466,6 @@ export function buildLocalizedData(
   return {
     title,
     synopsis: synopsis === undefined ? undefined : stripHtml(synopsis),
-    poster: posterId,
   }
 }
 

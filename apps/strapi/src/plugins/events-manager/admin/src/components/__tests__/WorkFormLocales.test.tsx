@@ -442,17 +442,18 @@ describe("WorkFormPage — locale tabs", () => {
     expect(put.mock.calls.every(([u]) => u === WORK_URL)).toBe(true)
   })
 
-  it("prefills the poster from the default language and shows its title as a hint only", async () => {
+  it("starts a new translation with no poster, shows the default title as a hint only, and does not copy the default poster", async () => {
     serve({ fr: frWork() })
     await renderEdit()
 
     await openTab(/Arabic/)
 
     await waitFor(() =>
-      expect(screen.getByAltText("fr-poster.jpg")).toBeInTheDocument()
+      expect(screen.getByText(/Le Silence/)).toBeInTheDocument()
     )
+    // WR-02: the default poster is not copied into the translation form.
+    expect(screen.queryByAltText("fr-poster.jpg")).not.toBeInTheDocument()
     expect(titleInput()).toHaveValue("")
-    expect(screen.getByText(/Le Silence/)).toBeInTheDocument()
     expect(screen.getByRole("textbox", { name: "Synopsis" })).toHaveValue("")
   })
 
@@ -461,7 +462,7 @@ describe("WorkFormPage — locale tabs", () => {
     await renderEdit()
     await openTab(/English/)
     await waitFor(() =>
-      expect(screen.getByAltText("fr-poster.jpg")).toBeInTheDocument()
+      expect(screen.getByText(/Le Silence/)).toBeInTheDocument()
     )
 
     await act(async () => {
@@ -490,7 +491,7 @@ describe("WorkFormPage — locale tabs", () => {
     await renderEdit()
     await openTab(/Arabic/)
     await waitFor(() =>
-      expect(screen.getByAltText("fr-poster.jpg")).toBeInTheDocument()
+      expect(screen.getByText(/Le Silence/)).toBeInTheDocument()
     )
 
     fireEvent.change(titleInput(), { target: { value: "الصمت" } })
@@ -502,7 +503,8 @@ describe("WorkFormPage — locale tabs", () => {
     expect(put.mock.calls[0][1]).toEqual({
       title: "الصمت",
       synopsis: null,
-      poster: 5,
+      // WR-02: no poster of its own, so the public API serves the default one.
+      poster: null,
     })
     await waitFor(() => expect(tab(/Arabic/)).toHaveTextContent("Draft"))
     expect(lastNotification().type).toBe("success")
@@ -513,7 +515,7 @@ describe("WorkFormPage — locale tabs", () => {
     await renderEdit()
     await openTab(/Arabic/)
     await waitFor(() =>
-      expect(screen.getByAltText("fr-poster.jpg")).toBeInTheDocument()
+      expect(screen.getByText(/Le Silence/)).toBeInTheDocument()
     )
 
     fireEvent.change(titleInput(), { target: { value: "الصمت" } })
@@ -561,7 +563,7 @@ describe("WorkFormPage — locale tabs", () => {
     await renderEdit()
     await openTab(/Arabic/)
     await waitFor(() =>
-      expect(screen.getByAltText("fr-poster.jpg")).toBeInTheDocument()
+      expect(screen.getByText(/Le Silence/)).toBeInTheDocument()
     )
 
     fireEvent.change(titleInput(), { target: { value: "الصمت" } })
@@ -613,7 +615,7 @@ describe("WorkFormPage — locale tabs", () => {
     await openTab(/English/)
 
     await waitFor(() =>
-      expect(screen.getByAltText("fr-poster.jpg")).toBeInTheDocument()
+      expect(screen.getByText(/Le Silence/)).toBeInTheDocument()
     )
     expect(screen.queryByTestId("publish-bar")).not.toBeInTheDocument()
   })

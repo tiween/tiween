@@ -282,7 +282,7 @@ describe("importShortFilms: run 1 (first import)", () => {
     )
   })
 
-  it("serves the Arabic originalTitle as the ar title and replicates the poster id", async () => {
+  it("serves the Arabic originalTitle as the ar title and leaves the translation posters to the default row", async () => {
     const ar = await publicApi().findShortFilm("sample-one", "ar")
     expect(ar.title).toBe("مثال أول")
     expect(ar.locale).toBe("ar")
@@ -301,7 +301,11 @@ describe("importShortFilms: run 1 (first import)", () => {
       })
     const [fr, arRow] = await Promise.all([read("fr"), read("ar")])
     expect(fr.poster.id).toEqual(expect.any(Number))
-    expect(arRow.poster.id).toBe(fr.poster.id)
+    // WR-02: no copy of the default poster, so it cannot go stale...
+    expect(arRow.poster ?? null).toBeNull()
+    // ...and the public API still serves the default-language poster.
+    expect(ar.poster?.url).toBeTruthy()
+    expect(ar.poster?.url).toBe(fr.poster.url)
   })
 
   it("publishes a posterless film under the D-20 bypass and lists it", async () => {
@@ -510,6 +514,62 @@ describe("importShortFilms: editor-set placement survives a re-import (WR-01)", 
       locale: "fr",
       data: { featured: false, featuredRank: null },
     })
+  })
+})
+
+describe("importShortFilms: translation posters follow the default poster (WR-02)", () => {
+  it("clears a stale copy of the default poster, keeps a deliberate one, and the public API serves the default poster", async () => {
+    const docs = () => strapi.documents(CW as never) as any
+    const read = (documentId: string, locale: string, status: string) =>
+      docs().findOne({
+        documentId,
+        locale,
+        status,
+        populate: { poster: true, backdrop: true },
+      })
+
+    const fr = await docs().findFirst({
+      filters: { slug: { $eq: "sample-one" } },
+      locale: "fr",
+      status: "draft",
+      populate: { poster: true, backdrop: true },
+    })
+    const { documentId } = fr
+    const defaultPosterId: number = fr.poster.id
+    const otherUploadId: number = fr.backdrop.id
+    expect(otherUploadId).not.toBe(defaultPosterId)
+
+    // What earlier runs and the admin prefill left behind: a copy of the
+    // default poster in ar, and a deliberate, different poster in en.
+    await docs().update({
+      documentId,
+      locale: "ar",
+      data: { poster: defaultPosterId },
+    })
+    await docs().update({
+      documentId,
+      locale: "en",
+      data: { poster: otherUploadId },
+    })
+
+    const report = await importShortFilms(strapi, current, deps())
+
+    expect(report.failed).toEqual([])
+    expect(report.updated).toContain("sample-one")
+    expect((await read(documentId, "ar", "draft")).poster ?? null).toBeNull()
+    expect(
+      (await read(documentId, "ar", "published")).poster ?? null
+    ).toBeNull()
+    expect((await read(documentId, "en", "draft")).poster.id).toBe(
+      otherUploadId
+    )
+
+    const ar = await publicApi().findShortFilm("sample-one", "ar")
+    const frPublished = await read(documentId, "fr", "published")
+    expect(ar.poster.url).toBe(frPublished.poster.url)
+
+    // Put the deliberate override back to nothing for the later stories.
+    await docs().update({ documentId, locale: "en", data: { poster: null } })
   })
 })
 

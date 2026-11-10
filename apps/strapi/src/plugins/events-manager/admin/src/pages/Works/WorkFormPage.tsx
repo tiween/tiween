@@ -367,7 +367,7 @@ export function WorkFormPage() {
             key={`${activeLocale}-${
               translation.work ? translation.work.updatedAt ?? "row" : "new"
             }`}
-            initialValues={toLocalizedValues(translation.work, work)}
+            initialValues={toLocalizedValues(translation.work)}
             defaultTitle={work?.title ?? ""}
             isNewTranslation={!translation.work}
             isSubmitting={isSubmitting}

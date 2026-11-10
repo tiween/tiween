@@ -41,13 +41,14 @@ export type LocalizedFormValues = z.infer<typeof localizedSchema>
 
 /**
  * Form values for a translation tab. An existing row supplies its own values;
- * a missing row starts empty except for the poster, which is prefilled from the
- * default language (the poster id is replicated across languages and the public
- * API still falls back to the default-language poster at read time).
+ * a missing row starts empty. The poster is NOT prefilled from the default
+ * language: a translation poster is a deliberate per-language override, and an
+ * empty one makes the public API serve the default-language poster at read
+ * time. Copying the id into the row would leave it stale the moment the default
+ * poster is replaced or removed (review WR-02).
  */
 export function toLocalizedValues(
-  row: CreativeWork | null,
-  defaultRow: CreativeWork | null
+  row: CreativeWork | null
 ): LocalizedFormValues {
   if (row) {
     return {
@@ -56,7 +57,7 @@ export function toLocalizedValues(
       poster: row.poster ?? null,
     }
   }
-  return { title: "", synopsis: "", poster: defaultRow?.poster ?? null }
+  return { title: "", synopsis: "", poster: null }
 }
 
 /** The request body of a translation save: exactly the localized fields. */
@@ -146,11 +147,11 @@ export function LocalizedFieldsForm({
                 {isNewTranslation
                   ? t(
                       "localized.newHint",
-                      "This language has no translation yet. Saving creates it, starting from the default-language poster."
+                      "This language has no translation yet. Saving creates it. Leave the poster empty to use the default-language poster."
                     )
                   : t(
                       "localized.hint",
-                      "Only the title, synopsis and poster change per language. Everything else is edited on the default tab."
+                      "Only the title, synopsis and poster change per language. An empty poster uses the default-language poster. Everything else is edited on the default tab."
                     )}
               </Typography>
             </Box>

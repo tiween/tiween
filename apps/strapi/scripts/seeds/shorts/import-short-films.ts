@@ -423,7 +423,8 @@ const COMPARE_POPULATE = {
 
 type LocaleWrite = {
   locale: string
-  data: ReturnType<typeof buildLocalizedData>
+  /** `poster: null` only to clear a copy of the default poster (WR-02). */
+  data: ReturnType<typeof buildLocalizedData> & { poster?: null }
 }
 
 async function importFilm(
@@ -449,15 +450,22 @@ async function importFilm(
 
   const data = buildShortFilmData(entry, { ...refs, posterId, backdropId })
 
-  // The poster is localized: replicate the default row's poster id into every
-  // translation row, keeping a hand-attached poster when the file names none.
-  const replicatedPoster: number | undefined = posterId ?? existing?.poster?.id
+  // The poster is localized, but it is not copied into translation rows: a
+  // translation without its own poster is served the default-language one at
+  // read time, so a replaced or removed default poster can never leave a stale
+  // copy behind (review WR-02).
   const translations: LocaleWrite[] = ctx.otherLocales
-    .map((locale) => ({
-      locale,
-      data: buildLocalizedData(entry, locale, replicatedPoster),
-    }))
+    .map((locale) => ({ locale, data: buildLocalizedData(entry, locale) }))
     .filter(({ data: localized }) => localized.title !== undefined)
+
+  // Rows written by earlier runs carry a copy of the default poster. A poster
+  // equal to the one the default row had (or is about to get) is such a copy,
+  // not a deliberate override, so clear it once.
+  const defaultPosterIds = new Set<number>(
+    [existing?.poster?.id, posterId].filter(
+      (id): id is number => typeof id === "number"
+    )
+  )
 
   /* ---- decide what has to be written ---------------------------------- */
   let writeDefault = !existing
@@ -474,8 +482,14 @@ async function importFilm(
         status: "draft",
         populate: { poster: true },
       })
-      if (!row || payloadDiffers(row, translation.data)) {
-        writeLocales.push(translation)
+      const inheritedCopy =
+        typeof row?.poster?.id === "number" &&
+        defaultPosterIds.has(row.poster.id)
+      const next: LocaleWrite = inheritedCopy
+        ? { ...translation, data: { ...translation.data, poster: null } }
+        : translation
+      if (!row || payloadDiffers(row, next.data)) {
+        writeLocales.push(next)
       }
     }
     const published = await works.findOne({
