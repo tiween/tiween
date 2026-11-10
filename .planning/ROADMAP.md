@@ -74,7 +74,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 3. The detail page shows the "Equipe artistique" crew grid and the access-type sub-label under each streaming platform when the data exists, and omits those sections when it does not.
 4. A signed-in user can tap the heart on a short film (on its detail page and on its directory card, as an independent target from the card link) to add or remove it from the real watchlist; the state survives navigation and a second device and the film appears on the watchlist page; a signed-out user is invited to sign in rather than seeing a toggle that forgets.
 5. When Strapi is unreachable the shorts pages show an error state with retry (not an empty directory) and recover when Strapi returns; no production code path imports `mock-shorts.ts`.
-   **Plans:** 10/10 plans executed
+   **Plans:** 10/16 plans executed (02-11 to 02-16 are gap closure)
    **UI hint**: yes
 
    Plans:
@@ -89,6 +89,12 @@ Decimal phases appear between their surrounding integers in numeric order.
    - [x] 02-08-PLAN.md — Directory on the Strapi list: ShortsDirectory rewrite, /shorts page, delete ShortsShowcase and ShortsHero, mock-isolation guard
    - [x] 02-09-PLAN.md — Real hearts on card and detail, relocated duration, card fallback tagging
    - [x] 02-10-PLAN.md — Full production probe, all quality gates, recorded manual pass
+   - [ ] 02-11-PLAN.md — Gaps G-02-2, G-02-6: award name wraps at 195 CSS px, card heart at a 6px inset; probe checks overflow and ring geometry in a real browser
+   - [ ] 02-12-PLAN.md — Gap G-02-5 (Strapi plugins): venue registration takes the request locale, ticket email uses the order locale, schedule-change email is fr
+   - [ ] 02-13-PLAN.md — Gap G-02-5 (client): sign-in from /ar or /en keeps the locale (regression test), post-sign-in language switch deleted, JWT/session cleaned
+   - [ ] 02-14-PLAN.md — Gap G-02-5 (client): profile without a language field, reset and email-change requests carry the page locale
+   - [ ] 02-15-PLAN.md — Gap G-02-5 (client): venue registration sends the page locale at the top level
+   - [ ] 02-16-PLAN.md — Gap G-02-5 (Strapi): user attribute removed (boot-proven), auth emails use the request locale, repo-wide check and full gates
 
 ### Phase 02.1: Frontend/Backend Decoupling (INSERTED)
 
