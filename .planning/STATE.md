@@ -5,16 +5,16 @@ milestone_name: Shorts Directory
 current_phase: 2
 current_phase_name: Strapi-Backed Shorts Pages
 status: executing
-stopped_at: Completed 02-07-PLAN.md
-last_updated: "2026-11-10T15:43:21.668Z"
+stopped_at: Completed 02-08-PLAN.md
+last_updated: "2026-11-10T16:00:19.059Z"
 last_activity: 2026-11-10
 last_activity_desc: Phase 2 execution started
-state_head: 63b21ccf75ad5fd6282db6b8ba45e3dc44fe6dd0
+state_head: 300da4b5ae3343431a191059a58daefac3f6306b
 progress:
   total_phases: 7
   completed_phases: 1
   total_plans: 26
-  completed_plans: 23
+  completed_plans: 24
 ---
 
 # Project State
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-11-10)
 ## Current Position
 
 Phase: 2 (Strapi-Backed Shorts Pages) — EXECUTING
-Plan: 8 of 10
+Plan: 9 of 10
 Status: Ready to execute
 Last activity: 2026-11-10 — Phase 2 execution started
 
@@ -81,6 +81,7 @@ _Updated after each plan completion_
 | Phase 02 P05 | ~40 min                  | 2 tasks | 14 files |
 | Phase 02 P06 | 20 min                   | 2 tasks | 20 files |
 | Phase 02 P07 | 35 min                   | 2 tasks | 11 files |
+| Phase 02 P08 | 30 min                   | 2 tasks | 16 files |
 
 ## Accumulated Context
 
@@ -146,6 +147,8 @@ Decisions are logged in PROJECT.md (Locked Decisions and Key Decisions table). R
 - [Phase 02]: 02-06: unprefixed-fr 'English' not-found was next-intl Accept-Language detection (307 to /en); shorts not-found follows the provider locale and the probe sends --accept-lang
 - [Phase 02]: 02-07: bare populate of the watchlist creativeWork leaked every scalar (synopsis, country, rank); getUserWatchlist now uses a fields allowlist (title, slug, type, duration, releaseYear), proven on a booted Strapi
 - [Phase 02]: 02-07: a watchlist short-film entry without a slug renders unlinked; the slug is trimmed and encoded into /shorts/<slug>; the shorts badge is the singular shorts.category
+- [Phase 02]: 02-08: Load more moves focus to the first appended card only when the button fetched the last page and unmounted; an empty 200 page ends the list (exhausted) while 502/malformed stay failures
+- [Phase 02]: 02-08: /shorts page awaits connection() first and never catches the fetch error; ShortsShowcase and ShortsHero deleted, mock-isolation guard added (ShortsDirectory wins the PROJECT.md open decision)
 
 ### Pending Todos
 
@@ -181,6 +184,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-11-10T15:43:21.554Z
-Stopped at: Completed 02-07-PLAN.md
+Last session: 2026-11-10T16:00:18.952Z
+Stopped at: Completed 02-08-PLAN.md
 Resume file: None
