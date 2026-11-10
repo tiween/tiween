@@ -528,3 +528,43 @@ test("WR-03: a blank streaming-link row hidden by switching to Film does not blo
   const saved = await admin.findBySlug<{ documentId: string }>(WORK_UID, slug)
   expect(saved, "the work was created").not.toBeNull()
 })
+
+test("a blank streaming-link row on a short film shows a translated field error", async ({
+  page,
+}) => {
+  const slug = `e2e-blank-row-${RUN}`
+  const cmWrites: Request[] = []
+  page.on("request", (request) => {
+    if (
+      ["POST", "PUT"].includes(request.method()) &&
+      new URL(request.url()).pathname.startsWith(CM_WORK)
+    ) {
+      cmWrites.push(request)
+    }
+  })
+
+  await page.goto(`${WORKS_PATH}/new`)
+  await expect(page.getByRole("heading", { name: "New work" })).toBeVisible()
+  await page.getByRole("button", { name: "Short film", exact: true }).click()
+  await page
+    .getByRole("textbox", { name: "Title", exact: true })
+    .fill(`E2E blank row ${RUN}`)
+  await page.getByRole("textbox", { name: "Slug", exact: true }).fill(slug)
+
+  const watch = section(page, "Where to watch")
+  await watch.getByRole("button", { name: "Add a streaming link" }).click()
+  await expect(
+    watch.getByRole("textbox", { name: "Watch URL", exact: true })
+  ).toHaveValue("")
+
+  await page.getByRole("button", { name: "Save", exact: true }).click()
+
+  // The field says what is wrong (in words, never the INVALID_HTTPS_URL code)
+  // and a notification covers whatever is off-screen.
+  await expect(
+    section(page, "Where to watch").getByText("Enter a valid https:// link")
+  ).toBeVisible()
+  await expect(toast(page, "Some fields need attention")).toBeVisible()
+  await expect(page.getByText("INVALID_HTTPS_URL")).toHaveCount(0)
+  expect(cmWrites, "no content-manager write is sent").toHaveLength(0)
+})

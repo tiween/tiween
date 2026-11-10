@@ -70,5 +70,8 @@
   "events-manager.planning.error.date.required": "La date est requise",
   "events-manager.planning.error.date.past": "Impossible de programmer une séance dans le passé",
   "events-manager.planning.error.time.invalid": "Heure invalide (HH:MM)",
-  "events-manager.planning.error.price.invalid": "Prix invalide"
+  "events-manager.planning.error.price.invalid": "Prix invalide",
+  "events-manager.catalog.streaming.urlInvalid": "Saisissez un lien https:// valide",
+  "events-manager.catalog.workForm.invalid": "Certains champs doivent être corrigés",
+  "events-manager.catalog.workForm.loadFailed": "Impossible de charger cette œuvre. Revenez à la liste et ouvrez-la de nouveau."
 }

@@ -70,5 +70,8 @@
   "events-manager.planning.error.date.required": "Date is required",
   "events-manager.planning.error.date.past": "Cannot schedule a showing in the past",
   "events-manager.planning.error.time.invalid": "Invalid time (HH:MM)",
-  "events-manager.planning.error.price.invalid": "Invalid price"
+  "events-manager.planning.error.price.invalid": "Invalid price",
+  "events-manager.catalog.streaming.urlInvalid": "Enter a valid https:// link",
+  "events-manager.catalog.workForm.invalid": "Some fields need attention",
+  "events-manager.catalog.workForm.loadFailed": "This work could not be loaded. Go back to the list and open it again."
 }

@@ -13,6 +13,7 @@
  */
 import React from "react"
 import { DesignSystemProvider, lightTheme } from "@strapi/design-system"
+import { toggleNotification } from "@strapi/strapi/admin"
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react"
 import { IntlProvider } from "react-intl"
 import { MemoryRouter, Route, Routes } from "react-router-dom"
@@ -177,6 +178,56 @@ describe("WorkForm — streaming links (Task 1)", () => {
     await save()
 
     expect(post).not.toHaveBeenCalled()
+    expect(
+      await screen.findByText("Enter a valid https:// link")
+    ).toBeInTheDocument()
+    expect(screen.queryByText("INVALID_HTTPS_URL")).toBeNull()
+    expect(toggleNotification).toHaveBeenCalledWith({
+      type: "danger",
+      message: "Some fields need attention",
+    })
+  })
+
+  it("explains a blank streaming url on a short film and sends nothing", async () => {
+    await renderForm()
+
+    typeTitle("Le Silence")
+    chooseType("Short film")
+    fireEvent.click(
+      screen.getByRole("button", { name: "Add a streaming link" })
+    )
+
+    await save()
+
+    expect(post).not.toHaveBeenCalled()
+    expect(
+      await screen.findByText("Enter a valid https:// link")
+    ).toBeInTheDocument()
+    expect(toggleNotification).toHaveBeenCalledWith({
+      type: "danger",
+      message: "Some fields need attention",
+    })
+  })
+
+  it("shows no field error for a valid https streaming url and sends the request", async () => {
+    await renderForm()
+
+    typeTitle("Le Silence")
+    chooseType("Short film")
+    fireEvent.click(
+      screen.getByRole("button", { name: "Add a streaming link" })
+    )
+    fireEvent.change(screen.getByRole("textbox", { name: "Watch URL" }), {
+      target: { value: "https://vimeo.com/1" },
+    })
+
+    await save()
+    await waitFor(() => expect(createCalls()).toHaveLength(1))
+
+    expect(screen.queryByText("Enter a valid https:// link")).toBeNull()
+    expect(toggleNotification).not.toHaveBeenCalledWith(
+      expect.objectContaining({ message: "Some fields need attention" })
+    )
   })
 
   it("saves a film when a blank streaming row was left behind by a type switch", async () => {

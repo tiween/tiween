@@ -99,11 +99,20 @@ export function StreamingLinksEditor({
           </Grid.Item>
 
           <Grid.Item col={4} s={12} alignItems="flex-start">
-            <Field.Root width="100%">
-              <Controller
-                control={control}
-                name={`streamingLinks.${index}.url`}
-                render={({ field: input, fieldState }) => (
+            <Controller
+              control={control}
+              name={`streamingLinks.${index}.url`}
+              render={({ field: input, fieldState }) => (
+                // The schema reports the stable INVALID_HTTPS_URL code; the
+                // editor only ever sees a translated sentence.
+                <Field.Root
+                  width="100%"
+                  error={
+                    fieldState.error
+                      ? t("streaming.urlInvalid", "Enter a valid https:// link")
+                      : undefined
+                  }
+                >
                   <TextInput
                     aria-label={t("streaming.url", "Watch URL")}
                     placeholder="https://…"
@@ -114,9 +123,10 @@ export function StreamingLinksEditor({
                     hasError={Boolean(fieldState.error)}
                     disabled={disabled}
                   />
-                )}
-              />
-            </Field.Root>
+                  <Field.Error />
+                </Field.Root>
+              )}
+            />
           </Grid.Item>
 
           <Grid.Item col={2} s={6} alignItems="flex-start">

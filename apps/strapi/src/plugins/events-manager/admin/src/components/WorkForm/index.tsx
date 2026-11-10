@@ -24,7 +24,7 @@ import {
   Typography,
 } from "@strapi/design-system"
 import { PaperPlane, Play, Stack } from "@strapi/icons"
-import { Layouts } from "@strapi/strapi/admin"
+import { Layouts, useNotification } from "@strapi/strapi/admin"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Controller, useForm } from "react-hook-form"
 import { Link as RouterLink } from "react-router-dom"
@@ -95,6 +95,7 @@ export function WorkForm({
   onSubmit,
 }: WorkFormProps) {
   const t = useCatalogT()
+  const { toggleNotification } = useNotification()
   const { genres } = useGenres()
 
   const {
@@ -116,8 +117,22 @@ export function WorkForm({
 
   const typeIcon = (type: WorkType) => (type === "play" ? <Stack /> : <Play />)
 
+  // Save always answers: either the request goes out, or the editor is told
+  // that something blocks it. Some bounded fields (duration, release year,
+  // rating) have no error slot and a field can be off-screen, so every invalid
+  // submit raises the notification, next to the field errors that do render.
+  const onInvalid = () => {
+    toggleNotification({
+      type: "danger",
+      message: t("workForm.invalid", "Some fields need attention"),
+    })
+  }
+
   return (
-    <form onSubmit={handleSubmit((values) => onSubmit(values))} noValidate>
+    <form
+      onSubmit={handleSubmit((values) => onSubmit(values), onInvalid)}
+      noValidate
+    >
       <Layouts.Header
         title={title}
         subtitle={t(
