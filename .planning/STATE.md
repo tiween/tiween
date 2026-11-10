@@ -5,16 +5,16 @@ milestone_name: Shorts Directory
 current_phase: 2
 current_phase_name: Strapi-Backed Shorts Pages
 status: executing
-stopped_at: Phase 01 complete, ready to plan Phase 2
-last_updated: "2026-11-10T10:47:20.794Z"
+stopped_at: Completed 02-01-PLAN.md
+last_updated: "2026-11-10T13:16:53.870Z"
 last_activity: 2026-11-10
 last_activity_desc: Phase 2 execution started
-state_head: b5420fe7080188e021641e1e0ea040569611e950
+state_head: d0d2c3afb11265a561cf4d0b18b59cf68d59c904
 progress:
   total_phases: 7
   completed_phases: 1
   total_plans: 26
-  completed_plans: 16
+  completed_plans: 17
 ---
 
 # Project State
@@ -29,8 +29,8 @@ See: .planning/PROJECT.md (updated 2026-11-10)
 ## Current Position
 
 Phase: 2 (Strapi-Backed Shorts Pages) — EXECUTING
-Plan: 1 of 10
-Status: Executing Phase 2
+Plan: 2 of 10
+Status: Ready to execute
 Last activity: 2026-11-10 — Phase 2 execution started
 
 Progress: [█░░░░░░░░░] 14%
@@ -74,6 +74,7 @@ _Updated after each plan completion_
 | Phase 01 P12 | 2 days (checkpoint wait) | 3 tasks | 2 files  |
 | Phase 01 P13 | 25 min                   | 2 tasks | 3 files  |
 | Phase 01 P16 | 1h                       | 3 tasks | 12 files |
+| Phase 02 P01 | 3 h                      | 3 tasks | 21 files |
 
 ## Accumulated Context
 
@@ -125,6 +126,8 @@ Decisions are logged in PROJECT.md (Locked Decisions and Key Decisions table). R
 - [Phase 04]: Directory cards ship without the watchlist heart; the card heart moves to the real-watchlist work in Phase 2 (FR19, Phase 2 criterion 4); SDIR-02 no longer lists it (owner, 2026-11-09)
 - [Phase 01]: 01-16: omit short-film-only keys (streamingLinks, featured, featuredRank) from Film/Play payloads; boot case confirms omitted keys leave stored values untouched
 - [Phase 01]: 01-16: admin strings en/fr only; Arabic RTL via dir/lang on content inputs only
+- [Phase 02]: 02-01: soft 404/500 accepted (D-22): unknown slug and outage render the not-found / error screen with noindex at HTTP 200 under [locale]/loading.tsx; probe asserts rendered state, real status is Phase 5 criterion 5
+- [Phase 02]: 02-01: toShortFilmApiError reports INTERNAL_ERROR for every upstream failure (400 included); the API code is kept in apiCode for logs
 
 ### Pending Todos
 
@@ -160,6 +163,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-11-10T01:12:13.134Z
-Stopped at: Phase 01 complete, ready to plan Phase 2
+Last session: 2026-11-10T13:16:52.900Z
+Stopped at: Completed 02-01-PLAN.md
 Resume file: None
