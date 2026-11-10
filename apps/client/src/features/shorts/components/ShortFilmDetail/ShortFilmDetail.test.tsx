@@ -44,15 +44,38 @@ import ar from "../../../../../locales/ar.json"
 import en from "../../../../../locales/en.json"
 import fr from "../../../../../locales/fr.json"
 import { expectNoA11yViolations } from "../../../../../test/helpers/axe"
+import { markRetryPending, resetRetryFocus } from "../../utils/retryFocus"
 import { ShortFilmDetail } from "./ShortFilmDetail"
 
-const { backSpy, pushSpy, toastSpy } = vi.hoisted(() => ({
-  backSpy: vi.fn(),
-  pushSpy: vi.fn(),
-  toastSpy: vi.fn(),
-}))
+const { backSpy, pushSpy, toastSpy, heartState, heartToggle, heartArgs } =
+  vi.hoisted(() => ({
+    backSpy: vi.fn(),
+    pushSpy: vi.fn(),
+    toastSpy: vi.fn(),
+    heartState: {
+      isSaved: false,
+      isResolved: true,
+      isBusy: false,
+      isPending: false,
+      status: "authenticated" as
+        | "authenticated"
+        | "unauthenticated"
+        | "loading",
+    },
+    heartToggle: vi.fn(),
+    heartArgs: vi.fn(),
+  }))
 
 vi.mock("@/components/ui/use-toast", () => ({ toast: toastSpy }))
+
+// The shared heart state machine has its own suite
+// (`useShortFilmHeart.test.tsx`); the detail page only renders what it returns.
+vi.mock("@/features/watchlist/hooks/useShortFilmHeart", () => ({
+  useShortFilmHeart: (...args: unknown[]) => {
+    heartArgs(...args)
+    return { ...heartState, toggle: heartToggle }
+  },
+}))
 
 // The component routes through next-intl's locale-aware navigation (French is
 // served unprefixed), so that is the module to stub. `Link` renders the href
@@ -98,8 +121,8 @@ const KEYS_USED = [
   "play",
   "watchFromBar",
   "trailer",
-  "watchlist",
-  "removeFromWatchlist",
+  "watchlistAdd",
+  "watchlistRemove",
   "synopsis",
   "distinctions",
   "whereToWatch",
@@ -287,10 +310,20 @@ beforeEach(() => {
   backSpy.mockClear()
   pushSpy.mockClear()
   toastSpy.mockClear()
+  heartToggle.mockClear()
+  heartArgs.mockClear()
+  Object.assign(heartState, {
+    isSaved: false,
+    isResolved: true,
+    isBusy: false,
+    isPending: false,
+    status: "authenticated",
+  })
 })
 
 afterEach(() => {
   cleanup()
+  resetRetryFocus()
   window.open = originalOpen
   for (const key of stubbedNavigatorProps.splice(0)) {
     delete (navigator as unknown as Record<string, unknown>)[key]
@@ -656,25 +689,314 @@ describe("ShortFilmDetail — back affordance", () => {
   })
 })
 
-describe("ShortFilmDetail — watchlist heart", () => {
-  it("flips aria-pressed and the accessible name on tap", () => {
+describe("ShortFilmDetail — watchlist heart (FR19, FR20; UI-SPEC A4, Part E)", () => {
+  const LABELS = {
+    fr: {
+      add: "Ajouter à ma watchlist",
+      remove: "Retirer de ma watchlist",
+    },
+    ar: {
+      add: "إضافة إلى قائمة المتابعة",
+      remove: "إزالة من قائمة المتابعة",
+    },
+    en: {
+      add: "Add to my watchlist",
+      remove: "Remove from my watchlist",
+    },
+  } as const
+
+  function detailUi(locale: TestLocale = "fr") {
+    return (
+      <NextIntlClientProvider
+        locale={locale}
+        messages={MESSAGES[locale]}
+        timeZone="Africa/Tunis"
+      >
+        <ShortFilmDetail film={FULL_FILM} />
+      </NextIntlClientProvider>
+    )
+  }
+
+  function stubMotion(reduce: boolean) {
+    vi.stubGlobal(
+      "matchMedia",
+      vi.fn().mockImplementation((query: string) => ({
+        matches: reduce && query.includes("prefers-reduced-motion"),
+        media: query,
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+      }))
+    )
+  }
+
+  it("reads the detail surface of the shared state machine for the film", () => {
     renderDetail(FULL_FILM)
 
-    const heart = screen.getByRole("button", { name: "Ma liste" })
-    expect(heart).toHaveAttribute("aria-pressed", "false")
-
-    fireEvent.click(heart)
-
-    const savedHeart = screen.getByRole("button", {
-      name: "Retirer de ma liste",
+    expect(heartArgs).toHaveBeenCalledWith("communion-001", {
+      surface: "detail",
     })
-    expect(savedHeart).toHaveAttribute("aria-pressed", "true")
+  })
 
-    fireEvent.click(savedHeart)
-    expect(screen.getByRole("button", { name: "Ma liste" })).toHaveAttribute(
-      "aria-pressed",
-      "false"
-    )
+  it.each(["fr", "ar", "en"] as const)(
+    "names the action without the film title and agrees with aria-pressed (%s)",
+    (locale) => {
+      const { rerender } = render(detailUi(locale))
+
+      const add = screen.getByRole("button", { name: LABELS[locale].add })
+      expect(add).toHaveAttribute("aria-pressed", "false")
+      expect(add.getAttribute("aria-label")).not.toContain("Communion")
+
+      heartState.isSaved = true
+      rerender(detailUi(locale))
+
+      const remove = screen.getByRole("button", {
+        name: LABELS[locale].remove,
+      })
+      expect(remove).toHaveAttribute("aria-pressed", "true")
+      expect(remove.getAttribute("aria-label")).not.toContain("Communion")
+    }
+  )
+
+  it("no longer uses the shorts-only 'Ma liste' wording", () => {
+    heartState.isSaved = true
+    const { container } = renderDetail(FULL_FILM)
+
+    expect(container.textContent ?? "").not.toMatch(/Ma liste/)
+    expect(screen.queryByRole("button", { name: "Ma liste" })).toBeNull()
+    expect(
+      screen.queryByRole("button", { name: "Retirer de ma liste" })
+    ).toBeNull()
+  })
+
+  it("forwards a tap to the shared toggle", () => {
+    renderDetail(FULL_FILM)
+
+    fireEvent.click(screen.getByRole("button", { name: LABELS.fr.add }))
+
+    expect(heartToggle).toHaveBeenCalledTimes(1)
+  })
+
+  it("signed out: an enabled outline invitation, not a disabled control", () => {
+    heartState.status = "unauthenticated"
+    renderDetail(FULL_FILM)
+
+    const heart = screen.getByRole("button", { name: LABELS.fr.add })
+    expect(heart).not.toBeDisabled()
+    expect(heart).toHaveAttribute("aria-pressed", "false")
+    expect(heart).not.toHaveAttribute("aria-busy")
+    fireEvent.click(heart)
+    expect(heartToggle).toHaveBeenCalledTimes(1)
+  })
+
+  describe("unresolved saved state", () => {
+    beforeEach(() => {
+      vi.useFakeTimers()
+      heartState.isResolved = false
+      heartState.isBusy = true
+    })
+    afterEach(() => {
+      vi.useRealTimers()
+    })
+
+    it("is aria-busy and shows the outline until 200ms have passed", () => {
+      const { container } = renderDetail(FULL_FILM)
+      const heart = screen.getByRole("button", { name: LABELS.fr.add })
+
+      expect(heart).toHaveAttribute("aria-busy", "true")
+      expect(heart).not.toBeDisabled()
+
+      act(() => {
+        vi.advanceTimersByTime(199)
+      })
+      expect(container.querySelector('[class*="heartSpinner"]')).toBeNull()
+      expect(container.querySelector('[class*="heartStack"]')).not.toBeNull()
+    })
+
+    it("swaps the glyph for a 16px spinner after 200ms", () => {
+      const { container } = renderDetail(FULL_FILM)
+
+      act(() => {
+        vi.advanceTimersByTime(200)
+      })
+
+      const spinner = container.querySelector('[class*="heartSpinner"]')
+      expect(spinner).not.toBeNull()
+      expect(spinner).toHaveAttribute("width", "16")
+      expect(container.querySelector('[class*="heartStack"]')).toBeNull()
+      // Static under reduced motion (the Tailwind motion-reduce class).
+      expect(spinner!.getAttribute("class")).toMatch(
+        /motion-reduce:animate-none/
+      )
+    })
+
+    it("returns to the heart glyph once the answer arrives", () => {
+      const { container, rerender } = render(detailUi())
+      act(() => {
+        vi.advanceTimersByTime(250)
+      })
+      expect(container.querySelector('[class*="heartSpinner"]')).not.toBeNull()
+
+      heartState.isResolved = true
+      heartState.isBusy = false
+      rerender(detailUi())
+
+      expect(container.querySelector('[class*="heartSpinner"]')).toBeNull()
+      expect(container.querySelector('[class*="heartStack"]')).not.toBeNull()
+      expect(
+        screen.getByRole("button", { name: LABELS.fr.add })
+      ).not.toHaveAttribute("aria-busy")
+    })
+
+    it("never shows the spinner to a signed-out visitor", () => {
+      heartState.status = "unauthenticated"
+      heartState.isResolved = true
+      heartState.isBusy = false
+      const { container } = renderDetail(FULL_FILM)
+
+      act(() => {
+        vi.advanceTimersByTime(1000)
+      })
+
+      expect(container.querySelector('[class*="heartSpinner"]')).toBeNull()
+    })
+  })
+
+  describe("save pulse", () => {
+    function pulseClass(container: HTMLElement) {
+      return container
+        .querySelector('[class*="heartFill"]')!
+        .getAttribute("class")!
+    }
+
+    it("pulses on the visitor's unsaved to saved change, then settles", () => {
+      vi.useFakeTimers()
+      try {
+        stubMotion(false)
+        const { container, rerender } = render(detailUi())
+        expect(pulseClass(container)).not.toMatch(/animate-watchlist-pulse/)
+
+        heartState.isSaved = true
+        rerender(detailUi())
+        expect(pulseClass(container)).toMatch(/animate-watchlist-pulse/)
+
+        act(() => {
+          vi.advanceTimersByTime(300)
+        })
+        expect(pulseClass(container)).not.toMatch(/animate-watchlist-pulse/)
+      } finally {
+        vi.useRealTimers()
+      }
+    })
+
+    it("does not pulse under reduced motion", () => {
+      stubMotion(true)
+      const { container, rerender } = render(detailUi())
+
+      heartState.isSaved = true
+      rerender(detailUi())
+
+      expect(pulseClass(container)).not.toMatch(/animate-watchlist-pulse/)
+      expect(
+        screen.getByRole("button", { name: LABELS.fr.remove })
+      ).toHaveAttribute("aria-pressed", "true")
+    })
+
+    it("does not pulse when a saved film arrives with the check answer", () => {
+      stubMotion(false)
+      heartState.isResolved = false
+      heartState.isBusy = true
+      const { container, rerender } = render(detailUi())
+
+      heartState.isResolved = true
+      heartState.isBusy = false
+      heartState.isSaved = true
+      rerender(detailUi())
+
+      expect(pulseClass(container)).not.toMatch(/animate-watchlist-pulse/)
+    })
+
+    it("does not pulse when the page renders already saved", () => {
+      stubMotion(false)
+      heartState.isSaved = true
+      const { container } = renderDetail(FULL_FILM)
+
+      expect(pulseClass(container)).not.toMatch(/animate-watchlist-pulse/)
+    })
+
+    it("does not pulse on the saved to unsaved change", () => {
+      stubMotion(false)
+      heartState.isSaved = true
+      const { container, rerender } = render(detailUi())
+
+      heartState.isSaved = false
+      rerender(detailUi())
+
+      expect(pulseClass(container)).not.toMatch(/animate-watchlist-pulse/)
+    })
+  })
+
+  describe("axe", () => {
+    const STATES: Array<[string, () => void]> = [
+      ["unsaved", () => {}],
+      [
+        "saved",
+        () => {
+          heartState.isSaved = true
+        },
+      ],
+      [
+        "busy",
+        () => {
+          heartState.isResolved = false
+          heartState.isBusy = true
+        },
+      ],
+    ]
+
+    for (const locale of ["fr", "ar", "en"] as const) {
+      for (const [name, setup] of STATES) {
+        it(`has no violations with the heart ${name} in ${locale}`, async () => {
+          setup()
+          const { container } = renderDetail(FULL_FILM, { locale })
+          if (name === "busy") {
+            // Let the 200ms timer swap in the spinner, then audit that state.
+            await act(async () => {
+              await new Promise((resolve) => setTimeout(resolve, 250))
+            })
+            expect(
+              container.querySelector('[class*="heartSpinner"]')
+            ).not.toBeNull()
+          }
+          await expectNoA11yViolations(container)
+        })
+      }
+    }
+  })
+})
+
+describe("ShortFilmDetail — retry focus (UI-SPEC C3)", () => {
+  it("focuses the h1 after a successful retry", () => {
+    markRetryPending()
+    renderDetail(FULL_FILM)
+
+    const h1 = screen.getByRole("heading", { level: 1 })
+    expect(h1).toHaveAttribute("tabindex", "-1")
+    expect(h1).toHaveFocus()
+  })
+
+  it("leaves focus alone when no retry is pending", () => {
+    renderDetail(FULL_FILM)
+
+    expect(screen.getByRole("heading", { level: 1 })).not.toHaveFocus()
+  })
+
+  it("claims the retry only once", () => {
+    markRetryPending()
+    const first = renderDetail(FULL_FILM)
+    first.unmount()
+
+    renderDetail(FULL_FILM)
+    expect(screen.getByRole("heading", { level: 1 })).not.toHaveFocus()
   })
 })
 

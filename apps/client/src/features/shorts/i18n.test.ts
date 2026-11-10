@@ -184,16 +184,12 @@ describe("Phase 2 shorts copy", () => {
     })
 
     it("keeps the legacy keys until the plans that stop using them remove them", () => {
-      for (const path of [
-        "shorts.watchlist",
-        "shorts.removeFromWatchlist",
-        "shorts.directory.retry",
-      ]) {
+      for (const path of ["shorts.directory.retry"]) {
         expect(resolve(locale, path), path).toBeDefined()
       }
     })
 
-    it("no longer carries the keys that died with ShortsHero and the filter empty state (D-02, D-04)", () => {
+    it("no longer carries the keys that died with ShortsHero, the filter empty state and the local heart (D-02, D-04)", () => {
       for (const path of [
         "shorts.hero",
         "shorts.directory.errorBody",
@@ -202,6 +198,10 @@ describe("Phase 2 shorts copy", () => {
         "shorts.directory.emptyTitle",
         "shorts.directory.emptyBody",
         "shorts.directory.resetFilters",
+        // Replaced by shorts.watchlistAdd / watchlistRemove (the "Ma liste"
+        // wording disagreed with the watchlist page's "Ma watchlist").
+        "shorts.watchlist",
+        "shorts.removeFromWatchlist",
       ]) {
         expect(resolve(locale, path), path).toBeUndefined()
       }

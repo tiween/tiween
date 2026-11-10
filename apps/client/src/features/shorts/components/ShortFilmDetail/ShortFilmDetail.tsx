@@ -2,11 +2,13 @@
 
 import * as React from "react"
 import Image from "next/image"
+import { useShortFilmHeart } from "@/features/watchlist/hooks/useShortFilmHeart"
 import {
   ArrowUpRight,
   CaretLeft,
   CaretRight,
   CheckCircle,
+  CircleNotch,
   FilmSlate,
   Heart,
   Play,
@@ -37,6 +39,7 @@ import {
   stripHtmlTags,
   toSafeExternalUrl,
 } from "../../utils"
+import { consumeRetryFocus } from "../../utils/retryFocus"
 import { InitialsDisc } from "./InitialsDisc"
 import styles from "./ShortFilmDetail.module.css"
 
@@ -86,6 +89,20 @@ function foldTitle(title: string): string {
 const PULSE_DURATION_MS = 300
 
 /**
+ * How long a signed-in visit waits on the saved-state check before the heart
+ * swaps its glyph for a spinner (UI-SPEC A4): a fast answer never flashes one.
+ */
+const HEART_SPINNER_DELAY_MS = 200
+
+function prefersReducedMotion(): boolean {
+  return (
+    typeof window !== "undefined" &&
+    typeof window.matchMedia === "function" &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  )
+}
+
+/**
  * Height of the sticky page header (44px control + 11px block padding ×2).
  * The action row counts as "scrolled away" once it slides under the header,
  * not only once it leaves the viewport edge.
@@ -110,8 +127,11 @@ export interface ShortFilmDetailProps {
  * no per-direction overrides. Sections whose data is absent do not render —
  * there are no empty shells and no placeholder rows.
  *
- * The watchlist heart is still LOCAL optimistic state here; the real
- * server-backed heart replaces it in a later plan of this phase.
+ * The watchlist heart is the shared server-backed state machine
+ * (`useShortFilmHeart`, FR19, FR20; D-14, D-15; UI-SPEC A4 and Part E): one
+ * check request per visit, optimistic fill with a 300ms pulse (not under
+ * reduced motion), signed-out taps toast then redirect to sign-in. After a
+ * successful error retry the h1 takes focus (UI-SPEC C3).
  *
  * Content from the real API (SPAGE-03, SPAGE-04, FR56): the original-title and
  * origin lines (D-19), the "Équipe artistique" crew grid (D-09, D-10), the
@@ -140,16 +160,62 @@ export function ShortFilmDetail({
     { has: (key: string) => t.has(key as MessageKey) }
   )
 
-  const [saved, setSaved] = React.useState(false)
+  const heart = useShortFilmHeart(film.documentId, { surface: "detail" })
+  const saved = heart.isSaved
   const [justSaved, setJustSaved] = React.useState(false)
+  const [showHeartSpinner, setShowHeartSpinner] = React.useState(false)
+  const previousSaved = React.useRef(saved)
+  const previousResolved = React.useRef(heart.isResolved)
   const pulseTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null)
+  const headingRef = React.useRef<HTMLHeadingElement>(null)
 
+  // A successful retry from error.tsx lands focus on the page heading.
+  React.useEffect(() => {
+    consumeRetryFocus(headingRef.current)
+  }, [])
+
+  // Pulse only on the visitor's own unsaved -> saved change. A saved state that
+  // arrives with the check answer (resolved flips in the same render) is
+  // hydration, not a tap, so it stays still.
+  React.useEffect(() => {
+    const wasSaved = previousSaved.current
+    const wasResolved = previousResolved.current
+    previousSaved.current = saved
+    previousResolved.current = heart.isResolved
+
+    if (!saved) {
+      if (pulseTimer.current) clearTimeout(pulseTimer.current)
+      setJustSaved(false)
+      return
+    }
+    if (wasSaved || !wasResolved || prefersReducedMotion()) return
+    if (pulseTimer.current) clearTimeout(pulseTimer.current)
+    setJustSaved(true)
+    pulseTimer.current = setTimeout(
+      () => setJustSaved(false),
+      PULSE_DURATION_MS
+    )
+  }, [saved, heart.isResolved])
   React.useEffect(
     () => () => {
       if (pulseTimer.current) clearTimeout(pulseTimer.current)
     },
     []
   )
+
+  // Signed in with the saved state unknown: a spinner after 200ms, never before.
+  const heartUnresolved = heart.status === "authenticated" && !heart.isResolved
+  React.useEffect(() => {
+    if (!heartUnresolved) {
+      setShowHeartSpinner(false)
+      return
+    }
+    const timer = setTimeout(
+      () => setShowHeartSpinner(true),
+      HEART_SPINNER_DELAY_MS
+    )
+    return () => clearTimeout(timer)
+  }, [heartUnresolved])
 
   // Images that failed to load fall back to the frame's reserved-artwork
   // stripe instead of a broken image whose alt text collides with the badge.
@@ -163,23 +229,6 @@ export function ShortFilmDetail({
   }, [])
   const usableImage = (url: string | null | undefined): string | null =>
     url && !failedImages.has(url) ? url : null
-
-  const toggleSaved = () => {
-    setSaved((previous) => {
-      const next = !previous
-      if (next) {
-        if (pulseTimer.current) clearTimeout(pulseTimer.current)
-        setJustSaved(true)
-        pulseTimer.current = setTimeout(
-          () => setJustSaved(false),
-          PULSE_DURATION_MS
-        )
-      } else {
-        setJustSaved(false)
-      }
-      return next
-    })
-  }
 
   // ---------------------------------------------------------------- data --
 
@@ -485,7 +534,7 @@ export function ShortFilmDetail({
               )}
             </div>
 
-            <h1 className={styles.title}>
+            <h1 ref={headingRef} tabIndex={-1} className={styles.title}>
               <bdi {...titleAttrs}>{film.title}</bdi>
             </h1>
 
@@ -556,32 +605,46 @@ export function ShortFilmDetail({
             )}
             <button
               type="button"
-              onClick={toggleSaved}
+              onClick={heart.toggle}
               aria-pressed={saved}
-              aria-label={saved ? t("removeFromWatchlist") : t("watchlist")}
+              aria-label={saved ? t("watchlistRemove") : t("watchlistAdd")}
+              aria-busy={heart.isBusy || undefined}
               className={cn(
                 styles.heartButton,
                 saved && styles.heartButtonActive
               )}
             >
-              <span className={styles.heartStack}>
-                <Heart
-                  size={22}
+              {showHeartSpinner ? (
+                <CircleNotch
+                  size={16}
+                  aria-hidden="true"
                   className={cn(
-                    styles.heartOutline,
-                    saved && styles.heartOutlineHidden
+                    styles.heartSpinner,
+                    "animate-spin motion-reduce:animate-none"
                   )}
                 />
-                <Heart
-                  weight="fill"
-                  size={22}
-                  className={cn(
-                    styles.heartFill,
-                    saved && styles.heartFillVisible,
-                    justSaved && "animate-watchlist-pulse"
-                  )}
-                />
-              </span>
+              ) : (
+                <span className={styles.heartStack}>
+                  <Heart
+                    size={22}
+                    aria-hidden="true"
+                    className={cn(
+                      styles.heartOutline,
+                      saved && styles.heartOutlineHidden
+                    )}
+                  />
+                  <Heart
+                    weight="fill"
+                    size={22}
+                    aria-hidden="true"
+                    className={cn(
+                      styles.heartFill,
+                      saved && styles.heartFillVisible,
+                      justSaved && "animate-watchlist-pulse"
+                    )}
+                  />
+                </span>
+              )}
             </button>
           </div>
 

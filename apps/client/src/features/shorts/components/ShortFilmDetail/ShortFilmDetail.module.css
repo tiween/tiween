@@ -340,6 +340,12 @@
   line-height: 1.05;
 }
 
+/* The h1 is a programmatic focus target after a successful error retry
+   (tabIndex -1); it is not a control, so it carries no ring. */
+.root .title:focus {
+  outline: none;
+}
+
 /* Original title: Meta 14/400, muted, 4px under the title (UI-SPEC A1). */
 .originalTitle {
   margin: 4px 0 0;
@@ -425,11 +431,22 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: color var(--sfd-motion-color);
+  transition:
+    color var(--sfd-motion-color),
+    border-color var(--sfd-motion-color);
 }
 
+/* Saved: the border steps to Gold Leaf as the filled glyph arrives, so the
+   state is the shape change plus the fill, never colour alone (UI-SPEC A4). */
 .heartButtonActive {
   color: var(--sfd-gold);
+  border-color: var(--sfd-gold);
+}
+
+/* Shown after 200ms of an unresolved saved-state check; static under reduced
+   motion (the Tailwind motion-reduce class on the element). */
+.heartSpinner {
+  color: var(--sfd-text-muted);
 }
 
 /* Both glyphs are stacked in the same box, so the fill crossfades over the
