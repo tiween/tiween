@@ -5,16 +5,16 @@ milestone_name: Shorts Directory
 current_phase: 2
 current_phase_name: Strapi-Backed Shorts Pages
 status: executing
-stopped_at: Completed 02-04-PLAN.md
-last_updated: "2026-11-10T14:49:52.241Z"
+stopped_at: Completed 02-05-PLAN.md
+last_updated: "2026-11-10T15:05:53.319Z"
 last_activity: 2026-11-10
 last_activity_desc: Phase 2 execution started
-state_head: 8702b0c8c02ce46f18b94ff030fa004396831b1e
+state_head: 3e15906ef192c902dd7dc6dab7b2f261e7075907
 progress:
   total_phases: 7
   completed_phases: 1
   total_plans: 26
-  completed_plans: 20
+  completed_plans: 21
 ---
 
 # Project State
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-11-10)
 ## Current Position
 
 Phase: 2 (Strapi-Backed Shorts Pages) — EXECUTING
-Plan: 5 of 10
+Plan: 6 of 10
 Status: Ready to execute
 Last activity: 2026-11-10 — Phase 2 execution started
 
@@ -78,6 +78,7 @@ _Updated after each plan completion_
 | Phase 02 P02 | ~1h                      | 2 tasks | 9 files  |
 | Phase 02 P03 | ~20 min                  | 2 tasks | 13 files |
 | Phase 02 P04 | ~35 min                  | 2 tasks | 19 files |
+| Phase 02 P05 | ~40 min                  | 2 tasks | 14 files |
 
 ## Accumulated Context
 
@@ -137,6 +138,8 @@ Decisions are logged in PROJECT.md (Locked Decisions and Key Decisions table). R
 - [Phase 02]: 02-03: ShortsWatchlistProvider pauses on any in-flight mutation (useIsMutating unfiltered) because the events mutations carry no mutationKey
 - [Phase 02]: 02-04: tickets nav gated by NEXT_PUBLIC_TICKETING_ENABLED (default off), separate from the purchase flag; only the nav entry is hidden, ticketing code untouched
 - [Phase 02]: 02-04: safeCallbackUrl guards all four auth forms; toRouterPath strips the locale only for next-intl router pushes, full navigations keep the prefixed path
+- [Phase 02]: 02-05: joinNames uses Intl.ListFormat unit/short, not narrow (narrow yields a bare space between Latin names in fr and en); Arabic text on an Arabic page is never tagged lang fr
+- [Phase 02]: 02-05: English-page French fallback is detected by served locale only; a fallbackFields array on the short-film API would make it exact (Phase 3+ ticket)
 
 ### Pending Todos
 
@@ -172,6 +175,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-11-10T14:49:52.121Z
-Stopped at: Completed 02-04-PLAN.md
+Last session: 2026-11-10T15:05:53.210Z
+Stopped at: Completed 02-05-PLAN.md
 Resume file: None
