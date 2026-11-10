@@ -3,7 +3,7 @@ import "server-only"
 import { cache } from "react"
 import {
   mapShortFilmDetail,
-  mapShortFilmSummary,
+  mapShortFilmSummaries,
 } from "@/features/shorts/utils/shortMappers"
 
 import type { ShortFilm, ShortsListResponse } from "@/features/shorts/types"
@@ -157,9 +157,7 @@ export async function getShortFilmsPage({
     }
 
     return {
-      shorts: mapPayload("short-film list", () =>
-        data.map(mapShortFilmSummary)
-      ),
+      shorts: mapPayload("short-film list", () => mapShortFilmSummaries(data)),
       total: pagination.total,
       page,
       pageSize,
@@ -197,9 +195,7 @@ export async function getRelatedShortFilms(
     const data = res?.data as ShortFilmSummaryDto[] | undefined
     if (!Array.isArray(data)) throw malformed()
 
-    return mapPayload("related short films", () =>
-      data.map(mapShortFilmSummary)
-    )
+    return mapPayload("related short films", () => mapShortFilmSummaries(data))
   } catch (error) {
     throw toShortFilmApiError(error)
   }

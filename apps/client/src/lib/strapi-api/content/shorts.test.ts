@@ -245,6 +245,39 @@ describe("getShortFilmsPage", () => {
   })
 })
 
+describe("slug-less films", () => {
+  it("getShortFilmsPage never returns a card whose link would be a documentId", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {})
+    fetchAPI.mockResolvedValue({
+      data: [
+        summaryDto({ documentId: "d-ok", slug: "ok" }),
+        summaryDto({ documentId: "d-none", slug: null }),
+      ],
+      meta: { pagination: { page: 1, pageCount: 1, total: 2 } },
+    })
+
+    const { shorts } = await getShortFilmsPage({ locale: "fr", page: 1 })
+
+    expect(shorts.map((s) => s.slug)).toEqual(["ok"])
+    warn.mockRestore()
+  })
+
+  it("getRelatedShortFilms omits a related film with no slug", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {})
+    fetchAPI.mockResolvedValue({
+      data: [
+        summaryDto({ documentId: "d-none", slug: null }),
+        summaryDto({ documentId: "d-ok", slug: "ok" }),
+      ],
+    })
+
+    const related = await getRelatedShortFilms("khalaa", "fr")
+
+    expect(related.map((s) => s.slug)).toEqual(["ok"])
+    warn.mockRestore()
+  })
+})
+
 describe("getRelatedShortFilms", () => {
   it("sends only the locale key to the /:slug/related route", async () => {
     fetchAPI.mockResolvedValue({ data: [summaryDto()] })

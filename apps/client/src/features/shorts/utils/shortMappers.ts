@@ -301,7 +301,12 @@ function mapDistinction(
 /* Mappers                                                                    */
 /* -------------------------------------------------------------------------- */
 
-/** Map a list/related summary item. Summaries carry no trailer, crew or cast. */
+/**
+ * Map one summary item. Summaries carry no trailer, crew or cast. The
+ * `documentId` slug fallback exists for the detail mapper (the film was fetched
+ * BY slug); list and related pages must use `mapShortFilmSummaries`, which
+ * drops slug-less films instead of linking to a documentId.
+ */
 export function mapShortFilmSummary(dto: ShortFilmSummaryDto): ShortFilm {
   const slug = nonBlank(dto.slug) ?? dto.documentId
 
@@ -325,6 +330,29 @@ export function mapShortFilmSummary(dto: ShortFilmSummaryDto): ShortFilm {
     isAvailableOnline: Boolean(dto.availableOnline),
     locale: nonBlank(dto.locale),
   }
+}
+
+/**
+ * Map a list/related page of summaries, leaving out films the API returned
+ * without a slug. The detail route resolves by slug only, so a film with no
+ * slug has no page: listing it would produce a card, a share URL and a related
+ * link that all end in "introuvable". Omitting is the least surprising option;
+ * the skipped `documentId`s are logged so the data gap is visible server-side.
+ */
+export function mapShortFilmSummaries(
+  dtos: readonly ShortFilmSummaryDto[]
+): ShortFilm[] {
+  const linkable = dtos.filter((dto) => nonBlank(dto.slug) !== undefined)
+  if (linkable.length !== dtos.length) {
+    const skipped = dtos
+      .filter((dto) => nonBlank(dto.slug) === undefined)
+      .map((dto) => dto.documentId)
+    console.warn(
+      `[shorts] omitted ${skipped.length} short film(s) with no slug (no detail page can resolve them):`,
+      skipped.join(", ")
+    )
+  }
+  return linkable.map((dto) => mapShortFilmSummary(dto))
 }
 
 /**

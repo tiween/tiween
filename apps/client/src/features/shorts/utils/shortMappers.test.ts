@@ -1,7 +1,11 @@
-import { describe, expect, it } from "vitest"
+import { describe, expect, it, vi } from "vitest"
 
 import { detailDto, summaryDto } from "../../../../test/fixtures/short-film-api"
-import { mapShortFilmDetail, mapShortFilmSummary } from "./shortMappers"
+import {
+  mapShortFilmDetail,
+  mapShortFilmSummaries,
+  mapShortFilmSummary,
+} from "./shortMappers"
 
 describe("mapShortFilmDetail: directors", () => {
   it("derives directors from directing credits, not from a directors field", () => {
@@ -333,5 +337,37 @@ describe("mapShortFilmSummary", () => {
 
     expect(film.duration).toBeUndefined()
     expect(film.releaseYear).toBeUndefined()
+  })
+})
+
+describe("mapShortFilmSummaries: slug-less films", () => {
+  it("omits a film with a null, blank or missing slug instead of linking its documentId", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {})
+
+    const films = mapShortFilmSummaries([
+      summaryDto({ documentId: "d-ok", slug: "ok" }),
+      summaryDto({ documentId: "d-null", slug: null }),
+      summaryDto({ documentId: "d-blank", slug: "   " }),
+    ])
+
+    expect(films.map((f) => f.slug)).toEqual(["ok"])
+    expect(films.map((f) => f.documentId)).not.toContain("d-null")
+    expect(warn).toHaveBeenCalledTimes(1)
+    expect(warn.mock.calls[0].join(" ")).toContain("d-null")
+    expect(warn.mock.calls[0].join(" ")).toContain("d-blank")
+    warn.mockRestore()
+  })
+
+  it("stays quiet when every film has a slug", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {})
+
+    const films = mapShortFilmSummaries([
+      summaryDto(),
+      summaryDto({ slug: "b" }),
+    ])
+
+    expect(films).toHaveLength(2)
+    expect(warn).not.toHaveBeenCalled()
+    warn.mockRestore()
   })
 })
