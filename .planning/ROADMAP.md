@@ -19,7 +19,7 @@ Tiween is a brownfield product: discovery, accounts, watchlist and the catalog/v
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Short-Film Catalog Backend** - Short films become real data: schema fields, admin entry, public read API, launch catalog
+- [x] **Phase 1: Short-Film Catalog Backend** - Short films become real data: schema fields, admin entry, public read API, launch catalog (completed 2026-11-10)
 - [ ] **Phase 2: Strapi-Backed Shorts Pages** - Directory and detail read Strapi (DW-148 fixed), detail page completed, real watchlist, honest error states
 - [ ] **Phase 3: Meilisearch Search** - Self-hosted Meilisearch kept in sync by Strapi, client search swapped, Algolia removed
 - [ ] **Phase 4: Directory Experience and Brand** - Finished on-brand directory: catalogue intro, filters, cards, suggestion form, trilingual, RTL, accessible
@@ -40,7 +40,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 2. An unauthenticated request for short films returns only published short-film records in flat Strapi v5 shape, with a genre filter, sort, pagination, detail by slug, featured and related reads (facet filters are Meilisearch's, Phase 3); an unsupported parameter gets a coded error rather than a 500, and no ticketing or internal fields appear.
 3. Strapi boot-integration tests (run against a real booted Strapi, not mocks) seed published and draft short films plus a non-short creative work and prove that only the right rows come back for the genre filter and each sort, pagination, featured, related and locale-fallback case.
 4. The launch catalog (the vetted short films from the mock file plus any the owner adds) exists as published Strapi records with posters, genres, directors/crew, cast, distinctions and streaming links; running the import twice creates no duplicates.
-   **Plans:** 16/16 plans executed (01-15, 01-16 are gap closure)
+   **Plans:** 16/16 plans complete (01-15, 01-16 are gap closure)
 
    Plans:
 
@@ -163,14 +163,14 @@ Plans:
 **Execution Order:**
 Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 (decimal insertions run between their surrounding integers)
 
-| Phase                                 | Plans Complete | Status      | Completed |
-| ------------------------------------- | -------------- | ----------- | --------- |
-| 1. Short-Film Catalog Backend         | 16/16          | In Progress | -         |
-| 2. Strapi-Backed Shorts Pages         | 0/TBD          | Not started | -         |
-| 3. Meilisearch Search                 | 0/TBD          | Not started | -         |
-| 4. Directory Experience and Brand     | 0/TBD          | Not started | -         |
-| 5. Shorts SEO and Sitemap             | 0/TBD          | Not started | -         |
-| 6. Verification and Production Launch | 0/TBD          | Not started | -         |
+| Phase                                 | Plans Complete | Status      | Completed  |
+| ------------------------------------- | -------------- | ----------- | ---------- |
+| 1. Short-Film Catalog Backend         | 16/16          | Complete    | 2026-11-10 |
+| 2. Strapi-Backed Shorts Pages         | 0/TBD          | Not started | -          |
+| 3. Meilisearch Search                 | 0/TBD          | Not started | -          |
+| 4. Directory Experience and Brand     | 0/TBD          | Not started | -          |
+| 5. Shorts SEO and Sitemap             | 0/TBD          | Not started | -          |
+| 6. Verification and Production Launch | 0/TBD          | Not started | -          |
 
 ## Backlog
 
