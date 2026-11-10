@@ -13,7 +13,7 @@ export function ShortFilmCardSkeleton({
   return (
     <div
       className={cn(
-        "relative overflow-hidden rounded-lg",
+        "relative overflow-hidden rounded-2xl",
         "aspect-[2/3] w-full",
         className
       )}
