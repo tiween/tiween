@@ -315,7 +315,8 @@ function requireId(map: Record<string, string>, slug: string, label: string) {
  * deliberately NOT written: it is curation evidence, not a schema field.
  *
  * `poster` and `backdrop` are only present when an id was resolved, so an image
- * an editor attached by hand is never cleared by a re-import.
+ * an editor attached by hand is never cleared by a re-import. `featured` and
+ * `featuredRank` follow the same rule: present only when the file names them.
  */
 export function buildShortFilmData(
   entry: ShortFilmSeedEntry,
@@ -373,8 +374,13 @@ export function buildShortFilmData(
       accessType: link.accessType,
       label: link.label ?? null,
     })),
-    featured: entry.featured ?? false,
-    featuredRank: entry.featuredRank ?? null,
+    // Placement is curated in the admin ("Directory placement"), so it is only
+    // written when the data file names it. A re-import of a file that omits
+    // these keys must not revert an editor's choice (review WR-01).
+    ...(entry.featured !== undefined ? { featured: entry.featured } : {}),
+    ...(entry.featuredRank !== undefined
+      ? { featuredRank: entry.featuredRank }
+      : {}),
     ...(ids.posterId !== undefined ? { poster: ids.posterId } : {}),
     ...(ids.backdropId !== undefined ? { backdrop: ids.backdropId } : {}),
   }

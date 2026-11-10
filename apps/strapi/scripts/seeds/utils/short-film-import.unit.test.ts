@@ -262,6 +262,35 @@ describe("buildShortFilmData: write contract", () => {
     expect(data).not.toHaveProperty("backdrop")
   })
 
+  it("omits featured and featuredRank when the file names neither (WR-01)", () => {
+    const entry = sampleTwo()
+    expect(entry.featured).toBeUndefined()
+    expect(entry.featuredRank).toBeUndefined()
+
+    const data = buildShortFilmData(entry, ids)
+    expect(data).not.toHaveProperty("featured")
+    expect(data).not.toHaveProperty("featuredRank")
+
+    // So an editor-set placement is not a difference to write back.
+    const existing = { ...clone(data), featured: true, featuredRank: 3 }
+    expect(payloadDiffers(existing, data)).toBe(false)
+  })
+
+  it("writes featured and featuredRank when the file names them", () => {
+    const data = buildShortFilmData(
+      { ...sampleOne(), featured: true, featuredRank: 2 },
+      ids
+    )
+    expect(data.featured).toBe(true)
+    expect(data.featuredRank).toBe(2)
+
+    const explicitFalse = buildShortFilmData(
+      { ...sampleOne(), featured: false },
+      ids
+    )
+    expect(explicitFalse.featured).toBe(false)
+  })
+
   it("strips HTML from the French synopsis", () => {
     expect(buildShortFilmData(sampleTwo(), ids).synopsis).toBe(
       "Un exemple sans affiche."

@@ -476,6 +476,43 @@ describe("importShortFilms: run 4 (a translation changed)", () => {
   })
 })
 
+describe("importShortFilms: editor-set placement survives a re-import (WR-01)", () => {
+  it("keeps featured and featuredRank the data file does not name, and republishes nothing", async () => {
+    // sample-two names neither key. An editor feeds it into the hero list.
+    expect(current.films[1].featured).toBeUndefined()
+    const before = await publishedStamps(["sample-two"])
+    const draft = (): Promise<any> =>
+      (strapi.documents(CW as never) as any).findFirst({
+        filters: { slug: { $eq: "sample-two" } },
+        locale: "fr",
+        status: "draft",
+      })
+    const row = await draft()
+    await (strapi.documents(CW as never) as any).update({
+      documentId: row.documentId,
+      locale: "fr",
+      data: { featured: true, featuredRank: 5 },
+    })
+
+    const report = await importShortFilms(strapi, current, deps())
+
+    expect(report.failed).toEqual([])
+    expect(report.unchanged).toContain("sample-two")
+    expect(report.updated).not.toContain("sample-two")
+    const after = await draft()
+    expect(after.featured).toBe(true)
+    expect(after.featuredRank).toBe(5)
+    expect(await publishedStamps(["sample-two"])).toEqual(before)
+
+    // Put the draft back so the later stories see the state they expect.
+    await (strapi.documents(CW as never) as any).update({
+      documentId: row.documentId,
+      locale: "fr",
+      data: { featured: false, featuredRank: null },
+    })
+  })
+})
+
 describe("importShortFilms: per-film failures and warnings", () => {
   it("records one failed film and still imports the rest", async () => {
     await (strapi.documents(CW as never) as any).create({
