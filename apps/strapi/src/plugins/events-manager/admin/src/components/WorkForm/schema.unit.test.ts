@@ -1034,7 +1034,8 @@ describe("hidden fields are neither validated nor sent (G-01-2, WR-03)", () => {
         })
 
         expect(workFormSchema.safeParse(form).success).toBe(true)
-        expect(workToApiPayload(form).theatreDetails).toBeNull()
+        // WR-05: omitted, never null, so stored theatre details survive.
+        expect(workToApiPayload(form)).not.toHaveProperty("theatreDetails")
       }
     }
   })
@@ -1069,5 +1070,17 @@ describe("hidden fields are neither validated nor sent (G-01-2, WR-03)", () => {
         ).success
       ).toBe(true)
     }
+  })
+
+  it("(v) sends the validated theatre details for a play only", () => {
+    const payload = workToApiPayload(
+      values({
+        type: "play",
+        theatreDetails: { ...DEFAULT_THEATRE_DETAILS, actCount: 3 },
+      })
+    )
+
+    expect(payload).toHaveProperty("theatreDetails")
+    expect((payload as any).theatreDetails.actCount).toBe(3)
   })
 })

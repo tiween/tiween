@@ -265,7 +265,8 @@ describe("WorkForm — streaming links (Task 1)", () => {
 
     const data = createdBody()
     expect(data.type).toBe("film")
-    expect(data.theatreDetails).toBeNull()
+    // WR-05: omitted, never null, so stored theatre details survive.
+    expect(data).not.toHaveProperty("theatreDetails")
   })
 
   it("shows the streaming section for a short film only", async () => {

@@ -6,7 +6,9 @@
  *
  * Hidden fields are neither validated nor sent (01-16, G-01-2). Streaming
  * links, the featured flag and the featured rank only render for a short film,
- * and the theatre details only for a play. The form keeps their values in state
+ * and the theatre details only for a play. The payload omits the key of every
+ * hidden section (never `null`), so a type switch never wipes stored data
+ * (WR-05, 2026-11-10). The form keeps their values in state
  * across a type switch, so validating them for every type blocked Save on a
  * field the editor could not see (a blank streaming row, an act count of 0).
  * The object shape therefore uses loose "draft" schemas, and the `superRefine`
@@ -665,21 +667,26 @@ export function workToApiPayload(
       result: distinction.result || null,
       awardName: orNull(distinction.awardName),
     })),
-    theatreDetails: isPlay
+    // Theatre details are sent for a play only. Any other type omits the key
+    // (never `null`), so stored details survive a type switch the same way the
+    // short-film-only keys do (owner decision 2026-11-10, review WR-05).
+    ...(isPlay
       ? {
-          playType: details.playType || null,
-          format: details.format || null,
-          actCount: details.actCount,
-          hasIntermission: details.hasIntermission,
-          basedOn: orNull(details.basedOn),
-          originalLanguage: details.originalLanguage || null,
-          performedLanguages: details.performedLanguages,
-          productionCompany: orNull(details.productionCompany),
-          premiereDate: details.premiereDate,
-          premiereVenue: details.premiereVenueId,
-          isTourProduction: details.isTourProduction,
+          theatreDetails: {
+            playType: details.playType || null,
+            format: details.format || null,
+            actCount: details.actCount,
+            hasIntermission: details.hasIntermission,
+            basedOn: orNull(details.basedOn),
+            originalLanguage: details.originalLanguage || null,
+            performedLanguages: details.performedLanguages,
+            productionCompany: orNull(details.productionCompany),
+            premiereDate: details.premiereDate,
+            premiereVenue: details.premiereVenueId,
+            isTourProduction: details.isTourProduction,
+          },
         }
-      : null,
+      : {}),
     externalIds:
       values.tmdbId !== null || values.imdbId.trim()
         ? { tmdbId: values.tmdbId, imdbId: orNull(values.imdbId) }

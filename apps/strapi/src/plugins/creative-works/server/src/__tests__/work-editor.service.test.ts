@@ -433,4 +433,41 @@ describe("GET /creative-works/admin/works/:documentId", () => {
     expect(after.body.data.featured).toBe(true)
     expect(after.body.data.featuredRank).toBe(2)
   })
+
+  it("a save that omits theatreDetails keeps the stored component", async () => {
+    // WR-05 (owner decision 2026-11-10): the Works form omits theatreDetails
+    // for every non-play type instead of sending null, so switching a play to
+    // a film and saving must not wipe the theatre record.
+    const doc: any = await strapi.documents(CW).create({
+      data: {
+        title: uniq("keeps-theatre"),
+        slug: uniq("keeps-theatre"),
+        type: "play",
+        theatreDetails: {
+          playType: "revival",
+          format: "one-act",
+          actCount: 1,
+          hasIntermission: true,
+          basedOn: "Keep me",
+        },
+      } as any,
+      locale: "fr",
+    } as any)
+
+    const saved = await admin(
+      api().put(`${cmUrl(doc.documentId)}?locale=fr`)
+    ).send({ title: uniq("renamed-play"), type: "film" })
+    expect(saved.status).toBe(200)
+
+    const after = await editorGet(doc.documentId)
+    expect(after.status).toBe(200)
+    expect(after.body.data.type).toBe("film")
+    expect(after.body.data.theatreDetails).toMatchObject({
+      playType: "revival",
+      format: "one-act",
+      actCount: 1,
+      hasIntermission: true,
+      basedOn: "Keep me",
+    })
+  })
 })
