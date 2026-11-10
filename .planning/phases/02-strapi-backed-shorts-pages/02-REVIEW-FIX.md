@@ -2,9 +2,9 @@
 phase: 02-strapi-backed-shorts-pages
 fixed_at: 2026-11-10T00:00:00Z
 review_path: .planning/phases/02-strapi-backed-shorts-pages/02-REVIEW.md
-iteration: 1
-findings_in_scope: 5
-fixed: 5
+iteration: 3
+findings_in_scope: 7
+fixed: 7
 skipped: 0
 status: all_fixed
 ---
@@ -13,21 +13,25 @@ status: all_fixed
 
 **Fixed at:** 2026-11-10
 **Source review:** .planning/phases/02-strapi-backed-shorts-pages/02-REVIEW.md
-**Iteration:** 1
+**Iteration:** 3
 
 **Summary:**
 
-- Findings in scope: 5 (CR-01, WR-01, WR-02, WR-03, WR-04)
-- Fixed: 5
+- Findings in scope: 7 (iteration 1: CR-01, WR-01..WR-04; iteration 3: re-review WR-01 and IN-06)
+- Fixed: 7
 - Skipped: 0
 
-Out of scope for `fix_scope: critical_warning`: IN-01 to IN-05 remain in REVIEW.md.
+Finding ids in the Iteration 1 section below refer to the first review. The iteration 3 re-review
+overwrote REVIEW.md and reuses WR-01 for a new finding; it is labelled "iteration-3 WR-01" here.
+IN-01 to IN-05 remain open in REVIEW.md (out of scope for `critical_warning`; IN-06 was requested).
 
 Edits and commits were made directly on `main` in the main working tree (no isolated
 worktree), as the caller instructed. Verification below ran in that same tree, so it is
 reproducible from the current checkout.
 
 ## Fixed Issues
+
+### Iteration 1
 
 ### CR-01: `openExternal` always navigates the current tab away as well as opening a new one
 
@@ -86,6 +90,34 @@ count can exceed the visible cards by that number. Tests cover the mapper and bo
 against the old code).
 Status: fixed: requires human verification (product choice: omit vs. show unlinked).
 
+### Iteration 3
+
+#### Iteration-3 WR-01: Omitting slug-less films desynchronises the client's `hasMore` and result count
+
+**Files modified:** `apps/client/src/features/shorts/components/ShortsDirectory/ShortsDirectory.tsx`, `apps/client/src/features/shorts/components/ShortsDirectory/ShortsDirectory.test.tsx`, `apps/client/src/app/[locale]/shorts/page.tsx`, `apps/client/src/app/[locale]/shorts/page.test.tsx`
+**Commit:** 54e5b87
+**Applied fix:** The directory now pages on the server's `hasMore` (`page < pageCount`), which
+`getShortFilmsPage` and `/api/shorts` already returned. The server page passes it as the new
+`initialHasMore` prop (falling back to `shorts.length < total` only when absent), `fetchShortsPage`
+carries `hasMore` through (a body without it is treated as the last page), and the `exhausted`
+state and the `shorts.length < total` check are gone. Only a failed request stops the pager; an
+empty page never does. Result count: kept the server `total` as-is (simpler than the server
+reporting an omitted count); documented on the `totalShorts` prop, so the line can exceed the
+visible cards by the number of omitted films. New tests: the last page hides Load more when `total`
+counts an omitted film (both after a load and on the first page via `initialHasMore: false`), an
+all-omitted middle page still lets paging continue to page 3, and the page hands `hasMore` to the
+directory. The old "stops offering Load more on an empty page" test encoded the behaviour the
+re-review flagged and was replaced; the three new directory tests fail against the old component.
+Status: fixed: requires human verification (paging logic).
+
+#### IN-06: `mapShortFilmSummaries` warns on every render of an affected list
+
+**Files modified:** `apps/client/src/features/shorts/utils/shortMappers.ts`, `apps/client/src/features/shorts/utils/shortMappers.test.ts`
+**Commit:** be5e855
+**Applied fix:** A module-level `Set` of reported documentIds makes each slug-less film log once
+per process; a call with only already-reported films logs nothing. The new test fails against the
+previous version.
+
 ## Skipped Issues
 
 None.
@@ -94,9 +126,9 @@ None.
 
 Run in `apps/client` on `main` (main working tree):
 
-- `yarn vitest run`: `Test Files  139 passed (139)`, `Tests  1778 passed (1778)`
+- `yarn vitest run`: `Test Files  139 passed (139)`, `Tests  1782 passed (1782)` (iteration 3; iteration 1 was 1778)
 - `npx tsc --noEmit`: no output, clean
-- `yarn lint` (`eslint . --max-warnings=0`): `Done in 27.26s.`, no warnings
+- `yarn lint` (`eslint . --max-warnings=0`): `Done in 25.10s.`, no warnings
 
 Each commit also passed the repo's lint-staged ESLint and commitlint hooks.
 
@@ -104,4 +136,4 @@ Each commit also passed the repo's lint-staged ESLint and commitlint hooks.
 
 _Fixed: 2026-11-10_
 _Fixer: Claude (gsd-code-fixer)_
-_Iteration: 1_
+_Iteration: 3_
