@@ -332,6 +332,9 @@ export function mapShortFilmSummary(dto: ShortFilmSummaryDto): ShortFilm {
   }
 }
 
+/** DocumentIds already warned about, so a slug-less film logs once per process. */
+const reportedSlugless = new Set<string>()
+
 /**
  * Map a list/related page of summaries, leaving out films the API returned
  * without a slug. The detail route resolves by slug only, so a film with no
@@ -342,14 +345,20 @@ export function mapShortFilmSummary(dto: ShortFilmSummaryDto): ShortFilm {
 export function mapShortFilmSummaries(
   dtos: readonly ShortFilmSummaryDto[]
 ): ShortFilm[] {
-  const linkable = dtos.filter((dto) => nonBlank(dto.slug) !== undefined)
-  if (linkable.length !== dtos.length) {
-    const skipped = dtos
-      .filter((dto) => nonBlank(dto.slug) === undefined)
-      .map((dto) => dto.documentId)
+  const linkable: ShortFilmSummaryDto[] = []
+  const unreported: string[] = []
+  for (const dto of dtos) {
+    if (nonBlank(dto.slug) !== undefined) {
+      linkable.push(dto)
+    } else if (!reportedSlugless.has(dto.documentId)) {
+      reportedSlugless.add(dto.documentId)
+      unreported.push(dto.documentId)
+    }
+  }
+  if (unreported.length > 0) {
     console.warn(
-      `[shorts] omitted ${skipped.length} short film(s) with no slug (no detail page can resolve them):`,
-      skipped.join(", ")
+      `[shorts] omitted ${unreported.length} short film(s) with no slug (no detail page can resolve them):`,
+      unreported.join(", ")
     )
   }
   return linkable.map((dto) => mapShortFilmSummary(dto))

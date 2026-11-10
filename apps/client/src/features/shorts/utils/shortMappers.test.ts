@@ -346,15 +346,15 @@ describe("mapShortFilmSummaries: slug-less films", () => {
 
     const films = mapShortFilmSummaries([
       summaryDto({ documentId: "d-ok", slug: "ok" }),
-      summaryDto({ documentId: "d-null", slug: null }),
-      summaryDto({ documentId: "d-blank", slug: "   " }),
+      summaryDto({ documentId: "d-null-1", slug: null }),
+      summaryDto({ documentId: "d-blank-1", slug: "   " }),
     ])
 
     expect(films.map((f) => f.slug)).toEqual(["ok"])
-    expect(films.map((f) => f.documentId)).not.toContain("d-null")
+    expect(films.map((f) => f.documentId)).not.toContain("d-null-1")
     expect(warn).toHaveBeenCalledTimes(1)
-    expect(warn.mock.calls[0].join(" ")).toContain("d-null")
-    expect(warn.mock.calls[0].join(" ")).toContain("d-blank")
+    expect(warn.mock.calls[0].join(" ")).toContain("d-null-1")
+    expect(warn.mock.calls[0].join(" ")).toContain("d-blank-1")
     warn.mockRestore()
   })
 
@@ -368,6 +368,27 @@ describe("mapShortFilmSummaries: slug-less films", () => {
 
     expect(films).toHaveLength(2)
     expect(warn).not.toHaveBeenCalled()
+    warn.mockRestore()
+  })
+
+  it("warns once per documentId, not on every request", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {})
+    const page = () => [
+      summaryDto({ documentId: "d-repeat", slug: null }),
+      summaryDto({ documentId: "d-ok-2", slug: "ok-2" }),
+    ]
+
+    mapShortFilmSummaries(page())
+    mapShortFilmSummaries(page())
+    mapShortFilmSummaries([
+      ...page(),
+      summaryDto({ documentId: "d-new", slug: null }),
+    ])
+
+    expect(warn).toHaveBeenCalledTimes(2)
+    expect(warn.mock.calls[0].join(" ")).toContain("d-repeat")
+    expect(warn.mock.calls[1].join(" ")).toContain("d-new")
+    expect(warn.mock.calls[1].join(" ")).not.toContain("d-repeat")
     warn.mockRestore()
   })
 })
