@@ -119,6 +119,7 @@ Decisions are logged in PROJECT.md (Locked Decisions and Key Decisions table). R
 - [Phase 04]: `/shorts` opens on one 2:3 poster grid with a one-line catalogue intro and genre/duration chips; no featured hero, no latest-additions row. ROADMAP Phase 4 criterion 1 and SDIR-01 amended (owner, 2026-11-09)
 - [Brand]: Focus ring is 3px gold with 2px offset site-wide (SBRAND-04 wording stands; the global 2px rule changes) (owner, 2026-11-09)
 - [Brand]: Arabic body and headings use IBM Plex Sans Arabic app-wide, replacing Noto Sans Arabic (SBRAND-02 stands) (owner, 2026-11-09)
+- [Phase 01]: A Film/Play/Short-film save omits theatreDetails instead of sending null, so a type switch never wipes stored theatre data (review WR-05; reverses the 01-16 truth) (owner, 2026-11-10)
 - [Phase 04]: Directory cards ship without the watchlist heart; the card heart moves to the real-watchlist work in Phase 2 (FR19, Phase 2 criterion 4); SDIR-02 no longer lists it (owner, 2026-11-09)
 - [Phase 01]: 01-16: omit short-film-only keys (streamingLinks, featured, featuredRank) from Film/Play payloads; boot case confirms omitted keys leave stored values untouched
 - [Phase 01]: 01-16: admin strings en/fr only; Arabic RTL via dir/lang on content inputs only
