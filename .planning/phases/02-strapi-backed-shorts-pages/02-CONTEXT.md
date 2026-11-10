@@ -49,6 +49,13 @@ Requirements: SPAGE-01, SPAGE-02, SPAGE-03, SPAGE-04, SPAGE-05, FR19, FR20, FR21
 
 - **D-17:** Ticket features are not available at launch. Remove the "Billets" (tickets) entry from the public bottom nav (`src/components/layout/BottomNav/BottomNav.tsx`, today an unconditional tab) and from the desktop header links. Gate it behind a new client flag (e.g. `NEXT_PUBLIC_TICKETING_ENABLED`, default off) so ticketing can return without redesign. The `/tickets` route code stays, because ticketing is dormant and never deleted; it is just unlinked. The bottom nav becomes three tabs (Accueil, Recherche, Compte), as on the approved boards.
 
+### Resolved after research (orchestrator, 2026-11-10; owner asked not to be re-asked)
+
+- **D-18:** Watchlist entries for short films show the default-locale (French) title on `/ar` and `/en` in this phase; a locale overlay is a later follow-up.
+- **D-19:** Language display: `ber` gets explicit copy ("berbère" / "البربرية" / "Berber"); `aeb` uses the UI-SPEC override; the value `none` is dropped silently; never call `Intl.DisplayNames` with an unvalidated code (it throws on `none`).
+- **D-20:** Directory outage renders the error UI after hydration with HTTP 200 (accepted); the detail page returns a true 500 from the layout-level fetch. A failing related-films shelf is omitted softly and never fails the page.
+- **D-21:** No shadcn `avatar` install (its `@radix-ui/react-avatar` dependency was flagged too-new). The initials disc is a plain styled element; `empty` may be added from the official registry.
+
 ### Claude's Discretion
 
 - Whether the watchlist hooks move from `features/events/hooks` to a shared `features/watchlist` module or are imported cross-feature (prefer moving if the diff stays small).
