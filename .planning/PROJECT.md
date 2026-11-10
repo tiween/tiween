@@ -32,12 +32,12 @@ People in Tunisia can find what is happening and what to watch across film, thea
 - ✓ Real lint gates (`--max-warnings=0`, both apps), Western-numeral lint guard, non-UTF-8 CI guard; Dokploy + GitHub Actions deploy pipeline — Epic 1 (1.8-1.13)
 - ✓ Ticketing stack built and flag-gated off (6.1-6.5, 3.12): order Unit of Work, Konnect payments plugin, HMAC QR tickets, email delivery. Dormant, never deleted.
 - ✓ Short-film detail page rebuilt to the 2026 design handoff (commit ead7b47): UI only, still fed by `mock-shorts.ts`
+- ✓ Short-film catalog backend: directory schema fields, admin entry/translate/publish in the Works screen (publish guard, locale tabs, Arabic RTL content inputs), public read API (list/detail/featured/related, rate-limited), 13-film launch catalog importer proven on dev Postgres + ImageKit; production import is Phase 6 — Phase 1 (2026-11-10)
 
 ### Active
 
 <!-- Milestone v1.0 Shorts Directory. Full list with IDs in REQUIREMENTS.md; phase mapping in ROADMAP.md. -->
 
-- [ ] Short-film catalog backend: schema fields the directory needs, admin entry, public read API, launch catalog loaded (Phase 1)
 - [ ] Shorts pages read real Strapi data, DW-148 fixed, detail page completed (crew grid, access type), real watchlist, honest error states (Phase 2)
 - [ ] Meilisearch self-hosted on Dokploy, Strapi-side indexer, client search swapped, Algolia removed (Phase 3)
 - [ ] Finished directory experience on Gold Leaf x Aubergine: hero, filters, sort, cards, suggestion form with a real backend, trilingual, RTL, accessible (Phase 4)
@@ -124,7 +124,6 @@ Do not re-litigate. No ADR carries `locked: true`, so the owner resolutions and 
 ### Decided in the phase that owns them (not yet decided)
 
 - Meilisearch integration shape: dedicated search plugin vs indexing hooks in `creative-works`; one index with a locale field vs one index per locale; whether browsers query Meilisearch directly with a search-only key or through a Next.js route (Phase 3).
-- Poster/media sourcing and rights for the launch catalog, and the launch catalog size (Phase 1).
 - Which public read endpoints and query-param allowlist the short-film API exposes, and the `short-film-suggestion` content type's home plugin (Phases 1 and 4).
 - Magenta secondary small-text treatment (large-only + alternate small-tag style, or a darker magenta token) — decided in the Phase 4 UI-SPEC.
 - Whether to ship `ShortsShowcase` or `ShortsDirectory` as the directory composition (the other is deleted) — Phase 4.
@@ -133,19 +132,21 @@ Do not re-litigate. No ADR carries `locked: true`, so the owner resolutions and 
 
 ## Key Decisions
 
-| Decision                                                                    | Rationale                                                                                                                                            | Outcome |
-| --------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
-| Shorts-first v1.0; everything else to a v2+ backlog                         | Owner wants one finished, shippable surface before widening; the rest of the synthesized v1 set is real but not on the critical path                 | Pending |
-| Meilisearch replaces Algolia                                                | Algolia was read-side only with no indexer ever built; self-hosted Meilisearch removes a vendor and fits the VPS; single-Strapi invariant unaffected | Pending |
-| Gold Leaf x Aubergine on shorts surfaces via an additive scoped token layer | Delivers the brand where users look first without a risky global re-skin of ~10 features and every Storybook story                                   | Pending |
-| Phase 1 builds the public short-film read API                               | The creative-works plugin has no public list/detail route; the client fetchers currently hit nothing real                                            | Pending |
-| Client reads `credits[]` and `videos[]` (events mapper pattern)             | The schema has no `directors`/`trailer`; DW-148 is a hard 400, not a soft degradation                                                                | Pending |
-| Suggestion form gets a real Strapi backend                                  | The current route logs and returns fake success; a form that silently drops submissions is worse than none                                           | Pending |
-| Shorts stay noindex and unlinked until Phase 6                              | `main` auto-deploys to production, so unfinished work must not be discoverable                                                                       | Pending |
-| `creative-work` as unified catalog; movie/play retired (ADR-P7)             | Inverted 2026-06-15; both catalogs were empty so schema-only                                                                                         | Good    |
-| Ticketing dormant, not removed (ADR-P3)                                     | Aggregation-first relaunch; avoids rollback risk and keeps 6.1-6.5 reusable                                                                          | Good    |
-| Redis deferred, single instance (ADR-P2)                                    | Nothing imported a Redis client; in-process design is correct at replicas 1                                                                          | Good    |
-| Brevo for email (ADR-R2)                                                    | Matches the code (`packages/strapi-provider-email-brevo`)                                                                                            | Good    |
+| Decision                                                                        | Rationale                                                                                                                                            | Outcome |
+| ------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
+| Shorts-first v1.0; everything else to a v2+ backlog                             | Owner wants one finished, shippable surface before widening; the rest of the synthesized v1 set is real but not on the critical path                 | Pending |
+| Meilisearch replaces Algolia                                                    | Algolia was read-side only with no indexer ever built; self-hosted Meilisearch removes a vendor and fits the VPS; single-Strapi invariant unaffected | Pending |
+| Gold Leaf x Aubergine on shorts surfaces via an additive scoped token layer     | Delivers the brand where users look first without a risky global re-skin of ~10 features and every Storybook story                                   | Pending |
+| Phase 1 builds the public short-film read API                                   | The creative-works plugin has no public list/detail route; the client fetchers currently hit nothing real                                            | Good    |
+| Client reads `credits[]` and `videos[]` (events mapper pattern)                 | The schema has no `directors`/`trailer`; DW-148 is a hard 400, not a soft degradation                                                                | Pending |
+| Suggestion form gets a real Strapi backend                                      | The current route logs and returns fake success; a form that silently drops submissions is worse than none                                           | Pending |
+| Shorts stay noindex and unlinked until Phase 6                                  | `main` auto-deploys to production, so unfinished work must not be discoverable                                                                       | Pending |
+| `creative-work` as unified catalog; movie/play retired (ADR-P7)                 | Inverted 2026-06-15; both catalogs were empty so schema-only                                                                                         | Good    |
+| Ticketing dormant, not removed (ADR-P3)                                         | Aggregation-first relaunch; avoids rollback risk and keeps 6.1-6.5 reusable                                                                          | Good    |
+| Redis deferred, single instance (ADR-P2)                                        | Nothing imported a Redis client; in-process design is correct at replicas 1                                                                          | Good    |
+| Strapi admin interface is en/fr only; Arabic is content-only (2026-11-10)       | Editors work in FR/EN; Arabic stays a first-class content locale with RTL inputs                                                                     | Good    |
+| Type switch never wipes hidden fields (theatreDetails, short-film keys omitted) | A mistaken type change must not destroy stored data; Strapi leaves omitted component keys untouched (boot-proven)                                    | Good    |
+| Brevo for email (ADR-R2)                                                        | Matches the code (`packages/strapi-provider-email-brevo`)                                                                                            | Good    |
 
 ## Evolution
 
@@ -169,4 +170,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 ---
 
-_Last updated: 2026-10-18 after ingest routing (shorts-first milestone scope and Meilisearch decision applied)_
+_Last updated: 2026-11-10 after Phase 1 (Short-Film Catalog Backend)_

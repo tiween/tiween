@@ -22,10 +22,10 @@ progress:
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-10-18)
+See: .planning/PROJECT.md (updated 2026-11-10)
 
 **Core value:** People in Tunisia can find what is happening and what to watch across film, theatre, shorts, concerts and exhibitions, in their own language, on their phone.
-**Current focus:** Phase 01 — Short-Film Catalog Backend
+**Current focus:** Phase 2 — Strapi-Backed Shorts Pages
 
 ## Current Position
 
@@ -131,8 +131,8 @@ Decisions are logged in PROJECT.md (Locked Decisions and Key Decisions table). R
 
 ### Blockers/Concerns
 
-- [Phase 1] The creative-works plugin has no public list/detail route (only `featured`, `type/:type`, `search`); the current client fetchers hit nothing real and also request nonexistent fields (400s). Phase 1 designs the public read API and param allowlist.
-- [Phase 1] Poster/media sourcing and rights for the launch catalog are undecided (mocks hotlink YouTube stills); launch catalog size is undecided. Owner input needed in discuss-phase.
+- [Phase 1 → 6] No launch film has a real 2:3 poster (all 13 publish under the poster bypass, owner-accepted); production import, genre ar/en rows and owner review of AI-drafted Arabic fields carry to Phase 6.
+- [Phase 1 → 6] Rate limiting keys on `ctx.ip` with `server.proxy` unset: behind the Dokploy proxy all callers share one bucket. Set `server.proxy` with the Phase 6 deploy.
 - [Phase 3] Meilisearch shape is open: search plugin vs `creative-works` hooks, one index with a locale field vs per-locale indexes, browser-direct search-only key vs Next.js route, Arabic and French normalization quality. Research flag.
 - [Phase 4] Decide in the UI-SPEC: magenta small-text treatment (3.75:1 fails 4.5:1), `ShortsShowcase` vs `ShortsDirectory`, reconciling the detail page's handoff palette (`#161015`/`#241326`) with the spine tokens (`#241326`/`#31203A`). A `Courts Metrages` handoff mock exists in `design_handoff_tiween/` but the kernel marks that folder inert; consult it only with explicit owner approval.
 - [Phase 4] Suggestion form needs a new `short-film-suggestion` content type, and a decision on its home plugin (kernel: plugins only, facade rules R1-R5).
