@@ -2,7 +2,6 @@
 export {
   ShortFilmCard,
   ShortFilmCardSkeleton,
-  ShortsHero,
   ShortsFilters,
   SuggestionForm,
   ShortFilmDetail,
@@ -11,8 +10,6 @@ export {
 
 export type {
   ShortFilmCardProps,
-  ShortsHeroProps,
-  ShortsHeroLabels,
   ShortsFiltersProps,
   GenreOption,
   SuggestionFormProps,

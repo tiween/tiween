@@ -1187,16 +1187,6 @@
       "watchlistAdd": "Ajouter « {title} » à ma watchlist",
       "watchlistRemove": "Retirer « {title} » de ma watchlist"
     },
-    "hero": {
-      "region": "À la une",
-      "slideRole": "diapositive",
-      "slide": "{index} sur {total} : {title}",
-      "goToSlide": "Afficher le film {index} sur {total}",
-      "previous": "Film précédent",
-      "next": "Film suivant",
-      "watchTrailer": "Bande-annonce",
-      "viewDetails": "Découvrir"
-    },
     "filters": {
       "search": "Rechercher un court métrage",
       "searchPlaceholder": "Titre, réalisateur…",
@@ -1229,16 +1219,10 @@
     },
     "directory": {
       "description": "Courts métrages du Maghreb et du monde arabe, choisis depuis la Tunisie.",
-      "latest": "Derniers ajouts",
-      "seeAll": "Voir tout",
       "all": "Tous les courts métrages",
       "loadMore": "Afficher plus",
       "loading": "Chargement des courts métrages…",
-      "emptyTitle": "Rien ne correspond à cette recherche",
-      "emptyBody": "Élargissez les filtres ou essayez un autre titre : le catalogue s'enrichit chaque semaine.",
-      "resetFilters": "Réinitialiser les filtres",
       "errorTitle": "Le catalogue ne répond pas",
-      "errorBody": "Vérifiez votre connexion, puis relancez le chargement.",
       "retry": "Réessayer",
       "loadMoreError": "La suite n'a pas pu être chargée.",
       "suggestPrompt": "Un court métrage manque au catalogue ?",

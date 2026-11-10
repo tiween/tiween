@@ -1,9 +1,6 @@
 export { ShortFilmCard, ShortFilmCardSkeleton } from "./ShortFilmCard"
 export type { ShortFilmCardProps } from "./ShortFilmCard"
 
-export { ShortsHero } from "./ShortsHero"
-export type { ShortsHeroProps, ShortsHeroLabels } from "./ShortsHero"
-
 export { ShortsFilters } from "./ShortsFilters"
 export type { ShortsFiltersProps, GenreOption } from "./ShortsFilters"
 

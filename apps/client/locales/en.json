@@ -1187,16 +1187,6 @@
       "watchlistAdd": "Add {title} to my watchlist",
       "watchlistRemove": "Remove {title} from my watchlist"
     },
-    "hero": {
-      "region": "Featured",
-      "slideRole": "slide",
-      "slide": "{index} of {total}: {title}",
-      "goToSlide": "Show film {index} of {total}",
-      "previous": "Previous film",
-      "next": "Next film",
-      "watchTrailer": "Trailer",
-      "viewDetails": "Discover"
-    },
     "filters": {
       "search": "Search short films",
       "searchPlaceholder": "Title, director…",
@@ -1229,16 +1219,10 @@
     },
     "directory": {
       "description": "Short films from the Maghreb and the Arab world, picked from Tunisia.",
-      "latest": "Recently added",
-      "seeAll": "See all",
       "all": "All short films",
       "loadMore": "Show more",
       "loading": "Loading short films…",
-      "emptyTitle": "Nothing matches this search",
-      "emptyBody": "Widen the filters or try another title. The catalog grows every week.",
-      "resetFilters": "Reset filters",
       "errorTitle": "The catalog isn't responding",
-      "errorBody": "Check your connection, then load it again.",
       "retry": "Try again",
       "loadMoreError": "The next films couldn't be loaded.",
       "suggestPrompt": "Missing a short film from the catalog?",

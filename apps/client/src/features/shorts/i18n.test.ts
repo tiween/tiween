@@ -187,11 +187,23 @@ describe("Phase 2 shorts copy", () => {
       for (const path of [
         "shorts.watchlist",
         "shorts.removeFromWatchlist",
-        "shorts.hero",
-        "shorts.directory.emptyTitle",
         "shorts.directory.retry",
       ]) {
         expect(resolve(locale, path), path).toBeDefined()
+      }
+    })
+
+    it("no longer carries the keys that died with ShortsHero and the filter empty state (D-02, D-04)", () => {
+      for (const path of [
+        "shorts.hero",
+        "shorts.directory.errorBody",
+        "shorts.directory.latest",
+        "shorts.directory.seeAll",
+        "shorts.directory.emptyTitle",
+        "shorts.directory.emptyBody",
+        "shorts.directory.resetFilters",
+      ]) {
+        expect(resolve(locale, path), path).toBeUndefined()
       }
     })
   })
