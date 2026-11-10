@@ -14,10 +14,12 @@ import {
   filterByCategory,
   partitionWatchlist,
 } from "@/features/events/utils/watchlistView"
+import { ReservedArtwork } from "@/features/shorts/components/ReservedArtwork"
+import { formatCount, positiveNumber } from "@/features/shorts/utils"
 import { useQueryClient } from "@tanstack/react-query"
 import { AlertCircle, Heart, RefreshCw, WifiOff } from "lucide-react"
 import { useSession } from "next-auth/react"
-import { useTranslations } from "next-intl"
+import { useLocale, useTranslations } from "next-intl"
 
 import type { CategoryType } from "@/features/events/components/CategoryTabs"
 import type { EventCardLabels } from "@/features/events/components/EventCard"
@@ -283,6 +285,12 @@ function OfflineBanner({
  * When offline (Story 5.4), the row is read-only: the heart is disabled (with a
  * tooltip) and `onWatchlist` is omitted so a tap does nothing — no enqueue, no
  * toast. `useRemoveFromWatchlist` itself is untouched.
+ *
+ * A saved short film (Phase 2, FR21, D-16) renders as the short-film entry of
+ * the same card: reserved artwork when there is no poster, the singular
+ * `shorts.category` badge, an optional `{year} · {duration}` meta line, no venue
+ * and no date, and a link to `/shorts/<slug>` (no link at all without a slug).
+ * The title is the payload's default-locale (French) one on every locale (D-18).
  */
 function WatchlistCard({
   item,
@@ -296,18 +304,26 @@ function WatchlistCard({
   isOffline: boolean
 }) {
   const router = useRouter()
+  const locale = useLocale()
+  const ts = useTranslations("shorts")
   const queryClient = useQueryClient()
   const { data: session } = useSession()
   const userId = session?.user?.userId
   const creativeWorkId = item.creativeWork.documentId
-  const { remove } = useRemoveFromWatchlist(creativeWorkId)
+  const isShortFilm = item.creativeWork.type === "short-film"
+  const { remove } = useRemoveFromWatchlist(creativeWorkId, {
+    variant: isShortFilm ? "short-film" : "event",
+  })
 
   // Localized category badge: creative-work type -> UI category -> localized
-  // label; fall back to the (French) display map for an unmapped type.
+  // label; fall back to the (French) display map for an unmapped type. A short
+  // film reads the SINGULAR `shorts.category`; the plural label is the tab's.
   const uiCategory = TYPE_TO_CATEGORY[item.creativeWork.type ?? ""]
-  const category = uiCategory
-    ? categoryLabels[uiCategory]
-    : mapTypeToCategory(item.creativeWork.type)
+  const category = isShortFilm
+    ? ts("category")
+    : uiCategory
+      ? categoryLabels[uiCategory]
+      : mapTypeToCategory(item.creativeWork.type)
 
   React.useEffect(() => {
     // Seed under the CURRENT user's scope only (Story 5.8) — never write a
@@ -318,15 +334,60 @@ function WatchlistCard({
     })
   }, [queryClient, creativeWorkId, userId])
 
+  const posterUrl =
+    item.creativeWork.poster?.formats?.small?.url ||
+    item.creativeWork.poster?.url
+
+  if (isShortFilm) {
+    // Each part is omitted when absent (a CMS 0/null/NaN is "absent"), so the
+    // line never carries a lone separator or a literal "0".
+    const year = positiveNumber(item.creativeWork.releaseYear)
+    const duration = positiveNumber(item.creativeWork.duration)
+    const metaLine = [
+      year !== null ? String(year) : null,
+      duration !== null
+        ? ts("durationMinutes", {
+            count: duration,
+            display: formatCount(duration, locale),
+          })
+        : null,
+    ]
+      .filter(Boolean)
+      .join(" · ")
+    // The href is built only from the slug (T-02-17); a stale offline snapshot
+    // without one renders unlinked rather than pointing at an /events/<id> route.
+    const slug = item.creativeWork.slug?.trim()
+
+    return (
+      <EventCard
+        event={{
+          id: creativeWorkId,
+          title: item.creativeWork.title,
+          posterUrl: posterUrl || "",
+          category,
+          venueName: "",
+          date: "",
+        }}
+        variant="default"
+        isWatchlisted
+        onWatchlist={isOffline ? undefined : remove}
+        watchlistDisabled={isOffline}
+        labels={labels}
+        shortFilm={{
+          href: slug ? `/shorts/${encodeURIComponent(slug)}` : undefined,
+          metaLine: metaLine || null,
+          posterFallback: <ReservedArtwork />,
+        }}
+      />
+    )
+  }
+
   return (
     <EventCard
       event={{
         id: creativeWorkId,
         title: item.creativeWork.title,
-        posterUrl:
-          item.creativeWork.poster?.formats?.small?.url ||
-          item.creativeWork.poster?.url ||
-          "/images/placeholder-poster.jpg",
+        posterUrl: posterUrl || "/images/placeholder-poster.jpg",
         category,
         venueName: item.venueName ?? "",
         date: item.nextScreeningDate ?? item.lastScreeningDate ?? "",

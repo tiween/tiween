@@ -8,6 +8,7 @@ import { useTranslations } from "next-intl"
 import type { EventCardEvent, EventCardVariant } from "../../types/event.types"
 
 import { isTicketPurchaseEnabled } from "@/lib/feature-flags"
+import { Link } from "@/lib/navigation"
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import {
@@ -43,6 +44,20 @@ const defaultLabels: EventCardLabels = {
   removeFromWatchlist: "Retirer de la liste de suivi",
 }
 
+/**
+ * Short-film entry mode (watchlist page, plan 02-07, FR21 + D-16). A short film
+ * has no screening, so the card drops the venue/date row, frames the poster at
+ * 2:3 and links to the film's detail page instead of an event route.
+ */
+export interface EventCardShortFilm {
+  /** Locale-aware target (`/shorts/<slug>`). Absent = no link, never a guess. */
+  href?: string
+  /** Optional muted line under the title, e.g. "2012 · 30 min". */
+  metaLine?: string | null
+  /** Rendered in the 2:3 frame when the event has no poster url. */
+  posterFallback?: React.ReactNode
+}
+
 export interface EventCardProps {
   /** Event data to display */
   event: EventCardEvent
@@ -62,6 +77,8 @@ export interface EventCardProps {
   className?: string
   /** Localized labels */
   labels?: EventCardLabels
+  /** Render as a short-film entry (see {@link EventCardShortFilm}). */
+  shortFilm?: EventCardShortFilm
 }
 
 // Variant-specific configurations
@@ -128,6 +145,7 @@ export function EventCard({
   onClick,
   className,
   labels = defaultLabels,
+  shortFilm,
 }: EventCardProps) {
   const config = variantConfig[variant]
   const badgeVariant = categoryVariants[event.category] || "secondary"
@@ -166,6 +184,9 @@ export function EventCard({
       className={cn(
         // Position - RTL aware using logical properties
         "absolute end-2 top-2",
+        // Short film only: stay an independent target above the stretched title
+        // link (z-10). Event cards keep their markup unchanged.
+        shortFilm && "z-20",
         // Size - minimum 44x44px touch target
         "flex h-11 w-11 items-center justify-center",
         // Background
@@ -197,7 +218,7 @@ export function EventCard({
     <article
       role="article"
       aria-labelledby={`event-title-${event.id}`}
-      onClick={onClick}
+      onClick={shortFilm ? undefined : onClick}
       className={cn(
         // Base card styles
         "bg-card text-card-foreground relative overflow-hidden rounded-xl border",
@@ -205,23 +226,34 @@ export function EventCard({
         "transition-all duration-200",
         "hover:shadow-lg lg:hover:scale-[1.02] lg:hover:shadow-xl",
         // Cursor pointer if clickable
-        onClick && "cursor-pointer",
+        onClick && !shortFilm && "cursor-pointer",
         // Focus styles for keyboard navigation
         "focus-within:ring-ring focus-within:ring-3 focus-within:ring-offset-2",
         className
       )}
     >
       {/* Image Container */}
-      <div className={cn("relative w-full", config.imageHeight)}>
-        <Image
-          src={event.posterUrl || "/images/placeholder-poster.jpg"}
-          alt={event.title}
-          fill
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          className="object-cover"
-          placeholder="blur"
-          blurDataURL={BLUR_DATA_URL}
-        />
+      <div
+        className={cn(
+          "relative w-full",
+          shortFilm ? "aspect-[2/3]" : config.imageHeight
+        )}
+      >
+        {shortFilm && !event.posterUrl ? (
+          shortFilm.posterFallback
+        ) : (
+          <Image
+            src={event.posterUrl || "/images/placeholder-poster.jpg"}
+            // A short film's title is the card link right below: the poster is
+            // decoration there, so it is not announced twice.
+            alt={shortFilm ? "" : event.title}
+            fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            className="object-cover"
+            placeholder="blur"
+            blurDataURL={BLUR_DATA_URL}
+          />
+        )}
 
         {/* Category Badge - positioned top-left */}
         <div className="absolute start-2 top-2">
@@ -253,19 +285,41 @@ export function EventCard({
             "line-clamp-2"
           )}
         >
-          {event.title}
+          {shortFilm?.href ? (
+            // The card's one navigation target: the link text is the title and
+            // its pseudo-element stretches over the whole card.
+            <Link
+              href={shortFilm.href}
+              className="after:absolute after:inset-0 after:z-10 focus-visible:outline-none"
+            >
+              <bdi>{event.title}</bdi>
+            </Link>
+          ) : shortFilm ? (
+            <bdi>{event.title}</bdi>
+          ) : (
+            event.title
+          )}
         </h3>
 
-        {/* Venue and Date */}
-        <div className="text-muted-foreground mt-1 text-sm">
-          <span>{event.venueName}</span>
-          {config.showDate && formatDate(event.date) && (
-            <>
-              <span className="mx-1">•</span>
-              <span>{formatDate(event.date)}</span>
-            </>
-          )}
-        </div>
+        {shortFilm ? (
+          // A short film has no venue and no date: no row, no placeholder dash.
+          shortFilm.metaLine ? (
+            <p className="text-muted-foreground mt-1 text-sm">
+              <bdi>{shortFilm.metaLine}</bdi>
+            </p>
+          ) : null
+        ) : (
+          /* Venue and Date */
+          <div className="text-muted-foreground mt-1 text-sm">
+            <span>{event.venueName}</span>
+            {config.showDate && formatDate(event.date) && (
+              <>
+                <span className="mx-1">•</span>
+                <span>{formatDate(event.date)}</span>
+              </>
+            )}
+          </div>
+        )}
 
         {/* Price — a ticket price on a discovery surface: gated behind the
             aggregation-only v1 purchase flag (Story 3.12) */}

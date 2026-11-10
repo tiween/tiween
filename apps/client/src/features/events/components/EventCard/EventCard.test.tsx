@@ -10,6 +10,7 @@
  * @ts-nocheck
  */
 
+import * as React from "react"
 import { fireEvent, render, screen } from "@testing-library/react"
 import { describe, expect, it, vi } from "vitest"
 
@@ -31,6 +32,20 @@ vi.mock("@/lib/feature-flags", () => ({
 vi.mock("next-intl", () => ({
   useTranslations: () => (key: string, values?: Record<string, unknown>) =>
     values?.price === undefined ? key : `${key}:${values.price}`,
+}))
+
+// Locale-aware Link (short-film entries on the watchlist page, plan 02-07): the
+// real one needs the next-intl routing context, so render a plain anchor.
+vi.mock("@/lib/navigation", () => ({
+  Link: ({
+    href,
+    children,
+    ...rest
+  }: React.AnchorHTMLAttributes<HTMLAnchorElement> & { href: string }) => (
+    <a href={href} {...rest}>
+      {children}
+    </a>
+  ),
 }))
 
 // Mock next/image for testing
@@ -275,6 +290,147 @@ describe("EventCard watchlistDisabled (Story 5.4)", () => {
     fireEvent.click(heart)
     expect(onWatchlist).toHaveBeenCalledTimes(1)
     expect(screen.queryByTitle("Unavailable offline")).not.toBeInTheDocument()
+  })
+})
+
+// Plan 02-07 (FR21, D-16): the additive `shortFilm` prop turns the default card
+// into the watchlist's short-film entry. Without it nothing changes (every
+// suite above).
+describe("EventCard shortFilm (plan 02-07)", () => {
+  const shortEvent: EventCardEvent = {
+    id: "cw-short-1",
+    title: "Les Souliers de l'Aïd",
+    posterUrl: "",
+    category: "Court métrage",
+    venueName: "",
+    date: "",
+  }
+  const fallback = <div data-testid="reserved-artwork" />
+
+  it("renders the same markup as before when the prop is omitted", () => {
+    const { container: plain } = render(<EventCard event={mockEvent} />)
+    const { container: withUndefined } = render(
+      <EventCard event={mockEvent} shortFilm={undefined} />
+    )
+    expect(withUndefined.innerHTML).toBe(plain.innerHTML)
+    expect(plain.querySelector("a")).toBeNull()
+    expect(screen.getAllByText("Test Venue")).toHaveLength(2)
+  })
+
+  it("frames the poster at 2:3 and shows the fallback node when there is no poster", () => {
+    const { container } = render(
+      <EventCard event={shortEvent} shortFilm={{ posterFallback: fallback }} />
+    )
+
+    expect(screen.getByTestId("reserved-artwork")).toBeInTheDocument()
+    // No Next image and never the shared event placeholder.
+    expect(container.querySelector("img")).toBeNull()
+    expect(container.innerHTML).not.toContain("placeholder-poster")
+    const frame = screen.getByTestId("reserved-artwork").parentElement
+    expect(frame?.className).toContain("aspect-[2/3]")
+    expect(frame?.className).not.toContain("h-40")
+  })
+
+  it("shows the poster when the record has one", () => {
+    const { container } = render(
+      <EventCard
+        event={{ ...shortEvent, posterUrl: "https://example.com/p.jpg" }}
+        shortFilm={{ posterFallback: fallback }}
+      />
+    )
+    expect(container.querySelector("img")).toHaveAttribute(
+      "src",
+      "https://example.com/p.jpg"
+    )
+    // Decorative: the title link right below already names the film.
+    expect(container.querySelector("img")).toHaveAttribute("alt", "")
+    expect(screen.queryByTestId("reserved-artwork")).toBeNull()
+  })
+
+  it("renders no venue and no date row, even when the event carries them", () => {
+    const { container } = render(
+      <EventCard
+        event={{ ...shortEvent, venueName: "Salle X", date: "2026-02-01" }}
+        shortFilm={{ posterFallback: fallback }}
+      />
+    )
+    expect(screen.queryByText("Salle X")).toBeNull()
+    expect(container.textContent).not.toContain("01/02/2026")
+    expect(container.textContent).not.toContain("•")
+    expect(container.textContent).not.toContain("—")
+  })
+
+  it("renders the meta line only when it is a non-empty string", () => {
+    const { rerender } = render(
+      <EventCard
+        event={shortEvent}
+        shortFilm={{ metaLine: "2012 · 30 min", posterFallback: fallback }}
+      />
+    )
+    expect(screen.getByText("2012 · 30 min")).toBeInTheDocument()
+
+    for (const metaLine of [null, undefined, ""]) {
+      rerender(
+        <EventCard
+          event={shortEvent}
+          shortFilm={{ metaLine, posterFallback: fallback }}
+        />
+      )
+      expect(screen.queryByText("2012 · 30 min")).toBeNull()
+      expect(document.querySelector("article p")).toBeNull()
+    }
+  })
+
+  it("makes the title a locale-aware link named by the title and leaves the article inert", () => {
+    const onClick = vi.fn()
+    render(
+      <EventCard
+        event={shortEvent}
+        onClick={onClick}
+        shortFilm={{ href: "/shorts/les-souliers-de-laid" }}
+      />
+    )
+
+    const link = screen.getByRole("link", { name: "Les Souliers de l'Aïd" })
+    expect(link).toHaveAttribute("href", "/shorts/les-souliers-de-laid")
+    // Stretched over the whole card.
+    expect(link.className).toContain("after:absolute")
+    expect(link.className).toContain("after:inset-0")
+
+    const article = screen.getByRole("article")
+    fireEvent.click(article)
+    expect(onClick).not.toHaveBeenCalled()
+    expect(article.className).not.toContain("cursor-pointer")
+  })
+
+  it("renders no link when there is no href", () => {
+    const { container } = render(
+      <EventCard event={shortEvent} shortFilm={{ posterFallback: fallback }} />
+    )
+    expect(container.querySelector("a")).toBeNull()
+    expect(
+      screen.getByRole("heading", { name: "Les Souliers de l'Aïd" })
+    ).toBeInTheDocument()
+  })
+
+  it("keeps the heart an independent target above the stretched link", () => {
+    const onWatchlist = vi.fn()
+    const onClick = vi.fn()
+    render(
+      <EventCard
+        event={shortEvent}
+        isWatchlisted
+        onWatchlist={onWatchlist}
+        onClick={onClick}
+        shortFilm={{ href: "/shorts/x" }}
+      />
+    )
+
+    const heart = screen.getByRole("button", { name: /retirer/i })
+    expect(heart.className).toContain("z-20")
+    fireEvent.click(heart)
+    expect(onWatchlist).toHaveBeenCalledTimes(1)
+    expect(onClick).not.toHaveBeenCalled()
   })
 })
 

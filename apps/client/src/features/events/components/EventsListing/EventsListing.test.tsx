@@ -33,6 +33,15 @@ vi.mock("@/lib/feature-flags", () => ({
   isTicketPurchaseEnabled: () => true,
 }))
 
+// `EventCard` renders a locale-aware `Link` for its short-film mode (plan
+// 02-07); the real `@/lib/navigation` pulls in `env.mjs`, which rejects
+// vitest's NODE_ENV=test, so keep it out of the import graph.
+vi.mock("@/lib/navigation", () => ({
+  Link: ({ href, children }: { href: string; children?: React.ReactNode }) => (
+    <a href={href}>{children}</a>
+  ),
+}))
+
 // `EventCard` resolves its parameterized `events.priceFrom` label through
 // `useTranslations` (it can no longer take a function label prop across the RSC
 // boundary), so it needs an intl context the moment a fixture is non-empty.

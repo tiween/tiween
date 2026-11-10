@@ -33,6 +33,15 @@ vi.mock("@/lib/feature-flags", () => ({
   isTicketingEnabled: () => true,
 }))
 
+// `EventCard` renders a locale-aware `Link` for its short-film mode (plan
+// 02-07); the real `@/lib/navigation` pulls in `env.mjs`, which rejects
+// vitest's NODE_ENV=test, so keep it out of the import graph.
+vi.mock("@/lib/navigation", () => ({
+  Link: ({ href, children }: { href: string; children?: React.ReactNode }) => (
+    <a href={href}>{children}</a>
+  ),
+}))
+
 vi.mock("next/image", () => ({
   default: ({ src, alt }: { src: string; alt: string }) => (
     // eslint-disable-next-line @next/next/no-img-element
