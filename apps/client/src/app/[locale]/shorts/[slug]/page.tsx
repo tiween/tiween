@@ -1,39 +1,41 @@
 import { Metadata } from "next"
-import { notFound } from "next/navigation"
 import { ShortFilmDetail } from "@/features/shorts/components"
-import {
-  getMockLatestShortFilms,
-  getMockShortFilmBySlug,
-  MOCK_SHORT_FILMS,
-} from "@/features/shorts/data"
 import { Locale } from "next-intl"
 import { setRequestLocale } from "next-intl/server"
+
+import { getShortFilm } from "@/lib/strapi-api/content/shorts"
+import { isShortFilmNotFound } from "@/lib/strapi-api/content/shorts.errors"
 
 interface PageProps {
   params: Promise<{ locale: Locale; slug: string }>
 }
 
-/**
- * Generate static params for all mock short films
- * This enables static generation of all film detail pages
- */
-export async function generateStaticParams() {
-  return MOCK_SHORT_FILMS.map((film) => ({
-    slug: film.slug,
-  }))
-}
+// No static-params export on purpose: pages render on first request and are
+// cached by the fetch Data Cache (D-06). The `[slug]` layout owns the 404/500.
+
+/** Pages stay unindexed until the Phase 6 go-live switch. */
+const NOINDEX: Metadata = { robots: { index: false, follow: false } }
 
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
-  const { slug } = await params
-  const film = getMockShortFilmBySlug(slug)
+  const { locale, slug } = await params
 
-  if (!film) {
-    return {
-      // The root layout's title template already appends "| Tiween".
-      title: "Court métrage non trouvé",
+  // The layout guard already decided the page's fate. A metadata throw would
+  // only duplicate a page failure, so any failure here yields bare noindex
+  // robots metadata.
+  let film
+  try {
+    film = await getShortFilm(slug, locale)
+  } catch (error) {
+    if (isShortFilmNotFound(error)) {
+      return {
+        // The root layout's title template already appends "| Tiween".
+        title: "Court métrage non trouvé",
+        ...NOINDEX,
+      }
     }
+    return NOINDEX
   }
 
   const description = film.synopsis
@@ -43,7 +45,7 @@ export async function generateMetadata({
   return {
     title: `${film.title} - Courts métrages`,
     description,
-    robots: { index: false, follow: false },
+    ...NOINDEX,
     openGraph: {
       title: film.title,
       description,
@@ -58,23 +60,11 @@ export async function generateMetadata({
 export default async function ShortFilmPage({ params }: PageProps) {
   const { locale, slug } = await params
 
-  // Enable static rendering
   setRequestLocale(locale)
 
-  // Fetch film data from mock data
-  const film = getMockShortFilmBySlug(slug)
+  // React cache(): this is the layout's request, not a second one. A failure
+  // is thrown (never rendered as an empty shell), see the layout.
+  const film = await getShortFilm(slug, locale)
 
-  if (!film) {
-    notFound()
-  }
-
-  // Fetch related shorts (same genre or latest)
-  const relatedShorts = getMockLatestShortFilms(6)
-  const filteredRelated = relatedShorts.filter(
-    (s) => s.documentId !== film.documentId
-  )
-
-  return (
-    <ShortFilmDetail film={film} relatedShorts={filteredRelated.slice(0, 5)} />
-  )
+  return <ShortFilmDetail film={film} relatedShorts={[]} />
 }

@@ -6,22 +6,43 @@
  */
 
 import type {
-  StrapiCreativeWork,
-  StrapiGenre,
   StrapiMedia,
   StrapiPerson,
 } from "@/features/events/types/strapi.types"
 
 /**
+ * Streaming platform vocabulary of the public short-film API
+ * (`STREAMING_PLATFORMS`, creative-works `shared/short-film-rules.ts`).
+ */
+export const PLATFORM_TYPES = [
+  "youtube",
+  "vimeo",
+  "dailymotion",
+  "artify",
+  "arte",
+  "mubi",
+  "netflix",
+  "shahid",
+  "tv5monde",
+  "other",
+] as const
+
+/**
  * Platform availability status
  */
-export type PlatformType =
-  | "youtube"
-  | "vimeo"
-  | "dailymotion"
-  | "mubi"
-  | "netflix"
-  | "other"
+export type PlatformType = (typeof PLATFORM_TYPES)[number]
+
+/**
+ * How a viewer gets access to a streaming link (`STREAMING_ACCESS_TYPES`).
+ */
+export const SHORT_FILM_ACCESS_TYPES = [
+  "free",
+  "included",
+  "subscription",
+  "rental",
+] as const
+
+export type ShortFilmAccessType = (typeof SHORT_FILM_ACCESS_TYPES)[number]
 
 /**
  * Social link with platform type for streaming links
@@ -30,6 +51,54 @@ export interface StreamingLink {
   platform: PlatformType
   url: string
   label?: string
+  accessType?: ShortFilmAccessType
+}
+
+/**
+ * Genre as served by the public short-film API.
+ */
+export interface ShortFilmGenre {
+  id?: number
+  documentId?: string
+  slug: string
+  name: string
+}
+
+/**
+ * Person (director, crew member, cast member) as served by the public
+ * short-film API. `photo` is never populated by the API (D-12); it stays
+ * optional only so existing fixtures compile, and Plan 05 removes it.
+ */
+export interface ShortFilmPerson {
+  id?: number
+  documentId?: string
+  slug: string
+  name: string
+  photo?: StrapiPerson["photo"]
+}
+
+/**
+ * One credit of a film (any department except the cast).
+ */
+export interface ShortFilmCrewCredit {
+  person: ShortFilmPerson
+  /** `creditRole.slug`; the label key for crew role copy (D-09). */
+  roleSlug: string
+  /** `creditRole.department` (directing, writing, camera, ...). */
+  department: string
+  /** An editor's free-text role; wins over the localized role label. */
+  customRole?: string
+  billing?: number
+}
+
+/**
+ * One cast entry: a person and the character they play.
+ */
+export interface ShortFilmCastMember {
+  person: ShortFilmPerson
+  /** Character name. */
+  role?: string
+  billing?: number
 }
 
 /**
@@ -54,20 +123,27 @@ export interface ShortFilm {
   synopsis?: string
   duration?: number // in minutes
   releaseYear?: number
+  /**
+   * Legacy and never mapped: ratings are out of v1. Kept so the "renders no
+   * rating" regression tests can still build a rated fixture.
+   */
   rating?: number
   ageRating?: "TP" | "PG12" | "PG16" | "PG18"
   poster?: StrapiMedia
   backdrop?: StrapiMedia
   trailer?: string
-  genres?: StrapiGenre[]
-  directors?: StrapiPerson[]
-  cast?: Array<{
-    person: StrapiPerson
-    role?: string
-  }>
+  genres?: ShortFilmGenre[]
+  directors?: ShortFilmPerson[]
+  cast?: ShortFilmCastMember[]
+  /** Every credit of the film (detail only). */
+  crew?: ShortFilmCrewCredit[]
+  /** The locale actually served by the API (title/synopsis may fall back to French). */
+  locale?: string
   // Extended fields for shorts directory
-  country?: string
-  language?: string
+  /** ISO 3166 region codes. */
+  country?: string[]
+  /** ISO 639 language codes (plus a few project codes such as `aeb`). */
+  language?: string[]
   streamingLinks?: StreamingLink[]
   awards?: ShortFilmAward[]
   isFeatured?: boolean
@@ -93,6 +169,8 @@ export interface ShortFilmCard {
   director?: string
   isAvailableOnline?: boolean
   isFeatured?: boolean
+  /** The locale actually served by the API. */
+  locale?: string
 }
 
 /**
@@ -231,29 +309,6 @@ export interface SuggestionFormLabels {
 }
 
 /**
- * Convert Strapi creative work to ShortFilm
- */
-export function toShortFilm(work: StrapiCreativeWork): ShortFilm {
-  return {
-    id: work.id,
-    documentId: work.documentId,
-    title: work.title,
-    originalTitle: work.originalTitle,
-    slug: work.slug,
-    synopsis: work.synopsis,
-    duration: work.duration,
-    releaseYear: work.releaseYear,
-    rating: work.rating,
-    poster: work.poster,
-    backdrop: work.backdrop,
-    genres: work.genres,
-    directors: work.directors,
-    country: work.country,
-    language: work.language,
-  }
-}
-
-/**
  * Convert ShortFilm to card format
  */
 export function toShortFilmCard(film: ShortFilm): ShortFilmCard {
@@ -272,5 +327,6 @@ export function toShortFilmCard(film: ShortFilm): ShortFilmCard {
     director: film.directors?.[0]?.name,
     isAvailableOnline: film.isAvailableOnline,
     isFeatured: film.isFeatured,
+    locale: film.locale,
   }
 }

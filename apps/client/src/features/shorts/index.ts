@@ -34,6 +34,11 @@ export type {
   PlatformType,
   StreamingLink,
   ShortFilmAward,
-  toShortFilm,
-  toShortFilmCard,
+  ShortFilmAccessType,
+  ShortFilmGenre,
+  ShortFilmPerson,
+  ShortFilmCrewCredit,
+  ShortFilmCastMember,
 } from "./types"
+
+export { toShortFilmCard } from "./types"

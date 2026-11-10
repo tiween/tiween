@@ -118,6 +118,20 @@ export default defineConfig({
       // fallbacks), suggestion form (validation, failure keeps input) and
       // directory (outage vs empty, stale responses, locale).
       "src/features/shorts/components/**/*.test.tsx",
+      // Short-film mappers, crew/place helpers and types (Phase 2). The
+      // components glob above is pinned to `components/`, so a util test under
+      // `features/shorts/utils/` would sit there silently never running.
+      "src/features/shorts/**/*.test.{ts,tsx}",
+      // Watchlist feature module (Phase 2): grid seeding provider and hooks.
+      "src/features/watchlist/**/*.test.{ts,tsx}",
+      // Shared post-sign-in redirect validation (Phase 2).
+      "src/lib/safe-callback-url.test.ts",
+      // Shorts route files: layout guard, error/not-found boundaries and the
+      // rendering-rules guard (Phase 2). `[locale]` is a glob char-class, so
+      // match the segment via `**`.
+      "src/app/**/shorts/**/*.test.{ts,tsx}",
+      // Shared test helpers (axe assertion) need their own self-test to run.
+      "test/helpers/**/*.test.{ts,tsx}",
       // Watchlist page composition + seed-then-remove wiring (Story 5.3).
       // `[locale]` is a glob char-class, so match the segment via `**`.
       "src/app/**/watchlist/**/*.test.tsx",

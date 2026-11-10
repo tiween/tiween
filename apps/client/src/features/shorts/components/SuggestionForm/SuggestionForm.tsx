@@ -64,7 +64,10 @@ function toErrorCode(error: unknown): SuggestionErrorCode {
     : "UNKNOWN"
 }
 
-const PLATFORM_NAMES: Record<Exclude<PlatformType, "other">, string> = {
+const PLATFORM_NAMES: Record<
+  Exclude<(typeof SUGGESTION_PLATFORMS)[number], "other">,
+  string
+> = {
   youtube: "YouTube",
   vimeo: "Vimeo",
   dailymotion: "Dailymotion",

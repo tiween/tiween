@@ -55,8 +55,8 @@ export const MOCK_SHORT_FILMS: ShortFilm[] = [
         slug: "maher-elhasnaoui",
       },
     ],
-    country: "Tunisie",
-    language: "Arabe tunisien",
+    country: ["TN"],
+    language: ["aeb"],
     streamingLinks: [
       {
         platform: "youtube",
@@ -126,8 +126,8 @@ export const MOCK_SHORT_FILMS: ShortFilm[] = [
         },
       },
     ],
-    country: "Tunisie",
-    language: "Arabe tunisien",
+    country: ["TN"],
+    language: ["aeb"],
     streamingLinks: [
       {
         platform: "youtube",
@@ -198,8 +198,8 @@ export const MOCK_SHORT_FILMS: ShortFilm[] = [
         role: "Slim",
       },
     ],
-    country: "Tunisie",
-    language: "Arabe tunisien",
+    country: ["TN"],
+    language: ["aeb"],
     streamingLinks: [
       {
         platform: "youtube",
@@ -263,8 +263,8 @@ export const MOCK_SHORT_FILMS: ShortFilm[] = [
         },
       },
     ],
-    country: "Tunisie / France",
-    language: "Arabe tunisien",
+    country: ["TN", "FR"],
+    language: ["aeb"],
     streamingLinks: [
       {
         platform: "vimeo",
@@ -338,8 +338,8 @@ export const MOCK_SHORT_FILMS: ShortFilm[] = [
         },
       },
     ],
-    country: "Tunisie",
-    language: "Arabe tunisien",
+    country: ["TN"],
+    language: ["aeb"],
     streamingLinks: [
       {
         platform: "youtube",
@@ -382,8 +382,8 @@ export const MOCK_SHORT_FILMS: ShortFilm[] = [
         slug: "meryam-joobeur",
       },
     ],
-    country: "Tunisie / Canada / Qatar",
-    language: "Arabe tunisien",
+    country: ["TN", "CA", "QA"],
+    language: ["aeb"],
     streamingLinks: [
       {
         platform: "youtube",
@@ -446,8 +446,8 @@ export const MOCK_SHORT_FILMS: ShortFilm[] = [
         slug: "lotfi-achour",
       },
     ],
-    country: "Tunisie",
-    language: "Arabe tunisien",
+    country: ["TN"],
+    language: ["aeb"],
     streamingLinks: [
       {
         platform: "youtube",
@@ -496,8 +496,8 @@ export const MOCK_SHORT_FILMS: ShortFilm[] = [
         },
       },
     ],
-    country: "Tunisie",
-    language: "Arabe tunisien",
+    country: ["TN"],
+    language: ["aeb"],
     streamingLinks: [
       {
         platform: "youtube",
@@ -536,8 +536,8 @@ export const MOCK_SHORT_FILMS: ShortFilm[] = [
         slug: "kdh-prod",
       },
     ],
-    country: "Tunisie",
-    language: "Arabe tunisien",
+    country: ["TN"],
+    language: ["aeb"],
     streamingLinks: [
       {
         platform: "youtube",
@@ -572,8 +572,8 @@ export const MOCK_SHORT_FILMS: ShortFilm[] = [
       { id: 2, documentId: "g2", name: "Comédie", slug: "comedie" },
     ],
     directors: [],
-    country: "Tunisie",
-    language: "Arabe tunisien",
+    country: ["TN"],
+    language: ["aeb"],
     streamingLinks: [
       {
         platform: "youtube",

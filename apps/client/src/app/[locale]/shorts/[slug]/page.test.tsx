@@ -1,149 +1,112 @@
+// @vitest-environment node
 /**
- * Route-level guard for the short-film detail page.
- *
- * Covers what the `ShortFilmDetail` component suite cannot reach: the
- * unknown-slug 404 row of the I/O matrix, and the route's own data shaping —
- * the related shelf must exclude the film being viewed and cap at five.
- * Deleting that filter is invisible to the component suite and would put the
- * film in its own "Dans la même veine" shelf.
+ * Route-level guard for the short-film detail page: locale registration, the
+ * metadata strings (and their failure behaviour) and the data it hands the
+ * detail component. The 404/500 status behaviour lives in `layout.test.tsx`.
  */
-import { notFound } from "next/navigation"
-import { MOCK_SHORT_FILMS } from "@/features/shorts/data"
 import { setRequestLocale } from "next-intl/server"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import type { ShortFilm } from "@/features/shorts/types"
 
-import ShortFilmPage, { generateMetadata, generateStaticParams } from "./page"
+import { ShortFilmApiError } from "@/lib/strapi-api/content/shorts.errors"
 
-vi.mock("next/navigation", () => ({
-  notFound: vi.fn(() => {
-    // Mirrors the real implementation, which throws to halt rendering.
-    throw new Error("NEXT_NOT_FOUND")
-  }),
-}))
+import ShortFilmPage, * as pageModule from "./page"
 
-vi.mock("next-intl/server", () => ({
-  setRequestLocale: vi.fn(),
-}))
+const getShortFilm = vi.hoisted(() => vi.fn())
 
-/**
- * The detail component is a client component with its own suite; stub it, but
- * CAPTURE its props so the route's data shaping is actually asserted rather
- * than merely executed.
- */
-const detailProps = vi.hoisted(
-  () => [] as { film: ShortFilm; relatedShorts?: ShortFilm[] }[]
-)
-
+vi.mock("next-intl/server", () => ({ setRequestLocale: vi.fn() }))
+vi.mock("@/lib/strapi-api/content/shorts", () => ({ getShortFilm }))
 vi.mock("@/features/shorts/components", () => ({
-  ShortFilmDetail: (props: {
-    film: ShortFilm
-    relatedShorts?: ShortFilm[]
-  }) => {
-    detailProps.push(props)
+  ShortFilmDetail: function ShortFilmDetail() {
     return null
   },
 }))
 
-/** Render the route and return the props it handed the detail component. */
-async function renderRoute(slug: string, locale = "fr" as const) {
-  const element = await ShortFilmPage({
-    params: Promise.resolve({ locale, slug }),
-  })
-  // The returned element is the stubbed component; invoking its type runs the
-  // capture above without pulling in a renderer.
-  const { type, props } = element as unknown as {
-    type: (p: { film: ShortFilm; relatedShorts?: ShortFilm[] }) => unknown
-    props: { film: ShortFilm; relatedShorts?: ShortFilm[] }
-  }
-  type(props)
-  return detailProps[detailProps.length - 1]!
+const film: ShortFilm = {
+  id: "doc-khalaa",
+  documentId: "doc-khalaa",
+  title: "Khalâa",
+  slug: "khalaa",
+  synopsis: "<p>Deux arnaqueurs.</p>",
+  directors: [{ slug: "maher", name: "Maher" }],
+  poster: { url: "https://cdn.example/poster.jpg" },
+}
+
+const notFoundError = new ShortFilmApiError({
+  code: "SHORT_FILM_NOT_FOUND",
+  kind: "NOT_FOUND",
+  status: 404,
+})
+const outageError = new ShortFilmApiError({
+  code: "INTERNAL_ERROR",
+  kind: "UPSTREAM",
+})
+
+function params(slug = "khalaa", locale = "fr" as const) {
+  return Promise.resolve({ locale, slug })
 }
 
 beforeEach(() => {
   vi.clearAllMocks()
-  detailProps.length = 0
+  getShortFilm.mockResolvedValue(film)
 })
 
-describe("shorts/[slug] route", () => {
-  it("calls notFound() for a slug that matches no film", async () => {
-    await expect(
-      ShortFilmPage({
-        params: Promise.resolve({
-          locale: "fr" as const,
-          slug: "no-such-film",
-        }),
-      })
-    ).rejects.toThrow("NEXT_NOT_FOUND")
-
-    expect(notFound).toHaveBeenCalled()
+describe("shorts/[slug] page", () => {
+  it("exports no static params (no deploy-time dependency on Strapi)", () => {
+    expect(pageModule).not.toHaveProperty("generateStaticParams")
   })
 
-  it("renders without calling notFound() for a known slug", async () => {
-    const known = MOCK_SHORT_FILMS[0]
-    expect(known).toBeDefined()
-
-    await expect(
-      ShortFilmPage({
-        params: Promise.resolve({ locale: "fr" as const, slug: known!.slug }),
-      })
-    ).resolves.toBeDefined()
-
-    expect(notFound).not.toHaveBeenCalled()
-  })
-
-  it("registers the requested locale for static rendering", async () => {
-    await ShortFilmPage({
-      params: Promise.resolve({
-        locale: "ar" as const,
-        slug: MOCK_SHORT_FILMS[0]!.slug,
-      }),
-    })
+  it("registers the requested locale for next-intl", async () => {
+    await ShortFilmPage({ params: params("khalaa", "ar" as never) })
 
     expect(setRequestLocale).toHaveBeenCalledWith("ar")
   })
 
-  it("passes the matched film and never lists it among its own related shorts", async () => {
-    const known = MOCK_SHORT_FILMS[0]!
-    const props = await renderRoute(known.slug)
+  it("fetches the film for the page locale and hands it to the detail component", async () => {
+    const element = (await ShortFilmPage({ params: params() })) as unknown as {
+      props: { film: ShortFilm }
+    }
 
-    expect(props.film.documentId).toBe(known.documentId)
-    expect(
-      props.relatedShorts?.some((s) => s.documentId === known.documentId)
-    ).toBe(false)
+    expect(getShortFilm).toHaveBeenCalledWith("khalaa", "fr")
+    expect(element.props.film).toBe(film)
   })
 
-  it("caps the related shelf at five", async () => {
-    const props = await renderRoute(MOCK_SHORT_FILMS[0]!.slug)
+  it("throws on a fetch failure instead of rendering an empty shell", async () => {
+    getShortFilm.mockRejectedValue(outageError)
 
-    expect(props.relatedShorts?.length).toBeGreaterThan(0)
-    expect(props.relatedShorts!.length).toBeLessThanOrEqual(5)
+    await expect(ShortFilmPage({ params: params() })).rejects.toBe(outageError)
   })
+})
 
-  it("falls back to the not-found title in metadata for an unknown slug", async () => {
-    const metadata = await generateMetadata({
-      params: Promise.resolve({ locale: "fr" as const, slug: "no-such-film" }),
-    })
+describe("shorts/[slug] generateMetadata", () => {
+  it("titles a known film without duplicating the brand suffix, noindex", async () => {
+    const metadata = await pageModule.generateMetadata({ params: params() })
 
-    // The layout template appends "| Tiween" — the page must not repeat it.
-    expect(metadata.title).toBe("Court métrage non trouvé")
-  })
-
-  it("titles a known film without duplicating the brand suffix", async () => {
-    const known = MOCK_SHORT_FILMS[0]!
-    const metadata = await generateMetadata({
-      params: Promise.resolve({ locale: "fr" as const, slug: known.slug }),
-    })
-
-    expect(metadata.title).toBe(`${known.title} - Courts métrages`)
+    expect(metadata.title).toBe("Khalâa - Courts métrages")
     expect(String(metadata.title)).not.toMatch(/Tiween/)
+    expect(metadata.robots).toEqual({ index: false, follow: false })
+    expect(metadata.description).toBe("Deux arnaqueurs.")
+    expect(metadata.openGraph?.images).toEqual([
+      { url: "https://cdn.example/poster.jpg", alt: "Khalâa" },
+    ])
   })
 
-  it("emits a static param for every mock film", async () => {
-    const params = await generateStaticParams()
+  it("falls back to the not-found title for an unknown slug", async () => {
+    getShortFilm.mockRejectedValue(notFoundError)
 
-    expect(params).toHaveLength(MOCK_SHORT_FILMS.length)
-    expect(params.every((p) => typeof p.slug === "string" && p.slug)).toBe(true)
+    const metadata = await pageModule.generateMetadata({ params: params() })
+
+    // The layout template appends "| Tiween": the page must not repeat it.
+    expect(metadata.title).toBe("Court métrage non trouvé")
+    expect(metadata.robots).toEqual({ index: false, follow: false })
+  })
+
+  it("returns only noindex robots, without throwing, on any other failure", async () => {
+    getShortFilm.mockRejectedValue(outageError)
+
+    const metadata = await pageModule.generateMetadata({ params: params() })
+
+    expect(metadata).toEqual({ robots: { index: false, follow: false } })
   })
 })

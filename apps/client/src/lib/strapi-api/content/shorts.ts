@@ -1,402 +1,147 @@
 import "server-only"
 
-import type { StrapiCreativeWork } from "@/features/events/types/strapi.types"
+import { cache } from "react"
+import {
+  mapShortFilmDetail,
+  mapShortFilmSummary,
+} from "@/features/shorts/utils/shortMappers"
+
+import type { ShortFilm, ShortsListResponse } from "@/features/shorts/types"
 import type {
-  ShortFilm,
-  ShortsFilters,
-  ShortsListResponse,
-} from "@/features/shorts/types"
+  ShortFilmDetailDto,
+  ShortFilmSummaryDto,
+} from "@/features/shorts/utils/shortMappers"
 import type { Locale } from "next-intl"
 
 import { PublicStrapiClient } from "@/lib/strapi-api"
 
-/**
- * Default populate for short films - includes all relations needed for display
- */
-const SHORT_FILM_POPULATE = [
-  "poster",
-  "poster.formats",
-  "backdrop",
-  "backdrop.formats",
-  "genres",
-  "directors",
-  "directors.photo",
-  "cast",
-  "cast.person",
-  "cast.person.photo",
-  "videos",
-  "links",
-  "facts",
-]
+import { ShortFilmApiError, toShortFilmApiError } from "./shorts.errors"
 
 /**
- * Convert Strapi creative work to ShortFilm type
+ * Short-film reads against the Phase 1 public API (D-05, D-06, D-07, D-08).
+ *
+ * The API is `.strict()`: any query key outside its allowlist is a coded 400.
+ * So these fetchers send ONLY `locale` (detail, related) or `locale`, `page`,
+ * `pageSize` (list), never Strapi-style `filters`, `populate`, `pagination`
+ * or `sort[]`.
+ *
+ * Fetchers raise typed `ShortFilmApiError`s, they never return empty/null: the
+ * page decides whether a failure is a 404, a 500 or an omitted shelf (D-07,
+ * D-20). Failed upstream responses are not stored in the Data Cache, so a
+ * retry after an outage hits Strapi straight away.
  */
-function mapToShortFilm(
-  work: StrapiCreativeWork & Record<string, unknown>
-): ShortFilm {
-  const links =
-    (work.links as Array<{ platform?: string; url: string; label?: string }>) ||
-    []
 
+/** `plugin::creative-works.creative-work` path + the short-film routes. */
+const SHORT_FILMS_PATH = "/creative-works/creative-works/short-films"
+
+/** The API's own slug pattern and length (validation/short-films.ts). */
+const SLUG_PATTERN = /^[A-Za-z0-9._~-]+$/
+const SLUG_MAX_LENGTH = 200
+
+/** Page size of the directory and of every load-more request. */
+export const SHORT_FILM_PAGE_SIZE = 24
+
+/** Cache tag shared by every short-film read (on-demand revalidation later). */
+export const SHORT_FILMS_TAG = "short-films"
+
+const REVALIDATE_SECONDS = 60
+const REQUEST_TIMEOUT_MS = 8000
+
+export const shortFilmTag = (slug: string) => `short-film:${slug}`
+
+/** A slug that cannot exist is a not-found without a Strapi round trip. */
+function assertValidSlug(slug: string): void {
+  if (
+    typeof slug !== "string" ||
+    slug.length === 0 ||
+    slug.length > SLUG_MAX_LENGTH ||
+    !SLUG_PATTERN.test(slug)
+  ) {
+    throw new ShortFilmApiError({
+      code: "SHORT_FILM_NOT_FOUND",
+      kind: "NOT_FOUND",
+      status: 404,
+    })
+  }
+}
+
+function requestInit(tags: string[]): RequestInit {
   return {
-    id: work.id,
-    documentId: work.documentId,
-    title: work.title,
-    originalTitle: work.originalTitle,
-    slug: work.slug,
-    synopsis: work.synopsis,
-    duration: work.duration,
-    releaseYear: work.releaseYear,
-    rating: work.rating,
-    ageRating: work.ageRating as ShortFilm["ageRating"],
-    poster: work.poster,
-    backdrop: work.backdrop,
-    trailer: work.trailer as string | undefined,
-    genres: work.genres,
-    directors: work.directors,
-    country: work.country,
-    language: work.language,
-    streamingLinks: links.map((link) => ({
-      platform:
-        (link.platform as NonNullable<
-          ShortFilm["streamingLinks"]
-        >[0]["platform"]) || "other",
-      url: link.url,
-      label: link.label,
-    })),
-    isAvailableOnline: links.length > 0 || Boolean(work.trailer),
-    isFeatured: Boolean(work.featured),
-    createdAt: work.createdAt as string,
-    updatedAt: work.updatedAt as string,
+    signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+    next: { revalidate: REVALIDATE_SECONDS, tags },
   }
 }
 
-/**
- * Get all short films with optional filters
- */
-export async function getShortFilms(
-  locale: Locale,
-  options: {
-    filters?: ShortsFilters
-    page?: number
-    pageSize?: number
-  } = {}
-): Promise<ShortsListResponse> {
-  const { filters = {}, page = 1, pageSize = 20 } = options
-
-  try {
-    // Build filters object
-    const strapiFilters: Record<string, unknown> = {
-      type: { $eq: "short-film" },
-      publishedAt: { $notNull: true },
-    }
-
-    // Genre filter
-    if (filters.genres?.length) {
-      strapiFilters.genres = {
-        slug: { $in: filters.genres },
-      }
-    }
-
-    // Duration filter
-    if (
-      filters.durationMin !== undefined ||
-      filters.durationMax !== undefined
-    ) {
-      strapiFilters.duration = {}
-      if (filters.durationMin !== undefined) {
-        ;(strapiFilters.duration as Record<string, unknown>).$gte =
-          filters.durationMin
-      }
-      if (filters.durationMax !== undefined) {
-        ;(strapiFilters.duration as Record<string, unknown>).$lte =
-          filters.durationMax
-      }
-    }
-
-    // Year filter
-    if (filters.yearMin !== undefined || filters.yearMax !== undefined) {
-      strapiFilters.releaseYear = {}
-      if (filters.yearMin !== undefined) {
-        ;(strapiFilters.releaseYear as Record<string, unknown>).$gte =
-          filters.yearMin
-      }
-      if (filters.yearMax !== undefined) {
-        ;(strapiFilters.releaseYear as Record<string, unknown>).$lte =
-          filters.yearMax
-      }
-    }
-
-    // Rating filter
-    if (filters.rating !== undefined) {
-      strapiFilters.rating = { $gte: filters.rating }
-    }
-
-    // Build sort
-    let sort: string[] = ["createdAt:desc"]
-    if (filters.sortBy) {
-      const order = filters.sortOrder || "desc"
-      switch (filters.sortBy) {
-        case "latest":
-          sort = [`createdAt:${order}`]
-          break
-        case "rating":
-          sort = [`rating:${order}`]
-          break
-        case "year":
-          sort = [`releaseYear:${order}`]
-          break
-        case "duration":
-          sort = [`duration:${order}`]
-          break
-        case "title":
-          sort = [`title:${order}`]
-          break
-      }
-    }
-
-    const response = await PublicStrapiClient.fetchAPI(
-      "/creative-works",
-      {
-        locale,
-        filters: strapiFilters,
-        populate: SHORT_FILM_POPULATE,
-        pagination: {
-          page,
-          pageSize,
-          withCount: true,
-        },
-        sort,
-      },
-      {
-        next: { revalidate: 60 },
-      }
-    )
-
-    const works = (response.data || []) as (StrapiCreativeWork &
-      Record<string, unknown>)[]
-    const total = response.meta?.pagination?.total || works.length
-    const shorts = works.map(mapToShortFilm)
-
-    return {
-      shorts,
-      total,
-      page,
-      pageSize,
-      hasMore: page * pageSize < total,
-    }
-  } catch (error) {
-    console.error("[getShortFilms] Error:", error)
-    return { shorts: [], total: 0, page, pageSize, hasMore: false }
-  }
+function malformed(): ShortFilmApiError {
+  return new ShortFilmApiError({ code: "INTERNAL_ERROR", kind: "UPSTREAM" })
 }
 
 /**
- * Get featured short films for hero carousel
+ * One short film by slug, in the requested locale (the API falls back to the
+ * default locale per field and reports the served locale as `item.locale`).
+ * Wrapped in React `cache()` so `generateMetadata`, the layout guard and the
+ * page share one request.
  */
-export async function getFeaturedShortFilms(
-  locale: Locale,
-  limit: number = 5
-): Promise<ShortFilm[]> {
-  try {
-    const response = await PublicStrapiClient.fetchAPI(
-      "/creative-works",
-      {
-        locale,
-        filters: {
-          type: { $eq: "short-film" },
-          publishedAt: { $notNull: true },
-          // Featured items have backdrop images
-          backdrop: { $notNull: true },
-        },
-        populate: SHORT_FILM_POPULATE,
-        pagination: { limit },
-        sort: ["createdAt:desc"],
-      },
-      {
-        next: { revalidate: 300 },
-      }
-    )
+export const getShortFilm = cache(
+  async (slug: string, locale: Locale): Promise<ShortFilm> => {
+    assertValidSlug(slug)
 
-    const works = (response.data || []) as (StrapiCreativeWork &
-      Record<string, unknown>)[]
-    return works.map(mapToShortFilm)
-  } catch (error) {
-    console.error("[getFeaturedShortFilms] Error:", error)
-    return []
+    try {
+      const res = await PublicStrapiClient.fetchAPI(
+        `${SHORT_FILMS_PATH}/${encodeURIComponent(slug)}`,
+        { locale },
+        requestInit([SHORT_FILMS_TAG, shortFilmTag(slug)])
+      )
+      const data = res?.data as ShortFilmDetailDto | null | undefined
+      if (!data || typeof data !== "object" || !data.documentId) {
+        throw malformed()
+      }
+      return mapShortFilmDetail(data)
+    } catch (error) {
+      throw toShortFilmApiError(error)
+    }
   }
-}
+)
 
 /**
- * Get latest added short films
+ * One page of the directory, newest first (the API default sort). Only the
+ * first page is server-rendered; later pages come through `/api/shorts`.
  */
-export async function getLatestShortFilms(
-  locale: Locale,
-  limit: number = 10
-): Promise<ShortFilm[]> {
-  try {
-    const response = await PublicStrapiClient.fetchAPI(
-      "/creative-works",
-      {
-        locale,
-        filters: {
-          type: { $eq: "short-film" },
-          publishedAt: { $notNull: true },
-        },
-        populate: SHORT_FILM_POPULATE,
-        pagination: { limit },
-        sort: ["createdAt:desc"],
-      },
-      {
-        next: { revalidate: 60 },
-      }
-    )
-
-    const works = (response.data || []) as (StrapiCreativeWork &
-      Record<string, unknown>)[]
-    return works.map(mapToShortFilm)
-  } catch (error) {
-    console.error("[getLatestShortFilms] Error:", error)
-    return []
-  }
-}
-
-/**
- * Get a single short film by slug
- */
-export async function getShortFilmBySlug(
-  locale: Locale,
-  slug: string
-): Promise<ShortFilm | null> {
-  try {
-    const response = await PublicStrapiClient.fetchAPI(
-      "/creative-works",
-      {
-        locale,
-        filters: {
-          type: { $eq: "short-film" },
-          slug: { $eq: slug },
-          publishedAt: { $notNull: true },
-        },
-        populate: SHORT_FILM_POPULATE,
-        pagination: { limit: 1 },
-      },
-      {
-        next: { revalidate: 60 },
-      }
-    )
-
-    const works = (response.data || []) as (StrapiCreativeWork &
-      Record<string, unknown>)[]
-    const firstWork = works[0]
-    if (!firstWork) return null
-
-    return mapToShortFilm(firstWork)
-  } catch (error) {
-    console.error("[getShortFilmBySlug] Error:", error)
-    return null
-  }
-}
-
-/**
- * Get all available genres for short films
- */
-export async function getShortFilmGenres(
+export async function getShortFilmsPage({
+  locale,
+  page,
+  pageSize = SHORT_FILM_PAGE_SIZE,
+}: {
   locale: Locale
-): Promise<Array<{ slug: string; name: string }>> {
+  page: number
+  pageSize?: number
+}): Promise<ShortsListResponse> {
   try {
-    const response = await PublicStrapiClient.fetchAPI(
-      "/genres",
-      {
-        locale,
-        pagination: { limit: 100 },
-        sort: ["name:asc"],
-      },
-      {
-        next: { revalidate: 3600 }, // Cache for 1 hour
-      }
+    const res = await PublicStrapiClient.fetchAPI(
+      SHORT_FILMS_PATH,
+      { locale, page, pageSize },
+      requestInit([SHORT_FILMS_TAG])
     )
-
-    return (response.data || []).map(
-      (genre: { slug: string; name: string }) => ({
-        slug: genre.slug,
-        name: genre.name,
-      })
-    )
-  } catch (error) {
-    console.error("[getShortFilmGenres] Error:", error)
-    return []
-  }
-}
-
-/**
- * Search short films (basic implementation - Algolia integration separate)
- */
-export async function searchShortFilms(
-  locale: Locale,
-  query: string,
-  options: {
-    filters?: ShortsFilters
-    page?: number
-    pageSize?: number
-  } = {}
-): Promise<ShortsListResponse> {
-  const { filters = {}, page = 1, pageSize = 20 } = options
-
-  if (!query.trim()) {
-    return getShortFilms(locale, { filters, page, pageSize })
-  }
-
-  try {
-    const strapiFilters: Record<string, unknown> = {
-      type: { $eq: "short-film" },
-      publishedAt: { $notNull: true },
-      $or: [
-        { title: { $containsi: query } },
-        { originalTitle: { $containsi: query } },
-        { synopsis: { $containsi: query } },
-        { directors: { name: { $containsi: query } } },
-      ],
+    const data = res?.data as ShortFilmSummaryDto[] | undefined
+    const pagination = res?.meta?.pagination as
+      | { page?: number; pageCount?: number; total?: number }
+      | undefined
+    if (
+      !Array.isArray(data) ||
+      typeof pagination?.pageCount !== "number" ||
+      typeof pagination?.total !== "number"
+    ) {
+      throw malformed()
     }
-
-    // Apply additional filters
-    if (filters.genres?.length) {
-      strapiFilters.genres = { slug: { $in: filters.genres } }
-    }
-
-    const response = await PublicStrapiClient.fetchAPI(
-      "/creative-works",
-      {
-        locale,
-        filters: strapiFilters,
-        populate: SHORT_FILM_POPULATE,
-        pagination: {
-          page,
-          pageSize,
-          withCount: true,
-        },
-        sort: ["createdAt:desc"],
-      },
-      {
-        next: { revalidate: 60 },
-      }
-    )
-
-    const works = (response.data || []) as (StrapiCreativeWork &
-      Record<string, unknown>)[]
-    const total = response.meta?.pagination?.total || works.length
-    const shorts = works.map(mapToShortFilm)
 
     return {
-      shorts,
-      total,
+      shorts: data.map(mapShortFilmSummary),
+      total: pagination.total,
       page,
       pageSize,
-      hasMore: page * pageSize < total,
+      hasMore: page < pagination.pageCount,
     }
   } catch (error) {
-    console.error("[searchShortFilms] Error:", error)
-    return { shorts: [], total: 0, page, pageSize, hasMore: false }
+    throw toShortFilmApiError(error)
   }
 }
