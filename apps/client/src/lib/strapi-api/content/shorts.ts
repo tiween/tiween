@@ -77,6 +77,28 @@ function malformed(): ShortFilmApiError {
 }
 
 /**
+ * Run a mapper over an API payload. A mapper that throws (typically a
+ * `TypeError` on an unexpected shape) is a data-contract problem, not a network
+ * failure: surface it as `INTERNAL_ERROR` and log which payload broke, so
+ * `toShortFilmApiError` never mistakes it for an offline `fetch`.
+ */
+function mapPayload<T>(what: string, map: () => T): T {
+  try {
+    return map()
+  } catch (cause) {
+    console.error(
+      `[strapi-api/shorts] unexpected API shape while mapping ${what}:`,
+      cause
+    )
+    throw new ShortFilmApiError({
+      code: "INTERNAL_ERROR",
+      kind: "UPSTREAM",
+      cause,
+    })
+  }
+}
+
+/**
  * One short film by slug, in the requested locale (the API falls back to the
  * default locale per field and reports the served locale as `item.locale`).
  * Wrapped in React `cache()` so `generateMetadata`, the layout guard and the
@@ -96,7 +118,7 @@ export const getShortFilm = cache(
       if (!data || typeof data !== "object" || !data.documentId) {
         throw malformed()
       }
-      return mapShortFilmDetail(data)
+      return mapPayload("short-film detail", () => mapShortFilmDetail(data))
     } catch (error) {
       throw toShortFilmApiError(error)
     }
@@ -135,7 +157,9 @@ export async function getShortFilmsPage({
     }
 
     return {
-      shorts: data.map(mapShortFilmSummary),
+      shorts: mapPayload("short-film list", () =>
+        data.map(mapShortFilmSummary)
+      ),
       total: pagination.total,
       page,
       pageSize,
@@ -173,7 +197,9 @@ export async function getRelatedShortFilms(
     const data = res?.data as ShortFilmSummaryDto[] | undefined
     if (!Array.isArray(data)) throw malformed()
 
-    return data.map(mapShortFilmSummary)
+    return mapPayload("related short films", () =>
+      data.map(mapShortFilmSummary)
+    )
   } catch (error) {
     throw toShortFilmApiError(error)
   }

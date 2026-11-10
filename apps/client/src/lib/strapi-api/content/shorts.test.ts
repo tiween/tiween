@@ -318,6 +318,56 @@ describe("getRelatedShortFilms", () => {
   })
 })
 
+describe("mapper failures", () => {
+  // A `null` entry makes the mappers throw a TypeError ("Cannot read properties
+  // of null"), which looks exactly like a failed `fetch`.
+  const cases: Array<[string, () => Promise<unknown>]> = [
+    [
+      "getShortFilm",
+      async () => {
+        fetchAPI.mockResolvedValueOnce({ data: detailDto({ credits: [null] }) })
+        return getShortFilm("khalaa", "fr")
+      },
+    ],
+    [
+      "getShortFilmsPage",
+      async () => {
+        fetchAPI.mockResolvedValueOnce({
+          data: [null],
+          meta: { pagination: { page: 1, pageCount: 1, total: 1 } },
+        })
+        return getShortFilmsPage({ locale: "fr", page: 1 })
+      },
+    ],
+    [
+      "getRelatedShortFilms",
+      async () => {
+        fetchAPI.mockResolvedValueOnce({ data: [null] })
+        return getRelatedShortFilms("khalaa", "fr")
+      },
+    ],
+  ]
+
+  it.each(cases)(
+    "%s reports a mapper TypeError as INTERNAL_ERROR, not NETWORK_ERROR",
+    async (_name, run) => {
+      const log = vi.spyOn(console, "error").mockImplementation(() => {})
+
+      const error = (await run().catch((e: unknown) => e)) as ShortFilmApiError
+
+      expect(error).toBeInstanceOf(ShortFilmApiError)
+      expect(error.code).toBe("INTERNAL_ERROR")
+      expect(error.kind).toBe("UPSTREAM")
+      expect(error.cause).toBeInstanceOf(TypeError)
+      expect(log).toHaveBeenCalledWith(
+        expect.stringContaining("unexpected API shape"),
+        expect.any(TypeError)
+      )
+      log.mockRestore()
+    }
+  )
+})
+
 describe("error helpers", () => {
   it("passes an existing ShortFilmApiError through unchanged", () => {
     const original = new ShortFilmApiError({
