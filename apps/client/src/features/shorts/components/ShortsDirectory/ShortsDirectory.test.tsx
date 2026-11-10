@@ -456,6 +456,10 @@ describe("ShortsDirectory", { timeout: 20_000 }, () => {
         const alert = await screen.findByRole("alert")
         expect(alert).toHaveTextContent("La suite n'a pas pu être chargée.")
         expect(screen.getAllByRole("alert")).toHaveLength(1)
+        // The icon uses the destructive token, never a raw hex.
+        const icon = alert.querySelector("svg")
+        expect(icon).toHaveClass("text-destructive")
+        expect(icon?.getAttribute("class")).not.toMatch(/#[0-9a-f]{3,8}/i)
         expect(cardLinks()).toHaveLength(24)
         expect(
           within(document.body).getByRole("button", { name: "Réessayer" })

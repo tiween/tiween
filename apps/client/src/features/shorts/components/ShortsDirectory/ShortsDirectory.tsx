@@ -299,7 +299,7 @@ export function ShortsDirectory({
                     className="text-muted-foreground flex items-center gap-2 text-sm leading-5"
                   >
                     <AlertCircle
-                      className="size-4 shrink-0 text-[#FF8A8A]"
+                      className="text-destructive size-4 shrink-0"
                       aria-hidden="true"
                     />
                     {t("loadMoreError")}
