@@ -23,6 +23,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import type { WatchlistItem } from "./useWatchlist"
 
 import {
+  fetchWatchlist,
   UNRESOLVED_USER_ID,
   useWatchlist,
   useWatchlistCheck,
@@ -283,5 +284,82 @@ describe("same-tab user switch (Story 5.8) — B never reads A's cache", () => {
     expect(client.getQueryData(watchlistKeys.check(7, "cw-1"))).toEqual({
       isInWatchlist: true,
     })
+  })
+})
+
+/**
+ * Phase 2 (FR19, FR20, D-14, D-15): additive options for the shorts hearts.
+ * Without options every behavior above is unchanged.
+ */
+describe("fetchWatchlist (extracted list queryFn)", () => {
+  it("issues the same request the page-level list query sends", async () => {
+    fetchAPIMock.mockResolvedValue({ data: [makeItem("x")] })
+
+    const rows = await fetchWatchlist()
+
+    expect(fetchAPIMock).toHaveBeenCalledWith(
+      "/user-engagement/watchlist",
+      {
+        populate: [
+          "creativeWork",
+          "creativeWork.poster",
+          "creativeWork.poster.formats",
+        ],
+      },
+      { method: "GET" },
+      { useProxy: true }
+    )
+    expect(rows).toEqual([makeItem("x")])
+  })
+
+  it("returns an empty list when the payload has no data", async () => {
+    fetchAPIMock.mockResolvedValue({})
+    expect(await fetchWatchlist()).toEqual([])
+  })
+
+  it("is what useWatchlist fetches with", async () => {
+    fetchAPIMock.mockResolvedValue({ data: [makeItem("y")] })
+    const { result } = renderHook(() => useWatchlist(), {
+      wrapper: wrapperFor(makeClient()),
+    })
+    await waitFor(() => expect(result.current.data).toBeDefined())
+    expect(fetchAPIMock).toHaveBeenCalledTimes(1)
+    expect(fetchAPIMock.mock.calls[0]![0]).toBe("/user-engagement/watchlist")
+  })
+})
+
+describe("useWatchlistCheck — enabled option", () => {
+  it("never calls the Strapi client with { enabled: false }, even authenticated", () => {
+    renderHook(() => useWatchlistCheck("cw-1", { enabled: false }), {
+      wrapper: wrapperFor(makeClient()),
+    })
+
+    const options = useQuerySpy.mock.calls[0]![0] as { enabled: boolean }
+    expect(options.enabled).toBe(false)
+    expect(fetchAPIMock).not.toHaveBeenCalled()
+  })
+
+  it("still returns data that was seeded under the key", () => {
+    const client = makeClient()
+    client.setQueryData(watchlistKeys.check(7, "cw-1"), { isInWatchlist: true })
+
+    const { result } = renderHook(
+      () => useWatchlistCheck("cw-1", { enabled: false }),
+      { wrapper: wrapperFor(client) }
+    )
+
+    expect(result.current.data).toEqual({ isInWatchlist: true })
+    expect(fetchAPIMock).not.toHaveBeenCalled()
+  })
+
+  it("defaults to enabled when no option is passed", async () => {
+    fetchAPIMock.mockResolvedValue({ isInWatchlist: false })
+    renderHook(() => useWatchlistCheck("cw-1"), {
+      wrapper: wrapperFor(makeClient()),
+    })
+    await waitFor(() => expect(fetchAPIMock).toHaveBeenCalledTimes(1))
+    expect(fetchAPIMock.mock.calls[0]![0]).toBe(
+      "/user-engagement/watchlist/check/cw-1"
+    )
   })
 })

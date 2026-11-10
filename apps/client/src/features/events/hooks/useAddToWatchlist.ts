@@ -23,6 +23,24 @@ export interface UseAddToWatchlistResult {
   isPending: boolean
   /** Whether there is a creative-work id to watchlist at all. */
   canWatchlist: boolean
+  /** Whether the check cache holds an answer for this creative-work. */
+  isResolved: boolean
+}
+
+export interface UseAddToWatchlistOptions {
+  /**
+   * Fill the check cache before the online POST settles and roll it back (with
+   * the error toast) if the POST fails. Default `false`: events keep the
+   * non-optimistic online add.
+   */
+  optimistic?: boolean
+  /** Copy variant for the signed-out toast. Default `"event"`. */
+  variant?: "event" | "short-film"
+  /**
+   * Run the per-film check query. Default `true`. Grids pass `false` and seed
+   * the key from one list request instead (ShortsWatchlistProvider).
+   */
+  check?: boolean
 }
 
 /**
@@ -42,11 +60,19 @@ export interface UseAddToWatchlistResult {
  *  5. offline → enqueue under the current user; only on a successful write apply
  *     the optimistic fill + `queued` toast, else an error toast and NO optimistic
  *     change (never claim "queued" for an add that was not stored);
- *  6. online → run the add mutation with success/error toasts.
+ *  6. online → run the add mutation with success/error toasts; with
+ *     `optimistic` the check cache is filled first and rolled back on failure.
+ *
+ * The optional second argument is additive (Phase 2, FR19): with no options the
+ * hook behaves exactly as before. D-14 / D-15: the signed-out branch still
+ * toasts then redirects (never a local toggle) and offline taps still use the
+ * one per-user queue; only the signed-out toast key depends on `variant`.
  */
 export function useAddToWatchlist(
-  creativeWorkId?: string
+  creativeWorkId?: string,
+  options: UseAddToWatchlistOptions = {}
 ): UseAddToWatchlistResult {
+  const { optimistic = false, variant = "event", check = true } = options
   const { data: session, status } = useSession()
   const router = useRouter()
   const pathname = usePathname()
@@ -55,7 +81,9 @@ export function useAddToWatchlist(
   const { toast } = useToast()
   const queryClient = useQueryClient()
 
-  const { data: checkData } = useWatchlistCheck(creativeWorkId)
+  const { data: checkData } = useWatchlistCheck(creativeWorkId, {
+    enabled: check,
+  })
   const { addMutation } = useWatchlistMutations()
 
   const userId = session?.user?.userId
@@ -67,7 +95,11 @@ export function useAddToWatchlist(
 
     // (2) Unauthenticated: prompt sign-in, preserve the current path.
     if (status !== "authenticated") {
-      toast({ description: t("loginRequired") })
+      toast({
+        description: t(
+          variant === "short-film" ? "loginRequiredShort" : "loginRequired"
+        ),
+      })
       const callbackUrl = encodeURIComponent(pathname ?? `/${locale}`)
       router.push(`/${locale}/auth/signin?callbackUrl=${callbackUrl}`)
       return
@@ -93,10 +125,30 @@ export function useAddToWatchlist(
     }
 
     // (6) Online: persist via the add mutation.
-    addMutation.mutate(creativeWorkId, {
-      onSuccess: () => toast({ description: t("addSuccess") }),
-      onError: () => toast({ variant: "destructive", description: t("error") }),
-    })
+    const checkKey = watchlistKeys.check(userId, creativeWorkId)
+    const persist = () => {
+      if (optimistic) {
+        queryClient.setQueryData(checkKey, { isInWatchlist: true })
+      }
+      addMutation.mutate(creativeWorkId, {
+        onSuccess: () => toast({ description: t("addSuccess") }),
+        onError: () => {
+          if (optimistic) {
+            queryClient.setQueryData(checkKey, { isInWatchlist: false })
+          }
+          toast({ variant: "destructive", description: t("error") })
+        },
+      })
+    }
+
+    // A check GET still in flight would revert (async) over the optimistic
+    // fill when cancelled, so wait for the cancel before writing. With no
+    // request in flight (seeded grids) the fill stays synchronous.
+    if (optimistic && queryClient.isFetching({ queryKey: checkKey }) > 0) {
+      void queryClient.cancelQueries({ queryKey: checkKey }).then(persist)
+    } else {
+      persist()
+    }
   }
 
   return {
@@ -104,5 +156,6 @@ export function useAddToWatchlist(
     add,
     isPending: addMutation.isPending,
     canWatchlist: Boolean(creativeWorkId),
+    isResolved: checkData !== undefined,
   }
 }

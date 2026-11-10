@@ -21,6 +21,16 @@ export interface UseRemoveFromWatchlistResult {
   isPending: boolean
 }
 
+export interface UseRemoveFromWatchlistOptions {
+  /** Copy variant for the Undo action label. Default `"event"`. */
+  variant?: "event" | "short-film"
+  /**
+   * Run the per-film check query. Default `true`. Grids pass `false` and seed
+   * the key from one list request instead (ShortsWatchlistProvider).
+   */
+  check?: boolean
+}
+
 /**
  * Remove-from-watchlist controller for the event detail hero (Story 5.2).
  *
@@ -48,6 +58,10 @@ export interface UseRemoveFromWatchlistResult {
  * pending remove). The re-add no-ops while `addMutation.isPending` so a
  * double-tapped Undo cannot double-fire.
  *
+ * The optional second argument is additive (Phase 2, FR20, D-14, D-15): the
+ * short-film variant only swaps the Undo label key and `check: false` switches
+ * the per-film check query off; the guard matrix above is unchanged.
+ *
  * `isPending` is `removeMutation.isPending || addMutation.isPending` — it covers
  * BOTH the remove and the Undo re-add (which runs on this hook's own
  * `addMutation` instance). The detail page folds it into the heart's disabled
@@ -55,14 +69,18 @@ export interface UseRemoveFromWatchlistResult {
  * `DELETE` (nor a remove with a `POST`) at the same row.
  */
 export function useRemoveFromWatchlist(
-  creativeWorkId?: string
+  creativeWorkId?: string,
+  options: UseRemoveFromWatchlistOptions = {}
 ): UseRemoveFromWatchlistResult {
+  const { variant = "event", check = true } = options
   const { data: session, status } = useSession()
   const t = useTranslations("watchlist")
   const { toast } = useToast()
   const queryClient = useQueryClient()
 
-  const { data: checkData } = useWatchlistCheck(creativeWorkId)
+  const { data: checkData } = useWatchlistCheck(creativeWorkId, {
+    enabled: check,
+  })
   const { removeMutation, addMutation } = useWatchlistMutations()
 
   const userId = session?.user?.userId
@@ -109,9 +127,10 @@ export function useRemoveFromWatchlist(
     // (4) Not saved or a remove in flight — no DELETE, no toast.
     if (!checkData?.isInWatchlist || removeMutation.isPending) return
 
+    const undoLabel = t(variant === "short-film" ? "undoRemove" : "undo")
     const undo = (
-      <ToastAction altText={t("undo")} onClick={reAdd}>
-        {t("undo")}
+      <ToastAction altText={undoLabel} onClick={reAdd}>
+        {undoLabel}
       </ToastAction>
     )
 

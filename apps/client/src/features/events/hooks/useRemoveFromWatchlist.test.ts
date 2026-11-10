@@ -26,6 +26,7 @@ const {
   enqueueOpMock,
   removeMutate,
   addMutate,
+  checkSpy,
   state,
 } = vi.hoisted(() => ({
   useSessionMock: vi.fn(),
@@ -33,6 +34,7 @@ const {
   enqueueOpMock: vi.fn(),
   removeMutate: vi.fn(),
   addMutate: vi.fn(),
+  checkSpy: vi.fn(),
   state: {
     checkData: undefined as undefined | { isInWatchlist: boolean },
     removePending: false,
@@ -54,7 +56,10 @@ vi.mock("@/components/ui/toast", () => ({
 }))
 vi.mock("../utils/watchlistQueue", () => ({ enqueueOp: enqueueOpMock }))
 vi.mock("./useWatchlist", () => ({
-  useWatchlistCheck: () => ({ data: state.checkData }),
+  useWatchlistCheck: (...args: unknown[]) => {
+    checkSpy(...args)
+    return { data: state.checkData }
+  },
   useWatchlistMutations: () => ({
     removeMutation: { isPending: state.removePending, mutate: removeMutate },
     addMutation: { isPending: state.addPending, mutate: addMutate },
@@ -81,13 +86,18 @@ function authed(userId = 7) {
   })
 }
 
-function renderRemove(id: string | undefined = "cw-1") {
+function renderRemove(
+  id: string | undefined = "cw-1",
+  options?: Parameters<typeof useRemoveFromWatchlist>[1]
+) {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   })
   const wrapper = ({ children }: { children: React.ReactNode }) =>
     React.createElement(QueryClientProvider, { client }, children)
-  const { result } = renderHook(() => useRemoveFromWatchlist(id), { wrapper })
+  const { result } = renderHook(() => useRemoveFromWatchlist(id, options), {
+    wrapper,
+  })
   return { result, client }
 }
 
@@ -302,5 +312,58 @@ describe("useRemoveFromWatchlist — in-flight guard (isPending)", () => {
     state.addPending = false
     const { result } = renderRemove()
     expect(result.current.isPending).toBe(false)
+  })
+})
+
+/**
+ * Phase 2 additive options (FR20, D-14, D-15): the short-film variant swaps the
+ * Undo label key; { check: false } switches the per-card check query off.
+ */
+describe("useRemoveFromWatchlist — variant and check options", () => {
+  function undoAction() {
+    return undoFromToast() as unknown as {
+      props: { altText: string; children: string; onClick: () => void }
+    }
+  }
+
+  it("keeps the default Undo label key `undo` for events", () => {
+    removeMutate.mockImplementation((_id, opts) => opts?.onSuccess?.())
+    const { result } = renderRemove()
+
+    act(() => result.current.remove())
+
+    expect(undoAction().props.altText).toBe("undo")
+    expect(undoAction().props.children).toBe("undo")
+  })
+
+  it("uses `undoRemove` for label and altText with variant short-film", () => {
+    removeMutate.mockImplementation((_id, opts) => opts?.onSuccess?.())
+    const { result } = renderRemove("cw-1", { variant: "short-film" })
+
+    act(() => result.current.remove())
+
+    expect(undoAction().props.altText).toBe("undoRemove")
+    expect(undoAction().props.children).toBe("undoRemove")
+  })
+
+  it("short-film offline remove also carries the undoRemove action", () => {
+    setOnline(false)
+    enqueueOpMock.mockReturnValue(true)
+    const { result } = renderRemove("cw-1", { variant: "short-film" })
+
+    act(() => result.current.remove())
+
+    expect(undoAction().props.altText).toBe("undoRemove")
+    expect(enqueueOpMock).toHaveBeenCalledWith(7, "remove", "cw-1")
+  })
+
+  it("passes { enabled: false } to the check hook with { check: false }", () => {
+    renderRemove("cw-1", { check: false })
+    expect(checkSpy).toHaveBeenCalledWith("cw-1", { enabled: false })
+  })
+
+  it("leaves the check query enabled by default", () => {
+    renderRemove("cw-1")
+    expect(checkSpy).toHaveBeenCalledWith("cw-1", { enabled: true })
   })
 })

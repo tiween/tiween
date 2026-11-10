@@ -196,3 +196,172 @@ describe("useAddToWatchlist — guards", () => {
     expect(postCalls()).toHaveLength(0)
   })
 })
+
+/**
+ * Phase 2 additive options (FR19, D-14, D-15): optimistic online add, the
+ * short-film signed-out copy, and a switchable check query. The signed-out and
+ * offline branches keep their guard matrix; only the toast key differs.
+ */
+describe("useAddToWatchlist — optimistic option", () => {
+  function deferredPost() {
+    let resolve!: (v: unknown) => void
+    let reject!: (e: unknown) => void
+    const promise = new Promise((res, rej) => {
+      resolve = res
+      reject = rej
+    })
+    fetchAPIMock.mockImplementation((_path: string, _q: unknown, init?: { method?: string }) => {
+      if (init?.method === "POST") return promise
+      return Promise.resolve({ isInWatchlist: false })
+    })
+    return { resolve, reject }
+  }
+
+  function render(
+    id: string,
+    options: Parameters<typeof useAddToWatchlist>[1]
+  ) {
+    const client = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    })
+    const wrapper = ({ children }: { children: React.ReactNode }) =>
+      React.createElement(QueryClientProvider, { client }, children)
+    const hook = renderHook(() => useAddToWatchlist(id, options), { wrapper })
+    return { ...hook, client }
+  }
+
+  it("fills the check cache before the POST settles", async () => {
+    authed()
+    const post = deferredPost()
+    const { result, client } = render("cw-1", { optimistic: true })
+    await waitFor(() =>
+      expect(client.getQueryData(["watchlist", "check", 7, "cw-1"])).toEqual({
+        isInWatchlist: false,
+      })
+    )
+
+    act(() => result.current.add())
+
+    await waitFor(() =>
+      expect(client.getQueryData(["watchlist", "check", 7, "cw-1"])).toEqual({
+        isInWatchlist: true,
+      })
+    )
+    expect(postCalls()).toHaveLength(1)
+    expect(toastMock).not.toHaveBeenCalled() // still pending
+
+    await act(async () => post.resolve({}))
+    await waitFor(() =>
+      expect(toastMock).toHaveBeenCalledWith({ description: "addSuccess" })
+    )
+  })
+
+  it("rolls back to false and toasts an error when the POST fails", async () => {
+    authed()
+    const post = deferredPost()
+    const { result, client } = render("cw-1", { optimistic: true })
+    await waitFor(() =>
+      expect(client.getQueryData(["watchlist", "check", 7, "cw-1"])).toBeDefined()
+    )
+
+    act(() => result.current.add())
+    await waitFor(() =>
+      expect(client.getQueryData(["watchlist", "check", 7, "cw-1"])).toEqual({
+        isInWatchlist: true,
+      })
+    )
+
+    await act(async () => post.reject(new Error("boom")))
+
+    await waitFor(() =>
+      expect(client.getQueryData(["watchlist", "check", 7, "cw-1"])).toEqual({
+        isInWatchlist: false,
+      })
+    )
+    expect(toastMock).toHaveBeenCalledWith({
+      variant: "destructive",
+      description: "error",
+    })
+  })
+
+  it("does not write the cache before the POST when optimistic is off (default)", async () => {
+    authed()
+    deferredPost()
+    const { result, client } = render("cw-1", undefined)
+    await waitFor(() =>
+      expect(client.getQueryData(["watchlist", "check", 7, "cw-1"])).toBeDefined()
+    )
+
+    act(() => result.current.add())
+
+    await waitFor(() => expect(postCalls()).toHaveLength(1))
+    expect(client.getQueryData(["watchlist", "check", 7, "cw-1"])).toEqual({
+      isInWatchlist: false,
+    })
+  })
+})
+
+describe("useAddToWatchlist — short-film variant (D-14)", () => {
+  it("toasts loginRequiredShort and redirects with the current path; writes and queues nothing", () => {
+    useSessionMock.mockReturnValue({ status: "unauthenticated", data: null })
+
+    const { result } = renderHook(
+      () => useAddToWatchlist("cw-1", { variant: "short-film" }),
+      { wrapper: makeWrapper() }
+    )
+
+    act(() => result.current.add())
+
+    expect(toastMock).toHaveBeenCalledWith({
+      description: "loginRequiredShort",
+    })
+    expect(toastMock).not.toHaveBeenCalledWith({ description: "loginRequired" })
+    expect(pushMock).toHaveBeenCalledWith(
+      `/fr/auth/signin?callbackUrl=${encodeURIComponent("/fr/events/evt-1")}`
+    )
+    expect(postCalls()).toHaveLength(0)
+    expect(enqueueAddMock).not.toHaveBeenCalled()
+  })
+})
+
+describe("useAddToWatchlist — check option and isResolved", () => {
+  it("issues no check GET with { check: false } and isResolved stays false", async () => {
+    authed()
+    const { result } = renderHook(
+      () => useAddToWatchlist("cw-1", { check: false }),
+      { wrapper: makeWrapper() }
+    )
+
+    await new Promise((r) => setTimeout(r, 20))
+    expect(fetchAPIMock).not.toHaveBeenCalled()
+    expect(result.current.isResolved).toBe(false)
+  })
+
+  it("isResolved is true once the check cache holds an answer", async () => {
+    authed()
+    const { result } = renderHook(() => useAddToWatchlist("cw-1"), {
+      wrapper: makeWrapper(),
+    })
+    expect(result.current.isResolved).toBe(false)
+    await waitFor(() => expect(result.current.isResolved).toBe(true))
+  })
+
+  it("isResolved is true for a seeded key with { check: false }", () => {
+    authed()
+    const client = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    })
+    client.setQueryData(["watchlist", "check", 7, "cw-1"], {
+      isInWatchlist: true,
+    })
+    const wrapper = ({ children }: { children: React.ReactNode }) =>
+      React.createElement(QueryClientProvider, { client }, children)
+    const { result } = renderHook(
+      () => useAddToWatchlist("cw-1", { check: false }),
+      { wrapper }
+    )
+    expect(result.current.isResolved).toBe(true)
+    expect(result.current.isWatchlisted).toBe(true)
+    expect(fetchAPIMock).not.toHaveBeenCalled()
+  })
+})

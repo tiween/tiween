@@ -20,6 +20,11 @@ export interface WatchlistItem {
     documentId: string
     title: string
     type?: string
+    /** Short films link to `/shorts/<slug>`; optional until Plan 07 relies on it. */
+    slug?: string
+    releaseYear?: number | null
+    /** Runtime in minutes (short films). */
+    duration?: number | null
     poster?: {
       url: string
       formats?: {
@@ -65,7 +70,7 @@ export function watchlistRefetchInterval(online: boolean): number | false {
  * scope actually used to build a query key (`UNRESOLVED_USER_ID` in that case —
  * those queries are always disabled).
  */
-function useWatchlistScope() {
+export function useWatchlistScope() {
   const { data: session, status } = useSession()
   const isAuthenticated = status === "authenticated"
   const userId = session?.user?.userId
@@ -76,6 +81,27 @@ function useWatchlistScope() {
     /** Never `undefined` — safe to put in a key; gated by `enabled` below. */
     scope: userId ?? UNRESOLVED_USER_ID,
   }
+}
+
+/**
+ * The list request behind the watchlist query. Extracted so the non-polling
+ * `useWatchlistIds` (shorts grids) shares the exact request and the same
+ * `watchlistKeys.list` cache entry as the page-level `useWatchlist`.
+ */
+export async function fetchWatchlist(): Promise<WatchlistItem[]> {
+  const response = await PrivateStrapiClient.fetchAPI(
+    "/user-engagement/watchlist",
+    {
+      populate: [
+        "creativeWork",
+        "creativeWork.poster",
+        "creativeWork.poster.formats",
+      ],
+    },
+    { method: "GET" },
+    { useProxy: true }
+  )
+  return (response.data || []) as WatchlistItem[]
 }
 
 /**
@@ -95,21 +121,7 @@ export function useWatchlist() {
 
   return useQuery({
     queryKey: watchlistKeys.list(scope),
-    queryFn: async () => {
-      const response = await PrivateStrapiClient.fetchAPI(
-        "/user-engagement/watchlist",
-        {
-          populate: [
-            "creativeWork",
-            "creativeWork.poster",
-            "creativeWork.poster.formats",
-          ],
-        },
-        { method: "GET" },
-        { useProxy: true }
-      )
-      return (response.data || []) as WatchlistItem[]
-    },
+    queryFn: fetchWatchlist,
     // Never fire under an ambiguous session (loading, or an unresolved id).
     enabled: isAuthenticated && !!userId,
     staleTime: 5 * 60 * 1000, // 5 minutes
@@ -135,8 +147,14 @@ export function useWatchlist() {
  * const { data } = useWatchlistCheck(event.creativeWork.documentId)
  * const isWatchlisted = data?.isInWatchlist ?? false
  * ```
+ *
+ * Pass `{ enabled: false }` to read a seeded answer without issuing a request.
  */
-export function useWatchlistCheck(creativeWorkId: string | undefined) {
+export function useWatchlistCheck(
+  creativeWorkId: string | undefined,
+  options: { enabled?: boolean } = {}
+) {
+  const { enabled: enabledOption = true } = options
   const { isAuthenticated, userId, scope } = useWatchlistScope()
 
   return useQuery({
@@ -150,7 +168,9 @@ export function useWatchlistCheck(creativeWorkId: string | undefined) {
       )
       return response as { isInWatchlist: boolean }
     },
-    enabled: isAuthenticated && !!userId && !!creativeWorkId,
+    // `enabled: false` is for grids that seed this key from one list request
+    // (ShortsWatchlistProvider); seeded data is still returned from the cache.
+    enabled: enabledOption && isAuthenticated && !!userId && !!creativeWorkId,
     staleTime: 2 * 60 * 1000, // 2 minutes
   })
 }
