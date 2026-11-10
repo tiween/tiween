@@ -1,18 +1,14 @@
 ---
-status: testing
+status: partial
 phase: 02-strapi-backed-shorts-pages
 source: [02-VERIFICATION.md, 02-10-SUMMARY.md]
 started: 2026-11-10T17:16:33Z
-updated: 2026-11-10T21:20:10Z
+updated: 2026-11-10T21:47:31.744Z
 ---
 
 ## Current Test
 
-number: 7
-name: In-app browser
-expected: |
-Open a detail link inside the Instagram in-app browser. Expected: the page hydrates; note whether the pre-hydration blank shell on layout-level failures (RESEARCH assumption A7) is acceptable.
-awaiting: user response
+[testing complete]
 
 ## Tests
 
@@ -64,7 +60,9 @@ severity: cosmetic
 ### 7. In-app browser
 
 expected: Open a detail link inside the Instagram in-app browser. Expected: the page hydrates; note whether the pre-hydration blank shell on layout-level failures (RESEARCH assumption A7) is acceptable.
-result: [pending]
+result: blocked
+blocked_by: release-build
+reason: "Needs a public URL opened inside Instagram on a phone; owner pushed main 2026-11-10 — run after the production deploy is live."
 
 ### 8. Signed-in network counts (from the Plan 09 handoff)
 
@@ -78,9 +76,9 @@ evidence: "Playwright, signed in: /shorts → exactly one 200 GET /user-engageme
 total: 8
 passed: 4
 issues: 3
-pending: 1
+pending: 0
 skipped: 0
-blocked: 0
+blocked: 1
 
 ## Gaps
 
@@ -90,8 +88,15 @@ blocked: 0
   reason: "Automated browser check: at 195 CSS px (200% zoom on a 390px phone) the award name 'Journées cinématographiques de Carthage' overflows its card because 'cinématographiques' cannot break; page scrollWidth 204 (ar) / 210 (en) vs 195."
   severity: minor
   test: 2
-  artifacts: []
-  missing: []
+  root_cause: "`.awardText` in ShortFilmDetail.module.css has no overflow-wrap, so a single long word (French festival names) cannot break inside the award card at narrow widths."
+  artifacts:
+
+  - path: "apps/client/src/features/shorts/components/ShortFilmDetail/ShortFilmDetail.module.css"
+    issue: ".awardText (line ~578) lacks overflow-wrap: anywhere; min-width:0 on its flex parent may also be needed"
+    missing:
+  - "Allow long words in award names (and any other long free-text line on the detail page) to wrap: overflow-wrap: anywhere, min-width: 0 on the flex child"
+  - "A regression check: no document scrollWidth > clientWidth on the detail page at 195px in ar/fr/en"
+    debug_session: "inline — diagnosed during automated UAT 2026-11-10 (Playwright offender scan)"
 
 - gap_id: G-02-5
   truth: "After the signed-out heart → sign-in round trip, the visitor lands back on the same page in the same locale"
@@ -99,8 +104,39 @@ blocked: 0
   reason: "Automated browser check: callbackUrl and router push are correct, but PreferenceSync then switches to the account's saved preferredLanguage (fr by default), so sign-ins from /ar/ or /en/ end on the French page. Owner decision: visitor's current locale vs saved preference on a sign-in return."
   severity: major
   test: 5
-  artifacts: []
-  missing: []
+  owner_decision: "2026-11-10: the browser decides the site language (next-intl Accept-Language detection + NEXT_LOCALE cookie, already active). REMOVE the preferredLanguage field from user accounts entirely. Users must still be able to switch languages from the interface (LocaleSwitcher stays). Emails: use the request/order locale where one exists; asynchronous notifications with no request locale fall back to fr (owner accepted)."
+  root_cause: "components/providers/PreferenceSync.tsx (root layout) router.replace()s to session.user.preferredLanguage once per mount after sign-in, overriding the locale the visitor was reading; new accounts default to fr."
+  artifacts:
+
+  - path: "apps/client/src/components/providers/PreferenceSync.tsx"
+    issue: "forces the saved account language after sign-in — delete (and its test, and its mount in the root layout)"
+  - path: "apps/client/src/lib/auth.ts"
+    issue: "copies preferredLanguage into the JWT/session (lines ~174, ~192)"
+  - path: "apps/client/src/types/next-auth.d.ts"
+    issue: "declares preferredLanguage on User/Session"
+  - path: "apps/client/src/hooks/useUser.ts"
+    issue: "exposes preferredLanguage"
+  - path: "apps/client/src/app/[locale]/auth/profile/\_components/ProfileForm.tsx"
+    issue: "language field writes preferredLanguage via PUT /users/me"
+  - path: "apps/client/src/app/[locale]/venues/register/\_components/VenueRegistrationForm.tsx, app/api/venues/register/route.ts, features/venues/schemas/venue-registration.ts"
+    issue: "venue-manager registration sends preferredLanguage"
+  - path: "apps/strapi/src/extensions/users-permissions/content-types/user/schema.json"
+    issue: "the preferredLanguage attribute itself"
+  - path: "apps/strapi/src/extensions/users-permissions/strapi-server.ts"
+    issue: "register/profile validation accepts preferredLanguage; password-reset locale precedence uses it (request locale → preferredLanguage → fr)"
+  - path: "apps/strapi/src/plugins/ticketing/server/src/services/order-email.ts"
+    issue: "resolveLocale(order.locale, user.preferredLanguage)"
+  - path: "apps/strapi/src/plugins/user-engagement/server/src/services/notification.ts"
+    issue: "normalizeLocale(user.preferredLanguage) for notification emails"
+  - path: "apps/strapi/src/plugins/venues/server/src/services/registration.ts, validation/registration.ts"
+    issue: "stores/uses manager preferredLanguage for registration emails"
+    missing:
+  - "Delete PreferenceSync and every client read/write of preferredLanguage (session, types, useUser, profile form field, venue registration payload); keep LocaleSwitcher and the NEXT_LOCALE cookie"
+  - "Remove the preferredLanguage attribute from the user schema and from register/profile/venue-registration validation (unknown key must be rejected or ignored, decide per the existing zod strictness)"
+  - "Email locale: order email uses order.locale → fr; password reset uses the request locale → fr; venue registration emails use the request locale captured at submit → fr; watchlist notifications use fr (no request context)"
+  - "Update every affected unit test; add a regression test that signing in from /ar/... or /en/... keeps that locale"
+  - "Strapi drops the column on next boot when the attribute is removed — confirm no data migration is needed (value is discarded by owner decision)"
+    debug_session: "inline — navigation trace during automated UAT 2026-11-10: /ar/shorts/abderrahman → 307 /fr/shorts/abderrahman → /shorts/abderrahman"
 
 - gap_id: G-02-6
   truth: "The heart's 3px gold focus ring is fully visible, not clipped by the card frame"
@@ -108,5 +144,12 @@ blocked: 0
   reason: "Automated browser check: the ring extends 5px (2px white offset + 3px gold) beyond the 44px target, which sits 4px inside an overflow:hidden card, so 1px of the gold band is clipped at the top and right edges."
   severity: cosmetic
   test: 6
-  artifacts: []
-  missing: []
+  root_cause: "ShortFilmHeart positions the 44px target at `absolute end-1 top-1` (4px) inside the ShortFilmCard article, which is `overflow-hidden rounded-2xl`; the focus ring (ring-offset 2px + 3px ring = 5px outset) exceeds the 4px inset by 1px."
+  artifacts:
+  - path: "apps/client/src/features/shorts/components/ShortFilmHeart/ShortFilmHeart.tsx"
+    issue: "className 'absolute end-1 top-1' — inset smaller than the ring outset"
+  - path: "apps/client/src/features/shorts/components/ShortFilmCard/ShortFilmCard.tsx"
+    issue: "article is overflow-hidden (line ~139)"
+    missing:
+  - "Keep the whole 5px ring inside the card: inset the heart by at least 6px (end-1.5/top-1.5) while keeping the visible 40px disc where the spec places it, or draw the ring inset; do not remove overflow-hidden (it clips the poster to the radius)"
+    debug_session: "inline — geometry measured during automated UAT 2026-11-10"
