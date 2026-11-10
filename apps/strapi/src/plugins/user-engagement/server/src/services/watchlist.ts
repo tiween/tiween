@@ -14,6 +14,25 @@ const PLUGIN_ID = "user-engagement"
 const WATCHLIST_UID = `plugin::${PLUGIN_ID}.user-watchlist`
 
 /**
+ * Creative-work scalar fields a watchlist row may carry (FR21, T-02-16).
+ *
+ * `populate: ["creativeWork"]` returns EVERY scalar of the related work
+ * (synopsis, country, language, featured rank, ...) to the browser; the booted
+ * assertion in `watchlist-payload.service.test.ts` proved it. The card needs the
+ * link target (`slug`), the type label (`type`), the `title` and the optional
+ * meta line (`releaseYear`, `duration`). `id` and `documentId` are always
+ * returned by the Document Service. Add a field here only together with the
+ * allowlist assertion in that test.
+ */
+export const WATCHLIST_CREATIVE_WORK_FIELDS = [
+  "title",
+  "slug",
+  "type",
+  "duration",
+  "releaseYear",
+] as const
+
+/**
  * Story 5.7 — recognise a DB unique-constraint violation across every driver
  * this repo runs on, plus whatever wrapper Strapi/knex puts around it.
  *
@@ -290,7 +309,9 @@ const watchlistService = ({ strapi }: { strapi: Core.Strapi }) => ({
   async getUserWatchlist(userId: string) {
     const rows = await strapi.documents(WATCHLIST_UID).findMany({
       filters: { user: { documentId: userId } } as any,
-      populate: ["creativeWork"],
+      populate: {
+        creativeWork: { fields: [...WATCHLIST_CREATIVE_WORK_FIELDS] },
+      } as any,
       sort: { addedAt: "desc" },
     })
 

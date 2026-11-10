@@ -672,6 +672,24 @@ describe("watchlist.getUserWatchlist (unit)", () => {
     })
   })
 
+  it("populates the creative work through an explicit fields allowlist (FR21, T-02-16)", async () => {
+    const { strapi, findMany } = buildEnrichStrapi([], {})
+    const service = watchlistService({ strapi })
+
+    await service.getUserWatchlist("user-1")
+
+    expect(findMany).toHaveBeenCalledTimes(1)
+    const args = (findMany.mock.calls[0] as unknown[])[0] as any
+    // Object form, never the bare `["creativeWork"]` that returns every scalar.
+    expect(args.populate).toEqual({
+      creativeWork: {
+        fields: ["title", "slug", "type", "duration", "releaseYear"],
+      },
+    })
+    expect(args.filters).toEqual({ user: { documentId: "user-1" } })
+    expect(args.sort).toEqual({ addedAt: "desc" })
+  })
+
   it("does not call the facade when there are no rows", async () => {
     const { strapi, findScreeningInfoByMovies } = buildEnrichStrapi([], {})
     const service = watchlistService({ strapi })
