@@ -4,17 +4,17 @@ milestone: v1.0
 milestone_name: Shorts Directory
 current_phase: 2
 current_phase_name: Strapi-Backed Shorts Pages
-status: executing
-stopped_at: Completed 02-09-PLAN.md
-last_updated: "2026-11-10T16:24:55.671Z"
+status: verifying
+stopped_at: Completed 02-10-PLAN.md
+last_updated: "2026-11-10T16:40:07.860Z"
 last_activity: 2026-11-10
 last_activity_desc: Phase 2 execution started
-state_head: 7d73e91c1ac2b49b396e1e6cfeb7e1a53abefabb
+state_head: 31ab4811151e088a751e3b17e178a591d309faff
 progress:
   total_phases: 7
   completed_phases: 1
   total_plans: 26
-  completed_plans: 25
+  completed_plans: 26
 ---
 
 # Project State
@@ -30,7 +30,7 @@ See: .planning/PROJECT.md (updated 2026-11-10)
 
 Phase: 2 (Strapi-Backed Shorts Pages) — EXECUTING
 Plan: 10 of 10
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-11-10 — Phase 2 execution started
 
 Progress: [█░░░░░░░░░] 14%
@@ -83,6 +83,7 @@ _Updated after each plan completion_
 | Phase 02 P07 | 35 min                   | 2 tasks | 11 files |
 | Phase 02 P08 | 30 min                   | 2 tasks | 16 files |
 | Phase 02 P09 | 45 min                   | 3 tasks | 20 files |
+| Phase 2 P10  | ~1h                      | 2 tasks | 2 files  |
 
 ## Accumulated Context
 
@@ -153,6 +154,8 @@ Decisions are logged in PROJECT.md (Locked Decisions and Key Decisions table). R
 - [Phase 02]: 02-09: one useShortFilmHeart state machine drives both hearts; signed-out delegates to add() (toast + sign-in redirect), no local toggle or queue (D-14)
 - [Phase 02]: 02-09: session loading is a silent no-op without aria-busy; isBusy covers unresolved and mid-write, and a settled lookup with no answer resolves to unsaved
 - [Phase 02]: 02-09: detail heart pulses only on the visitor's own unsaved to saved change, never when the check answer arrives; card duration moved to the second meta line
+- [Phase 2]: 02-10: probe now asserts the directory (24 real links, hearts, load more, rtl, noindex), outage-on-fresh-cache-key and immediate recovery, and the full load-more matrix; 74 checks pass, zero rejected stub requests
+- [Phase 2]: 02-10: signed-out heart redirect and signed-in network counts are not probed (need a NextAuth session and a click driver); they stay on the owner manual list
 
 ### Pending Todos
 
@@ -188,6 +191,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-11-10T16:24:55.571Z
-Stopped at: Completed 02-09-PLAN.md
+Last session: 2026-11-10T16:40:07.742Z
+Stopped at: Completed 02-10-PLAN.md
 Resume file: None
