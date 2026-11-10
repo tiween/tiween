@@ -55,6 +55,9 @@ export const env = createEnv({
     // all coerce to `false`; only "true" (case-insensitive) enables the Epic 6
     // purchase surfaces (prices, quantity selection, checkout routes).
     NEXT_PUBLIC_TICKET_PURCHASE_ENABLED: optionalZodBoolean,
+    // D-17 (phase 2): gates only the tickets navigation entry (BottomNav tab,
+    // DesktopNav link). Default OFF; the ticketing code itself stays dormant.
+    NEXT_PUBLIC_TICKETING_ENABLED: optionalZodBoolean,
   },
   shared: {
     // NODE_ENV makes app to behave as it's in production mode (optimized builds, no dev-only behavior, etc.)
@@ -104,6 +107,7 @@ export const env = createEnv({
       process.env.NEXT_PUBLIC_PREVENT_UNUSED_FUNCTIONS_ERROR_LOGS,
     NEXT_PUBLIC_TICKET_PURCHASE_ENABLED:
       process.env.NEXT_PUBLIC_TICKET_PURCHASE_ENABLED,
+    NEXT_PUBLIC_TICKETING_ENABLED: process.env.NEXT_PUBLIC_TICKETING_ENABLED,
 
     RECAPTCHA_SECRET_KEY: process.env.RECAPTCHA_SECRET_KEY,
     NEXT_PUBLIC_RECAPTCHA_SITE_KEY: process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY,

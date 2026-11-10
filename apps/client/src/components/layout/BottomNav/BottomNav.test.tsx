@@ -5,9 +5,15 @@
  * cap) on the `account` tab, driven by `accountBadgeCount`.
  */
 import { render, screen } from "@testing-library/react"
-import { describe, expect, it, vi } from "vitest"
+import { beforeEach, describe, expect, it, vi } from "vitest"
+
+import { isTicketingEnabled } from "@/lib/feature-flags"
 
 import { BottomNav } from "./BottomNav"
+
+vi.mock("@/lib/feature-flags", () => ({
+  isTicketingEnabled: vi.fn(),
+}))
 
 // The count-interpolated badge labels are NOT props (a function cannot cross
 // the RSC boundary) — `BottomNav` looks them up itself. Echo the key plus the
@@ -24,6 +30,53 @@ const labels = {
   account: "Account",
   navigation: "Nav",
 }
+
+beforeEach(() => {
+  vi.mocked(isTicketingEnabled).mockReturnValue(true)
+})
+
+describe("BottomNav tickets gate (D-17)", () => {
+  it("renders three tabs in order home, search, account when ticketing is off", () => {
+    vi.mocked(isTicketingEnabled).mockReturnValue(false)
+    render(<BottomNav activeTab="home" onNavigate={vi.fn()} labels={labels} />)
+    const tabs = screen.getAllByRole("link")
+    expect(tabs.map((tab) => tab.getAttribute("aria-label"))).toEqual([
+      "Home",
+      "Search",
+      "Account",
+    ])
+    expect(
+      screen.queryByRole("link", { name: "Tickets" })
+    ).not.toBeInTheDocument()
+  })
+
+  it("renders four tabs including tickets when ticketing is on", () => {
+    vi.mocked(isTicketingEnabled).mockReturnValue(true)
+    render(<BottomNav activeTab="home" onNavigate={vi.fn()} labels={labels} />)
+    const tabs = screen.getAllByRole("link")
+    expect(tabs.map((tab) => tab.getAttribute("aria-label"))).toEqual([
+      "Home",
+      "Search",
+      "Tickets",
+      "Account",
+    ])
+  })
+
+  it("keeps the account badge working with the tickets tab hidden", () => {
+    vi.mocked(isTicketingEnabled).mockReturnValue(false)
+    render(
+      <BottomNav
+        activeTab="home"
+        ticketCount={3}
+        accountBadgeCount={2}
+        onNavigate={vi.fn()}
+        labels={labels}
+      />
+    )
+    expect(screen.getByLabelText("notifications:2")).toBeInTheDocument()
+    expect(screen.queryByLabelText(/^unscannedTickets:/)).not.toBeInTheDocument()
+  })
+})
 
 describe("BottomNav account badge", () => {
   it("shows the account badge when accountBadgeCount > 0", () => {

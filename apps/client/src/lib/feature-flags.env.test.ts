@@ -69,3 +69,49 @@ describe("isTicketPurchaseEnabled through the real env.mjs schema", () => {
     await expect(flagWithRawEnv("false")).resolves.toBe(false)
   })
 })
+
+async function ticketingWithRawEnv(value: string | undefined): Promise<boolean> {
+  vi.resetModules()
+  if (value === undefined) {
+    delete process.env.NEXT_PUBLIC_TICKETING_ENABLED
+  } else {
+    process.env.NEXT_PUBLIC_TICKETING_ENABLED = value
+  }
+  const { isTicketingEnabled } = await import("./feature-flags")
+  return isTicketingEnabled()
+}
+
+afterAll(() => {
+  delete process.env.NEXT_PUBLIC_TICKETING_ENABLED
+})
+
+describe("isTicketingEnabled through the real env.mjs schema (D-17)", () => {
+  it('returns true for the literal "true"', async () => {
+    await expect(ticketingWithRawEnv("true")).resolves.toBe(true)
+  })
+
+  it('coerces case-insensitively ("TRUE" enables)', async () => {
+    await expect(ticketingWithRawEnv("TRUE")).resolves.toBe(true)
+  })
+
+  it("defaults OFF when the var is absent", async () => {
+    await expect(ticketingWithRawEnv(undefined)).resolves.toBe(false)
+  })
+
+  it("treats the empty string as OFF", async () => {
+    await expect(ticketingWithRawEnv("")).resolves.toBe(false)
+  })
+
+  it('coerces a garbage value ("banana") to OFF', async () => {
+    await expect(ticketingWithRawEnv("banana")).resolves.toBe(false)
+  })
+
+  it("is independent of the purchase flag", async () => {
+    process.env.NEXT_PUBLIC_TICKET_PURCHASE_ENABLED = "true"
+    try {
+      await expect(ticketingWithRawEnv(undefined)).resolves.toBe(false)
+    } finally {
+      delete process.env.NEXT_PUBLIC_TICKET_PURCHASE_ENABLED
+    }
+  })
+})

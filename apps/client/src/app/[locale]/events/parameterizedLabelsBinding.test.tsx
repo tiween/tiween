@@ -29,6 +29,8 @@ import fr from "../../../../locales/fr.json"
 // plain <img> in jsdom. next-intl itself is deliberately NOT mocked.
 vi.mock("@/lib/feature-flags", () => ({
   isTicketPurchaseEnabled: () => true,
+  // BottomNav asserts the tickets badge label, so the tickets tab must render.
+  isTicketingEnabled: () => true,
 }))
 
 vi.mock("next/image", () => ({

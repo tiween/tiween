@@ -11,11 +11,18 @@
  */
 import { describe, expect, it, vi } from "vitest"
 
-import { isTicketPurchaseEnabled, isTicketPurchasePath } from "./feature-flags"
+import {
+  isTicketingEnabled,
+  isTicketPurchaseEnabled,
+  isTicketPurchasePath,
+} from "./feature-flags"
 
 const { envState } = vi.hoisted(() => ({
   envState: {
-    env: {} as { NEXT_PUBLIC_TICKET_PURCHASE_ENABLED?: boolean },
+    env: {} as {
+      NEXT_PUBLIC_TICKET_PURCHASE_ENABLED?: boolean
+      NEXT_PUBLIC_TICKETING_ENABLED?: boolean
+    },
   },
 }))
 
@@ -46,6 +53,28 @@ describe("isTicketPurchaseEnabled", () => {
   it("is ON only when validation produced true", () => {
     envState.env = { NEXT_PUBLIC_TICKET_PURCHASE_ENABLED: true }
     expect(isTicketPurchaseEnabled()).toBe(true)
+  })
+})
+
+describe("isTicketingEnabled", () => {
+  it("is OFF when the env var is absent (default)", () => {
+    envState.env = {}
+    expect(isTicketingEnabled()).toBe(false)
+  })
+
+  it("is OFF when validation coerced the value to false", () => {
+    envState.env = { NEXT_PUBLIC_TICKETING_ENABLED: false }
+    expect(isTicketingEnabled()).toBe(false)
+  })
+
+  it("is ON only when validation produced true", () => {
+    envState.env = { NEXT_PUBLIC_TICKETING_ENABLED: true }
+    expect(isTicketingEnabled()).toBe(true)
+  })
+
+  it("does not follow the narrower purchase flag (RESEARCH Pitfall 17)", () => {
+    envState.env = { NEXT_PUBLIC_TICKET_PURCHASE_ENABLED: true }
+    expect(isTicketingEnabled()).toBe(false)
   })
 })
 

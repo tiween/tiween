@@ -6,9 +6,15 @@
  * destination could silently revert — this pins it.
  */
 import { render, screen } from "@testing-library/react"
-import { describe, expect, it, vi } from "vitest"
+import { beforeEach, describe, expect, it, vi } from "vitest"
+
+import { isTicketingEnabled } from "@/lib/feature-flags"
 
 import { DesktopNav } from "./DesktopNav"
+
+vi.mock("@/lib/feature-flags", () => ({
+  isTicketingEnabled: vi.fn(),
+}))
 
 vi.mock("next-intl", () => ({
   useLocale: () => "fr",
@@ -31,6 +37,32 @@ const labels = {
   account: "Mon Compte",
   navigation: "Navigation",
 }
+
+beforeEach(() => {
+  // The existing destination tests run with the tickets entry on.
+  vi.mocked(isTicketingEnabled).mockReturnValue(true)
+})
+
+describe("DesktopNav tickets gate (D-17)", () => {
+  it("has no tickets link when ticketing is off", () => {
+    vi.mocked(isTicketingEnabled).mockReturnValue(false)
+    render(<DesktopNav labels={labels} />)
+
+    expect(
+      screen.queryByRole("link", { name: "Mes Billets" })
+    ).not.toBeInTheDocument()
+    expect(screen.getByRole("link", { name: "Mon Compte" })).toBeInTheDocument()
+  })
+
+  it("shows the tickets link when ticketing is on", () => {
+    render(<DesktopNav labels={labels} />)
+
+    expect(screen.getByRole("link", { name: "Mes Billets" })).toHaveAttribute(
+      "href",
+      "/fr/tickets"
+    )
+  })
+})
 
 describe("DesktopNav destinations", () => {
   it("points the tickets item at /[locale]/tickets, not the profile", () => {

@@ -4,6 +4,7 @@ import * as React from "react"
 import { Home, Search, Ticket, User } from "lucide-react"
 import { useTranslations } from "next-intl"
 
+import { isTicketingEnabled } from "@/lib/feature-flags"
 import { cn } from "@/lib/utils"
 
 export type TabType = "home" | "search" | "tickets" | "account"
@@ -67,7 +68,12 @@ export function BottomNav({
   className,
   labels = defaultLabels,
 }: BottomNavProps) {
-  const tabOrder: TabType[] = ["home", "search", "tickets", "account"]
+  // D-17: the tickets tab is hidden unless NEXT_PUBLIC_TICKETING_ENABLED is
+  // true; the dormant tickets code is untouched, only the entry is unlinked.
+  const ticketing = isTicketingEnabled()
+  const tabOrder: TabType[] = (
+    ["home", "search", "tickets", "account"] as TabType[]
+  ).filter((tab) => tab !== "tickets" || ticketing)
   // The badge labels interpolate `{count}`, so they cannot be plain string
   // props. Resolving them here keeps every `labels` field serializable —
   // a function prop cannot cross the RSC boundary.

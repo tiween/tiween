@@ -19,6 +19,22 @@ export function isTicketPurchaseEnabled(): boolean {
 }
 
 /**
+ * Tickets navigation gate (D-17) — the single seam deciding whether the
+ * tickets entry appears in BottomNav and DesktopNav.
+ *
+ * At launch the public site is a shorts directory: tickets are not available,
+ * so the mobile nav shows three tabs and the desktop header has no tickets
+ * link. Setting `NEXT_PUBLIC_TICKETING_ENABLED=true` restores the entry.
+ * Being `NEXT_PUBLIC_*` it is inlined at build time. Only the navigation is
+ * gated: the `/tickets` route and the ticketing components are dormant, never
+ * deleted (kernel landmine). This is deliberately NOT the narrower
+ * `NEXT_PUBLIC_TICKET_PURCHASE_ENABLED` flag (RESEARCH Pitfall 17).
+ */
+export function isTicketingEnabled(): boolean {
+  return env.NEXT_PUBLIC_TICKETING_ENABLED === true
+}
+
+/**
  * Purchase-route matcher used by the Next proxy rewrite-to-404 layer.
  *
  * Matches (with an OPTIONAL locale prefix — `localePrefix: "as-needed"` means

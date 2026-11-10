@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation"
 import { Home, Search, Ticket, User } from "lucide-react"
 import { useLocale } from "next-intl"
 
+import { isTicketingEnabled } from "@/lib/feature-flags"
 import { cn } from "@/lib/utils"
 import LocaleSwitcher from "@/components/elementary/LocaleSwitcher"
 
@@ -57,13 +58,18 @@ export function DesktopNav({
   const locale = useLocale()
   const pathname = usePathname()
 
-  const navItems: NavItem[] = [
+  // D-17: the tickets link is hidden unless NEXT_PUBLIC_TICKETING_ENABLED.
+  const allNavItems: NavItem[] = [
     { id: "home", icon: Home, href: `/${locale}` },
     { id: "search", icon: Search, href: `/${locale}/search` },
     // "Mes Billets" (Story 6.4) — the real tickets page, not the profile.
     { id: "tickets", icon: Ticket, href: `/${locale}/tickets` },
     { id: "account", icon: User, href: `/${locale}/auth/profile` },
   ]
+  const ticketing = isTicketingEnabled()
+  const navItems = allNavItems.filter(
+    (item) => item.id !== "tickets" || ticketing
+  )
 
   const isActive = (href: string) => {
     if (href === `/${locale}`) {
