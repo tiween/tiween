@@ -45,6 +45,10 @@ Requirements: SPAGE-01, SPAGE-02, SPAGE-03, SPAGE-04, SPAGE-05, FR19, FR20, FR21
 - **D-15:** Offline taps reuse the events offline queue, which syncs on reconnect, with optimistic UI.
 - **D-16:** The watchlist page shows saved short films in the same list as events, with a "Court métrage" type label (translated), linking to `/[locale]/shorts/<slug>`.
 
+### Navigation (owner, mockup review 2026-11-10)
+
+- **D-17:** Ticket features are not available at launch. Remove the "Billets" (tickets) entry from the public bottom nav (`src/components/layout/BottomNav/BottomNav.tsx`, today an unconditional tab) and from the desktop header links. Gate it behind a new client flag (e.g. `NEXT_PUBLIC_TICKETING_ENABLED`, default off) so ticketing can return without redesign. The `/tickets` route code stays, because ticketing is dormant and never deleted; it is just unlinked. The bottom nav becomes three tabs (Accueil, Recherche, Compte), as on the approved boards.
+
 ### Claude's Discretion
 
 - Whether the watchlist hooks move from `features/events/hooks` to a shared `features/watchlist` module or are imported cross-feature (prefer moving if the diff stays small).

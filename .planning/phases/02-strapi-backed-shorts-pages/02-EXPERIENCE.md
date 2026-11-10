@@ -1,7 +1,7 @@
 ---
 phase: 02-strapi-backed-shorts-pages
 doc: EXPERIENCE
-mockup_status: pending
+mockup_status: approved
 mockups:
   - https://claude.ai/artifact/3LtTPyivRsagnruGyAfBR4 # Shorts directory mockups canvas (shared with phase 04); this phase's boards are added to it
 mockups_reused:
@@ -10,10 +10,12 @@ mockups_reused:
   - "3 · Directory AR · 390 (RTL)"
   - "5 · Error with retry FR · 390 — directory outage state ('Le catalogue ne répond pas' + Réessayer)"
   - "Note: this phase hides the search, chips and filter button on those boards (D-04); the grid, card and error layouts are reused as drawn"
-mockups_outstanding:
-  - "7 · Card states FR · 390 — independent heart at the poster's top-end corner (unsaved, saved, pending), signed-out toast"
-  - "8 · Detail additions FR · 390 — hero meta (original title, country/language), saved heart, where-to-watch with access sub-label, Équipe artistique crew grid"
-  - "9 · Watchlist FR · 390 — short film in the one mixed list with the 'Court métrage' badge"
+mockups_approved: 2026-11-10 (owner) — all boards on the canvas, with one change applied: the "Billets" (tickets) tab is removed from every board's navigation (ticketing is not available at launch)
+mockups_drawn_for_review:
+  - "7 · Card heart states FR · 390"
+  - "8 · Detail additions FR · 390"
+  - "9 · Watchlist mixed list FR · 390"
+mockups_outstanding: []
 mockup_brief: 02-DESIGN-BRIEF.md
 ---
 
@@ -23,7 +25,7 @@ Flows, rules, states and copy for the surfaces placed in `02-DESIGN.md`. Everyth
 listed here follows `02-UI-SPEC.md` (Parts A to G and the copywriting contract). Copy is
 referenced by key and table, not repeated.
 
-`mockup_status` stays `pending` until the owner has reviewed and approved the Claude Design
+`mockup_status` was `pending` until the owner has reviewed and approved the Claude Design
 mockups listed in the frontmatter. **No code before `mockup_status: approved`.**
 
 ## Core journeys
