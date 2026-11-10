@@ -709,6 +709,15 @@ async function buildStep() {
   const routeLine = lines.find((line) =>
     line.includes("/[locale]/shorts/[slug]")
   )
+  const directoryLine = lines.find((line) =>
+    /\s\/\[locale\]\/shorts\s*(\S.*)?$/.test(line)
+  )
+  check(
+    "directory route is dynamic (not prerendered)",
+    "ƒ /[locale]/shorts",
+    directoryLine?.trim() ?? "route missing from the build table",
+    Boolean(directoryLine?.includes("ƒ")) && !directoryLine?.includes("●")
+  )
   check(
     "[slug] route is dynamic (not prerendered)",
     "ƒ /[locale]/shorts/[slug]",
