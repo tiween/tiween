@@ -5,16 +5,16 @@ milestone_name: Shorts Directory
 current_phase: 01
 current_phase_name: Short-Film Catalog Backend
 status: executing
-stopped_at: Phase 05.1 UI-SPEC approved
-last_updated: "2026-11-08T21:45:05.970Z"
-last_activity: 2026-11-08
-last_activity_desc: Phase 01 execution started
-state_head: 4fd51ec3b0d42f53de6ad1cd64f31778b4631fba
+stopped_at: Completed 01-16-PLAN.md
+last_updated: "2026-11-10T01:12:13.290Z"
+last_activity: 2026-11-10
+last_activity_desc: Phase 01 execution resumed (wave continue)
+state_head: 5d5dfffe6f2e239ed82006b254831082fc590499
 progress:
   total_phases: 7
   completed_phases: 0
   total_plans: 16
-  completed_plans: 15
+  completed_plans: 16
 ---
 
 # Project State
@@ -29,9 +29,9 @@ See: .planning/PROJECT.md (updated 2026-10-18)
 ## Current Position
 
 Phase: 01 (Short-Film Catalog Backend) — EXECUTING
-Plan: 15 of 16
-Status: Executing Phase 01
-Last activity: 2026-11-08 — Phase 01 execution started
+Plan: 16 of 16
+Status: Ready to execute
+Last activity: 2026-11-10 — Phase 01 execution resumed (wave continue)
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -73,6 +73,7 @@ _Updated after each plan completion_
 | Phase 01 P11 | 28 min                   | 2 tasks | 3 files  |
 | Phase 01 P12 | 2 days (checkpoint wait) | 3 tasks | 2 files  |
 | Phase 01 P13 | 25 min                   | 2 tasks | 3 files  |
+| Phase 01 P16 | 1h                       | 3 tasks | 12 files |
 
 ## Accumulated Context
 
@@ -119,6 +120,8 @@ Decisions are logged in PROJECT.md (Locked Decisions and Key Decisions table). R
 - [Brand]: Focus ring is 3px gold with 2px offset site-wide (SBRAND-04 wording stands; the global 2px rule changes) (owner, 2026-11-09)
 - [Brand]: Arabic body and headings use IBM Plex Sans Arabic app-wide, replacing Noto Sans Arabic (SBRAND-02 stands) (owner, 2026-11-09)
 - [Phase 04]: Directory cards ship without the watchlist heart; the card heart moves to the real-watchlist work in Phase 2 (FR19, Phase 2 criterion 4); SDIR-02 no longer lists it (owner, 2026-11-09)
+- [Phase 01]: 01-16: omit short-film-only keys (streamingLinks, featured, featuredRank) from Film/Play payloads; boot case confirms omitted keys leave stored values untouched
+- [Phase 01]: 01-16: admin strings en/fr only; Arabic RTL via dir/lang on content inputs only
 
 ### Pending Todos
 
@@ -154,6 +157,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-11-08T21:45:04.439Z
-Stopped at: Phase 05.1 UI-SPEC approved
-Resume file: .planning/phases/05.1-festival-programme-page/05.1-UI-SPEC.md
+Last session: 2026-11-10T01:12:13.134Z
+Stopped at: Completed 01-16-PLAN.md
+Resume file: None

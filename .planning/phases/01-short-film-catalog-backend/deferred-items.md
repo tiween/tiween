@@ -25,6 +25,7 @@
 
 - The walkthrough's first test needs more than the 120 s `timeout` in `apps/strapi/e2e/playwright.config.ts` on a loaded host
   status: open
+  **01-16 note (2026-11-10):** not reproduced at host load average about 4; the whole Playwright suite passed at the default timeout (walkthrough 26.9 s, 12 tests in 45.7 s). Left open for loaded hosts; config unchanged.
   **Found in:** 01-15 (2026-11-08, host load average 35-50). Three default-timeout runs of `admin-short-film-walkthrough` each reached a later step and then hit `Test timeout of 120000ms exceeded` (publish-after-edit toast, then unpublish toast); every step succeeded functionally. A run with `--timeout=300000` passed the first test in 127 s (steps: side nav 21 s, reload 21 s, republish 15 s). The config is outside 01-15's files and the spec is frozen until 01-16, so nothing was changed. Follow-up: raise `timeout` (for example 240_000) in `e2e/playwright.config.ts`, in 01-16 or a chore commit.
 
 - `apps/client` lint fails on committed Storybook stories (31 `react-hooks/rules-of-hooks` errors in `*.stories.tsx`)

@@ -40,7 +40,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 2. An unauthenticated request for short films returns only published short-film records in flat Strapi v5 shape, with a genre filter, sort, pagination, detail by slug, featured and related reads (facet filters are Meilisearch's, Phase 3); an unsupported parameter gets a coded error rather than a 500, and no ticketing or internal fields appear.
 3. Strapi boot-integration tests (run against a real booted Strapi, not mocks) seed published and draft short films plus a non-short creative work and prove that only the right rows come back for the genre filter and each sort, pagination, featured, related and locale-fallback case.
 4. The launch catalog (the vetted short films from the mock file plus any the owner adds) exists as published Strapi records with posters, genres, directors/crew, cast, distinctions and streaming links; running the import twice creates no duplicates.
-   **Plans:** 15/16 plans executed (01-15, 01-16 are gap closure)
+   **Plans:** 16/16 plans executed (01-15, 01-16 are gap closure)
 
    Plans:
 
@@ -59,7 +59,7 @@ Decimal phases appear between their surrounding integers in numeric order.
    - [x] 01-13-PLAN.md — Owner-approved dev import with ImageKit, second run proves idempotency, owner review list
    - [x] 01-14-PLAN.md — Venue managers can no longer create short films, server and client (D-21)
    - [x] 01-15-PLAN.md — Gap G-01-1: Works edit page loads a saved work through a creative-works admin route that resolves relations; edit-page error state
-   - [ ] 01-16-PLAN.md — Gap G-01-2 (WR-03) and AR RTL: type-conditional validation, translated field errors, Arabic tab right-to-left; full E2E verification
+   - [x] 01-16-PLAN.md — Gap G-01-2 (WR-03) and AR RTL: type-conditional validation, translated field errors, Arabic tab right-to-left; full E2E verification
 
 ### Phase 2: Strapi-Backed Shorts Pages
 
@@ -165,7 +165,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 (decimal insert
 
 | Phase                                 | Plans Complete | Status      | Completed |
 | ------------------------------------- | -------------- | ----------- | --------- |
-| 1. Short-Film Catalog Backend         | 15/16          | In Progress | -         |
+| 1. Short-Film Catalog Backend         | 16/16          | In Progress | -         |
 | 2. Strapi-Backed Shorts Pages         | 0/TBD          | Not started | -         |
 | 3. Meilisearch Search                 | 0/TBD          | Not started | -         |
 | 4. Directory Experience and Brand     | 0/TBD          | Not started | -         |
