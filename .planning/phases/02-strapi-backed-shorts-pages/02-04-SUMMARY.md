@@ -126,3 +126,7 @@ None. T-02-10 (open redirect) is mitigated at all four forms; T-02-11 accepted (
 
 - FOUND: safe-callback-url.ts, safe-callback-url.test.ts, SignInForm.test.tsx, feature-flags.ts (`isTicketingEnabled`)
 - FOUND commits: 6f29eff, 8702b0c (ancestors of HEAD)
+
+## Follow-up fix (after the automated security review)
+
+`7bdba83`: `toRouterPath` re-validates after stripping the locale (re-runs `safeCallbackUrl`, then a same-origin URL parse, and falls back to `/`). Closes an open redirect where `/fr//evil.com` or `/ar/\evil.com` became `//evil.com`. Tests cover the hostile variants, and the sink audit found only two `router.push` sites, both guarded. Encoded `/%2F%2Fevil.com` stays an on-origin path (pinned by a test).

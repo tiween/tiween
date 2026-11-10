@@ -149,7 +149,7 @@ Decisions are logged in PROJECT.md (Locked Decisions and Key Decisions table). R
 - [Phase 3] Meilisearch shape is open: search plugin vs `creative-works` hooks, one index with a locale field vs per-locale indexes, browser-direct search-only key vs Next.js route, Arabic and French normalization quality. Research flag.
 - [Phase 4] Decide in the UI-SPEC: magenta small-text treatment (3.75:1 fails 4.5:1), `ShortsShowcase` vs `ShortsDirectory`, reconciling the detail page's handoff palette (`#161015`/`#241326`) with the spine tokens (`#241326`/`#31203A`). A `Courts Metrages` handoff mock exists in `design_handoff_tiween/` but the kernel marks that folder inert; consult it only with explicit owner approval.
 - [Phase 4] Suggestion form needs a new `short-film-suggestion` content type, and a decision on its home plugin (kernel: plugins only, facade rules R1-R5).
-- [Cross-cutting] Client `type-check` is not wired into CI (46 pre-existing TS errors outside shorts); shorts code must be clean on its own, verified by file filter in Phase 6. Strapi boot-integration suites are skipped by CI and must be run explicitly.
+- [Cross-cutting] Client `type-check` is not wired into CI. `npx tsc --noEmit` is at 0 errors across apps/client as of 2026-11-10 (the earlier 46 pre-existing errors are gone); keep it at zero. Strapi boot-integration suites are skipped by CI and must be run explicitly.
 - [Environment] `.planning/config.json` is absent: defaults assumed (standard granularity, sequential phase IDs). The working tree has unrelated uncommitted edits (for example `apps/client/package.json` script rename); leave them alone.
 
 ### Quick Tasks Completed
