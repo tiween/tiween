@@ -1,5 +1,5 @@
 ---
-status: partial
+status: diagnosed
 phase: 02-strapi-backed-shorts-pages
 source: [02-VERIFICATION.md, 02-10-SUMMARY.md]
 started: 2026-11-10T17:16:33Z
