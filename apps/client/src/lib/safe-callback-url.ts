@@ -77,7 +77,11 @@ function sameOriginPath(path: string): string {
     if (url.origin !== base) {
       return "/"
     }
-    return `${url.pathname}${url.search}${url.hash}`
+    // Dot-segment normalization can manufacture a new leading "//" (e.g.
+    // "/a/..//evil.com" → "//evil.com"), which the router treats as off-site.
+    // Validate the normalized output, not only the input.
+    const out = `${url.pathname}${url.search}${url.hash}`
+    return safeCallbackUrl(out) === out ? out : "/"
   } catch {
     return "/"
   }

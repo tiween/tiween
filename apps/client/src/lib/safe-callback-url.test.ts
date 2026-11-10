@@ -33,6 +33,22 @@ describe("safeCallbackUrl", () => {
   )
 })
 
+describe("toRouterPath dot-segment normalization", () => {
+  it.each([
+    "/a/..//evil.com",
+    "/.//evil.com",
+    "/%2e%2e//evil.com",
+    "/fr/..//evil.com",
+    "/ar/./..//evil.com/x",
+  ])("never yields an off-site path for %s", (input) => {
+    expect(toRouterPath(input)).toBe("/")
+  })
+
+  it("keeps a normal path that only contains a harmless dot segment", () => {
+    expect(toRouterPath("/fr/shorts/./x")).toBe("/shorts/x")
+  })
+})
+
 describe("toRouterPath", () => {
   it.each([
     ["/ar/shorts/x?a=1", "/shorts/x?a=1"],
