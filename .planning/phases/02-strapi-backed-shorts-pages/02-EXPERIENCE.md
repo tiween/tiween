@@ -2,22 +2,18 @@
 phase: 02-strapi-backed-shorts-pages
 doc: EXPERIENCE
 mockup_status: pending
-mockups: []
+mockups:
+  - https://claude.ai/artifact/3LtTPyivRsagnruGyAfBR4 # Shorts directory mockups canvas (shared with phase 04); this phase's boards are added to it
+mockups_reused:
+  - "1 · Directory FR · 390 — grid, card meta line 'Genre · year · min' (duration already off the top-end corner)"
+  - "2 · Directory FR · 1280"
+  - "3 · Directory AR · 390 (RTL)"
+  - "5 · Error with retry FR · 390 — directory outage state ('Le catalogue ne répond pas' + Réessayer)"
+  - "Note: this phase hides the search, chips and filter button on those boards (D-04); the grid, card and error layouts are reused as drawn"
 mockups_outstanding:
-  - 1. Detail FR 390, full data (hero with original title and origin line; heart unsaved and saved; Équipe artistique with three departments; access sub-label on two platforms)
-  - 2. Detail AR 390 (RTL), full data
-  - 3. Detail FR 390, sparse data (no original title, no crew beyond the director, no streaming link)
-  - 4. Detail error FR 390
-  - 5. Detail not found FR 390
-  - 6. Card states sheet FR (390 close-ups and 1280 grid slice)
-  - 7. Card states sheet AR (390 close-ups and 1280 grid slice)
-  - 8. Directory FR 390, 13 films with the result line
-  - 9. Directory AR 390 (RTL)
-  - 10. Directory FR 1280
-  - 11. Directory error FR 390
-  - 12. Directory empty catalogue FR 390
-  - 13. Directory Load more FR 390 (idle, loading, error)
-  - 14. Watchlist FR 390, mixed list (events and short films in the one "À venir" section)
+  - "7 · Card states FR · 390 — independent heart at the poster's top-end corner (unsaved, saved, pending), signed-out toast"
+  - "8 · Detail additions FR · 390 — hero meta (original title, country/language), saved heart, where-to-watch with access sub-label, Équipe artistique crew grid"
+  - "9 · Watchlist FR · 390 — short film in the one mixed list with the 'Court métrage' badge"
 mockup_brief: 02-DESIGN-BRIEF.md
 ---
 
@@ -188,29 +184,18 @@ a code or a status number. The only error-code keys added are `errors.INTERNAL_E
 - [ ] axe-core clean at 390px in fr, ar and en for: directory (results, empty, error), detail (full data, sparse data, error, not found), watchlist with a short-film entry.
 - [ ] Manual contrast pass recorded (jsdom cannot compute it): initials on Surface Raised, muted text on Surface, the Gold Leaf heart glyph over real posters.
 
-## Open questions for owner
+## Owner answers (resolved 2026-11-10)
 
-None blocks the pipeline; each has a default the planner can build against. Settle them at
-the mockup review.
+The owner confirmed these are already answered ("no relevant question as I already answered")
+and asked that existing mockup boards be reused rather than re-drawn. The defaults below are
+therefore the decisions; the planner builds against them without further questions.
 
-1. **Section heading over the one mixed list.** One list is decided (D-16). Short films fall
-   into "À venir" after dated events, which is slightly off for an undated film. Default:
-   keep "À venir" with no new section. Alternative: a separate "À voir" section for short
-   films (third partition, new key).
-2. **Meaning of `accessType: included`.** Default: label "Inclus" as a placeholder. Say what
-   it means for a visitor and the FR, AR and EN labels become exact.
-3. **Show the streaming `label` (for example "VOST")?** Default: yes, after the access type,
-   as editor-supplied untranslated text. Alternative: hide it, or make it a controlled value.
-4. **Heart disc style.** Default: dark scrim disc with a filled Gold Leaf glyph. Alternative:
-   a full Gold Leaf disc with a dark heart (louder on busy posters, but gold on every saved card).
-5. **Duration and year placement on the card.** Default: second meta line "2025 · 14 min"
-   under the director. Alternative: the top-start stack. The mockup confirms.
-6. **Return after sign-in.** Default: back on the page, the visitor taps the heart again.
-   Alternative: remember the intent and save automatically after sign-in.
-7. **Terminology.** Default: "watchlist" everywhere (matches the shipped page title and
-   Arabic "قائمة المتابعة"), replacing the shorts-only "Ma liste". Alternative: "Ma liste" site-wide.
-8. **Arabic review.** The Arabic role, department, access-type and error strings are drafts.
-   Default: the owner reviews them before launch (Phase 6 carries the Arabic review).
-9. **Watchlist page copy that still says "événements"** (subtitle, empty state, "Aucun
-   événement dans cette catégorie"). Default: deferred to Phase 6 so the shorts feature is
-   not advertised while unlinked. Alternative: pull a neutral rewrite into this phase.
+1. Watchlist heading: one mixed list, existing "À venir" section, no new section (D-16).
+2. `accessType: included` label: "Inclus" (FR), with EN "Included" and AR draft per the UI-SPEC copy table.
+3. Streaming `label` (e.g. "VOST"): shown after the access type, as editor-supplied text.
+4. Heart: dark scrim disc with a filled Gold Leaf glyph when saved.
+5. Card duration: in the meta line ("2025 · 14 min"), as on the existing directory boards and in `04-DESIGN.md`.
+6. After sign-in: the visitor lands back on the page and taps the heart again.
+7. Term: "watchlist" everywhere, replacing the shorts-only "Ma liste".
+8. Arabic drafts: owner review before launch (Phase 6).
+9. Watchlist page copy mentioning "événements": rewritten at the Phase 6 go-live, not now.
