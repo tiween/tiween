@@ -56,6 +56,10 @@ Requirements: SPAGE-01, SPAGE-02, SPAGE-03, SPAGE-04, SPAGE-05, FR19, FR20, FR21
 - **D-20:** Directory outage renders the error UI after hydration with HTTP 200 (accepted); the detail page returns a true 500 from the layout-level fetch. A failing related-films shelf is omitted softly and never fails the page.
 - **D-21:** No shadcn `avatar` install (its `@radix-ui/react-avatar` dependency was flagged too-new). The initials disc is a plain styled element; `empty` may be added from the official registry.
 
+### Resolved during execution (owner, 2026-11-10)
+
+- **D-22:** The site-wide `app/[locale]/loading.tsx` Suspense boundary streams the response before `[slug]/layout.tsx` decides, so unknown slugs and outages return HTTP 200 + noindex while rendering the correct not-found / error screen. Accepted for Phase 2: pages are noindex and unlinked, and the events detail page behaves the same. The probe asserts the rendered state (noindex meta + not-found / error markup + no Strapi call for pattern-failing slugs) instead of the 404/500 status. The real 404/500 (restructuring the loading boundary) is Phase 5 success criterion 5, before go-live. SPAGE-01 and SPAGE-05 are met here on rendered behaviour; the status half is carried to Phase 5.
+
 ### Claude's Discretion
 
 - Whether the watchlist hooks move from `features/events/hooks` to a shared `features/watchlist` module or are imported cross-feature (prefer moving if the diff stays small).

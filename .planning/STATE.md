@@ -4,18 +4,17 @@ milestone: v1.0
 milestone_name: Shorts Directory
 current_phase: 2
 current_phase_name: Strapi-Backed Shorts Pages
-status: planning
+status: executing
 stopped_at: Phase 01 complete, ready to plan Phase 2
-last_updated: "2026-11-10T04:56:57.984Z"
+last_updated: "2026-11-10T10:47:20.794Z"
 last_activity: 2026-11-10
-last_activity_desc: Phase 01 complete, transitioned to Phase 2
-state_head: 85d485915f46576b1b31d8e4bc6678f6f455e230
+last_activity_desc: Phase 2 execution started
+state_head: b5420fe7080188e021641e1e0ea040569611e950
 progress:
   total_phases: 7
   completed_phases: 1
-  total_plans: 16
+  total_plans: 26
   completed_plans: 16
-  percent: 14
 ---
 
 # Project State
@@ -29,10 +28,10 @@ See: .planning/PROJECT.md (updated 2026-11-10)
 
 ## Current Position
 
-Phase: 2 — Strapi-Backed Shorts Pages
-Plan: Not started
-Status: Ready to plan
-Last activity: 2026-11-10 — Phase 01 complete, transitioned to Phase 2
+Phase: 2 (Strapi-Backed Shorts Pages) — EXECUTING
+Plan: 1 of 10
+Status: Executing Phase 2
+Last activity: 2026-11-10 — Phase 2 execution started
 
 Progress: [█░░░░░░░░░] 14%
 
@@ -121,6 +120,8 @@ Decisions are logged in PROJECT.md (Locked Decisions and Key Decisions table). R
 - [Brand]: Focus ring is 3px gold with 2px offset site-wide (SBRAND-04 wording stands; the global 2px rule changes) (owner, 2026-11-09)
 - [Brand]: Arabic body and headings use IBM Plex Sans Arabic app-wide, replacing Noto Sans Arabic (SBRAND-02 stands) (owner, 2026-11-09)
 - [Phase 01]: A Film/Play/Short-film save omits theatreDetails instead of sending null, so a type switch never wipes stored theatre data (review WR-05; reverses the 01-16 truth) (owner, 2026-11-10)
+- [Phase 02]: Shorts detail returns 200 + noindex (not a real 404/500) because the locale-level loading.tsx streams first; accepted for Phase 2, real status moved to Phase 5 criterion 5 (owner, 2026-11-10)
+- [Process]: No AI attribution trailer on commits (repo commit policy overrides the session default); earlier unpushed planning commits keep theirs (owner, 2026-11-10)
 - [Phase 04]: Directory cards ship without the watchlist heart; the card heart moves to the real-watchlist work in Phase 2 (FR19, Phase 2 criterion 4); SDIR-02 no longer lists it (owner, 2026-11-09)
 - [Phase 01]: 01-16: omit short-film-only keys (streamingLinks, featured, featuredRank) from Film/Play payloads; boot case confirms omitted keys leave stored values untouched
 - [Phase 01]: 01-16: admin strings en/fr only; Arabic RTL via dir/lang on content inputs only

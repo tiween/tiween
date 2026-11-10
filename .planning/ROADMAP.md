@@ -68,7 +68,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Requirements**: SPAGE-01, SPAGE-02, SPAGE-03, SPAGE-04, SPAGE-05, FR19, FR20, FR21, FR56
 **Success Criteria** (what must be TRUE):
 
-1. Opening `/fr|ar|en/shorts/<slug>` for a published short shows its Strapi data (title, synopsis, poster/backdrop, director, trailer, streaming links, distinctions, cast, original title, country, language); editing or unpublishing it in the admin is reflected within the revalidation window, an unknown or unpublished slug gives a 404, and a missing translation falls back to French instead of a blank.
+1. Opening `/fr|ar|en/shorts/<slug>` for a published short shows its Strapi data (title, synopsis, poster/backdrop, director, trailer, streaming links, distinctions, cast, original title, country, language); editing or unpublishing it in the admin is reflected within the revalidation window, an unknown or unpublished slug shows the not-found screen (noindex; the true HTTP 404 status lands in Phase 5, owner 2026-11-10), and a missing translation falls back to French instead of a blank.
 2. The director and trailer shown come from `credits[]` and `videos[]` (DW-148): a short with a directing credit and a trailer video shows both, and no shorts request carries a phantom field, so Strapi logs show no 400s from shorts reads.
 3. The detail page shows the "Equipe artistique" crew grid and the access-type sub-label under each streaming platform when the data exists, and omits those sections when it does not.
 4. A signed-in user can tap the heart on a short film (on its detail page and on its directory card, as an independent target from the card link) to add or remove it from the real watchlist; the state survives navigation and a second device and the film appears on the watchlist page; a signed-out user is invited to sign in rather than seeing a toggle that forgets.
@@ -129,6 +129,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 2. Each detail page emits JSON-LD (title, duration, director, genre, year, image) and the directory emits an `ItemList`, and both pass a structured-data validator.
 3. `sitemap.xml` lists `/shorts` and every published short in all three locales with hreflang alternates, covers the whole catalog (no truncation at a fixed page size) and logs failures instead of dropping them.
 4. Pasting a short film link into a social app shows its title and poster at a correct size in the page's locale, and robots indexability is controlled by a single environment switch that defaults to noindex outside production.
+5. An unknown or unpublished `/shorts/<slug>` answers a real HTTP 404 and a Strapi outage on a detail page answers a real HTTP 500 (not 200 + noindex). This needs the locale-level `loading.tsx` Suspense boundary restructured (route groups or per-page Suspense) so the status is decided before streaming; the Phase 2 probe flips from rendered-screen checks back to status checks (owner decision 2026-11-10, moved from Phase 2).
    **Plans**: TBD
 
 ### Phase 05.1: Festival programme page (INSERTED)
