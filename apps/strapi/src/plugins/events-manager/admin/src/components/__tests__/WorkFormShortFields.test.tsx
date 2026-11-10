@@ -179,6 +179,44 @@ describe("WorkForm — streaming links (Task 1)", () => {
     expect(post).not.toHaveBeenCalled()
   })
 
+  it("saves a film when a blank streaming row was left behind by a type switch", async () => {
+    await renderForm()
+
+    typeTitle("Le Silence")
+    chooseType("Short film")
+    fireEvent.click(
+      screen.getByRole("button", { name: "Add a streaming link" })
+    )
+    chooseType("Film")
+
+    await save()
+    await waitFor(() => expect(createCalls()).toHaveLength(1))
+
+    const data = createdBody()
+    expect(data.type).toBe("film")
+    expect(data).not.toHaveProperty("streamingLinks")
+    expect(data).not.toHaveProperty("featured")
+    expect(data).not.toHaveProperty("featuredRank")
+  })
+
+  it("saves a film when an invalid act count was left behind by a type switch", async () => {
+    await renderForm()
+
+    typeTitle("Le Silence")
+    chooseType("Play")
+    fireEvent.change(screen.getByRole("textbox", { name: "Acts" }), {
+      target: { value: "0" },
+    })
+    chooseType("Film")
+
+    await save()
+    await waitFor(() => expect(createCalls()).toHaveLength(1))
+
+    const data = createdBody()
+    expect(data.type).toBe("film")
+    expect(data.theatreDetails).toBeNull()
+  })
+
   it("shows the streaming section for a short film only", async () => {
     await renderForm()
 

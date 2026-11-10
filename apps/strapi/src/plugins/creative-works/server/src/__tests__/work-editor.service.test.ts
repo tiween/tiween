@@ -397,4 +397,40 @@ describe("GET /creative-works/admin/works/:documentId", () => {
       expect(row.person).not.toBeNull()
     }
   })
+
+  it("a save that omits short-film-only keys keeps them", async () => {
+    // 01-16: the Works form omits streamingLinks / featured / featuredRank for
+    // a film or play instead of sending [] / null, because an update that omits
+    // a key must leave the stored value alone (the 01-08 rule: stored
+    // components are never stripped on a type switch).
+    const stored = {
+      platform: "youtube",
+      url: "https://youtu.be/keep-me",
+      accessType: "free",
+    }
+    const doc: any = await strapi.documents(CW).create({
+      data: {
+        title: uniq("keeps-short-only"),
+        slug: uniq("keeps-short-only"),
+        type: "short-film",
+        streamingLinks: [stored],
+        featured: true,
+        featuredRank: 2,
+      } as any,
+      locale: "fr",
+    } as any)
+
+    const saved = await admin(
+      api().put(`${cmUrl(doc.documentId)}?locale=fr`)
+    ).send({ title: uniq("renamed"), type: "film" })
+    expect(saved.status).toBe(200)
+
+    const after = await editorGet(doc.documentId)
+    expect(after.status).toBe(200)
+    expect(after.body.data.type).toBe("film")
+    expect(after.body.data.streamingLinks).toHaveLength(1)
+    expect(after.body.data.streamingLinks[0].url).toBe(stored.url)
+    expect(after.body.data.featured).toBe(true)
+    expect(after.body.data.featuredRank).toBe(2)
+  })
 })

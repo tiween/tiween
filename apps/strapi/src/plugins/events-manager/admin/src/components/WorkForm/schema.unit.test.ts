@@ -24,10 +24,12 @@ import {
   castFormSchema,
   clampBilling,
   creditFormSchema,
+  DEFAULT_THEATRE_DETAILS,
   DEFAULT_WORK_VALUES,
   EMPTY_STREAMING_LINK,
   EMPTY_VIDEO,
   findUnresolvedRelations,
+  SHORT_FILM_ONLY_KEYS,
   streamingLinkFormSchema,
   videoFormSchema,
   workFormSchema,
@@ -750,6 +752,7 @@ describe("streaming links — form mapping", () => {
     expect(
       workFormSchema.safeParse(
         values({
+          type: "short-film",
           streamingLinks: [{ ...EMPTY_STREAMING_LINK, url: "http://x.tv" }],
         })
       ).success
@@ -763,6 +766,7 @@ describe("short-film fields — key sets against the real schemas (DW-13)", () =
   it("every top-level payload key exists on the creative-work schema", () => {
     const payload = workToApiPayload(
       values({
+        type: "short-film",
         streamingLinks: [{ ...EMPTY_STREAMING_LINK, url: "https://y.tv/1" }],
       })
     )
@@ -775,6 +779,7 @@ describe("short-film fields — key sets against the real schemas (DW-13)", () =
   it("every streaming-link payload key exists on the component", () => {
     const payload = workToApiPayload(
       values({
+        type: "short-film",
         streamingLinks: [{ ...EMPTY_STREAMING_LINK, url: "https://y.tv/1" }],
       })
     )
@@ -843,7 +848,7 @@ describe("country, language and placement — form mapping (Task 2)", () => {
 
   it("sends a null featuredRank whenever the work is not featured", () => {
     const payload = workToApiPayload(
-      values({ featured: false, featuredRank: 3 })
+      values({ type: "short-film", featured: false, featuredRank: 3 })
     )
 
     expect(payload.featured).toBe(false)
@@ -897,19 +902,22 @@ describe("country, language and placement — form mapping (Task 2)", () => {
   it("rejects a featuredRank below 1 and a non-integer rank", () => {
     for (const featuredRank of [0, -1, 1.5]) {
       expect(
-        workFormSchema.safeParse(values({ featured: true, featuredRank }))
-          .success
+        workFormSchema.safeParse(
+          values({ type: "short-film", featured: true, featuredRank })
+        ).success
       ).toBe(false)
     }
     expect(
-      workFormSchema.safeParse(values({ featured: true, featuredRank: 1 }))
-        .success
+      workFormSchema.safeParse(
+        values({ type: "short-film", featured: true, featuredRank: 1 })
+      ).success
     ).toBe(true)
   })
 
   it("keeps every country/language/placement payload key on the real schema", () => {
     const payload = workToApiPayload(
       values({
+        type: "short-film",
         country: ["TN"],
         language: ["aeb"],
         featured: true,
@@ -920,6 +928,146 @@ describe("country, language and placement — form mapping (Task 2)", () => {
     for (const key of ["country", "language", "featured", "featuredRank"]) {
       expect(Object.keys(creativeWorkSchema.attributes)).toContain(key)
       expect(Object.keys(payload)).toContain(key)
+    }
+  })
+})
+
+describe("hidden fields are neither validated nor sent (G-01-2, WR-03)", () => {
+  const BLANK_LINK = { ...EMPTY_STREAMING_LINK, url: "" }
+
+  it("(i) lets a film with a blank link, featured and rank 0 pass the form schema", () => {
+    for (const type of ["film", "play"] as const) {
+      expect(
+        workFormSchema.safeParse(
+          values({
+            type,
+            streamingLinks: [BLANK_LINK],
+            featured: true,
+            featuredRank: 0,
+          })
+        ).success
+      ).toBe(true)
+    }
+  })
+
+  it("(ii) omits the short-film-only keys from a film and a play payload", () => {
+    expect([...SHORT_FILM_ONLY_KEYS]).toEqual([
+      "streamingLinks",
+      "featured",
+      "featuredRank",
+    ])
+
+    for (const type of ["film", "play"] as const) {
+      const payload = workToApiPayload(
+        values({
+          type,
+          streamingLinks: [BLANK_LINK],
+          featured: true,
+          featuredRank: 2,
+          country: ["TN"],
+          language: ["aeb"],
+        })
+      )
+
+      for (const key of SHORT_FILM_ONLY_KEYS) {
+        expect(Object.keys(payload)).not.toContain(key)
+      }
+      expect(payload.country).toEqual(["TN"])
+      expect(payload.language).toEqual(["aeb"])
+    }
+  })
+
+  it("keeps every short-film-only key in a short film payload", () => {
+    const payload = workToApiPayload(values({ type: "short-film" }))
+
+    for (const key of SHORT_FILM_ONLY_KEYS) {
+      expect(Object.keys(payload)).toContain(key)
+    }
+  })
+
+  it("(iii) fails a short film with a blank link at streamingLinks.0.url", () => {
+    const result = workFormSchema.safeParse(
+      values({ type: "short-film", streamingLinks: [BLANK_LINK] })
+    )
+
+    expect(result.success).toBe(false)
+    if (!result.success) {
+      const issue = result.error.issues.find(
+        (candidate) => candidate.path.join(".") === "streamingLinks.0.url"
+      )
+      expect(issue?.message).toBe("INVALID_HTTPS_URL")
+    }
+  })
+
+  it("(iv) fails a featured short film with rank 0 or 1.5 at featuredRank", () => {
+    for (const featuredRank of [0, 1.5]) {
+      const result = workFormSchema.safeParse(
+        values({ type: "short-film", featured: true, featuredRank })
+      )
+
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error.issues.map((issue) => issue.path)).toContainEqual([
+          "featuredRank",
+        ])
+      }
+    }
+  })
+
+  it("(iv) lets an unfeatured short film with rank 0 pass, and sends a null rank", () => {
+    const form = values({
+      type: "short-film",
+      featured: false,
+      featuredRank: 0,
+    })
+
+    expect(workFormSchema.safeParse(form).success).toBe(true)
+    expect(workToApiPayload(form).featuredRank).toBeNull()
+  })
+
+  it("(v) never validates a hidden act count on a film or short film", () => {
+    for (const type of ["film", "short-film"] as const) {
+      for (const actCount of [0, 1.5]) {
+        const form = values({
+          type,
+          theatreDetails: { ...DEFAULT_THEATRE_DETAILS, actCount },
+        })
+
+        expect(workFormSchema.safeParse(form).success).toBe(true)
+        expect(workToApiPayload(form).theatreDetails).toBeNull()
+      }
+    }
+  })
+
+  it("(v) still validates the act count of a play at theatreDetails.actCount", () => {
+    for (const actCount of [0, 1.5]) {
+      const result = workFormSchema.safeParse(
+        values({
+          type: "play",
+          theatreDetails: { ...DEFAULT_THEATRE_DETAILS, actCount },
+        })
+      )
+
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error.issues.map((issue) => issue.path)).toContainEqual([
+          "theatreDetails",
+          "actCount",
+        ])
+      }
+    }
+  })
+
+  it("(v) accepts an empty or valid act count on a play", () => {
+    for (const actCount of [null, 3]) {
+      expect(
+        workFormSchema.safeParse(
+          values({
+            type: "play",
+            theatreDetails: { ...DEFAULT_THEATRE_DETAILS, actCount },
+          })
+        ).success
+      ).toBe(true)
     }
   })
 })
