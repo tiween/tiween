@@ -182,11 +182,20 @@ export function WorkFormPage() {
     try {
       // A published short is reached by its slug, and the server never makes
       // one: ask the content-manager's uid generator when the field is blank.
+      // A work that already has a stored slug keeps it: the generator counts
+      // the work's own slug as taken and would answer `my-film-1`, silently
+      // changing the public URL on the second save of a form whose slug field
+      // was blank when it mounted (review WR-04).
       if (!values.slug.trim() && values.title.trim()) {
-        try {
-          payload.slug = await generateSlug(values.title)
-        } catch {
-          // The draft still saves; the publish rules flag a missing slug.
+        const storedSlug = isEditing ? work?.slug?.trim() : undefined
+        if (storedSlug) {
+          payload.slug = storedSlug
+        } else {
+          try {
+            payload.slug = await generateSlug(values.title)
+          } catch {
+            // The draft still saves; the publish rules flag a missing slug.
+          }
         }
       }
 

@@ -388,6 +388,68 @@ describe("WorkFormPage — save", () => {
     expect(config).toEqual({ params: { locale: "fr" } })
   })
 
+  it("does not generate a second slug when a work whose slug was blank is saved again (WR-04)", async () => {
+    // Stand-in for the content-manager: the stored work follows each save, and
+    // the uid generator answers `-1` once the work's own slug exists, exactly
+    // as the real one does (it counts the work itself as a collision).
+    const stored: Record<string, unknown> = completeDraft({ slug: null })
+    get.mockImplementation(async (url: string) => {
+      if (url === "/i18n/locales") return { data: LOCALES_FR_DEFAULT }
+      if (url === WORK_READ_URL) {
+        return {
+          data: { data: { ...stored }, meta: { availableLocales: [] } },
+        }
+      }
+      return emptyList
+    })
+    put.mockImplementation(async (_url: string, body: any) => {
+      stored.slug = body.slug
+      return { data: { data: {} } }
+    })
+    post.mockImplementation(async (url: string) =>
+      url === "/content-manager/uid/generate"
+        ? { data: { data: stored.slug ? `${stored.slug}-1` : "le-silence" } }
+        : { data: { data: {} } }
+    )
+    // navigate() after a save lands on the same page in the real router.
+    await act(async () => {
+      render(
+        <IntlProvider locale="en" messages={en}>
+          <DesignSystemProvider theme={lightTheme}>
+            <MemoryRouter
+              initialEntries={["/plugins/events-manager/works/abc"]}
+            >
+              <Routes>
+                <Route
+                  path="/plugins/events-manager/works/:documentId"
+                  element={<WorkFormPage />}
+                />
+              </Routes>
+            </MemoryRouter>
+          </DesignSystemProvider>
+        </IntlProvider>
+      )
+    })
+    await screen.findByTestId("publish-bar")
+
+    await save()
+    await waitFor(() => expect(put).toHaveBeenCalledTimes(1))
+    expect((put.mock.calls[0][1] as any).slug).toBe("le-silence")
+    await waitFor(() =>
+      expect(lastNotification()).toMatchObject({ type: "success" })
+    )
+
+    await save()
+    await waitFor(() => expect(put).toHaveBeenCalledTimes(2))
+    expect((put.mock.calls[1][1] as any).slug).toBe("le-silence")
+    expect(
+      post.mock.calls.filter(([url]) => url === "/content-manager/uid/generate")
+    ).toHaveLength(1)
+
+    post.mockImplementation(async () => ({ data: { data: {} } }))
+    put.mockImplementation(async () => ({ data: { data: {} } }))
+  })
+
   it("keeps an existing slug and does not call the generator", async () => {
     serve(completeDraft())
     await renderEdit()
