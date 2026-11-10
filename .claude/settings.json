@@ -1,1 +1,17 @@
-{}
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "r=$(git -C \"${CLAUDE_PROJECT_DIR:-$PWD}\" rev-parse --show-toplevel 2>/dev/null) && [ -x \"$r/.claude/hooks-format.sh\" ] && \"$r/.claude/hooks-format.sh\"; exit 0",
+            "timeout": 30,
+            "statusMessage": "Formatting with Prettier"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,14 @@
+echo '🔍 Checking formatting of pushed files (same rule as CI) 🔍'
+
+# CI's Lint job fails on any file Prettier would change. Check the files this push
+# adds or changes against the remote branch, so a bad push fails here in seconds
+# instead of in CI. Files committed from worktrees where the pre-commit hook did
+# not run are exactly what this catches.
+remote_ref=$(git rev-parse --abbrev-ref --symbolic-full-name @{push} 2>/dev/null || echo origin/main)
+files=$(git diff --name-only --diff-filter=ACMR "$remote_ref"...HEAD -- '*.js' '*.jsx' '*.ts' '*.tsx' '*.md' '*.css' '*.scss')
+[ -z "$files" ] && exit 0
+
+echo "$files" | tr '\n' '\0' | xargs -0 npx --no -- prettier --check --cache --ignore-unknown || {
+  echo '❌ Formatting issues above. Fix with: yarn format (or prettier --write <files>), commit, push again.'
+  exit 1
+}
