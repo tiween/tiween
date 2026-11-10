@@ -7,7 +7,7 @@ import { setRequestLocale } from "next-intl/server"
 import { getShortFilmsPage } from "@/lib/strapi-api/content/shorts"
 
 export const metadata: Metadata = {
-  title: "Courts Métrages | Tiween",
+  title: "Courts Métrages",
   description:
     "Découvrez les meilleurs courts métrages tunisiens. Drames primés, comédies touchantes et documentaires captivants.",
   robots: { index: false, follow: false },

@@ -122,6 +122,10 @@ describe("shorts page", () => {
     await expect(ShortsPage({ params: params() })).rejects.toBe(outageError)
   })
 
+  it("leaves the Tiween suffix to the locale layout title template", () => {
+    expect(pageModule.metadata.title).toBe("Courts Métrages")
+  })
+
   it("stays noindex and nofollow until the go-live switch", () => {
     expect(pageModule.metadata.robots).toEqual({ index: false, follow: false })
   })
