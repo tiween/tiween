@@ -17,7 +17,10 @@
  *      asserted (D-22): a `noindex` robots meta plus the not-found markup for
  *      the first two, the error markup (never the not-found one) for the rest.
  *      Where Chrome is installed the hydrated DOM is read through a tiny
- *      forwarding proxy; otherwise only the streamed markers are checked.
+ *      forwarding proxy and must show the shorts boundaries of Plan 06 in the
+ *      page locale: the "introuvable" block (no `role="alert"`) or the detail
+ *      error block (`role="alert"`, headline, retry label); otherwise only the
+ *      streamed markers are checked.
  *      The HTTP status is printed as INFO only: the site-wide
  *      `app/[locale]/loading.tsx` streams the response before the `[slug]`
  *      layout decides, so these answer 200 until the real 404/500 lands in
@@ -286,11 +289,17 @@ const messages = Object.fromEntries(
 )
 
 /**
- * The hydrated DOM of a shorts URL, read with headless Chrome: the not-found
- * copy (`errors.notFound.title`) or the error copy
- * (`errors.global.somethingWentWrong`) in the page locale, never both.
- * `role="alert"` is not asserted yet: the shorts error boundary that adds it
- * is Plan 06; today the generic `[locale]/error.tsx` renders.
+ * The hydrated DOM of a shorts URL, read with headless Chrome, asserted against
+ * the shorts boundaries Plan 06 added (`shorts/error.tsx`, `shorts/not-found.tsx`):
+ *
+ * - not-found: the "Court métrage introuvable" headline and body in the PAGE
+ *   locale (the unprefixed French path must be French, not the English the
+ *   generic `[locale]/not-found.tsx` rendered), no `role="alert"`, and none of
+ *   the generic or error copy.
+ * - error: `role="alert"`, the detail error headline and the retry label in the
+ *   page locale, and neither the not-found copy nor the generic error copy.
+ *
+ * The raw error message and digest must never appear (T-02-14).
  */
 async function expectHydrated(name, locale, slug, kind, chrome) {
   if (!chrome) {
@@ -307,6 +316,12 @@ async function expectHydrated(name, locale, slug, kind, chrome) {
       "--no-first-run",
       "--no-default-browser-check",
       `--user-data-dir=${profile}`,
+      // The unprefixed default-locale path is only French for a visitor whose
+      // browser asks for French: next-intl's locale detection answers an
+      // English-language browser on `/shorts/...` with a 307 to `/en/shorts/...`.
+      // Without this flag headless Chrome (Accept-Language en-US) silently lands
+      // on the English page and a French assertion would read English copy.
+      `--accept-lang=${locale}`,
       "--virtual-time-budget=20000",
       "--dump-dom",
       `http://127.0.0.1:${PROXY_PORT}${path}`,
@@ -314,32 +329,60 @@ async function expectHydrated(name, locale, slug, kind, chrome) {
     process.env,
     90_000
   )
-  // Visible text only: the flight payload `<script>`s carry every message of
-  // the catalog, so scanning the raw DOM would find both copies everywhere.
-  const visible = output
+  // Markup without the flight payload `<script>`s, which carry every message of
+  // the catalog and would make any copy "appear" everywhere.
+  const markup = output
     .replace(/<script[\s\S]*?<\/script>/g, " ")
     .replace(/<style[\s\S]*?<\/style>/g, " ")
-    .replace(/<[^>]+>/g, " ")
-    .replace(/&#x27;|&#39;/g, "'")
-  // Any locale's copy counts: Next renders the default-locale (fr) not-found
-  // screen with the fallback locale's strings, which is not what this probe
-  // is about.
-  const copies = (pick) =>
-    Object.values(messages)
-      .map(pick)
-      .filter((copy) => visible.includes(copy))
-  const notFoundCopies = copies((m) => m.errors.notFound.title)
-  const errorCopies = copies((m) => m.errors.global.somethingWentWrong)
-  const hasNotFound = notFoundCopies.length > 0
-  const hasError = errorCopies.length > 0
+  const visible = markup.replace(/<[^>]+>/g, " ").replace(/&#x27;|&#39;/g, "'")
+
+  const own = messages[locale]
+  const hasAlert = /role="alert"/.test(markup)
+  const has = (copy) => visible.includes(copy)
+  const otherLocales = Object.keys(messages).filter((l) => l !== locale)
+  const foreign = (pick) =>
+    otherLocales.filter((l) => has(pick(messages[l])) && !has(pick(own)))
+
+  const notFoundHeadline = own.shorts.detail.notFoundTitle
+  const errorHeadline = own.shorts.detail.errorTitle
+  const genericCopies = [
+    own.errors.notFound.title,
+    own.errors.global.somethingWentWrong,
+  ]
+
+  const found = []
+  if (has(notFoundHeadline)) found.push("introuvable block")
+  if (has(own.errors.SHORT_FILM_NOT_FOUND)) found.push("introuvable body")
+  if (has(errorHeadline)) found.push("error headline")
+  if (hasAlert) found.push('role="alert"')
+  if (genericCopies.some(has)) found.push("generic boundary copy")
+  const wrongLocale = foreign((m) =>
+    kind === "not-found"
+      ? m.shorts.detail.notFoundTitle
+      : m.shorts.detail.errorTitle
+  )
+  if (wrongLocale.length) found.push(`copy in ${wrongLocale.join("+")}`)
+
   const pass =
-    kind === "not-found" ? hasNotFound && !hasError : hasError && !hasNotFound
+    kind === "not-found"
+      ? has(notFoundHeadline) &&
+        has(own.errors.SHORT_FILM_NOT_FOUND) &&
+        !hasAlert &&
+        !has(errorHeadline) &&
+        !genericCopies.some(has) &&
+        wrongLocale.length === 0
+      : has(errorHeadline) &&
+        has(own.shorts.directory.retry) &&
+        hasAlert &&
+        !has(notFoundHeadline) &&
+        !genericCopies.some(has) &&
+        wrongLocale.length === 0
   record(
-    `${name}: hydrated DOM shows the ${kind} copy`,
-    `${kind} copy only`,
-    [hasNotFound ? "not-found copy" : null, hasError ? "error copy" : null]
-      .filter(Boolean)
-      .join(" + ") || "neither copy",
+    `${name}: hydrated DOM shows the shorts ${kind} block in ${locale}`,
+    kind === "not-found"
+      ? `introuvable block in ${locale}, no alert`
+      : `error headline + role="alert" in ${locale}`,
+    found.join(" + ") || "neither block",
     pass
   )
 }
