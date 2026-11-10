@@ -5,16 +5,16 @@ milestone_name: Shorts Directory
 current_phase: 2
 current_phase_name: Strapi-Backed Shorts Pages
 status: executing
-stopped_at: Completed 02-01-PLAN.md
-last_updated: "2026-11-10T13:16:53.870Z"
+stopped_at: Completed 02-02-PLAN.md
+last_updated: "2026-11-10T14:12:24.240Z"
 last_activity: 2026-11-10
 last_activity_desc: Phase 2 execution started
-state_head: d0d2c3afb11265a561cf4d0b18b59cf68d59c904
+state_head: 9db28b7be0529028bfe1a9365dc10fc26f0d0815
 progress:
   total_phases: 7
   completed_phases: 1
   total_plans: 26
-  completed_plans: 17
+  completed_plans: 18
 ---
 
 # Project State
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-11-10)
 ## Current Position
 
 Phase: 2 (Strapi-Backed Shorts Pages) — EXECUTING
-Plan: 2 of 10
+Plan: 3 of 10
 Status: Ready to execute
 Last activity: 2026-11-10 — Phase 2 execution started
 
@@ -75,6 +75,7 @@ _Updated after each plan completion_
 | Phase 01 P13 | 25 min                   | 2 tasks | 3 files  |
 | Phase 01 P16 | 1h                       | 3 tasks | 12 files |
 | Phase 02 P01 | 3 h                      | 3 tasks | 21 files |
+| Phase 02 P02 | ~1h                      | 2 tasks | 9 files  |
 
 ## Accumulated Context
 
@@ -128,6 +129,8 @@ Decisions are logged in PROJECT.md (Locked Decisions and Key Decisions table). R
 - [Phase 01]: 01-16: admin strings en/fr only; Arabic RTL via dir/lang on content inputs only
 - [Phase 02]: 02-01: soft 404/500 accepted (D-22): unknown slug and outage render the not-found / error screen with noindex at HTTP 200 under [locale]/loading.tsx; probe asserts rendered state, real status is Phase 5 criterion 5
 - [Phase 02]: 02-01: toShortFilmApiError reports INTERNAL_ERROR for every upstream failure (400 included); the API code is kept in apiCode for logs
+- [Phase 02]: 02-02: shadcn empty written from registry --view output with cn import rewritten to @/lib/utils, because the CLI tried to npm-install a package named cn
+- [Phase 02]: 02-02: fr shorts.countryLabel is an ICU plural with identical branches to keep placeholder parity with ar and en
 
 ### Pending Todos
 
@@ -163,6 +166,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-11-10T13:16:52.900Z
-Stopped at: Completed 02-01-PLAN.md
+Last session: 2026-11-10T14:12:23.264Z
+Stopped at: Completed 02-02-PLAN.md
 Resume file: None

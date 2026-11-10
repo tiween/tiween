@@ -23,13 +23,13 @@ Numbering: inventory FR IDs (from `_bmad-output/project-planning-artifacts/epics
 
 - [ ] **SPAGE-01**: `/[locale]/shorts` and `/[locale]/shorts/[slug]` read short films from Strapi (static params, metadata inputs, featured, latest, related all come from the API). An unknown or unpublished slug returns 404. `mock-shorts.ts` is imported by no production code path (it may remain a test/Storybook fixture).
 - [ ] **SPAGE-02**: The client mapper reads `credits[]` and `videos[]`: directors derive from directing credits, the trailer from the `videoType=trailer` video. Phantom fields (`directors`, `facts`, `trailer`, `cast.person` populate keys and the `directors.name` filter) are no longer requested; no short-film read produces a 400. Mapper unit tests included (DW-148, 2C.3 AC9).
-- [ ] **SPAGE-03**: The detail page renders the "Equipe artistique" crew grid (role plus name from credits) and the access-type sub-label under each streaming platform, completing the 2026 handoff deferrals. Sections with no data stay omitted.
-- [ ] **SPAGE-04**: The detail page surfaces original title, country and language (hero meta line), resolving the deferred product decision.
-- [ ] **SPAGE-05**: Strapi failures are distinguishable from empty results: shorts pages show an error state with retry and never present an outage as "no short films".
-- [ ] **FR19**: A signed-in user can add a short film to their watchlist from the detail page and from a directory card, where the heart is an independent target from the card link (real `user-watchlist` keyed by the creative work's documentId), with optimistic toggle; a signed-out user is invited to sign in instead of seeing a fake toggle.
+- [x] **SPAGE-03**: The detail page renders the "Equipe artistique" crew grid (role plus name from credits) and the access-type sub-label under each streaming platform, completing the 2026 handoff deferrals. Sections with no data stay omitted.
+- [x] **SPAGE-04**: The detail page surfaces original title, country and language (hero meta line), resolving the deferred product decision.
+- [x] **SPAGE-05**: Strapi failures are distinguishable from empty results: shorts pages show an error state with retry and never present an outage as "no short films".
+- [x] **FR19**: A signed-in user can add a short film to their watchlist from the detail page and from a directory card, where the heart is an independent target from the card link (real `user-watchlist` keyed by the creative work's documentId), with optimistic toggle; a signed-out user is invited to sign in instead of seeing a fake toggle.
 - [ ] **FR20**: A signed-in user can remove a short film from their watchlist, and the state persists across navigation and devices.
 - [ ] **FR21**: Watchlisted short films appear on the watchlist page.
-- [ ] **FR56**: Short-film content is shown in the visitor's language when a translation exists and falls back to French otherwise, never blank.
+- [x] **FR56**: Short-film content is shown in the visitor's language when a translation exists and falls back to French otherwise, never blank.
 
 ### Meilisearch Search
 
@@ -144,13 +144,13 @@ Which phases cover which requirements. Every v1 requirement maps to exactly one 
 | FR57        | Phase 1 | Complete |
 | SPAGE-01    | Phase 2 | Pending  |
 | SPAGE-02    | Phase 2 | Pending  |
-| SPAGE-03    | Phase 2 | Pending  |
-| SPAGE-04    | Phase 2 | Pending  |
-| SPAGE-05    | Phase 2 | Pending  |
-| FR19        | Phase 2 | Pending  |
+| SPAGE-03    | Phase 2 | Complete |
+| SPAGE-04    | Phase 2 | Complete |
+| SPAGE-05    | Phase 2 | Complete |
+| FR19        | Phase 2 | Complete |
 | FR20        | Phase 2 | Pending  |
 | FR21        | Phase 2 | Pending  |
-| FR56        | Phase 2 | Pending  |
+| FR56        | Phase 2 | Complete |
 | SRCH-01     | Phase 3 | Pending  |
 | SRCH-02     | Phase 3 | Pending  |
 | SRCH-03     | Phase 3 | Pending  |
