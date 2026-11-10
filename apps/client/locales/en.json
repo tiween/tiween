@@ -144,7 +144,10 @@
         "passwordDigit": "Password must contain at least one digit",
         "passwordTooLong": "Password must not exceed 72 characters"
       }
-    }
+    },
+    "INTERNAL_ERROR": "The catalog is taking a moment to respond. Try again in a moment.",
+    "NETWORK_ERROR": "Check your connection, then try again.",
+    "SHORT_FILM_NOT_FOUND": "This short film does not exist or is no longer online."
   },
   "contactForm": {
     "name": "First name and last name",
@@ -757,7 +760,9 @@
       "shorts": "Short films",
       "music": "Music",
       "exhibitions": "Exhibitions"
-    }
+    },
+    "loginRequiredShort": "Sign in to save this short film",
+    "undoRemove": "Undo removal"
   },
   "notifications": {
     "title": "Notifications",
@@ -1178,7 +1183,9 @@
       "playTrailer": "Trailer for {title}",
       "featured": "Featured",
       "notAvailableOnline": "Not available online",
-      "availableOnline": "Available online"
+      "availableOnline": "Available online",
+      "watchlistAdd": "Add {title} to my watchlist",
+      "watchlistRemove": "Remove {title} from my watchlist"
     },
     "hero": {
       "region": "Featured",
@@ -1234,7 +1241,10 @@
       "errorBody": "Check your connection, then load it again.",
       "retry": "Try again",
       "loadMoreError": "The next films couldn't be loaded.",
-      "suggestPrompt": "Missing a short film from the catalog?"
+      "suggestPrompt": "Missing a short film from the catalog?",
+      "title": "Short films",
+      "catalogEmptyTitle": "The catalog opens soon",
+      "catalogEmptyBody": "The first short films are on their way. Know one? Suggest it."
     },
     "suggestion": {
       "trigger": "Suggest a short film",
@@ -1284,6 +1294,67 @@
         "UNKNOWN": "Sending failed. Your answers are kept, so try again."
       }
     },
-    "durationMinutes": "{count, plural, other {{display} min}}"
+    "durationMinutes": "{count, plural, other {{display} min}}",
+    "detail": {
+      "browseAll": "See all short films",
+      "loading": "Loading the short film",
+      "errorTitle": "This short film will not load",
+      "notFoundTitle": "Short film not found"
+    },
+    "watchlistAdd": "Add to my watchlist",
+    "watchlistRemove": "Remove from my watchlist",
+    "crew": {
+      "title": "Crew",
+      "departments": {
+        "directing": "Directing",
+        "writing": "Writing",
+        "production": "Production",
+        "camera": "Camera",
+        "editing": "Editing",
+        "sound": "Sound",
+        "music": "Music",
+        "art": "Visual arts",
+        "costume-makeup": "Costume and makeup",
+        "lighting": "Lighting",
+        "stage": "Stage",
+        "other": "Other"
+      },
+      "roles": {
+        "director": "Director",
+        "assistant-director": "Assistant director",
+        "choreographer": "Choreographer",
+        "screenwriter": "Screenwriter",
+        "playwright": "Playwright",
+        "adaptor": "Adaptation",
+        "translator": "Translator",
+        "producer": "Producer",
+        "director-of-photography": "Director of photography",
+        "editor": "Editor",
+        "sound-engineer": "Sound engineer",
+        "sound-designer": "Sound designer",
+        "composer": "Composer",
+        "musical-director": "Musical director",
+        "art-director": "Art director",
+        "set-designer": "Set designer",
+        "costume-designer": "Costume designer",
+        "lighting-designer": "Lighting designer",
+        "projection-designer": "Projection designer",
+        "stage-manager": "Stage manager",
+        "other": "Other"
+      }
+    },
+    "originalTitle": "Original title: {title}",
+    "countryLabel": "{count, plural, one {Country} other {Countries}}",
+    "languageLabel": "{count, plural, one {Language} other {Languages}}",
+    "languageNames": {
+      "aeb": "Tunisian Arabic",
+      "ber": "Berber"
+    },
+    "access": {
+      "free": "Free",
+      "included": "Included",
+      "subscription": "Subscription",
+      "rental": "Rental"
+    }
   }
 }

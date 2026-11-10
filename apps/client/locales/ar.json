@@ -144,7 +144,10 @@
         "passwordDigit": "يجب أن تحتوي كلمة المرور على رقم واحد على الأقل",
         "passwordTooLong": "يجب ألا تتجاوز كلمة المرور 72 حرفًا"
       }
-    }
+    },
+    "INTERNAL_ERROR": "الكتالوج يستغرق وقتًا للاستجابة. أعد المحاولة بعد لحظات.",
+    "NETWORK_ERROR": "تحقق من اتصالك ثم أعد المحاولة.",
+    "SHORT_FILM_NOT_FOUND": "هذا الفيلم القصير غير موجود أو لم يعد منشورًا."
   },
   "contactForm": {
     "name": "الاسم الكامل",
@@ -757,7 +760,9 @@
       "shorts": "أفلام قصيرة",
       "music": "موسيقى",
       "exhibitions": "معارض"
-    }
+    },
+    "loginRequiredShort": "سجّل الدخول لحفظ هذا الفيلم القصير",
+    "undoRemove": "تراجع عن الإزالة"
   },
   "notifications": {
     "title": "الإشعارات",
@@ -1178,7 +1183,9 @@
       "playTrailer": "الإعلان الترويجي لفيلم {title}",
       "featured": "مميّز",
       "notAvailableOnline": "غير متاح على الإنترنت",
-      "availableOnline": "متاح على الإنترنت"
+      "availableOnline": "متاح على الإنترنت",
+      "watchlistAdd": "إضافة «{title}» إلى قائمة المتابعة",
+      "watchlistRemove": "إزالة «{title}» من قائمة المتابعة"
     },
     "hero": {
       "region": "مختارات",
@@ -1234,7 +1241,10 @@
       "errorBody": "تحقق من اتصالك ثم أعد التحميل.",
       "retry": "أعد المحاولة",
       "loadMoreError": "تعذّر تحميل المزيد.",
-      "suggestPrompt": "هل ينقص الكتالوج فيلم قصير؟"
+      "suggestPrompt": "هل ينقص الكتالوج فيلم قصير؟",
+      "title": "أفلام قصيرة",
+      "catalogEmptyTitle": "الكتالوج يفتح قريبًا",
+      "catalogEmptyBody": "أولى الأفلام القصيرة في الطريق. تعرف فيلمًا؟ اقترحه."
     },
     "suggestion": {
       "trigger": "اقترح فيلمًا قصيرًا",
@@ -1284,6 +1294,67 @@
         "UNKNOWN": "تعذّر الإرسال. إجاباتك محفوظة، فأعد المحاولة."
       }
     },
-    "durationMinutes": "{count, plural, zero {{display} دقيقة} one {دقيقة واحدة} two {دقيقتان} few {{display} دقائق} many {{display} دقيقة} other {{display} دقيقة}}"
+    "durationMinutes": "{count, plural, zero {{display} دقيقة} one {دقيقة واحدة} two {دقيقتان} few {{display} دقائق} many {{display} دقيقة} other {{display} دقيقة}}",
+    "detail": {
+      "browseAll": "عرض كل الأفلام القصيرة",
+      "loading": "جارٍ تحميل الفيلم القصير",
+      "errorTitle": "تعذّر تحميل هذا الفيلم القصير",
+      "notFoundTitle": "الفيلم القصير غير موجود"
+    },
+    "watchlistAdd": "إضافة إلى قائمة المتابعة",
+    "watchlistRemove": "إزالة من قائمة المتابعة",
+    "crew": {
+      "title": "الفريق الفني",
+      "departments": {
+        "directing": "الإخراج",
+        "writing": "الكتابة",
+        "production": "الإنتاج",
+        "camera": "التصوير",
+        "editing": "المونتاج",
+        "sound": "الصوت",
+        "music": "الموسيقى",
+        "art": "الفنون البصرية",
+        "costume-makeup": "الأزياء والمكياج",
+        "lighting": "الإضاءة",
+        "stage": "الخشبة",
+        "other": "أخرى"
+      },
+      "roles": {
+        "director": "إخراج",
+        "assistant-director": "مساعدة الإخراج",
+        "choreographer": "تصميم الرقصات",
+        "screenwriter": "سيناريو",
+        "playwright": "تأليف مسرحي",
+        "adaptor": "اقتباس",
+        "translator": "ترجمة",
+        "producer": "إنتاج",
+        "director-of-photography": "إدارة التصوير",
+        "editor": "مونتاج",
+        "sound-engineer": "هندسة الصوت",
+        "sound-designer": "تصميم الصوت",
+        "composer": "تأليف موسيقي",
+        "musical-director": "إدارة موسيقية",
+        "art-director": "إدارة فنية",
+        "set-designer": "تصميم الديكور",
+        "costume-designer": "تصميم الأزياء",
+        "lighting-designer": "تصميم الإضاءة",
+        "projection-designer": "تصميم العرض المرئي",
+        "stage-manager": "إدارة الخشبة",
+        "other": "أخرى"
+      }
+    },
+    "originalTitle": "العنوان الأصلي: {title}",
+    "countryLabel": "{count, plural, one {البلد} other {البلدان}}",
+    "languageLabel": "{count, plural, one {اللغة} other {اللغات}}",
+    "languageNames": {
+      "aeb": "العربية التونسية",
+      "ber": "البربرية"
+    },
+    "access": {
+      "free": "مجاني",
+      "included": "مشمول",
+      "subscription": "باشتراك",
+      "rental": "للإيجار"
+    }
   }
 }

@@ -144,7 +144,10 @@
         "passwordDigit": "Le mot de passe doit contenir au moins un chiffre",
         "passwordTooLong": "Le mot de passe ne doit pas dépasser 72 caractères"
       }
-    }
+    },
+    "INTERNAL_ERROR": "Le catalogue met un moment à répondre. Réessayez dans un instant.",
+    "NETWORK_ERROR": "Vérifiez votre connexion, puis réessayez.",
+    "SHORT_FILM_NOT_FOUND": "Ce court métrage n'existe pas ou n'est plus en ligne."
   },
   "contactForm": {
     "name": "Nom complet",
@@ -757,7 +760,9 @@
       "shorts": "Courts-métrages",
       "music": "Musique",
       "exhibitions": "Expositions"
-    }
+    },
+    "loginRequiredShort": "Connectez-vous pour enregistrer ce court métrage",
+    "undoRemove": "Annuler le retrait"
   },
   "notifications": {
     "title": "Notifications",
@@ -1178,7 +1183,9 @@
       "playTrailer": "Bande-annonce de {title}",
       "featured": "À la une",
       "notAvailableOnline": "Non disponible en ligne",
-      "availableOnline": "Disponible en ligne"
+      "availableOnline": "Disponible en ligne",
+      "watchlistAdd": "Ajouter « {title} » à ma watchlist",
+      "watchlistRemove": "Retirer « {title} » de ma watchlist"
     },
     "hero": {
       "region": "À la une",
@@ -1234,7 +1241,10 @@
       "errorBody": "Vérifiez votre connexion, puis relancez le chargement.",
       "retry": "Réessayer",
       "loadMoreError": "La suite n'a pas pu être chargée.",
-      "suggestPrompt": "Un court métrage manque au catalogue ?"
+      "suggestPrompt": "Un court métrage manque au catalogue ?",
+      "title": "Courts métrages",
+      "catalogEmptyTitle": "Le catalogue ouvre bientôt",
+      "catalogEmptyBody": "Les premiers courts métrages arrivent. Vous en connaissez un ? Suggérez-le."
     },
     "suggestion": {
       "trigger": "Suggérer un court métrage",
@@ -1284,6 +1294,67 @@
         "UNKNOWN": "L'envoi a échoué. Vos réponses sont conservées : réessayez."
       }
     },
-    "durationMinutes": "{count, plural, other {{display} min}}"
+    "durationMinutes": "{count, plural, other {{display} min}}",
+    "detail": {
+      "browseAll": "Voir tous les courts métrages",
+      "loading": "Chargement du court métrage",
+      "errorTitle": "Ce court métrage ne se charge pas",
+      "notFoundTitle": "Court métrage introuvable"
+    },
+    "watchlistAdd": "Ajouter à ma watchlist",
+    "watchlistRemove": "Retirer de ma watchlist",
+    "crew": {
+      "title": "Équipe artistique",
+      "departments": {
+        "directing": "Réalisation",
+        "writing": "Écriture",
+        "production": "Production",
+        "camera": "Image",
+        "editing": "Montage",
+        "sound": "Son",
+        "music": "Musique",
+        "art": "Arts visuels",
+        "costume-makeup": "Costumes et maquillage",
+        "lighting": "Lumière",
+        "stage": "Scène",
+        "other": "Autres"
+      },
+      "roles": {
+        "director": "Réalisation",
+        "assistant-director": "Assistanat à la réalisation",
+        "choreographer": "Chorégraphie",
+        "screenwriter": "Scénario",
+        "playwright": "Écriture dramatique",
+        "adaptor": "Adaptation",
+        "translator": "Traduction",
+        "producer": "Production",
+        "director-of-photography": "Direction de la photographie",
+        "editor": "Montage",
+        "sound-engineer": "Prise de son",
+        "sound-designer": "Conception sonore",
+        "composer": "Composition",
+        "musical-director": "Direction musicale",
+        "art-director": "Direction artistique",
+        "set-designer": "Scénographie",
+        "costume-designer": "Costumes",
+        "lighting-designer": "Création lumière",
+        "projection-designer": "Création vidéo",
+        "stage-manager": "Régie",
+        "other": "Autre"
+      }
+    },
+    "originalTitle": "Titre original : {title}",
+    "countryLabel": "{count, plural, one {Pays} other {Pays}}",
+    "languageLabel": "{count, plural, one {Langue} other {Langues}}",
+    "languageNames": {
+      "aeb": "arabe tunisien",
+      "ber": "berbère"
+    },
+    "access": {
+      "free": "Gratuit",
+      "included": "Inclus",
+      "subscription": "Sur abonnement",
+      "rental": "À la location"
+    }
   }
 }
