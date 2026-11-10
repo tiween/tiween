@@ -92,9 +92,18 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 ### Phase 02.1: Frontend/Backend Decoupling (INSERTED)
 
-**Goal:** [Urgent work - to be planned]
+**Goal:** The client and Strapi share nothing but API types: owner rule 2026-11-10 — the apps live in one repo only for convenience, and the HTTP API is their contract.
 **Requirements**: TBD
 **Depends on:** Phase 2
+**Success Criteria** (what must be TRUE):
+
+1. A types-only workspace package (`packages/api-types`) holds TypeScript declarations generated with `openapi-typescript` from the committed Strapi OpenAPI document (`apps/strapi/src/extensions/documentation/documentation/1.0.0/full_documentation.json`); it has no runtime code and no Strapi dependency.
+2. No client file imports `@tiween/admin` or anything under `apps/strapi` (today: `lib/strapi-api/base.ts`, `lib/auth.ts`); `@tiween/admin` is gone from the client's dependencies, and the client's Strapi calls are typed from `packages/api-types`.
+3. CI regenerates the types and fails when they differ from the committed ones, so a backend API change cannot drift silently from the client.
+4. The shared tooling packages `@tiween/eslint-config`, `@tiween/prettier-config` and `@tiween/typescript-config` are replaced by per-app configs and removed; lint, format check, type-check, tests and build stay green for both apps.
+5. Strapi does not import from the client either (checked by a guard, e.g. an ESLint `no-restricted-imports` rule on each side).
+
+**Sources:** strapi.io/blog/type-safe-fetch-with-next-js-strapi-and-open-api · strapi.io/blog/improve-your-frontend-experience-with-strapi-types-and-type-script (Strapi's own `contentTypes.d.ts` route rejected: it needs `@strapi/strapi` in the client).
 **Plans:** 0 plans
 
 Plans:
