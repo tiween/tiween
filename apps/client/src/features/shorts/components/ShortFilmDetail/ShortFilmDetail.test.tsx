@@ -13,20 +13,37 @@
  * prove the `shorts` namespace exists and is complete in ALL THREE — a missing
  * English key would otherwise ship raw key paths to `/en/shorts/*`.
  *
+ * Phase 2 additions (SPAGE-03, SPAGE-04, FR56; D-09 to D-12, D-19): the
+ * Équipe artistique grid, access sub-labels, original title and origin lines,
+ * initials discs, silent French-fallback tagging, and axe at 390px-class
+ * markup in fr, ar and en for a full and a sparse record. jsdom cannot compute
+ * contrast; that stays a manual pass.
+ *
  * NOT covered here: the "unknown slug → notFound() → 404" row, which is the
  * route's (`app/[locale]/shorts/[slug]/page.test.tsx`) behavior, not the
  * component's.
  */
+import { readFileSync } from "node:fs"
+import { resolve } from "node:path"
+
 import * as React from "react"
-import { act, cleanup, fireEvent, render, screen } from "@testing-library/react"
+import {
+  act,
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  within,
+} from "@testing-library/react"
 import { NextIntlClientProvider } from "next-intl"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
-import type { ShortFilm } from "../../types"
+import type { ShortFilm, ShortFilmCrewCredit } from "../../types"
 
 import ar from "../../../../../locales/ar.json"
 import en from "../../../../../locales/en.json"
 import fr from "../../../../../locales/fr.json"
+import { expectNoA11yViolations } from "../../../../../test/helpers/axe"
 import { ShortFilmDetail } from "./ShortFilmDetail"
 
 const { backSpy, pushSpy, toastSpy } = vi.hoisted(() => ({
@@ -95,7 +112,34 @@ const KEYS_USED = [
   "otherPlatform",
   "shareCopied",
   "shareFailed",
+  "originalTitle",
+  "countryLabel",
+  "languageLabel",
+  "languageNames.aeb",
+  "languageNames.ber",
+  "access.free",
+  "access.included",
+  "access.subscription",
+  "access.rental",
+  "crew.title",
+  "crew.departments.directing",
+  "crew.departments.other",
+  "crew.roles.director",
+  "crew.roles.other",
 ] as const
+
+/** Resolve a dotted key inside the `shorts` namespace. */
+function lookup(namespace: unknown, key: string): unknown {
+  return key
+    .split(".")
+    .reduce<unknown>(
+      (node, part) =>
+        node && typeof node === "object"
+          ? (node as Record<string, unknown>)[part]
+          : undefined,
+      namespace
+    )
+}
 
 function renderDetail(
   film: ShortFilm,
@@ -115,6 +159,20 @@ function renderDetail(
   )
 }
 
+function crewCredit(
+  name: string,
+  department: string,
+  roleSlug: string,
+  extra: Partial<ShortFilmCrewCredit> = {}
+): ShortFilmCrewCredit {
+  return {
+    person: { slug: name.toLowerCase().replace(/\s+/g, "-"), name },
+    roleSlug,
+    department,
+    ...extra,
+  }
+}
+
 const FULL_FILM: ShortFilm = {
   id: 1,
   documentId: "communion-001",
@@ -126,6 +184,10 @@ const FULL_FILM: ShortFilm = {
   ageRating: "PG12",
   poster: { url: "https://cdn.example/poster.jpg" },
   trailer: "https://trailer.example/communion",
+  originalTitle: "كوميونيون",
+  country: ["TN", "FR"],
+  language: ["aeb"],
+  locale: "fr",
   genres: [{ id: 1, documentId: "g1", name: "Drame", slug: "drame" }],
   directors: [
     { id: 1, documentId: "p1", name: "Yasmine Ben Ali", slug: "yasmine" },
@@ -137,9 +199,26 @@ const FULL_FILM: ShortFilm = {
     },
   ],
   streamingLinks: [
-    { platform: "youtube", url: "https://youtube.example/communion" },
+    {
+      platform: "youtube",
+      url: "https://youtube.example/communion",
+      accessType: "free",
+      label: "VOST",
+    },
   ],
   awards: [{ name: "Prix du jury", category: "Clermont-Ferrand", won: true }],
+  // Deliberately out of department order and out of billing order.
+  crew: [
+    crewCredit("Sofian El Fani", "camera", "director-of-photography"),
+    crewCredit("Yasmine Ben Ali", "directing", "director"),
+    crewCredit("Kahena Attia", "editing", "editor"),
+    crewCredit("Néjib Ayed", "production", "producer", { billing: 2 }),
+    crewCredit("Amel Zouari", "production", "producer", {
+      billing: 1,
+      customRole: "Production exécutive",
+    }),
+    crewCredit("Ali Drone", "camera", "drone-pilot"),
+  ],
 }
 
 const RELATED: ShortFilm[] = [
@@ -230,6 +309,7 @@ describe("ShortFilmDetail — full record, FR", () => {
       "Synopsis",
       "Distinctions",
       "Où regarder",
+      "Équipe artistique",
       "Distribution",
       "Dans la même veine",
     ])
@@ -244,11 +324,6 @@ describe("ShortFilmDetail — full record, FR", () => {
     expect(
       screen.getByText("Trois générations d'une même famille.")
     ).toBeInTheDocument()
-  })
-
-  it("renders the deferred sections nowhere (crew grid, streaming access label)", () => {
-    renderDetail(FULL_FILM, { relatedShorts: RELATED })
-    expect(screen.queryByText("Équipe artistique")).not.toBeInTheDocument()
   })
 
   it("gives the hero, action-row and sticky watch controls distinct names", () => {
@@ -269,13 +344,14 @@ describe("ShortFilmDetail — full record, FR", () => {
 describe("ShortFilmDetail — catalog completeness", () => {
   it("defines every key the component uses in fr, ar and en", () => {
     for (const [locale, messages] of Object.entries(MESSAGES)) {
-      const namespace = (messages as { shorts?: Record<string, string> }).shorts
+      const namespace = (messages as { shorts?: Record<string, unknown> })
+        .shorts
       expect(
         namespace,
         `${locale}.json is missing the shorts namespace`
       ).toBeDefined()
       for (const key of KEYS_USED) {
-        const value = namespace?.[key]
+        const value = lookup(namespace, key)
         expect(
           typeof value === "string" && value.length > 0,
           `${locale}.shorts.${key} is missing or empty`
@@ -298,6 +374,7 @@ describe("ShortFilmDetail — catalog completeness", () => {
       "Synopsis",
       "Awards & honours",
       "Where to watch",
+      "Crew",
       "Cast",
       "In the same vein",
     ])
@@ -320,6 +397,7 @@ describe("ShortFilmDetail — AR locale", () => {
       "القصة",
       "الجوائز والتكريمات",
       "أين تشاهد",
+      "الفريق الفني",
       "التمثيل",
       "في نفس السياق",
     ])
@@ -482,8 +560,8 @@ describe("ShortFilmDetail — streaming rows", () => {
       streamingLinks: [
         // A value the union claims cannot exist — CMS data says otherwise.
         {
-          platform: "artify" as never,
-          url: "https://artify.example/communion",
+          platform: "brand-new-platform" as never,
+          url: "https://new.example/communion",
         },
       ],
     })
@@ -707,30 +785,563 @@ describe("ShortFilmDetail — share", () => {
   })
 })
 
-describe("ShortFilmDetail — cast photos", () => {
-  it("falls back to the striped avatar when a cast photo fails to load", () => {
+describe("ShortFilmDetail — Équipe artistique (SPAGE-03, D-09, D-10)", () => {
+  function crewSection(): HTMLElement {
+    return screen
+      .getByRole("heading", {
+        level: 2,
+        name: /Équipe artistique|Crew|الفريق الفني/,
+      })
+      .closest("section") as HTMLElement
+  }
+
+  /** [name, role] per row, in DOM order. */
+  function crewRows(): string[][] {
+    return within(crewSection())
+      .getAllByRole("listitem")
+      .map((row) =>
+        Array.from(row.querySelectorAll("bdi")).map((n) => n.textContent ?? "")
+      )
+  }
+
+  it("groups by department in the fixed order with an h3 per group", () => {
+    renderDetail(FULL_FILM)
+
+    const departments = within(crewSection())
+      .getAllByRole("heading", { level: 3 })
+      .map((node) => node.textContent)
+    expect(departments).toEqual([
+      "Réalisation",
+      "Production",
+      "Image",
+      "Montage",
+    ])
+  })
+
+  it("sorts by billing inside a group, unbilled last, API order for ties", () => {
+    renderDetail(FULL_FILM)
+
+    expect(crewRows()).toEqual([
+      ["Yasmine Ben Ali", "Réalisation"],
+      ["Amel Zouari", "Production exécutive"],
+      ["Néjib Ayed", "Production"],
+      ["Sofian El Fani", "Direction de la photographie"],
+      ["Ali Drone", "Drone pilot"],
+      ["Kahena Attia", "Montage"],
+    ])
+  })
+
+  it("lets customRole win and humanizes an unknown slug (never blank)", () => {
+    renderDetail({
+      ...FULL_FILM,
+      crew: [
+        crewCredit("A", "sound", "sound-mixer"),
+        crewCredit("B", "sound", "sound-engineer", {
+          customRole: "  Bruiteur ",
+        }),
+        crewCredit("C", "sound", ""),
+      ],
+    })
+
+    const rows = crewRows()
+    expect(rows[0]).toEqual(["A", "Sound mixer"])
+    expect(rows[1]).toEqual(["B", "Bruiteur"])
+    expect(rows[2]![1]!.trim().length).toBeGreaterThan(0)
+  })
+
+  it("files an unknown department under Autres", () => {
+    renderDetail({
+      ...FULL_FILM,
+      crew: [crewCredit("A", "catering", "caterer")],
+    })
+    expect(
+      within(crewSection())
+        .getAllByRole("heading", { level: 3 })
+        .map((node) => node.textContent)
+    ).toEqual(["Autres"])
+  })
+
+  it("keeps two roles of one person in a department as two rows", () => {
+    renderDetail({
+      ...FULL_FILM,
+      crew: [
+        crewCredit("Anis Lassoued", "directing", "director"),
+        crewCredit("Anis Lassoued", "directing", "assistant-director"),
+      ],
+    })
+    expect(crewRows()).toEqual([
+      ["Anis Lassoued", "Réalisation"],
+      ["Anis Lassoued", "Assistanat à la réalisation"],
+    ])
+  })
+
+  it("omits the section and every department heading without credits", () => {
+    for (const crew of [undefined, []]) {
+      cleanup()
+      renderDetail({ ...FULL_FILM, crew })
+      expect(screen.queryByText("Équipe artistique")).not.toBeInTheDocument()
+      expect(screen.queryAllByRole("heading", { level: 3 })).toHaveLength(0)
+    }
+  })
+
+  it("keeps directors in the hero meta line as well", () => {
+    renderDetail(FULL_FILM)
+    // Once in the meta line, once in the crew grid.
+    expect(screen.getAllByText("Yasmine Ben Ali")).toHaveLength(2)
+  })
+
+  it("renders role copy in en and ar from the locale catalogs", () => {
+    renderDetail(FULL_FILM, { locale: "en" })
+    expect(crewRows()[3]).toEqual(["Sofian El Fani", "Director of photography"])
+    cleanup()
+
+    renderDetail(FULL_FILM, { locale: "ar" })
+    expect(crewRows()[0]).toEqual(["Yasmine Ben Ali", "إخراج"])
+    expect(
+      within(crewSection())
+        .getAllByRole("heading", { level: 3 })
+        .map((node) => node.textContent)
+    ).toEqual(["الإخراج", "الإنتاج", "التصوير", "المونتاج"])
+  })
+
+  it("renders editor text as text, never as markup (T-02-12)", () => {
+    const { container } = renderDetail({
+      ...FULL_FILM,
+      crew: [
+        crewCredit("<b>Bold</b>", "directing", "director", {
+          customRole: '<img src=x onerror="alert(1)">',
+        }),
+      ],
+      streamingLinks: [
+        {
+          platform: "youtube",
+          url: "https://youtube.example/communion",
+          accessType: "free",
+          label: "<script>alert(1)</script>",
+        },
+      ],
+    })
+
+    expect(screen.getByText("<b>Bold</b>")).toBeInTheDocument()
+    expect(
+      screen.getByText('<img src=x onerror="alert(1)">')
+    ).toBeInTheDocument()
+    expect(screen.getByText("<script>alert(1)</script>")).toBeInTheDocument()
+    expect(container.querySelector("script")).toBeNull()
+    expect(container.querySelector('img[src="x"]')).toBeNull()
+  })
+})
+
+describe("ShortFilmDetail — initials discs (D-12, D-21)", () => {
+  it("shows aria-hidden initials beside crew names and in the cast rail", () => {
+    renderDetail(FULL_FILM)
+
+    for (const letters of ["YA", "SF", "HS"]) {
+      expect(screen.getByText(letters)).toHaveAttribute("aria-hidden", "true")
+    }
+    // The name stays as readable text beside the disc.
+    expect(screen.getByText("Hend Sabri")).toBeInTheDocument()
+  })
+
+  it("never renders a person photo, even when the data carries one", () => {
     renderDetail({
       ...FULL_FILM,
       cast: [
         {
           person: {
-            id: 10,
-            documentId: "p10",
-            name: "Hend Sabri",
             slug: "hend",
+            name: "Hend Sabri",
             photo: { url: "https://cdn.example/hend.jpg" },
-          },
+          } as never,
           role: "Leïla",
         },
       ],
     })
-
-    fireEvent.error(screen.getByRole("img", { name: "Hend Sabri" }))
-    expect(
-      screen.queryByRole("img", { name: "Hend Sabri" })
-    ).not.toBeInTheDocument()
-    expect(screen.getByText("Hend Sabri")).toBeInTheDocument()
+    expect(screen.queryByRole("img", { name: "Hend Sabri" })).toBeNull()
+    expect(screen.getByText("HS")).toBeInTheDocument()
   })
+
+  it("separates two Arabic-script initials with a zero-width non-joiner", () => {
+    renderDetail(
+      {
+        ...FULL_FILM,
+        cast: [{ person: { slug: "hend", name: "هند صبري" }, role: "ليلى" }],
+      },
+      { locale: "ar" }
+    )
+    expect(screen.getByText("ه‌ص")).toHaveAttribute("aria-hidden", "true")
+  })
+
+  it("imports no avatar library and no photo prop", () => {
+    const source = readFileSync(
+      resolve(__dirname, "ShortFilmDetail.tsx"),
+      "utf8"
+    )
+    const disc = readFileSync(resolve(__dirname, "InitialsDisc.tsx"), "utf8")
+    for (const text of [source, disc]) {
+      expect(text).not.toMatch(/@radix-ui/)
+      expect(text).not.toMatch(/components\/ui\/avatar/)
+      expect(text).not.toMatch(/\.photo\b/)
+    }
+  })
+})
+
+describe("ShortFilmDetail — where to watch access label (SPAGE-03)", () => {
+  function subLabelOf(platformName: string): string {
+    const row = screen.getByText(platformName).closest("div")!.parentElement!
+    return Array.from(row.children)
+      .slice(1)
+      .map((node) => node.textContent)
+      .join("")
+  }
+
+  it("shows the translated access type then the editor label verbatim", () => {
+    renderDetail(FULL_FILM)
+    expect(screen.getByText("VOST").parentElement).toHaveTextContent(
+      "Gratuit · VOST"
+    )
+  })
+
+  it("translates all four access types in fr, ar and en", () => {
+    const expected = {
+      fr: ["Gratuit", "Inclus", "Sur abonnement", "À la location"],
+      ar: ["مجاني", "مشمول", "باشتراك", "للإيجار"],
+      en: ["Free", "Included", "Subscription", "Rental"],
+    } as const
+    for (const locale of ["fr", "ar", "en"] as const) {
+      cleanup()
+      renderDetail(
+        {
+          ...FULL_FILM,
+          streamingLinks: (
+            ["free", "included", "subscription", "rental"] as const
+          ).map((accessType, index) => ({
+            platform: "vimeo" as const,
+            url: `https://vimeo.example/${index}`,
+            accessType,
+          })),
+        },
+        { locale }
+      )
+      for (const label of expected[locale]) {
+        expect(screen.getByText(label)).toBeInTheDocument()
+      }
+    }
+  })
+
+  it("shows the access type alone when the link has no label", () => {
+    renderDetail({
+      ...FULL_FILM,
+      streamingLinks: [
+        {
+          platform: "arte",
+          url: "https://arte.example/communion",
+          accessType: "subscription",
+        },
+      ],
+    })
+    expect(screen.getByText("Sur abonnement")).toBeInTheDocument()
+    expect(subLabelOf("ARTE")).toBe("Sur abonnement")
+  })
+
+  it("shows no sub-label for a missing or unknown accessType, and the row still renders", () => {
+    renderDetail({
+      ...FULL_FILM,
+      streamingLinks: [
+        { platform: "vimeo", url: "https://vimeo.example/a", label: "VOST" },
+        {
+          platform: "netflix",
+          url: "https://netflix.example/a",
+          accessType: "barter" as never,
+          label: "VF",
+        },
+      ],
+    })
+    expect(screen.getByText("Vimeo")).toBeInTheDocument()
+    expect(screen.getByText("Netflix")).toBeInTheDocument()
+    expect(subLabelOf("Vimeo")).toBe("")
+    expect(subLabelOf("Netflix")).toBe("")
+    expect(screen.queryByText("VOST")).not.toBeInTheDocument()
+    expect(screen.queryByText("VF")).not.toBeInTheDocument()
+  })
+
+  it("resolves all ten platform names", () => {
+    const platforms = [
+      ["youtube", "YouTube"],
+      ["vimeo", "Vimeo"],
+      ["dailymotion", "Dailymotion"],
+      ["artify", "Artify"],
+      ["arte", "ARTE"],
+      ["mubi", "MUBI"],
+      ["netflix", "Netflix"],
+      ["shahid", "Shahid"],
+      ["tv5monde", "TV5MONDE"],
+      ["other", "Autre plateforme"],
+    ] as const
+    renderDetail({
+      ...FULL_FILM,
+      streamingLinks: platforms.map(([platform], index) => ({
+        platform,
+        url: `https://watch.example/${index}`,
+      })),
+    })
+    for (const [, name] of platforms) {
+      expect(screen.getByText(name)).toBeInTheDocument()
+    }
+  })
+
+  it("keeps the sub-label while a hostile url still yields no Regarder control", () => {
+    renderDetail({
+      ...FULL_FILM,
+      trailer: undefined,
+      streamingLinks: [
+        {
+          platform: "youtube",
+          url: "javascript:alert(1)",
+          accessType: "free",
+        },
+      ],
+    })
+    expect(screen.getByText("Gratuit")).toBeInTheDocument()
+    expect(
+      screen.queryByRole("link", { name: /Regarder/ })
+    ).not.toBeInTheDocument()
+  })
+})
+
+describe("ShortFilmDetail — original title (SPAGE-04)", () => {
+  it("shows a differing original title in its own bdi, tagged Arabic", () => {
+    renderDetail(FULL_FILM)
+
+    const bdi = screen.getByText("كوميونيون")
+    expect(bdi.tagName).toBe("BDI")
+    expect(bdi).toHaveAttribute("dir", "auto")
+    expect(bdi).toHaveAttribute("lang", "ar")
+    expect(bdi.parentElement).toHaveTextContent("Titre original : كوميونيون")
+  })
+
+  it("sets no lang when the original title is not Arabic script", () => {
+    renderDetail({ ...FULL_FILM, originalTitle: "The Communion" })
+    const bdi = screen.getByText("The Communion")
+    expect(bdi).toHaveAttribute("dir", "auto")
+    expect(bdi).not.toHaveAttribute("lang")
+  })
+
+  it("uses the page locale copy in en and ar", () => {
+    renderDetail(FULL_FILM, { locale: "en" })
+    expect(screen.getByText("كوميونيون").parentElement).toHaveTextContent(
+      "Original title: كوميونيون"
+    )
+    cleanup()
+    renderDetail(FULL_FILM, { locale: "ar" })
+    expect(screen.getByText("كوميونيون").parentElement).toHaveTextContent(
+      "العنوان الأصلي: كوميونيون"
+    )
+  })
+
+  it.each([
+    ["undefined", undefined],
+    ["blank", "   "],
+    ["identical", "Communion"],
+    ["case-only difference", "COMMUNION"],
+    ["accent-only difference", "Communiòn"],
+    ["padded", "  communion "],
+  ])("hides the line when the original title is %s", (_name, originalTitle) => {
+    renderDetail({ ...FULL_FILM, originalTitle })
+    expect(screen.queryByText(/Titre original/)).not.toBeInTheDocument()
+  })
+
+  it("folds accents on the displayed side too", () => {
+    renderDetail({
+      ...FULL_FILM,
+      title: "Été",
+      originalTitle: "ete",
+    })
+    expect(screen.queryByText(/Titre original/)).not.toBeInTheDocument()
+  })
+})
+
+describe("ShortFilmDetail — origin line (SPAGE-04, D-19)", () => {
+  function originLine(): HTMLElement {
+    return screen.getByText("Tunisie et France", { exact: false })
+      .parentElement as HTMLElement
+  }
+
+  it("shows country and language names in fr with hidden labels", () => {
+    renderDetail(FULL_FILM)
+
+    const line = screen.getByText("Pays:", { exact: false }).parentElement!
+    expect(line).toHaveTextContent(
+      "Pays: Tunisie et France · Langue: arabe tunisien"
+    )
+    expect(screen.getByText("Pays:", { exact: false })).toBeInTheDocument()
+    expect(screen.getByText("Langue:", { exact: false })).toBeInTheDocument()
+  })
+
+  it("uses plural-aware labels", () => {
+    renderDetail({ ...FULL_FILM, language: ["aeb", "fr"] })
+    expect(screen.getByText("Langues:", { exact: false })).toBeInTheDocument()
+  })
+
+  it("shows names in en and ar, never a raw code", () => {
+    renderDetail(FULL_FILM, { locale: "en" })
+    expect(
+      screen.getByText("Countries:", { exact: false }).parentElement
+    ).toHaveTextContent(
+      "Countries: Tunisia, France · Language: Tunisian Arabic"
+    )
+    cleanup()
+
+    const { container } = renderDetail(FULL_FILM, { locale: "ar" })
+    const text = container.textContent ?? ""
+    expect(text).toContain("تونس")
+    expect(text).toContain("فرنسا")
+    expect(text).toContain("العربية التونسية")
+    expect(text).not.toMatch(/\b(TN|FR|aeb)\b/)
+  })
+
+  it("resolves ber and aeb, drops none silently", () => {
+    const { container } = renderDetail({
+      ...FULL_FILM,
+      language: ["aeb", "none", "ber"],
+    })
+    expect(container.textContent).toContain("arabe tunisien et berbère")
+    expect(container.textContent).not.toMatch(/\bnone\b/i)
+    expect(container.textContent).not.toMatch(/\b(aeb|ber)\b/)
+  })
+
+  it("never prints a raw code for an unknown country", () => {
+    const { container } = renderDetail({
+      ...FULL_FILM,
+      country: ["XX", "ZZZZ", "TN"],
+    })
+    expect(container.textContent).toContain("Tunisie")
+    expect(container.textContent).not.toMatch(/\bXX\b|ZZZZ/)
+  })
+
+  it("drops an empty group together with its separator", () => {
+    renderDetail({ ...FULL_FILM, language: ["none"] })
+    const line = screen.getByText("Pays:", { exact: false }).parentElement!
+    expect(line).toHaveTextContent("Pays: Tunisie et France")
+    expect(line.textContent).not.toContain("·")
+    expect(screen.queryByText(/Langue/)).not.toBeInTheDocument()
+    cleanup()
+
+    renderDetail({ ...FULL_FILM, country: [] })
+    expect(screen.queryByText(/Pays/)).not.toBeInTheDocument()
+    expect(
+      screen.getByText("Langue:", { exact: false }).parentElement
+    ).toHaveTextContent("Langue: arabe tunisien")
+  })
+
+  it("renders no line when both groups are empty", () => {
+    renderDetail({ ...FULL_FILM, country: [], language: ["none"] })
+    expect(screen.queryByText(/Pays/)).not.toBeInTheDocument()
+    expect(screen.queryByText(/Langue/)).not.toBeInTheDocument()
+    cleanup()
+    renderDetail(minimalFilm())
+    expect(screen.queryByText(/Pays/)).not.toBeInTheDocument()
+  })
+
+  it("keeps the origin line out of the way of the focal pair", () => {
+    // The line is plain text: no control, no link, no heading.
+    renderDetail(FULL_FILM)
+    const group = originLine()
+    expect(group.querySelector("a, button, h1, h2, h3")).toBeNull()
+  })
+})
+
+describe("ShortFilmDetail — silent French fallback (FR56, D-11)", () => {
+  function titleNode(): HTMLElement {
+    return screen
+      .getByRole("heading", { level: 1 })
+      .querySelector("bdi") as HTMLElement
+  }
+  const synopsisNode = () =>
+    screen.getByText("Trois générations d'une même famille.")
+
+  it("adds no tag on a French page", () => {
+    renderDetail({ ...FULL_FILM, locale: "fr" })
+    expect(titleNode()).not.toHaveAttribute("lang")
+    expect(synopsisNode()).not.toHaveAttribute("lang")
+  })
+
+  it("tags lang fr (no dir) on an English page served French", () => {
+    renderDetail({ ...FULL_FILM, locale: "fr" }, { locale: "en" })
+    expect(titleNode()).toHaveAttribute("lang", "fr")
+    expect(titleNode()).not.toHaveAttribute("dir")
+    expect(synopsisNode()).toHaveAttribute("lang", "fr")
+  })
+
+  it("tags lang fr and dir ltr on an Arabic page served French", () => {
+    renderDetail({ ...FULL_FILM, locale: "fr" }, { locale: "ar" })
+    expect(titleNode()).toHaveAttribute("lang", "fr")
+    expect(titleNode()).toHaveAttribute("dir", "ltr")
+    expect(synopsisNode()).toHaveAttribute("lang", "fr")
+    expect(synopsisNode()).toHaveAttribute("dir", "ltr")
+  })
+
+  it("tags only the synopsis when an Arabic title sits beside a French synopsis", () => {
+    renderDetail(
+      { ...FULL_FILM, title: "كوميونيون", locale: "ar" },
+      { locale: "ar" }
+    )
+    expect(titleNode()).not.toHaveAttribute("lang")
+    expect(synopsisNode()).toHaveAttribute("lang", "fr")
+    expect(synopsisNode()).toHaveAttribute("dir", "ltr")
+  })
+
+  it("leaves Arabic text on an Arabic page untouched", () => {
+    renderDetail(
+      {
+        ...FULL_FILM,
+        title: "كوميونيون",
+        synopsis: "<p>ثلاثة أجيال من عائلة واحدة.</p>",
+        locale: "ar",
+      },
+      { locale: "ar" }
+    )
+    expect(titleNode()).not.toHaveAttribute("lang")
+    expect(screen.getByText("ثلاثة أجيال من عائلة واحدة.")).not.toHaveAttribute(
+      "lang"
+    )
+  })
+
+  it("never adds a visible fallback label and never blanks the title", () => {
+    const { container } = renderDetail(
+      { ...FULL_FILM, locale: "fr" },
+      { locale: "ar" }
+    )
+    expect(container.textContent).not.toMatch(/fran[cç]ais|french|fallback/i)
+    expect(titleNode()).toHaveTextContent("Communion")
+  })
+})
+
+describe("ShortFilmDetail — accessibility (axe, SPAGE-03, SPAGE-04)", () => {
+  const SPARSE = minimalFilm()
+
+  for (const locale of ["fr", "ar", "en"] as const) {
+    it(`has no violations with full data in ${locale}`, async () => {
+      const { container } = renderDetail(FULL_FILM, {
+        locale,
+        relatedShorts: RELATED,
+      })
+      await expectNoA11yViolations(container)
+    })
+
+    it(`has no violations with sparse data in ${locale}`, async () => {
+      const { container } = renderDetail(SPARSE, { locale })
+      await expectNoA11yViolations(container)
+    })
+
+    it(`has no violations with a French fallback in ${locale}`, async () => {
+      const { container } = renderDetail(
+        { ...FULL_FILM, locale: "fr" },
+        { locale, relatedShorts: RELATED }
+      )
+      await expectNoA11yViolations(container)
+    })
+  }
 })
 
 describe("ShortFilmDetail — sticky watch bar", () => {

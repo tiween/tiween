@@ -16,18 +16,28 @@ import {
 import { useLocale, useTranslations } from "next-intl"
 
 import type { PlatformType, ShortFilm } from "../../types"
+import type { RoleTranslator } from "../../utils"
 
 import { Link, useRouter } from "@/lib/navigation"
 import { cn } from "@/lib/utils"
+import { isArabic } from "@/lib/utils/isArabic"
 import { toast } from "@/components/ui/use-toast"
 
+import { SHORT_FILM_ACCESS_TYPES } from "../../types"
 import {
+  countryNames,
+  fallbackTextAttrs,
   formatCount,
+  groupCrewByDepartment,
+  joinNames,
+  languageNames,
   openExternal,
   positiveNumber,
+  resolveRoleLabel,
   stripHtmlTags,
   toSafeExternalUrl,
 } from "../../utils"
+import { InitialsDisc } from "./InitialsDisc"
 import styles from "./ShortFilmDetail.module.css"
 
 /**
@@ -42,8 +52,30 @@ const PLATFORM_NAMES: Partial<Record<PlatformType, string>> = {
   youtube: "YouTube",
   vimeo: "Vimeo",
   dailymotion: "Dailymotion",
+  artify: "Artify",
+  arte: "ARTE",
   mubi: "MUBI",
   netflix: "Netflix",
+  shahid: "Shahid",
+  tv5monde: "TV5MONDE",
+}
+
+/**
+ * Stands in for the film title while the `shorts.originalTitle` message is
+ * formatted, so the title can be placed in its own `<bdi>` between the
+ * message's text before and after it. A private-use code point: it cannot
+ * collide with translated copy.
+ */
+const TITLE_SENTINEL = "\uE000"
+
+/** Case- and diacritic-insensitive form used to compare two titles. */
+function foldTitle(title: string): string {
+  return title
+    .normalize("NFD")
+    .replace(/\p{M}/gu, "")
+    .toLowerCase()
+    .replace(/\s+/g, " ")
+    .trim()
 }
 
 /**
@@ -78,13 +110,13 @@ export interface ShortFilmDetailProps {
  * no per-direction overrides. Sections whose data is absent do not render —
  * there are no empty shells and no placeholder rows.
  *
- * The watchlist heart is deliberately LOCAL optimistic state, not the
- * server-backed `useAddToWatchlist`/`useRemoveFromWatchlist` pair: shorts are
- * mock-backed with synthetic `documentId`s, so a real POST would write garbage.
+ * The watchlist heart is still LOCAL optimistic state here; the real
+ * server-backed heart replaces it in a later plan of this phase.
  *
- * Deferred (they need schema fields that do not exist yet): the "Équipe
- * artistique" crew grid (`ShortFilm.crew`) and the streaming access sub-label
- * (`StreamingLink.accessType`).
+ * Content from the real API (SPAGE-03, SPAGE-04, FR56): the original-title and
+ * origin lines (D-19), the "Équipe artistique" crew grid (D-09, D-10), the
+ * streaming access sub-label, plain initials discs for people (D-12, D-21) and
+ * the silent French-fallback tagging of the title and synopsis (D-11).
  */
 export function ShortFilmDetail({
   film,
@@ -98,6 +130,15 @@ export function ShortFilmDetail({
   const formatMinutes = (n: number) =>
     t("durationMinutes", { count: n, display: formatCount(n, locale) })
   const isRTL = locale === "ar"
+  // Role labels come from the client catalog; `has` keeps an unknown slug from
+  // logging a missing-message error (D-09).
+  // The keys are built from a validated slug, so they cannot be typed
+  // statically.
+  type MessageKey = Parameters<typeof t>[0]
+  const roleTranslator: RoleTranslator = Object.assign(
+    (key: string) => t(key as MessageKey),
+    { has: (key: string) => t.has(key as MessageKey) }
+  )
 
   const [saved, setSaved] = React.useState(false)
   const [justSaved, setJustSaved] = React.useState(false)
@@ -172,6 +213,39 @@ export function ShortFilmDetail({
   const showTrailerButton = Boolean(trailerUrl) && Boolean(streamingWatchUrl)
 
   const synopsisText = film.synopsis ? stripHtmlTags(film.synopsis) : null
+
+  // Silent French fallback (D-11): tag the text, never label it.
+  const titleAttrs = fallbackTextAttrs(film.title, locale, film.locale)
+  const synopsisAttrs = fallbackTextAttrs(synopsisText, locale, film.locale)
+
+  // Original title: only when it says something the title does not.
+  const originalTitle = film.originalTitle?.trim() ?? ""
+  const showOriginalTitle =
+    originalTitle !== "" && foldTitle(originalTitle) !== foldTitle(film.title)
+  const [originalTitleBefore = "", originalTitleAfter = ""] = showOriginalTitle
+    ? t("originalTitle", { title: TITLE_SENTINEL }).split(TITLE_SENTINEL)
+    : []
+
+  // Origin line (D-19): names in the page locale, never a raw code.
+  const countries = countryNames(film.country, locale)
+  const languages = languageNames(film.language, locale, {
+    aeb: t("languageNames.aeb"),
+    ber: t("languageNames.ber"),
+  })
+  const originGroups = [
+    {
+      key: "country",
+      label: t("countryLabel", { count: countries.length }),
+      text: joinNames(countries, locale),
+    },
+    {
+      key: "language",
+      label: t("languageLabel", { count: languages.length }),
+      text: joinNames(languages, locale),
+    },
+  ].filter((group) => group.text !== "")
+
+  const crewGroups = groupCrewByDepartment(film.crew)
 
   // ---------------------------------------------------------- sticky bar --
 
@@ -412,8 +486,21 @@ export function ShortFilmDetail({
             </div>
 
             <h1 className={styles.title}>
-              <bdi>{film.title}</bdi>
+              <bdi {...titleAttrs}>{film.title}</bdi>
             </h1>
+
+            {showOriginalTitle && (
+              <p className={styles.originalTitle}>
+                {originalTitleBefore}
+                <bdi
+                  dir="auto"
+                  lang={isArabic(originalTitle) ? "ar" : undefined}
+                >
+                  {originalTitle}
+                </bdi>
+                {originalTitleAfter}
+              </p>
+            )}
 
             {metaParts.length > 0 && (
               <p className={styles.metaLine}>
@@ -421,6 +508,18 @@ export function ShortFilmDetail({
                   <React.Fragment key={index}>
                     {index > 0 && " · "}
                     {part}
+                  </React.Fragment>
+                ))}
+              </p>
+            )}
+
+            {originGroups.length > 0 && (
+              <p className={styles.originLine}>
+                {originGroups.map((group, index) => (
+                  <React.Fragment key={group.key}>
+                    {index > 0 && " · "}
+                    <span className={styles.srOnly}>{group.label}: </span>
+                    <bdi>{group.text}</bdi>
                   </React.Fragment>
                 ))}
               </p>
@@ -490,7 +589,9 @@ export function ShortFilmDetail({
           {synopsisText && (
             <section className={styles.section}>
               <h2 className={styles.sectionTitle}>{t("synopsis")}</h2>
-              <p className={styles.synopsis}>{synopsisText}</p>
+              <p className={styles.synopsis} {...synopsisAttrs}>
+                {synopsisText}
+              </p>
             </section>
           )}
 
@@ -546,6 +647,12 @@ export function ShortFilmDetail({
                   const name =
                     PLATFORM_NAMES[link.platform] ?? t("otherPlatform")
                   const href = toSafeExternalUrl(link.url)
+                  // A missing or unknown access type shows no sub-label; the
+                  // row still renders. The editor label rides after it.
+                  const accessType = SHORT_FILM_ACCESS_TYPES.find(
+                    (type) => type === link.accessType
+                  )
+                  const editorLabel = link.label?.trim()
                   return (
                     <div
                       key={`${link.platform}-${index}`}
@@ -559,6 +666,17 @@ export function ShortFilmDetail({
                         <div className={styles.streamingName}>
                           <bdi>{name}</bdi>
                         </div>
+                        {accessType && (
+                          <div className={styles.streamingSub}>
+                            {t(`access.${accessType}`)}
+                            {editorLabel && (
+                              <>
+                                {" · "}
+                                <bdi>{editorLabel}</bdi>
+                              </>
+                            )}
+                          </div>
+                        )}
                       </div>
                       {/* No CTA for an unusable URL — a dead or `javascript:`
                           link must never become a live control. */}
@@ -580,6 +698,43 @@ export function ShortFilmDetail({
             </section>
           )}
 
+          {/* -------------------------------------------------------- crew */}
+          {crewGroups.length > 0 && (
+            <section className={styles.section}>
+              <h2 className={styles.sectionTitle}>{t("crew.title")}</h2>
+              <div className={styles.crewGroups}>
+                {crewGroups.map((group) => (
+                  <div key={group.department} className={styles.crewGroup}>
+                    <h3 className={styles.crewDepartment}>
+                      {t(`crew.departments.${group.department}`)}
+                    </h3>
+                    <ul role="list" className={styles.crewList}>
+                      {group.credits.map((credit, index) => {
+                        const role = resolveRoleLabel(credit, roleTranslator)
+                        return (
+                          <li
+                            key={`${credit.person.slug}-${credit.roleSlug}-${index}`}
+                            className={styles.crewRow}
+                          >
+                            <InitialsDisc name={credit.person.name} size={40} />
+                            <div className={styles.crewText}>
+                              <div className={styles.crewName}>
+                                <bdi>{credit.person.name}</bdi>
+                              </div>
+                              <div className={styles.crewRole} title={role}>
+                                <bdi>{role}</bdi>
+                              </div>
+                            </div>
+                          </li>
+                        )
+                      })}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
           {/* ------------------------------------------------------- cast */}
           {cast.length > 0 && (
             <section className={styles.section}>
@@ -594,39 +749,26 @@ export function ShortFilmDetail({
                 role="group"
                 aria-label={t("cast")}
               >
-                {cast.map((member, index) => {
-                  const photoUrl = usableImage(
-                    member.person.photo?.formats?.thumbnail?.url ||
-                      member.person.photo?.url
-                  )
-                  return (
-                    <div
-                      key={`${member.person.slug}-${index}`}
-                      className={styles.castItem}
-                    >
-                      <div className={styles.castAvatar}>
-                        {photoUrl && (
-                          <Image
-                            src={photoUrl}
-                            alt={member.person.name}
-                            fill
-                            sizes="88px"
-                            className={styles.castPhoto}
-                            onError={() => markImageFailed(photoUrl)}
-                          />
-                        )}
-                      </div>
-                      <div className={styles.castName}>
-                        <bdi>{member.person.name}</bdi>
-                      </div>
-                      {member.role && (
-                        <div className={styles.castRole}>
-                          <bdi>{member.role}</bdi>
-                        </div>
-                      )}
+                {cast.map((member, index) => (
+                  <div
+                    key={`${member.person.slug}-${index}`}
+                    className={styles.castItem}
+                  >
+                    <InitialsDisc
+                      name={member.person.name}
+                      size={88}
+                      className={styles.castDisc}
+                    />
+                    <div className={styles.castName}>
+                      <bdi>{member.person.name}</bdi>
                     </div>
-                  )
-                })}
+                    {member.role && (
+                      <div className={styles.castRole}>
+                        <bdi>{member.role}</bdi>
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
             </section>
           )}
@@ -719,7 +861,7 @@ export function ShortFilmDetail({
           <div className={styles.stickyInner}>
             <div className={styles.stickyInfo}>
               <div className={styles.stickyTitle} title={film.title}>
-                <bdi>{film.title}</bdi>
+                <bdi {...titleAttrs}>{film.title}</bdi>
               </div>
               {/* Availability is status: neutral text + icon, never the
                   category hue (Category Cameo Rule). */}

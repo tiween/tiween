@@ -5,10 +5,7 @@
  * with additional fields for streaming platform availability and awards.
  */
 
-import type {
-  StrapiMedia,
-  StrapiPerson,
-} from "@/features/events/types/strapi.types"
+import type { StrapiMedia } from "@/features/events/types/strapi.types"
 
 /**
  * Streaming platform vocabulary of the public short-film API
@@ -66,15 +63,14 @@ export interface ShortFilmGenre {
 
 /**
  * Person (director, crew member, cast member) as served by the public
- * short-film API. `photo` is never populated by the API (D-12); it stays
- * optional only so existing fixtures compile, and Plan 05 removes it.
+ * short-film API. The API exposes no person photos (D-12), so a person is
+ * rendered as an initials disc.
  */
 export interface ShortFilmPerson {
   id?: number
   documentId?: string
   slug: string
   name: string
-  photo?: StrapiPerson["photo"]
 }
 
 /**
