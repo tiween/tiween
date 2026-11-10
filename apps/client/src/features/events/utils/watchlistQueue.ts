@@ -76,9 +76,7 @@ function safeStorage(): Storage | null {
 }
 
 /** Validate the raw shape; `kind` is optional here (legacy ops lack it). */
-function isValidOp(
-  value: unknown
-): value is {
+function isValidOp(value: unknown): value is {
   creativeWorkId: string
   addedAt: string
   attempts: number

@@ -70,7 +70,9 @@ describe("isTicketPurchaseEnabled through the real env.mjs schema", () => {
   })
 })
 
-async function ticketingWithRawEnv(value: string | undefined): Promise<boolean> {
+async function ticketingWithRawEnv(
+  value: string | undefined
+): Promise<boolean> {
   vi.resetModules()
   if (value === undefined) {
     delete process.env.NEXT_PUBLIC_TICKETING_ENABLED

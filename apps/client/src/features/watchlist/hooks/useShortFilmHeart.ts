@@ -1,10 +1,9 @@
 "use client"
 
-import { useSession } from "next-auth/react"
-
 import { useAddToWatchlist } from "@/features/events/hooks/useAddToWatchlist"
 import { useRemoveFromWatchlist } from "@/features/events/hooks/useRemoveFromWatchlist"
 import { useWatchlistCheck } from "@/features/events/hooks/useWatchlist"
+import { useSession } from "next-auth/react"
 
 import { useShortsWatchlistResolved } from "../components/ShortsWatchlistProvider"
 
@@ -84,9 +83,7 @@ export function useShortFilmHeart(
   const { isResolved: gridResolved } = useShortsWatchlistResolved()
 
   const detailSettled =
-    check.data !== undefined ||
-    check.isError ||
-    check.fetchStatus === "paused"
+    check.data !== undefined || check.isError || check.fetchStatus === "paused"
 
   const isAuthenticated = status === "authenticated"
   const isResolved =

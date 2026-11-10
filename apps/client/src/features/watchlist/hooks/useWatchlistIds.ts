@@ -1,14 +1,13 @@
 "use client"
 
-import { useQuery } from "@tanstack/react-query"
-
-import type { WatchlistItem } from "@/features/events/hooks/useWatchlist"
-
 import {
   fetchWatchlist,
   useWatchlistScope,
   watchlistKeys,
 } from "@/features/events/hooks/useWatchlist"
+import { useQuery } from "@tanstack/react-query"
+
+import type { WatchlistItem } from "@/features/events/hooks/useWatchlist"
 
 /**
  * Stable module-level selector (a fresh closure per render would re-run `select`

@@ -1,13 +1,12 @@
 "use client"
 
 import * as React from "react"
-import { useIsMutating, useQueryClient } from "@tanstack/react-query"
-
 import {
   useWatchlistScope,
   watchlistKeys,
 } from "@/features/events/hooks/useWatchlist"
 import { getPendingOps } from "@/features/events/utils/watchlistQueue"
+import { useIsMutating, useQueryClient } from "@tanstack/react-query"
 
 import { useWatchlistIds } from "../../hooks/useWatchlistIds"
 
@@ -53,8 +52,13 @@ export function ShortsWatchlistProvider({
 }: ShortsWatchlistProviderProps) {
   const queryClient = useQueryClient()
   const { isAuthenticated, userId } = useWatchlistScope()
-  const { data: ids, isSuccess, isError, isFetching, fetchStatus } =
-    useWatchlistIds()
+  const {
+    data: ids,
+    isSuccess,
+    isError,
+    isFetching,
+    fetchStatus,
+  } = useWatchlistIds()
   const mutating = useIsMutating()
 
   // A new array identity with the same ids must not re-run the effect.

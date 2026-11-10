@@ -10,11 +10,11 @@ describe("openExternal", () => {
 
   it("opens a validated URL in a new tab without leaking the opener", () => {
     const clicked: HTMLAnchorElement[] = []
-    vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(
-      function (this: HTMLAnchorElement) {
-        clicked.push(this)
-      }
-    )
+    vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(function (
+      this: HTMLAnchorElement
+    ) {
+      clicked.push(this)
+    })
 
     openExternal("https://example.com/film")
 

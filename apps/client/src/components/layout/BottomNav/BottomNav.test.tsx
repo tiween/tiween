@@ -74,7 +74,9 @@ describe("BottomNav tickets gate (D-17)", () => {
       />
     )
     expect(screen.getByLabelText("notifications:2")).toBeInTheDocument()
-    expect(screen.queryByLabelText(/^unscannedTickets:/)).not.toBeInTheDocument()
+    expect(
+      screen.queryByLabelText(/^unscannedTickets:/)
+    ).not.toBeInTheDocument()
   })
 })
 

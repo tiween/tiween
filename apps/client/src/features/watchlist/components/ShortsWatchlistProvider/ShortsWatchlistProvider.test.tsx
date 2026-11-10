@@ -5,6 +5,8 @@
  * waiting in the offline queue.
  */
 import * as React from "react"
+import { useWatchlistCheck } from "@/features/events/hooks/useWatchlist"
+import { enqueueOp } from "@/features/events/utils/watchlistQueue"
 import {
   onlineManager,
   QueryClient,
@@ -13,9 +15,6 @@ import {
 } from "@tanstack/react-query"
 import { act, render, screen, waitFor } from "@testing-library/react"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
-
-import { useWatchlistCheck } from "@/features/events/hooks/useWatchlist"
-import { enqueueOp } from "@/features/events/utils/watchlistQueue"
 
 import {
   ShortsWatchlistProvider,
@@ -131,7 +130,9 @@ describe("ShortsWatchlistProvider — seeding", () => {
 
   it("seeds only under [watchlist, check, <userId>, <documentId>], nothing under another user", async () => {
     const client = makeClient()
-    client.setQueryData(["watchlist", "check", 9, "a"], { isInWatchlist: false })
+    client.setQueryData(["watchlist", "check", 9, "a"], {
+      isInWatchlist: false,
+    })
     renderGrid(client, ["a", "b", "c"])
 
     await waitFor(() => expect(checkOf(client, "c")).toBeDefined())

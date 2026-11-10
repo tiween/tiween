@@ -14,6 +14,4 @@ export { ShortFilmDetail } from "./ShortFilmDetail"
 export type { ShortFilmDetailProps } from "./ShortFilmDetail"
 
 export { ShortsDirectory } from "./ShortsDirectory"
-export type {
-  ShortsDirectoryProps,
-} from "./ShortsDirectory"
+export type { ShortsDirectoryProps } from "./ShortsDirectory"

@@ -9,6 +9,7 @@
  * the post-mutation refetch behave like production.
  */
 import * as React from "react"
+import { watchlistKeys } from "@/features/events/hooks/useWatchlist"
 import {
   onlineManager,
   QueryClient,
@@ -16,8 +17,6 @@ import {
 } from "@tanstack/react-query"
 import { act, renderHook, waitFor } from "@testing-library/react"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
-
-import { watchlistKeys } from "@/features/events/hooks/useWatchlist"
 
 import { useShortFilmHeart } from "./useShortFilmHeart"
 

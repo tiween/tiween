@@ -6,11 +6,10 @@
  * the shared-key and no-polling assertions about real cache entries.
  */
 import * as React from "react"
+import { watchlistKeys } from "@/features/events/utils/watchlistKeys"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { renderHook, waitFor } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
-
-import { watchlistKeys } from "@/features/events/utils/watchlistKeys"
 
 import { useWatchlistIds } from "./useWatchlistIds"
 
@@ -76,7 +75,9 @@ describe("useWatchlistIds", () => {
     const { result } = renderHook(() => useWatchlistIds(), { wrapper })
     await waitFor(() => expect(result.current.isSuccess).toBe(true))
 
-    const query = client.getQueryCache().find({ queryKey: ["watchlist", "list", 7] })
+    const query = client
+      .getQueryCache()
+      .find({ queryKey: ["watchlist", "list", 7] })
     expect(query).toBeDefined()
     expect(query!.queryKey).toEqual(watchlistKeys.list(7))
     // The cache holds the raw rows (what useWatchlist reads), not the Set.

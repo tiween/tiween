@@ -210,10 +210,12 @@ describe("useAddToWatchlist — optimistic option", () => {
       resolve = res
       reject = rej
     })
-    fetchAPIMock.mockImplementation((_path: string, _q: unknown, init?: { method?: string }) => {
-      if (init?.method === "POST") return promise
-      return Promise.resolve({ isInWatchlist: false })
-    })
+    fetchAPIMock.mockImplementation(
+      (_path: string, _q: unknown, init?: { method?: string }) => {
+        if (init?.method === "POST") return promise
+        return Promise.resolve({ isInWatchlist: false })
+      }
+    )
     return { resolve, reject }
   }
 
@@ -261,7 +263,9 @@ describe("useAddToWatchlist — optimistic option", () => {
     const post = deferredPost()
     const { result, client } = render("cw-1", { optimistic: true })
     await waitFor(() =>
-      expect(client.getQueryData(["watchlist", "check", 7, "cw-1"])).toBeDefined()
+      expect(
+        client.getQueryData(["watchlist", "check", 7, "cw-1"])
+      ).toBeDefined()
     )
 
     act(() => result.current.add())
@@ -289,7 +293,9 @@ describe("useAddToWatchlist — optimistic option", () => {
     deferredPost()
     const { result, client } = render("cw-1", undefined)
     await waitFor(() =>
-      expect(client.getQueryData(["watchlist", "check", 7, "cw-1"])).toBeDefined()
+      expect(
+        client.getQueryData(["watchlist", "check", 7, "cw-1"])
+      ).toBeDefined()
     )
 
     act(() => result.current.add())

@@ -1,9 +1,8 @@
 "use client"
 
-import { useTranslations } from "next-intl"
-
-import { useShortFilmHeart } from "@/features/watchlist/hooks/useShortFilmHeart"
 import { WatchlistButton } from "@/features/watchlist/components/WatchlistButton"
+import { useShortFilmHeart } from "@/features/watchlist/hooks/useShortFilmHeart"
+import { useTranslations } from "next-intl"
 
 export interface ShortFilmHeartProps {
   /** Only what the heart needs from the film. */
