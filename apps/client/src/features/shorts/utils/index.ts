@@ -62,15 +62,23 @@ export function toSafeExternalUrl(
 }
 
 /**
- * Open an external URL in a new tab, after validating it. A popup blocker makes
- * `window.open` return `null`, which would otherwise be a silent dead end — so
- * navigate the current tab instead.
+ * Open an external URL in a new tab, after validating it.
+ *
+ * Opens through a synthetic anchor click rather than `window.open`: with
+ * `noopener` in the features string `window.open` returns `null` by spec, so
+ * its return value cannot tell a blocked popup from a successful open, and
+ * falling back to `window.location.href` on `null` navigated the Tiween tab
+ * away on every call. An anchor click inside a user gesture is not
+ * popup-blocked and honours `rel`.
  */
 export function openExternal(url: string | undefined | null): void {
   const safe = toSafeExternalUrl(url)
   if (!safe) return
-  const opened = window.open(safe, "_blank", "noopener,noreferrer")
-  if (!opened) window.location.href = safe
+  const anchor = document.createElement("a")
+  anchor.href = safe
+  anchor.target = "_blank"
+  anchor.rel = "noopener noreferrer"
+  anchor.click()
 }
 
 /** Strip rich-text markup from a CMS field so it renders as plain text. */
