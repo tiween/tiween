@@ -40,7 +40,7 @@
     "type-check": "tsc --noEmit && tsc --noEmit -p e2e/tsconfig.json"
   },
   "dependencies": {
-    "@strapi/plugin-documentation": "^5.51.2",
+    "@strapi/plugin-documentation": "^5.61.0",
     "@strapi/plugin-sentry": "^5.51.2",
     "@strapi/plugin-users-permissions": "^5.51.2",
     "@strapi/provider-email-mailgun": "^5.51.2",
