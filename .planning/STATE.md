@@ -5,16 +5,16 @@ milestone_name: Shorts Directory
 current_phase: 2
 current_phase_name: Strapi-Backed Shorts Pages
 status: executing
-stopped_at: Completed 02-03-PLAN.md
-last_updated: "2026-11-10T14:37:42.241Z"
+stopped_at: Completed 02-04-PLAN.md
+last_updated: "2026-11-10T14:49:52.241Z"
 last_activity: 2026-11-10
 last_activity_desc: Phase 2 execution started
-state_head: ef412640a1463290432752bef0e6ffe18dbc03b5
+state_head: 8702b0c8c02ce46f18b94ff030fa004396831b1e
 progress:
   total_phases: 7
   completed_phases: 1
   total_plans: 26
-  completed_plans: 19
+  completed_plans: 20
 ---
 
 # Project State
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-11-10)
 ## Current Position
 
 Phase: 2 (Strapi-Backed Shorts Pages) — EXECUTING
-Plan: 4 of 10
+Plan: 5 of 10
 Status: Ready to execute
 Last activity: 2026-11-10 — Phase 2 execution started
 
@@ -77,6 +77,7 @@ _Updated after each plan completion_
 | Phase 02 P01 | 3 h                      | 3 tasks | 21 files |
 | Phase 02 P02 | ~1h                      | 2 tasks | 9 files  |
 | Phase 02 P03 | ~20 min                  | 2 tasks | 13 files |
+| Phase 02 P04 | ~35 min                  | 2 tasks | 19 files |
 
 ## Accumulated Context
 
@@ -134,6 +135,8 @@ Decisions are logged in PROJECT.md (Locked Decisions and Key Decisions table). R
 - [Phase 02]: 02-02: fr shorts.countryLabel is an ICU plural with identical branches to keep placeholder parity with ar and en
 - [Phase 02]: 02-03: optimistic add waits for an in-flight check cancel before writing the cache (cancel revert is async); provider seeding also waits for list refetch and applies the offline queue over the server list
 - [Phase 02]: 02-03: ShortsWatchlistProvider pauses on any in-flight mutation (useIsMutating unfiltered) because the events mutations carry no mutationKey
+- [Phase 02]: 02-04: tickets nav gated by NEXT_PUBLIC_TICKETING_ENABLED (default off), separate from the purchase flag; only the nav entry is hidden, ticketing code untouched
+- [Phase 02]: 02-04: safeCallbackUrl guards all four auth forms; toRouterPath strips the locale only for next-intl router pushes, full navigations keep the prefixed path
 
 ### Pending Todos
 
@@ -169,6 +172,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-11-10T14:37:42.109Z
-Stopped at: Completed 02-03-PLAN.md
+Last session: 2026-11-10T14:49:52.121Z
+Stopped at: Completed 02-04-PLAN.md
 Resume file: None

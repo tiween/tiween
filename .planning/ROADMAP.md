@@ -73,7 +73,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 3. The detail page shows the "Equipe artistique" crew grid and the access-type sub-label under each streaming platform when the data exists, and omits those sections when it does not.
 4. A signed-in user can tap the heart on a short film (on its detail page and on its directory card, as an independent target from the card link) to add or remove it from the real watchlist; the state survives navigation and a second device and the film appears on the watchlist page; a signed-out user is invited to sign in rather than seeing a toggle that forgets.
 5. When Strapi is unreachable the shorts pages show an error state with retry (not an empty directory) and recover when Strapi returns; no production code path imports `mock-shorts.ts`.
-   **Plans:** 3/10 plans executed
+   **Plans:** 4/10 plans executed
    **UI hint**: yes
 
    Plans:
@@ -81,7 +81,7 @@ Decimal phases appear between their surrounding integers in numeric order.
    - [x] 02-01-PLAN.md — Tracer: one real film's detail page end to end (typed fetcher, mapper, layout 404/500 guard), list fetcher and strict load-more route, production probe against a stub Strapi
    - [x] 02-02-PLAN.md — Wave 0: all Phase 2 copy in fr/ar/en with a parity test, shadcn Empty, axe-core helper
    - [x] 02-03-PLAN.md — Watchlist hooks: optimistic add, short-film copy, check-off option, one-request grid provider
-   - [ ] 02-04-PLAN.md — Tickets tab behind NEXT_PUBLIC_TICKETING_ENABLED (D-17); safeCallbackUrl across all auth forms
+   - [x] 02-04-PLAN.md — Tickets tab behind NEXT_PUBLIC_TICKETING_ENABLED (D-17); safeCallbackUrl across all auth forms
    - [ ] 02-05-PLAN.md — Detail content: Équipe artistique, access sub-label, original title, country and language, initials discs, silent French-fallback tagging
    - [ ] 02-06-PLAN.md — Error, not-found and loading states for both routes with retry that refetches
    - [ ] 02-07-PLAN.md — Watchlist payload allowlist proven on a booted Strapi; short-film entry on the watchlist page
@@ -180,7 +180,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 (decimal insert
 | Phase                                 | Plans Complete | Status      | Completed  |
 | ------------------------------------- | -------------- | ----------- | ---------- |
 | 1. Short-Film Catalog Backend         | 16/16          | Complete    | 2026-11-10 |
-| 2. Strapi-Backed Shorts Pages         | 3/10           | In Progress | -          |
+| 2. Strapi-Backed Shorts Pages         | 4/10           | In Progress | -          |
 | 3. Meilisearch Search                 | 0/TBD          | Not started | -          |
 | 4. Directory Experience and Brand     | 0/TBD          | Not started | -          |
 | 5. Shorts SEO and Sitemap             | 0/TBD          | Not started | -          |
