@@ -21,6 +21,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Short-Film Catalog Backend** - Short films become real data: schema fields, admin entry, public read API, launch catalog (completed 2026-11-10)
 - [ ] **Phase 2: Strapi-Backed Shorts Pages** - Directory and detail read Strapi (DW-148 fixed), detail page completed, real watchlist, honest error states
+- [ ] **Phase 02.1: Frontend/Backend Decoupling**
 - [ ] **Phase 3: Meilisearch Search** - Self-hosted Meilisearch kept in sync by Strapi, client search swapped, Algolia removed
 - [ ] **Phase 4: Directory Experience and Brand** - Finished on-brand directory: catalogue intro, filters, cards, suggestion form, trilingual, RTL, accessible
 - [ ] **Phase 5: Shorts SEO and Sitemap** - Localized metadata, canonical/hreflang, JSON-LD, sitemap, share previews
@@ -88,6 +89,17 @@ Decimal phases appear between their surrounding integers in numeric order.
    - [x] 02-08-PLAN.md — Directory on the Strapi list: ShortsDirectory rewrite, /shorts page, delete ShortsShowcase and ShortsHero, mock-isolation guard
    - [x] 02-09-PLAN.md — Real hearts on card and detail, relocated duration, card fallback tagging
    - [x] 02-10-PLAN.md — Full production probe, all quality gates, recorded manual pass
+
+### Phase 02.1: Frontend/Backend Decoupling (INSERTED)
+
+**Goal:** [Urgent work - to be planned]
+**Requirements**: TBD
+**Depends on:** Phase 2
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 02.1 to break down)
 
 ### Phase 3: Meilisearch Search
 

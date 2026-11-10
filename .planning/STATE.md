@@ -6,12 +6,12 @@ current_phase: 2
 current_phase_name: Strapi-Backed Shorts Pages
 status: verifying
 stopped_at: Completed 02-10-PLAN.md
-last_updated: "2026-11-10T16:40:07.860Z"
+last_updated: "2026-11-10T22:04:07.502Z"
 last_activity: 2026-11-10
 last_activity_desc: Phase 2 execution started
-state_head: 31ab4811151e088a751e3b17e178a591d309faff
+state_head: 014b6e4bf16c28ef110a89d3af2c2a8f8e4c214d
 progress:
-  total_phases: 7
+  total_phases: 8
   completed_phases: 1
   total_plans: 26
   completed_plans: 26
@@ -180,6 +180,7 @@ Decisions are logged in PROJECT.md (Locked Decisions and Key Decisions table). R
 ### Roadmap Evolution
 
 - Phase 05.1 inserted after Phase 5: Festival programme page (JCC launch): by date / venue / film, competition sections, film-team-present markers; pulled into v1 by owner 2026-11-08
+- Phase 2.1 inserted after Phase 2: Frontend/Backend Decoupling — owner rule 2026-11-10: client and Strapi share only API types (OpenAPI-generated types-only package); split shared tooling configs
 
 ## Deferred Items
 
