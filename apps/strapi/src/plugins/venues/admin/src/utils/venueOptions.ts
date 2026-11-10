@@ -35,13 +35,15 @@ export const statusLabelKey = (status: string): string => `status.${status}`
 
 /**
  * Badge colours per status. DS TOKENS only — a hex here is an auto-fail in the
- * DS review (handoff/ds-component-binding.md § 0).
+ * DS review (handoff/ds-component-binding.md § 0). Pending takes neutral800
+ * text: warning700 on warning100 is 4.0:1, which fails WCAG AA at the 11px badge
+ * size (apps/strapi/DESIGN.md, Chips).
  */
 export const STATUS_BADGE_COLORS: Record<
   VenueStatus,
   { backgroundColor: string; textColor: string }
 > = {
-  pending: { backgroundColor: "warning100", textColor: "warning700" },
+  pending: { backgroundColor: "warning200", textColor: "neutral800" },
   approved: { backgroundColor: "success100", textColor: "success700" },
   suspended: { backgroundColor: "danger100", textColor: "danger700" },
 }

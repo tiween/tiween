@@ -1,3 +1,12 @@
+import { Badge, Box, Button, Flex, Typography } from "@strapi/design-system"
+
+import type { BadgeProps } from "@strapi/design-system"
+import type { ShortFilmRuleResult } from "../../../../../../shared/short-film-rules"
+import type { WorkStatus } from "../../hooks/useCreativeWorks"
+
+import { useCatalogT } from "../Catalog/i18n"
+import { publishIssueMessage } from "./publishRules"
+
 /**
  * PublishBar
  *
@@ -7,14 +16,6 @@
  * is advisory: the server re-evaluates the stored draft on every publish, so a
  * stale or modified client can never publish an incomplete film.
  */
-
-import { Badge, Box, Button, Flex, Typography } from "@strapi/design-system"
-
-import type { ShortFilmRuleResult } from "../../../../../../shared/short-film-rules"
-import type { WorkStatus } from "../../hooks/useCreativeWorks"
-
-import { useCatalogT } from "../Catalog/i18n"
-import { publishIssueMessage } from "./publishRules"
 
 interface PublishBarProps {
   status: WorkStatus | undefined
@@ -32,18 +33,31 @@ interface PublishBarProps {
   onUnpublish: () => void
 }
 
+/**
+ * Badge colours per status. Modified sets its colours directly: the DS
+ * `variant="warning"` draws warning700 on warning200 (3.6:1, fails WCAG AA at
+ * 11px) and ignores `textColor`. See apps/strapi/DESIGN.md, Chips.
+ */
 const STATUS_BADGE: Record<
   WorkStatus,
-  { variant: "neutral" | "success" | "warning"; key: string; label: string }
+  {
+    colors: Pick<BadgeProps, "variant" | "backgroundColor" | "textColor">
+    key: string
+    label: string
+  }
 > = {
-  draft: { variant: "neutral", key: "publish.status.draft", label: "Draft" },
+  draft: {
+    colors: { variant: "neutral" },
+    key: "publish.status.draft",
+    label: "Draft",
+  },
   published: {
-    variant: "success",
+    colors: { variant: "success" },
     key: "publish.status.published",
     label: "Published",
   },
   modified: {
-    variant: "warning",
+    colors: { backgroundColor: "warning200", textColor: "neutral800" },
     key: "publish.status.modified",
     label: "Modified",
   },
@@ -80,7 +94,7 @@ export function PublishBar({
         wrap="wrap"
       >
         <Flex gap={3} alignItems="center">
-          <Badge variant={badge.variant}>{t(badge.key, badge.label)}</Badge>
+          <Badge {...badge.colors}>{t(badge.key, badge.label)}</Badge>
           <Typography variant="omega" fontWeight="bold">
             {localeLabel}
           </Typography>

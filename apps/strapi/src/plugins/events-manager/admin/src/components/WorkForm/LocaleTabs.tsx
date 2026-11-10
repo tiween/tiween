@@ -1,3 +1,10 @@
+import { Badge, Flex, Tabs } from "@strapi/design-system"
+
+import type { BadgeProps } from "@strapi/design-system"
+import type { LocaleInfo, WorkStatus } from "../../hooks/useCreativeWorks"
+
+import { useCatalogT } from "../Catalog/i18n"
+
 /**
  * LocaleTabs
  *
@@ -6,12 +13,6 @@
  * no code is hardcoded here. For a work that is not saved yet only the default
  * language can be edited, so the other tabs are disabled.
  */
-
-import { Badge, Flex, Tabs } from "@strapi/design-system"
-
-import type { LocaleInfo, WorkStatus } from "../../hooks/useCreativeWorks"
-
-import { useCatalogT } from "../Catalog/i18n"
 
 /** Status of one language: a stored row's status, or no row yet */
 export type LocaleTabStatus = WorkStatus | "missing"
@@ -27,27 +28,36 @@ interface LocaleTabsProps {
   onChange: (code: string) => void
 }
 
+/**
+ * Badge colours per status. Modified sets its colours directly: the DS
+ * `variant="warning"` draws warning700 on warning200 (3.6:1, fails WCAG AA at
+ * 11px) and ignores `textColor`. See apps/strapi/DESIGN.md, Chips.
+ */
 const STATUS_BADGE: Record<
   LocaleTabStatus,
   {
-    variant: "neutral" | "success" | "warning" | "secondary"
+    colors: Pick<BadgeProps, "variant" | "backgroundColor" | "textColor">
     key: string
     label: string
   }
 > = {
   missing: {
-    variant: "secondary",
+    colors: { variant: "secondary" },
     key: "locales.status.missing",
     label: "Missing",
   },
-  draft: { variant: "neutral", key: "publish.status.draft", label: "Draft" },
+  draft: {
+    colors: { variant: "neutral" },
+    key: "publish.status.draft",
+    label: "Draft",
+  },
   published: {
-    variant: "success",
+    colors: { variant: "success" },
     key: "publish.status.published",
     label: "Published",
   },
   modified: {
-    variant: "warning",
+    colors: { backgroundColor: "warning200", textColor: "neutral800" },
     key: "publish.status.modified",
     label: "Modified",
   },
@@ -75,7 +85,7 @@ export function LocaleTabs({
             >
               <Flex tag="span" gap={2} alignItems="center">
                 {locale.name}
-                <Badge size="S" variant={badge.variant}>
+                <Badge size="S" {...badge.colors}>
                   {t(badge.key, badge.label)}
                 </Badge>
               </Flex>

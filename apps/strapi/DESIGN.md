@@ -139,14 +139,14 @@ components:
     rounded: "{rounded.base}"
     padding: "24px"
   badge-published:
-    backgroundColor: "{colors.success100}"
+    backgroundColor: "{colors.success200}"
     textColor: "{colors.success700}"
     typography: "{typography.sigma}"
     rounded: "{rounded.base}"
     padding: "2px 8px"
   badge-modified:
-    backgroundColor: "{colors.warning100}"
-    textColor: "{colors.warning700}"
+    backgroundColor: "{colors.warning200}"
+    textColor: "{colors.neutral800}"
     typography: "{typography.sigma}"
     rounded: "{rounded.base}"
     padding: "2px 8px"
@@ -196,7 +196,7 @@ A cool-gray neutral ramp with one indigo accent and three status families; color
 ### Secondary
 
 - **Status: success** (`success100` #eafbe7 fill, `success700` #2f6846 text, `success600` #328048 icons): Published, Approved.
-- **Status: warning** (`warning100` #fdf4dc, `warning700` #be5d01, `warning600` #d9822f): Modified, Pending, and advisory publish warnings.
+- **Status: warning** (`warning100` #fdf4dc, `warning200` #fae7b9, `warning700` #be5d01, `warning600` #d9822f): Modified, Pending, and advisory publish warnings. `warning700` is 4.4:1 on white but only 3.6:1 on `warning200` and 4.0:1 on `warning100`, so warning badges take `neutral800` text (see Chips). For borders and icons that must stand out against white, use `warning700`, not `warning600` (2.8:1).
 - **Status: danger** (`danger100` #fcecea, `danger700` #b72b1a, `danger600` #d02b20): Suspended, destructive buttons, field errors, the "Before publishing" blocker list.
 
 ### Neutral
@@ -279,7 +279,10 @@ One 4px radius (`hasRadius`) on buttons, inputs, cards, tables, badges, tabs and
 ### Chips (status badges)
 
 - **Style:** DS `Badge`, 4px radius, sigma label; size S in tables and tabs, M in the publish bar.
-- **State:** Draft (neutral), Published (success), Modified (warning), Missing (secondary) for content; Pending (`warning100`/`warning700`), Approved (`success100`/`success700`), Suspended (`danger100`/`danger700`) for venues. The label is always text from the translations, so status never relies on color.
+- **State:** Draft (neutral), Published (success), Modified (warning), Missing (secondary) for content; Pending (`warning200`/`neutral800`), Approved (`success100`/`success700`), Suspended (`danger100`/`danger700`) for venues. The label is always text from the translations, so status never relies on color.
+- **How the DS colors a badge (2.2.3):** any `variant` paints a `{variant}200` fill behind `{variant}700` text and ignores the `textColor` and `backgroundColor` props. Every variant passes AA at the 11px sigma size except `warning`, at 3.6:1.
+
+**The Warning Badge Rule.** Never use `<Badge variant="warning">`. Draw warning badges (Modified, Pending, "2 skipped") as `<Badge backgroundColor="warning200" textColor="neutral800">` with no `variant`, which gives about 10:1. Gap: the work form's locale tabs and publish bar still ship the Modified badge as `variant="warning"` (3.6:1), and the venues status badge draws Pending as `warning100`/`warning700` (4.0:1).
 
 ### Cards / Containers
 
