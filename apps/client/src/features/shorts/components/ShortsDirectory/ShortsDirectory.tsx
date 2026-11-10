@@ -1,97 +1,76 @@
 "use client"
 
+/**
+ * The `/shorts` directory body (SPAGE-01, SPAGE-05; D-01, D-03, D-04, D-07).
+ *
+ * One 2:3 poster grid of the Strapi catalogue under a one-line intro and a
+ * polite result line. There is no hero, latest rail, search, chip, filter or
+ * sort surface (D-01, D-04): `ShortsFilters` returns in Phases 3 and 4.
+ *
+ * The first page is rendered by the server page and arrives as props, so
+ * mounting makes no request and the cards are real links before JavaScript
+ * loads. A failed first page never reaches this component: the page throws and
+ * `error.tsx` renders the retryable block (D-07), so an outage can never read
+ * as "no short films". Only an HTTP 200 with zero rows shows the
+ * empty-catalogue block.
+ *
+ * Later pages come from `/api/shorts` with exactly `locale` and `page` (D-03,
+ * T-02-19): a single-flight ref prevents duplicate requests, a failure keeps
+ * the films already shown and offers an inline retry, and the scroll observer
+ * is an additive path that stays off while in error. The button is the
+ * keyboard path.
+ */
 import * as React from "react"
-import { AlertCircle, ChevronRight, Film, RotateCw } from "lucide-react"
+import { AlertCircle, Film, Loader2, RotateCw } from "lucide-react"
 import { useLocale, useTranslations } from "next-intl"
 
-import type { ShortFilm, ShortsFilters as ShortsFiltersType } from "../../types"
-import type { GenreOption } from "../ShortsFilters"
+import type { ShortFilm } from "../../types"
 
-import { useRouter } from "@/lib/navigation"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 
 import { toShortFilmCard } from "../../types"
-import { openExternal } from "../../utils"
-import { ShortFilmCard, ShortFilmCardSkeleton } from "../ShortFilmCard"
-import { ShortsFilters } from "../ShortsFilters"
-import { ShortsHero } from "../ShortsHero"
+import { formatCount } from "../../utils"
+import { ShortsStateBlock } from "../ShortsBoundary"
+import { ShortFilmCard } from "../ShortFilmCard"
+import { SHORTS_GRID_CLASS, SHORTS_PAGE_CLASS } from "../shortsLayout"
+import { ShortsPageIntro } from "../ShortsPageIntro"
 import { SuggestionForm } from "../SuggestionForm"
 
-export interface ShortsDirectoryLabels {
-  pageDescription: string
-  latestShorts: string
-  seeAll: string
-  allShorts: string
-  loadMore: string
-  loading: string
-}
-
 export interface ShortsDirectoryProps {
-  /** Featured short films for hero carousel */
-  featuredShorts: ShortFilm[]
-  /** Latest added short films */
-  latestShorts: ShortFilm[]
-  /** Initial shorts list for directory */
+  /** First page of the catalogue, rendered by the server page. */
   initialShorts: ShortFilm[]
-  /** Total count of shorts */
+  /** Total number of published short films, across every page. */
   totalShorts: number
-  /** Available genres for filtering */
-  genres: GenreOption[]
-  /** Initial filter values from URL */
-  initialFilters?: ShortsFiltersType
   /** Additional class names */
   className?: string
-  /** Overrides for the translated labels (rarely needed) */
-  labels?: Partial<ShortsDirectoryLabels>
 }
-
-const GRID =
-  "grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6"
 
 /**
- * One serializer for both the API request and the shareable page URL, so the
- * address bar always reproduces exactly the result set on screen.
+ * Secondary pill (DESIGN.md): 44px, 160px minimum, transparent fill, 1.5px
+ * Gold Leaf border, Gold Tint label. The gold fill is reserved for primary
+ * actions, which this component has none of.
  */
-function filtersToParams(filters: ShortsFiltersType): URLSearchParams {
-  const params = new URLSearchParams()
-  if (filters.query) params.set("q", filters.query)
-  if (filters.genres?.length) params.set("genres", filters.genres.join(","))
-  if (filters.durationMin !== undefined)
-    params.set("durationMin", String(filters.durationMin))
-  if (filters.durationMax !== undefined)
-    params.set("durationMax", String(filters.durationMax))
-  if (filters.yearMin !== undefined)
-    params.set("yearMin", String(filters.yearMin))
-  if (filters.yearMax !== undefined)
-    params.set("yearMax", String(filters.yearMax))
-  if (filters.hasAwards) params.set("hasAwards", "true")
-  if (filters.availableOnline) params.set("availableOnline", "true")
-  // Ratings are out of v1: never serialize a rating filter or rating sort.
-  if (
-    filters.sortBy &&
-    filters.sortBy !== "latest" &&
-    filters.sortBy !== "rating"
-  )
-    params.set("sortBy", filters.sortBy)
-  return params
-}
+const SECONDARY_PILL_CLASS =
+  "h-11 min-w-40 rounded-full border-[1.5px] border-primary bg-transparent px-6 text-base font-bold text-gold-tint shadow-none transition-colors hover:bg-primary/12 hover:text-gold-tint active:scale-[0.98] motion-reduce:active:scale-100 aria-disabled:pointer-events-none"
 
 interface ShortsPage {
   shorts: ShortFilm[]
   total: number
 }
 
-/** Throws on any non-2xx or malformed body, so an outage is never "0 results". */
+/**
+ * Asks `/api/shorts` for one page. The query carries exactly `locale` and
+ * `page`: the route fixes the page size, so a caller cannot vary the cache key
+ * (T-02-19). Throws on any non-2xx or any body without a `shorts` array, so a
+ * 502 or a malformed body is a failure and never "no more films".
+ */
 async function fetchShortsPage(
-  filters: ShortsFiltersType,
   page: number,
   locale: string,
   signal: AbortSignal
 ): Promise<ShortsPage> {
-  const params = filtersToParams(filters)
-  params.set("page", String(page))
-  params.set("locale", locale)
+  const params = new URLSearchParams({ locale, page: String(page) })
 
   const response = await fetch(`/api/shorts?${params.toString()}`, { signal })
   if (!response.ok) throw new Error(`HTTP ${response.status}`)
@@ -135,159 +114,103 @@ async function submitSuggestion(suggestion: unknown) {
 }
 
 export function ShortsDirectory({
-  featuredShorts,
-  latestShorts,
   initialShorts,
   totalShorts,
-  genres,
-  initialFilters = {},
   className,
-  labels: labelOverrides,
 }: ShortsDirectoryProps) {
   const locale = useLocale()
-  const router = useRouter()
   const t = useTranslations("shorts.directory")
-  const isRTL = locale === "ar"
+  const tResults = useTranslations("shorts.filters")
 
-  const labels: ShortsDirectoryLabels = {
-    pageDescription: t("description"),
-    latestShorts: t("latest"),
-    seeAll: t("seeAll"),
-    allShorts: t("all"),
-    loadMore: t("loadMore"),
-    loading: t("loading"),
-    ...labelOverrides,
-  }
-
-  const [filters, setFilters] =
-    React.useState<ShortsFiltersType>(initialFilters)
   const [shorts, setShorts] = React.useState<ShortFilm[]>(initialShorts)
   const [total, setTotal] = React.useState(totalShorts)
   const [page, setPage] = React.useState(1)
-  const [isLoading, setIsLoading] = React.useState(false)
   const [isLoadingMore, setIsLoadingMore] = React.useState(false)
-  // A failed first page replaces the grid; a failed "more" keeps what loaded.
-  const [listError, setListError] = React.useState(false)
   const [moreError, setMoreError] = React.useState(false)
+  // A 200 with no rows means the catalogue ended earlier than `total` said.
+  const [exhausted, setExhausted] = React.useState(false)
 
-  // Only the latest request may write state: typing "dra" then "drame"
-  // must never end on the slower "dra" response.
-  const listRequest = React.useRef<AbortController | null>(null)
+  // A ref, not state: two observer ticks can land before React re-renders with
+  // `isLoadingMore`, which would request the same page twice.
   const moreRequest = React.useRef<AbortController | null>(null)
+  const gridRef = React.useRef<HTMLDivElement>(null)
+  const sentinelRef = React.useRef<HTMLDivElement>(null)
+  // Set when the button (not the observer) fetched the page, so that if the
+  // button unmounts with the list complete, focus lands on the first new card.
+  const focusAfterAppend = React.useRef<number | null>(null)
 
   React.useEffect(
     () => () => {
-      listRequest.current?.abort()
       moreRequest.current?.abort()
     },
     []
   )
 
-  const hasMore = shorts.length < total
+  const isEmpty = shorts.length === 0
+  const hasMore = !exhausted && shorts.length < total
 
-  const loadFirstPage = React.useCallback(
-    async (nextFilters: ShortsFiltersType) => {
-      listRequest.current?.abort()
-      moreRequest.current?.abort()
+  const handleLoadMore = React.useCallback(
+    async (source: "button" | "observer") => {
+      if (moreRequest.current || !hasMore) return
       const controller = new AbortController()
-      listRequest.current = controller
+      moreRequest.current = controller
 
-      setIsLoading(true)
-      setIsLoadingMore(false)
-      setListError(false)
+      setIsLoadingMore(true)
       setMoreError(false)
       try {
-        const result = await fetchShortsPage(
-          nextFilters,
-          1,
-          locale,
-          controller.signal
-        )
-        setShorts(result.shorts)
-        setTotal(result.total)
-        setPage(1)
-      } catch (error) {
-        if (isAbort(error)) return
-        setListError(true)
-      } finally {
-        if (listRequest.current === controller) setIsLoading(false)
-      }
-    },
-    [locale]
-  )
-
-  const handleLoadMore = React.useCallback(async () => {
-    // A ref, not state: two IntersectionObserver ticks can land before React
-    // re-renders with `isLoadingMore`, which would request the same page twice.
-    if (moreRequest.current || isLoading || !hasMore) return
-    const controller = new AbortController()
-    moreRequest.current = controller
-
-    setIsLoadingMore(true)
-    setMoreError(false)
-    try {
-      const result = await fetchShortsPage(
-        filters,
-        page + 1,
-        locale,
-        controller.signal
-      )
-      setShorts((previous) => {
+        const result = await fetchShortsPage(page + 1, locale, controller.signal)
+        const previousLength = shorts.length
+        const seen = new Set(shorts.map((s) => s.documentId))
         // De-duplicate: a film published between pages shifts the offsets.
-        const seen = new Set(previous.map((s) => s.documentId))
-        return [
-          ...previous,
-          ...result.shorts.filter((s) => !seen.has(s.documentId)),
-        ]
-      })
-      setTotal(result.total)
-      setPage(page + 1)
-    } catch (error) {
-      if (!isAbort(error)) setMoreError(true)
-    } finally {
-      if (moreRequest.current === controller) {
-        moreRequest.current = null
-        setIsLoadingMore(false)
+        const fresh = result.shorts.filter((s) => !seen.has(s.documentId))
+        const nextLength = previousLength + fresh.length
+        const stillMore = result.shorts.length > 0 && nextLength < result.total
+
+        if (source === "button" && !stillMore) {
+          focusAfterAppend.current = previousLength
+        }
+        setShorts((previous) => {
+          const known = new Set(previous.map((s) => s.documentId))
+          return [
+            ...previous,
+            ...result.shorts.filter((s) => !known.has(s.documentId)),
+          ]
+        })
+        setTotal(result.total)
+        setPage(page + 1)
+        setExhausted(result.shorts.length === 0)
+      } catch (error) {
+        if (!isAbort(error)) setMoreError(true)
+      } finally {
+        if (moreRequest.current === controller) {
+          moreRequest.current = null
+          setIsLoadingMore(false)
+        }
       }
-    }
-  }, [filters, hasMore, isLoading, locale, page])
-
-  const handleFiltersChange = React.useCallback(
-    (nextFilters: ShortsFiltersType) => {
-      setFilters(nextFilters)
-      void loadFirstPage(nextFilters)
-
-      const query = filtersToParams(nextFilters).toString()
-      window.history.replaceState(
-        null,
-        "",
-        query ? `?${query}` : window.location.pathname
-      )
     },
-    [loadFirstPage]
+    [hasMore, locale, page, shorts]
   )
 
-  const handleSearch = React.useCallback(
-    (query: string) => {
-      handleFiltersChange({ ...filters, query: query || undefined })
-    },
-    [filters, handleFiltersChange]
-  )
-
-  const handleFilmClick = (film: ShortFilm) => {
-    router.push(`/shorts/${film.slug}`)
-  }
-
-  const handlePlayTrailer = (film: ShortFilm) => openExternal(film.trailer)
-
-  // Infinite scroll; the button below is the keyboard / no-observer path.
-  const loadMoreRef = React.useRef<HTMLDivElement>(null)
+  // Appended cards never take focus, except when the button that fetched them
+  // is gone: then the first new card's link takes it, so focus is not dropped.
   React.useEffect(() => {
-    const target = loadMoreRef.current
+    const index = focusAfterAppend.current
+    if (index === null || hasMore) return
+    focusAfterAppend.current = null
+    const cards = gridRef.current?.children
+    if (!cards?.length) return
+    const card = cards[Math.min(index, cards.length - 1)]
+    card?.querySelector<HTMLElement>("a")?.focus()
+  }, [shorts, hasMore])
+
+  // Infinite scroll, additive. Off while in error: a failing request must not
+  // be hammered by an observer that keeps seeing the sentinel.
+  React.useEffect(() => {
+    const target = sentinelRef.current
     if (!target || !hasMore || moreError) return
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0]?.isIntersecting) void handleLoadMore()
+        if (entries[0]?.isIntersecting) void handleLoadMore("observer")
       },
       { rootMargin: "400px 0px" }
     )
@@ -295,12 +218,10 @@ export function ShortsDirectory({
     return () => observer.disconnect()
   }, [hasMore, moreError, handleLoadMore])
 
-  const resetFilters = () => handleFiltersChange({})
-
-  // Contribution comes after discovery: a quiet prompt at the end of the
-  // grid (and in the empty state), never a gold CTA beside the heading.
+  // Contribution comes after discovery: a quiet prompt at the end of the grid,
+  // never a gold CTA beside the heading.
   const suggestPrompt = (
-    <div className="text-muted-foreground mt-8 flex flex-wrap items-center justify-center gap-x-2 text-center text-sm">
+    <div className="text-muted-foreground mt-8 flex flex-wrap items-center justify-center gap-x-2 text-center text-sm xl:mt-12">
       <p>{t("suggestPrompt")}</p>
       <SuggestionForm
         onSubmit={submitSuggestion}
@@ -311,200 +232,112 @@ export function ShortsDirectory({
   )
 
   return (
-    <div className={cn("bg-background min-h-dvh", className)}>
-      {featuredShorts.length > 0 && (
-        <ShortsHero
-          films={featuredShorts}
-          onPlayTrailer={handlePlayTrailer}
-          onViewDetails={handleFilmClick}
-        />
-      )}
+    <main className={cn(SHORTS_PAGE_CLASS, className)}>
+      <ShortsPageIntro title={t("title")} description={t("description")} />
 
-      {latestShorts.length > 0 && (
-        <section className="py-8" aria-labelledby="shorts-latest-heading">
-          <div className="px-4 md:px-8">
-            <div className="mb-4 flex items-center justify-between gap-4">
-              <h2
-                id="shorts-latest-heading"
-                className="text-foreground min-w-0 text-xl font-bold"
-              >
-                {labels.latestShorts}
-              </h2>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-gold-tint shrink-0 gap-1"
-                onClick={() => handleFiltersChange({ sortBy: "latest" })}
-              >
-                {labels.seeAll}
-                <ChevronRight
-                  className={cn("h-4 w-4", isRTL && "rotate-180")}
-                  aria-hidden="true"
-                />
-              </Button>
-            </div>
-
-            <div className="no-scrollbar -mx-4 flex snap-x gap-4 overflow-x-auto px-4 pb-4 md:-mx-8 md:px-8">
-              {latestShorts.map((film) => (
-                <div
-                  key={film.documentId}
-                  className="w-[160px] shrink-0 snap-start md:w-[180px]"
-                >
-                  <ShortFilmCard
-                    film={toShortFilmCard(film)}
-                    onPlayTrailer={
-                      film.trailer ? () => handlePlayTrailer(film) : undefined
-                    }
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      <section
-        className="px-4 py-8 md:px-8"
-        aria-labelledby="shorts-all-heading"
-      >
-        <div className="mx-auto max-w-7xl">
-          <div className="mb-6 min-w-0">
-            <h2
-              id="shorts-all-heading"
-              className="text-foreground text-xl font-bold"
-            >
-              {labels.allShorts}
-            </h2>
-            <p className="text-muted-foreground text-sm">
-              {labels.pageDescription}
-            </p>
-          </div>
-
-          <ShortsFilters
-            filters={filters}
-            genres={genres}
-            totalResults={listError || isLoading ? 0 : total}
-            onFiltersChange={handleFiltersChange}
-            onSearch={handleSearch}
-            className="mb-6"
+      {isEmpty ? (
+        <ShortsStateBlock
+          icon={
+            <Film
+              className="text-muted-foreground size-12"
+              strokeWidth={1.75}
+              aria-hidden="true"
+            />
+          }
+          title={t("catalogEmptyTitle")}
+          headingLevel={2}
+          body={t("catalogEmptyBody")}
+        >
+          <SuggestionForm
+            onSubmit={submitSuggestion}
+            className={SECONDARY_PILL_CLASS}
           />
+        </ShortsStateBlock>
+      ) : (
+        <>
+          <p
+            role="status"
+            className="text-muted-foreground mt-4 text-sm leading-5 xl:mt-6"
+          >
+            {tResults("results", {
+              count: total,
+              display: formatCount(total, locale),
+            })}
+          </p>
 
-          {isLoading ? (
-            <div className={GRID} aria-busy="true">
-              <span className="sr-only" role="status">
-                {labels.loading}
-              </span>
-              {Array.from({ length: 12 }).map((_, i) => (
-                <ShortFilmCardSkeleton key={i} />
+          <section aria-labelledby="shorts-all-heading" className="mt-2 xl:mt-4">
+            <h2 id="shorts-all-heading" className="sr-only">
+              {t("all")}
+            </h2>
+
+            <div ref={gridRef} className={SHORTS_GRID_CLASS}>
+              {shorts.map((film) => (
+                <ShortFilmCard
+                  key={film.documentId}
+                  film={toShortFilmCard(film)}
+                />
               ))}
             </div>
-          ) : listError ? (
-            <div
-              className="flex flex-col items-center justify-center py-16 text-center"
-              role="alert"
-            >
-              <AlertCircle
-                className="text-destructive mb-4 h-12 w-12"
-                aria-hidden="true"
-              />
-              <h3 className="text-foreground text-lg font-medium">
-                {t("errorTitle")}
-              </h3>
-              <p className="text-muted-foreground mt-1 max-w-md text-sm">
-                {t("errorBody")}
-              </p>
-              <Button
-                className="mt-4 gap-2"
-                onClick={() => void loadFirstPage(filters)}
-              >
-                <RotateCw className="h-4 w-4" aria-hidden="true" />
-                {t("retry")}
-              </Button>
-            </div>
-          ) : shorts.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16 text-center">
-              <Film
-                className="text-muted-foreground mb-4 h-16 w-16"
-                aria-hidden="true"
-              />
-              <h3 className="text-foreground text-lg font-medium">
-                {t("emptyTitle")}
-              </h3>
-              <p className="text-muted-foreground mt-1 max-w-md text-sm">
-                {t("emptyBody")}
-              </p>
-              <Button variant="outline" className="mt-4" onClick={resetFilters}>
-                {t("resetFilters")}
-              </Button>
-              {suggestPrompt}
-            </div>
-          ) : (
-            <>
-              <div className={GRID}>
-                {shorts.map((film) => (
-                  <ShortFilmCard
-                    key={film.documentId}
-                    film={toShortFilmCard(film)}
-                    onPlayTrailer={
-                      film.trailer ? () => handlePlayTrailer(film) : undefined
-                    }
-                  />
-                ))}
-              </div>
+          </section>
 
-              {hasMore && (
-                <div
-                  ref={loadMoreRef}
-                  className="flex flex-col items-center gap-3 py-8"
+          {hasMore ? (
+            <div className="mt-8 flex flex-col items-center gap-3 xl:mt-12">
+              {moreError && (
+                <p
+                  role="alert"
+                  className="text-muted-foreground flex items-center gap-2 text-sm leading-5"
                 >
-                  {isLoadingMore ? (
-                    <div className="flex items-center gap-2" role="status">
-                      <div
-                        className="border-primary h-5 w-5 animate-spin rounded-full border-2 border-t-transparent"
-                        aria-hidden="true"
-                      />
-                      <span className="text-muted-foreground text-sm">
-                        {labels.loading}
-                      </span>
-                    </div>
-                  ) : moreError ? (
-                    <>
-                      <p
-                        className="text-muted-foreground flex items-center gap-2 text-sm"
-                        role="alert"
-                      >
-                        <AlertCircle
-                          className="text-destructive h-4 w-4 shrink-0"
-                          aria-hidden="true"
-                        />
-                        {t("loadMoreError")}
-                      </p>
-                      <Button
-                        variant="outline"
-                        className="gap-2"
-                        onClick={() => void handleLoadMore()}
-                      >
-                        <RotateCw className="h-4 w-4" aria-hidden="true" />
-                        {t("retry")}
-                      </Button>
-                    </>
-                  ) : (
-                    <Button
-                      variant="outline"
-                      onClick={() => void handleLoadMore()}
-                    >
-                      {labels.loadMore}
-                    </Button>
-                  )}
-                </div>
+                  <AlertCircle
+                    className="size-4 shrink-0 text-[#FF8A8A]"
+                    aria-hidden="true"
+                  />
+                  {t("loadMoreError")}
+                </p>
               )}
 
-              {suggestPrompt}
-            </>
+              <Button
+                type="button"
+                variant="outline"
+                aria-disabled={isLoadingMore || undefined}
+                className={cn(SECONDARY_PILL_CLASS, "gap-2")}
+                onClick={() => {
+                  if (isLoadingMore) return
+                  void handleLoadMore("button")
+                }}
+              >
+                {isLoadingMore ? (
+                  <>
+                    <Loader2
+                      className="text-gold-tint size-5 animate-spin motion-reduce:animate-none"
+                      aria-hidden="true"
+                    />
+                    <span className="text-sm leading-5 font-normal">
+                      {t("loading")}
+                    </span>
+                  </>
+                ) : moreError ? (
+                  <>
+                    <RotateCw className="size-4" aria-hidden="true" />
+                    {t("retry")}
+                  </>
+                ) : (
+                  t("loadMore")
+                )}
+              </Button>
+
+              {/* Announces the loading state; the button label is not a live region. */}
+              <span role="status" className="sr-only">
+                {isLoadingMore ? t("loading") : ""}
+              </span>
+
+              <div ref={sentinelRef} aria-hidden="true" className="h-px w-full" />
+            </div>
+          ) : (
+            suggestPrompt
           )}
-        </div>
-      </section>
-    </div>
+        </>
+      )}
+    </main>
   )
 }
 
