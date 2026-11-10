@@ -49,15 +49,36 @@ const LOCALE_PREFIX = new RegExp(`^/(?:${LOCALES.join("|")})(?=[/?#]|$)`)
  * keep the prefixed path, so use this only where the next-intl router consumes
  * the value. It is a correctness helper, not a security check: run
  * `safeCallbackUrl` first.
+ *
+ * The remainder is re-validated, because stripping can expose a new leading
+ * "//" or "/\" ("/fr//evil.com" becomes "//evil.com", which a router treats
+ * as a protocol-relative, off-site URL). It must pass `safeCallbackUrl` again
+ * and survive a URL parse with its origin unchanged; otherwise the result is
+ * "/". The returned value is always a same-origin path.
  */
 export function toRouterPath(path: string): string {
   const rest = path.replace(LOCALE_PREFIX, "")
-  if (rest === path) {
-    return path
+  let candidate = path
+  if (rest !== path) {
+    // "/ar?a=1" or "/ar#x": keep the query or fragment on the root path.
+    candidate = rest === "" ? "/" : rest.startsWith("/") ? rest : `/${rest}`
   }
-  if (rest === "" || rest === "/") {
+  return sameOriginPath(safeCallbackUrl(candidate))
+}
+
+/**
+ * Parse against a placeholder origin and keep only pathname + search + hash;
+ * anything that resolves off that origin collapses to "/".
+ */
+function sameOriginPath(path: string): string {
+  const base = "https://placeholder.invalid"
+  try {
+    const url = new URL(path, base)
+    if (url.origin !== base) {
+      return "/"
+    }
+    return `${url.pathname}${url.search}${url.hash}`
+  } catch {
     return "/"
   }
-  // "/ar?a=1" or "/ar#x": keep the query or fragment on the root path.
-  return rest.startsWith("/") ? rest : `/${rest}`
 }

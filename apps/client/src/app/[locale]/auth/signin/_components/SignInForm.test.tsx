@@ -103,6 +103,15 @@ describe("SignInForm callbackUrl", () => {
     )
   })
 
+  it.each(["/fr//evil.com", "/ar/\\evil.com"])(
+    "never pushes an off-site path when stripping the locale from %s",
+    async (tricky) => {
+      searchParamValue = tricky
+      await submitCredentials()
+      expect(pushMock).toHaveBeenCalledWith("/")
+    }
+  )
+
   it("strips the locale before the router push but keeps it for signIn", async () => {
     searchParamValue = "/ar/shorts/x"
     await submitCredentials()
