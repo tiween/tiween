@@ -11,7 +11,8 @@
  * person is published, and a streaming link or trailer. The test fills exactly
  * those through the form.
  *
- * The second test records review finding WR-03 as a known bug.
+ * The second test is the WR-03 regression: hidden short-film-only fields are
+ * neither validated nor sent.
  */
 import fs from "node:fs"
 
@@ -443,25 +444,15 @@ test("create, translate, publish, edit and unpublish a short film from the Works
   })
 })
 
-test("WR-03: a blank streaming-link row hidden by switching to Film must not block Save silently", async ({
+test("WR-03: a blank streaming-link row hidden by switching to Film does not block Save", async ({
   page,
 }, testInfo) => {
-  // KNOWN BUG, review finding WR-03 (01-REVIEW.md, disposition: open):
-  // "Save is silently blocked when an invalid value sits in a section hidden by
-  // the work type". `streamingLinks` stays in the form state and in
-  // `workFormSchema` for every work type, but its editor only renders for short
-  // films. A blank streaming-link URL left behind after switching to Film fails
-  // the Zod resolver on `streamingLinks.0.url`; the section is unmounted and
-  // the form is `noValidate`, so Save does nothing and shows nothing.
-  // The assertions below describe the CORRECT behaviour (the work saves, or a
-  // visible validation message explains why not). `test.fail()` keeps the
-  // suite green while the bug exists; once WR-03 is fixed this test passes,
-  // Playwright reports "expected to fail", and the annotation must be removed.
-  test.fail(
-    true,
-    "WR-03 open: Save silently blocked by a hidden blank streaming link"
-  )
-
+  // Regression for review finding WR-03, fixed in 01-16: hidden short-film-only
+  // fields are neither validated nor sent. A blank streaming-link URL left
+  // behind after switching to Film used to fail the Zod resolver on a field
+  // that was no longer on screen (the form is `noValidate`), so Save did
+  // nothing and showed nothing. Now the create request goes out without any
+  // short-film-only key, and the browser lands on the saved work.
   const slug = `e2e-wr03-${RUN}`
   const cmWrites: Request[] = []
   page.on("request", (request) => {
@@ -493,59 +484,47 @@ test("WR-03: a blank streaming-link row hidden by switching to Film must not blo
   ).toHaveCount(0)
 
   await page.getByRole("button", { name: "Save", exact: true }).click()
-  // Give a request, a navigation or a message time to happen.
-  await page.waitForTimeout(3_000)
 
-  const toasts = await page
-    .getByRole("alert")
-    .or(page.getByRole("status"))
-    .allInnerTexts()
-  const invalidFields = await page
-    .locator("[aria-invalid='true']:visible")
-    .count()
-  const fieldErrors = (
-    await page.locator("[id$='-error']:visible").allInnerTexts()
-  ).filter((text) => text.trim() !== "")
-  const navigatedAway = !page.url().endsWith(`${WORKS_PATH}/new`)
-
-  const observed = {
-    requestSent: cmWrites.length > 0,
-    requests: cmWrites.map(
-      (request) => `${request.method()} ${new URL(request.url()).pathname}`
-    ),
-    navigatedAway,
-    url: page.url(),
-    toasts,
-    invalidFields,
-    fieldErrors,
+  // The saved work's edit page, with the publish bar, proves the request went
+  // out and succeeded. Clean up first so a failed assertion below still leaves
+  // no work behind.
+  try {
+    await expect(page).toHaveURL(new RegExp(`${WORKS_PATH}/[^/]+$`), {
+      timeout: 30_000,
+    })
+    await expect(page.getByTestId("publish-bar")).toBeVisible()
+  } finally {
+    const observed = {
+      requests: cmWrites.map(
+        (request) => `${request.method()} ${new URL(request.url()).pathname}`
+      ),
+      url: page.url(),
+      toasts: await page
+        .getByRole("alert")
+        .or(page.getByRole("status"))
+        .allInnerTexts(),
+    }
+    // Attachments only surface in the HTML report; keep the JSON on disk too.
+    fs.writeFileSync(
+      testInfo.outputPath("wr-03-observed.json"),
+      JSON.stringify(observed, null, 2)
+    )
+    await testInfo.attach("wr-03-observed.json", {
+      body: JSON.stringify(observed, null, 2),
+      contentType: "application/json",
+    })
+    const saved = await admin.findBySlug<{ documentId: string }>(WORK_UID, slug)
+    if (saved) createdWorkIds.push(saved.documentId)
   }
-  testInfo.annotations.push({
-    type: "wr-03-observed",
-    description: JSON.stringify(observed),
-  })
-  // Also on disk and in the log: attachments only surface in the HTML report.
-  fs.writeFileSync(
-    testInfo.outputPath("wr-03-observed.json"),
-    JSON.stringify(observed, null, 2)
-  )
-  console.log(`[WR-03 observed] ${JSON.stringify(observed)}`)
-  await testInfo.attach("wr-03-observed.json", {
-    body: JSON.stringify(observed, null, 2),
-    contentType: "application/json",
-  })
-  await testInfo.attach("wr-03-after-save.png", {
-    body: await page.screenshot({ fullPage: true }),
-    contentType: "image/png",
-  })
 
-  // If the bug is fixed and the work saved, remove it so reruns stay clean.
+  const creates = cmWrites.filter((request) => request.method() === "POST")
+  expect(creates, "Save sends exactly one create request").toHaveLength(1)
+  const body = creates[0].postDataJSON() as Record<string, unknown>
+  expect(body).not.toHaveProperty("streamingLinks")
+  expect(body).not.toHaveProperty("featured")
+  expect(body).not.toHaveProperty("featuredRank")
+  expect(body.type).toBe("film")
+
   const saved = await admin.findBySlug<{ documentId: string }>(WORK_UID, slug)
-  if (saved) createdWorkIds.push(saved.documentId)
-
-  const visibleExplanation =
-    toasts.some((text) => text.trim() !== "") || fieldErrors.length > 0
-  expect(
-    observed.requestSent || visibleExplanation,
-    "Save either sends the request or shows why it cannot"
-  ).toBe(true)
+  expect(saved, "the work was created").not.toBeNull()
 })

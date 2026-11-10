@@ -3,6 +3,14 @@
  *
  * Zod validation schema for the creative-work form, plus the mapping
  * between API entities and form values (and back to API payloads).
+ *
+ * Hidden fields are neither validated nor sent (01-16, G-01-2). Streaming
+ * links, the featured flag and the featured rank only render for a short film,
+ * and the theatre details only for a play. The form keeps their values in state
+ * across a type switch, so validating them for every type blocked Save on a
+ * field the editor could not see (a blank streaming row, an act count of 0).
+ * The object shape therefore uses loose "draft" schemas, and the `superRefine`
+ * of `workFormSchema` applies the strict ones for the type that shows them.
  */
 
 import { z } from "zod"
@@ -155,6 +163,14 @@ export const theatreDetailsFormSchema = z.object({
   isTourProduction: z.boolean(),
 })
 
+/**
+ * `theatreDetailsFormSchema` with a free `actCount`, for the object shape of
+ * `workFormSchema`: the strict schema is applied only when the type is `play`.
+ */
+export const theatreDetailsDraftSchema = theatreDetailsFormSchema.extend({
+  actCount: z.number().nullable(),
+})
+
 export const linkFormSchema = z.object({
   type: z.string().min(1),
   url: z.string().trim().min(1).url(),
@@ -197,6 +213,32 @@ export const streamingLinkFormSchema = z.object({
 })
 
 /**
+ * The stored shape of a streaming link with a free `url`. The object shape of
+ * `workFormSchema` uses it so a blank row left behind by a type switch cannot
+ * block Save; `streamingLinkFormSchema` is applied to each row only when the
+ * work is a short film.
+ */
+export const streamingLinkDraftSchema = z.object({
+  platform: z.enum(STREAMING_PLATFORMS),
+  url: z.string(),
+  accessType: z.enum(STREAMING_ACCESS_TYPES),
+  label: z.string(),
+})
+
+/**
+ * Keys that only exist for a short film. A payload for any other type omits
+ * them (it does not send `[]`/null): an update that omits a key leaves the
+ * stored value as it is, which is how the 01-08 rule (stored components are
+ * never stripped on a type switch) holds. Pinned by the boot case "a save that
+ * omits short-film-only keys keeps them".
+ */
+export const SHORT_FILM_ONLY_KEYS = [
+  "streamingLinks",
+  "featured",
+  "featuredRank",
+] as const
+
+/**
  * A list of codes checked by one of the shared validators. The array type is
  * kept (the shared schemas also accept null/undefined, which the form never
  * holds) and the validator's single INVALID_*_CODES message is surfaced as the
@@ -213,7 +255,7 @@ function codeListSchema(validator: z.ZodTypeAny) {
   })
 }
 
-export const workFormSchema = z.object({
+const workFormObjectSchema = z.object({
   title: z.string().trim().min(1),
   originalTitle: z.string(),
   slug: z.string(),
@@ -227,22 +269,69 @@ export const workFormSchema = z.object({
   credits: z.array(creditFormSchema),
   cast: z.array(castFormSchema),
   distinctions: z.array(distinctionFormSchema),
-  theatreDetails: theatreDetailsFormSchema,
+  theatreDetails: theatreDetailsDraftSchema,
   tmdbId: z.number().int().nullable(),
   imdbId: z.string(),
   links: z.array(linkFormSchema),
   videos: z.array(videoFormSchema),
-  streamingLinks: z.array(streamingLinkFormSchema),
+  streamingLinks: z.array(streamingLinkDraftSchema),
   // The shared validators carry one stable INVALID_*_CODES message each; the
   // server guard (01-06) re-validates the same lists on every write.
   country: codeListSchema(countryCodesSchema),
   language: codeListSchema(languageCodesSchema),
   featured: z.boolean(),
-  featuredRank: z.number().int().min(1).nullable(),
+  featuredRank: z.number().nullable(),
   poster: mediaAssetSchema.nullable(),
   backdrop: mediaAssetSchema.nullable(),
   photos: z.array(mediaAssetSchema),
 })
+
+export const workFormSchema = workFormObjectSchema.superRefine(
+  (values, ctx) => {
+    // A film adds no type-specific checks.
+    if (values.type === "short-film") {
+      values.streamingLinks.forEach((link, index) => {
+        const result = streamingLinkFormSchema.safeParse(link)
+        if (!result.success) {
+          for (const issue of result.error.issues) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              path: ["streamingLinks", index, ...issue.path],
+              message: issue.message,
+            })
+          }
+        }
+      })
+
+      // A rank only means something on a featured work (the payload nulls it
+      // otherwise), so only a featured work's rank has to be a valid one.
+      if (
+        values.featured &&
+        values.featuredRank !== null &&
+        (!Number.isInteger(values.featuredRank) || values.featuredRank < 1)
+      ) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["featuredRank"],
+          message: "INVALID_FEATURED_RANK",
+        })
+      }
+    }
+
+    if (values.type === "play") {
+      const result = theatreDetailsFormSchema.safeParse(values.theatreDetails)
+      if (!result.success) {
+        for (const issue of result.error.issues) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["theatreDetails", ...issue.path],
+            message: issue.message,
+          })
+        }
+      }
+    }
+  }
+)
 
 export type WorkFormValues = z.infer<typeof workFormSchema>
 export type CreditFormValues = z.infer<typeof creditFormSchema>
@@ -537,6 +626,7 @@ export function workToApiPayload(
   values: WorkFormValues
 ): Record<string, unknown> {
   const isPlay = values.type === "play"
+  const isShortFilm = values.type === "short-film"
   const details = values.theatreDetails
 
   return {
@@ -605,18 +695,26 @@ export function workToApiPayload(
       type: video.legacyType ?? null,
       videoType: video.videoType || null,
     })),
-    // Components are re-sent wholesale, exactly like videos and links.
-    streamingLinks: values.streamingLinks.map((link) => ({
-      platform: link.platform,
-      url: link.url.trim(),
-      accessType: link.accessType,
-      label: orNull(link.label),
-    })),
     country: values.country,
     language: values.language,
-    featured: values.featured,
-    // A rank only means something on a featured work; never persist a stale one.
-    featuredRank: values.featured ? values.featuredRank : null,
+    // Short-film-only keys (SHORT_FILM_ONLY_KEYS) are omitted for any other
+    // type, never sent as []/null, so a save as Film or Play leaves the stored
+    // values untouched (01-08, pinned by a boot case in 01-16).
+    ...(isShortFilm
+      ? {
+          // Components are re-sent wholesale, exactly like videos and links.
+          streamingLinks: values.streamingLinks.map((link) => ({
+            platform: link.platform,
+            url: link.url.trim(),
+            accessType: link.accessType,
+            label: orNull(link.label),
+          })),
+          featured: values.featured,
+          // A rank only means something on a featured work; never persist a
+          // stale one.
+          featuredRank: values.featured ? values.featuredRank : null,
+        }
+      : {}),
     poster: values.poster?.id ?? null,
     backdrop: values.backdrop?.id ?? null,
     photos: values.photos.map((photo) => photo.id),
