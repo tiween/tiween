@@ -21,6 +21,7 @@
  * keyboard path.
  */
 import * as React from "react"
+import { ShortsWatchlistProvider } from "@/features/watchlist"
 import { AlertCircle, Film, Loader2, RotateCw } from "lucide-react"
 import { useLocale, useTranslations } from "next-intl"
 
@@ -31,8 +32,8 @@ import { Button } from "@/components/ui/button"
 
 import { toShortFilmCard } from "../../types"
 import { formatCount } from "../../utils"
-import { ShortsStateBlock } from "../ShortsBoundary"
 import { ShortFilmCard } from "../ShortFilmCard"
+import { ShortsStateBlock } from "../ShortsBoundary"
 import { SHORTS_GRID_CLASS, SHORTS_PAGE_CLASS } from "../shortsLayout"
 import { ShortsPageIntro } from "../ShortsPageIntro"
 import { SuggestionForm } from "../SuggestionForm"
@@ -158,7 +159,11 @@ export function ShortsDirectory({
       setIsLoadingMore(true)
       setMoreError(false)
       try {
-        const result = await fetchShortsPage(page + 1, locale, controller.signal)
+        const result = await fetchShortsPage(
+          page + 1,
+          locale,
+          controller.signal
+        )
         const previousLength = shorts.length
         const seen = new Set(shorts.map((s) => s.documentId))
         // De-duplicate: a film published between pages shifts the offsets.
@@ -232,112 +237,123 @@ export function ShortsDirectory({
   )
 
   return (
-    <main className={cn(SHORTS_PAGE_CLASS, className)}>
-      <ShortsPageIntro title={t("title")} description={t("description")} />
+    // One watchlist list request for the whole grid, including appended pages,
+    // seeds every card heart (FR19, D-13): no per-card check request.
+    <ShortsWatchlistProvider documentIds={shorts.map((s) => s.documentId)}>
+      <main className={cn(SHORTS_PAGE_CLASS, className)}>
+        <ShortsPageIntro title={t("title")} description={t("description")} />
 
-      {isEmpty ? (
-        <ShortsStateBlock
-          icon={
-            <Film
-              className="text-muted-foreground size-12"
-              strokeWidth={1.75}
-              aria-hidden="true"
-            />
-          }
-          title={t("catalogEmptyTitle")}
-          headingLevel={2}
-          body={t("catalogEmptyBody")}
-        >
-          <SuggestionForm
-            onSubmit={submitSuggestion}
-            className={SECONDARY_PILL_CLASS}
-          />
-        </ShortsStateBlock>
-      ) : (
-        <>
-          <p
-            role="status"
-            className="text-muted-foreground mt-4 text-sm leading-5 xl:mt-6"
+        {isEmpty ? (
+          <ShortsStateBlock
+            icon={
+              <Film
+                className="text-muted-foreground size-12"
+                strokeWidth={1.75}
+                aria-hidden="true"
+              />
+            }
+            title={t("catalogEmptyTitle")}
+            headingLevel={2}
+            body={t("catalogEmptyBody")}
           >
-            {tResults("results", {
-              count: total,
-              display: formatCount(total, locale),
-            })}
-          </p>
+            <SuggestionForm
+              onSubmit={submitSuggestion}
+              className={SECONDARY_PILL_CLASS}
+            />
+          </ShortsStateBlock>
+        ) : (
+          <>
+            <p
+              role="status"
+              className="text-muted-foreground mt-4 text-sm leading-5 xl:mt-6"
+            >
+              {tResults("results", {
+                count: total,
+                display: formatCount(total, locale),
+              })}
+            </p>
 
-          <section aria-labelledby="shorts-all-heading" className="mt-2 xl:mt-4">
-            <h2 id="shorts-all-heading" className="sr-only">
-              {t("all")}
-            </h2>
+            <section
+              aria-labelledby="shorts-all-heading"
+              className="mt-2 xl:mt-4"
+            >
+              <h2 id="shorts-all-heading" className="sr-only">
+                {t("all")}
+              </h2>
 
-            <div ref={gridRef} className={SHORTS_GRID_CLASS}>
-              {shorts.map((film) => (
-                <ShortFilmCard
-                  key={film.documentId}
-                  film={toShortFilmCard(film)}
-                />
-              ))}
-            </div>
-          </section>
-
-          {hasMore ? (
-            <div className="mt-8 flex flex-col items-center gap-3 xl:mt-12">
-              {moreError && (
-                <p
-                  role="alert"
-                  className="text-muted-foreground flex items-center gap-2 text-sm leading-5"
-                >
-                  <AlertCircle
-                    className="size-4 shrink-0 text-[#FF8A8A]"
-                    aria-hidden="true"
+              <div ref={gridRef} className={SHORTS_GRID_CLASS}>
+                {shorts.map((film) => (
+                  <ShortFilmCard
+                    key={film.documentId}
+                    film={toShortFilmCard(film)}
                   />
-                  {t("loadMoreError")}
-                </p>
-              )}
+                ))}
+              </div>
+            </section>
 
-              <Button
-                type="button"
-                variant="outline"
-                aria-disabled={isLoadingMore || undefined}
-                className={cn(SECONDARY_PILL_CLASS, "gap-2")}
-                onClick={() => {
-                  if (isLoadingMore) return
-                  void handleLoadMore("button")
-                }}
-              >
-                {isLoadingMore ? (
-                  <>
-                    <Loader2
-                      className="text-gold-tint size-5 animate-spin motion-reduce:animate-none"
+            {hasMore ? (
+              <div className="mt-8 flex flex-col items-center gap-3 xl:mt-12">
+                {moreError && (
+                  <p
+                    role="alert"
+                    className="text-muted-foreground flex items-center gap-2 text-sm leading-5"
+                  >
+                    <AlertCircle
+                      className="size-4 shrink-0 text-[#FF8A8A]"
                       aria-hidden="true"
                     />
-                    <span className="text-sm leading-5 font-normal">
-                      {t("loading")}
-                    </span>
-                  </>
-                ) : moreError ? (
-                  <>
-                    <RotateCw className="size-4" aria-hidden="true" />
-                    {t("retry")}
-                  </>
-                ) : (
-                  t("loadMore")
+                    {t("loadMoreError")}
+                  </p>
                 )}
-              </Button>
 
-              {/* Announces the loading state; the button label is not a live region. */}
-              <span role="status" className="sr-only">
-                {isLoadingMore ? t("loading") : ""}
-              </span>
+                <Button
+                  type="button"
+                  variant="outline"
+                  aria-disabled={isLoadingMore || undefined}
+                  className={cn(SECONDARY_PILL_CLASS, "gap-2")}
+                  onClick={() => {
+                    if (isLoadingMore) return
+                    void handleLoadMore("button")
+                  }}
+                >
+                  {isLoadingMore ? (
+                    <>
+                      <Loader2
+                        className="text-gold-tint size-5 animate-spin motion-reduce:animate-none"
+                        aria-hidden="true"
+                      />
+                      <span className="text-sm leading-5 font-normal">
+                        {t("loading")}
+                      </span>
+                    </>
+                  ) : moreError ? (
+                    <>
+                      <RotateCw className="size-4" aria-hidden="true" />
+                      {t("retry")}
+                    </>
+                  ) : (
+                    t("loadMore")
+                  )}
+                </Button>
 
-              <div ref={sentinelRef} aria-hidden="true" className="h-px w-full" />
-            </div>
-          ) : (
-            suggestPrompt
-          )}
-        </>
-      )}
-    </main>
+                {/* Announces the loading state; the button label is not a live region. */}
+                <span role="status" className="sr-only">
+                  {isLoadingMore ? t("loading") : ""}
+                </span>
+
+                <div
+                  ref={sentinelRef}
+                  aria-hidden="true"
+                  className="h-px w-full"
+                />
+              </div>
+            ) : (
+              suggestPrompt
+            )}
+          </>
+        )}
+      </main>
+    </ShortsWatchlistProvider>
   )
 }
 

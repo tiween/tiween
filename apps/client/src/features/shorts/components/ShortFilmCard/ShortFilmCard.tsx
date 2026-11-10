@@ -1,7 +1,7 @@
 "use client"
 
 import Image from "next/image"
-import { Clock, ExternalLink, Play } from "lucide-react"
+import { ExternalLink, Play } from "lucide-react"
 import { useLocale, useTranslations } from "next-intl"
 
 import type { MouseEvent } from "react"
@@ -14,8 +14,9 @@ import { Link } from "@/lib/navigation"
 import { cn } from "@/lib/utils"
 import { isArabic } from "@/lib/utils/isArabic"
 
-import { formatCount, positiveNumber } from "../../utils"
+import { fallbackTextAttrs, formatCount, positiveNumber } from "../../utils"
 import { ReservedArtwork } from "../ReservedArtwork"
+import { ShortFilmHeart } from "../ShortFilmHeart"
 import { ShortFilmCardSkeleton } from "./ShortFilmCardSkeleton"
 
 // Placeholder blur data URL
@@ -31,6 +32,11 @@ export interface ShortFilmCardProps {
   isLoading?: boolean
   /** Called when the play-trailer control is activated */
   onPlayTrailer?: () => void
+  /**
+   * Leave out the watchlist heart. Only for contexts that mount the card
+   * without a session and a query client; the directory always shows it.
+   */
+  hideHeart?: boolean
   /** Additional class names */
   className?: string
   /** Overrides for the translated labels (rarely needed) */
@@ -41,14 +47,24 @@ export interface ShortFilmCardProps {
  * A 2:3 poster card. The whole card is ONE locale-aware link to the film's
  * detail page at every breakpoint, so it works with a keyboard, with a screen
  * reader and without any click handler. The desktop hover overlay also opens
- * on keyboard focus; the optional trailer control sits above the link as an
- * independent target.
+ * on keyboard focus.
+ *
+ * Controls, in DOM order: the link, the watchlist heart (D-13, a SIBLING of the
+ * link at the top-end corner, never inside it), then the optional trailer
+ * button. The heart and the trailer button are independent targets above the
+ * link.
+ *
+ * The second meta line reads `{year} · {duration}` with each part omitted when
+ * absent (D-13: duration left the top-end corner for the heart). The title
+ * carries `lang="fr"` when the API served French text on another page locale
+ * (D-11, FR56); nothing visible says so.
  */
 export function ShortFilmCard({
   film,
   showPlayButton = true,
   isLoading = false,
   onPlayTrailer,
+  hideHeart = false,
   className,
   labels: labelOverrides,
 }: ShortFilmCardProps) {
@@ -97,13 +113,25 @@ export function ShortFilmCard({
   const year = positiveNumber(film.releaseYear)
   const canPlayTrailer = showPlayButton && Boolean(onPlayTrailer)
 
-  const byline = (
-    <>
-      {film.director && <bdi className="truncate">{film.director}</bdi>}
-      {film.director && year !== null && <span aria-hidden="true">•</span>}
-      {year !== null && <bdi className="shrink-0">{year}</bdi>}
-    </>
-  )
+  // One fragment for the mobile bottom overlay and the desktop hover overlay:
+  // line 1 the director, line 2 `{year} · {duration}` (each part optional).
+  const hasMeta = Boolean(film.director) || year !== null || duration !== null
+  const renderMeta = (className: string) =>
+    hasMeta && (
+      <div className={cn("flex min-w-0 flex-col", className)}>
+        {film.director && <bdi className="truncate">{film.director}</bdi>}
+        {(year !== null || duration !== null) && (
+          <span className="truncate">
+            {year !== null && <bdi>{year}</bdi>}
+            {year !== null && duration !== null && " · "}
+            {duration !== null && <bdi>{durationText}</bdi>}
+          </span>
+        )}
+      </div>
+    )
+
+  // Silent French fallback: tag the node, say nothing (D-11).
+  const titleAttrs = fallbackTextAttrs(film.title, locale, film.locale)
 
   return (
     <article
@@ -148,20 +176,10 @@ export function ShortFilmCard({
         </div>
       )}
 
-      {/* Duration badge */}
-      {duration !== null && (
-        <div className="absolute end-2 top-2 z-[6]">
-          <span className="flex items-center gap-1 rounded-full bg-black/60 px-2 py-1 text-xs font-medium whitespace-nowrap text-white backdrop-blur-sm">
-            <Clock className="h-3 w-3" aria-hidden="true" />
-            <bdi>{durationText}</bdi>
-          </span>
-        </div>
-      )}
-
       {/* Mobile: bottom info overlay */}
       <div className="absolute inset-x-0 bottom-0 z-[5] bg-gradient-to-t from-black/90 via-black/60 to-transparent p-3 pt-12 md:hidden">
         <h3 className="line-clamp-2 text-sm font-semibold break-words text-white">
-          <bdi>{film.title}</bdi>
+          <bdi {...titleAttrs}>{film.title}</bdi>
         </h3>
         {hasArabicOriginalTitle && (
           <p
@@ -172,11 +190,7 @@ export function ShortFilmCard({
             {film.originalTitle}
           </p>
         )}
-        {(film.director || year !== null) && (
-          <div className="mt-1.5 flex min-w-0 items-center gap-2 text-xs text-white/70">
-            {byline}
-          </div>
-        )}
+        {renderMeta("mt-1.5 gap-0.5 text-xs text-white/70")}
         {/* Availability note (a fact, not an action): icon + text, never
             color alone. */}
         {film.isAvailableOnline && (
@@ -198,7 +212,7 @@ export function ShortFilmCard({
       >
         <div className="w-full min-w-0 text-center">
           <h3 className="line-clamp-3 text-lg font-bold break-words text-white drop-shadow-lg">
-            <bdi>{film.title}</bdi>
+            <bdi {...titleAttrs}>{film.title}</bdi>
           </h3>
           {hasArabicOriginalTitle && (
             <p
@@ -209,11 +223,7 @@ export function ShortFilmCard({
               {film.originalTitle}
             </p>
           )}
-          {(film.director || year !== null) && (
-            <div className="mt-2 flex min-w-0 items-center justify-center gap-2 text-sm text-white/70">
-              {byline}
-            </div>
-          )}
+          {renderMeta("mt-2 items-center gap-0.5 text-sm text-white/70")}
           {film.genres && film.genres.length > 0 && (
             <div className="mt-2 flex flex-wrap justify-center gap-1">
               {film.genres.slice(0, 2).map((genre) => (
@@ -258,13 +268,17 @@ export function ShortFilmCard({
         className="absolute inset-0 z-10 rounded-2xl focus-visible:outline-none"
       >
         <span className="sr-only">
-          {film.title}
+          <bdi {...titleAttrs}>{film.title}</bdi>
           {film.director ? `, ${film.director}` : ""}
           {year !== null ? `, ${year}` : ""}
           {duration !== null ? `, ${durationText}` : ""}
           {film.isAvailableOnline ? `, ${labels.availableOnline}` : ""}
         </span>
       </Link>
+
+      {/* Independent watchlist target: a sibling of the link, never inside it,
+          so a heart tap cannot navigate (D-13). DOM order: link, heart, trailer. */}
+      {!hideHeart && <ShortFilmHeart film={film} />}
 
       {/* Independent trailer target, above the link (desktop) */}
       {canPlayTrailer && (

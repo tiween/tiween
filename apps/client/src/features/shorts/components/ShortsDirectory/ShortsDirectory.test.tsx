@@ -8,6 +8,9 @@
  *  - a failed Load more keeps the films shown and offers an inline retry,
  *  - an empty 200 shows the empty-catalogue block, which is not an alert,
  *  - the h1 consumes a pending retry focus,
+ *  - the grid sits inside ONE ShortsWatchlistProvider carrying every loaded
+ *    documentId (appended pages extend it), so one list request seeds all the
+ *    card hearts (FR19, D-13),
  *  - axe is clean in fr, ar and en for the results and the empty states.
  */
 import * as React from "react"
@@ -51,6 +54,36 @@ vi.mock("next/image", () => ({
   ),
 }))
 
+const { providerIds } = vi.hoisted(() => ({
+  providerIds: [] as string[][],
+}))
+
+// The provider and the heart state machine have their own suites; here the
+// provider only records the ids it was handed.
+vi.mock("@/features/watchlist", () => ({
+  ShortsWatchlistProvider: ({
+    documentIds,
+    children,
+  }: {
+    documentIds: string[]
+    children: React.ReactNode
+  }) => {
+    providerIds.push(documentIds)
+    return <div data-testid="watchlist-provider">{children}</div>
+  },
+}))
+
+vi.mock("@/features/watchlist/hooks/useShortFilmHeart", () => ({
+  useShortFilmHeart: () => ({
+    isSaved: false,
+    isBusy: false,
+    isResolved: true,
+    isPending: false,
+    status: "authenticated",
+    toggle: vi.fn(),
+  }),
+}))
+
 const MESSAGES = { fr, ar, en } as const
 
 function film(n: number, title = `Film ${n}`): ShortFilm {
@@ -81,6 +114,7 @@ const observers: Array<{
 
 beforeEach(() => {
   fetchMock.mockReset()
+  providerIds.length = 0
   observers.length = 0
   vi.stubGlobal("fetch", fetchMock)
   vi.stubGlobal(
@@ -248,7 +282,7 @@ describe("ShortsDirectory", { timeout: 20_000 }, () => {
         totalShorts: 30,
       })
 
-      fireEvent.click(screen.getByRole("button"))
+      fireEvent.click(screen.getByRole("button", { name: "عرض المزيد" }))
       await waitFor(() => expect(cardLinks()).toHaveLength(30))
 
       expect(fetchMock).toHaveBeenCalledTimes(1)
@@ -274,7 +308,14 @@ describe("ShortsDirectory", { timeout: 20_000 }, () => {
 
       for (const [index] of fetchMock.mock.calls.entries()) {
         const url = requestedUrl(index)
-        for (const key of ["pageSize", "q", "genre", "genres", "sort", "sortBy"]) {
+        for (const key of [
+          "pageSize",
+          "q",
+          "genre",
+          "genres",
+          "sort",
+          "sortBy",
+        ]) {
           expect(url.searchParams.has(key)).toBe(false)
         }
       }
@@ -294,9 +335,10 @@ describe("ShortsDirectory", { timeout: 20_000 }, () => {
       fireEvent.click(button)
 
       await waitFor(() =>
-        expect(
-          screen.getByRole("button", { name: LOADING })
-        ).toHaveAttribute("aria-disabled", "true")
+        expect(screen.getByRole("button", { name: LOADING })).toHaveAttribute(
+          "aria-disabled",
+          "true"
+        )
       )
       const busy = screen.getByRole("button", { name: LOADING })
       expect(busy).toBe(button)
@@ -381,7 +423,10 @@ describe("ShortsDirectory", { timeout: 20_000 }, () => {
 
   describe("Load more failure", () => {
     const failures: Array<[string, () => void]> = [
-      ["a rejected request", () => fetchMock.mockRejectedValue(new TypeError("x"))],
+      [
+        "a rejected request",
+        () => fetchMock.mockRejectedValue(new TypeError("x")),
+      ],
       [
         "a 502 answer",
         () =>
@@ -448,6 +493,58 @@ describe("ShortsDirectory", { timeout: 20_000 }, () => {
     })
   })
 
+  describe("watchlist hearts (FR19, D-13)", () => {
+    it("mounts one provider around the grid with every loaded documentId", () => {
+      renderDirectory({ initialShorts: films(1, 3), totalShorts: 3 })
+
+      const provider = screen.getByTestId("watchlist-provider")
+      expect(provider.querySelector("main")).not.toBeNull()
+      expect(screen.getAllByTestId("watchlist-provider")).toHaveLength(1)
+      expect(providerIds.at(-1)).toEqual(["doc-1", "doc-2", "doc-3"])
+    })
+
+    it("extends the ids when Load more appends films", async () => {
+      fetchMock.mockResolvedValueOnce(ok([film(3), film(4), film(5)], 5))
+      renderDirectory({ initialShorts: films(1, 3), totalShorts: 5 })
+
+      fireEvent.click(screen.getByRole("button", { name: LOAD_MORE }))
+      await waitFor(() => expect(cardLinks()).toHaveLength(5))
+
+      expect(providerIds.at(-1)).toEqual([
+        "doc-1",
+        "doc-2",
+        "doc-3",
+        "doc-4",
+        "doc-5",
+      ])
+    })
+
+    it("gives every card its own heart as a sibling of its link", () => {
+      renderDirectory({ initialShorts: films(1, 3), totalShorts: 3 })
+
+      const hearts = screen.getAllByRole("button", { name: /watchlist/ })
+      expect(hearts).toHaveLength(3)
+      for (const [index, heart] of hearts.entries()) {
+        const article = heart.closest("article")!
+        expect(article.querySelector("a")!.contains(heart)).toBe(false)
+        expect(heart).toHaveAccessibleName(
+          `Ajouter « Film ${index + 1} » à ma watchlist`
+        )
+      }
+    })
+
+    it("keeps each card a direct child of the grid (focus-after-append relies on it)", () => {
+      renderDirectory({ initialShorts: films(1, 3), totalShorts: 3 })
+
+      const grid = screen.getAllByRole("article")[0]!.parentElement!
+      expect(Array.from(grid.children).map((c) => c.tagName)).toEqual([
+        "ARTICLE",
+        "ARTICLE",
+        "ARTICLE",
+      ])
+    })
+  })
+
   describe("empty catalogue", () => {
     it("renders the empty-catalogue block, not an alert, with the suggestion trigger", () => {
       renderDirectory({ initialShorts: [], totalShorts: 0 })
@@ -470,7 +567,9 @@ describe("ShortsDirectory", { timeout: 20_000 }, () => {
       expect(screen.queryByRole("alert")).toBeNull()
       expect(screen.queryByRole("status")).toBeNull()
       expect(screen.queryByText(/Aucun court métrage/)).toBeNull()
-      expect(screen.queryByRole("heading", { level: 2, name: /Tous/ })).toBeNull()
+      expect(
+        screen.queryByRole("heading", { level: 2, name: /Tous/ })
+      ).toBeNull()
       expect(
         screen.getByRole("heading", { level: 1, name: "Courts métrages" })
       ).toBeInTheDocument()
