@@ -17,6 +17,7 @@ import type { ShortFilm } from "@/features/shorts/types"
 import {
   detailDto,
   errorBody,
+  summaryDto,
 } from "../../../../../test/fixtures/short-film-api"
 
 const mocks = vi.hoisted(() => ({
@@ -51,6 +52,14 @@ const { default: ShortFilmLayout } = await import("./layout")
 const { default: ShortFilmPage } = await import("./page")
 
 const fetchMock = vi.fn()
+
+/** A healthy Strapi: the detail for the slug, a one-film related shelf. */
+function healthyStrapi(url: unknown): Response {
+  const { pathname } = new URL(String(url))
+  return pathname.endsWith("/related")
+    ? json(200, { data: [summaryDto({ documentId: "other", slug: "other" })] })
+    : json(200, { data: detailDto() })
+}
 
 function json(status: number, body: unknown) {
   return new Response(JSON.stringify(body), {
@@ -91,7 +100,7 @@ beforeEach(() => {
 
 describe("tracer: a published film renders through the real path", () => {
   it("hands ShortFilmDetail the director from credits and the trailer from videos", async () => {
-    fetchMock.mockImplementation(async () => json(200, { data: detailDto() }))
+    fetchMock.mockImplementation(async (url) => healthyStrapi(url))
 
     const element = await visit("khalaa", "ar")
 
@@ -101,28 +110,42 @@ describe("tracer: a published film renders through the real path", () => {
     expect(film.trailer).toBe("https://www.youtube.com/watch?v=abc")
     expect(film.streamingLinks).toHaveLength(1)
     expect(film.locale).toBe("fr")
+    expect(element.props.relatedShorts.map((s) => s.slug)).toEqual(["other"])
     expect(mocks.notFound).not.toHaveBeenCalled()
   })
 
-  it("requests the short-films/<slug> path with only the locale key", async () => {
-    fetchMock.mockImplementation(async () => json(200, { data: detailDto() }))
+  it("requests the short-films/<slug> and /related paths with only the locale key", async () => {
+    fetchMock.mockImplementation(async (url) => healthyStrapi(url))
 
     await visit("khalaa", "ar")
 
     const urls = fetchMock.mock.calls.map(([url]) => new URL(String(url)))
-    expect(urls.length).toBeGreaterThan(0)
+    const base = "/api/creative-works/creative-works/short-films/khalaa"
+    expect(new Set(urls.map((u) => u.pathname))).toEqual(
+      new Set([base, `${base}/related`])
+    )
     for (const url of urls) {
       expect(url.origin).toBe("http://strapi.test")
-      expect(url.pathname).toBe(
-        "/api/creative-works/creative-works/short-films/khalaa"
-      )
       expect([...url.searchParams.keys()]).toEqual(["locale"])
       expect(url.searchParams.get("locale")).toBe("ar")
     }
   })
 
+  it("omits the related shelf and still renders when only that read fails", async () => {
+    fetchMock.mockImplementation(async (url) =>
+      new URL(String(url)).pathname.endsWith("/related")
+        ? json(500, errorBody(500, "INTERNAL_ERROR"))
+        : json(200, { data: detailDto() })
+    )
+
+    const element = await visit("khalaa")
+
+    expect(element.props.film.title).toBe("Khalâa")
+    expect(element.props.relatedShorts).toEqual([])
+  })
+
   it("registers the locale and renders without a static-params export", async () => {
-    fetchMock.mockImplementation(async () => json(200, { data: detailDto() }))
+    fetchMock.mockImplementation(async (url) => healthyStrapi(url))
 
     await visit("khalaa", "en")
 
@@ -200,7 +223,7 @@ describe("tracer: an outage is a real 500, never a 404 or an empty shell", () =>
     )
     await failure("khalaa")
 
-    fetchMock.mockImplementation(async () => json(200, { data: detailDto() }))
+    fetchMock.mockImplementation(async (url) => healthyStrapi(url))
     const element = await visit("khalaa")
 
     expect(element.props.film.title).toBe("Khalâa")

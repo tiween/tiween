@@ -3,7 +3,11 @@ import { ShortFilmDetail } from "@/features/shorts/components"
 import { Locale } from "next-intl"
 import { setRequestLocale } from "next-intl/server"
 
-import { getShortFilm } from "@/lib/strapi-api/content/shorts"
+import {
+  getRelatedShortFilms,
+  getShortFilm,
+  SHORT_FILM_RELATED_MAX,
+} from "@/lib/strapi-api/content/shorts"
 import { isShortFilmNotFound } from "@/lib/strapi-api/content/shorts.errors"
 
 interface PageProps {
@@ -66,5 +70,18 @@ export default async function ShortFilmPage({ params }: PageProps) {
   // is thrown (never rendered as an empty shell), see the layout.
   const film = await getShortFilm(slug, locale)
 
-  return <ShortFilmDetail film={film} relatedShorts={[]} />
+  // The related shelf is decoration: a failing read omits it softly and never
+  // fails the page (D-20). The viewed film is excluded defensively.
+  const relatedShorts = await getRelatedShortFilms(slug, locale)
+    .then((related) =>
+      related
+        .filter((short) => short.documentId !== film.documentId)
+        .slice(0, SHORT_FILM_RELATED_MAX)
+    )
+    .catch((error: unknown) => {
+      console.error("[shorts/[slug]] related shelf omitted:", error)
+      return []
+    })
+
+  return <ShortFilmDetail film={film} relatedShorts={relatedShorts} />
 }

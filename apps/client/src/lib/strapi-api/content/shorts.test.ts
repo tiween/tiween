@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { detailDto, summaryDto } from "../../../../test/fixtures/short-film-api"
 import {
+  getRelatedShortFilms,
   getShortFilm,
   getShortFilmsPage,
   SHORT_FILM_PAGE_SIZE,
@@ -241,6 +242,79 @@ describe("getShortFilmsPage", () => {
     await expect(
       getShortFilmsPage({ locale: "fr", page: 1 })
     ).rejects.toMatchObject({ code: "INTERNAL_ERROR" })
+  })
+})
+
+describe("getRelatedShortFilms", () => {
+  it("sends only the locale key to the /:slug/related route", async () => {
+    fetchAPI.mockResolvedValue({ data: [summaryDto()] })
+
+    await getRelatedShortFilms("khalaa", "ar")
+
+    const { path, params } = lastCall()
+    expect(path).toBe(
+      "/creative-works/creative-works/short-films/khalaa/related"
+    )
+    expect(Object.keys(params)).toEqual(["locale"])
+    expect(params.locale).toBe("ar")
+  })
+
+  it("carries the shared tags, its own tag, 60s revalidate and a timeout", async () => {
+    fetchAPI.mockResolvedValue({ data: [] })
+
+    await getRelatedShortFilms("khalaa", "fr")
+
+    const { init } = lastCall()
+    expect(init.next?.revalidate).toBe(60)
+    expect(init.next?.tags).toEqual([
+      SHORT_FILMS_TAG,
+      "short-film:khalaa",
+      "short-film-related:khalaa",
+    ])
+    expect(init.signal).toBeInstanceOf(AbortSignal)
+  })
+
+  it("maps summaries", async () => {
+    fetchAPI.mockResolvedValue({
+      data: [
+        summaryDto({ documentId: "a", slug: "a", title: "A" }),
+        summaryDto({ documentId: "b", slug: "b", title: "B" }),
+      ],
+    })
+
+    const related = await getRelatedShortFilms("khalaa", "fr")
+
+    expect(related.map((r) => r.title)).toEqual(["A", "B"])
+    expect(related[0]!.trailer).toBeUndefined()
+  })
+
+  it("rejects a pattern-failing slug without calling the API", async () => {
+    const error = await getRelatedShortFilms("a/b", "fr").catch(
+      (e: unknown) => e
+    )
+
+    expect(isShortFilmNotFound(error)).toBe(true)
+    expect(fetchAPI).not.toHaveBeenCalled()
+  })
+
+  it("raises typed errors like the other fetchers", async () => {
+    fetchAPI.mockRejectedValueOnce(strapiFailure(404, "SHORT_FILM_NOT_FOUND"))
+    fetchAPI.mockRejectedValueOnce(strapiFailure(500, "INTERNAL_ERROR"))
+    fetchAPI.mockRejectedValueOnce(new TypeError("fetch failed"))
+    fetchAPI.mockResolvedValueOnce({ data: null })
+
+    const errors = await Promise.all(
+      [1, 2, 3, 4].map(() =>
+        getRelatedShortFilms("khalaa", "fr").catch((e: unknown) => e)
+      )
+    )
+
+    expect(errors.map((e) => (e as ShortFilmApiError).code).sort()).toEqual([
+      "INTERNAL_ERROR",
+      "INTERNAL_ERROR",
+      "NETWORK_ERROR",
+      "SHORT_FILM_NOT_FOUND",
+    ])
   })
 })
 

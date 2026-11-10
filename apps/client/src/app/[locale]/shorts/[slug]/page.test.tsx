@@ -14,9 +14,14 @@ import { ShortFilmApiError } from "@/lib/strapi-api/content/shorts.errors"
 import ShortFilmPage, * as pageModule from "./page"
 
 const getShortFilm = vi.hoisted(() => vi.fn())
+const getRelatedShortFilms = vi.hoisted(() => vi.fn())
 
 vi.mock("next-intl/server", () => ({ setRequestLocale: vi.fn() }))
-vi.mock("@/lib/strapi-api/content/shorts", () => ({ getShortFilm }))
+vi.mock("@/lib/strapi-api/content/shorts", () => ({
+  SHORT_FILM_RELATED_MAX: 6,
+  getShortFilm,
+  getRelatedShortFilms,
+}))
 vi.mock("@/features/shorts/components", () => ({
   ShortFilmDetail: function ShortFilmDetail() {
     return null
@@ -47,9 +52,24 @@ function params(slug = "khalaa", locale = "fr" as const) {
   return Promise.resolve({ locale, slug })
 }
 
+function related(id: string): ShortFilm {
+  return { id, documentId: id, title: id.toUpperCase(), slug: id }
+}
+
+type DetailProps = { film: ShortFilm; relatedShorts: ShortFilm[] }
+
+async function render(slug = "khalaa"): Promise<DetailProps> {
+  const element = (await ShortFilmPage({
+    params: params(slug),
+  })) as unknown as { props: DetailProps }
+  return element.props
+}
+
 beforeEach(() => {
   vi.clearAllMocks()
   getShortFilm.mockResolvedValue(film)
+  getRelatedShortFilms.mockResolvedValue([])
+  vi.spyOn(console, "error").mockImplementation(() => {})
 })
 
 describe("shorts/[slug] page", () => {
@@ -76,6 +96,57 @@ describe("shorts/[slug] page", () => {
     getShortFilm.mockRejectedValue(outageError)
 
     await expect(ShortFilmPage({ params: params() })).rejects.toBe(outageError)
+  })
+})
+
+describe("shorts/[slug] related shelf (D-20)", () => {
+  it("passes the related films for the page locale", async () => {
+    getRelatedShortFilms.mockResolvedValue([related("a"), related("b")])
+
+    const props = await render()
+
+    expect(getRelatedShortFilms).toHaveBeenCalledWith("khalaa", "fr")
+    expect(props.relatedShorts.map((s) => s.documentId)).toEqual(["a", "b"])
+  })
+
+  it("never lists the viewed film among its own related films", async () => {
+    getRelatedShortFilms.mockResolvedValue([
+      related("a"),
+      related(film.documentId),
+      related("b"),
+    ])
+
+    const props = await render()
+
+    expect(props.relatedShorts.map((s) => s.documentId)).toEqual(["a", "b"])
+  })
+
+  it("caps the shelf at the API maximum of six", async () => {
+    getRelatedShortFilms.mockResolvedValue(
+      Array.from({ length: 9 }, (_, i) => related(`r${i}`))
+    )
+
+    const props = await render()
+
+    expect(props.relatedShorts).toHaveLength(6)
+  })
+
+  it("omits the shelf softly when the related read fails, and the page still renders", async () => {
+    getRelatedShortFilms.mockRejectedValue(outageError)
+
+    const props = await render()
+
+    expect(props.film).toBe(film)
+    expect(props.relatedShorts).toEqual([])
+    expect(console.error).toHaveBeenCalledTimes(1)
+  })
+
+  it("omits the shelf softly on a related not-found too", async () => {
+    getRelatedShortFilms.mockRejectedValue(notFoundError)
+
+    const props = await render()
+
+    expect(props.relatedShorts).toEqual([])
   })
 })
 

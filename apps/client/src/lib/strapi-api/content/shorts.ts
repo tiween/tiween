@@ -145,3 +145,36 @@ export async function getShortFilmsPage({
     throw toShortFilmApiError(error)
   }
 }
+
+/** The API returns at most this many related films. */
+export const SHORT_FILM_RELATED_MAX = 6
+
+/**
+ * Films related to `slug` (same director, then same genre), in the requested
+ * locale. Raises typed errors like every other fetcher: omitting a failing
+ * shelf is the PAGE's decision (D-20), not the fetcher's (D-08).
+ */
+export async function getRelatedShortFilms(
+  slug: string,
+  locale: Locale
+): Promise<ShortFilm[]> {
+  assertValidSlug(slug)
+
+  try {
+    const res = await PublicStrapiClient.fetchAPI(
+      `${SHORT_FILMS_PATH}/${encodeURIComponent(slug)}/related`,
+      { locale },
+      requestInit([
+        SHORT_FILMS_TAG,
+        shortFilmTag(slug),
+        `short-film-related:${slug}`,
+      ])
+    )
+    const data = res?.data as ShortFilmSummaryDto[] | undefined
+    if (!Array.isArray(data)) throw malformed()
+
+    return data.map(mapShortFilmSummary)
+  } catch (error) {
+    throw toShortFilmApiError(error)
+  }
+}
