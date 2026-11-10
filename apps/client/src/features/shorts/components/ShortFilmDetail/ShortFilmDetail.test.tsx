@@ -273,7 +273,20 @@ function headingTexts(): string[] {
     .map((node) => node.textContent ?? "")
 }
 
-const originalOpen = window.open
+/**
+ * `openExternal` opens through a synthetic `<a target="_blank">` click. These
+ * record those clicks (jsdom would otherwise try to follow the link).
+ */
+const openedLinks: Array<{ href: string; target: string; rel: string }> = []
+
+function expectOpenedInNewTab(url: string, label?: string) {
+  expect(openedLinks.at(-1), label).toEqual({
+    href: url,
+    target: "_blank",
+    rel: "noopener noreferrer",
+  })
+}
+
 /** Own properties defined directly on `navigator` for a test, to be removed. */
 const stubbedNavigatorProps: string[] = []
 
@@ -300,10 +313,16 @@ function stubReferrer(value: string) {
 }
 
 beforeEach(() => {
-  // Returns a truthy handle: a `null` return means "popup blocked", which the
-  // component answers by navigating the current tab — jsdom cannot do that and
-  // would fill the run with "Not implemented: navigation" noise.
-  window.open = vi.fn(() => ({}) as Window)
+  openedLinks.length = 0
+  vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(function (
+    this: HTMLAnchorElement
+  ) {
+    openedLinks.push({
+      href: this.href,
+      target: this.target,
+      rel: this.rel,
+    })
+  })
   // Pinned so the canonical share URL is asserted against a known origin
   // rather than whatever the ambient environment happens to carry.
   vi.stubEnv("NEXT_PUBLIC_SITE_URL", "https://tiween.tn")
@@ -324,7 +343,6 @@ beforeEach(() => {
 afterEach(() => {
   cleanup()
   resetRetryFocus()
-  window.open = originalOpen
   for (const key of stubbedNavigatorProps.splice(0)) {
     delete (navigator as unknown as Record<string, unknown>)[key]
   }
@@ -477,11 +495,7 @@ describe("ShortFilmDetail — absent data omits sections entirely", () => {
 
     expect(headingTexts()).not.toContain("Où regarder")
     fireEvent.click(screen.getByRole("button", { name: "Regarder le film" }))
-    expect(window.open).toHaveBeenCalledWith(
-      "https://trailer.example/communion",
-      "_blank",
-      "noopener,noreferrer"
-    )
+    expectOpenedInNewTab("https://trailer.example/communion")
     // The standalone trailer button would duplicate the CTA — it is dropped.
     expect(
       screen.queryByRole("button", { name: "Bande-annonce" })
@@ -531,13 +545,9 @@ describe("ShortFilmDetail — watch targets", () => {
       "Regarder le film",
       "Regarder le film maintenant",
     ]) {
-      vi.mocked(window.open).mockClear()
+      openedLinks.length = 0
       fireEvent.click(screen.getByRole("button", { name }))
-      expect(window.open, name).toHaveBeenCalledWith(
-        "https://youtube.example/communion",
-        "_blank",
-        "noopener,noreferrer"
-      )
+      expectOpenedInNewTab("https://youtube.example/communion")
     }
   })
 
@@ -545,11 +555,7 @@ describe("ShortFilmDetail — watch targets", () => {
     renderDetail(FULL_FILM)
 
     fireEvent.click(screen.getByRole("button", { name: "Bande-annonce" }))
-    expect(window.open).toHaveBeenCalledWith(
-      "https://trailer.example/communion",
-      "_blank",
-      "noopener,noreferrer"
-    )
+    expectOpenedInNewTab("https://trailer.example/communion")
   })
 
   it("skips a blank streaming URL rather than swallowing the trailer fallback", () => {
@@ -559,11 +565,7 @@ describe("ShortFilmDetail — watch targets", () => {
     })
 
     fireEvent.click(screen.getByRole("button", { name: "Regarder le film" }))
-    expect(window.open).toHaveBeenCalledWith(
-      "https://trailer.example/communion",
-      "_blank",
-      "noopener,noreferrer"
-    )
+    expectOpenedInNewTab("https://trailer.example/communion")
   })
 
   it("never opens or links a non-http(s) URL", () => {
@@ -577,7 +579,7 @@ describe("ShortFilmDetail — watch targets", () => {
     expect(
       screen.queryByRole("button", { name: "Regarder le film" })
     ).not.toBeInTheDocument()
-    expect(window.open).not.toHaveBeenCalled()
+    expect(openedLinks).toEqual([])
     // The row still lists the platform, but exposes no live control.
     expect(headingTexts()).toContain("Où regarder")
     expect(
